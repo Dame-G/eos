@@ -28,9 +28,14 @@ const vueTgz = tarballs.find((f) => f.includes("vue"));
 console.log(tarballs.join("\n"));
 
 step("lint the packages (publint, arethetypeswrong)");
-for (const tgz of [tokensTgz, vueTgz]) {
+const checks = [
+  [tokensTgz, "."],
+  [vueTgz, ". ./resolver ./icons ./icons/iconify"],
+];
+for (const [tgz, entrypoints] of checks) {
   run(`npx --yes publint "${join(packs, tgz)}" --strict`);
-  run(`npx --yes @arethetypeswrong/cli --pack "${join(packs, tgz)}" --profile esm-only`);
+  // CSS files are listed in exports but have no types, so only the JavaScript entry points are checked
+  run(`npx --yes @arethetypeswrong/cli --pack "${join(packs, tgz)}" --profile esm-only --entrypoints ${entrypoints}`);
 }
 
 step("create a fresh app");
@@ -77,7 +82,7 @@ writeFileSync(
         jsx: "preserve",
         skipLibCheck: false,
         noEmit: true,
-        types: ["vite/client"],
+        types: ["vite/client", "node"],
         lib: ["ES2023", "DOM"],
       },
       include: ["src/**/*", "env.d.ts"],
@@ -98,7 +103,7 @@ writeFileSync(
 import { ref } from "vue";
 import { EButton, ETextField, ESelect, ECheckbox, EDialog, ENotice, EIcon, ESurface, EActions, useToast, useLocale, defineTheme, iconNames } from "@eos-ui/vue";
 const email = ref("");
-const pick = ref<string | null>(null);
+const pick = ref<string>();
 const open = ref(false);
 const theme = defineTheme({ brand: "#2c95b4" });
 void [useToast, useLocale, theme, iconNames];
@@ -120,7 +125,7 @@ void [useToast, useLocale, theme, iconNames];
 );
 writeFileSync(
   join(app, "src/main.ts"),
-  'import { createApp } from "vue";\nimport { createEos } from "@eos-ui/vue";\nimport { lucide } from "@eos-ui/vue/icons";\nimport App from "./App.vue";\nvoid lucide;\ncreateApp(App).use(createEos({ theme: { brand: "#2c95b4" } })).mount("#app");\n',
+  'import { createApp } from "vue";\nimport { createEos } from "@eos-ui/vue";\nimport "@eos-ui/vue/style.css";\nimport { lucide } from "@eos-ui/vue/icons";\nimport App from "./App.vue";\nvoid lucide;\ncreateApp(App).use(createEos({ theme: { brand: "#2c95b4" } })).mount("#app");\n',
 );
 writeFileSync(
   join(app, "src/entry-server.ts"),

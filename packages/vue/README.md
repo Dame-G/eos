@@ -11,6 +11,7 @@ npm install @eos-ui/vue
 ```ts
 import { createApp } from "vue";
 import { createEos } from "@eos-ui/vue";
+import "@eos-ui/vue/style.css"; // once, in your entry file
 
 createApp(App)
   .use(
@@ -36,7 +37,7 @@ const email = ref("");
 </template>
 ```
 
-- Each component imports its own styles, so only what you use ships.
+- One stylesheet (about 17 kB gzipped), imported once. The JavaScript has no CSS imports, so server rendering needs no bundler setup.
 - Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights.
 - Words, locale, currency and icons are configuration, not code: see the plugin options.
 - Bring your own icons: Lucide, Tabler, Heroicons, Phosphor, Iconify, or your own set (`@eos-ui/vue/icons`).

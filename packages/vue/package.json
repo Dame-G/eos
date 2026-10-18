@@ -21,7 +21,6 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./base.css": "./dist/styles/base.css",
     "./fonts.css": "./dist/fonts.css",
     "./resolver": {
       "types": "./dist/resolver.d.ts",
@@ -35,7 +34,8 @@
       "types": "./dist/icons/iconify.d.ts",
       "default": "./dist/icons/iconify.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./style.css": "./dist/style.css"
   },
   "publishConfig": {
     "access": "public",

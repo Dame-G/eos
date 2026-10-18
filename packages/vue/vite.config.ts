@@ -1,24 +1,41 @@
 import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import dts from "vite-plugin-dts";
-import { libInjectCss } from "vite-plugin-lib-inject-css";
 import { playwright } from "@vitest/browser-playwright";
-import { copyFileSync, mkdirSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import layers from "./scripts/postcss-layers.ts";
 
 const src = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
+// Everything the package declares as a dependency or peer stays external: consumers install it once and share it.
+const pkg = JSON.parse(readFileSync(src("./package.json"), "utf8")) as {
+  dependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+};
+const external = [...Object.keys(pkg.dependencies ?? {}), ...Object.keys(pkg.peerDependencies ?? {})].map(
+  (name) => new RegExp(`^${name.replace(/[/@.-]/g, "\\$&")}(/|$)`),
+);
+
 export default defineConfig(({ command }) => ({
   plugins: [
     vue(),
-    ...(command === "build" ? [libInjectCss()] : []),
     ...(command === "build"
       ? [
           dts({
             tsconfigPath: "./tsconfig.build.json",
             entryRoot: "src",
             exclude: ["**/*.test.ts", "**/*.stories.ts", "test/**"],
+            // Native ESM consumers (moduleResolution node16 and nodenext) need explicit extensions in declaration files:
+            // "./EButton.vue" becomes "./EButton.vue.js" (which resolves to EButton.vue.d.ts) and "./x" becomes "./x.js".
+            beforeWriteFile(filePath, content) {
+              const fixed = content.replace(
+                /(\bfrom\s+|\bimport\(\s*|\bimport\s+)(["'])(\.{1,2}\/[^"']*)\2/g,
+                (match, lead: string, quote: string, spec: string) =>
+                  /\.(js|json|css)$/.test(spec) ? match : `${lead}${quote}${spec}.js${quote}`,
+              );
+              return { filePath, content: fixed };
+            },
           }),
         ]
       : []),
@@ -34,10 +51,13 @@ export default defineConfig(({ command }) => ({
   build: {
     target: "es2022",
     sourcemap: true,
-    cssCodeSplit: true,
+    // One stylesheet (dist/style.css) and no CSS imports in the JavaScript: the components then load in plain Node for
+    // server rendering without any bundler setup. The consumer imports "@eos-ui/vue/style.css" once.
+    cssCodeSplit: false,
     // Shipped unminified: a minifier may shorten the layer order statement, and the consumer's bundler minifies anyway.
     cssMinify: false,
     lib: {
+      cssFileName: "style",
       entry: {
         index: src("./src/index.ts"),
         resolver: src("./src/resolver.ts"),
@@ -47,7 +67,7 @@ export default defineConfig(({ command }) => ({
       formats: ["es"],
     },
     rollupOptions: {
-      external: ["vue", "@iconify/vue", /^@dame-g\//],
+      external,
       output: {
         preserveModules: true,
         preserveModulesRoot: "src",

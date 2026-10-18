@@ -18,6 +18,7 @@ npm install @eos-ui/vue
 ```ts
 import { createApp } from "vue";
 import { createEos } from "@eos-ui/vue";
+import "@eos-ui/vue/style.css"; // once, in your entry file
 
 createApp(App)
   .use(
@@ -43,7 +44,7 @@ const email = ref("");
 </template>
 ```
 
-Each component imports its own styles, so only what you use ships. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. For template auto-import, use the resolver:
+The stylesheet is one file (about 17 kB gzipped) and the JavaScript has no CSS imports, so server rendering works in plain Node without bundler setup. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. For template auto-import, use the resolver:
 
 ```ts
 import { EosResolver } from "@eos-ui/vue/resolver";

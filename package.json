@@ -17,7 +17,8 @@
     "format": "prettier --write .",
     "changeset": "changeset",
     "release": "pnpm build && changeset publish",
-    "tokens": "node packages/tokens/scripts/build.mjs"
+    "tokens": "node packages/tokens/scripts/build.mjs",
+    "smoke": "node scripts/smoke.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
