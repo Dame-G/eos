@@ -37,9 +37,17 @@ export default defineConfig(({ command }) => ({
     cssCodeSplit: true,
     // Shipped unminified: a minifier may shorten the layer order statement, and the consumer's bundler minifies anyway.
     cssMinify: false,
-    lib: { entry: { index: src("./src/index.ts"), resolver: src("./src/resolver.ts") }, formats: ["es"] },
+    lib: {
+      entry: {
+        index: src("./src/index.ts"),
+        resolver: src("./src/resolver.ts"),
+        "icons/index": src("./src/icons/index.ts"),
+        "icons/iconify": src("./src/icons/iconify.ts"),
+      },
+      formats: ["es"],
+    },
     rollupOptions: {
-      external: ["vue", /^@dame-g\//],
+      external: ["vue", "@iconify/vue", /^@dame-g\//],
       output: {
         preserveModules: true,
         preserveModulesRoot: "src",

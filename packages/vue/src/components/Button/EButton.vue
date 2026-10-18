@@ -146,6 +146,19 @@ defineSlots<{
     padding-top: 0;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .e-btn {
+      transition: none;
+    }
+  }
+
+  /* Not part of the page when printed. The reference uses !important; a later rule in the same layer wins without it. */
+  @media print {
+    .e-btn {
+      display: none;
+    }
+  }
+
   @media (forced-colors: active) {
     .e-btn {
       border: 2px solid ButtonText;

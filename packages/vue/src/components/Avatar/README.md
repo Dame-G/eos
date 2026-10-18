@@ -21,7 +21,7 @@ No slots. Native attributes land on the root `<span>`.
 ## Rules
 
 - The photo is cropped to a rounded tile and is always decorative beside the name, so it has no alt text of its own.
-- Show a photo only where the practice or the person chose to supply one.
+- Show a photo only where the organisation or the person chose to supply one.
 
 ## Accessibility
 

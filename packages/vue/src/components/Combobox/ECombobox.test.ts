@@ -480,7 +480,7 @@ describe("ECombobox", () => {
       props: {
         label: "City",
         options: [
-          { value: "1", label: "Lyon", group: "France", description: "East", icon: "star" },
+          { value: "1", label: "Lyon", group: "France", description: "East", icon: "info" },
           { value: "3", label: "Turin", group: "Italy" },
         ],
       },
