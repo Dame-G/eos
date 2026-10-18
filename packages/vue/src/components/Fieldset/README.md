@@ -1,12 +1,12 @@
-# AeFieldset
+# EFieldset
 
-Related controls in a bordered box. Use it, not a bare label, whenever two or more controls answer one question. `AeRadioGroup` is a `bare` fieldset; `AddressField` is a boxed one.
+Related controls in a bordered box. Use it, not a bare label, whenever two or more controls answer one question. `ERadioGroup` is a `bare` fieldset; `AddressField` is a boxed one.
 
 ```vue
-<AeFieldset legend="Home address" required hint="Where we send statements.">
-  <AeTextField label="Street" autocomplete="street-address" />
-  <AeTextField label="City" autocomplete="address-level2" />
-</AeFieldset>
+<EFieldset legend="Home address" required hint="Where we send statements.">
+  <ETextField label="Street" autocomplete="street-address" />
+  <ETextField label="City" autocomplete="address-level2" />
+</EFieldset>
 ```
 
 ## Props

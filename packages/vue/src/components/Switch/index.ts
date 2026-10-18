@@ -1,1 +1,1 @@
-export { default as AeSwitch } from "./AeSwitch.vue";
+export { default as ESwitch } from "./ESwitch.vue";

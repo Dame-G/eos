@@ -1,10 +1,10 @@
-# AeAvatar
+# EAvatar
 
 A person, as a photo or as their initials on a rounded tile (the same shape as the date on an appointment card).
 
 ```vue
-<AeAvatar name="Ada Lovelace" />
-<AeAvatar name="Ada Lovelace" src="/people/ada.jpg" large />
+<EAvatar name="Ada Lovelace" />
+<EAvatar name="Ada Lovelace" src="/people/ada.jpg" large />
 ```
 
 ## Props

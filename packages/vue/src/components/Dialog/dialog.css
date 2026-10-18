@@ -1,0 +1,21 @@
+/* The header, title and footer bar a Dialog and a Drawer share. */
+@layer e.containers {
+  .e-dialog-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--e-space-3);
+    padding: var(--e-space-4) var(--e-space-2) 0 var(--e-space-6);
+  }
+
+  .e-dialog-title {
+    margin: var(--e-space-2) 0 0;
+    font: 500 var(--e-text-2xl) / 1.25 var(--e-font-sans);
+    text-wrap: balance;
+  }
+
+  .e-dialog-foot {
+    gap: var(--e-space-3);
+    padding: var(--e-space-4) var(--e-space-6);
+  }
+}

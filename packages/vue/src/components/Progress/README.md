@@ -1,10 +1,10 @@
-# AeProgress
+# EProgress
 
 A progress bar for a known fraction. The track is outlined and the fill is `primary`, so the filled share reads without colour.
 
 ```vue
-<AeProgress label="Upload" :value="40" />
-<AeProgress label="Steps" :value="2" :max="4" value-text="2 of 4" />
+<EProgress label="Upload" :value="40" />
+<EProgress label="Steps" :value="2" :max="4" value-text="2 of 4" />
 ```
 
 ## Props

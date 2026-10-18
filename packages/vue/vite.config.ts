@@ -23,7 +23,7 @@ export default defineConfig(({ command }) => ({
         ]
       : []),
     {
-      name: "ae-copy-static-css",
+      name: "e-copy-static-css",
       closeBundle() {
         mkdirSync(src("./dist"), { recursive: true });
         copyFileSync(src("./src/styles/fonts.css"), src("./dist/fonts.css"));

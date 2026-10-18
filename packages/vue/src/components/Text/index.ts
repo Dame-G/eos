@@ -1,1 +1,1 @@
-export { default as AeText } from "./AeText.vue";
+export { default as EText } from "./EText.vue";

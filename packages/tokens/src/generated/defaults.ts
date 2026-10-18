@@ -15,11 +15,12 @@ export const defaults = {
   "surface": "#ffffff",
   "surface-tint": "#eaf4f8",
   "ink": "#000000",
+  "scrim": "rgb(11 40 52 / 0.55)",
   "muted": "#515151",
   "border": "#7f8f96",
   "border-strong": "#767676",
-  "focus-ring": "var(--ae-ink)",
-  "focus-field": "var(--ae-primary)",
+  "focus-ring": "var(--e-ink)",
+  "focus-field": "var(--e-primary)",
   "space-1": "4px",
   "space-2": "8px",
   "space-3": "12px",
@@ -54,7 +55,9 @@ export const defaults = {
   "easing-out": "cubic-bezier(0.2, 0.8, 0.2, 1)",
   "z-raised": "1",
   "z-sticky": "5",
-  "z-tooltip": "20",
+  "z-tooltip": "55",
+  "z-modal": "40",
+  "z-popover": "45",
   "z-toast": "50",
   "font-sans": "\"Jost\", Futura, \"Century Gothic\", \"Avenir Next\", system-ui, sans-serif",
   "font-mono": "\"Spline Sans Mono\", ui-monospace, Menlo, Consolas, monospace"
@@ -76,6 +79,7 @@ export const groups = {
     "surface",
     "surface-tint",
     "ink",
+    "scrim",
     "muted",
     "border",
     "border-strong",
@@ -134,6 +138,8 @@ export const groups = {
     "z-raised",
     "z-sticky",
     "z-tooltip",
+    "z-modal",
+    "z-popover",
     "z-toast"
   ],
   "font": [
@@ -157,6 +163,7 @@ export const usage: Record<string, string> = {
   "surface": "Page and card background. Every screen starts on white.",
   "surface-tint": "The page's second ground: wells, hovered rows, table headers, footers, empty slots and the information tone's tint. About 1.1:1 against white, so never a boundary on its own.",
   "ink": "Body copy, headings and icons on `surface`, `surface-tint`, `primary`, `secondary`, `danger` and the soft tints. Also the neutral chip colour.",
+  "scrim": "The dimmed backdrop behind a dialog or drawer.",
   "muted": "Secondary text, kickers and captions on `surface` (7.9:1) and `surface-tint` (7.1:1): AAA. Close to the grey of the logo's tagline.",
   "border": "Hairlines between rows, the outline of cards and popovers, and the underside of clickable rows. 3.4:1 on `surface` and 3.0:1 on `surface-tint`, so every edge is visible on white. Control edges use `border-strong`.",
   "border-strong": "Input, checkbox and other control borders on `surface` (4.5:1, above the 3:1 floor).",
@@ -196,8 +203,10 @@ export const usage: Record<string, string> = {
   "easing-out": "Fast start, soft landing. The only easing in the system.",
   "z-raised": "A part that must sit above its sibling inside one component.",
   "z-sticky": "Sticky table headers and columns.",
-  "z-tooltip": "Tooltip bubbles.",
-  "z-toast": "The toast region."
+  "z-tooltip": "Tooltip bubbles: above everything, including dialogs, popovers and toasts.",
+  "z-modal": "Dialogs and drawers with their scrim.",
+  "z-popover": "Popovers, menus and option lists. Above modals, so a Select inside a Dialog opens over it.",
+  "z-toast": "The toast region: above modals and popovers."
 };
 export type TokenName = keyof typeof defaults;
-export const colorNames: ReadonlySet<string> = new Set(["brand-blue","brand-green","primary","on-primary","secondary","on-secondary","secondary-soft","danger","on-danger","danger-soft","warning-strong","warning-soft","surface","surface-tint","ink","muted","border","border-strong","focus-ring","focus-field"]);
+export const colorNames: ReadonlySet<string> = new Set(["brand-blue","brand-green","primary","on-primary","secondary","on-secondary","secondary-soft","danger","on-danger","danger-soft","warning-strong","warning-soft","surface","surface-tint","ink","scrim","muted","border","border-strong","focus-ring","focus-field"]);

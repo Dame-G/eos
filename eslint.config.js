@@ -19,11 +19,11 @@ export default tseslint.config(
   },
   {
     rules: {
-      // Components are named AeThing, which is multi-word; folders and tests are not components.
+      // Components are named EThing, which is multi-word; folders and tests are not components.
       "vue/multi-word-component-names": "off",
       "vue/block-order": ["error", { order: ["script", "template", "style"] }],
       "vue/define-macros-order": ["error", { order: ["defineOptions", "defineProps", "defineEmits", "defineSlots"] }],
-      "vue/no-v-html": "off", // the icon set is our own markup; see AeIcon
+      "vue/no-v-html": "off", // the icon set is our own markup; see EIcon
       "vue/require-default-prop": "off",
       // Formatting is Prettier's job.
       "vue/html-self-closing": "off",

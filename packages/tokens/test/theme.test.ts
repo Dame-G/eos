@@ -7,8 +7,8 @@ describe("the default theme", () => {
   });
   test("emits the layer order and every token", () => {
     const css = defineTheme({ name: "light" }).css({ header: true });
-    expect(css).toMatch(/@layer ae.reset, ae.tokens/);
-    for (const k of Object.keys(defaults)) expect(css).toContain(`--ae-${k}:`);
+    expect(css).toMatch(/@layer e.reset, e.tokens/);
+    for (const k of Object.keys(defaults)) expect(css).toContain(`--e-${k}:`);
   });
   test("white on primary is AAA", () => {
     expect(contrast(defaults["primary"], defaults["on-primary"])).toBeGreaterThanOrEqual(7);
@@ -37,11 +37,11 @@ describe("defineTheme", () => {
     expect(t.tokens["font-sans"]).toBe("Inter, sans-serif");
   });
   test("scopes to a selector", () => {
-    expect(defineTheme({ name: "clinic" }).css({ selector: '[data-ae-theme="clinic"]' })).toContain(
-      '[data-ae-theme="clinic"] {',
+    expect(defineTheme({ name: "clinic" }).css({ selector: '[data-e-theme="clinic"]' })).toContain(
+      '[data-e-theme="clinic"] {',
     );
   });
   test("follows references when checking", () => {
-    expect(checkContrast({ ...defaults, "focus-ring": "var(--ae-ink)" })).toEqual([]);
+    expect(checkContrast({ ...defaults, "focus-ring": "var(--e-ink)" })).toEqual([]);
   });
 });

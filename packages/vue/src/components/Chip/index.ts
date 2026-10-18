@@ -1,2 +1,2 @@
-export { default as AeChip } from "./AeChip.vue";
-export type { ChipTone } from "./AeChip.vue";
+export { default as EChip } from "./EChip.vue";
+export type { ChipTone } from "./EChip.vue";

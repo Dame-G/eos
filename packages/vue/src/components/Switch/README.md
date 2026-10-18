@@ -1,9 +1,9 @@
-# AeSwitch
+# ESwitch
 
-A pill switch for a setting that takes effect the moment it is flipped. A choice submitted later with a form is an `AeCheckbox`.
+A pill switch for a setting that takes effect the moment it is flipped. A choice submitted later with a form is an `ECheckbox`.
 
 ```vue
-<AeSwitch v-model="reminders" label="Text reminders" description="The day before a visit." />
+<ESwitch v-model="reminders" label="Text reminders" description="The day before a visit." />
 ```
 
 ## Props

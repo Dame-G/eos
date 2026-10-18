@@ -1,11 +1,11 @@
-# AeSkeleton
+# ESkeleton
 
 A single placeholder block shown while content loads. Make it the size of what is coming: a statement card is about 220px tall, one line of text about 20px.
 
 ```vue
-<AeSkeleton :height="220" />
-<AeSkeleton :height="20" :width="160" />
-<AeSkeleton circle :height="56" />
+<ESkeleton :height="220" />
+<ESkeleton :height="20" :width="160" />
+<ESkeleton circle :height="56" />
 ```
 
 ## Props

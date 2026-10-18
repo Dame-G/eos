@@ -17,10 +17,10 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm --filter @eos-ui/vue exec playwright install --with-deps chromium
       - run: pnpm lint
       - run: pnpm build
       - run: pnpm typecheck
-      - run: pnpm --filter @aegis/vue check:css
-      - run: pnpm --filter @aegis/vue check:layers
+      - run: pnpm --filter @eos-ui/vue check:css
+      - run: pnpm --filter @eos-ui/vue check:layers
       - run: pnpm test

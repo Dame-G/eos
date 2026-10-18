@@ -1,10 +1,10 @@
-# AeSegmented
+# ESegmented
 
 A joined set of two to five options where exactly one is active. Use it to switch how a list is filtered or shown; use Tabs to switch between different content. It is a radio group underneath, so arrow keys work.
 
 ```vue
-<AeSegmented v-model="range" label="Show" :options="['Day', 'Week', 'Month']" />
-<AeSegmented
+<ESegmented v-model="range" label="Show" :options="['Day', 'Week', 'Month']" />
+<ESegmented
   v-model="view"
   label="View"
   :options="[
@@ -33,5 +33,5 @@ A joined set of two to five options where exactly one is active. Use it to switc
 
 - The active option is filled with `primary` and bold, with white text. Forced colours use `Highlight`.
 - The control is 48px tall and as wide as its content (`fit-content`, capped at the container).
-- With a hint or error the control sits in `.ae-seg-field` with the message 8px under it.
+- With a hint or error the control sits in `.e-seg-field` with the message 8px under it.
 - Export: `SegmentedOption` type.

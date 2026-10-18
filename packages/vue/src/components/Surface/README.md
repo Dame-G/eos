@@ -1,12 +1,12 @@
-# AeSurface
+# ESurface
 
 The flat, outlined card that every content block is made of: StatementCard, AppointmentCard, Panel, the totals box and Toast all render a Surface.
 
 ```vue
-<AeSurface as="article" pad="md">
+<ESurface as="article" pad="md">
   <h2>October statement</h2>
-  <template #actions><AeButton>Pay</AeButton></template>
-</AeSurface>
+  <template #actions><EButton>Pay</EButton></template>
+</ESurface>
 ```
 
 ## Props
@@ -22,12 +22,12 @@ The flat, outlined card that every content block is made of: StatementCard, Appo
 
 ## Slots
 
-| Slot      | Use                                                                     |
-| --------- | ----------------------------------------------------------------------- |
-| `default` | The content.                                                            |
-| `actions` | Buttons for a bar at the foot of the card, edge to edge. See AeActions. |
+| Slot      | Use                                                                    |
+| --------- | ---------------------------------------------------------------------- |
+| `default` | The content.                                                           |
+| `actions` | Buttons for a bar at the foot of the card, edge to edge. See EActions. |
 
-With the `actions` slot the Surface renders `.ae-surface--actions`: a column with an `.ae-surface-body` (which takes the remaining height and carries `pad`) followed by the bar. In a Grid, cards in a row end level and each bar sits at the foot. The bar is a `footer` when `as` is `article`, `section` or `aside`, and a `div` otherwise.
+With the `actions` slot the Surface renders `.e-surface--actions`: a column with an `.e-surface-body` (which takes the remaining height and carries `pad`) followed by the bar. In a Grid, cards in a row end level and each bar sits at the foot. The bar is a `footer` when `as` is `article`, `section` or `aside`, and a `div` otherwise.
 
 ## Rules
 

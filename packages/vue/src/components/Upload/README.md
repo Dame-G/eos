@@ -1,10 +1,10 @@
-# AeUpload
+# EUpload
 
 A dropzone for attaching files. The whole area is the click target and a drop target; chosen files list below with their size. Say what is accepted and how large before the person tries.
 
 ```vue
-<AeUpload v-model="files" label="Insurance card" accept=".pdf,.jpg,.png" multiple hint="Up to 5 MB each." />
-<AeUpload label="Referral" @files="upload" />
+<EUpload v-model="files" label="Insurance card" accept=".pdf,.jpg,.png" multiple hint="Up to 5 MB each." />
+<EUpload label="Referral" @files="upload" />
 ```
 
 ## Props

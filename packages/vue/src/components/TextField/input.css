@@ -1,154 +1,154 @@
-@layer ae.controls {
-  .ae-input {
+@layer e.controls {
+  .e-input {
     width: 100%;
     min-width: 0;
-    height: var(--ae-control-height);
-    padding: 0 var(--ae-space-4);
-    border: var(--ae-stroke-edge) solid var(--ae-border-strong);
-    border-radius: var(--ae-radius-md);
-    background-color: var(--ae-surface);
-    box-shadow: var(--ae-well);
-    color: var(--ae-ink);
-    font: 400 var(--ae-text-md)/1 var(--ae-font-sans);
+    height: var(--e-control-height);
+    padding: 0 var(--e-space-4);
+    border: var(--e-stroke-edge) solid var(--e-border-strong);
+    border-radius: var(--e-radius-md);
+    background-color: var(--e-surface);
+    box-shadow: var(--e-well);
+    color: var(--e-ink);
+    font: 400 var(--e-text-md)/1 var(--e-font-sans);
     transition:
-      border-color var(--ae-duration-tap) var(--ae-easing-out),
-      background-color var(--ae-duration-tap) var(--ae-easing-out);
+      border-color var(--e-duration-tap) var(--e-easing-out),
+      background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  .ae-input::placeholder {
-    color: var(--ae-muted);
+  .e-input::placeholder {
+    color: var(--e-muted);
   }
 
-  .ae-input:hover {
-    border-color: var(--ae-ink);
-    background-color: var(--ae-surface-tint);
+  .e-input:hover {
+    border-color: var(--e-ink);
+    background-color: var(--e-surface-tint);
   }
 
-  .ae-input:focus {
-    border-color: var(--ae-focus-field);
-    background-color: var(--ae-surface);
+  .e-input:focus {
+    border-color: var(--e-focus-field);
+    background-color: var(--e-surface);
   }
 
-  .ae-input:focus-visible {
-    outline-color: var(--ae-focus-field);
-    outline-offset: var(--ae-focus-gap-field);
+  .e-input:focus-visible {
+    outline-color: var(--e-focus-field);
+    outline-offset: var(--e-focus-gap-field);
   }
 
-  .ae-input[aria-invalid="true"] {
-    border-color: var(--ae-danger);
-    background-color: var(--ae-surface);
+  .e-input[aria-invalid="true"] {
+    border-color: var(--e-danger);
+    background-color: var(--e-surface);
     box-shadow:
-      var(--ae-well),
-      inset 0 0 0 1px var(--ae-danger);
+      var(--e-well),
+      inset 0 0 0 1px var(--e-danger);
   }
 
-  .ae-input[aria-invalid="true"]:focus-visible {
-    outline-color: var(--ae-danger);
+  .e-input[aria-invalid="true"]:focus-visible {
+    outline-color: var(--e-danger);
   }
 
-  .ae-input:disabled {
+  .e-input:disabled {
     cursor: not-allowed;
     border-style: dashed;
-    background-color: var(--ae-surface-tint);
+    background-color: var(--e-surface-tint);
     box-shadow: none;
-    color: var(--ae-muted);
+    color: var(--e-muted);
   }
 
-  .ae-input:read-only:not(:disabled) {
-    background-color: var(--ae-surface-tint);
+  .e-input:read-only:not(:disabled) {
+    background-color: var(--e-surface-tint);
   }
 
-  .ae-input-wrap {
+  .e-input-wrap {
     display: flex;
     align-items: stretch;
     min-width: 0;
-    min-height: var(--ae-control-height);
-    border: var(--ae-stroke-edge) solid var(--ae-border-strong);
-    border-radius: var(--ae-radius-md);
-    background: var(--ae-surface);
-    box-shadow: var(--ae-well);
+    min-height: var(--e-control-height);
+    border: var(--e-stroke-edge) solid var(--e-border-strong);
+    border-radius: var(--e-radius-md);
+    background: var(--e-surface);
+    box-shadow: var(--e-well);
     transition:
-      border-color var(--ae-duration-tap) var(--ae-easing-out),
-      background-color var(--ae-duration-tap) var(--ae-easing-out);
+      border-color var(--e-duration-tap) var(--e-easing-out),
+      background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  .ae-input-wrap:hover {
-    border-color: var(--ae-ink);
-    background: var(--ae-surface-tint);
+  .e-input-wrap:hover {
+    border-color: var(--e-ink);
+    background: var(--e-surface-tint);
   }
 
-  .ae-input-wrap:focus-within {
-    border-color: var(--ae-focus-field);
-    background: var(--ae-surface);
-    outline: var(--ae-stroke-focus) solid var(--ae-focus-field);
-    outline-offset: var(--ae-focus-gap-field);
+  .e-input-wrap:focus-within {
+    border-color: var(--e-focus-field);
+    background: var(--e-surface);
+    outline: var(--e-stroke-focus) solid var(--e-focus-field);
+    outline-offset: var(--e-focus-gap-field);
   }
 
-  .ae-input-wrap[data-invalid] {
-    border-color: var(--ae-danger);
+  .e-input-wrap[data-invalid] {
+    border-color: var(--e-danger);
     box-shadow:
-      var(--ae-well),
-      inset 0 0 0 1px var(--ae-danger);
-    background: var(--ae-surface);
+      var(--e-well),
+      inset 0 0 0 1px var(--e-danger);
+    background: var(--e-surface);
   }
 
-  .ae-input-wrap[data-invalid]:focus-within {
-    border-color: var(--ae-danger);
-    outline-color: var(--ae-danger);
+  .e-input-wrap[data-invalid]:focus-within {
+    border-color: var(--e-danger);
+    outline-color: var(--e-danger);
   }
 
-  .ae-input-wrap[data-disabled] {
+  .e-input-wrap[data-disabled] {
     border-style: dashed;
-    background: var(--ae-surface-tint);
+    background: var(--e-surface-tint);
     box-shadow: none;
-    color: var(--ae-muted);
+    color: var(--e-muted);
   }
 
-  .ae-input-wrap .ae-input {
+  .e-input-wrap .e-input {
     flex: 1;
     border: 0;
     background: transparent;
     box-shadow: none;
     height: auto;
     align-self: stretch;
-    border-radius: var(--ae-radius-md);
+    border-radius: var(--e-radius-md);
   }
 
-  .ae-input-wrap .ae-input:hover,
-  .ae-input-wrap .ae-input:focus {
+  .e-input-wrap .e-input:hover,
+  .e-input-wrap .e-input:focus {
     background: transparent;
   }
 
-  .ae-input-wrap .ae-input:focus-visible {
+  .e-input-wrap .e-input:focus-visible {
     outline: none;
   }
 
-  .ae-affix {
+  .e-affix {
     display: inline-flex;
     align-items: center;
     flex: none;
-    padding: 0 var(--ae-space-3);
-    color: var(--ae-muted);
-    font: 500 var(--ae-text-sm)/1 var(--ae-font-mono);
+    padding: 0 var(--e-space-3);
+    color: var(--e-muted);
+    font: 500 var(--e-text-sm)/1 var(--e-font-mono);
     font-variant-numeric: tabular-nums;
   }
 
-  .ae-affix--pre {
+  .e-affix--pre {
     padding-inline-end: 0;
   }
 
-  .ae-affix--post {
+  .e-affix--post {
     padding-inline-start: 0;
   }
 
-  .ae-input[type="password"] {
+  .e-input[type="password"] {
     font-family: system-ui, sans-serif;
-    font-size: calc(var(--ae-text-xl) * 1.4);
+    font-size: calc(var(--e-text-xl) * 1.4);
     letter-spacing: 0.04em;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ae-input {
+    .e-input {
       transition: none;
     }
   }

@@ -1,7 +1,7 @@
 {
-  "name": "@aegis/vue",
+  "name": "@eos-ui/vue",
   "version": "0.0.0",
-  "description": "Aegis: accessible Vue 3 components for the Aegis portal.",
+  "description": "Eos: accessible Vue 3 components for the Eos portal.",
   "type": "module",
   "license": "MIT",
   "sideEffects": [
@@ -33,7 +33,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Dame-G/aegis.git",
+    "url": "git+https://github.com/Dame-G/eos.git",
     "directory": "packages/vue"
   },
   "scripts": {
@@ -49,7 +49,7 @@
     "vue": "^3.5.0"
   },
   "dependencies": {
-    "@aegis/tokens": "workspace:*",
+    "@eos-ui/tokens": "workspace:*",
     "@tanstack/vue-table": "^9.3.1",
     "@tanstack/vue-virtual": "^3.13.47",
     "@vueuse/core": "^15.0.0",
@@ -71,9 +71,9 @@
     "vue": "^3.5.0",
     "vue-tsc": "^3.3.13"
   },
-  "homepage": "https://aegis.dame.gg",
+  "homepage": "https://eos.dame.gg",
   "bugs": {
-    "url": "https://github.com/Dame-G/aegis/issues"
+    "url": "https://github.com/Dame-G/eos/issues"
   },
   "keywords": [
     "vue",

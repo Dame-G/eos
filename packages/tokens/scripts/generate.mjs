@@ -22,7 +22,7 @@ flat["font-mono"] = src.type.families.mono;
 const colors = new Set(src.color.tokens.map((t) => t.name));
 for (const [k, v] of Object.entries(flat)) {
   const m = /^\{([a-z-]+)\}$/.exec(v);
-  if (m) flat[k] = `var(--ae-${m[1]})`;
+  if (m) flat[k] = `var(--e-${m[1]})`;
 }
 
 const groups = {

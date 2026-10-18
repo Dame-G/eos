@@ -1,9 +1,9 @@
-# AeChip
+# EChip
 
 A pill label. Its backdrop is the soft tint of its tone and its text is the `-strong` shade, so it reads at 7:1.
 
 ```vue
-<AeChip tone="success">Paid</AeChip>
+<EChip tone="success">Paid</EChip>
 ```
 
 ## Props

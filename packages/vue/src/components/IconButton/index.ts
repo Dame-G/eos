@@ -1,1 +1,1 @@
-export { default as AeIconButton } from "./AeIconButton.vue";
+export { default as EIconButton } from "./EIconButton.vue";

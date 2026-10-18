@@ -1,10 +1,10 @@
-# AeTextField
+# ETextField
 
-A labelled text input, pressed into the page like a well. Built on `AeField`.
+A labelled text input, pressed into the page like a well. Built on `EField`.
 
 ```vue
-<AeTextField v-model="email" label="Email" type="email" required autocomplete="email" hint="We send receipts here." />
-<AeTextField v-model="amount" label="Payment amount" prefix="$" suffix="USD" inputmode="decimal" />
+<ETextField v-model="email" label="Email" type="email" required autocomplete="email" hint="We send receipts here." />
+<ETextField v-model="amount" label="Payment amount" prefix="$" suffix="USD" inputmode="decimal" />
 ```
 
 ## Props
@@ -27,7 +27,7 @@ A labelled text input, pressed into the page like a well. Built on `AeField`.
 
 ## Attributes and listeners
 
-`inheritAttrs` is off. `class` and `style` stay on the wrapper (`div.ae-field`); everything else lands on the `<input>`: `name`, `autocomplete`, `autocapitalize`, `maxlength`, `minlength`, `pattern`, `inputmode`, `enterkeyhint`, `spellcheck`, `readonly`, `aria-*`, `data-*`, and listeners such as `@blur`, `@focus` and `@keydown`. An `aria-describedby` of your own is joined to the hint or error id.
+`inheritAttrs` is off. `class` and `style` stay on the wrapper (`div.e-field`); everything else lands on the `<input>`: `name`, `autocomplete`, `autocapitalize`, `maxlength`, `minlength`, `pattern`, `inputmode`, `enterkeyhint`, `spellcheck`, `readonly`, `aria-*`, `data-*`, and listeners such as `@blur`, `@focus` and `@keydown`. An `aria-describedby` of your own is joined to the hint or error id.
 
 Exposed: `input` (the element) and `focus()`.
 

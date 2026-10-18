@@ -1,1 +1,1 @@
-export { default as AeVisuallyHidden } from "./AeVisuallyHidden.vue";
+export { default as EVisuallyHidden } from "./EVisuallyHidden.vue";

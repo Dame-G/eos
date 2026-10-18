@@ -1,10 +1,10 @@
-// Compares the library's CSS with the original React design system's bundle.css, kept in the private aegis-site repo
-// (../aegis-site/reference/react/components/bundle.css, or set AEGIS_REFERENCE to the file). A development tool only,
+// Compares the library's CSS with the original React design system's bundle.css, kept in the private eos-site repo
+// (../eos-site/reference/react/components/bundle.css, or set EOS_REFERENCE to the file). A development tool only,
 // so nothing is lost or silently changed in the port. Formatting and layer wrapping do not count; a missing rule,
 // a missing declaration or a changed value does.
 //
 //   node scripts/css-parity.mjs                 whole report (exit 1 if anything is missing)
-//   node scripts/css-parity.mjs --grep ae-btn   only rules whose selector contains the text
+//   node scripts/css-parity.mjs --grep e-btn   only rules whose selector contains the text
 //   node scripts/css-parity.mjs --extra         also list rules the library has that the reference does not
 //
 // Deliberate differences are recorded in parity-allow.json: { "<context> | <selector>": "reason" }.
@@ -17,12 +17,12 @@ const grep = args.includes("--grep") ? args[args.indexOf("--grep") + 1] : null;
 const showExtra = args.includes("--extra");
 
 const refPath =
-  process.env.AEGIS_REFERENCE ??
-  join(pkgRoot, "..", "..", "..", "aegis-site", "reference", "react", "components", "bundle.css");
+  process.env.EOS_REFERENCE ??
+  join(pkgRoot, "..", "..", "..", "eos-site", "reference", "react", "components", "bundle.css");
 const reference = flatten(readFileSync(refPath, "utf8"), "reference");
 const ours = new Map();
-// The library renamed op- to ae- (classes) and --x to --ae-x (custom properties); compare in the reference's names.
-const back = (css) => css.replace(/(?<![A-Za-z0-9_-])ae-(?=[a-z])/g, "op-").replace(/--ae-/g, "--");
+// The library renamed op- to e- (classes) and --x to --e-x (custom properties); compare in the reference's names.
+const back = (css) => css.replace(/(?<![A-Za-z0-9_-])e-(?=[a-z])/g, "op-").replace(/--e-/g, "--");
 for (const { file, css: raw } of sourceStyles()) {
   const css = back(raw);
   // tokens.css is generated from tokens.json; the reference had it in a separate file

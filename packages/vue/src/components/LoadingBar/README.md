@@ -1,9 +1,9 @@
-# AeLoadingBar
+# ELoadingBar
 
 A thin bar that slides across its track while something of unknown length loads. It fills the width of its container, so put it at the top of a Panel, above the list it is loading, or under a heading.
 
 ```vue
-<AeLoadingBar label="Loading statements" />
+<ELoadingBar label="Loading statements" />
 ```
 
 ## Props

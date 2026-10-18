@@ -1,9 +1,9 @@
-# AeRadioGroup
+# ERadioGroup
 
-Exactly one of five or fewer options. It is a bare `AeFieldset`: the legend, hint and error are announced with the group. Arrow keys move between options (native radios sharing one `name`).
+Exactly one of five or fewer options. It is a bare `EFieldset`: the legend, hint and error are announced with the group. Arrow keys move between options (native radios sharing one `name`).
 
 ```vue
-<AeRadioGroup
+<ERadioGroup
   v-model="amount"
   label="How much would you like to pay?"
   :options="[
@@ -12,9 +12,9 @@ Exactly one of five or fewer options. It is a bare `AeFieldset`: the legend, hin
   ]"
 >
   <template #reveal="{ option }">
-    <AeTextField v-if="option.value === 'part'" v-model="other" label="Amount" prefix="$" hide-label />
+    <ETextField v-if="option.value === 'part'" v-model="other" label="Amount" prefix="$" hide-label />
   </template>
-</AeRadioGroup>
+</ERadioGroup>
 ```
 
 ## Props
@@ -39,7 +39,7 @@ Other attributes and listeners (`class`, `style`, `@change`, `data-*`) land on t
 | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `reveal` | `{ option }` | A control shown under its option while that option is chosen. It is called for the chosen option only; render nothing for an option that has none and the option stays closed. |
 
-The slot replaces the reference's per-option `reveal` node. The chosen option gets `.ae-choice--open` and the content sits in `.ae-choice-reveal`, which spans the full width of the group, 4px under the option.
+The slot replaces the reference's per-option `reveal` node. The chosen option gets `.e-choice--open` and the content sits in `.e-choice-reveal`, which spans the full width of the group, 4px under the option.
 
 ## Rules
 

@@ -1,9 +1,9 @@
-# AeVisuallyHidden
+# EVisuallyHidden
 
 Text that is read out but not shown, for the context a sighted person gets from layout: "receipt 8842" after a Download button, "(done)" after a completed step.
 
 ```vue
-<AeButton icon="download">Download <AeVisuallyHidden>receipt 8842</AeVisuallyHidden></AeButton>
+<EButton icon="download">Download <EVisuallyHidden>receipt 8842</EVisuallyHidden></EButton>
 ```
 
 ## Props
@@ -18,7 +18,7 @@ Text that is read out but not shown, for the context a sighted person gets from 
 | --------- | ------------------------------------- |
 | `default` | The text that is read out, not shown. |
 
-Native attributes land on the rendered element. The styles are the shared `.ae-sr` class in `styles/base.css`, so the component has no CSS of its own.
+Native attributes land on the rendered element. The styles are the shared `.e-sr` class in `styles/base.css`, so the component has no CSS of its own.
 
 ## Rules
 

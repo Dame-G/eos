@@ -3,7 +3,7 @@ export default {
   extends: ["stylelint-config-standard", "stylelint-config-html"],
   ignoreFiles: ["**/dist/**", "reference/**", "**/node_modules/**"],
   rules: {
-    // Class names are the public contract and follow the reference: ae-block, ae-block-part, ae-block--modifier.
+    // Class names are the public contract and follow the reference: e-block, e-block-part, e-block--modifier.
     "selector-class-pattern": null,
     "custom-property-pattern": null,
     "keyframes-name-pattern": null,

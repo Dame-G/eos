@@ -1,64 +1,64 @@
-@layer ae.controls {
-  .ae-choice {
+@layer e.controls {
+  .e-choice {
     position: relative;
     display: flex;
     align-items: flex-start;
-    gap: var(--ae-space-3);
-    min-height: var(--ae-control-height);
+    gap: var(--e-space-3);
+    min-height: var(--e-control-height);
     padding: 10px 0;
     cursor: pointer;
   }
 
-  .ae-choice--disabled {
+  .e-choice--disabled {
     cursor: not-allowed;
-    color: var(--ae-muted);
+    color: var(--e-muted);
   }
 
-  .ae-choice-text {
+  .e-choice-text {
     display: grid;
     gap: 2px;
     min-width: 0;
-    font: 400 var(--ae-text-md)/24px var(--ae-font-sans);
+    font: 400 var(--e-text-md)/24px var(--e-font-sans);
   }
 
-  .ae-choice-desc {
-    font: 400 var(--ae-text-sm)/1.4 var(--ae-font-sans);
-    color: var(--ae-muted);
+  .e-choice-desc {
+    font: 400 var(--e-text-sm)/1.4 var(--e-font-sans);
+    color: var(--e-muted);
   }
 
-  .ae-check,
-  .ae-radio {
+  .e-check,
+  .e-radio {
     appearance: none;
     flex: none;
     width: 24px;
     height: 24px;
     margin: 0;
-    border: var(--ae-stroke-edge) solid var(--ae-border-strong);
-    background: var(--ae-surface);
-    box-shadow: var(--ae-well);
+    border: var(--e-stroke-edge) solid var(--e-border-strong);
+    background: var(--e-surface);
+    box-shadow: var(--e-well);
     cursor: inherit;
     transition:
-      border-color var(--ae-duration-tap) var(--ae-easing-out),
-      background-color var(--ae-duration-tap) var(--ae-easing-out);
+      border-color var(--e-duration-tap) var(--e-easing-out),
+      background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  .ae-check {
-    border-radius: var(--ae-radius-sm);
+  .e-check {
+    border-radius: var(--e-radius-sm);
   }
 
-  .ae-radio {
+  .e-radio {
     border-radius: 50%;
   }
 
-  .ae-check:hover,
-  .ae-radio:hover {
-    border-color: var(--ae-ink);
-    background-color: var(--ae-surface-tint);
+  .e-check:hover,
+  .e-radio:hover {
+    border-color: var(--e-ink);
+    background-color: var(--e-surface-tint);
   }
 
-  .ae-check:checked {
-    border-color: var(--ae-primary);
-    background-color: var(--ae-primary);
+  .e-check:checked {
+    border-color: var(--e-primary);
+    background-color: var(--e-primary);
     box-shadow: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%23fff' d='M232.49,80.49l-128,128a12,12,0,0,1-17,0l-56-56a12,12,0,1,1,17-17L96,183,215.51,63.51a12,12,0,0,1,17,17Z'/%3E%3C/svg%3E");
     background-size: 16px;
@@ -66,49 +66,49 @@
     background-repeat: no-repeat;
   }
 
-  .ae-radio:checked {
-    border-color: var(--ae-primary);
-    background-color: var(--ae-primary);
+  .e-radio:checked {
+    border-color: var(--e-primary);
+    background-color: var(--e-primary);
     box-shadow: none;
-    background-image: radial-gradient(circle, var(--ae-on-primary) 0 4px, transparent 5px);
+    background-image: radial-gradient(circle, var(--e-on-primary) 0 4px, transparent 5px);
   }
 
-  .ae-check:checked:hover,
-  .ae-radio:checked:hover {
-    background-color: color-mix(in srgb, var(--ae-primary) 84%, #000);
+  .e-check:checked:hover,
+  .e-radio:checked:hover {
+    background-color: color-mix(in srgb, var(--e-primary) 84%, #000);
   }
 
-  .ae-check:focus-visible,
-  .ae-radio:focus-visible,
-  .ae-switch-input:focus-visible + .ae-switch-track {
-    outline: var(--ae-stroke-focus) solid var(--ae-focus-ring);
-    outline-offset: var(--ae-focus-gap);
+  .e-check:focus-visible,
+  .e-radio:focus-visible,
+  .e-switch-input:focus-visible + .e-switch-track {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: var(--e-focus-gap);
   }
 
-  .ae-check:disabled,
-  .ae-radio:disabled {
+  .e-check:disabled,
+  .e-radio:disabled {
     border-style: dashed;
-    background-color: var(--ae-surface-tint);
+    background-color: var(--e-surface-tint);
     box-shadow: none;
   }
 
-  .ae-check:checked:disabled,
-  .ae-radio:checked:disabled {
+  .e-check:checked:disabled,
+  .e-radio:checked:disabled {
     border-style: solid;
-    background-color: var(--ae-surface-tint);
-    border-color: var(--ae-border-strong);
+    background-color: var(--e-surface-tint);
+    border-color: var(--e-border-strong);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ae-check,
-    .ae-radio {
+    .e-check,
+    .e-radio {
       transition: none;
     }
   }
 
   @media (forced-colors: active) {
-    .ae-check:checked,
-    .ae-radio:checked {
+    .e-check:checked,
+    .e-radio:checked {
       forced-color-adjust: none;
       background-color: Highlight;
       border-color: Highlight;

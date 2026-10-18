@@ -1,9 +1,9 @@
-# AeTextarea
+# ETextarea
 
-A multi-line text well, 6.5rem tall at rest, resizable vertically. Built on `AeField`; it takes `AeTextField`'s props, attributes and listeners.
+A multi-line text well, 6.5rem tall at rest, resizable vertically. Built on `EField`; it takes `ETextField`'s props, attributes and listeners.
 
 ```vue
-<AeTextarea v-model="note" label="Note to the practice" :rows="5" optional />
+<ETextarea v-model="note" label="Note to the practice" :rows="5" optional />
 ```
 
 ## Props
@@ -26,5 +26,5 @@ A multi-line text well, 6.5rem tall at rest, resizable vertically. Built on `AeF
 
 ## Rules
 
-- The label, hint and error wiring is `AeField`'s: the hint sits 8px under the well.
+- The label, hint and error wiring is `EField`'s: the hint sits 8px under the well.
 - Resizes vertically only.

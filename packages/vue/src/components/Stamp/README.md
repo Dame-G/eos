@@ -1,10 +1,10 @@
-# AeStamp
+# EStamp
 
 A flat, outlined mark with a glyph that says where something stands.
 
 ```vue
-<AeStamp status="overdue" detail="12 days" />
-<AeStamp tone="warning" label="Review" icon="pin" small />
+<EStamp status="overdue" detail="12 days" />
+<EStamp tone="warning" label="Review" icon="pin" small />
 ```
 
 ## Props
@@ -31,7 +31,7 @@ A flat, outlined mark with a glyph that says where something stands.
 | `pending`   | info    | `clock`    |
 | `complete`  | success | `check`    |
 
-No slots. Native attributes land on the root `<div>`. The words are the messages `status.paid`, `status.due` and so on; override them with `createAegis({ messages })`.
+No slots. Native attributes land on the root `<div>`. The words are the messages `status.paid`, `status.due` and so on; override them with `createEos({ messages })`.
 
 ## Rules
 

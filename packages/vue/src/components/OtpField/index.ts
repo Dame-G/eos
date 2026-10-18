@@ -1,1 +1,1 @@
-export { default as AeOtpField } from "./AeOtpField.vue";
+export { default as EOtpField } from "./EOtpField.vue";
