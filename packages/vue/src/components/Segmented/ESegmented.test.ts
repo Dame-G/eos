@@ -144,4 +144,19 @@ describe("ESegmented", () => {
     );
     await expectNoViolations(container);
   });
+
+  test("a selected option that is disabled stays readable: ink on the tint, not muted on the fill", async () => {
+    const { container } = await render(ESegmented, {
+      props: { label: "Currency", options: ["USD", "CAD"], modelValue: "USD", disabled: true },
+    });
+    const text = container.querySelector<HTMLElement>(".e-seg-input:checked + .e-seg-text")!;
+    const probe = document.createElement("div");
+    probe.style.cssText = "background: var(--e-primary); color: var(--e-ink)";
+    container.append(probe);
+    const fill = getComputedStyle(probe).backgroundColor;
+    const ink = getComputedStyle(probe).color;
+    probe.remove();
+    expect(getComputedStyle(text).backgroundColor).not.toBe(fill);
+    expect(getComputedStyle(text).color).toBe(ink);
+  });
 });

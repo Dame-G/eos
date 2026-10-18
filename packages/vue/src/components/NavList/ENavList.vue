@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { Component } from "vue";
+import { computed, type Component } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
+import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
 
 export interface NavItem {
@@ -20,10 +21,21 @@ export interface NavItem {
   current?: boolean;
 }
 
-withDefaults(
+export interface NavSection {
+  /** A small heading over the section. Leave it out for a section that needs none. */
+  label?: string;
+  /** The destinations of the section, in order. */
+  items: NavItem[];
+}
+
+const props = withDefaults(
   defineProps<{
     /** The destinations, in order. */
-    items: NavItem[];
+    items?: NavItem[];
+    /** Destinations in labelled groups, instead of `items`. Give a heading only when there is more than one section. */
+    sections?: NavSection[];
+    /** Shorter rows and smaller words, for a long list such as the pages of a documentation site. */
+    dense?: boolean;
     /** The landmark's name, so a page with two navigations tells them apart. Defaults to "Main". */
     label?: string;
     /** What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). */
@@ -33,6 +45,8 @@ withDefaults(
 );
 
 const t = useMessages();
+const uid = useUid();
+const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.items ?? [] }]);
 
 // Only attributes that have a value: an undefined `href` would override the one a router link computes.
 const linkAttrs = (item: NavItem) => ({
@@ -42,16 +56,19 @@ const linkAttrs = (item: NavItem) => ({
 </script>
 
 <template>
-  <nav class="e-nav" :aria-label="label || t('mainNav')">
-    <ul>
-      <li v-for="(item, i) in items" :key="i">
-        <component :is="linkComponent" class="e-nav-item" v-bind="linkAttrs(item)">
-          <EIcon v-if="item.icon" :name="item.icon" />
-          <span class="e-nav-label">{{ item.label }}</span>
-          <span v-if="item.count != null" class="e-nav-count">{{ item.count }}</span>
-        </component>
-      </li>
-    </ul>
+  <nav class="e-nav" :class="dense && 'e-nav--dense'" :aria-label="label || t('mainNav')">
+    <template v-for="(group, g) in groups" :key="g">
+      <p v-if="group.label" :id="`${uid}-${g}`" class="e-nav-heading">{{ group.label }}</p>
+      <ul :aria-labelledby="group.label ? `${uid}-${g}` : undefined">
+        <li v-for="(item, i) in group.items" :key="i">
+          <component :is="linkComponent" class="e-nav-item" v-bind="linkAttrs(item)">
+            <EIcon v-if="item.icon" :name="item.icon" />
+            <span class="e-nav-label">{{ item.label }}</span>
+            <span v-if="item.count != null" class="e-nav-count">{{ item.count }}</span>
+          </component>
+        </li>
+      </ul>
+    </template>
   </nav>
 </template>
 
@@ -63,6 +80,19 @@ const linkAttrs = (item: NavItem) => ({
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  .e-nav-heading {
+    margin: var(--e-space-6) 0 var(--e-space-2);
+    padding-inline: var(--e-space-3);
+    font: 600 var(--e-text-xs) / 1.2 var(--e-font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--e-muted);
+  }
+
+  .e-nav > :first-child {
+    margin-top: 0;
   }
 
   .e-nav-item {
@@ -96,6 +126,12 @@ const linkAttrs = (item: NavItem) => ({
   .e-nav-label {
     flex: 1;
     min-width: 0;
+  }
+
+  .e-nav--dense .e-nav-item {
+    height: 2.25rem;
+    gap: var(--e-space-2);
+    font-size: var(--e-text-sm);
   }
 
   .e-nav-count {

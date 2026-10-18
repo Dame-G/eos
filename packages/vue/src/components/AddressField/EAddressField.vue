@@ -111,6 +111,7 @@ function set(key: keyof Address, value: string) {
   .e-address-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    align-items: start;
     gap: var(--e-space-4);
   }
 

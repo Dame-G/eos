@@ -64,6 +64,8 @@ export const defaultMessages = {
   to: "to",
   chooseDate: "Choose date",
   chooseDates: "Choose dates",
+  pickColor: "Pick a colour",
+  colorInvalid: "Enter a colour like #2c95b4",
   dateFormat: "",
   dateAtTime: "{date} at {time}",
   dateError: "Enter a date as {format}.",

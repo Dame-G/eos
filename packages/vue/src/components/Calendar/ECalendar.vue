@@ -611,7 +611,7 @@ defineExpose({
   }
 
   .e-cal-grid td {
-    padding: 1px 0;
+    padding: 1px 3px;
     text-align: center;
   }
 

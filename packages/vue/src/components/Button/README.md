@@ -18,6 +18,8 @@ A button for an action. `primary` is the one main action on a screen; the other 
 | `block`    | `boolean`                                                      |           | Full width.                                                                                                                                                              |
 | `disabled` | `boolean`                                                      |           | Dashed and unfilled. A disabled button is not focusable and ignores clicks.                                                                                              |
 | `type`     | `"button" \| "submit" \| "reset"`                              | `button`  | `button` never submits a form; set `submit` on the one that should.                                                                                                      |
+| `href`     | `string`                                                       |           | Renders a link that looks like the button, for a call to action that goes to a page.                                                                                     |
+| `external` | `boolean`                                                      |           | With `href`: opens in a new tab.                                                                                                                                         |
 
 Native attributes and listeners (`@click`, `name`, `value`, `form`, `aria-*`, `data-*`, `class`, `style`) fall through to the `<button>`.
 
@@ -37,6 +39,6 @@ Native attributes and listeners (`@click`, `name`, `value`, `form`, `aria-*`, `d
 ## Rules
 
 - One `primary` button per screen. Put it first in a row of actions.
-- A button does something; if it only goes to another page, use `ELink`.
+- A button does something; if it only goes to another page, use `ELink` in text, or `href` for a call to action. A link-button is a real `a`: Enter follows it, Space does not.
 - Hidden when printed.
 - Buttons set no outer margin: space them with `EActions`, `EInline` or `EStack`.

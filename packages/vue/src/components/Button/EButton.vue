@@ -13,6 +13,10 @@ withDefaults(
     block?: boolean;
     disabled?: boolean;
     type?: "button" | "submit" | "reset";
+    /** Renders a link that looks like the button, for a destination rather than an action. */
+    href?: string;
+    /** With `href`: opens in a new tab. */
+    external?: boolean;
   }>(),
   { variant: "primary", type: "button" },
 );
@@ -24,7 +28,19 @@ defineSlots<{
 </script>
 
 <template>
+  <a
+    v-if="href"
+    :href="href"
+    class="e-btn"
+    :class="[variant !== 'primary' && `e-btn--${variant}`, block && 'e-btn--block']"
+    :target="external ? '_blank' : undefined"
+    :rel="external ? 'noreferrer' : undefined"
+  >
+    <EIcon v-if="icon" :name="icon" />
+    <slot />
+  </a>
   <button
+    v-else
     :type="type"
     class="e-btn"
     :class="[variant !== 'primary' && `e-btn--${variant}`, block && 'e-btn--block']"

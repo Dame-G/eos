@@ -18,10 +18,21 @@ defineSlots<{
 <style>
 @layer e.page {
   .e-appfooter {
-    padding: var(--e-space-6) var(--e-space-4);
+    padding: var(--e-space-6) 0;
     border-top: var(--e-stroke-hair) solid var(--e-border);
     font: 400 var(--e-text-sm) / 1.5 var(--e-font-sans);
     color: var(--e-muted);
+  }
+
+  .e-appfooter .e-shell-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--e-space-2) var(--e-space-6);
+  }
+
+  .e-appfooter p {
+    margin: 0;
   }
 
   /* the page's one column */

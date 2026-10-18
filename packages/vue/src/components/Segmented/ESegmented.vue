@@ -149,6 +149,18 @@ const groupAttrs = () => ({
     cursor: not-allowed;
   }
 
+  .e-seg-opt:has(:disabled):hover .e-seg-text {
+    background: transparent;
+  }
+
+  /* A disabled option that is selected stays readable: ink on tint, with the bar that marks the choice. */
+  .e-seg-input:disabled:checked + .e-seg-text,
+  .e-seg-opt:has(:disabled:checked):hover .e-seg-text {
+    background: var(--e-surface-tint);
+    color: var(--e-ink);
+    box-shadow: inset 0 -2px 0 0 var(--e-border-strong);
+  }
+
   .e-seg-field {
     display: grid;
     gap: var(--e-space-2);

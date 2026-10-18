@@ -93,6 +93,26 @@ describe("ENavList", () => {
     expect(nav.getAttribute("data-x")).toBe("1");
   });
 
+  test("sections: a heading names its list, and a section without a label has no heading", async () => {
+    const { container } = await render(ENavList, {
+      props: {
+        dense: true,
+        sections: [
+          { items: [{ label: "Overview", href: "/" }] },
+          { label: "Layers", items: [{ label: "Blocks", href: "/blocks" }] },
+        ],
+      },
+    });
+    expect(container.querySelectorAll("p.e-nav-heading").length).toBe(1);
+    expect(container.querySelectorAll("ul").length).toBe(2);
+    const list = container.querySelectorAll("ul")[1]!;
+    expect(container.querySelector(`#${CSS.escape(list.getAttribute("aria-labelledby")!)}`)?.textContent).toBe(
+      "Layers",
+    );
+    expect(container.querySelector("nav")!.classList.contains("e-nav--dense")).toBe(true);
+    await expectNoViolations(container);
+  });
+
   test("has no accessibility violations", async () => {
     const { container } = await render(ENavList, { props: { items } });
     await expectNoViolations(container);

@@ -197,4 +197,22 @@ describe("EBookingCard", () => {
     );
     await expectNoViolations(container);
   });
+
+  test("a narrow card drops the stamp under the kind of booking and runs the facts the full width", async () => {
+    const box = (width: string) =>
+      defineComponent({
+        render: () => h("div", { style: { width } }, [h(EBookingCard, base)]),
+      });
+    const narrow = await render(box("17rem"));
+    const rect = (c: Element, sel: string) => c.querySelector(sel)!.getBoundingClientRect();
+    expect(rect(narrow.container, ".e-appt .e-stamp").top).toBeGreaterThanOrEqual(
+      rect(narrow.container, ".e-appt-sub").bottom - 1,
+    );
+    expect(rect(narrow.container, ".e-appt-facts").left).toBeLessThan(rect(narrow.container, ".e-appt-body").left);
+    const wide = await render(box("34rem"));
+    expect(rect(wide.container, ".e-appt .e-stamp").top).toBeLessThan(rect(wide.container, ".e-appt-sub").top);
+    expect(rect(wide.container, ".e-appt-facts").left).toBeGreaterThanOrEqual(
+      rect(wide.container, ".e-appt-body").left - 1,
+    );
+  });
 });

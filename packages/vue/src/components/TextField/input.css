@@ -54,7 +54,7 @@
     color: var(--e-muted);
   }
 
-  .e-input:read-only:not(:disabled) {
+  .e-input[readonly]:not(:disabled) {
     background-color: var(--e-surface-tint);
   }
 
