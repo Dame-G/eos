@@ -1,0 +1,470 @@
+<script setup lang="ts">
+import { computed, ref, watch } from "vue";
+import {
+  ComboboxAnchor,
+  ComboboxContent,
+  ComboboxInput,
+  ComboboxPortal,
+  ComboboxRoot,
+  ComboboxTrigger,
+  ComboboxViewport,
+} from "reka-ui";
+import AeField from "../Field/AeField.vue";
+import AeIcon from "../Icon/AeIcon.vue";
+import AeSpinner from "../Spinner/AeSpinner.vue";
+import AeComboboxOption from "./AeComboboxOption.vue";
+import { normalizeOptions, sectionOptions } from "../Select/options.js";
+import type { AeComboboxProps } from "./types.js";
+import { useMessages, usePortalTarget } from "../../config.js";
+import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import { useUid } from "../../composables/useUid.js";
+import "../../styles/base.css";
+import "../TextField/input.css";
+import "../Select/panel.css";
+
+// The one implementation behind AeCombobox (one chosen value), AeAutocomplete (free text with suggestions) and
+// AeMultiSelect (several chosen values as tags). Internal: the three components are the API.
+defineOptions({ inheritAttrs: false });
+
+const props = withDefaults(defineProps<AeComboboxProps & { mode: "single" | "free" | "multiple" }>(), {
+  clearable: true,
+});
+
+const emit = defineEmits<{
+  /** The text in the input changed, by typing or by choosing. Use it to fetch options from a server. */
+  inputChange: [text: string];
+}>();
+
+/** The chosen value (a string), the text (Autocomplete) or the chosen values (an array, MultiSelect). */
+const model = defineModel<string | string[]>();
+
+const t = useMessages();
+const portal = usePortalTarget();
+const attrs = useFieldAttrs();
+const groupId = useUid();
+
+const multiple = computed(() => props.mode === "multiple");
+const free = computed(() => props.mode === "free");
+const all = computed(() => normalizeOptions(props.options));
+const values = computed<string[]>(() => (multiple.value && Array.isArray(model.value) ? model.value : []));
+const single = computed(() => (typeof model.value === "string" ? model.value : ""));
+const rootValue = computed(() => (multiple.value ? values.value : single.value));
+
+function labelOf(v: string): string {
+  return all.value.find((o) => o.value === v)?.label ?? (free.value ? v : "");
+}
+/** What the input shows when nobody is typing: the chosen option's label, the text, or nothing. */
+const resting = () => (multiple.value ? "" : labelOf(single.value));
+
+const text = ref(resting());
+const typing = ref(false);
+const wantOpen = ref(false);
+const anchor = ref<{ $el: HTMLElement } | null>(null);
+const query = computed(() => (typing.value ? text.value.trim().toLowerCase() : ""));
+
+const shown = computed(() => {
+  const q = query.value;
+  if (props.filter) return all.value.filter((o) => props.filter!(o, q));
+  return all.value.filter(
+    (o) => !q || o.label.toLowerCase().includes(q) || (o.description ?? "").toLowerCase().includes(q),
+  );
+});
+const sections = computed(() => sectionOptions(shown.value));
+const hasList = computed(() => shown.value.length > 0 || !!props.loading || !free.value);
+const open = computed(() => wantOpen.value && hasList.value && !props.disabled);
+/** What a screen reader hears when the list has no options to read. */
+const announce = computed(() =>
+  open.value && !shown.value.length ? (props.loading ? t("searching") : props.emptyText || t("noMatches")) : "",
+);
+const hasValue = computed(() => (multiple.value ? values.value.length > 0 : !!text.value));
+
+// A value set from outside (a form reset, a loaded record) replaces what is in the input. A value this component set
+// itself already matches the text, so typing is left alone.
+watch(rootValue, () => {
+  const rest = resting();
+  if (rest !== text.value) {
+    text.value = rest;
+    typing.value = false;
+  }
+});
+// The label of a chosen option can arrive late (options fetched after the value).
+watch(all, () => {
+  if (!typing.value && !open.value) text.value = resting();
+});
+
+const inputEl = () => anchor.value?.$el?.querySelector("input") ?? null;
+const focusInput = () => inputEl()?.focus();
+
+function isSelected(value: string): boolean {
+  return multiple.value ? values.value.includes(value) : free.value ? single.value === value : single.value === value;
+}
+/** The value an item carries: in Autocomplete the chosen text itself, otherwise the option's value. */
+const itemValue = (o: { value: string; label: string }) => (free.value ? o.label : o.value);
+
+function onPick(v: unknown) {
+  typing.value = false;
+  if (multiple.value) {
+    model.value = Array.isArray(v) ? (v as string[]) : [];
+    text.value = "";
+    emit("inputChange", "");
+    return;
+  }
+  const next = typeof v === "string" ? v : "";
+  model.value = next;
+  text.value = free.value ? next : labelOf(next);
+  emit("inputChange", text.value);
+}
+
+function onInput(e: Event) {
+  const v = (e.target as HTMLInputElement).value;
+  text.value = v;
+  typing.value = true;
+  wantOpen.value = true;
+  emit("inputChange", v);
+  if (free.value) model.value = v;
+}
+
+function remove(v: string) {
+  model.value = values.value.filter((x) => x !== v);
+}
+
+function clear() {
+  model.value = multiple.value ? [] : "";
+  text.value = "";
+  typing.value = false;
+  emit("inputChange", "");
+  focusInput();
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === "Escape" && !open.value && text.value) {
+    e.preventDefault();
+    clear();
+  } else if (e.key === "Backspace" && multiple.value && !text.value && values.value.length) {
+    remove(values.value[values.value.length - 1]!);
+  }
+}
+
+/** Home and End move the cursor in the text, as in any text field; the list moves with the arrows. */
+function keepCaretKeys(e: KeyboardEvent) {
+  if (e.key === "Home" || e.key === "End") e.stopImmediatePropagation();
+}
+
+function onBlur(e: FocusEvent) {
+  const next = e.relatedTarget as Element | null;
+  if (next && (anchor.value?.$el?.contains(next) || next.closest?.(".ae-popover"))) return;
+  wantOpen.value = false;
+  typing.value = false;
+  if (!free.value) text.value = resting();
+}
+
+/** A press on the padding of the field puts the cursor in the input. */
+function onWrapDown(e: MouseEvent) {
+  if (e.target === e.currentTarget && !props.disabled) {
+    e.preventDefault();
+    focusInput();
+  }
+}
+
+type FieldSlot = { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined };
+/** The input's own attributes, with the consumer's fall-through ones last. */
+function inputBind(field: FieldSlot) {
+  return {
+    id: field.id,
+    required: props.required && !(multiple.value && values.value.length) ? true : undefined,
+    placeholder: multiple.value && values.value.length ? "" : props.placeholder,
+    "aria-invalid": field.ariaInvalid,
+    autocomplete: "off",
+    // Reka leaves the id of a row that has just been filtered away; an id that is not in the page is invalid.
+    ...(shown.value.length ? {} : { "aria-activedescendant": undefined }),
+    ...attrs.input(field.ariaDescribedby),
+  };
+}
+
+defineExpose({
+  /** The `<input>` element. */
+  input: computed(() => inputEl()),
+  /** Puts the cursor in the input. */
+  focus: focusInput,
+});
+</script>
+
+<template>
+  <AeField
+    v-bind="attrs.wrapper()"
+    :id="id"
+    :label="label"
+    :hide-label="hideLabel"
+    :hint="hint"
+    :error="error"
+    :required="required"
+    :optional="optional"
+  >
+    <template #default="field">
+      <ComboboxRoot
+        class="ae-combo-root"
+        :model-value="rootValue"
+        :multiple="multiple"
+        :open="open"
+        :disabled="disabled"
+        ignore-filter
+        @update:model-value="onPick"
+        @update:open="wantOpen = $event"
+      >
+        <ComboboxAnchor
+          ref="anchor"
+          class="ae-input-wrap ae-combo"
+          :class="{ 'ae-combo--multi': multiple }"
+          :data-invalid="error ? '' : undefined"
+          :data-disabled="disabled ? '' : undefined"
+          @mousedown="onWrapDown"
+          @focusout="onBlur"
+        >
+          <div class="ae-combo-main">
+            <template v-if="multiple">
+              <span v-for="v in values" :key="v" class="ae-tag">
+                {{ labelOf(v) }}
+                <button
+                  type="button"
+                  class="ae-tag-x"
+                  :aria-label="t('removeItem', { label: labelOf(v) })"
+                  :disabled="disabled"
+                  @click="remove(v)"
+                >
+                  <AeIcon name="x" small />
+                </button>
+              </span>
+            </template>
+            <ComboboxInput
+              class="ae-input ae-combo-input"
+              :model-value="text"
+              :display-value="(v: unknown) => (typeof v === 'string' ? (free ? v : labelOf(v)) : '')"
+              :disabled="disabled"
+              v-bind="inputBind(field)"
+              @update:model-value="text = $event"
+              @input="onInput"
+              @keydown="onKeydown"
+              @keydown.capture="keepCaretKeys"
+            />
+          </div>
+          <template v-if="name">
+            <input v-for="(v, k) in multiple ? values : [single]" :key="k" type="hidden" :name="name" :value="v" />
+          </template>
+          <div class="ae-combo-tail">
+            <button
+              v-if="hasValue && clearable && !disabled"
+              type="button"
+              class="ae-combo-btn"
+              :aria-label="t('clear')"
+              @mousedown.prevent
+              @click="clear"
+            >
+              <AeIcon name="x" />
+            </button>
+            <ComboboxTrigger
+              v-if="!free"
+              class="ae-combo-btn"
+              :aria-label="t('showOptions')"
+              :disabled="disabled"
+              @mousedown.prevent
+            >
+              <AeIcon name="chevron-down" bold />
+            </ComboboxTrigger>
+          </div>
+        </ComboboxAnchor>
+        <span class="ae-sr" role="status">{{ announce }}</span>
+        <ComboboxPortal :to="portal">
+          <ComboboxContent
+            position="popper"
+            align="start"
+            :side-offset="6"
+            :collision-padding="8"
+            class="ae-popover ae-listpanel ae-root"
+            :aria-label="label"
+            :aria-busy="loading ? 'true' : undefined"
+          >
+            <ComboboxViewport>
+              <template v-if="shown.length">
+                <template v-for="(section, i) in sections" :key="i">
+                  <div v-if="section.group" class="ae-opt-set" role="group" :aria-labelledby="`${groupId}-g${i}`">
+                    <div :id="`${groupId}-g${i}`" class="ae-opt-group">{{ section.group }}</div>
+                    <AeComboboxOption
+                      v-for="o in section.options"
+                      :key="o.value"
+                      :option="o"
+                      :value="itemValue(o)"
+                      :selected="isSelected(itemValue(o))"
+                      :query="query"
+                    />
+                  </div>
+                  <template v-else>
+                    <AeComboboxOption
+                      v-for="o in section.options"
+                      :key="o.value"
+                      :option="o"
+                      :value="itemValue(o)"
+                      :selected="isSelected(itemValue(o))"
+                      :query="query"
+                    />
+                  </template>
+                </template>
+              </template>
+              <div v-else class="ae-opt-status" role="option" aria-disabled="true" aria-selected="false">
+                <AeSpinner v-if="loading" :label="t('searching')" />
+                <template v-else>{{ emptyText || t("noMatches") }}</template>
+              </div>
+            </ComboboxViewport>
+          </ComboboxContent>
+        </ComboboxPortal>
+      </ComboboxRoot>
+    </template>
+  </AeField>
+</template>
+
+<style>
+@layer ae.controls {
+  .ae-combo {
+    position: relative;
+    flex-wrap: nowrap;
+    align-items: center;
+    min-height: var(--ae-control-height);
+    padding-inline-end: var(--ae-space-1);
+  }
+
+  .ae-combo-main {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    align-self: stretch;
+    gap: var(--ae-space-1);
+    min-width: 0;
+  }
+
+  .ae-combo-tail {
+    display: flex;
+    flex: none;
+    align-items: center;
+    align-self: center;
+  }
+
+  .ae-combo .ae-input {
+    flex: 1 1 6rem;
+    min-width: 4rem;
+    height: auto;
+    align-self: stretch;
+    padding-inline: var(--ae-space-4) var(--ae-space-2);
+  }
+
+  .ae-combo--multi {
+    padding: 3px var(--ae-space-1) 3px var(--ae-space-2);
+    gap: var(--ae-space-1);
+  }
+
+  .ae-combo--multi .ae-input {
+    height: calc(var(--ae-control-height) - 9px);
+    align-self: center;
+    padding-inline: var(--ae-space-2);
+  }
+
+  .ae-combo-btn {
+    display: inline-grid;
+    place-items: center;
+    position: relative;
+    flex: none;
+    width: calc(var(--ae-control-height) - 9px);
+    height: calc(var(--ae-control-height) - 9px);
+    padding: 0;
+    border: 0;
+    border-radius: var(--ae-radius-sm);
+    background: transparent;
+    color: var(--ae-ink);
+    cursor: pointer;
+    transition: background-color var(--ae-duration-tap) var(--ae-easing-out);
+  }
+
+  .ae-combo-btn::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+  }
+
+  .ae-combo-btn:hover:not(:disabled) {
+    background: var(--ae-wash-hover);
+    box-shadow: inset 0 0 0 1px var(--ae-wash-ring);
+  }
+
+  .ae-combo-btn:active:not(:disabled) {
+    background: var(--ae-wash-press);
+    box-shadow: inset 0 0 0 1.5px var(--ae-ink);
+  }
+
+  .ae-combo-btn:focus-visible {
+    outline: var(--ae-stroke-focus) solid var(--ae-focus-ring);
+    outline-offset: -2px;
+  }
+
+  .ae-combo-btn:disabled {
+    color: var(--ae-muted);
+    cursor: not-allowed;
+  }
+
+  .ae-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ae-space-1);
+    height: 32px;
+    padding: 0 var(--ae-space-1) 0 var(--ae-space-3);
+    border-radius: var(--ae-radius-pill);
+    background: var(--ae-surface-tint);
+    box-shadow: inset 0 0 0 1px var(--ae-primary);
+    color: var(--ae-ink);
+    font: 500 var(--ae-text-sm)/1 var(--ae-font-sans);
+  }
+
+  .ae-tag-x::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+  }
+
+  .ae-tag-x {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ae-primary);
+    cursor: pointer;
+  }
+
+  .ae-tag-x:hover {
+    background: var(--ae-wash-hover);
+    box-shadow: inset 0 0 0 1px var(--ae-primary);
+  }
+
+  .ae-tag-x:active {
+    background: var(--ae-wash-press);
+  }
+
+  .ae-tag-x:focus-visible {
+    outline: var(--ae-stroke-focus) solid var(--ae-focus-ring);
+    outline-offset: 1px;
+  }
+
+  .ae-input-wrap:not(.ae-combo) > .ae-combo-btn {
+    align-self: center;
+    margin-inline-end: var(--ae-space-1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ae-combo-btn {
+      transition: none;
+    }
+  }
+}
+</style>

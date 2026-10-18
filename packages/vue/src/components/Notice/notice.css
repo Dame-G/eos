@@ -1,0 +1,54 @@
+/* The layout a Notice and a Toast share: icon, text, actions and dismiss button on one grid. */
+@layer ae.containers {
+  .ae-notice-grid {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "icon body dismiss"
+      ". actions .";
+    align-items: center;
+    gap: var(--ae-space-3);
+  }
+
+  .ae-notice-icon {
+    grid-area: icon;
+    display: grid;
+    place-items: center;
+    color: var(--ae-tone);
+  }
+
+  .ae-notice-icon .ae-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .ae-notice-body {
+    grid-area: body;
+    display: grid;
+    gap: var(--ae-space-1);
+    min-width: 0;
+  }
+
+  .ae-notice-actions {
+    grid-area: actions;
+    justify-self: start;
+  }
+
+  @container (min-width: 36rem) {
+    .ae-notice--actions .ae-notice-grid,
+    .ae-toast--actions .ae-notice-grid {
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      grid-template-areas: "icon body actions dismiss";
+    }
+
+    .ae-notice-actions {
+      align-self: center;
+      flex-wrap: nowrap;
+    }
+  }
+
+  .ae-notice-dismiss {
+    grid-area: dismiss;
+    margin: -10px -14px -10px 0;
+  }
+}

@@ -1,0 +1,21 @@
+/* The header, title and footer bar a Dialog and a Drawer share. */
+@layer ae.containers {
+  .ae-dialog-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--ae-space-3);
+    padding: var(--ae-space-4) var(--ae-space-2) 0 var(--ae-space-6);
+  }
+
+  .ae-dialog-title {
+    margin: var(--ae-space-2) 0 0;
+    font: 500 var(--ae-text-2xl) / 1.25 var(--ae-font-sans);
+    text-wrap: balance;
+  }
+
+  .ae-dialog-foot {
+    gap: var(--ae-space-3);
+    padding: var(--ae-space-4) var(--ae-space-6);
+  }
+}

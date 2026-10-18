@@ -1,0 +1,42 @@
+import type { IconName } from "../../icons/phosphor.js";
+
+/** One choice in a Select, Combobox, Autocomplete or MultiSelect. */
+export interface AeOption {
+  /** What the model holds when this option is chosen. Never an empty string. */
+  value: string;
+  /** What people read. */
+  label: string;
+  /** A second, muted line under the label. Searched too. */
+  description?: string;
+  /** An icon before the label. */
+  icon?: IconName | (string & {});
+  /** A heading for a run of options. A new heading starts when this changes from the option before. */
+  group?: string;
+  /** Not choosable. Stays visible, muted. */
+  disabled?: boolean;
+}
+
+/** An option as a consumer writes it: a bare string stands for `{ value: s, label: s }`. */
+export type AeOptionInput = string | AeOption;
+
+/** A run of options under one heading (or none). */
+export interface AeOptionSection {
+  group: string | undefined;
+  options: AeOption[];
+}
+
+/** Turns strings into options. */
+export function normalizeOptions(options: readonly AeOptionInput[] | undefined): AeOption[] {
+  return (options ?? []).map((o) => (typeof o === "string" ? { value: o, label: o } : o));
+}
+
+/** Splits options into runs under one heading, in order. A heading repeats only where the group changes. */
+export function sectionOptions(options: readonly AeOption[]): AeOptionSection[] {
+  const sections: AeOptionSection[] = [];
+  for (const option of options) {
+    const last = sections[sections.length - 1];
+    if (last && last.group === option.group) last.options.push(option);
+    else sections.push({ group: option.group, options: [option] });
+  }
+  return sections;
+}

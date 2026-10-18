@@ -22,7 +22,7 @@ describe("AeRadioGroup", () => {
     const made = await render(AeRadioGroup, { props: { label: "A", options: ["x", "y"] } });
     const names = [...made.container.querySelectorAll("input")].map((i) => i.name);
     expect(new Set(names).size).toBe(1);
-    expect(names[0]).toMatch(/^op-/);
+    expect(names[0]).toMatch(/^ae-/);
     const given = await render(AeRadioGroup, { props: { label: "B", options: ["x"], name: "method" } });
     expect(given.container.querySelector("input")!.name).toBe("method");
   });

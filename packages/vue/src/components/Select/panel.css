@@ -1,0 +1,157 @@
+/* The floating panel and the option rows that Select, Combobox, Autocomplete, MultiSelect, Popover and Menu share. */
+@layer ae.controls {
+  .ae-popover {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    width: min(24rem, calc(100vw - 32px));
+    max-height: min(60dvh, 32rem);
+    overflow: auto;
+    padding: 0;
+    border: 0;
+    border-radius: var(--ae-radius-md);
+    background: var(--ae-surface);
+    color: var(--ae-ink);
+    box-shadow:
+      0 0 0 1px var(--ae-border),
+      var(--ae-float);
+    font-family: var(--ae-font-sans);
+  }
+
+  .ae-popover::backdrop {
+    background: transparent;
+  }
+
+  .ae-popover.ae-listpanel {
+    max-width: none;
+    max-height: min(60dvh, 22rem);
+    margin: 0;
+    padding: var(--ae-space-1);
+    list-style: none;
+    overflow: auto;
+  }
+
+  .ae-opt {
+    display: flex;
+    align-items: center;
+    gap: var(--ae-space-2);
+    min-height: var(--ae-control-height);
+    padding: 6px var(--ae-space-3);
+    border-radius: var(--ae-radius-sm);
+    font: 400 var(--ae-text-md) / 1.3 var(--ae-font-sans);
+    cursor: pointer;
+  }
+
+  .ae-opt .ae-icon {
+    flex: none;
+  }
+
+  .ae-opt-text {
+    display: grid;
+    flex: 1;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .ae-opt-desc {
+    font: 400 var(--ae-text-sm) / 1.35 var(--ae-font-sans);
+    color: var(--ae-muted);
+  }
+
+  .ae-opt--active {
+    background: var(--ae-surface-tint);
+    box-shadow: inset 0 0 0 1px var(--ae-border-strong);
+  }
+
+  .ae-opt--selected .ae-opt-label {
+    font-weight: 600;
+  }
+
+  .ae-opt--disabled {
+    color: var(--ae-muted);
+    cursor: not-allowed;
+  }
+
+  .ae-opt-group {
+    padding: var(--ae-space-2) var(--ae-space-3) var(--ae-space-1);
+    font: 600 var(--ae-text-xs) / 1.2 var(--ae-font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ae-muted);
+  }
+
+  .ae-opt-group:not(:first-child) {
+    margin-top: var(--ae-space-1);
+    border-top: var(--ae-stroke-hair) solid var(--ae-border);
+    padding-top: var(--ae-space-3);
+  }
+
+  .ae-opt-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--ae-control-height);
+    padding: 0 var(--ae-space-3);
+    font: 400 var(--ae-text-md) / 1.3 var(--ae-font-sans);
+    color: var(--ae-muted);
+  }
+
+  .ae-opt mark {
+    background: transparent;
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--ae-primary);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+
+  /*
+   * Reka UI places the panel with floating-ui inside its own wrapper and marks the highlighted row with data-highlighted,
+   * where the reference placed the popover by script and marked the row with a class. These rules carry the reference
+   * look onto that structure.
+   */
+  [data-reka-popper-content-wrapper] > .ae-popover {
+    position: relative;
+    z-index: var(--ae-z-popover);
+  }
+
+  [data-reka-popper-content-wrapper] > .ae-popover.ae-listpanel {
+    width: var(--reka-popper-anchor-width);
+    min-width: var(--reka-popper-anchor-width);
+  }
+
+  .ae-opt:focus-visible {
+    outline: none;
+  }
+
+  .ae-opt[data-highlighted]:not(.ae-opt--disabled) {
+    background: var(--ae-surface-tint);
+    box-shadow: inset 0 0 0 1px var(--ae-border-strong);
+  }
+
+  .ae-opt-set {
+    display: contents;
+  }
+
+  .ae-opt-set:not(:first-child) > .ae-opt-group {
+    margin-top: var(--ae-space-1);
+    border-top: var(--ae-stroke-hair) solid var(--ae-border);
+    padding-top: var(--ae-space-3);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ae-opt {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ae-opt--active,
+    .ae-opt[data-highlighted]:not(.ae-opt--disabled) {
+      forced-color-adjust: none;
+      background: Highlight;
+      color: HighlightText;
+    }
+  }
+}

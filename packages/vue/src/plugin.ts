@@ -1,6 +1,7 @@
 import "./styles/base.css";
 import { reactive, watchEffect, type App } from "vue";
 import { defineTheme, type Theme, type ThemeInput } from "@aegis/tokens";
+import { TOAST_KEY, createToasts } from "./composables/useToast.js";
 import { CONFIG_KEY, type AegisConfig } from "./config.js";
 
 export interface AegisOptions extends Partial<AegisConfig> {
@@ -48,6 +49,7 @@ export function createAegis(options: AegisOptions = {}): Aegis {
     theme,
     install(app: App) {
       app.provide(CONFIG_KEY, config);
+      app.provide(TOAST_KEY, createToasts());
       app.config.globalProperties.$ae = config;
       if (typeof document === "undefined") return;
       if (options.warnOnContrast !== false && theme.issues.length && !import.meta.env?.PROD) {

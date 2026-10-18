@@ -23,7 +23,7 @@ describe("AeField", () => {
     const given = await render(AeField, { props: { label: "A", id: "mine" }, slots: { default: control } });
     expect(given.container.querySelector("input")!.id).toBe("mine");
     const made = await render(AeField, { props: { label: "B" }, slots: { default: control } });
-    expect(made.container.querySelector("input")!.id).toMatch(/^op-/);
+    expect(made.container.querySelector("input")!.id).toMatch(/^ae-/);
   });
 
   test("Required and Optional are words beside the label, in the configured messages", async () => {
