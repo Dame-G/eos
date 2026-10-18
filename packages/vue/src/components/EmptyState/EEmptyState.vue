@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import EIcon from "../Icon/EIcon.vue";
-import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
     /** A glyph in a round badge above the title. */
-    icon?: IconName | (string & {});
+    icon?: IconProp;
     /** What is missing, in the person's words. */
     title: string;
     /** The level of the title's heading element, 1 to 6. */

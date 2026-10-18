@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, type VNodeChild } from "vue";
 import EIcon from "../Icon/EIcon.vue";
-import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
 export interface MetaItem {
   /** A decorative icon before the text. */
-  icon?: IconName | (string & {});
+  icon?: IconProp;
   /** What the fact says, in words. A string, or a rendered VNode for rich text. */
   text: string | VNodeChild;
 }

@@ -10,7 +10,7 @@ import {
 import EButton from "../Button/EButton.vue";
 import EDivider from "../Divider/EDivider.vue";
 import EIcon from "../Icon/EIcon.vue";
-import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 import { usePortalTarget } from "../../config.js";
 import "../../styles/base.css";
 import "../Select/panel.css";
@@ -20,7 +20,7 @@ export interface EMenuAction {
   /** What the row says: a verb. */
   label: string;
   /** An icon before the label. */
-  icon?: IconName | (string & {});
+  icon?: IconProp;
   /** Called when the row is chosen, after the menu closes. */
   onClick?: () => void;
   /** Red text for a destructive action. Put it last, after a divider. */
@@ -46,7 +46,7 @@ withDefaults(
     /** The look of the button. Default `outline`. */
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
     /** An icon before the label. */
-    icon?: IconName | (string & {});
+    icon?: IconProp;
   }>(),
   { variant: "outline" },
 );

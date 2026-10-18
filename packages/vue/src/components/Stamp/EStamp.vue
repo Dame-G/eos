@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 
@@ -17,7 +18,7 @@ const props = defineProps<{
   /** The word. Overrides the preset's. */
   label?: string;
   /** Overrides the preset's glyph. */
-  icon?: IconName | (string & {});
+  icon?: IconProp;
   /** A date or day count, set after the word. */
   detail?: string;
   /** Smaller, for rows. */

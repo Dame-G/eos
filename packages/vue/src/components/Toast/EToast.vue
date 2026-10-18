@@ -5,7 +5,7 @@ import EIcon from "../Icon/EIcon.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import ESurface from "../Surface/ESurface.vue";
 import { useMessages } from "../../config.js";
-import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 import "../Notice/notice.css";
 
@@ -16,7 +16,7 @@ withDefaults(
     /** `info` is the default. `danger` is announced at once. */
     tone?: "info" | "success" | "warning" | "danger";
     /** Replaces the icon of the tone. */
-    icon?: IconName | (string & {});
+    icon?: IconProp;
   }>(),
   { tone: "info" },
 );

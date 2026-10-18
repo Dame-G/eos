@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import EIcon from "../Icon/EIcon.vue";
-import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
 defineProps<{
   /** The glyph. */
-  icon: IconName | (string & {});
+  icon: IconProp;
   /** The accessible name. Write it as an action, such as "Download receipt". */
   label: string;
   disabled?: boolean;

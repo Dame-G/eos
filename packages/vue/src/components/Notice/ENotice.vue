@@ -8,7 +8,7 @@ import EActions from "../Actions/EActions.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages } from "../../config.js";
-import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 import "./notice.css";
 
@@ -25,7 +25,7 @@ const props = withDefaults(
     /** The ARIA role. `danger` uses `alert`, the others `status`. `false` removes it, for a parent that announces the notice. */
     role?: string | false;
     /** Replaces the icon of the tone. */
-    icon?: IconName | (string & {});
+    icon?: IconProp;
   }>(),
   { tone: "info", role: undefined },
 );

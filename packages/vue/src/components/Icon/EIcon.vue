@@ -1,32 +1,48 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { ICON_VIEWBOX, type IconName } from "../../icons/phosphor.js";
-import { useIconMarkup } from "../../config.js";
+import { useIconResolver } from "../../config.js";
+import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
-  /** Icon name from the built-in set, or one added with `createEos({ icons })`. */
-  name: IconName | (string & {});
+  /** A name (from the built-in list or your icon set, such as `"credit-card"` or `"lucide:credit-card"`), or an icon component. */
+  name: IconProp;
   /** 14px with the bold weight, for chips and stamps. */
   small?: boolean;
-  /** The bold weight at the normal size. */
+  /** The bold weight at the normal size, where the icon set has one. */
   bold?: boolean;
 }>();
 
-const markup = useIconMarkup();
-const html = computed(() => markup(props.name, !!(props.small || props.bold)));
+const resolve = useIconResolver();
+const resolved = computed(() => resolve(props.name as string, !!(props.small || props.bold)));
 // Arrows and chevrons that point left or right mirror in right-to-left text.
-const directional = computed(() => /-(left|right)$/.test(props.name));
+const directional = computed(() => typeof props.name === "string" && /-(left|right)$/.test(props.name));
 </script>
 
 <template>
-  <svg
+  <component
+    :is="resolved.component"
+    v-if="resolved.kind === 'component'"
     class="e-icon"
     :class="{ 'e-icon--s': small, 'e-icon--dir': directional }"
-    :viewBox="ICON_VIEWBOX"
     aria-hidden="true"
     focusable="false"
-    v-html="html"
+  />
+  <span
+    v-else-if="resolved.kind === 'svg'"
+    class="e-icon e-icon--svg"
+    :class="{ 'e-icon--s': small, 'e-icon--dir': directional }"
+    aria-hidden="true"
+    v-html="resolved.html"
+  />
+  <svg
+    v-else-if="resolved.kind === 'glyph'"
+    class="e-icon e-icon--glyph"
+    :class="{ 'e-icon--s': small, 'e-icon--dir': directional }"
+    :viewBox="resolved.viewBox"
+    aria-hidden="true"
+    focusable="false"
+    v-html="resolved.html"
   />
 </template>
 
@@ -36,8 +52,22 @@ const directional = computed(() => /-(left|right)$/.test(props.name));
     flex: none;
     width: 20px;
     height: 20px;
+  }
+
+  /* The built-in glyphs are filled paths. Icons from other sets keep their own fill and stroke (usually currentColor). */
+  .e-icon--glyph {
     fill: currentcolor;
     stroke: none;
+  }
+
+  /* A complete <svg> string sits in a box of the icon's size. */
+  .e-icon--svg {
+    display: inline-flex;
+  }
+
+  .e-icon--svg > svg {
+    width: 100%;
+    height: 100%;
   }
 
   .e-icon--s {
