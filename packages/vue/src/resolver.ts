@@ -9,7 +9,7 @@ export function EosResolver(options: { from?: string } = {}) {
   return {
     type: "component" as const,
     resolve(name: string) {
-      if (/^Op[A-Z]/.test(name)) return { name, from: options.from ?? "@eos/vue" };
+      if (/^Op[A-Z]/.test(name)) return { name, from: options.from ?? "@eos-ui/vue" };
       return undefined;
     },
   };

@@ -3,8 +3,8 @@
 Eos is a set of accessible Vue 3 components and a token-based theming system. This page explains how the repository is laid out and what a component has to satisfy before it is merged.
 
 ```
-packages/tokens   @eos/tokens   tokens.json -> CSS variables, defineTheme(), contrast checks
-packages/vue      @eos/vue      components, plugin, composables
+packages/tokens   @eos-ui/tokens   tokens.json -> CSS variables, defineTheme(), contrast checks
+packages/vue      @eos-ui/vue      components, plugin, composables
 ```
 
 ## Setup

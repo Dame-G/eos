@@ -4,7 +4,7 @@
 //  - no raw z-index numbers (use the --z-* tokens)
 import postcss from "postcss";
 import { sourceStyles } from "./css-lib.mjs";
-import { LAYER_ORDER } from "@eos/tokens";
+import { LAYER_ORDER } from "@eos-ui/tokens";
 
 const layers = new Set(LAYER_ORDER.split(",").map((s) => s.trim()));
 const problems = [];

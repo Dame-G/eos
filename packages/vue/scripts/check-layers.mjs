@@ -2,7 +2,7 @@
 // A component may import components of its own layer or an earlier one, never a later one (docs/architecture.md).
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { LAYER_ORDER } from "@eos/tokens";
+import { LAYER_ORDER } from "@eos-ui/tokens";
 import { pkgRoot } from "./css-lib.mjs";
 
 const order = LAYER_ORDER.split(",").map((s) => s.trim());

@@ -1,7 +1,7 @@
 // PostCSS plugin: every stylesheet the library emits starts with the layer order, so the cascade is the same
 // whichever component's CSS the browser meets first. Components write their rules inside `@layer e.<name> { }`.
 import type { AtRule, Plugin, Root } from "postcss";
-import { LAYER_ORDER } from "@eos/tokens";
+import { LAYER_ORDER } from "@eos-ui/tokens";
 
 export default function layers(): Plugin {
   return {

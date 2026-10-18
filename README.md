@@ -2,22 +2,22 @@
 
 Accessible Vue 3 components with a token-based theme system. Calm, high-contrast and consistent by default, and rebrandable with a few lines.
 
-| Package                          | What it is                                                              |
-| -------------------------------- | ----------------------------------------------------------------------- |
-| [`@eos/vue`](packages/vue)       | Components (`EButton`, `ETextField`, ...), plugin, composables          |
-| [`@eos/tokens`](packages/tokens) | Design tokens as CSS variables and `defineTheme()` with contrast checks |
+| Package                             | What it is                                                              |
+| ----------------------------------- | ----------------------------------------------------------------------- |
+| [`@eos-ui/vue`](packages/vue)       | Components (`EButton`, `ETextField`, ...), plugin, composables          |
+| [`@eos-ui/tokens`](packages/tokens) | Design tokens as CSS variables and `defineTheme()` with contrast checks |
 
 Documentation and live examples: https://eos.dame.gg
 
 ## Use
 
 ```bash
-npm install @eos/vue
+npm install @eos-ui/vue
 ```
 
 ```ts
 import { createApp } from "vue";
-import { createEos } from "@eos/vue";
+import { createEos } from "@eos-ui/vue";
 
 createApp(App)
   .use(
@@ -33,7 +33,7 @@ createApp(App)
 ```vue
 <script setup lang="ts">
 import { ref } from "vue";
-import { ETextField, EButton } from "@eos/vue";
+import { ETextField, EButton } from "@eos-ui/vue";
 const email = ref("");
 </script>
 
@@ -46,7 +46,7 @@ const email = ref("");
 Each component imports its own styles, so only what you use ships. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. For template auto-import, use the resolver:
 
 ```ts
-import { EosResolver } from "@eos/vue/resolver";
+import { EosResolver } from "@eos-ui/vue/resolver";
 Components({ resolvers: [EosResolver()] }); // unplugin-vue-components
 ```
 

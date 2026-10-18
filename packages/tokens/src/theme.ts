@@ -10,7 +10,7 @@ export interface ThemeInput {
   brand?: string;
   /** A second brand colour for positive actions (`secondary`), derived the same way. */
   accent?: string;
-  /** Font stacks for body and mono text. Fonts are never bundled: load them yourself or import `@eos/vue/fonts.css`. */
+  /** Font stacks for body and mono text. Fonts are never bundled: load them yourself or import `@eos-ui/vue/fonts.css`. */
   fonts?: { sans?: string; mono?: string };
   /** Corner style: a preset or explicit values. */
   radius?: "sharp" | "default" | "round" | { sm?: string; md?: string; lg?: string };

@@ -1,6 +1,6 @@
 import "./styles/base.css";
 import { reactive, watchEffect, type App } from "vue";
-import { defineTheme, type Theme, type ThemeInput } from "@eos/tokens";
+import { defineTheme, type Theme, type ThemeInput } from "@eos-ui/tokens";
 import { TOAST_KEY, createToasts } from "./composables/useToast.js";
 import { CONFIG_KEY, type EosConfig } from "./config.js";
 

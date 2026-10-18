@@ -1,4 +1,4 @@
-@import url("@eos/tokens/tokens.css");
+@import url("@eos-ui/tokens/tokens.css");
 
 /* Shared by every component: the root, the focus ring, the kicker label, the screen-reader-only class and the scrollbars. */
 @layer e.base {
