@@ -19,16 +19,17 @@ An inline message on a soft tint with a toned icon.
 | `titleId`      | `string`                                       |         | The id of the title element, for a parent that labels itself by it.                                |
 | `role`         | `string \| false`                              |         | `danger` uses `alert`, the others `status`. `false` removes it when a parent announces the notice. |
 | `icon`         | icon name                                      |         | Replaces the icon of the tone.                                                                     |
+| `dismissible`  | `boolean`                                      |         | Forces the dismiss button on or off. Left out, it follows the `@dismiss` listener.                 |
 
 `class`, `style` and attributes fall through to the root.
 
 ## Events and slots
 
-| Name      | Use                                                                                                        |
-| --------- | ---------------------------------------------------------------------------------------------------------- |
-| `dismiss` | Emitted by the dismiss button. The button shows only when a `@dismiss` listener is attached.               |
-| `default` | One sentence of detail.                                                                                    |
-| `actions` | Buttons (see EActions); `outline` and `quiet` suit best. They follow the message in reading and tab order. |
+| Name      | Use                                                                                                                                                                                      |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dismiss` | Emitted by the dismiss button. The button shows when a `@dismiss` listener is attached (checked on every render, so a listener added later counts), unless `dismissible` says otherwise. |
+| `default` | One sentence of detail.                                                                                                                                                                  |
+| `actions` | Buttons (see EActions); `outline` and `quiet` suit best. They follow the message in reading and tab order.                                                                               |
 
 ## Layout
 

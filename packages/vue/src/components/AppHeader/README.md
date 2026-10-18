@@ -4,7 +4,7 @@ The bar across the top of the page, the `banner` landmark. The navigation sits o
 
 ```vue
 <EAppHeader sticky>
-  <template #logo><RouterLink to="/">OpenPractice</RouterLink></template>
+  <template #logo><RouterLink to="/">Acme</RouterLink></template>
   <template #actions><EButton variant="outline" icon="user">Maria</EButton></template>
   <ENavList label="Main" :link-component="RouterLink" :items="items" />
 </EAppHeader>

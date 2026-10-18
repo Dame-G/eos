@@ -11,18 +11,19 @@ A labelled detail from the account (name, email, phone, address) with a quiet Ed
 
 ## Props
 
-| Prop     | Type       | Notes                                                 |
-| -------- | ---------- | ----------------------------------------------------- |
-| `label`  | `string`   | What the detail is. Required. Names the Edit button.  |
-| `status` | `string`   | A word in a chip after the value, such as "Verified". |
-| `tone`   | `ChipTone` | The chip's tone.                                      |
+| Prop       | Type       | Notes                                                                        |
+| ---------- | ---------- | ---------------------------------------------------------------------------- |
+| `label`    | `string`   | What the detail is. Required. Names the Edit button.                         |
+| `status`   | `string`   | A word in a chip after the value, such as "Verified".                        |
+| `tone`     | `ChipTone` | The chip's tone.                                                             |
+| `editable` | `boolean`  | Forces the Edit button on or off. Left out, it follows the `@edit` listener. |
 
 ## Slots and events
 
-| Name      | Use                                                                       |
-| --------- | ------------------------------------------------------------------------- |
-| `default` | The value.                                                                |
-| `@edit`   | Pressing Edit. The button appears only when something listens for `edit`. |
+| Name      | Use                                                                                                                                                         |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `default` | The value.                                                                                                                                                  |
+| `@edit`   | Pressing Edit. The button appears when something listens for `edit`, checked on every render, so a listener added later counts. Set `editable` to override. |
 
 The words come from the messages `edit` ("Edit") and `editItem` ("Edit {label}"). Until the catalogue has them the English wording is used.
 

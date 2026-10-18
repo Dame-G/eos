@@ -4,7 +4,7 @@ The bottom of the page: small print, privacy and terms links, contact. It is the
 
 ```vue
 <EAppFooter>
-  <p>© 2026 OpenPractice</p>
+  <p>© 2026 Acme</p>
   <a href="/privacy">Privacy</a>
 </EAppFooter>
 ```

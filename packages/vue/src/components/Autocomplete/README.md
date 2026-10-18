@@ -18,4 +18,8 @@ A text input that offers suggestions but accepts anything typed. A variant of `E
 - `name` submits the text in one hidden input.
 - Use it for addresses and names that may not be in your list; use `ECombobox` when only listed values are valid.
 
+`v-model:open` (`boolean`) says whether the list is open. Set it to open the list from outside or to start open; it follows the person's typing, choosing and Escape. Opening or closing it from outside moves no focus, and a disabled field never opens.
+
 Props: `label`, `options`, `placeholder`, `hideLabel`, `hint`, `error`, `required`, `optional`, `disabled`, `name`, `loading`, `emptyText`, `clearable`, `filter`, `id`. Event: `inputChange(text)`. Exposed: `input()` and `focus()`.
+
+See also `ECombobox`, whose model is the `value` of a chosen option: use it when the answer must come from the list.

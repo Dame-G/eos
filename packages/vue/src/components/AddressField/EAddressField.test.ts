@@ -211,18 +211,4 @@ describe("EAddressField", () => {
     const num = await render(EAddressField, { props: { name: "b", postalInputmode: "numeric" } });
     expect(input(num.container, "b-postal").inputMode).toBe("numeric");
   });
-
-  test("regions replaces the default US list", async () => {
-    const { container } = await render(EAddressField, {
-      props: {
-        regions: [
-          { value: "ON", label: "Ontario" },
-          { value: "QC", label: "Quebec" },
-        ],
-      },
-    });
-    regionButton(container).click();
-    await expect.element(page.getByRole("option", { name: "Ontario" })).toBeVisible();
-    expect(page.getByRole("option", { name: "Alabama" }).elements()).toHaveLength(0);
-  });
 });

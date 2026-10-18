@@ -39,7 +39,7 @@ Other attributes and listeners (`class`, `style`, `@change`, `data-*`) land on t
 | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `reveal` | `{ option }` | A control shown under its option while that option is chosen. It is called for the chosen option only; render nothing for an option that has none and the option stays closed. |
 
-The slot replaces the reference's per-option `reveal` node. The chosen option gets `.e-choice--open` and the content sits in `.e-choice-reveal`, which spans the full width of the group, 4px under the option.
+The chosen option gets `.e-choice--open` and the content sits in `.e-choice-reveal`, which spans the full width of the group, 4px under the option.
 
 ## Rules
 

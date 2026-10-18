@@ -54,3 +54,13 @@ One statement as a flat card (the card is not clickable; its Buttons are): a sta
 - One lead amount, up to three parts, history behind the disclosure.
 - Lay statements out in an EGrid, most urgent first. A status is never folded into a score.
 - In print the card keeps a 1px border, does not break across pages and the actions are hidden.
+
+## Typed activity
+
+`activity` takes `TimelineItem[]`. An inline array literal is checked in place; an array declared elsewhere needs the type, so `kind` is not widened to `string`:
+
+```ts
+import type { TimelineItem } from "@eos-ui/vue";
+
+const activity: TimelineItem[] = [{ kind: "team", note: "Statement sent.", source: "Oct 1" }];
+```

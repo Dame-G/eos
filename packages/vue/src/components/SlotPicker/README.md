@@ -5,7 +5,7 @@ The times a person can choose for a visit, shown as a grid of 48px options. It i
 ```vue
 <ESlotPicker
   v-model="time"
-  label="Tuesday 22 September"
+  label="Tuesday, October 22"
   :slots="['9:00 am', '9:30 am', { value: '10:00', label: '10:00 am', disabled: true }]"
 />
 ```

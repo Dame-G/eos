@@ -99,8 +99,8 @@ function returnFocus(event: Event) {
 
 <template>
   <DropdownMenuRoot v-model:open="open" :modal="false">
-    <DropdownMenuTrigger as-child>
-      <EButton :variant="variant" :icon="icon" v-bind="$attrs" @pointerdown="intent" @keydown="intent">
+    <DropdownMenuTrigger as-child @click="intent" @keydown="intent">
+      <EButton :variant="variant" :icon="icon" v-bind="$attrs">
         {{ label }}
         <EIcon name="chevron-down" />
       </EButton>

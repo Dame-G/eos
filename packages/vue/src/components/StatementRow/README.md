@@ -21,7 +21,7 @@ A one-line statement: stamp, title and subtitle, amount. It opens to the breakdo
 
 ## Props
 
-The same as EStatementCard (`title`, `subtitle`, `status`, `tone`, `label`, `amount`, `amountLabel`, `details`, `reason`, `parts`, `activity`, `activityTitle`, `currency`, `locale`), except that there is no `headingLevel` (the title is not a heading) and `detail` is not shown. Here `details` are the lines of the totals box above the total, and `amountLabel` names the total (default "Amount").
+The same as EStatementCard (`title`, `subtitle`, `status`, `tone`, `label`, `amount`, `amountLabel`, `details`, `reason`, `parts`, `activity`, `activityTitle`, `currency`, `locale`), except that there is no `headingLevel` (the title is not a heading). `detail` is shown in the stamp, as on the card. Here `details` are the lines of the totals box above the total, and `amountLabel` names the total (default "Amount").
 
 ## Slots
 
@@ -45,3 +45,13 @@ Everything falls through to the `details` element: `class`, `id`, `data-*`, `ope
 - The amount shows once in the row and once as the total, never as a third big figure.
 - Use rows for a list of statements; the stamps and amounts line up down the list.
 - The layout of the opened row follows the width of the row (34rem), not of the screen.
+
+## Typed activity
+
+`activity` takes `TimelineItem[]`. An inline array literal is checked in place; an array declared elsewhere needs the type, so `kind` is not widened to `string`:
+
+```ts
+import type { TimelineItem } from "@eos-ui/vue";
+
+const activity: TimelineItem[] = [{ kind: "team", note: "Statement sent.", source: "Oct 1" }];
+```

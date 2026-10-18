@@ -17,12 +17,13 @@ A button that opens a short list of actions. Built on `EButton` and Reka UI's Dr
 
 ## Props
 
-| Prop      | Type                                                 | Notes                                                                                                      |
-| --------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `label`   | `string`                                             | Required. The button's text; a chevron follows it.                                                         |
-| `items`   | `(EMenuAction \| EMenuDivider)[]`                    | Required. An action is `{ label, icon?, onClick?, danger?, disabled? }`; `{ divider: true }` draws a rule. |
-| `variant` | `primary \| secondary \| outline \| danger \| quiet` | The look of the button. Default `outline`.                                                                 |
-| `icon`    | `string`                                             | An icon before the label.                                                                                  |
+| Prop           | Type                                                 | Notes                                                                                                                                                                                                    |
+| -------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `label`        | `string`                                             | Required. The button's text; a chevron follows it.                                                                                                                                                       |
+| `items`        | `(EMenuAction \| EMenuDivider)[]`                    | Required. An action is `{ label, icon?, onClick?, danger?, disabled? }`; `{ divider: true }` draws a rule.                                                                                               |
+| `variant`      | `primary \| secondary \| outline \| danger \| quiet` | The look of the button. Default `outline`.                                                                                                                                                               |
+| `icon`         | `string`                                             | An icon before the label.                                                                                                                                                                                |
+| `v-model:open` | `boolean`                                            | Whether the menu is open. Set it to open it from outside, or to start open; it follows the person's own opening and closing. Leave it off for local state. Opened from outside, the menu moves no focus. |
 
 ## Events
 

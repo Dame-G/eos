@@ -8,7 +8,7 @@ A joined set of two to five options where exactly one is active. Use it to switc
   v-model="view"
   label="View"
   :options="[
-    { value: 'list', label: 'List', icon: 'list' },
+    { value: 'list', label: 'List', icon: 'menu' },
     { value: 'grid', label: 'Grid' },
   ]"
   hint="Remembered on this device."

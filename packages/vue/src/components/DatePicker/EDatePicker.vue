@@ -54,7 +54,7 @@ const calendar = ref<InstanceType<typeof ECalendar> | null>(null);
 const open = defineModel<boolean>("open", { default: false });
 const shown = computed(() => open.value && !props.disabled);
 const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel, .e-combo"));
-const trigger = { onPointerdown: quiet.intent, onKeydown: quiet.intent };
+const trigger = { onClick: quiet.intent, onKeydown: quiet.intent };
 
 const text = ref(loc.formatDate(model.value));
 const typedError = ref("");

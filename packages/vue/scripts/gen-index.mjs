@@ -44,9 +44,11 @@ writeFileSync(join(root, "index.ts"), lines.join("\n"));
 // The component names, for the auto-import resolver: it must claim exactly these and nothing else that starts with E.
 const names = components
   .flatMap((c) =>
-    [...readFileSync(join(root, "components", c, "index.ts"), "utf8").matchAll(/export \{ default as (E[A-Za-z0-9]+) \}/g)].map(
-      (m) => m[1],
-    ),
+    [
+      ...readFileSync(join(root, "components", c, "index.ts"), "utf8").matchAll(
+        /export \{ default as (E[A-Za-z0-9]+) \}/g,
+      ),
+    ].map((m) => m[1]),
   )
   .sort();
 writeFileSync(

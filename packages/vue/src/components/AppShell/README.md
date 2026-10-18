@@ -5,13 +5,13 @@ The frame of a whole page: a skip link, the header, an optional side navigation,
 ```vue
 <EAppShell sidebar-label="Account">
   <template #header>
-    <EAppHeader><template #logo>OpenPractice</template></EAppHeader>
+    <EAppHeader><template #logo>Acme</template></EAppHeader>
   </template>
   <template #sidebar>
     <ENavList label="Account" :items="items" />
   </template>
   <template #footer>
-    <EAppFooter>© 2026 OpenPractice</EAppFooter>
+    <EAppFooter>© 2026 Acme</EAppFooter>
   </template>
 
   <EPageHeader title="Your account" description="Pay a bill, check a statement or book a visit." />

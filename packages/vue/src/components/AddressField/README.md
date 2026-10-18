@@ -8,20 +8,21 @@ A postal address as one bordered group: the legend is the title and the fields d
 
 ## Props
 
-| Prop       | Type             | Notes                                                                                                                               |
-| ---------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `v-model`  | `Address`        | `{ street?, unit?, city?, region?, postal? }`. Without it the group keeps its own state.                                            |
-| `legend`   | `string`         | The group's title. Default "Address".                                                                                               |
-| `errors`   | `Address`        | What to fix, per field. Marks the field invalid and is announced with it.                                                           |
-| `regions`  | `EOptionInput[]` | Choices for the region field. Default the 50 US states and DC (the model holds the code).                                           |
-| `name`     | `string`         | Prefix of the field names, default `address`: `address-street`, `address-unit`, `address-city`, `address-region`, `address-postal`. |
-| `disabled` | `boolean`        | Disables every field.                                                                                                               |
+| Prop              | Type             | Notes                                                                                                                                            |
+| ----------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `v-model`         | `Address`        | `{ street?, unit?, city?, region?, postal? }`. Without it the group keeps its own state.                                                         |
+| `legend`          | `string`         | The group's title. Default "Address".                                                                                                            |
+| `errors`          | `Address`        | What to fix, per field. Marks the field invalid and is announced with it.                                                                        |
+| `regions`         | `EOptionInput[]` | Choices for the region field. Replaces the default list of the 50 US states and DC, so pass it for any other country (the model holds the code). |
+| `name`            | `string`         | Prefix of the field names, default `address`: `address-street`, `address-unit`, `address-city`, `address-region`, `address-postal`.              |
+| `postalInputmode` | `"numeric"       | "text"`                                                                                                                                          | The postal code's input mode. Default `text`; use `numeric` for ZIP codes. |
+| `disabled`        | `boolean`        | Disables every field.                                                                                                                            |
 
 `class` and `style` fall through to the `fieldset`.
 
 ## Words
 
-The labels come from the messages `address`, `street`, `unit`, `city`, `region` ("State"), `postal` ("ZIP code") and `select`. Reword them, and pass `regions`, for another country.
+The labels come from the messages `address`, `street`, `unit`, `city`, `region` ("State"), `postal` ("ZIP code") and `select`. Reword them (for example `region` as "Province" and `postal` as "Postal code"), and pass `regions` and `postalInputmode="text"`, for another country.
 
 ## Accessibility
 

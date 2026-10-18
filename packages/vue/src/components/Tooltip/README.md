@@ -10,9 +10,10 @@ A label that names an icon-only control. Built on Reka UI's Tooltip. Wrap one fo
 
 ## Props
 
-| Prop    | Type     | Notes                            |
-| ------- | -------- | -------------------------------- |
-| `label` | `string` | Required. What the tooltip says. |
+| Prop           | Type      | Notes                                                                                                                                              |
+| -------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `label`        | `string`  | Required. What the tooltip says.                                                                                                                   |
+| `v-model:open` | `boolean` | Whether the bubble is showing. Set it to show it from outside, or to start shown; hover, focus and Escape update it. Leave it off for local state. |
 
 ## Slots
 
