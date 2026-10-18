@@ -78,8 +78,8 @@ const facts = computed(() => [
           </template>
           <span v-else-if="subtitle" class="e-appt-role">{{ subtitle }}</span>
         </p>
-        <EMetaList class="e-appt-facts" :items="facts" />
       </div>
+      <EMetaList class="e-appt-facts" :items="facts" />
     </div>
     <template v-if="$slots.actions" #actions><slot name="actions" /></template>
   </ESurface>
@@ -88,6 +88,7 @@ const facts = computed(() => [
 <style>
 @layer e.account {
   .e-appt {
+    container: e-appt / inline-size;
     overflow: hidden;
   }
 
@@ -98,7 +99,10 @@ const facts = computed(() => [
   .e-appt-main {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    gap: var(--e-space-4);
+
+    /* the first row is never shorter than the date tile, so a card with a date tile is as tall as one with a photo */
+    grid-template-rows: minmax(3.8rem, auto) auto;
+    gap: var(--e-space-3) var(--e-space-4);
     align-items: start;
     padding: var(--e-space-4);
   }
@@ -182,7 +186,8 @@ const facts = computed(() => [
   }
 
   .e-appt-facts {
-    margin: var(--e-space-3) 0 0;
+    grid-column: 2;
+    margin: 0;
     padding: var(--e-space-3) 0 0;
     border-top: var(--e-stroke-hair) solid var(--e-border);
   }
@@ -192,6 +197,27 @@ const facts = computed(() => [
     color: var(--e-ink);
     font-size: var(--e-text-md);
     font-weight: 500;
+  }
+
+  /* A narrow card: the stamp drops to its own row under the kind of booking, and the facts run the full width. */
+  @container e-appt (max-width: 24rem) {
+    .e-appt-head {
+      display: contents;
+    }
+
+    .e-appt-head .e-appt-title {
+      flex: none;
+    }
+
+    .e-appt-head .e-stamp {
+      order: 1;
+      justify-self: start;
+      margin-inline-start: 0;
+    }
+
+    .e-appt-facts {
+      grid-column: 1 / -1;
+    }
   }
 
   @media print {

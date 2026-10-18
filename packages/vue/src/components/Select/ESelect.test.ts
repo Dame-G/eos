@@ -416,4 +416,19 @@ describe("ESelect", () => {
     await opened(buttonOf(grouped.container));
     await expectNoViolations(document.body);
   });
+
+  test("the trigger rests on the same white as a text input (a button is not read-only)", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(ESelect, { label: "Pay with", options: OPTIONS }),
+            h("input", { class: "e-input", "aria-label": "Plain" }),
+          ]),
+      }),
+    );
+    const trigger = container.querySelector<HTMLElement>("button.e-sel-trigger")!;
+    const plain = container.querySelector<HTMLElement>("input.e-input")!;
+    expect(getComputedStyle(trigger).backgroundColor).toBe(getComputedStyle(plain).backgroundColor);
+  });
 });

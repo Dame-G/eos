@@ -54,6 +54,18 @@ defineSlots<{
     display: flex;
     align-items: center;
     min-width: 0;
+    font: 600 var(--e-text-xl) / 1.2 var(--e-font-sans);
+  }
+
+  .e-appheader-logo a {
+    color: var(--e-ink);
+    text-decoration: none;
+  }
+
+  .e-appheader-logo a:focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: var(--e-focus-gap);
+    border-radius: var(--e-radius-sm);
   }
 
   .e-appheader-actions {
@@ -74,6 +86,11 @@ defineSlots<{
     .e-appheader-nav {
       display: none;
     }
+  }
+
+  /* the first label lines up with the logo, not the edge of its row */
+  .e-appheader-nav .e-nav {
+    margin-inline-start: calc(-1 * var(--e-space-3));
   }
 
   .e-appheader-nav .e-nav > ul {

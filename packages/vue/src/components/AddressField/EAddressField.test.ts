@@ -211,4 +211,17 @@ describe("EAddressField", () => {
     const num = await render(EAddressField, { props: { name: "b", postalInputmode: "numeric" } });
     expect(input(num.container, "b-postal").inputMode).toBe("numeric");
   });
+
+  test("an error in one field of a row does not push the labels of its neighbours away from their inputs", async () => {
+    const { container } = await render(EAddressField, {
+      props: { name: "a", errors: { postal: "Enter a postal code." } },
+    });
+    const gap = (name: string) => {
+      const control = container.querySelector<HTMLElement>(`input[name="${name}"], button.e-sel-trigger`)!;
+      const field = control.closest(".e-field")!;
+      const label = field.querySelector(".e-field-label")!;
+      return Math.round(control.getBoundingClientRect().top - label.getBoundingClientRect().bottom);
+    };
+    expect(gap("a-city")).toBe(gap("a-postal"));
+  });
 });

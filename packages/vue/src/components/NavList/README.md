@@ -15,11 +15,13 @@ The sidebar list for an app, or the navigation row of an EAppHeader. The current
 
 ## Props
 
-| Prop            | Type                  | Default | Notes                                                                                    |
-| --------------- | --------------------- | ------- | ---------------------------------------------------------------------------------------- |
-| `items`         | `NavItem[]`           |         | `{ label, href?, to?, icon?, count?, current? }`. `icon` is a name or an icon component. |
-| `label`         | `string`              | "Main"  | The landmark's name. Give each navigation on a page its own.                             |
-| `linkComponent` | `string \| Component` | `"a"`   | What renders each link. Pass `RouterLink` for vue-router. See "Router usage".            |
+| Prop            | Type                  | Default | Notes                                                                                                 |
+| --------------- | --------------------- | ------- | ----------------------------------------------------------------------------------------------------- |
+| `items`         | `NavItem[]`           |         | `{ label, href?, to?, icon?, count?, current? }`. `icon` is a name or an icon component.              |
+| `sections`      | `NavSection[]`        |         | Groups instead of `items`: `{ label?, items }`. Each labelled section is a list named by its heading. |
+| `dense`         | `boolean`             |         | 36px rows and small words, for a long list such as the pages of a documentation site.                 |
+| `label`         | `string`              | "Main"  | The landmark's name. Give each navigation on a page its own.                                          |
+| `linkComponent` | `string \| Component` | `"a"`   | What renders each link. Pass `RouterLink` for vue-router. See "Router usage".                         |
 
 `class`, `style` and attributes fall through to the `nav`.
 
@@ -47,5 +49,6 @@ The link component receives `to` (or `href`), the `e-nav-item` class and, on the
 
 ## Rules
 
+- Give a section a `label` only when there is more than one section; a single group needs no heading.
 - Use it for the app's top-level places. Counts are for things waiting on the person; leave them off otherwise.
 - Inside an EAppHeader the items sit in a wrapping row instead of a column.

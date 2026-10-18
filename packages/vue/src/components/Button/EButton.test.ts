@@ -14,6 +14,23 @@ describe("EButton", () => {
     expect(container.querySelector("button")!.type).toBe("button");
   });
 
+  test("href renders a link that looks like the button; external opens a new tab", async () => {
+    const { container } = await render(EButton, {
+      props: { href: "/docs", variant: "outline" },
+      slots: { default: "Read the docs" },
+    });
+    await expect.element(page.getByRole("link", { name: "Read the docs" })).toBeVisible();
+    const a = container.querySelector("a")!;
+    expect(a.getAttribute("href")).toBe("/docs");
+    expect(a.className).toBe("e-btn e-btn--outline");
+    expect(container.querySelector("button")).toBeNull();
+    expect(a.hasAttribute("target")).toBe(false);
+    await render(EButton, { props: { href: "https://example.com", external: true }, slots: { default: "Elsewhere" } });
+    const ext = page.getByRole("link", { name: "Elsewhere" }).element();
+    expect(ext.getAttribute("target")).toBe("_blank");
+    expect(ext.getAttribute("rel")).toBe("noreferrer");
+  });
+
   test("variant and block add modifier classes", async () => {
     const { container } = await render(EButton, {
       props: { variant: "danger", block: true },

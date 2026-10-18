@@ -25,5 +25,10 @@
   " | .op-icongrid-item": "Documentation-only rule of the original icon gallery; the Eos site draws its own icon grid.",
   " | .op-icongrid-item .op-icon": "Documentation-only rule of the original icon gallery; the Eos site draws its own icon grid.",
   " | .op-icongrid-item span": "Documentation-only rule of the original icon gallery; the Eos site draws its own icon grid.",
-  " | :root": "The washes and tokens now come from @eos-ui/tokens (defineTheme().css()), generated from tokens.json; the three color-mix washes are written there."
+  " | :root": "The washes and tokens now come from @eos-ui/tokens (defineTheme().css()), generated from tokens.json; the three color-mix washes are written there.",
+  " | .op-input:read-only:not(:disabled)": "A button also matches :read-only, so the tint landed on every Select trigger. The tint is now keyed on the readonly attribute: .e-input[readonly]:not(:disabled).",
+  " | .op-cal-grid td": "The day cells keep 3px of room at each side so a selected day does not touch its neighbours or the edges of the grid.",
+  " | .op-appt-main": "The facts are a child of the grid, so a narrow card can run them the full width under the photo: the column gap stays space-4 and the row gap is space-3. The first row is never shorter than the date tile.",
+  " | .op-appt-facts": "The facts are a child of the grid, so the rows are spaced by the grid gap instead of a top margin.",
+  " | .op-appfooter": "The side padding comes from the page column (.e-shell-inner) alone, so the footer text lines up with the header and the content instead of sitting inset by twice the gutter."
 }

@@ -32,6 +32,7 @@ const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-
 @layer e.blocks {
   .e-stack {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     align-content: start;
     gap: var(--e-gap, var(--e-space-3));
     min-width: 0;

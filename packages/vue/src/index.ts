@@ -35,6 +35,7 @@ export * from "./components/Calendar/index.js";
 export * from "./components/CardField/index.js";
 export * from "./components/Checkbox/index.js";
 export * from "./components/Chip/index.js";
+export * from "./components/ColorField/index.js";
 export * from "./components/Combobox/index.js";
 export * from "./components/CurrencyField/index.js";
 export * from "./components/DataGrid/index.js";

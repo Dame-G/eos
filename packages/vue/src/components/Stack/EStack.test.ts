@@ -62,4 +62,18 @@ describe("EStack", () => {
     );
     await expectNoViolations(container);
   });
+
+  test("a child wider than the room shrinks to it instead of widening the stack", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: { width: "200px" } }, [
+            h(EStack, null, () =>
+              h("div", { class: "wide", style: { width: "20.5rem", maxWidth: "100%" } }, "A fixed width"),
+            ),
+          ]),
+      }),
+    );
+    expect(Math.round(container.querySelector(".wide")!.getBoundingClientRect().width)).toBe(200);
+  });
 });
