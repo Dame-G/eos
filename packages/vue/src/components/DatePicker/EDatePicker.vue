@@ -7,6 +7,7 @@ import EIcon from "../Icon/EIcon.vue";
 import { compareDays, isoDate, sameDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import { useQuietFocus } from "../Select/quietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
@@ -49,7 +50,12 @@ const attrs = useFieldAttrs();
 
 const input = ref<HTMLInputElement | null>(null);
 const calendar = ref<InstanceType<typeof ECalendar> | null>(null);
-const open = ref(false);
+/** Whether the calendar is open. */
+const open = defineModel<boolean>("open", { default: false });
+const shown = computed(() => open.value && !props.disabled);
+const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel, .e-combo"));
+const trigger = { onClick: quiet.intent, onKeydown: quiet.intent };
+
 const text = ref(loc.formatDate(model.value));
 const typedError = ref("");
 let outside = false;
@@ -93,6 +99,7 @@ function onKey(e: KeyboardEvent) {
   if (e.key === "Enter") commit();
   else if (e.key === "ArrowDown" && e.altKey && !props.disabled) {
     e.preventDefault();
+    quiet.intent();
     open.value = true;
   }
 }
@@ -109,10 +116,12 @@ function clear() {
 
 function onOpenFocus(e: Event) {
   e.preventDefault();
+  if (!quiet.personOpened()) return;
   void nextTick(() => calendar.value?.focusDay());
 }
 function onCloseFocus(e: Event) {
   e.preventDefault();
+  if (!quiet.returnsFocus()) return;
   if (!outside) input.value?.focus();
 }
 function onEscape(e: KeyboardEvent) {
@@ -156,7 +165,7 @@ defineExpose({
     :optional="optional"
   >
     <template #default="field">
-      <PopoverRoot v-model:open="open">
+      <PopoverRoot :open="shown" @update:open="open = $event">
         <PopoverAnchor as-child>
           <div
             class="e-input-wrap e-combo"
@@ -174,7 +183,7 @@ defineExpose({
               @keydown="onKey"
             />
             <input v-if="name" type="hidden" :name="name" :value="isoDate(model)" />
-            <PopoverTrigger as-child>
+            <PopoverTrigger as-child v-bind="trigger">
               <button type="button" class="e-combo-btn" :aria-label="t('chooseDate')" :disabled="disabled">
                 <EIcon name="calendar" />
               </button>

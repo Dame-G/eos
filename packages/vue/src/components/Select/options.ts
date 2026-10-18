@@ -1,4 +1,4 @@
-import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 
 /** One choice in a Select, Combobox, Autocomplete or MultiSelect. */
 export interface EOption {
@@ -9,7 +9,7 @@ export interface EOption {
   /** A second, muted line under the label. Searched too. */
   description?: string;
   /** An icon before the label. */
-  icon?: IconName | (string & {});
+  icon?: IconProp;
   /** A heading for a run of options. A new heading starts when this changes from the option before. */
   group?: string;
   /** Not choosable. Stays visible, muted. */

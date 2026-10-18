@@ -21,13 +21,14 @@ The month grid behind the date pickers, usable alone: choose a day, or a span, w
 | `marked`                       | `Date[] \| (date: Date) => boolean` | Days that get a dot (days with open times). Pair it with `ESlotPicker`.                                |
 | `markLabel`                    | `string`                            | What screen readers hear on a marked day. Default "times available".                                   |
 | `footer`                       | `boolean`                           | `false` hides Today and Clear. Default shown.                                                          |
+| `clearable`                    | `boolean`                           | Forces the Clear button on or off. Left out, it follows the `@clear` listener.                         |
 
 ## Events
 
-| Event         | Payload                                      | Notes                                                                    |
-| ------------- | -------------------------------------------- | ------------------------------------------------------------------------ |
-| `rangeChange` | `{ start: Date \| null, end: Date \| null }` | Range mode, after every click that changes the span.                     |
-| `clear`       | none                                         | The Clear button. It is only shown when a `@clear` listener is attached. |
+| Event         | Payload                                      | Notes                                                                                                                            |
+| ------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `rangeChange` | `{ start: Date \| null, end: Date \| null }` | Range mode, after every click that changes the span.                                                                             |
+| `clear`       | none                                         | The Clear button. It is shown when a `@clear` listener is attached (checked on every render), unless `clearable` says otherwise. |
 
 Exposed: `view` (`days`, `months` or `years`) and `focusDay()`. `class`, `style` and other attributes land on the root `div.e-cal`.
 

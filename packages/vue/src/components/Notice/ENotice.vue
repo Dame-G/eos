@@ -8,7 +8,7 @@ import EActions from "../Actions/EActions.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages } from "../../config.js";
-import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 import "./notice.css";
 
@@ -25,9 +25,11 @@ const props = withDefaults(
     /** The ARIA role. `danger` uses `alert`, the others `status`. `false` removes it, for a parent that announces the notice. */
     role?: string | false;
     /** Replaces the icon of the tone. */
-    icon?: IconName | (string & {});
+    icon?: IconProp;
+    /** Forces the dismiss button on or off. Left out, it shows when a `@dismiss` listener is attached. */
+    dismissible?: boolean;
   }>(),
-  { tone: "info", role: undefined },
+  { tone: "info", role: undefined, dismissible: undefined },
 );
 
 const emit = defineEmits<{
@@ -48,7 +50,7 @@ const TONE_ICON: Record<NoticeTone, string> = { info: "info", success: "check", 
 const role = computed(() =>
   props.role === false ? undefined : props.role || (props.tone === "danger" ? "alert" : "status"),
 );
-const hasDismiss = () => !!instance?.vnode.props?.onDismiss;
+const hasDismiss = () => props.dismissible ?? !!instance?.vnode.props?.onDismiss;
 </script>
 
 <template>

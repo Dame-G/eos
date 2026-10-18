@@ -34,6 +34,6 @@ A dropzone for attaching files. The whole area is the click target and a drop ta
 
 ## Rules
 
-- The visually hidden file input is the control: it takes focus with the keyboard and the dropzone draws the focus outline. The input has two labels, the field label and the dropzone text.
+- The visually hidden file input is the control: it takes focus with the keyboard and the dropzone draws the focus outline. The input's accessible name is the field label followed by the dropzone text, because both `<label>`s point at it.
 - Dragging over highlights the zone; a disabled upload ignores drops.
 - File sizes are shown in KB.

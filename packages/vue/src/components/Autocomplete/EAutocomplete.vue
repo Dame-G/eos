@@ -13,6 +13,9 @@ defineEmits<{
 /** The text. Suggestions fill it in; anything typed is accepted. */
 const model = defineModel<string>({ default: "" });
 
+/** Whether the list is open. */
+const open = defineModel<boolean>("open", { default: false });
+
 const base = ref<InstanceType<typeof EComboboxBase> | null>(null);
 defineExpose({
   /** The `<input>` element. */
@@ -27,6 +30,7 @@ defineExpose({
     ref="base"
     v-bind="props"
     v-model="model"
+    v-model:open="open"
     mode="free"
     @input-change="(text: string) => $emit('inputChange', text)"
   />

@@ -3,9 +3,7 @@
 Short facts, one per line, each with an icon: when, where, who to call. AppointmentCard is built on it.
 
 ```vue
-<EMetaList
-  :items="[{ icon: 'calendar', text: 'Thursday, October 22' }, null, { icon: 'map-pin', text: 'Main office' }]"
-/>
+<EMetaList :items="[{ icon: 'calendar', text: 'Thursday, October 22' }, null, { icon: 'pin', text: 'Main office' }]" />
 ```
 
 ## Props

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import EButton from "../Button/EButton.vue";
-import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
 defineProps<{
   /** An icon before the label. */
-  icon?: IconName | (string & {});
+  icon?: IconProp;
   disabled?: boolean;
 }>();
 

@@ -1,11 +1,11 @@
 <script lang="ts">
-import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 
 export interface SegmentedOption {
   value: string;
   label: string;
   /** An icon before the label. */
-  icon?: IconName | (string & {});
+  icon?: IconProp;
   disabled?: boolean;
 }
 </script>

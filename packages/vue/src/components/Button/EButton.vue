@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import EIcon from "../Icon/EIcon.vue";
-import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
 withDefaults(
@@ -8,7 +8,7 @@ withDefaults(
     /** `primary` is the one main action on a screen; `secondary` confirms; `outline` is for the other actions beside it; `danger` cancels or removes; `quiet` is an underlined text action. */
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
     /** An icon before the label. */
-    icon?: IconName | (string & {});
+    icon?: IconProp;
     /** Full width. */
     block?: boolean;
     disabled?: boolean;
@@ -144,6 +144,19 @@ defineSlots<{
     border: var(--e-stroke-edge) dashed var(--e-border-strong);
     box-shadow: none;
     padding-top: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .e-btn {
+      transition: none;
+    }
+  }
+
+  /* Not part of the page when printed. The reference uses !important; a later rule in the same layer wins without it. */
+  @media print {
+    .e-btn {
+      display: none;
+    }
   }
 
   @media (forced-colors: active) {

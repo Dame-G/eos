@@ -9,14 +9,14 @@ The one box you look things up in: a flat outlined field with a Button inside. O
 
 ## Props
 
-| Prop          | Type      | Notes                                                                          |
-| ------------- | --------- | ------------------------------------------------------------------------------ |
-| `v-model`     | `string`  | The text. Leave it off for local state.                                        |
-| `label`       | `string`  | What screen readers call the box. Default "Search". There is no visible label. |
-| `placeholder` | `string`  | Say what can be searched, briefly. Default "Search".                           |
-| `action`      | `string`  | The Button's text. Default "Search".                                           |
-| `name`        | `string`  | The name submitted with a form. Default `q`.                                   |
-| `disabled`    | `boolean` | Disables the box and the Button. Say why in a Notice.                          |
+| Prop          | Type      | Notes                                                                                                  |
+| ------------- | --------- | ------------------------------------------------------------------------------------------------------ |
+| `v-model`     | `string`  | The text. Leave it off for local state.                                                                |
+| `label`       | `string`  | What screen readers call the box and the search landmark. Default "Search". There is no visible label. |
+| `placeholder` | `string`  | Say what can be searched, briefly. Default "Search".                                                   |
+| `action`      | `string`  | The Button's text. Default "Search".                                                                   |
+| `name`        | `string`  | The name submitted with a form. Default `q`.                                                           |
+| `disabled`    | `boolean` | Disables the box and the Button. Say why in a Notice.                                                  |
 
 ## Events
 
@@ -32,7 +32,7 @@ The form's default submit is prevented; the page does not reload.
 
 ## Rules
 
-- The form is a `search` landmark. Use one per page.
+- The form is a `search` landmark named by `label` (default "Search"). Several searches on one page, such as a site search and a help search, need distinct labels, or screen reader users hear the same landmark twice.
 - The box is 48px tall, like every input; the Button inside is 6px shorter and has a 3px larger hit area.
 - The edge darkens on hover; focus turns it `focus-field` and draws a 2px outline round the whole bar.
 - Hidden when printed.

@@ -18,22 +18,23 @@ A dropdown built from a button and a listbox, for when options need more than a 
 
 ## Props
 
-| Prop          | Type                    | Notes                                                                                              |
-| ------------- | ----------------------- | -------------------------------------------------------------------------------------------------- |
-| `v-model`     | `string`                | The `value` of the chosen option. An empty string is nothing chosen. Leave it off for local state. |
-| `label`       | `string`                | The mono kicker above the control. Required unless `bare`. It also names the list.                 |
-| `options`     | `(string \| EOption)[]` | Required. A string is both value and label. See below.                                             |
-| `placeholder` | `string`                | What the button says while nothing is chosen. Default "Select" (the `select` message).             |
-| `hideLabel`   | `boolean`               | Keeps the label for screen readers and removes it from the page.                                   |
-| `hint`        | `string`                | Help under the control, 8px away, the same gap as the label above.                                 |
-| `error`       | `string`                | Replaces the hint, turns the edge `danger`, marks the button `aria-invalid`.                       |
-| `required`    | `boolean`               | The word "Required" beside the label and `aria-required` on the button.                            |
-| `optional`    | `boolean`               | The word "Optional". Flag whichever is rarer.                                                      |
-| `disabled`    | `boolean`               | Dashed and tinted; never opens.                                                                    |
-| `name`        | `string`                | Submits the chosen value with a form. A hidden input carries it.                                   |
-| `bare`        | `boolean`               | Only the control, no label, hint or error. Give it `ariaLabel`. For dense places such as filters.  |
-| `ariaLabel`   | `string`                | The accessible name when `bare`.                                                                   |
-| `id`          | `string`                | The button's id; the label points at it. Generated when left out.                                  |
+| Prop           | Type                    | Notes                                                                                                                                                                                                                                           |
+| -------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v-model`      | `string`                | The `value` of the chosen option. An empty string is nothing chosen. Leave it off for local state.                                                                                                                                              |
+| `v-model:open` | `boolean`               | Whether the list is open. Set it to open it from outside, or to start open; it follows the person's own opening and closing. Leave it off for local state. Opening or closing it from outside moves no focus, and a disabled field never opens. |
+| `label`        | `string`                | The mono kicker above the control. Required unless `bare`. It also names the list.                                                                                                                                                              |
+| `options`      | `(string \| EOption)[]` | Required. A string is both value and label. See below.                                                                                                                                                                                          |
+| `placeholder`  | `string`                | What the button says while nothing is chosen. Default "Select" (the `select` message).                                                                                                                                                          |
+| `hideLabel`    | `boolean`               | Keeps the label for screen readers and removes it from the page.                                                                                                                                                                                |
+| `hint`         | `string`                | Help under the control, 8px away, the same gap as the label above.                                                                                                                                                                              |
+| `error`        | `string`                | Replaces the hint, turns the edge `danger`, marks the button `aria-invalid`.                                                                                                                                                                    |
+| `required`     | `boolean`               | The word "Required" beside the label and `aria-required` on the button.                                                                                                                                                                         |
+| `optional`     | `boolean`               | The word "Optional". Flag whichever is rarer.                                                                                                                                                                                                   |
+| `disabled`     | `boolean`               | Dashed and tinted; never opens.                                                                                                                                                                                                                 |
+| `name`         | `string`                | Submits the chosen value with a form. A hidden input carries it.                                                                                                                                                                                |
+| `bare`         | `boolean`               | Only the control, no label, hint or error. Give it `ariaLabel`. For dense places such as filters.                                                                                                                                               |
+| `ariaLabel`    | `string`                | The accessible name when `bare`.                                                                                                                                                                                                                |
+| `id`           | `string`                | The button's id; the label points at it. Generated when left out.                                                                                                                                                                               |
 
 An option is a string, or `{ value, label, description?, icon?, group?, disabled? }` (exported as `EOption`). A `value` is never an empty string. `description` is a muted second line. A new `group` heading starts wherever `group` changes from the option before, so keep each group's options together.
 

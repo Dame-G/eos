@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import { h } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
+import * as Vue from "vue";
 import EToast from "./EToast.vue";
 import EButton from "../Button/EButton.vue";
 import { expectNoViolations } from "../../../test/axe.js";
@@ -83,5 +84,23 @@ describe("EToast", () => {
       container.classList.add("e-root");
       await expectNoViolations(container);
     }
+  });
+
+  test("Close: a listener added after mount makes the button appear; the prop forces it", async () => {
+    const on = Vue.ref(false);
+    const forced = Vue.ref<boolean | undefined>(undefined);
+    const { container } = await render(
+      Vue.defineComponent({
+        render: () => Vue.h(EToast, { title: "x", closable: forced.value, ...(on.value ? { onClose: () => {} } : {}) }),
+      }),
+    );
+    expect(container.querySelector(".e-notice-dismiss")).toBeNull();
+    on.value = true;
+    await expect.poll(() => container.querySelector(".e-notice-dismiss")).not.toBeNull();
+    forced.value = false;
+    await expect.poll(() => container.querySelector(".e-notice-dismiss")).toBeNull();
+    on.value = false;
+    forced.value = true;
+    await expect.poll(() => container.querySelector(".e-notice-dismiss")).not.toBeNull();
   });
 });

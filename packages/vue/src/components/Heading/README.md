@@ -3,7 +3,7 @@
 The three heading styles (36, 24 and 20px, weight 500) with an optional mono `kicker` above.
 
 ```vue
-<EHeading :level="1" kicker="Statement 8842">Your visit on 22 September</EHeading>
+<EHeading :level="1" kicker="Statement 8842">Your visit on October 22</EHeading>
 ```
 
 ## Props

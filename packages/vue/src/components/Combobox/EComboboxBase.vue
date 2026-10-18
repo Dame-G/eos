@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import {
   ComboboxAnchor,
   ComboboxContent,
@@ -58,7 +58,8 @@ const resting = () => (multiple.value ? "" : labelOf(single.value));
 
 const text = ref(resting());
 const typing = ref(false);
-const wantOpen = ref(false);
+/** Whether the list is asked to be open. It still shows only while there is something to list and the field is enabled. */
+const wantOpen = defineModel<boolean>("open", { default: false });
 const anchor = ref<{ $el: HTMLElement } | null>(null);
 const query = computed(() => (typing.value ? text.value.trim().toLowerCase() : ""));
 
@@ -90,6 +91,20 @@ watch(rootValue, () => {
 // The label of a chosen option can arrive late (options fetched after the value).
 watch(all, () => {
   if (!typing.value && !open.value) text.value = resting();
+});
+
+// Reka gives the input the id of the list only once the list exists, and does not update it when the list is there
+// from the first render (`open` set at the start). Read the id once the list has mounted.
+const listId = ref<string | undefined>();
+const content = ref<{ $el: HTMLElement } | null>(null);
+onMounted(() => {
+  if (!open.value) return;
+  let tries = 0;
+  const read = () => {
+    listId.value = content.value?.$el?.id || undefined;
+    if (!listId.value && tries++ < 10) requestAnimationFrame(read);
+  };
+  void nextTick(read);
 });
 
 const inputEl = () => anchor.value?.$el?.querySelector("input") ?? null;
@@ -175,6 +190,7 @@ function inputBind(field: FieldSlot) {
     placeholder: multiple.value && values.value.length ? "" : props.placeholder,
     "aria-invalid": field.ariaInvalid,
     autocomplete: "off",
+    ...(listId.value ? { "aria-controls": listId.value } : {}),
     // Reka leaves the id of a row that has just been filtered away; an id that is not in the page is invalid.
     ...(shown.value.length ? {} : { "aria-activedescendant": undefined }),
     ...attrs.input(field.ariaDescribedby),
@@ -275,6 +291,7 @@ defineExpose({
         <span class="e-sr" role="status">{{ announce }}</span>
         <ComboboxPortal :to="portal">
           <ComboboxContent
+            ref="content"
             position="popper"
             align="start"
             :side-offset="6"

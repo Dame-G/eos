@@ -18,7 +18,7 @@ A term that opens a floating panel. The panel is built from a header, a body and
 | -------------- | ------------------ | --------------------------------------------------------------------------------------------------- |
 | `v-model`      | `boolean`          | Whether the panel is open. Leave it off for local state.                                            |
 | `label`        | `string`           | Required. Names the panel for screen readers (when there is no `title`) and is read after the term. |
-| `title`        | `string`           | Adds the header: a mono title and a Close button.                                                   |
+| `title`        | `string`           | Adds a title row: a mono title and a Close button.                                                  |
 | `headingLevel` | `1 \| 2 \| 3 \| 4` | The level of the title's heading, so it fits the page outline. Default 3.                           |
 
 ## Slots
@@ -38,4 +38,5 @@ A term that opens a floating panel. The panel is built from a header, a body and
 - The panel sits 8px under the term, left-aligned, kept 16px from the edge of the screen. It renders in the portal target (`createEos({ portalTarget })`, default `body`) with the `e-root` class, so a scoped theme reaches it.
 - Keep it short. The term is hidden when printed.
 - The word "Close" goes through `useMessages()`.
-- Deliberate differences from the reference: the reference's `className` (replacing the term's look) has no counterpart: `class` is added to `e-linkbtn`. The reference named the term's button by `label` alone; here the visible term comes first so the name contains it.
+- `class` is added to the term's `e-linkbtn` button; it does not replace the term's look.
+- The title row is a `div`, not a `header`: the panel is portalled to the body, where a `header` would become a banner landmark.

@@ -3,7 +3,7 @@
 A multi-line text well, 6.5rem tall at rest, resizable vertically. Built on `EField`; it takes `ETextField`'s props, attributes and listeners.
 
 ```vue
-<ETextarea v-model="note" label="Note to the practice" :rows="5" optional />
+<ETextarea v-model="note" label="Note to the team" :rows="5" optional />
 ```
 
 ## Props

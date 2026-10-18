@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
+import * as Vue from "vue";
 import ESearchBar from "./ESearchBar.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
@@ -128,5 +129,21 @@ describe("ESearchBar", () => {
       }),
     );
     await expectNoViolations(container);
+  });
+
+  test("the label names the search landmark, so two searches stay distinguishable", async () => {
+    await render(
+      Vue.defineComponent({
+        render: () =>
+          Vue.h("div", [
+            Vue.h(ESearchBar, { label: "Search the site" }),
+            Vue.h(ESearchBar, { label: "Search help articles" }),
+          ]),
+      }),
+    );
+    await expect.element(page.getByRole("search", { name: "Search the site" })).toBeVisible();
+    await expect.element(page.getByRole("search", { name: "Search help articles" })).toBeVisible();
+    await render(ESearchBar);
+    await expect.element(page.getByRole("search", { name: "Search", exact: true }).first()).toBeVisible();
   });
 });

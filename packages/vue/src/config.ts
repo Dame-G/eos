@@ -1,6 +1,8 @@
 import { inject, reactive, type InjectionKey } from "vue";
 import { defaultMessages, type MessageKey } from "./messages.js";
-import { phosphor, type IconMarkup } from "./icons/phosphor.js";
+import type { Component } from "vue";
+import { phosphor, ICON_VIEWBOX, type IconMarkup } from "./icons/phosphor.js";
+import type { IconSource, IconsConfig } from "./icons/types.js";
 
 /** What the app tells the components: language, money, direction, words and icons. Set it once with `createEos()`. */
 export interface EosConfig {
@@ -12,8 +14,8 @@ export interface EosConfig {
   dir: "ltr" | "rtl" | null;
   /** Overrides for any message, by key. See `defaultMessages`. */
   messages: Record<string, string>;
-  /** Extra or replacement icons, by name: `[regular, bold]` SVG markup in a 256 x 256 box. */
-  icons: Record<string, IconMarkup>;
+  /** Where icons come from: your own set, aliases onto it, individual icons. The built-in Phosphor set is the fallback. */
+  icons: IconsConfig;
   /** Where floating parts (menus, dialogs, tooltips, toasts) render: a CSS selector or an element. Default `body`. Set it to a themed container when you scope a theme to part of the page, so floating parts inherit the theme. */
   portalTarget: string | HTMLElement;
 }
@@ -48,12 +50,42 @@ export function useMessages(): Translate {
   };
 }
 
-/** Markup for an icon: the app's own icons first, then the built-in Phosphor set. */
-export function useIconMarkup(): (name: string, bold: boolean) => string {
+/** An icon ready to render. */
+export type ResolvedIcon =
+  | { kind: "component"; component: Component }
+  | { kind: "svg"; html: string }
+  | { kind: "glyph"; html: string; viewBox: string }
+  | { kind: "none" };
+
+const warned = new Set<string>();
+
+/**
+ * Turns an icon name (or a component passed directly) into something renderable. Order: a component is used as given;
+ * then `icons[name]`; then `resolve(alias ?? name)`; then the built-in Phosphor icon; otherwise nothing is drawn
+ * and a warning is logged once in development.
+ */
+export function useIconResolver(): (icon: string | Component, bold: boolean) => ResolvedIcon {
   const config = useConfig();
-  return (name, bold) => {
-    const entry = config.icons[name] ?? (phosphor as Record<string, IconMarkup>)[name] ?? phosphor.info;
-    return entry[bold ? 1 : 0];
+  const fromSource = (source: IconSource, bold: boolean): ResolvedIcon => {
+    if (typeof source === "string") return { kind: "svg", html: source };
+    if (Array.isArray(source))
+      return { kind: "glyph", html: (source as unknown as IconMarkup)[bold ? 1 : 0], viewBox: ICON_VIEWBOX };
+    return { kind: "component", component: source as Component };
+  };
+  return (icon, bold) => {
+    if (typeof icon !== "string") return { kind: "component", component: icon };
+    const set = config.icons;
+    const explicit = set.icons?.[icon];
+    if (explicit) return fromSource(explicit, bold);
+    const found = set.resolve?.(set.aliases?.[icon] ?? icon, { bold });
+    if (found) return fromSource(found, bold);
+    const builtin = set.builtin === false ? undefined : (phosphor as Record<string, IconMarkup>)[icon];
+    if (builtin) return fromSource(builtin, bold);
+    if (import.meta.env?.DEV && !warned.has(icon)) {
+      warned.add(icon);
+      console.warn(`[eos] No icon named "${icon}". Add it to createEos({ icons }) or alias it to one your set has.`);
+    }
+    return { kind: "none" };
   };
 }
 

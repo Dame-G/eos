@@ -216,7 +216,7 @@ describe("ESelect", () => {
         label: "Plan",
         options: [
           { value: "a", label: "Basic", description: "Free, forever" },
-          { value: "b", label: "Plus", icon: "star", disabled: true },
+          { value: "b", label: "Plus", icon: "info", disabled: true },
           "Pro",
         ],
         "onUpdate:modelValue": (v: string) => got.push(v),
@@ -408,7 +408,7 @@ describe("ESelect", () => {
         label: "City",
         options: [
           { value: "1", label: "Lyon", group: "France", description: "East" },
-          { value: "3", label: "Turin", group: "Italy", icon: "star" },
+          { value: "3", label: "Turin", group: "Italy", icon: "info" },
         ],
       },
     });

@@ -11,7 +11,7 @@ const rows = () => Array.from(document.querySelectorAll<HTMLElement>("[role=menu
 const triggerOf = (c: Element) => c.querySelector<HTMLButtonElement>("button.e-btn")!;
 
 const ITEMS = [
-  { label: "Edit", icon: "pencil" },
+  { label: "Edit", icon: "edit" },
   { label: "Duplicate" },
   { label: "Archive", disabled: true },
   { divider: true as const },

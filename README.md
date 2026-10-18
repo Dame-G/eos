@@ -18,6 +18,7 @@ npm install @eos-ui/vue
 ```ts
 import { createApp } from "vue";
 import { createEos } from "@eos-ui/vue";
+import "@eos-ui/vue/style.css"; // once, in your entry file
 
 createApp(App)
   .use(
@@ -43,7 +44,7 @@ const email = ref("");
 </template>
 ```
 
-Each component imports its own styles, so only what you use ships. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. For template auto-import, use the resolver:
+The stylesheet is one file (about 17 kB gzipped) and the JavaScript has no CSS imports, so server rendering works in plain Node without bundler setup. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. For template auto-import, use the resolver:
 
 ```ts
 import { EosResolver } from "@eos-ui/vue/resolver";
@@ -77,6 +78,35 @@ Every string a component writes can be replaced, and money, dates and numbers fo
 ```ts
 createEos({ locale: "fr-CA", currency: "CAD", messages: { required: "Obligatoire" } });
 ```
+
+## Bring your own icons
+
+Eos draws its built-in Phosphor icons until you give it your own. Adapters take the icon library you already use, so Eos adds no dependency:
+
+```ts
+import { createEos } from "@eos-ui/vue";
+import { lucide } from "@eos-ui/vue/icons";
+import { Check, X, CreditCard, TriangleAlert } from "lucide-vue-next";
+
+createEos({ icons: lucide({ Check, X, CreditCard, TriangleAlert }) }); // an explicit map tree-shakes; `import *` keeps every icon
+```
+
+Other sets work the same way, each given its module:
+
+```ts
+import * as tablerIcons from "@tabler/icons-vue";
+import * as outline from "@heroicons/vue/24/outline"; // the path picks the variant
+import * as ph from "@phosphor-icons/vue";
+import { tabler, heroicons, phosphorVue } from "@eos-ui/vue/icons";
+import { iconify } from "@eos-ui/vue/icons/iconify"; // needs the optional peer @iconify/vue
+
+tabler(tablerIcons);
+heroicons(outline);
+phosphorVue(ph);
+iconify("lucide");
+```
+
+Then `<EButton icon="credit-card">` finds the icon in your set, and the names Eos uses itself (`card`, `alert`, `home`) are renamed for you. Anything your set lacks falls back to the built-in icon, or turn that off with `builtin: false`. You can also pass a component directly (`:icon="CreditCard"`) or write your own resolver. All 41 names, the options and the resolver are in [packages/vue/src/icons/README.md](packages/vue/src/icons/README.md).
 
 ## Contributing
 

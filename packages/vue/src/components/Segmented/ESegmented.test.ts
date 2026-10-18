@@ -74,7 +74,7 @@ describe("ESegmented", () => {
       props: {
         label: "View",
         options: [
-          { value: "list", label: "List", icon: "list" },
+          { value: "list", label: "List", icon: "file" },
           { value: "grid", label: "Grid", disabled: true },
         ],
       },
@@ -135,7 +135,7 @@ describe("ESegmented", () => {
             h(ESegmented, {
               label: "Icons",
               options: [
-                { value: "a", label: "List", icon: "list" },
+                { value: "a", label: "List", icon: "file" },
                 { value: "b", label: "Grid", disabled: true },
               ],
             }),

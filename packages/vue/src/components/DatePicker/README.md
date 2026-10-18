@@ -8,19 +8,20 @@ A date field with a calendar. A text box that takes the locale's order, and a bu
 
 ## Props
 
-| Prop         | Type           | Notes                                                                                        |
-| ------------ | -------------- | -------------------------------------------------------------------------------------------- |
-| `v-model`    | `Date \| null` | The chosen date. Leave it off for local state.                                               |
-| `label`      | `string`       | Required. A mono kicker above the field.                                                     |
-| `hideLabel`  | `boolean`      | Keeps the label for screen readers and removes it from the page.                             |
-| `hint`       | `string`       | Help under the field, 8px below it.                                                          |
-| `error`      | `string`       | Replaces the hint and marks the box invalid. A typed date that cannot be used shows its own. |
-| `required`   | `boolean`      | The `required` attribute and the word "Required".                                            |
-| `optional`   | `boolean`      | The word "Optional".                                                                         |
-| `disabled`   | `boolean`      | Dashed and tinted; the calendar cannot open.                                                 |
-| `min`, `max` | `Date`         | Earliest and latest date, typed or chosen.                                                   |
-| `name`       | `string`       | Submits the date as `YYYY-MM-DD` through a hidden input.                                     |
-| `id`         | `string`       | The text box's id. Generated when left out.                                                  |
+| Prop           | Type           | Notes                                                                                                                                                                                                                                               |
+| -------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v-model`      | `Date \| null` | The chosen date. Leave it off for local state.                                                                                                                                                                                                      |
+| `v-model:open` | `boolean`      | Whether the calendar is open. Set it to open it from outside, or to start open; it follows the person's own opening and closing. Leave it off for local state. Opening or closing it from outside moves no focus, and a disabled field never opens. |
+| `label`        | `string`       | Required. A mono kicker above the field.                                                                                                                                                                                                            |
+| `hideLabel`    | `boolean`      | Keeps the label for screen readers and removes it from the page.                                                                                                                                                                                    |
+| `hint`         | `string`       | Help under the field, 8px below it.                                                                                                                                                                                                                 |
+| `error`        | `string`       | Replaces the hint and marks the box invalid. A typed date that cannot be used shows its own.                                                                                                                                                        |
+| `required`     | `boolean`      | The `required` attribute and the word "Required".                                                                                                                                                                                                   |
+| `optional`     | `boolean`      | The word "Optional".                                                                                                                                                                                                                                |
+| `disabled`     | `boolean`      | Dashed and tinted; the calendar cannot open.                                                                                                                                                                                                        |
+| `min`, `max`   | `Date`         | Earliest and latest date, typed or chosen.                                                                                                                                                                                                          |
+| `name`         | `string`       | Submits the date as `YYYY-MM-DD` through a hidden input.                                                                                                                                                                                            |
+| `id`           | `string`       | The text box's id. Generated when left out.                                                                                                                                                                                                         |
 
 Exposed: `input` and `focus()`. `class` and `style` stay on the wrapper (`div.e-field`); every other attribute and listener lands on the text `<input>` (`autocomplete` is `off` and `inputmode` is `numeric` unless you set them).
 

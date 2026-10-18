@@ -31,4 +31,4 @@ A stack of sections that open and close, to hide secondary detail on a page of s
 ## Rules
 
 - Hide secondary detail only. A single hidden section is an EDisclosure, not an accordion.
-- Why not Reka's Accordion: it renders buttons and regions, which changes the DOM and needs script. The native element gives the reference look and works without it.
+- Why not Reka's Accordion: it renders buttons and regions, which changes the DOM and needs script. The native element works without script and keeps the same look.

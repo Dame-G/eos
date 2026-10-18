@@ -34,7 +34,13 @@ const attrs = useFieldAttrs();
 </script>
 
 <template>
-  <form class="e-search" v-bind="attrs.wrapper()" role="search" @submit.prevent="emit('submit', model)">
+  <form
+    class="e-search"
+    v-bind="attrs.wrapper()"
+    role="search"
+    :aria-label="label || t('search')"
+    @submit.prevent="emit('submit', model)"
+  >
     <span class="e-search-lead"><EIcon name="search" /></span>
     <input
       v-bind="attrs.input()"

@@ -36,4 +36,4 @@ Related controls in a bordered box. Use it, not a bare label, whenever two or mo
 - The title sits on the top edge at the start and Required or Optional at the end, with a line between them and room either side, so the border never runs into the text.
 - `bare` drops the box: the legend floats above the controls like a Field's label.
 - The legend names the group and the fields drop the repeated word: "Home address" holds Street, City and ZIP code, not Street address.
-- The hint and error sit 8px under the last control, in the box and bare (the reference's "attach rule": negative margins that pull the message up under a choice or the body gap).
+- The hint and error sit 8px under the last control, in the box and bare (negative margins pull the message up under a choice or the body gap).

@@ -14,4 +14,6 @@ A combobox that keeps several choices, shown as removable tags in the field. A v
 - A one-row field is 48px tall like `ETextField` and `ESelect`; more tags wrap inside the field and make it taller.
 - The listbox is `aria-multiselectable`.
 
+`v-model:open` (`boolean`) says whether the list is open. Set it to open the list from outside or to start open; it follows the person's typing, choosing and Escape. Opening or closing it from outside moves no focus, and a disabled field never opens.
+
 Props: `label`, `options`, `placeholder`, `hideLabel`, `hint`, `error`, `required`, `optional`, `disabled`, `name`, `loading`, `emptyText`, `clearable`, `filter`, `id`. Event: `inputChange(text)`. Exposed: `input()` and `focus()`.

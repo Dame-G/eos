@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { watch } from "vue";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -10,7 +11,7 @@ import {
 import EButton from "../Button/EButton.vue";
 import EDivider from "../Divider/EDivider.vue";
 import EIcon from "../Icon/EIcon.vue";
-import type { IconName } from "../../icons/phosphor.js";
+import type { IconProp } from "../../icons/types.js";
 import { usePortalTarget } from "../../config.js";
 import "../../styles/base.css";
 import "../Select/panel.css";
@@ -20,7 +21,7 @@ export interface EMenuAction {
   /** What the row says: a verb. */
   label: string;
   /** An icon before the label. */
-  icon?: IconName | (string & {});
+  icon?: IconProp;
   /** Called when the row is chosen, after the menu closes. */
   onClick?: () => void;
   /** Red text for a destructive action. Put it last, after a divider. */
@@ -46,7 +47,7 @@ withDefaults(
     /** The look of the button. Default `outline`. */
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
     /** An icon before the label. */
-    icon?: IconName | (string & {});
+    icon?: IconProp;
   }>(),
   { variant: "outline" },
 );
@@ -56,6 +57,9 @@ const emit = defineEmits<{
   select: [item: EMenuAction];
 }>();
 
+/** Whether the menu is open. */
+const open = defineModel<boolean>("open", { default: false });
+
 const portal = usePortalTarget();
 
 function choose(item: EMenuAction) {
@@ -63,19 +67,39 @@ function choose(item: EMenuAction) {
   emit("select", item);
 }
 
-/** A menu opens with its first action focused, however it was opened. */
+// A person opening the menu (pointer or key on the button) gets the first action focused. A menu that starts open or
+// is opened from outside moves no focus. Likewise, closing it from outside gives focus back to nothing.
+let byPerson = false;
+let hadFocus = false;
+const intent = () => (byPerson = true);
+
+watch(
+  open,
+  (isOpen) => {
+    if (!isOpen) hadFocus = !!document.activeElement?.closest("[role=menu]");
+  },
+  { flush: "sync" },
+);
+
 function focusFirst(event: Event) {
   event.preventDefault();
   const content = event.target as HTMLElement | null;
+  if (!byPerson) return;
+  byPerson = false;
   requestAnimationFrame(() => {
     content?.querySelector<HTMLElement>("[role=menuitem]:not([data-disabled])")?.focus({ preventScroll: true });
   });
 }
+
+function returnFocus(event: Event) {
+  byPerson = false;
+  if (!hadFocus) event.preventDefault();
+}
 </script>
 
 <template>
-  <DropdownMenuRoot :modal="false">
-    <DropdownMenuTrigger as-child>
+  <DropdownMenuRoot v-model:open="open" :modal="false">
+    <DropdownMenuTrigger as-child @click="intent" @keydown="intent">
       <EButton :variant="variant" :icon="icon" v-bind="$attrs">
         {{ label }}
         <EIcon name="chevron-down" />
@@ -89,6 +113,7 @@ function focusFirst(event: Event) {
         :collision-padding="16"
         loop
         @open-auto-focus="focusFirst"
+        @close-auto-focus="returnFocus"
       >
         <template v-for="(item, i) in items" :key="i">
           <DropdownMenuSeparator v-if="item.divider" as-child>

@@ -8,21 +8,22 @@ A floating message that confirms or reports something just done: ENotice's tones
 
 ## Props
 
-| Prop    | Type                                           | Default | Notes                          |
-| ------- | ---------------------------------------------- | ------- | ------------------------------ |
-| `title` | `string`                                       |         | What happened, in a few words. |
-| `tone`  | `"info" \| "success" \| "warning" \| "danger"` | `info`  | `danger` is announced at once. |
-| `icon`  | icon name                                      |         | Replaces the icon of the tone. |
+| Prop       | Type                                           | Default | Notes                                                                            |
+| ---------- | ---------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
+| `title`    | `string`                                       |         | What happened, in a few words.                                                   |
+| `tone`     | `"info" \| "success" \| "warning" \| "danger"` | `info`  | `danger` is announced at once.                                                   |
+| `icon`     | icon name                                      |         | Replaces the icon of the tone.                                                   |
+| `closable` | `boolean`                                      |         | Forces the dismiss button on or off. Left out, it follows the `@close` listener. |
 
 `class`, `style` and attributes fall through to the root.
 
 ## Events and slots
 
-| Name      | Use                                                                                                 |
-| --------- | --------------------------------------------------------------------------------------------------- |
-| `close`   | Emitted by the dismiss button, which shows only when a `@close` listener is attached.               |
-| `default` | One sentence of detail.                                                                             |
-| `action`  | A Button. At the end of the row when the toast is 36rem wide or more, under the text when narrower. |
+| Name      | Use                                                                                                                                          |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `close`   | Emitted by the dismiss button, which shows when a `@close` listener is attached (checked on every render), unless `closable` says otherwise. |
+| `default` | One sentence of detail.                                                                                                                      |
+| `action`  | A Button. At the end of the row when the toast is 36rem wide or more, under the text when narrower.                                          |
 
 ## Size and timing
 

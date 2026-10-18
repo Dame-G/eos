@@ -43,8 +43,8 @@ index.ts          export { default as EChip } from "./EChip.vue";   (plus export
 
 ### Naming
 
-- Components are `Ae` + a name: `EChip`. One word where it reads well. `*Field` is a labelled input built on `EField`, `*Picker` chooses from a popup, `*Group` is a fieldset of choices, `*Row` is a compact line, `*Card` is a bordered summary, `*List` repeats items. The folder is the name without the prefix.
-- Classes are `ae-<block>`, `ae-<block>-<part>`, `ae-<block>--<modifier>`. Custom properties are `--e-*`. Layers are `e.*`.
+- Components are `E` + a name: `EChip`. One word where it reads well. `*Field` is a labelled input built on `EField`, `*Picker` chooses from a popup, `*Group` is a fieldset of choices, `*Row` is a compact line, `*Card` is a bordered summary, `*List` repeats items. The folder is the name without the prefix.
+- Classes are `e-<block>`, `e-<block>-<part>`, `e-<block>--<modifier>`. Custom properties are `--e-*`. Layers are `e.*`.
 - Composables are `src/composables/useThing.ts`, one per file.
 
 ### Props, events and slots

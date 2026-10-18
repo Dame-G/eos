@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { TooltipContent, TooltipPortal, TooltipProvider, TooltipRoot, TooltipTrigger } from "reka-ui";
 import { usePortalTarget } from "../../config.js";
 import "../../styles/base.css";
@@ -18,7 +17,8 @@ defineSlots<{
 }>();
 
 const portal = usePortalTarget();
-const open = ref(false);
+/** Whether the tooltip is showing. */
+const open = defineModel<boolean>("open", { default: false });
 
 // The tooltip also shows while a finger is held on the control. It goes a moment after the finger lifts.
 let hold: ReturnType<typeof setTimeout> | undefined;
