@@ -35,6 +35,7 @@ export function createAegis(options: AegisOptions = {}): Aegis {
     dir: options.dir ?? null,
     messages: { ...options.messages },
     icons: { ...options.icons },
+    portalTarget: options.portalTarget ?? "body",
   });
   const theme = options.theme
     ? isTheme(options.theme)

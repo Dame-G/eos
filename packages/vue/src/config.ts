@@ -14,6 +14,8 @@ export interface AegisConfig {
   messages: Record<string, string>;
   /** Extra or replacement icons, by name: `[regular, bold]` SVG markup in a 256 x 256 box. */
   icons: Record<string, IconMarkup>;
+  /** Where floating parts (menus, dialogs, tooltips, toasts) render: a CSS selector or an element. Default `body`. Set it to a themed container when you scope a theme to part of the page, so floating parts inherit the theme. */
+  portalTarget: string | HTMLElement;
 }
 
 export const CONFIG_KEY: InjectionKey<AegisConfig> = Symbol("aegis.config");
@@ -25,6 +27,7 @@ export const fallbackConfig: AegisConfig = reactive({
   dir: null,
   messages: {},
   icons: {},
+  portalTarget: "body",
 });
 
 export function useConfig(): AegisConfig {
@@ -52,4 +55,9 @@ export function useIconMarkup(): (name: string, bold: boolean) => string {
     const entry = config.icons[name] ?? (phosphor as Record<string, IconMarkup>)[name] ?? phosphor.info;
     return entry[bold ? 1 : 0];
   };
+}
+
+/** The `to` for a Teleport or a Reka portal: pass it to every floating part so they inherit a scoped theme. */
+export function usePortalTarget(): string | HTMLElement {
+  return useConfig().portalTarget;
 }
