@@ -1,0 +1,99 @@
+# Contributing to Aegis
+
+Aegis is a set of accessible Vue 3 components and a token-based theming system. This page explains how the repository is laid out and what a component has to satisfy before it is merged.
+
+```
+packages/tokens   @aegis/tokens   tokens.json -> CSS variables, defineTheme(), contrast checks
+packages/vue      @aegis/vue      components, plugin, composables
+```
+
+## Setup
+
+```bash
+corepack enable           # or install pnpm 12
+pnpm install
+pnpm build                # builds tokens, then the Vue package
+pnpm test                 # real-browser tests (Chromium; Edge is used locally if present)
+pnpm lint
+pnpm typecheck
+```
+
+While working on one component, run from `packages/vue`:
+
+| Command                                 | Use                                                                      |
+| --------------------------------------- | ------------------------------------------------------------------------ |
+| `npx vitest run src/components/Chip`    | that component's tests                                                   |
+| `node scripts/check-css.mjs`            | every rule is inside `@layer ae.*`, no `!important`, no raw z-index      |
+| `node scripts/check-layers.mjs`         | a component only uses components of its own layer or an earlier one      |
+| `npx vue-tsc --noEmit -p tsconfig.json` | types, including `.vue` files                                            |
+| `node scripts/gen-index.mjs`            | rewrites `src/index.ts` from what is on disk (never edit `src/index.ts`) |
+
+## A component
+
+`src/components/<Name>/` holds:
+
+```
+AeChip.vue        script setup, template and the component's own <style>
+AeChip.test.ts    Vitest browser tests
+README.md         what the consumer provides, what it does, the rules
+index.ts          export { default as AeChip } from "./AeChip.vue";   (plus exported types)
+```
+
+`AeButton` is the model.
+
+### Naming
+
+- Components are `Ae` + a name: `AeChip`. One word where it reads well. `*Field` is a labelled input built on `AeField`, `*Picker` chooses from a popup, `*Group` is a fieldset of choices, `*Row` is a compact line, `*Card` is a bordered summary, `*List` repeats items. The folder is the name without the prefix.
+- Classes are `ae-<block>`, `ae-<block>-<part>`, `ae-<block>--<modifier>`. Custom properties are `--ae-*`. Layers are `ae.*`.
+- Composables are `src/composables/useThing.ts`, one per file.
+
+### Props, events and slots
+
+- Props use `defineProps<{ ... }>()` with a one-line doc comment each (it becomes the editor tooltip).
+- The main value is `defineModel()` (`v-model`). Two values use named models (`v-model:start`, `v-model:end`). Leaving `v-model` off gives local state, so there is no `defaultValue` prop.
+- Other signals are emits declared with `defineEmits`, value first.
+- Content goes in slots, declared with `defineSlots`. A render-prop is a scoped slot.
+- Native attributes land where the consumer expects: on the `<input>` for inputs (`inheritAttrs: false`, `v-bind="$attrs"`), with `class` and `style` on the wrapper.
+
+### Accessibility
+
+- Real elements first: `button`, `input`, `fieldset`, `details`, `dialog`, `popover`. ARIA only where no element does the job. Complex widgets (select, combobox, menu, dialog, tooltip, tabs) are built on Reka UI.
+- Label, hint and error wiring uses `useUid`. Never a module counter.
+- Test every interactive state with the keyboard, and run `expectNoViolations` (axe) over each state: open, invalid, disabled, loading.
+- Respect `prefers-reduced-motion`.
+
+### Words, icons, numbers
+
+- Every string a component writes goes through `useMessages()`, so consumers can translate or reword it. Money, dates and numbers use the configured locale and currency.
+- Icons are `<AeIcon name="..." />`.
+
+### CSS
+
+- Write the component's CSS in its own `<style>` block (not scoped) inside one `@layer ae.<layer> { }`:
+
+  | Layer           | For                                  |
+  | --------------- | ------------------------------------ |
+  | `ae.primitives` | one job, no children of their own    |
+  | `ae.blocks`     | boxes and layout                     |
+  | `ae.controls`   | form controls                        |
+  | `ae.composites` | controls built from controls         |
+  | `ae.containers` | things that hold or announce content |
+  | `ae.account`    | statements, bookings, details        |
+  | `ae.page`       | navigation and the page frame        |
+
+  A component uses only components of its own layer or an earlier one.
+
+- `import "../../styles/base.css";` at the top of the script.
+- Values come from tokens (`var(--ae-space-4)`); a raw colour, size or duration means a missing token, which is added to `packages/tokens/src/tokens.json` with a usage note. Logical properties only (`margin-inline-start`).
+- Space belongs to the parent: a component sets no outer margin. Layout that depends on the component's own width uses container queries, not viewport media queries.
+
+### Definition of done
+
+1. Tests pass, including keyboard and axe.
+2. `check-css`, `check-layers`, `vue-tsc`, `eslint` and `stylelint` are clean.
+3. README, `index.ts` and exported prop types exist.
+4. The component works without the plugin installed and with a custom theme applied.
+
+## Releases
+
+`pnpm changeset` for each user-facing change. Merging to `main` opens a version PR; merging that publishes both packages to npm.

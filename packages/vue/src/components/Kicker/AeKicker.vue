@@ -1,0 +1,27 @@
+<script setup lang="ts">
+import "../../styles/base.css";
+
+withDefaults(
+  defineProps<{
+    /** The element to render, if it should not be a paragraph. */
+    as?: string;
+  }>(),
+  { as: "p" },
+);
+
+defineSlots<{
+  /** The label text. */
+  default(): unknown;
+}>();
+</script>
+
+<template>
+  <component :is="as" class="ae-kicker"><slot /></component>
+</template>
+
+<style>
+/* The .ae-kicker rule is shared and lives in styles/base.css; this empty block only declares the layer. */
+/* stylelint-disable-next-line block-no-empty -- the layer declaration is the point */
+@layer ae.primitives {
+}
+</style>

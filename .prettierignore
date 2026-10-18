@@ -1,0 +1,6 @@
+reference
+dist
+node_modules
+**/generated
+pnpm-lock.yaml
+.changeset/*.md

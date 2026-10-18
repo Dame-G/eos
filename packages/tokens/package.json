@@ -1,0 +1,56 @@
+{
+  "name": "@aegis/tokens",
+  "version": "0.0.0",
+  "description": "Aegis design tokens: CSS custom properties, typed values and a theme generator with contrast checks.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist",
+    "src/tokens.json"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./tokens.css": "./dist/tokens.css",
+    "./tokens.json": "./src/tokens.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dame-G/aegis.git",
+    "directory": "packages/tokens"
+  },
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "build": "node scripts/build.mjs",
+    "typecheck": "node scripts/generate.mjs && tsc -p tsconfig.json --noEmit",
+    "test": "node scripts/generate.mjs && vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.5"
+  },
+  "homepage": "https://aegis.dame.gg",
+  "bugs": {
+    "url": "https://github.com/Dame-G/aegis/issues"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "design-system",
+    "components",
+    "accessible",
+    "a11y",
+    "design-tokens",
+    "theming"
+  ]
+}

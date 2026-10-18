@@ -1,0 +1,72 @@
+@import url("@aegis/tokens/tokens.css");
+
+/* Shared by every component: the root, the focus ring, the kicker label, the screen-reader-only class and the scrollbars. */
+@layer ae.base {
+  .ae-root,
+  .ae-root * {
+    box-sizing: border-box;
+  }
+
+  .ae-root {
+    font-family: var(--ae-font-sans);
+    color: var(--ae-ink);
+  }
+
+  :where(.ae-btn, .ae-icon-btn, .ae-input, .ae-linkbtn):focus-visible {
+    outline: var(--ae-stroke-focus) solid var(--ae-focus-ring);
+    outline-offset: var(--ae-focus-gap);
+  }
+
+  .ae-kicker {
+    font: 600 var(--ae-text-xs) / 1.2 var(--ae-font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ae-muted);
+  }
+
+  .ae-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    /* stylelint-disable-next-line property-no-deprecated -- kept beside clip-path for older engines */
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .ae-root *::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  .ae-root *::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: var(--ae-radius-pill);
+    background: var(--ae-border-strong);
+    background-clip: padding-box;
+  }
+
+  .ae-root *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .ae-root *::-webkit-scrollbar-track:vertical {
+    margin-block: var(--ae-radius-md);
+  }
+
+  .ae-root *::-webkit-scrollbar-track:horizontal {
+    margin-inline: var(--ae-radius-md);
+  }
+
+  .ae-root *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  @supports (-moz-appearance: none) {
+    .ae-root * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--ae-border-strong) transparent;
+    }
+  }
+}

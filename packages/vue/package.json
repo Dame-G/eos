@@ -1,0 +1,88 @@
+{
+  "name": "@aegis/vue",
+  "version": "0.0.0",
+  "description": "Aegis: accessible Vue 3 components for the Aegis portal.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist",
+    "src"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./base.css": "./dist/styles/base.css",
+    "./fonts.css": "./dist/fonts.css",
+    "./resolver": {
+      "types": "./dist/resolver.d.ts",
+      "default": "./dist/resolver.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dame-G/aegis.git",
+    "directory": "packages/vue"
+  },
+  "scripts": {
+    "build": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vite build",
+    "typecheck": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vue-tsc --noEmit -p tsconfig.json",
+    "test": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vitest run",
+    "test:watch": "vitest",
+    "check:css": "node scripts/check-css.mjs",
+    "parity": "node scripts/css-parity.mjs",
+    "check:layers": "node scripts/check-layers.mjs"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "dependencies": {
+    "@aegis/tokens": "workspace:*",
+    "@tanstack/vue-table": "^9.3.1",
+    "@tanstack/vue-virtual": "^3.13.47",
+    "@vueuse/core": "^15.0.0",
+    "reka-ui": "^2.11.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.10",
+    "@vitest/browser-playwright": "^5.0.5",
+    "@vue/tsconfig": "^0.9.1",
+    "axe-core": "^4.14.0",
+    "playwright": "^1.64.1",
+    "postcss": "^8.5.30",
+    "postcss-selector-parser": "^7.1.6",
+    "vite": "^8.3.4",
+    "vite-plugin-dts": "^5.1.2",
+    "vite-plugin-lib-inject-css": "^2.2.2",
+    "vitest": "^5.0.5",
+    "vitest-browser-vue": "^3.1.0",
+    "vue": "^3.5.0",
+    "vue-tsc": "^3.3.13"
+  },
+  "homepage": "https://aegis.dame.gg",
+  "bugs": {
+    "url": "https://github.com/Dame-G/aegis/issues"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "design-system",
+    "components",
+    "accessible",
+    "a11y",
+    "design-tokens",
+    "theming"
+  ]
+}
