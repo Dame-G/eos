@@ -58,7 +58,8 @@ const resting = () => (multiple.value ? "" : labelOf(single.value));
 
 const text = ref(resting());
 const typing = ref(false);
-const wantOpen = ref(false);
+/** Whether the list is asked to be open. It still shows only while there is something to list and the field is enabled. */
+const wantOpen = defineModel<boolean>("open", { default: false });
 const anchor = ref<{ $el: HTMLElement } | null>(null);
 const query = computed(() => (typing.value ? text.value.trim().toLowerCase() : ""));
 

@@ -39,6 +39,9 @@ const props = defineProps<{
 /** The value of the chosen option. An empty string is nothing chosen. */
 const model = defineModel<string>({ default: "" });
 
+/** Whether the list is open. */
+const open = defineModel<boolean>("open", { default: false });
+
 const attrs = useFieldAttrs();
 const options = computed(() => normalizeOptions(props.options));
 
@@ -58,6 +61,7 @@ function triggerAttrs(field?: FieldSlot) {
   <div v-if="bare" v-bind="attrs.wrapper()">
     <ESelectControl
       v-model="model"
+      v-model:open="open"
       :options="options"
       :placeholder="placeholder"
       :disabled="disabled"
@@ -81,6 +85,7 @@ function triggerAttrs(field?: FieldSlot) {
     <template #default="field">
       <ESelectControl
         v-model="model"
+        v-model:open="open"
         :options="options"
         :placeholder="placeholder"
         :disabled="disabled"

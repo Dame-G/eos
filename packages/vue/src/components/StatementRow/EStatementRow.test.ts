@@ -208,4 +208,9 @@ describe("EStatementRow", () => {
     for (const d of container.querySelectorAll<HTMLDetailsElement>("details")) d.open = true;
     await expectNoViolations(container);
   });
+
+  test("the detail is passed to the stamp", async () => {
+    const { container } = await render(EStatementRow, { props: { ...full, detail: "Oct 22" } });
+    expect(text(container.querySelector(".e-stamp"))).toContain("Oct 22");
+  });
 });

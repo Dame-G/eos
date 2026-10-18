@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { watch } from "vue";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -56,6 +57,9 @@ const emit = defineEmits<{
   select: [item: EMenuAction];
 }>();
 
+/** Whether the menu is open. */
+const open = defineModel<boolean>("open", { default: false });
+
 const portal = usePortalTarget();
 
 function choose(item: EMenuAction) {
@@ -63,20 +67,40 @@ function choose(item: EMenuAction) {
   emit("select", item);
 }
 
-/** A menu opens with its first action focused, however it was opened. */
+// A person opening the menu (pointer or key on the button) gets the first action focused. A menu that starts open or
+// is opened from outside moves no focus. Likewise, closing it from outside gives focus back to nothing.
+let byPerson = false;
+let hadFocus = false;
+const intent = () => (byPerson = true);
+
+watch(
+  open,
+  (isOpen) => {
+    if (!isOpen) hadFocus = !!document.activeElement?.closest("[role=menu]");
+  },
+  { flush: "sync" },
+);
+
 function focusFirst(event: Event) {
   event.preventDefault();
   const content = event.target as HTMLElement | null;
+  if (!byPerson) return;
+  byPerson = false;
   requestAnimationFrame(() => {
     content?.querySelector<HTMLElement>("[role=menuitem]:not([data-disabled])")?.focus({ preventScroll: true });
   });
 }
+
+function returnFocus(event: Event) {
+  byPerson = false;
+  if (!hadFocus) event.preventDefault();
+}
 </script>
 
 <template>
-  <DropdownMenuRoot :modal="false">
+  <DropdownMenuRoot v-model:open="open" :modal="false">
     <DropdownMenuTrigger as-child>
-      <EButton :variant="variant" :icon="icon" v-bind="$attrs">
+      <EButton :variant="variant" :icon="icon" v-bind="$attrs" @pointerdown="intent" @keydown="intent">
         {{ label }}
         <EIcon name="chevron-down" />
       </EButton>
@@ -89,6 +113,7 @@ function focusFirst(event: Event) {
         :collision-padding="16"
         loop
         @open-auto-focus="focusFirst"
+        @close-auto-focus="returnFocus"
       >
         <template v-for="(item, i) in items" :key="i">
           <DropdownMenuSeparator v-if="item.divider" as-child>

@@ -19,18 +19,23 @@ export interface Address {
   postal?: string;
 }
 
-const props = defineProps<{
-  /** The group's title. Default "Address". */
-  legend?: string;
-  /** What to fix, per field. */
-  errors?: Address;
-  /** The choices for the region field: strings, or `{ value, label }`. Default the US states. */
-  regions?: readonly EOptionInput[];
-  /** The prefix of the fields' names: `address-street`, `address-unit`, `address-city`, `address-region`, `address-postal`. */
-  name?: string;
-  /** Disables every field. */
-  disabled?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    /** The group's title. Default "Address". */
+    legend?: string;
+    /** What to fix, per field. */
+    errors?: Address;
+    /** The choices for the region field: strings, or `{ value, label }`. Replaces the default list of US states, so pass it for any other country. */
+    regions?: readonly EOptionInput[];
+    /** The input mode of the postal code: `numeric` for ZIP codes, `text` (default) for postal codes with letters. */
+    postalInputmode?: "numeric" | "text";
+    /** The prefix of the fields' names: `address-street`, `address-unit`, `address-city`, `address-region`, `address-postal`. */
+    name?: string;
+    /** Disables every field. */
+    disabled?: boolean;
+  }>(),
+  { postalInputmode: "text" },
+);
 
 /** The address. Leave `v-model` off and the group keeps its own state. */
 const model = defineModel<Address>({ default: () => ({}) });
@@ -91,7 +96,7 @@ function set(key: keyof Address, value: string) {
         :label="t('postal')"
         :name="`${prefix()}-postal`"
         autocomplete="postal-code"
-        inputmode="numeric"
+        :inputmode="postalInputmode"
         required
         :model-value="model.postal || ''"
         :error="errors?.postal"

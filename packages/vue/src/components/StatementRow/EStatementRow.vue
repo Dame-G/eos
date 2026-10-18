@@ -27,7 +27,7 @@ const money = (n: number) => formatMoney(n, { currency: props.currency, locale: 
 <template>
   <details class="e-srow">
     <summary>
-      <EStamp :status="status" :tone="tone" :label="label" small />
+      <EStamp :status="status" :tone="tone" :label="label" :detail="detail" small />
       <div class="e-srow-main">
         <p class="e-srow-title">{{ title }}</p>
         <p v-if="subtitle" class="e-srow-sub">{{ subtitle }}</p>

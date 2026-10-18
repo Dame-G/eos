@@ -6,7 +6,7 @@ import "../../styles/base.css";
 
 export interface TimelineItem {
   /** Who did it: `you`, `team` or `system` (an automatic event). Sets the source chip. */
-  kind: "you" | "team" | "you" | "team" | "system";
+  kind: "you" | "team" | "system";
   /** What happened, as a sentence. */
   note: string;
   /** When it happened and from where, such as "Oct 12, 9:41 am, online". Never leave it out. */

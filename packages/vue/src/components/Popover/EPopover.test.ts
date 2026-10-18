@@ -209,4 +209,14 @@ describe("EPopover", () => {
     await expect.poll(() => panel()).not.toBeNull();
     await expectNoViolations(document.body);
   });
+
+  test("the title row is not a banner landmark and the panel keeps its name", async () => {
+    const { container } = await mount({ title: "Payment plan" });
+    await triggerOf(container).click();
+    await expect.poll(() => panel()).not.toBeNull();
+    expect(panel()!.querySelector("header")).toBeNull();
+    expect(panel()!.querySelector(".e-pop-head")!.tagName).toBe("DIV");
+    expect(page.getByRole("banner").elements()).toHaveLength(0);
+    await expect.element(page.getByRole("dialog", { name: "Payment plan" })).toBeVisible();
+  });
 });

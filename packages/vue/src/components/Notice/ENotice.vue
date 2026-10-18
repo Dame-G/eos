@@ -26,8 +26,10 @@ const props = withDefaults(
     role?: string | false;
     /** Replaces the icon of the tone. */
     icon?: IconProp;
+    /** Forces the dismiss button on or off. Left out, it shows when a `@dismiss` listener is attached. */
+    dismissible?: boolean;
   }>(),
-  { tone: "info", role: undefined },
+  { tone: "info", role: undefined, dismissible: undefined },
 );
 
 const emit = defineEmits<{
@@ -48,7 +50,7 @@ const TONE_ICON: Record<NoticeTone, string> = { info: "info", success: "check", 
 const role = computed(() =>
   props.role === false ? undefined : props.role || (props.tone === "danger" ? "alert" : "status"),
 );
-const hasDismiss = () => !!instance?.vnode.props?.onDismiss;
+const hasDismiss = () => props.dismissible ?? !!instance?.vnode.props?.onDismiss;
 </script>
 
 <template>

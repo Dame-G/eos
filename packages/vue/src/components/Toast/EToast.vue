@@ -9,7 +9,7 @@ import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 import "../Notice/notice.css";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     /** What happened, in a few words. */
     title: string;
@@ -17,8 +17,10 @@ withDefaults(
     tone?: "info" | "success" | "warning" | "danger";
     /** Replaces the icon of the tone. */
     icon?: IconProp;
+    /** Forces the dismiss button on or off. Left out, it shows when a `@close` listener is attached. */
+    closable?: boolean;
   }>(),
-  { tone: "info" },
+  { tone: "info", closable: undefined },
 );
 
 const emit = defineEmits<{
@@ -36,7 +38,7 @@ defineSlots<{
 const t = useMessages();
 const instance = getCurrentInstance();
 const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "alert" } as const;
-const hasClose = () => !!instance?.vnode.props?.onClose;
+const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
 </script>
 
 <template>

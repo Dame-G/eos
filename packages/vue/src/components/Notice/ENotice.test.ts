@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import { h } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
+import * as Vue from "vue";
 import ENotice from "./ENotice.vue";
 import EButton from "../Button/EButton.vue";
 import { expectNoViolations } from "../../../test/axe.js";
@@ -152,5 +153,24 @@ describe("ENotice", () => {
       container.classList.add("e-root");
       await expectNoViolations(container);
     }
+  });
+
+  test("Dismiss: a listener added after mount makes the button appear; the prop forces it", async () => {
+    const on = Vue.ref(false);
+    const forced = Vue.ref<boolean | undefined>(undefined);
+    const { container } = await render(
+      Vue.defineComponent({
+        render: () =>
+          Vue.h(ENotice, { title: "x", dismissible: forced.value, ...(on.value ? { onDismiss: () => {} } : {}) }),
+      }),
+    );
+    expect(container.querySelector(".e-notice-dismiss")).toBeNull();
+    on.value = true;
+    await expect.poll(() => container.querySelector(".e-notice-dismiss")).not.toBeNull();
+    forced.value = false;
+    await expect.poll(() => container.querySelector(".e-notice-dismiss")).toBeNull();
+    on.value = false;
+    forced.value = true;
+    await expect.poll(() => container.querySelector(".e-notice-dismiss")).not.toBeNull();
   });
 });

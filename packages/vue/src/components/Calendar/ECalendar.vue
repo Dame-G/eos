@@ -33,8 +33,10 @@ const props = withDefaults(
     month?: Date;
     /** `false` hides the Today and Clear buttons. */
     footer?: boolean;
+    /** Forces the Clear button on or off. Left out, it shows when a `@clear` listener is attached. */
+    clearable?: boolean;
   }>(),
-  { mode: "single", footer: true },
+  { mode: "single", footer: true, clearable: undefined },
 );
 
 const emit = defineEmits<{
@@ -59,7 +61,9 @@ const loc = useLocale();
 const uid = useUid();
 const root = ref<HTMLElement | null>(null);
 const range = computed(() => props.mode === "range");
-const hasClear = () => !!getCurrentInstance()?.vnode.props?.onClear;
+const instance = getCurrentInstance();
+/** Read at render, so a listener added later counts. */
+const hasClear = () => props.clearable ?? !!instance?.vnode.props?.onClear;
 
 const today = startOfDay(new Date());
 const focus = ref(startOfDay((range.value ? start.value : value.value) || props.month || new Date()));

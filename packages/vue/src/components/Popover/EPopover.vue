@@ -15,7 +15,7 @@ withDefaults(
   defineProps<{
     /** Names the panel for screen readers (when there is no `title`) and is read after the term. */
     label: string;
-    /** Adds a header with this title and a Close button. */
+    /** Adds a title row with this title and a Close button. */
     title?: string;
     /** The level of the title's heading, so it fits the page outline. Default 3. */
     headingLevel?: 1 | 2 | 3 | 4;
@@ -65,12 +65,12 @@ watch(
     </PopoverTrigger>
     <PopoverPortal :to="portal">
       <PopoverContent class="e-popover e-root" side="bottom" align="start" :side-offset="8" :collision-padding="16">
-        <header v-if="title" class="e-pop-head">
+        <div v-if="title" class="e-pop-head">
           <component :is="`h${headingLevel}`" :id="`${id}-title`" class="e-pop-title">{{ title }}</component>
           <PopoverClose as-child>
             <EIconButton icon="x" :label="t('close')" />
           </PopoverClose>
-        </header>
+        </div>
         <span v-else :id="`${id}-title`" class="e-sr">{{ label }}</span>
         <div class="e-pop-body"><slot /></div>
         <EActions v-if="$slots['actions']" bar><slot name="actions" /></EActions>

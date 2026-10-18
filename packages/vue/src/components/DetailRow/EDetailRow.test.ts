@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
+import * as Vue from "vue";
 import EDetailRow from "./EDetailRow.vue";
 import EPanel from "../Panel/EPanel.vue";
 import { createEos } from "../../plugin.js";
@@ -144,5 +145,24 @@ describe("EDetailRow", () => {
       }),
     );
     await expectNoViolations(container);
+  });
+
+  test("Edit: a listener added after mount makes the button appear; the prop forces it", async () => {
+    const on = Vue.ref(false);
+    const forced = Vue.ref<boolean | undefined>(undefined);
+    const { container } = await render(
+      Vue.defineComponent({
+        render: () =>
+          Vue.h(EDetailRow, { label: "Email", editable: forced.value, ...(on.value ? { onEdit: () => {} } : {}) }),
+      }),
+    );
+    expect(container.querySelector("button")).toBeNull();
+    on.value = true;
+    await expect.poll(() => container.querySelector("button")).not.toBeNull();
+    forced.value = false;
+    await expect.poll(() => container.querySelector("button")).toBeNull();
+    on.value = false;
+    forced.value = true;
+    await expect.poll(() => container.querySelector("button")).not.toBeNull();
   });
 });

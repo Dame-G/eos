@@ -9,6 +9,7 @@ import EIcon from "../Icon/EIcon.vue";
 import { addDays, compareDays, isoDate, startOfDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import { useQuietFocus } from "../Select/quietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
@@ -62,7 +63,12 @@ const loc = useLocale();
 const portal = usePortalTarget();
 const attrs = useFieldAttrs();
 
-const open = ref(false);
+/** Whether the calendar is open. */
+const open = defineModel<boolean>("open", { default: false });
+const shown = computed(() => open.value && !props.disabled);
+const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel, .e-combo"));
+const trigger = { onPointerdown: quiet.intent, onKeydown: quiet.intent };
+
 const startText = ref(loc.formatDate(start.value));
 const endText = ref(loc.formatDate(end.value));
 const typedError = ref("");
@@ -141,7 +147,11 @@ function applyPreset(p: RangePreset) {
 
 function onOpenFocus(e: Event) {
   e.preventDefault();
+  if (!quiet.personOpened()) return;
   void nextTick(() => calendar.value?.focusDay());
+}
+function onCloseFocus(e: Event) {
+  if (!quiet.returnsFocus()) e.preventDefault();
 }
 function onEscape(e: KeyboardEvent) {
   if (calendar.value && calendar.value.view !== "days") e.preventDefault();
@@ -150,6 +160,7 @@ function onKey(e: KeyboardEvent) {
   if (e.key === "Enter") commitText();
   else if (e.key === "ArrowDown" && e.altKey && !props.disabled) {
     e.preventDefault();
+    quiet.intent();
     open.value = true;
   }
 }
@@ -174,7 +185,7 @@ defineExpose({
     :optional="optional"
   >
     <template #default="field">
-      <PopoverRoot v-model:open="open">
+      <PopoverRoot :open="shown" @update:open="open = $event">
         <PopoverAnchor as-child>
           <div
             v-bind="attrs.input()"
@@ -221,7 +232,7 @@ defineExpose({
             />
             <input v-if="startName" type="hidden" :name="startName" :value="isoDate(start)" />
             <input v-if="endName" type="hidden" :name="endName" :value="isoDate(end)" />
-            <PopoverTrigger as-child>
+            <PopoverTrigger as-child v-bind="trigger">
               <button type="button" class="e-combo-btn" :aria-label="t('chooseDates')" :disabled="disabled">
                 <EIcon name="calendar" />
               </button>
@@ -238,6 +249,7 @@ defineExpose({
             :side-offset="6"
             :collision-padding="8"
             @open-auto-focus="onOpenFocus"
+            @close-auto-focus="onCloseFocus"
             @escape-key-down="onEscape"
           >
             <ECalendar

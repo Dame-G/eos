@@ -6,14 +6,19 @@ import type { ChipTone } from "../Chip/EChip.vue";
 import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 
-defineProps<{
-  /** What the detail is, such as "Email". Names the Edit button for screen readers. */
-  label: string;
-  /** A word in a chip after the value, such as "Verified" or "Needs update". */
-  status?: string;
-  /** The chip's tone. */
-  tone?: ChipTone;
-}>();
+const props = withDefaults(
+  defineProps<{
+    /** What the detail is, such as "Email". Names the Edit button for screen readers. */
+    label: string;
+    /** A word in a chip after the value, such as "Verified" or "Needs update". */
+    status?: string;
+    /** The chip's tone. */
+    tone?: ChipTone;
+    /** Forces the Edit button on or off. Left out, it shows when an `@edit` listener is attached. */
+    editable?: boolean;
+  }>(),
+  { editable: undefined },
+);
 
 const emit = defineEmits<{
   /** The Edit button was pressed. The button appears only when something listens. */
@@ -28,7 +33,7 @@ defineSlots<{
 const t = useMessages();
 const instance = getCurrentInstance();
 /** The Edit button is shown only when the consumer listens for `edit`. Read at render, so a listener added later counts. */
-const editable = () => Boolean(instance?.vnode.props?.onEdit);
+const showEdit = () => props.editable ?? Boolean(instance?.vnode.props?.onEdit);
 
 /** The message when the app's catalogue has it, the English wording otherwise. */
 function say(key: string, fallback: string, vars?: Record<string, string>) {
@@ -46,7 +51,7 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
     <EChip v-if="status" :tone="tone">{{ status }}</EChip>
     <span v-else class="e-detail-gap" aria-hidden="true" />
     <EButton
-      v-if="editable()"
+      v-if="showEdit()"
       variant="quiet"
       :aria-label="say('editItem', 'Edit {label}', { label })"
       @click="emit('edit')"

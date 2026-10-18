@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import { defineComponent, h, ref, type Component } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
+import * as Vue from "vue";
 import ECalendar from "./ECalendar.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
@@ -433,5 +434,23 @@ describe("ECalendar", () => {
     years.container.querySelector<HTMLElement>('[id$="-y-2027"]')!.click();
     await sleep(30);
     await expectNoViolations(years.container);
+  });
+
+  test("Clear: a listener added after mount makes the button appear; the prop forces it", async () => {
+    const on = Vue.ref(false);
+    const forced = Vue.ref<boolean | undefined>(undefined);
+    const { container } = await render(
+      Vue.defineComponent({
+        render: () => Vue.h(ECalendar, { clearable: forced.value, ...(on.value ? { onClear: () => {} } : {}) }),
+      }),
+    );
+    expect(container.querySelector(".e-cal-foot .e-btn:nth-of-type(2)")).toBeNull();
+    on.value = true;
+    await expect.poll(() => container.querySelector(".e-cal-foot .e-btn:nth-of-type(2)")).not.toBeNull();
+    forced.value = false;
+    await expect.poll(() => container.querySelector(".e-cal-foot .e-btn:nth-of-type(2)")).toBeNull();
+    on.value = false;
+    forced.value = true;
+    await expect.poll(() => container.querySelector(".e-cal-foot .e-btn:nth-of-type(2)")).not.toBeNull();
   });
 });

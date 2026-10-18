@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, watch } from "vue";
 import {
   SelectContent,
   SelectGroup,
@@ -13,6 +13,7 @@ import EIcon from "../Icon/EIcon.vue";
 import ESelectOption from "./ESelectOption.vue";
 import { sectionOptions, type EOption } from "./options.js";
 import { useMessages, usePortalTarget } from "../../config.js";
+import { useQuietFocus } from "./quietFocus.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
 import "./panel.css";
@@ -42,7 +43,24 @@ const selected = computed(() => props.options.find((o) => o.value === model.valu
 // A closed button answers typing like a native select: the matching option is chosen without opening the list.
 let typed = "";
 let typedAt = 0;
-const isOpen = ref(false);
+// The list is open or closed by the person or by the consumer (v-model:open); a disabled select never opens.
+const open = defineModel<boolean>("open", { default: false });
+const isOpen = computed(() => open.value && !props.disabled);
+const quiet = useQuietFocus(isOpen, (el) => !!el.closest("[role=listbox]"));
+watch(
+  isOpen,
+  (now) => {
+    if (now && !quiet.personOpened()) quiet.undoFocusSteal();
+  },
+  { immediate: true, flush: "post" },
+);
+function closeFocus(e: Event) {
+  if (!quiet.returnsFocus()) e.preventDefault();
+}
+function keydown(e: KeyboardEvent) {
+  quiet.intent();
+  typeahead(e);
+}
 function typeahead(e: KeyboardEvent) {
   if (props.disabled || isOpen.value || e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
   if (e.key === " " && !typed) return;
@@ -63,12 +81,13 @@ function typeahead(e: KeyboardEvent) {
 
 <template>
   <div class="e-sel">
-    <SelectRoot v-model="model" :disabled="disabled" :required="required" @update:open="isOpen = $event">
+    <SelectRoot v-model="model" :open="isOpen" :disabled="disabled" :required="required" @update:open="open = $event">
       <SelectTrigger
         class="e-input e-sel-trigger"
         :tabindex="isOpen ? -1 : undefined"
         v-bind="triggerAttrs"
-        @keydown="typeahead"
+        @pointerdown="quiet.intent"
+        @keydown="keydown"
       >
         <span v-if="selected" class="e-sel-value">
           <EIcon v-if="selected.icon" :name="selected.icon" />{{ selected.label }}
@@ -85,6 +104,7 @@ function typeahead(e: KeyboardEvent) {
           :body-lock="false"
           class="e-popover e-listpanel e-root"
           :aria-label="label"
+          @close-auto-focus="closeFocus"
         >
           <SelectViewport>
             <template v-for="(section, i) in sections" :key="i">

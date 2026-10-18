@@ -48,7 +48,7 @@ describe("EAddressField", () => {
     expect(input(container, "home-unit").autocomplete).toBe("address-line2");
     expect(input(container, "home-city").autocomplete).toBe("address-level2");
     expect(input(container, "home-postal").autocomplete).toBe("postal-code");
-    expect(input(container, "home-postal").inputMode).toBe("numeric");
+    expect(input(container, "home-postal").inputMode).toBe("text");
     expect(container.querySelector<HTMLInputElement>("input[type=hidden]")!.name).toBe("home-region");
   });
 
@@ -203,5 +203,26 @@ describe("EAddressField", () => {
       const { container } = await render(EAddressField, { props });
       await expectNoViolations(container);
     }
+  });
+
+  test("postalInputmode is text by default and can be numeric", async () => {
+    const text = await render(EAddressField, { props: { name: "a" } });
+    expect(input(text.container, "a-postal").inputMode).toBe("text");
+    const num = await render(EAddressField, { props: { name: "b", postalInputmode: "numeric" } });
+    expect(input(num.container, "b-postal").inputMode).toBe("numeric");
+  });
+
+  test("regions replaces the default US list", async () => {
+    const { container } = await render(EAddressField, {
+      props: {
+        regions: [
+          { value: "ON", label: "Ontario" },
+          { value: "QC", label: "Quebec" },
+        ],
+      },
+    });
+    regionButton(container).click();
+    await expect.element(page.getByRole("option", { name: "Ontario" })).toBeVisible();
+    expect(page.getByRole("option", { name: "Alabama" }).elements()).toHaveLength(0);
   });
 });
