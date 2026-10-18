@@ -1,10 +1,10 @@
-# AeText
+# EText
 
 Running text in three sizes, capped at 62 characters wide.
 
 ```vue
-<AeText variant="deck">You paid in full on 3 September.</AeText>
-<AeText variant="small" muted>Receipts are kept for seven years.</AeText>
+<EText variant="deck">You paid in full on 3 September.</EText>
+<EText variant="small" muted>Receipts are kept for seven years.</EText>
 ```
 
 ## Props
@@ -25,5 +25,5 @@ Native attributes land on the rendered element.
 
 ## Rules
 
-- The measure is a token (`--ae-measure`), so a theme can change it.
+- The measure is a token (`--e-measure`), so a theme can change it.
 - Muted text still meets contrast; do not use it for anything a person must act on.

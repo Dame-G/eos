@@ -1,1 +1,1 @@
-export { default as AeDivider } from "./AeDivider.vue";
+export { default as EDivider } from "./EDivider.vue";

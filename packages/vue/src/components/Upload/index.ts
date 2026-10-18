@@ -1,1 +1,1 @@
-export { default as AeUpload } from "./AeUpload.vue";
+export { default as EUpload } from "./EUpload.vue";

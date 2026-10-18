@@ -1,1 +1,1 @@
-export { default as AeToggle } from "./AeToggle.vue";
+export { default as EToggle } from "./EToggle.vue";

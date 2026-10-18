@@ -1,1 +1,1 @@
-export { default as AePopover } from "./AePopover.vue";
+export { default as EPopover } from "./EPopover.vue";

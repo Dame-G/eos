@@ -1,10 +1,10 @@
-# AeDivider
+# EDivider
 
 A hairline in `border`.
 
 ```vue
-<AeDivider />
-<AeDivider label="Or" />
+<EDivider />
+<EDivider label="Or" />
 ```
 
 ## Props

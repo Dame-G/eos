@@ -1,0 +1,45 @@
+<script setup lang="ts">
+import EIcon from "../Icon/EIcon.vue";
+
+defineProps<{
+  /** The id that `aria-describedby` points at. */
+  id: string;
+  /** What to fix. Replaces the hint, is announced (`role="alert"`) and carries an alert glyph. */
+  error?: string | undefined;
+  /** Help that stays under the control. */
+  hint?: string | undefined;
+}>();
+</script>
+
+<template>
+  <p v-if="error" :id="id" class="e-field-error" role="alert">
+    <EIcon name="alert" />
+    {{ error }}
+  </p>
+  <p v-else-if="hint" :id="id" class="e-field-hint">{{ hint }}</p>
+</template>
+
+<style>
+@layer e.controls {
+  .e-field-hint {
+    font: 400 var(--e-text-sm)/1.4 var(--e-font-sans);
+    color: var(--e-muted);
+    margin: 0;
+  }
+
+  .e-field-error {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--e-space-1);
+    font: 500 var(--e-text-sm)/1.4 var(--e-font-sans);
+    color: var(--e-danger);
+    margin: 0;
+  }
+
+  .e-field-error .e-icon {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+  }
+}
+</style>

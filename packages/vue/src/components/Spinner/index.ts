@@ -1,1 +1,1 @@
-export { default as AeSpinner } from "./AeSpinner.vue";
+export { default as ESpinner } from "./ESpinner.vue";

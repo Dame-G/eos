@@ -1,1 +1,1 @@
-export { default as AeHeading } from "./AeHeading.vue";
+export { default as EHeading } from "./EHeading.vue";

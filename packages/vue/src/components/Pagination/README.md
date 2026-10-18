@@ -1,9 +1,9 @@
-# AePagination
+# EPagination
 
 Paging through a long list.
 
 ```vue
-<AePagination v-model="page" :page-count="12" />
+<EPagination v-model="page" :page-count="12" />
 ```
 
 ## Props

@@ -1,0 +1,69 @@
+import { describe, expect, test } from "vitest";
+import { defineComponent, h } from "vue";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-vue";
+import EDescriptionList from "./EDescriptionList.vue";
+import { expectNoViolations } from "../../../test/axe.js";
+
+const items = [
+  { label: "Covers", text: "Visit on September 12" },
+  { label: "Due", text: "October 31" },
+];
+
+describe("EDescriptionList", () => {
+  test("renders a real description list with a term and a description per row", async () => {
+    const { container } = await render(EDescriptionList, { props: { items } });
+    const dl = container.querySelector("dl.e-facts")!;
+    const rows = dl.querySelectorAll(":scope > .e-fact");
+    expect(rows.length).toBe(2);
+    expect(rows[0]!.querySelector("dt.e-kicker")!.textContent).toBe("Covers");
+    expect(rows[0]!.querySelector("dd.e-fact-text")!.textContent).toBe("Visit on September 12");
+  });
+
+  test("text can be a rendered node", async () => {
+    const { container } = await render(EDescriptionList, {
+      props: { items: [{ label: "Pay", text: h("a", { href: "#pay" }, "Online") }] },
+    });
+    expect(container.querySelector("dd a")!.textContent).toBe("Online");
+  });
+
+  test("the label sits beside the text when wide and stacks above it below 26rem", async () => {
+    const wide = await render(
+      defineComponent({ render: () => h("div", { style: { width: "500px" } }, [h(EDescriptionList, { items })]) }),
+    );
+    const dt = wide.container.querySelector("dt")!.getBoundingClientRect();
+    const dd = wide.container.querySelector("dd")!.getBoundingClientRect();
+    expect(dd.left).toBeGreaterThan(dt.right - 1);
+
+    await page.viewport(375, 700);
+    try {
+      const narrow = await render(EDescriptionList, { props: { items: [{ label: "Covers", text: "Visit" }] } });
+      const dt2 = narrow.container.querySelector("dt")!.getBoundingClientRect();
+      const dd2 = narrow.container.querySelector("dd")!.getBoundingClientRect();
+      expect(dd2.top).toBeGreaterThan(dt2.bottom - 1);
+    } finally {
+      await page.viewport(1024, 768);
+    }
+  });
+
+  test("class, style and attributes fall through to the list", async () => {
+    const { container } = await render(EDescriptionList, {
+      props: { items },
+      attrs: { class: "mine", style: "margin-top: 4px", "data-x": "1" },
+    });
+    const dl = container.querySelector("dl")!;
+    expect(dl.classList.contains("mine")).toBe(true);
+    expect(dl.classList.contains("e-facts")).toBe(true);
+    expect(dl.style.marginTop).toBe("4px");
+    expect(dl.dataset.x).toBe("1");
+  });
+
+  test("has no accessibility violations", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () => h("div", [h(EDescriptionList, { items }), h(EDescriptionList, { items: [] })]),
+      }),
+    );
+    await expectNoViolations(container);
+  });
+});

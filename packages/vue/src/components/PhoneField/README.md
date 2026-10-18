@@ -1,10 +1,10 @@
-# AePhoneField
+# EPhoneField
 
-A phone number. Built on `AeTextField`; it takes every one of its props except `type`, `prefix` and `suffix`.
+A phone number. Built on `ETextField`; it takes every one of its props except `type`, `prefix` and `suffix`.
 
 ```vue
-<AePhoneField v-model="mobile" label="Mobile" hint="We text appointment reminders." />
-<AePhoneField v-model="mobile" format="none" />
+<EPhoneField v-model="mobile" label="Mobile" hint="We text appointment reminders." />
+<EPhoneField v-model="mobile" format="none" />
 ```
 
 ## Props
@@ -25,7 +25,7 @@ A phone number. Built on `AeTextField`; it takes every one of its props except `
 
 ## Attributes and listeners
 
-As `AeTextField`: `class` and `style` on the wrapper, everything else on the `<input>`. The defaults `autocomplete="tel"` and `inputmode="tel"` can be replaced (for example `autocomplete="tel-national"`). Add `name` for forms.
+As `ETextField`: `class` and `style` on the wrapper, everything else on the `<input>`. The defaults `autocomplete="tel"` and `inputmode="tel"` can be replaced (for example `autocomplete="tel-national"`). Add `name` for forms.
 
 Exposed: `input` and `focus()`.
 

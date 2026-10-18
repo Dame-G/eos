@@ -1,12 +1,12 @@
-# AeCombobox
+# ECombobox
 
-An input that filters a list as you type and only accepts an option from it. Built on `AeField` and Reka UI's Combobox. `AeAutocomplete` and `AeMultiSelect` are variants of it, sharing one implementation (`AeComboboxBase.vue`) and the same props.
+An input that filters a list as you type and only accepts an option from it. Built on `EField` and Reka UI's Combobox. `EAutocomplete` and `EMultiSelect` are variants of it, sharing one implementation (`EComboboxBase.vue`) and the same props.
 
 ```vue
-<AeCombobox v-model="practitioner" label="Practitioner" :options="['Amara Singh', 'Marcus Webb', 'Priya Nair']" />
+<ECombobox v-model="practitioner" label="Practitioner" :options="['Amara Singh', 'Marcus Webb', 'Priya Nair']" />
 
 <!-- fetch options from a server as people type -->
-<AeCombobox
+<ECombobox
   v-model="clinic"
   label="Clinic"
   :options="found"
@@ -22,8 +22,8 @@ An input that filters a list as you type and only accepts an option from it. Bui
 | ------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `v-model`     | `string`                     | The `value` of the chosen option. An empty string is nothing chosen. Leave it off for local state.                                                                             |
 | `label`       | `string`                     | Required. The mono kicker above the field; it also names the list.                                                                                                             |
-| `options`     | `(string \| AeOption)[]`     | Required. Same shape as `AeSelect` (`AeOption` is exported from there): `{ value, label, description, icon, group, disabled }`.                                                |
-| `placeholder` | `string`                     | An example, never the label. Hidden in `AeMultiSelect` once something is chosen.                                                                                               |
+| `options`     | `(string \| EOption)[]`      | Required. Same shape as `ESelect` (`EOption` is exported from there): `{ value, label, description, icon, group, disabled }`.                                                  |
+| `placeholder` | `string`                     | An example, never the label. Hidden in `EMultiSelect` once something is chosen.                                                                                                |
 | `hideLabel`   | `boolean`                    | Keeps the label for screen readers and removes it from the page.                                                                                                               |
 | `hint`        | `string`                     | Help under the field, 8px away.                                                                                                                                                |
 | `error`       | `string`                     | Replaces the hint, turns the edge `danger`, marks the input `aria-invalid`.                                                                                                    |
@@ -47,7 +47,7 @@ Exposed: `input()` (the `<input>` element) and `focus()`.
 
 ## Attributes and listeners
 
-`inheritAttrs` is off. `class` and `style` stay on the wrapper (`div.ae-field`); everything else lands on the `<input>`: `autocomplete` (default `off`), `inputmode`, `aria-*`, `data-*`, and listeners such as `@focus` and `@blur`. An `aria-describedby` of your own is joined to the hint or error id.
+`inheritAttrs` is off. `class` and `style` stay on the wrapper (`div.e-field`); everything else lands on the `<input>`: `autocomplete` (default `off`), `inputmode`, `aria-*`, `data-*`, and listeners such as `@focus` and `@blur`. An `aria-describedby` of your own is joined to the hint or error id.
 
 ## Behaviour
 
@@ -69,9 +69,9 @@ Exposed: `input()` (the `<input>` element) and `focus()`.
 
 ## Rules
 
-- Use `AeAutocomplete` when any text is allowed, `AeMultiSelect` for several choices, `AeSelect` when the list is short.
-- The list renders in the portal target and carries `ae-root`, so a scoped theme reaches it. It is as wide as the field and flips above when there is no room.
+- Use `EAutocomplete` when any text is allowed, `EMultiSelect` for several choices, `ESelect` when the list is short.
+- The list renders in the portal target and carries `e-root`, so a scoped theme reaches it. It is as wide as the field and flips above when there is no room.
 - When nothing matches or the list is loading, the list holds one disabled row that says so, and a visually hidden `role="status"` beside the field announces it. While loading the listbox is `aria-busy`.
-- The field is 48px tall, like `AeTextField`. The shared panel and option styles are in `../Select/panel.css`.
+- The field is 48px tall, like `ETextField`. The shared panel and option styles are in `../Select/panel.css`.
 - Every word (`Show options`, `Clear`, `Searching`, `No matches`) goes through `useMessages()`.
 - Deliberate difference from the reference: Home and End move the text cursor instead of the list (the reference did not handle them, so the browser did the same).

@@ -1,9 +1,9 @@
-# AeTabs
+# ETabs
 
 Tabs for switching between views of the same record or list. Built on Reka UI's Tabs.
 
 ```vue
-<AeTabs
+<ETabs
   v-model="tab"
   :items="[
     { id: 'open', label: 'Open', count: 3 },
@@ -12,7 +12,7 @@ Tabs for switching between views of the same record or list. Built on Reka UI's 
 >
   <template #open>Open statements</template>
   <template #paid>Paid statements</template>
-</AeTabs>
+</ETabs>
 ```
 
 ## Props
@@ -41,4 +41,4 @@ Arrow Left and Arrow Right move to the previous and next tab and select it, wrap
 ## Rules
 
 - Two to five tabs, with short labels. The strip scrolls sideways when they do not fit on a phone.
-- Tabs switch views of the same thing. For a stack of sections that open and close, use AeAccordion.
+- Tabs switch views of the same thing. For a stack of sections that open and close, use EAccordion.

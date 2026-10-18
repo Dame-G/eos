@@ -1,9 +1,9 @@
-# AeRangePicker
+# ERangePicker
 
-Two date boxes and one calendar for choosing a span. Typing in either box works like `AeDatePicker`; the calendar sits in a popup (Reka UI's Popover) with presets under it. Built on `AeField`.
+Two date boxes and one calendar for choosing a span. Typing in either box works like `EDatePicker`; the calendar sits in a popup (Reka UI's Popover) with presets under it. Built on `EField`.
 
 ```vue
-<AeRangePicker v-model:start="from" v-model:end="to" label="Dates" start-name="from" end-name="to" />
+<ERangePicker v-model:start="from" v-model:end="to" label="Dates" start-name="from" end-name="to" />
 ```
 
 ## Props
@@ -22,7 +22,7 @@ Two date boxes and one calendar for choosing a span. Typing in either box works 
 | `presets`                      | `{ label: string, get: () => { start, end } }[]` | Buttons under the calendar. Defaults: Last 7 days, Last 30 days, This month. |
 | `id`                           | `string`                                         | The start box's id; the label points at it.                                  |
 
-Exposed: `input` (the start box) and `focus()`. `class` and `style` stay on the wrapper (`div.ae-field`); other attributes land on the boxed control (`div.ae-input-wrap`).
+Exposed: `input` (the start box) and `focus()`. `class` and `style` stay on the wrapper (`div.e-field`); other attributes land on the boxed control (`div.e-input-wrap`).
 
 ## Choosing
 
@@ -30,10 +30,10 @@ The first click in the calendar sets the start, the second sets the end and clos
 
 ## Typing
 
-Each box takes the locale's order like `AeDatePicker`. On blur or Enter both are read: a date that cannot be read shows `datesError`, one outside `min` and `max` shows `dateBetween`, and an end before the start shows `endBeforeStart`. The value stays as it was.
+Each box takes the locale's order like `EDatePicker`. On blur or Enter both are read: a date that cannot be read shows `datesError`, one outside `min` and `max` shows `dateBetween`, and an end before the start shows `endBeforeStart`. The value stays as it was.
 
 ## Accessibility
 
 - The boxes are named "Start date" and "End date" (`startDate`, `endDate`) and grouped under the label; the "to" between them is hidden from screen readers.
-- The button is "Choose dates", `aria-haspopup="dialog"`; the popup is a dialog in the portal target with the class `ae-root`.
+- The button is "Choose dates", `aria-haspopup="dialog"`; the popup is a dialog in the portal target with the class `e-root`.
 - Alt + Down in either box opens the calendar.

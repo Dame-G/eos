@@ -1,7 +1,7 @@
 import type { IconName } from "../../icons/phosphor.js";
 
 /** One choice in a Select, Combobox, Autocomplete or MultiSelect. */
-export interface AeOption {
+export interface EOption {
   /** What the model holds when this option is chosen. Never an empty string. */
   value: string;
   /** What people read. */
@@ -17,22 +17,22 @@ export interface AeOption {
 }
 
 /** An option as a consumer writes it: a bare string stands for `{ value: s, label: s }`. */
-export type AeOptionInput = string | AeOption;
+export type EOptionInput = string | EOption;
 
 /** A run of options under one heading (or none). */
-export interface AeOptionSection {
+export interface EOptionSection {
   group: string | undefined;
-  options: AeOption[];
+  options: EOption[];
 }
 
 /** Turns strings into options. */
-export function normalizeOptions(options: readonly AeOptionInput[] | undefined): AeOption[] {
+export function normalizeOptions(options: readonly EOptionInput[] | undefined): EOption[] {
   return (options ?? []).map((o) => (typeof o === "string" ? { value: o, label: o } : o));
 }
 
 /** Splits options into runs under one heading, in order. A heading repeats only where the group changes. */
-export function sectionOptions(options: readonly AeOption[]): AeOptionSection[] {
-  const sections: AeOptionSection[] = [];
+export function sectionOptions(options: readonly EOption[]): EOptionSection[] {
+  const sections: EOptionSection[] = [];
   for (const option of options) {
     const last = sections[sections.length - 1];
     if (last && last.group === option.group) last.options.push(option);

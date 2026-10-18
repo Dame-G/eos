@@ -1,9 +1,9 @@
-# AeToast
+# EToast
 
-A floating message that confirms or reports something just done: AeNotice's tones, icons and layout, lifted with the float shadow. Show toasts through `useToast()` and AeToastProvider, which own the region, the timers and the pause on hover. Use AeToast directly only to build something else, or in a preview.
+A floating message that confirms or reports something just done: ENotice's tones, icons and layout, lifted with the float shadow. Show toasts through `useToast()` and EToastProvider, which own the region, the timers and the pause on hover. Use EToast directly only to build something else, or in a preview.
 
 ```vue
-<AeToast tone="success" title="Payment received" @close="hide">A receipt was sent to your email.</AeToast>
+<EToast tone="success" title="Payment received" @close="hide">A receipt was sent to your email.</EToast>
 ```
 
 ## Props
@@ -26,7 +26,7 @@ A floating message that confirms or reports something just done: AeNotice's tone
 
 ## Size and timing
 
-It is 24rem wide; with an action, up to 40rem. Success and information toasts go after five seconds. An error, or a toast with an action, stays until dismissed (see AeToastProvider).
+It is 24rem wide; with an action, up to 40rem. Success and information toasts go after five seconds. An error, or a toast with an action, stays until dismissed (see EToastProvider).
 
 ## Accessibility
 

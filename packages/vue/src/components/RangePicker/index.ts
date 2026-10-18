@@ -1,2 +1,2 @@
-export { default as AeRangePicker } from "./AeRangePicker.vue";
-export type { RangePreset } from "./AeRangePicker.vue";
+export { default as ERangePicker } from "./ERangePicker.vue";
+export type { RangePreset } from "./ERangePicker.vue";

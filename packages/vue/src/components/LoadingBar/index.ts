@@ -1,1 +1,1 @@
-export { default as AeLoadingBar } from "./AeLoadingBar.vue";
+export { default as ELoadingBar } from "./ELoadingBar.vue";

@@ -1,2 +1,2 @@
-export { default as AeCalendar } from "./AeCalendar.vue";
-export type { CalendarRange } from "./AeCalendar.vue";
+export { default as ECalendar } from "./ECalendar.vue";
+export type { CalendarRange } from "./ECalendar.vue";

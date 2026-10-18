@@ -1,10 +1,10 @@
-# AeSearchBar
+# ESearchBar
 
 The one box you look things up in: a flat outlined field with a Button inside. One per page, at the top.
 
 ```vue
-<AeSearchBar v-model="query" placeholder="Search statements and visits" @submit="search" />
-<AeSearchBar label="Search help" action="Find" disabled />
+<ESearchBar v-model="query" placeholder="Search statements and visits" @submit="search" />
+<ESearchBar label="Search help" action="Find" disabled />
 ```
 
 ## Props

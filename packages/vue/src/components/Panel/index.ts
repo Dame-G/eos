@@ -1,1 +1,1 @@
-export { default as AePanel } from "./AePanel.vue";
+export { default as EPanel } from "./EPanel.vue";

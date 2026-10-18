@@ -1,1 +1,1 @@
-export { default as AeDisclosure } from "./AeDisclosure.vue";
+export { default as EDisclosure } from "./EDisclosure.vue";

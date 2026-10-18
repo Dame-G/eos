@@ -1,2 +1,2 @@
-export { default as AeRadioGroup } from "./AeRadioGroup.vue";
-export type { RadioOption } from "./AeRadioGroup.vue";
+export { default as ERadioGroup } from "./ERadioGroup.vue";
+export type { RadioOption } from "./ERadioGroup.vue";

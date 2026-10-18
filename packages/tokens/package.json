@@ -1,7 +1,7 @@
 {
-  "name": "@aegis/tokens",
+  "name": "@eos/tokens",
   "version": "0.0.0",
-  "description": "Aegis design tokens: CSS custom properties, typed values and a theme generator with contrast checks.",
+  "description": "Eos design tokens: CSS custom properties, typed values and a theme generator with contrast checks.",
   "type": "module",
   "license": "MIT",
   "sideEffects": [
@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Dame-G/aegis.git",
+    "url": "git+https://github.com/Dame-G/eos.git",
     "directory": "packages/tokens"
   },
   "scripts": {
@@ -39,9 +39,9 @@
   "devDependencies": {
     "vitest": "^5.0.5"
   },
-  "homepage": "https://aegis.dame.gg",
+  "homepage": "https://eos.dame.gg",
   "bugs": {
-    "url": "https://github.com/Dame-G/aegis/issues"
+    "url": "https://github.com/Dame-G/eos/issues"
   },
   "keywords": [
     "vue",

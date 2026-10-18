@@ -1,12 +1,12 @@
-# AePanel
+# EPanel
 
-The generic flat container. Outlined, never shadowed, because a Panel is not clickable. Put statements, detail rows and forms inside it. It is an AeSurface rendered as a `section`.
+The generic flat container. Outlined, never shadowed, because a Panel is not clickable. Put statements, detail rows and forms inside it. It is an ESurface rendered as a `section`.
 
 ```vue
-<AePanel kicker="Account" title="Contact details">
-  <template #action><AeButton variant="outline">Edit</AeButton></template>
-  <AeDescriptionList :items="details" />
-</AePanel>
+<EPanel kicker="Account" title="Contact details">
+  <template #action><EButton variant="outline">Edit</EButton></template>
+  <EDescriptionList :items="details" />
+</EPanel>
 ```
 
 ## Props

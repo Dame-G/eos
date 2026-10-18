@@ -1,9 +1,9 @@
-# AeErrorSummary
+# EErrorSummary
 
-The list of what went wrong, placed at the top of a form after a failed submit. It is a danger AeNotice holding a plain list.
+The list of what went wrong, placed at the top of a form after a failed submit. It is a danger ENotice holding a plain list.
 
 ```vue
-<AeErrorSummary :errors="[{ field: 'Email', message: 'Enter an email address' }, { message: 'Choose a date' }]" />
+<EErrorSummary :errors="[{ field: 'Email', message: 'Enter an email address' }, { message: 'Choose a date' }]" />
 ```
 
 ## Props

@@ -1,12 +1,12 @@
-# AeNotice
+# ENotice
 
 An inline message on a soft tint with a toned icon.
 
 ```vue
-<AeNotice tone="warning" title="Form due" heading-level="2">
+<ENotice tone="warning" title="Form due" heading-level="2">
   Please sign before Oct 22.
-  <template #actions><AeButton variant="outline">Sign now</AeButton></template>
-</AeNotice>
+  <template #actions><EButton variant="outline">Sign now</EButton></template>
+</ENotice>
 ```
 
 ## Props
@@ -24,11 +24,11 @@ An inline message on a soft tint with a toned icon.
 
 ## Events and slots
 
-| Name      | Use                                                                                                         |
-| --------- | ----------------------------------------------------------------------------------------------------------- |
-| `dismiss` | Emitted by the dismiss button. The button shows only when a `@dismiss` listener is attached.                |
-| `default` | One sentence of detail.                                                                                     |
-| `actions` | Buttons (see AeActions); `outline` and `quiet` suit best. They follow the message in reading and tab order. |
+| Name      | Use                                                                                                        |
+| --------- | ---------------------------------------------------------------------------------------------------------- |
+| `dismiss` | Emitted by the dismiss button. The button shows only when a `@dismiss` listener is attached.               |
+| `default` | One sentence of detail.                                                                                    |
+| `actions` | Buttons (see EActions); `outline` and `quiet` suit best. They follow the message in reading and tab order. |
 
 ## Layout
 
@@ -43,5 +43,5 @@ The actions sit at the end of the row, centred on the message, when the notice i
 ## Rules
 
 - Say what happened and what to do in two sentences at most. One action is usually enough.
-- A Notice stays until it is dealt with. A message that follows an action and then goes is an AeToast.
+- A Notice stays until it is dealt with. A message that follows an action and then goes is an EToast.
 - For a message about the whole page or session, put a Notice at the top of the main area.

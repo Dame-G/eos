@@ -1,2 +1,2 @@
-export { default as AeSlotPicker } from "./AeSlotPicker.vue";
-export type { SlotOption } from "./AeSlotPicker.vue";
+export { default as ESlotPicker } from "./ESlotPicker.vue";
+export type { SlotOption } from "./ESlotPicker.vue";

@@ -1,9 +1,9 @@
-# AeSignatureField
+# ESignatureField
 
-Signing a form by typing your name, drawing it, or either. Composes `AeSegmented`, `AeTextField`, `AeSignaturePad` and `AeCheckbox` in a fieldset.
+Signing a form by typing your name, drawing it, or either. Composes `ESegmented`, `ETextField`, `ESignaturePad` and `ECheckbox` in a fieldset.
 
 ```vue
-<AeSignatureField v-model="signed" mode="both" label="Sign the consent form" />
+<ESignatureField v-model="signed" mode="both" label="Sign the consent form" />
 ```
 
 ```ts
@@ -27,7 +27,7 @@ const signed = ref<SignatureValue>({ method: "type", name: "", image: "", agreed
 ## Rules
 
 - **Typed:** the name appears on a signature line in a handwriting face with the date beside it (announced politely), so the person sees what they are signing.
-- **Drawn:** an `AeSignaturePad` with a signature line, a Clear button and the date.
+- **Drawn:** an `ESignaturePad` with a signature line, a Clear button and the date.
 - Signing needs the signature and the agreement checkbox: check both before accepting the form. Say what the form is in the label, and link to the full text before the field.
 - A drawn signature cannot be done from a keyboard. Always allow the typed signature, so `both` is the right choice unless your rules say otherwise.
 - The date uses the configured locale.

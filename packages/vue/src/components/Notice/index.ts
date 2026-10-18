@@ -1,2 +1,2 @@
-export { default as AeNotice } from "./AeNotice.vue";
-export type { NoticeTone } from "./AeNotice.vue";
+export { default as ENotice } from "./ENotice.vue";
+export type { NoticeTone } from "./ENotice.vue";

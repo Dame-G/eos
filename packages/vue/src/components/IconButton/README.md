@@ -1,9 +1,9 @@
-# AeIconButton
+# EIconButton
 
 An icon-only control with a 48px target.
 
 ```vue
-<AeIconButton icon="download" label="Download receipt" @click="download" />
+<EIconButton icon="download" label="Download receipt" @click="download" />
 ```
 
 ## Props

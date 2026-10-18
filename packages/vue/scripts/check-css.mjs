@@ -1,10 +1,10 @@
 // Fails when a component's CSS breaks the layering rules:
-//  - every rule sits inside `@layer ae.<name> { }` with a known layer (so consumers can always override with plain CSS)
+//  - every rule sits inside `@layer e.<name> { }` with a known layer (so consumers can always override with plain CSS)
 //  - no `!important`
 //  - no raw z-index numbers (use the --z-* tokens)
 import postcss from "postcss";
 import { sourceStyles } from "./css-lib.mjs";
-import { LAYER_ORDER } from "@aegis/tokens";
+import { LAYER_ORDER } from "@eos/tokens";
 
 const layers = new Set(LAYER_ORDER.split(",").map((s) => s.trim()));
 const problems = [];
@@ -21,7 +21,7 @@ for (const { file, css } of sourceStyles()) {
       return;
     }
     problems.push(
-      `${file}:${n.source?.start?.line ?? "?"}: top-level ${n.type === "rule" ? n.selector : "@" + n.name} is outside an @layer ae.* block`,
+      `${file}:${n.source?.start?.line ?? "?"}: top-level ${n.type === "rule" ? n.selector : "@" + n.name} is outside an @layer e.* block`,
     );
   });
   root.walkDecls((d) => {

@@ -2,8 +2,8 @@ import { inject, reactive, type InjectionKey } from "vue";
 import { defaultMessages, type MessageKey } from "./messages.js";
 import { phosphor, type IconMarkup } from "./icons/phosphor.js";
 
-/** What the app tells the components: language, money, direction, words and icons. Set it once with `createAegis()`. */
-export interface AegisConfig {
+/** What the app tells the components: language, money, direction, words and icons. Set it once with `createEos()`. */
+export interface EosConfig {
   /** BCP 47 tag. Drives month and weekday names, week start, date order and number formats. */
   locale: string;
   /** ISO 4217 code, for amounts. */
@@ -18,10 +18,10 @@ export interface AegisConfig {
   portalTarget: string | HTMLElement;
 }
 
-export const CONFIG_KEY: InjectionKey<AegisConfig> = Symbol("aegis.config");
+export const CONFIG_KEY: InjectionKey<EosConfig> = Symbol("eos.config");
 
 /** Used when a component is rendered without the plugin, so every component works on its own. */
-export const fallbackConfig: AegisConfig = reactive({
+export const fallbackConfig: EosConfig = reactive({
   locale: "en-US",
   currency: "USD",
   dir: null,
@@ -30,7 +30,7 @@ export const fallbackConfig: AegisConfig = reactive({
   portalTarget: "body",
 });
 
-export function useConfig(): AegisConfig {
+export function useConfig(): EosConfig {
   return inject(CONFIG_KEY, fallbackConfig);
 }
 

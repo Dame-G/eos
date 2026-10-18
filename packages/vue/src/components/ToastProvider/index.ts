@@ -1,1 +1,1 @@
-export { default as AeToastProvider } from "./AeToastProvider.vue";
+export { default as EToastProvider } from "./EToastProvider.vue";

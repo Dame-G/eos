@@ -1,9 +1,9 @@
-# AeCardField
+# ECardField
 
 The frame for a payment provider's hosted card fields. Card numbers must never touch your own page or server, so this component draws the label, the edge, the focus ring and the reassurance note, and leaves a mount point for the provider's element. It renders no card inputs of its own.
 
 ```vue
-<AeCardField ref="card" :state="state" :error="declined" />
+<ECardField ref="card" :state="state" :error="declined" />
 ```
 
 ```ts

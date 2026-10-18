@@ -1,2 +1,2 @@
-export { default as AeSelect } from "./AeSelect.vue";
-export type { AeOption, AeOptionInput } from "./options.js";
+export { default as ESelect } from "./ESelect.vue";
+export type { EOption, EOptionInput } from "./options.js";

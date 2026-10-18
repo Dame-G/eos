@@ -217,7 +217,7 @@ importers:
 
   packages/vue:
     dependencies:
-      '@aegis/tokens':
+      '@eos/tokens':
         specifier: workspace:*
         version: link:../tokens
       '@tanstack/vue-table':

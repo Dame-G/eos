@@ -1,1 +1,1 @@
-export { default as AeDialog } from "./AeDialog.vue";
+export { default as EDialog } from "./EDialog.vue";

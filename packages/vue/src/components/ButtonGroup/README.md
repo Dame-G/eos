@@ -1,12 +1,12 @@
-# AeButtonGroup
+# EButtonGroup
 
 Buttons that belong together, side by side, announced as one labelled group.
 
 ```vue
-<AeButtonGroup label="Record actions">
-  <AeButton variant="outline">Print</AeButton>
-  <AeButton variant="outline">Download</AeButton>
-</AeButtonGroup>
+<EButtonGroup label="Record actions">
+  <EButton variant="outline">Print</EButton>
+  <EButton variant="outline">Download</EButton>
+</EButtonGroup>
 ```
 
 ## Props
@@ -20,4 +20,4 @@ Slot: the buttons (default). `class`, `style` and other attributes land on the g
 ## Rules
 
 - The buttons sit in a row with `space-2` between them and wrap when there is no room.
-- For a choice of one from several, use `AeSegmented`. For independent on-off options, use `AeToggle`s in a group.
+- For a choice of one from several, use `ESegmented`. For independent on-off options, use `EToggle`s in a group.

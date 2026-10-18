@@ -6,5 +6,5 @@ import { computed, toValue, useId, type ComputedRef, type MaybeRefOrGetter } fro
  */
 export function useUid(given?: MaybeRefOrGetter<string | undefined>): ComputedRef<string> {
   const generated = useId();
-  return computed(() => toValue(given) || `ae-${generated}`);
+  return computed(() => toValue(given) || `e-${generated}`);
 }

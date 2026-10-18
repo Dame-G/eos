@@ -1,2 +1,2 @@
-export { default as AeCombobox } from "./AeCombobox.vue";
-export type { AeComboboxProps } from "./types.js";
+export { default as ECombobox } from "./ECombobox.vue";
+export type { EComboboxProps } from "./types.js";

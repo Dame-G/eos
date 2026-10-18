@@ -1,5 +1,5 @@
 // Phosphor Icons (MIT, https://phosphoricons.com). Each entry is [regular, bold] SVG markup in a 256 x 256 box.
-// Add or replace icons with createAegis({ icons }).
+// Add or replace icons with createEos({ icons }).
 export const ICON_VIEWBOX = "0 0 256 256";
 
 export type IconMarkup = readonly [regular: string, bold: string];

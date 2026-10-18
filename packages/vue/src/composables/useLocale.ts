@@ -111,7 +111,7 @@ function asciiDigits(s: string): string {
 /**
  * Everything the date components need from the configured locale: month and weekday names (Sunday first),
  * the first day of the week, the date order and separator, and formatting and parsing of dates and money.
- * Reads `createAegis({ locale })`, so changing the locale re-renders everything that uses it.
+ * Reads `createEos({ locale })`, so changing the locale re-renders everything that uses it.
  */
 export function useLocale() {
   const config = useConfig();

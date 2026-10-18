@@ -85,6 +85,6 @@ describe("useToast", () => {
         },
       }),
     );
-    expect(String(error)).toContain("AeToastProvider");
+    expect(String(error)).toContain("EToastProvider");
   });
 });

@@ -1,10 +1,10 @@
-# AePasswordField
+# EPasswordField
 
-A password with a Show and Hide button and, if you give it `rules`, a checklist that updates as you type. Built on `AeField`.
+A password with a Show and Hide button and, if you give it `rules`, a checklist that updates as you type. Built on `EField`.
 
 ```vue
-<AePasswordField v-model="password" label="Choose a password" mode="new" :rules="rules" />
-<AePasswordField v-model="password" mode="current" />
+<EPasswordField v-model="password" label="Choose a password" mode="new" :rules="rules" />
+<EPasswordField v-model="password" mode="current" />
 ```
 
 ```ts
@@ -29,7 +29,7 @@ const rules = [{ label: "At least 10 characters", test: (v: string) => v.length 
 
 ## Attributes and listeners
 
-`inheritAttrs` is off. `class` and `style` stay on the wrapper (`div.ae-field`); everything else lands on the `<input>` and wins over the defaults (so a consumer's `autocomplete` replaces the one `mode` sets). An `aria-describedby` of your own is joined to the hint and rules ids.
+`inheritAttrs` is off. `class` and `style` stay on the wrapper (`div.e-field`); everything else lands on the `<input>` and wins over the defaults (so a consumer's `autocomplete` replaces the one `mode` sets). An `aria-describedby` of your own is joined to the hint and rules ids.
 
 Exposed: `input` (the element) and `focus()`.
 

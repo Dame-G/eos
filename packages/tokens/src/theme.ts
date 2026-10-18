@@ -4,13 +4,13 @@ import { contrast, reachContrast, tint } from "./color.js";
 export type TokenValues = Partial<Record<TokenName, string>>;
 
 export interface ThemeInput {
-  /** Identifies the theme. It becomes the value of `data-ae-theme` when the theme is scoped to an element. */
+  /** Identifies the theme. It becomes the value of `data-e-theme` when the theme is scoped to an element. */
   name?: string;
   /** The brand colour. The deep action colour (`primary`) is derived from it so white text on it reaches 7:1; the tinted ground follows. */
   brand?: string;
   /** A second brand colour for positive actions (`secondary`), derived the same way. */
   accent?: string;
-  /** Font stacks for body and mono text. Fonts are never bundled: load them yourself or import `@aegis/vue/fonts.css`. */
+  /** Font stacks for body and mono text. Fonts are never bundled: load them yourself or import `@eos/vue/fonts.css`. */
   fonts?: { sans?: string; mono?: string };
   /** Corner style: a preset or explicit values. */
   radius?: "sharp" | "default" | "round" | { sm?: string; md?: string; lg?: string };
@@ -30,7 +30,7 @@ export interface ContrastIssue {
 export interface CssOptions {
   /** Selector the tokens apply to. Default `:root`. */
   selector?: string;
-  /** Wrap in `@layer ae.tokens`, the layer the components expect. Default true. */
+  /** Wrap in `@layer e.tokens`, the layer the components expect. Default true. */
   layer?: boolean;
   /** Prepend the layer order statement and a generated-file comment. */
   header?: boolean;
@@ -44,13 +44,13 @@ export interface Theme {
   issues: ContrastIssue[];
   /** The theme as CSS custom properties on a selector, in the token layer. Render it into `<head>` on the server. */
   css(options?: CssOptions): string;
-  /** Sets the tokens on an element as inline custom properties and marks it `data-ae-theme`. Browser only. */
+  /** Sets the tokens on an element as inline custom properties and marks it `data-e-theme`. Browser only. */
   apply(el?: HTMLElement): void;
 }
 
 /** Cascade order of the library. Later layers win, and each layer only builds on the ones before it. */
 export const LAYER_ORDER =
-  "ae.reset, ae.tokens, ae.base, ae.primitives, ae.blocks, ae.controls, ae.composites, ae.containers, ae.account, ae.page";
+  "e.reset, e.tokens, e.base, e.primitives, e.blocks, e.controls, e.composites, e.containers, e.account, e.page";
 
 const RADII = {
   sharp: { sm: "0px", md: "2px", lg: "4px" },
@@ -120,9 +120,9 @@ export function checkContrast(tokens: Record<string, string>): ContrastIssue[] {
 }
 
 const WASHES = [
-  "--ae-wash-hover: color-mix(in srgb, var(--ae-ink) 8%, transparent);",
-  "--ae-wash-press: color-mix(in srgb, var(--ae-ink) 15%, transparent);",
-  "--ae-wash-ring: color-mix(in srgb, var(--ae-ink) 38%, transparent);",
+  "--e-wash-hover: color-mix(in srgb, var(--e-ink) 8%, transparent);",
+  "--e-wash-press: color-mix(in srgb, var(--e-ink) 15%, transparent);",
+  "--e-wash-ring: color-mix(in srgb, var(--e-ink) 38%, transparent);",
 ];
 
 export function defineTheme(input: ThemeInput = {}): Theme {
@@ -141,17 +141,17 @@ export function defineTheme(input: ThemeInput = {}): Theme {
     issues,
     css({ selector = ":root", layer = true, header = false }: CssOptions = {}) {
       const decls = Object.entries(tokens)
-        .map(([k, v]) => `  --ae-${k}: ${v};`)
+        .map(([k, v]) => `  --e-${k}: ${v};`)
         .join("\n");
       // The washes are computed from ink, so every scoped root recomputes them from its own ink.
-      const derived = `${selector}, [data-ae-theme] {\n${WASHES.map((w) => "  " + w).join("\n")}\n}`;
+      const derived = `${selector}, [data-e-theme] {\n${WASHES.map((w) => "  " + w).join("\n")}\n}`;
       const rules = `${selector} {\n${decls}\n}\n${derived}\n`;
-      const body = layer ? `@layer ae.tokens {\n${rules}}\n` : rules;
+      const body = layer ? `@layer e.tokens {\n${rules}}\n` : rules;
       return (header ? `/* Generated from tokens.json. Theme: ${name}. */\n@layer ${LAYER_ORDER};\n` : "") + body;
     },
     apply(el = document.documentElement) {
-      for (const [k, v] of Object.entries(tokens)) el.style.setProperty(`--ae-${k}`, v);
-      el.setAttribute("data-ae-theme", name);
+      for (const [k, v] of Object.entries(tokens)) el.style.setProperty(`--e-${k}`, v);
+      el.setAttribute("data-e-theme", name);
     },
   };
 }

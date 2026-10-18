@@ -1,2 +1,2 @@
-export { default as AeAccordion } from "./AeAccordion.vue";
-export type { AccordionItem } from "./AeAccordion.vue";
+export { default as EAccordion } from "./EAccordion.vue";
+export type { AccordionItem } from "./EAccordion.vue";

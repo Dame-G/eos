@@ -1,2 +1,2 @@
-export { default as AeStamp } from "./AeStamp.vue";
-export type { StampStatus, StampTone } from "./AeStamp.vue";
+export { default as EStamp } from "./EStamp.vue";
+export type { StampStatus, StampTone } from "./EStamp.vue";

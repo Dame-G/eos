@@ -1,9 +1,9 @@
-# AeKicker
+# EKicker
 
 The small uppercase mono label above a value or a section, in the muted colour.
 
 ```vue
-<AeKicker>Balance</AeKicker>
+<EKicker>Balance</EKicker>
 ```
 
 ## Props
@@ -18,7 +18,7 @@ The small uppercase mono label above a value or a section, in the muted colour.
 | --------- | --------------- |
 | `default` | The label text. |
 
-Native attributes land on the rendered element. The styles are the shared `.ae-kicker` class in `styles/base.css`, so the component has no CSS of its own.
+Native attributes land on the rendered element. The styles are the shared `.e-kicker` class in `styles/base.css`, so the component has no CSS of its own.
 
 ## Rules
 

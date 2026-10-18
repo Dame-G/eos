@@ -1,1 +1,1 @@
-export { default as AeCurrencyField } from "./AeCurrencyField.vue";
+export { default as ECurrencyField } from "./ECurrencyField.vue";

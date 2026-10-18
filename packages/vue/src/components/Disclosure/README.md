@@ -1,11 +1,11 @@
-# AeDisclosure
+# EDisclosure
 
 A section that opens and closes, on the native `details` element so it works without script. The chevron turns when it is open.
 
 ```vue
-<AeDisclosure title="History (4)">
-  <AeTimeline :items="history" />
-</AeDisclosure>
+<EDisclosure title="History (4)">
+  <ETimeline :items="history" />
+</EDisclosure>
 ```
 
 ## Props
@@ -28,4 +28,4 @@ A section that opens and closes, on the native `details` element so it works wit
 
 ## Rules
 
-- A StatementCard uses it for History. Use AeAccordion for a stack of them.
+- A StatementCard uses it for History. Use EAccordion for a stack of them.

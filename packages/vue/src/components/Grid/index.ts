@@ -1,1 +1,1 @@
-export { default as AeGrid } from "./AeGrid.vue";
+export { default as EGrid } from "./EGrid.vue";

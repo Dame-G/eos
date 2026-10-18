@@ -1,10 +1,10 @@
-# AeNumberField
+# ENumberField
 
 A number input with decrease and increase buttons, for quantities. An amount of money is `CurrencyField`.
 
 ```vue
-<AeNumberField v-model="visits" label="Visits" :min="0" :max="10" />
-<AeNumberField v-model="hours" label="Hours" :step="0.25" suffix="h" />
+<ENumberField v-model="visits" label="Visits" :min="0" :max="10" />
+<ENumberField v-model="hours" label="Hours" :step="0.25" suffix="h" />
 ```
 
 ## Props
@@ -18,7 +18,7 @@ A number input with decrease and increase buttons, for quantities. An amount of 
 | `step`             | `number`         | Default 1. The decimals shown follow the step (`0.25` shows two).      |
 | `prefix`, `suffix` | `string`         | A unit beside the value, hidden from screen readers.                   |
 | `name`             | `string`         | Submitted with a form as a hidden input holding the number (or empty). |
-| `hint`, `error`    | `string`         | As on `AeTextField`.                                                   |
+| `hint`, `error`    | `string`         | As on `ETextField`.                                                    |
 | `required`         | `boolean`        | The `required` attribute and the word "Required".                      |
 | `optional`         | `boolean`        | The word "Optional".                                                   |
 | `disabled`         | `boolean`        | Disables the input and both buttons.                                   |

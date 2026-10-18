@@ -1,2 +1,2 @@
-export { default as AePasswordField } from "./AePasswordField.vue";
-export type { PasswordRule } from "./AePasswordField.vue";
+export { default as EPasswordField } from "./EPasswordField.vue";
+export type { PasswordRule } from "./EPasswordField.vue";

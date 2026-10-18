@@ -1,10 +1,10 @@
-# AeSpinner
+# ESpinner
 
 A ring that shows something is loading.
 
 ```vue
-<AeSpinner label="Processing your payment" />
-<AeSpinner block />
+<ESpinner label="Processing your payment" />
+<ESpinner block />
 ```
 
 ## Props

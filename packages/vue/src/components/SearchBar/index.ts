@@ -1,1 +1,1 @@
-export { default as AeSearchBar } from "./AeSearchBar.vue";
+export { default as ESearchBar } from "./ESearchBar.vue";

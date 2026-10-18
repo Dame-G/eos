@@ -1,10 +1,10 @@
-# AeOtpField
+# EOtpField
 
-A one-time code, one character per box. Built on `AeField`.
+A one-time code, one character per box. Built on `EField`.
 
 ```vue
-<AeOtpField v-model="code" label="Sign-in code" hint="We texted you a code." @complete="verify" />
-<AeOtpField v-model="code" :length="8" type="text" :group-size="4" />
+<EOtpField v-model="code" label="Sign-in code" hint="We texted you a code." @complete="verify" />
+<EOtpField v-model="code" :length="8" type="text" :group-size="4" />
 ```
 
 ## Props

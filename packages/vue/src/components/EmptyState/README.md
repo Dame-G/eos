@@ -1,12 +1,12 @@
-# AeEmptyState
+# EEmptyState
 
 The panel shown when a list, search or table has no content. It has a dashed outline, the system's sign for an empty slot.
 
 ```vue
-<AeEmptyState icon="file" title="No statements yet">
+<EEmptyState icon="file" title="No statements yet">
   They appear here after your first visit.
-  <template #action><AeButton>Book a visit</AeButton></template>
-</AeEmptyState>
+  <template #action><EButton>Book a visit</EButton></template>
+</EEmptyState>
 ```
 
 ## Props

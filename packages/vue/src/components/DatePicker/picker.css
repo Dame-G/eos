@@ -1,83 +1,83 @@
 /* The boxed date field and its calendar popup, shared by DatePicker and RangePicker. */
-@layer ae.composites {
-  .ae-combo {
+@layer e.composites {
+  .e-combo {
     position: relative;
     flex-wrap: nowrap;
     align-items: center;
-    min-height: var(--ae-control-height);
-    padding-inline-end: var(--ae-space-1);
+    min-height: var(--e-control-height);
+    padding-inline-end: var(--e-space-1);
   }
 
-  .ae-combo .ae-input {
+  .e-combo .e-input {
     flex: 1 1 6rem;
     min-width: 4rem;
     height: auto;
     align-self: stretch;
-    padding-inline: var(--ae-space-4) var(--ae-space-2);
+    padding-inline: var(--e-space-4) var(--e-space-2);
   }
 
-  .ae-combo-btn {
+  .e-combo-btn {
     display: inline-grid;
     place-items: center;
     position: relative;
     flex: none;
-    width: calc(var(--ae-control-height) - 9px);
-    height: calc(var(--ae-control-height) - 9px);
+    width: calc(var(--e-control-height) - 9px);
+    height: calc(var(--e-control-height) - 9px);
     padding: 0;
     border: 0;
-    border-radius: var(--ae-radius-sm);
+    border-radius: var(--e-radius-sm);
     background: transparent;
-    color: var(--ae-ink);
+    color: var(--e-ink);
     cursor: pointer;
-    transition: background-color var(--ae-duration-tap) var(--ae-easing-out);
+    transition: background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  .ae-combo-btn::after {
+  .e-combo-btn::after {
     content: "";
     position: absolute;
     inset: -5px;
   }
 
-  .ae-combo-btn:hover:not(:disabled) {
-    background: var(--ae-wash-hover);
-    box-shadow: inset 0 0 0 1px var(--ae-wash-ring);
+  .e-combo-btn:hover:not(:disabled) {
+    background: var(--e-wash-hover);
+    box-shadow: inset 0 0 0 1px var(--e-wash-ring);
   }
 
-  .ae-combo-btn:active:not(:disabled) {
-    background: var(--ae-wash-press);
-    box-shadow: inset 0 0 0 1.5px var(--ae-ink);
+  .e-combo-btn:active:not(:disabled) {
+    background: var(--e-wash-press);
+    box-shadow: inset 0 0 0 1.5px var(--e-ink);
   }
 
-  .ae-combo-btn:focus-visible {
-    outline: var(--ae-stroke-focus) solid var(--ae-focus-ring);
+  .e-combo-btn:focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: -2px;
   }
 
-  .ae-combo-btn:disabled {
-    color: var(--ae-muted);
+  .e-combo-btn:disabled {
+    color: var(--e-muted);
     cursor: not-allowed;
   }
 
   /* The popup. Reka UI positions the wrapper; this is the surface inside it. */
-  .ae-calpanel {
+  .e-calpanel {
     width: auto;
     max-width: calc(100vw - 16px);
     max-height: calc(100dvh - 16px);
     margin: 0;
-    padding: var(--ae-space-3);
+    padding: var(--e-space-3);
     overflow: auto;
     border: 0;
-    border-radius: var(--ae-radius-md);
-    background: var(--ae-surface);
-    color: var(--ae-ink);
+    border-radius: var(--e-radius-md);
+    background: var(--e-surface);
+    color: var(--e-ink);
     box-shadow:
-      0 0 0 1px var(--ae-border),
-      var(--ae-float);
-    font-family: var(--ae-font-sans);
+      0 0 0 1px var(--e-border),
+      var(--e-float);
+    font-family: var(--e-font-sans);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ae-combo-btn {
+    .e-combo-btn {
       transition: none;
     }
   }

@@ -1,2 +1,2 @@
-export { default as AeMenu } from "./AeMenu.vue";
-export type { AeMenuAction, AeMenuDivider, AeMenuItem } from "./AeMenu.vue";
+export { default as EMenu } from "./EMenu.vue";
+export type { EMenuAction, EMenuDivider, EMenuItem } from "./EMenu.vue";

@@ -1,1 +1,1 @@
-export { default as AeSignaturePad } from "./AeSignaturePad.vue";
+export { default as ESignaturePad } from "./ESignaturePad.vue";

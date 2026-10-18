@@ -1,13 +1,13 @@
-import type { AeOption, AeOptionInput } from "../Select/options.js";
+import type { EOption, EOptionInput } from "../Select/options.js";
 
-/** What AeCombobox, AeAutocomplete and AeMultiSelect take besides their `v-model`. */
-export interface AeComboboxProps {
+/** What ECombobox, EAutocomplete and EMultiSelect take besides their `v-model`. */
+export interface EComboboxProps {
   /** The visible label, a mono kicker above the field. It also names the list. */
   label: string;
   /** Keep the label for screen readers and remove it from the page. */
   hideLabel?: boolean;
   /** Strings, or `{ value, label, description, icon, group, disabled }`. A value is never an empty string. */
-  options: readonly AeOptionInput[];
+  options: readonly EOptionInput[];
   /** An example, never the label. */
   placeholder?: string;
   /** Help that stays under the field. */
@@ -28,7 +28,7 @@ export interface AeComboboxProps {
   /** The clear button, shown when there is something to clear. On by default. */
   clearable?: boolean;
   /** Replaces the default match (the typed text appears in the label or description). `query` is trimmed and lower case. */
-  filter?: (option: AeOption, query: string) => boolean;
+  filter?: (option: EOption, query: string) => boolean;
   /** The id of the input; the label points at it. Generated when left out. */
   id?: string;
 }

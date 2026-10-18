@@ -1,4 +1,4 @@
-// Default words the components say. Override any of them with createAegis({ messages }) or per app with vue-i18n.
+// Default words the components say. Override any of them with createEos({ messages }) or per app with vue-i18n.
 export const defaultMessages = {
   required: "Required",
   address: "Address",

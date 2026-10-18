@@ -1,11 +1,11 @@
-# AeCalendar
+# ECalendar
 
 The month grid behind the date pickers, usable alone: choose a day, or a span, with the keyboard or the pointer. Custom (no date library, no native date input); names, week start and date order follow the configured locale.
 
 ```vue
-<AeCalendar v-model="day" :min="today" />
-<AeCalendar mode="range" v-model:start="from" v-model:end="to" />
-<AeCalendar v-model="day" :disabled-date="(d) => d.getDay() === 0" :marked="openDays" mark-label="times available" />
+<ECalendar v-model="day" :min="today" />
+<ECalendar mode="range" v-model:start="from" v-model:end="to" />
+<ECalendar v-model="day" :disabled-date="(d) => d.getDay() === 0" :marked="openDays" mark-label="times available" />
 ```
 
 ## Props
@@ -18,7 +18,7 @@ The month grid behind the date pickers, usable alone: choose a day, or a span, w
 | `min`, `max`                   | `Date`                              | Days outside are faded and cannot be focused or chosen; the month arrows, months and years stop there. |
 | `month`                        | `Date`                              | The month to open on when nothing is chosen. Changing it moves the view.                               |
 | `disabledDate`                 | `(date: Date) => boolean`           | Days with nothing to book: faded, disabled, skipped by the arrow keys.                                 |
-| `marked`                       | `Date[] \| (date: Date) => boolean` | Days that get a dot (days with open times). Pair it with `AeSlotPicker`.                               |
+| `marked`                       | `Date[] \| (date: Date) => boolean` | Days that get a dot (days with open times). Pair it with `ESlotPicker`.                                |
 | `markLabel`                    | `string`                            | What screen readers hear on a marked day. Default "times available".                                   |
 | `footer`                       | `boolean`                           | `false` hides Today and Clear. Default shown.                                                          |
 
@@ -29,7 +29,7 @@ The month grid behind the date pickers, usable alone: choose a day, or a span, w
 | `rangeChange` | `{ start: Date \| null, end: Date \| null }` | Range mode, after every click that changes the span.                     |
 | `clear`       | none                                         | The Clear button. It is only shown when a `@clear` listener is attached. |
 
-Exposed: `view` (`days`, `months` or `years`) and `focusDay()`. `class`, `style` and other attributes land on the root `div.ae-cal`.
+Exposed: `view` (`days`, `months` or `years`) and `focusDay()`. `class`, `style` and other attributes land on the root `div.e-cal`.
 
 ## Views
 
@@ -62,5 +62,5 @@ Range mode adds a line under the grid, announced politely: what to do next, then
 
 ## Rules
 
-- Words come from `useMessages` (`today`, `clear`, `prevMonth`, `nextMonth`, `chooseAYear` and the rest); names and order come from `useLocale`, so `createAegis({ locale })` re-renders them. With `createAegis({ dir: "rtl" })` the grid mirrors and ArrowRight goes to the previous day.
+- Words come from `useMessages` (`today`, `clear`, `prevMonth`, `nextMonth`, `chooseAYear` and the rest); names and order come from `useLocale`, so `createEos({ locale })` re-renders them. With `createEos({ dir: "rtl" })` the grid mirrors and ArrowRight goes to the previous day.
 - Dates are local days held at noon, so daylight saving never shifts a day.

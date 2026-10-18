@@ -1,2 +1,2 @@
-export { default as AeErrorSummary } from "./AeErrorSummary.vue";
-export type { ErrorSummaryItem } from "./AeErrorSummary.vue";
+export { default as EErrorSummary } from "./EErrorSummary.vue";
+export type { ErrorSummaryItem } from "./EErrorSummary.vue";

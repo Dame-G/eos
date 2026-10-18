@@ -1,1 +1,1 @@
-export { default as AeMultiSelect } from "./AeMultiSelect.vue";
+export { default as EMultiSelect } from "./EMultiSelect.vue";

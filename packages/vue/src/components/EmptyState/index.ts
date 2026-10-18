@@ -1,1 +1,1 @@
-export { default as AeEmptyState } from "./AeEmptyState.vue";
+export { default as EEmptyState } from "./EEmptyState.vue";

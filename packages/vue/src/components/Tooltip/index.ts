@@ -1,1 +1,1 @@
-export { default as AeTooltip } from "./AeTooltip.vue";
+export { default as ETooltip } from "./ETooltip.vue";

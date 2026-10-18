@@ -1,9 +1,9 @@
-# AeSlotPicker
+# ESlotPicker
 
-The times a person can choose for a visit, shown as a grid of 48px options. It is a radio group in a bare `AeFieldset`, so arrow keys work and the group, hint and error are announced together.
+The times a person can choose for a visit, shown as a grid of 48px options. It is a radio group in a bare `EFieldset`, so arrow keys work and the group, hint and error are announced together.
 
 ```vue
-<AeSlotPicker
+<ESlotPicker
   v-model="time"
   label="Tuesday 22 September"
   :slots="['9:00 am', '9:30 am', { value: '10:00', label: '10:00 am', disabled: true }]"

@@ -1,9 +1,9 @@
-# AeDatePicker
+# EDatePicker
 
-A date field with a calendar. A text box that takes the locale's order, and a button that opens `AeCalendar` in a popup (Reka UI's Popover: positioned, focus-managed, dismissed with Escape or a click outside). There is no native date input. Built on `AeField`.
+A date field with a calendar. A text box that takes the locale's order, and a button that opens `ECalendar` in a popup (Reka UI's Popover: positioned, focus-managed, dismissed with Escape or a click outside). There is no native date input. Built on `EField`.
 
 ```vue
-<AeDatePicker v-model="born" label="Date of birth" name="dob" required :max="today" />
+<EDatePicker v-model="born" label="Date of birth" name="dob" required :max="today" />
 ```
 
 ## Props
@@ -22,7 +22,7 @@ A date field with a calendar. A text box that takes the locale's order, and a bu
 | `name`       | `string`       | Submits the date as `YYYY-MM-DD` through a hidden input.                                     |
 | `id`         | `string`       | The text box's id. Generated when left out.                                                  |
 
-Exposed: `input` and `focus()`. `class` and `style` stay on the wrapper (`div.ae-field`); every other attribute and listener lands on the text `<input>` (`autocomplete` is `off` and `inputmode` is `numeric` unless you set them).
+Exposed: `input` and `focus()`. `class` and `style` stay on the wrapper (`div.e-field`); every other attribute and listener lands on the text `<input>` (`autocomplete` is `off` and `inputmode` is `numeric` unless you set them).
 
 ## Typing
 
@@ -32,15 +32,15 @@ Exposed: `input` and `focus()`. `class` and `style` stay on the wrapper (`div.ae
 
 ## Keyboard
 
-Alt + Down opens the calendar on the selected day (or today). In the calendar see `AeCalendar`. Escape in the months or years goes back to the days; Escape on the days closes the popup and puts focus back in the text box, as does choosing a day. Today and Clear are in the calendar's footer.
+Alt + Down opens the calendar on the selected day (or today). In the calendar see `ECalendar`. Escape in the months or years goes back to the days; Escape on the days closes the popup and puts focus back in the text box, as does choosing a day. Today and Clear are in the calendar's footer.
 
 ## Accessibility
 
 - The text box is named by the label. The button is named "Choose date" (`chooseDate`) and carries `aria-haspopup="dialog"` and `aria-expanded`.
-- The popup is a `dialog` named "Choose date", rendered in the portal target from `createAegis({ portalTarget })` with the class `ae-root`, so a scoped theme reaches it.
+- The popup is a `dialog` named "Choose date", rendered in the portal target from `createEos({ portalTarget })` with the class `e-root`, so a scoped theme reaches it.
 - Error text is `role="alert"` and joined to the box with `aria-describedby`.
 
 ## Rules
 
-- Names, week start, order and separator come from `useLocale`; change `createAegis({ locale })` and the text, placeholder and calendar follow.
+- Names, week start, order and separator come from `useLocale`; change `createEos({ locale })` and the text, placeholder and calendar follow.
 - The popup is never taller than the viewport and flips above the field when there is no room below.

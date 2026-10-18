@@ -1,12 +1,12 @@
-# AeFormSection
+# EFormSection
 
 A titled section of a longer form, with a short description. A form of more than about six fields should be sections, each answering one question ("Your details", "How you will pay"), or steps of a Stepper.
 
 ```vue
-<AeFormSection title="Your details" description="As they appear on your card.">
-  <AeTextField v-model="name" label="Name" />
-  <AeTextField v-model="email" label="Email" type="email" />
-</AeFormSection>
+<EFormSection title="Your details" description="As they appear on your card.">
+  <ETextField v-model="name" label="Name" />
+  <ETextField v-model="email" label="Email" type="email" />
+</EFormSection>
 ```
 
 ## Props
@@ -19,7 +19,7 @@ A titled section of a longer form, with a short description. A form of more than
 | `gap`          | `number \| string` | Space between the fields: a space token number or a CSS length. Default 4. |
 | `id`           | `string`           | The heading's id. Generated when left out.                                 |
 
-Slot: the fields (default), spaced evenly with `AeStack`. `class` and other attributes land on the `<section>`.
+Slot: the fields (default), spaced evenly with `EStack`. `class` and other attributes land on the `<section>`.
 
 ## Rules
 

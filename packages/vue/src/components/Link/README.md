@@ -1,10 +1,10 @@
-# AeLink
+# ELink
 
 An inline anchor. `primary` with an underline, `ink` on hover.
 
 ```vue
-<AeLink href="/statements">All statements</AeLink>
-<AeLink href="https://example.com/help" external>Help centre</AeLink>
+<ELink href="/statements">All statements</ELink>
+<ELink href="https://example.com/help" external>Help centre</ELink>
 ```
 
 ## Props

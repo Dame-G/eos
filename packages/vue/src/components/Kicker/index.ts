@@ -1,1 +1,1 @@
-export { default as AeKicker } from "./AeKicker.vue";
+export { default as EKicker } from "./EKicker.vue";

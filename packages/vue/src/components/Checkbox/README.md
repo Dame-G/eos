@@ -1,10 +1,10 @@
-# AeCheckbox
+# ECheckbox
 
-A single yes/no choice. A setting that takes effect immediately is an `AeSwitch`.
+A single yes/no choice. A setting that takes effect immediately is an `ESwitch`.
 
 ```vue
-<AeCheckbox v-model="agree" label="I agree to the terms" description="You can change this later." />
-<AeCheckbox v-model="agree" label="I agree" :error="agree ? undefined : 'You must agree'" />
+<ECheckbox v-model="agree" label="I agree to the terms" description="You can change this later." />
+<ECheckbox v-model="agree" label="I agree" :error="agree ? undefined : 'You must agree'" />
 ```
 
 ## Props
@@ -22,11 +22,11 @@ A single yes/no choice. A setting that takes effect immediately is an `AeSwitch`
 | `name`, `value` | `string`  | Submitted with a form.                                                                 |
 | `id`            | `string`  | Generated when left out.                                                               |
 
-`class` and `style` stay on the row (or on `div.ae-choice-wrap` when there is an error); every other attribute and listener lands on the `<input>`. Exposed: `input` and `focus()`.
+`class` and `style` stay on the row (or on `div.e-choice-wrap` when there is an error); every other attribute and listener lands on the `<input>`. Exposed: `input` and `focus()`.
 
 ## Rules
 
 - The whole 48px row is the target. Checked is a `primary` fill with a white tick; unchecked has a `border-strong` edge.
-- With an error the row is wrapped in `.ae-choice-wrap` and the message sits 8px under the box.
+- With an error the row is wrapped in `.e-choice-wrap` and the message sits 8px under the box.
 - The `bare` variant has no error text: show the problem elsewhere.
-- Shared choice styles (checkbox, radio) live in `choice.css` in this folder; `AeRadioGroup` and `AeSwitch` import it.
+- Shared choice styles (checkbox, radio) live in `choice.css` in this folder; `ERadioGroup` and `ESwitch` import it.

@@ -2,12 +2,12 @@ import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 import { useLocale } from "./useLocale.js";
-import { createAegis } from "../plugin.js";
+import { createEos } from "../plugin.js";
 
 /** Runs `useLocale` inside a component, with the given config, and returns it. */
-async function locale(options: Parameters<typeof createAegis>[0] = {}) {
+async function locale(options: Parameters<typeof createEos>[0] = {}) {
   let api!: ReturnType<typeof useLocale>;
-  const aegis = createAegis({ themeTarget: null, ...options });
+  const eos = createEos({ themeTarget: null, ...options });
   await render(
     defineComponent({
       setup() {
@@ -15,9 +15,9 @@ async function locale(options: Parameters<typeof createAegis>[0] = {}) {
         return () => h("div");
       },
     }),
-    { global: { plugins: [aegis] } },
+    { global: { plugins: [eos] } },
   );
-  return { api, aegis };
+  return { api, eos };
 }
 
 describe("useLocale", () => {
@@ -115,9 +115,9 @@ describe("useLocale", () => {
   });
 
   test("changing the config locale updates everything that was read", async () => {
-    const { api, aegis } = await locale();
+    const { api, eos } = await locale();
     expect(api.months.value[9]).toBe("October");
-    aegis.config.locale = "fr-FR";
+    eos.config.locale = "fr-FR";
     expect(api.months.value[9]).toBe("octobre");
     expect(api.weekStart.value).toBe(1);
     expect(api.formatDate(new Date(2026, 9, 22, 12))).toBe("22/10/2026");

@@ -1,1 +1,1 @@
-export { default as AePagination } from "./AePagination.vue";
+export { default as EPagination } from "./EPagination.vue";

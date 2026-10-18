@@ -1,9 +1,9 @@
-# AeMetaList
+# EMetaList
 
 Short facts, one per line, each with an icon: when, where, who to call. AppointmentCard is built on it.
 
 ```vue
-<AeMetaList
+<EMetaList
   :items="[{ icon: 'calendar', text: 'Thursday, October 22' }, null, { icon: 'map-pin', text: 'Main office' }]"
 />
 ```
@@ -18,5 +18,5 @@ It renders a `ul` with one `li` per fact; `class`, `style` and attributes fall t
 
 ## Accessibility
 
-- The icon is decoration (AeIcon is hidden from assistive technology), so every item must say its meaning in words.
+- The icon is decoration (EIcon is hidden from assistive technology), so every item must say its meaning in words.
 - Real list semantics: screen readers announce the number of items.

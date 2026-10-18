@@ -1,10 +1,10 @@
-# AeCurrencyField
+# ECurrencyField
 
-An amount of money: an `AeNumberField` with the currency symbol in front, two decimal places and no negatives.
+An amount of money: an `ENumberField` with the currency symbol in front, two decimal places and no negatives.
 
 ```vue
-<AeCurrencyField v-model="amount" label="Payment amount" :max="balance" hint="Up to your balance." />
-<AeCurrencyField v-model="amount" label="Montant" currency="EUR" locale="fr-FR" />
+<ECurrencyField v-model="amount" label="Payment amount" :max="balance" hint="Up to your balance." />
+<ECurrencyField v-model="amount" label="Montant" currency="EUR" locale="fr-FR" />
 ```
 
 ## Props
@@ -31,7 +31,7 @@ An amount of money: an `AeNumberField` with the currency symbol in front, two de
 
 ## Attributes and listeners
 
-As `AeNumberField`: `class` and `style` on the wrapper, everything else on the `<input>`. Exposed: `input` and `focus()`.
+As `ENumberField`: `class` and `style` on the wrapper, everything else on the `<input>`. Exposed: `input` and `focus()`.
 
 ## Rules
 

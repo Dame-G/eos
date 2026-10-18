@@ -1,9 +1,9 @@
-# AeDescriptionList
+# EDescriptionList
 
 Label and text rows, ruled apart: what a statement covers, how to pay, when it is due.
 
 ```vue
-<AeDescriptionList
+<EDescriptionList
   :items="[
     { label: 'Covers', text: 'Visit on September 12' },
     { label: 'Due', text: 'October 31' },
