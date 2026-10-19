@@ -148,6 +148,7 @@ function typeahead(e: KeyboardEvent) {
     gap: var(--e-space-2);
     min-width: 0;
     overflow: hidden;
+    line-height: 1.4;
     text-overflow: ellipsis;
     white-space: nowrap;
   }

@@ -99,7 +99,7 @@ const facts = computed(() => [
   .e-appt-main {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: minmax(3.8rem, auto) auto;
+    grid-template-rows: minmax(4rem, auto) auto;
     gap: var(--e-space-3) var(--e-space-4);
     align-items: start;
     padding: var(--e-space-4);
@@ -109,7 +109,7 @@ const facts = computed(() => [
     display: grid;
     grid-template-rows: auto 1fr;
     justify-items: stretch;
-    width: 56px;
+    width: 64px;
     overflow: hidden;
     border: 1.5px solid var(--e-border-strong);
     border-radius: var(--e-radius-md);

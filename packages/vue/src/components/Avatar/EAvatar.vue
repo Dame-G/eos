@@ -56,8 +56,9 @@ const initials = computed(() => {
     display: inline-grid;
     place-items: center;
     flex: none;
-    width: 40px;
-    height: 40px;
+    box-sizing: border-box;
+    width: 44px;
+    height: 44px;
     overflow: hidden;
     border: var(--e-stroke-edge) solid var(--e-border-strong);
     border-radius: var(--e-radius-md);
@@ -90,15 +91,15 @@ const initials = computed(() => {
   }
 
   .e-avatar--s {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     font-size: var(--e-text-xs);
     border-radius: var(--e-radius-sm);
   }
 
   .e-avatar--l {
-    width: 56px;
-    height: 56px;
+    width: 64px;
+    height: 64px;
     font-size: var(--e-text-lg);
   }
 

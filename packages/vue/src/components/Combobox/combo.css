@@ -15,10 +15,6 @@
     padding-inline: var(--e-space-4) var(--e-space-2);
   }
 
-  .e-input-wrap .e-input[type="password"] {
-    height: calc(var(--e-control-height) - 2 * var(--e-stroke-edge));
-  }
-
   .e-combo-btn {
     display: inline-grid;
     place-items: center;
