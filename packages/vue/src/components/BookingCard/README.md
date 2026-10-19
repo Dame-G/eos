@@ -1,6 +1,6 @@
 # EBookingCard
 
-One upcoming booking with provider or date, status stamp, facts and an optional actions bar. Use it on the home page and the bookings list.
+One upcoming booking with provider or date, status stamp, facts (the date and the place, each with an icon tile under the lead picture or date) and an optional actions bar. Use it on the home page and the bookings list.
 
 ```vue
 <EBookingCard
