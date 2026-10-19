@@ -82,7 +82,7 @@ describe("ELinkCard", () => {
     const card = container.querySelector<HTMLElement>(".e-linkcard")!;
     const rest = getComputedStyle(card).boxShadow;
     await page.getByRole("link", { name: "Card" }).hover();
-    expect(getComputedStyle(card).boxShadow).not.toBe(rest);
+    await expect.poll(() => getComputedStyle(card).boxShadow).not.toBe(rest);
   });
 
   test("keyboard focus draws the focus ring on the card, not the link", async () => {
