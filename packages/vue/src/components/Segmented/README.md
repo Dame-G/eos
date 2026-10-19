@@ -23,6 +23,7 @@ A joined set of two to five options where exactly one is active. Use it to chang
 | `options`    | `(string \| SegmentedOption)[]` |              | Required. `SegmentedOption` is `{ value, label, icon?, disabled? }`; a string is both value and label. |
 | `hint`       | `string`                        |              | Under the control.                                                                                     |
 | `error`      | `string`                        |              | Replaces the hint, announced.                                                                          |
+| `optional`   | `boolean`                       |              | Adds "Optional" to the group's accessible name; nothing is shown. Flag whichever is rarer.             |
 | `disabled`   | `boolean`                       |              | Disables every option.                                                                                 |
 | `name`       | `string`                        | generated    | Shared by the radios; submitted with a form.                                                           |
 

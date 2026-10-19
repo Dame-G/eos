@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EColorField from "./EColorField.vue";
+import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("EColorField", () => {
@@ -24,6 +25,16 @@ describe("EColorField", () => {
     updates.length = 0;
     await box.fill("#12");
     expect(updates).toEqual([]);
+  });
+
+  test("the placeholder example comes from the messages", async () => {
+    const fallback = await render(EColorField, { props: { label: "Brand colour" } });
+    expect(fallback.container.querySelector<HTMLInputElement>("input[type=text]")!.placeholder).toBe("#2c95b4");
+    const custom = await render(EColorField, {
+      props: { label: "Couleur" },
+      global: { plugins: [createEos({ themeTarget: null, messages: { colorPlaceholder: "#0a5c36" } })] },
+    });
+    expect(custom.container.querySelector<HTMLInputElement>("input[type=text]")!.placeholder).toBe("#0a5c36");
   });
 
   test("text that is not a colour is flagged when the person leaves the box", async () => {

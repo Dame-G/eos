@@ -22,6 +22,8 @@ const props = defineProps<{
   /** A word beside the label. Flag whichever is rarer. */
   optional?: boolean;
   disabled?: boolean;
+  /** The name submitted with a form. */
+  name?: string;
   /** The id of the input; the label points at it. Generated when left out. */
   id?: string;
 }>();
@@ -75,6 +77,7 @@ defineExpose({
     :required="required"
     :optional="optional"
     :disabled="disabled"
+    :name="name"
     :model-value="shown"
     @update:model-value="onInput"
   />

@@ -1,32 +1,21 @@
 <script lang="ts">
-export interface TabItem {
+import type { LinkItem, LinkSection } from "./LinkNav.vue";
+
+export interface TabItem extends LinkItem {
   /** Names the tab's slot, and is the value of `v-model`. Not needed for a link. */
   id?: string;
-  /** The tab's label. */
-  label: string;
   /** A number or short word in a small badge after the label. */
   count?: number | string;
-  /** Makes the tab a link to this address, for navigation between pages. */
-  href?: string;
-  /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). */
-  to?: unknown;
-  /** The page the person is on, for a link. */
-  current?: boolean;
 }
 
-export interface TabSection {
-  /** A small heading over the section. */
-  label?: string;
-  /** The tabs of the section, in order. */
-  items: TabItem[];
-}
+export type TabSection = LinkSection<TabItem>;
 </script>
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch, type Component } from "vue";
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from "reka-ui";
-import { useConfig, useMessages } from "../../config.js";
-import { useUid } from "../../composables/useUid.js";
+import LinkNav from "./LinkNav.vue";
+import { useConfig } from "../../config.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
@@ -53,15 +42,9 @@ defineSlots<{
   panel?(props: { item: TabItem }): unknown;
 }>();
 
-const t = useMessages();
-const uid = useUid();
 const groups = computed<TabSection[]>(() => props.sections ?? [{ items: props.items ?? [] }]);
 const flat = computed(() => groups.value.flatMap((g) => g.items));
 const isNav = computed(() => flat.value.some((i) => i.href !== undefined || i.to !== undefined));
-const linkAttrs = (item: TabItem) => ({
-  ...(item.to !== undefined ? { to: item.to } : { href: item.href ?? "#" }),
-  ...(item.current && { "aria-current": "page" }),
-});
 
 const model = defineModel<string>();
 
@@ -89,24 +72,22 @@ watch(current, () => reveal(true));
 </script>
 
 <template>
-  <nav
+  <LinkNav
     v-if="isNav"
     class="e-tabs e-tabs--links"
     :class="[orientation === 'vertical' && 'e-tabs--vertical', dense && 'e-tabs--dense']"
-    :aria-label="label || t('mainNav')"
+    :groups="groups"
+    :label="label"
+    :link-component="linkComponent"
+    item-class="e-tab"
+    heading-class="e-tabs-heading"
+    list-class="e-tablist"
   >
-    <template v-for="(group, g) in groups" :key="g">
-      <p v-if="group.label" :id="`${uid}-${g}`" class="e-tabs-heading">{{ group.label }}</p>
-      <ul class="e-tablist" :aria-labelledby="group.label ? `${uid}-${g}` : undefined">
-        <li v-for="(item, i) in group.items" :key="i">
-          <component :is="linkComponent" class="e-tab" v-bind="linkAttrs(item)">
-            {{ item.label }}
-            <span v-if="item.count != null" class="e-tab-count">{{ item.count }}</span>
-          </component>
-        </li>
-      </ul>
+    <template #item="{ item }">
+      {{ item.label }}
+      <span v-if="item.count != null" class="e-tab-count">{{ item.count }}</span>
     </template>
-  </nav>
+  </LinkNav>
   <TabsRoot v-else class="e-tabs" :model-value="current" :dir="dir" @update:model-value="model = String($event)">
     <TabsList ref="list" class="e-tablist">
       <TabsTrigger v-for="item in flat" :key="item.id" :value="item.id!" class="e-tab">
@@ -125,7 +106,7 @@ watch(current, () => reveal(true));
   .e-tablist {
     display: flex;
     gap: var(--e-space-1);
-    /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- the reference writes the two axes apart */
+    /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- the two axes are set apart */
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
@@ -157,19 +138,6 @@ watch(current, () => reveal(true));
 
   a.e-tab {
     text-decoration: none;
-  }
-
-  .e-tabs-heading {
-    margin: var(--e-space-6) 0 var(--e-space-2);
-    padding-inline: var(--e-space-3);
-    font: 600 var(--e-text-xs) / 1.2 var(--e-font-mono);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--e-ink);
-  }
-
-  .e-tabs--links > :first-child {
-    margin-top: 0;
   }
 
   .e-tabs--dense .e-tab {

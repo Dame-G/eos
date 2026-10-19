@@ -5,11 +5,11 @@ import { render } from "vitest-browser-vue";
 import ESlotPicker from "./ESlotPicker.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
-const slots = ["9:00 am", "9:30 am", { value: "10:00", label: "10:00 am", disabled: true }, "10:30 am"];
+const times = ["9:00 am", "9:30 am", { value: "10:00", label: "10:00 am", disabled: true }, "10:30 am"];
 
 describe("ESlotPicker", () => {
   test("is a group named by its label with a radio per time", async () => {
-    const { container } = await render(ESlotPicker, { props: { label: "Tuesday 22 September", slots } });
+    const { container } = await render(ESlotPicker, { props: { label: "Tuesday 22 September", options: times } });
     await expect.element(page.getByRole("group", { name: "Tuesday 22 September" })).toBeVisible();
     expect(container.querySelectorAll("input.e-slot-input[type=radio]").length).toBe(4);
     expect(container.querySelector("fieldset")!.className).toContain("e-slots");
@@ -19,7 +19,7 @@ describe("ESlotPicker", () => {
 
   test("all radios share one name; strings are both value and label", async () => {
     const { container } = await render(ESlotPicker, {
-      props: { label: "Day", slots: ["8 am", "9 am"], name: "when" },
+      props: { label: "Day", options: ["8 am", "9 am"], name: "when" },
     });
     const radios = [...container.querySelectorAll<HTMLInputElement>("input")];
     expect(radios.map((r) => r.name)).toEqual(["when", "when"]);
@@ -34,7 +34,7 @@ describe("ESlotPicker", () => {
         render: () =>
           h(ESlotPicker, {
             label: "Day",
-            slots,
+            options: times,
             modelValue: model.value,
             "onUpdate:modelValue": (v: string | null) => {
               got.push(v);
@@ -53,20 +53,20 @@ describe("ESlotPicker", () => {
   });
 
   test("without v-model it keeps its own choice", async () => {
-    await render(ESlotPicker, { props: { label: "Day", slots } });
+    await render(ESlotPicker, { props: { label: "Day", options: times } });
     await page.getByRole("radio", { name: "9:00 am" }).click({ force: true });
     await expect.element(page.getByRole("radio", { name: "9:00 am" })).toBeChecked();
   });
 
   test("arrow keys move between times, skipping a taken one, and choose", async () => {
-    await render(ESlotPicker, { props: { label: "Day", slots, modelValue: "9:30 am" } });
+    await render(ESlotPicker, { props: { label: "Day", options: times, modelValue: "9:30 am" } });
     page.getByRole("radio", { name: "9:30 am" }).element().focus();
     await userEvent.keyboard("{ArrowRight}");
     await expect.element(page.getByRole("radio", { name: "10:30 am" })).toBeChecked();
   });
 
   test("a taken time is disabled, dashed and struck through", async () => {
-    const { container } = await render(ESlotPicker, { props: { label: "Day", slots } });
+    const { container } = await render(ESlotPicker, { props: { label: "Day", options: times } });
     await expect.element(page.getByRole("radio", { name: "10:00 am" })).toBeDisabled();
     const style = getComputedStyle(container.querySelector(".e-slot--off .e-slot-text")!);
     expect(style.borderStyle).toBe("dashed");
@@ -74,7 +74,7 @@ describe("ESlotPicker", () => {
   });
 
   test("the chosen time is filled and bold", async () => {
-    const { container } = await render(ESlotPicker, { props: { label: "Day", slots, modelValue: "9:00 am" } });
+    const { container } = await render(ESlotPicker, { props: { label: "Day", options: times, modelValue: "9:00 am" } });
     const chosen = container.querySelector(".e-slot-input:checked + .e-slot-text")!;
     expect(getComputedStyle(chosen).fontWeight).toBe("600");
     const other = container.querySelectorAll(".e-slot-text")[1]!;
@@ -82,38 +82,44 @@ describe("ESlotPicker", () => {
   });
 
   test("each time is 48px tall", async () => {
-    const { container } = await render(ESlotPicker, { props: { label: "Day", slots } });
+    const { container } = await render(ESlotPicker, { props: { label: "Day", options: times } });
     container.classList.add("e-root");
     for (const el of container.querySelectorAll(".e-slot-text")) expect(el.getBoundingClientRect().height).toBe(48);
   });
 
   test("no times shows the empty text", async () => {
-    await render(ESlotPicker, { props: { label: "Day", slots: [] } });
+    await render(ESlotPicker, { props: { label: "Day", options: [] } });
     await expect.element(page.getByText("No times are open on this day.")).toBeVisible();
-    await render(ESlotPicker, { props: { label: "Other day", slots: [], emptyText: "Fully booked" } });
+    await render(ESlotPicker, { props: { label: "Other day", options: [], emptyText: "Fully booked" } });
     await expect.element(page.getByText("Fully booked")).toBeVisible();
   });
 
   test("hint and error are announced with the group; required is passed on", async () => {
     const { container } = await render(ESlotPicker, {
-      props: { label: "Day", slots, hint: "Times are local", required: true },
+      props: { label: "Day", options: times, hint: "Times are local", required: true },
     });
     const fs = container.querySelector("fieldset")!;
     expect(container.querySelector(".e-field-hint")!.id).toBe(fs.getAttribute("aria-describedby"));
     expect(container.querySelector<HTMLInputElement>("input")!.required).toBe(true);
-    const err = await render(ESlotPicker, { props: { label: "Other", slots, error: "Choose a time" } });
+    const err = await render(ESlotPicker, { props: { label: "Other", options: times, error: "Choose a time" } });
     expect(err.container.querySelector("fieldset")!.getAttribute("aria-invalid")).toBe("true");
     expect(err.container.querySelector("[role=alert]")!.textContent).toContain("Choose a time");
   });
 
+  test("optional shows the word beside the legend", async () => {
+    const { container } = await render(ESlotPicker, { props: { label: "Day", options: times, optional: true } });
+    expect(container.querySelector(".e-field-flag")!.textContent).toBe("Optional");
+    expect(container.querySelector<HTMLInputElement>("input")!.required).toBe(false);
+  });
+
   test("disabled disables every time", async () => {
-    await render(ESlotPicker, { props: { label: "Day", slots, disabled: true } });
+    await render(ESlotPicker, { props: { label: "Day", options: times, disabled: true } });
     await expect.element(page.getByRole("radio", { name: "9:00 am" })).toBeDisabled();
   });
 
   test("class and data attributes land on the fieldset", async () => {
     const { container } = await render(ESlotPicker, {
-      props: { label: "Day", slots },
+      props: { label: "Day", options: times },
       attrs: { class: "mine", "data-x": "1" },
     });
     expect(container.querySelector("fieldset")!.className).toContain("mine");
@@ -125,11 +131,11 @@ describe("ESlotPicker", () => {
       defineComponent({
         render: () =>
           h("div", [
-            h(ESlotPicker, { label: "Monday", slots }),
-            h(ESlotPicker, { label: "Tuesday", slots, modelValue: "9:00 am", hint: "Local time" }),
-            h(ESlotPicker, { label: "Wednesday", slots, error: "Choose a time" }),
-            h(ESlotPicker, { label: "Thursday", slots, disabled: true }),
-            h(ESlotPicker, { label: "Friday", slots: [] }),
+            h(ESlotPicker, { label: "Monday", options: times }),
+            h(ESlotPicker, { label: "Tuesday", options: times, modelValue: "9:00 am", hint: "Local time" }),
+            h(ESlotPicker, { label: "Wednesday", options: times, error: "Choose a time" }),
+            h(ESlotPicker, { label: "Thursday", options: times, disabled: true }),
+            h(ESlotPicker, { label: "Friday", options: [] }),
           ]),
       }),
     );

@@ -14,7 +14,7 @@ A text input that offers suggestions but accepts anything typed, for addresses a
 
 ## Props
 
-Takes the props of `ECombobox` (`label`, `options`, `placeholder`, `hideLabel`, `hint`, `error`, `required`, `optional`, `disabled`, `name`, `loading`, `emptyText`, `clearable`, `filter`, `id`), with these differences.
+Takes the props of `ECombobox` (`label`, `options`, `placeholder`, `hideLabel`, `bare`, `ariaLabel`, `hint`, `error`, `required`, `optional`, `disabled`, `name`, `loading`, `emptyText`, `clearable`, `filter`, `id`), with these differences.
 
 | Prop         | Type      | Default | Notes                                                                                                      |
 | ------------ | --------- | ------- | ---------------------------------------------------------------------------------------------------------- |

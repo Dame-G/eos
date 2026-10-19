@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EButton from "./EButton.vue";
 import { expectNoViolations } from "../../../test/axe.js";
@@ -55,6 +55,53 @@ describe("EButton", () => {
     });
     await page.getByRole("button", { name: "Pay now" }).click({ force: true });
     expect(clicks).toBe(0);
+  });
+
+  test("a disabled link is marked disabled, leaves the tab order and looks like a disabled button", async () => {
+    const { container } = await render(EButton, {
+      props: { href: "/pay", disabled: true },
+      slots: { default: "Pay now" },
+    });
+    const a = container.querySelector("a")!;
+    expect(a.getAttribute("aria-disabled")).toBe("true");
+    expect(a.getAttribute("tabindex")).toBe("-1");
+    const disabled = await render(EButton, { props: { disabled: true }, slots: { default: "Plain" } });
+    const link = getComputedStyle(a);
+    const button = getComputedStyle(disabled.container.querySelector("button")!);
+    expect(link.borderTopStyle).toBe("dashed");
+    for (const prop of ["cursor", "color", "backgroundColor", "borderTopStyle", "borderBottomWidth"] as const) {
+      expect(link[prop]).toBe(button[prop]);
+    }
+  });
+
+  test("a disabled link does not navigate or fire click, by mouse or Enter", async () => {
+    let clicks = 0;
+    const { container } = await render(EButton, {
+      props: { href: "/pay", disabled: true },
+      attrs: { onClick: () => clicks++ },
+      slots: { default: "Pay now" },
+    });
+    const a = container.querySelector("a")!;
+    const notCancelled = a.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    expect(notCancelled).toBe(false);
+    expect(clicks).toBe(0);
+    a.focus();
+    await userEvent.keyboard("{Enter}");
+    expect(clicks).toBe(0);
+    expect(location.pathname).not.toBe("/pay");
+  });
+
+  test("an enabled link still fires click", async () => {
+    let clicks = 0;
+    const { container } = await render(EButton, {
+      props: { href: "#go" },
+      attrs: { onClick: () => clicks++ },
+      slots: { default: "Go" },
+    });
+    expect(container.querySelector("a")!.hasAttribute("aria-disabled")).toBe(false);
+    expect(container.querySelector("a")!.hasAttribute("tabindex")).toBe(false);
+    await page.getByRole("link", { name: "Go" }).click();
+    expect(clicks).toBe(1);
   });
 
   test("is exactly as tall as an input (the control height)", async () => {

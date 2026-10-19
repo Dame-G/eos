@@ -53,6 +53,24 @@ describe("EOtpField", () => {
     await expect.element(page.getByRole("group", { name: "Verification code" })).toBeVisible();
   });
 
+  test("hideLabel keeps the accessible name and hides the label", async () => {
+    const { container } = await render(EOtpField, { props: { label: "Code", hideLabel: true } });
+    expect(container.querySelector(".e-field-label")!.classList.contains("e-sr")).toBe(true);
+    await expect.element(page.getByRole("group", { name: "Code" })).toBeVisible();
+  });
+
+  test("required sets the attribute on every box and shows the word", async () => {
+    const { container } = await render(EOtpField, { props: { label: "Code", required: true } });
+    expect(boxesOf(container).every((b) => b.required)).toBe(true);
+    expect(container.querySelector(".e-field-flag")!.textContent).toBe("Required");
+  });
+
+  test("optional shows the word and leaves the boxes optional", async () => {
+    const { container } = await render(EOtpField, { props: { label: "Code", optional: true } });
+    expect(boxesOf(container).some((b) => b.required)).toBe(false);
+    expect(container.querySelector(".e-field-flag")!.textContent).toBe("Optional");
+  });
+
   test("the first box offers one-time-code autofill; numeric codes open the number pad", async () => {
     const { container } = await render(EOtpField, { props: { label: "Code" } });
     const boxes = boxesOf(container);

@@ -40,7 +40,7 @@ describe("EPasswordField", () => {
     expect(input.getAttribute("onpaste")).toBeNull();
   });
 
-  test("the toggle shows and hides the password and reports aria-pressed (the reference test)", async () => {
+  test("the toggle shows and hides the password and reports aria-pressed", async () => {
     const { container } = await render(EPasswordField, { props: { mode: "new", rules: [rules[0]!] } });
     const toggle = page.getByRole("button", { name: "Show password" });
     await expect.element(toggle).toHaveAttribute("aria-pressed", "false");

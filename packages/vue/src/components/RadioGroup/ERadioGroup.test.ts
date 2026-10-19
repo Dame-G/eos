@@ -117,6 +117,14 @@ describe("ERadioGroup", () => {
     expect(opt.container.querySelector(".e-field-flag")!.textContent).toBe("Optional");
   });
 
+  test("hideLabel keeps the group's accessible name and hides the legend", async () => {
+    const { container } = await render(ERadioGroup, {
+      props: { label: "Reminder", options: ["Text", "Email"], hideLabel: true },
+    });
+    await expect.element(page.getByRole("group", { name: "Reminder" })).toBeInTheDocument();
+    expect(container.querySelector("legend")!.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+  });
+
   test("disabled disables every option", async () => {
     const { container } = await render(ERadioGroup, { props: { label: "A", options: ["x", "y"], disabled: true } });
     expect([...container.querySelectorAll("input")].every((i) => i.matches(":disabled"))).toBe(true);

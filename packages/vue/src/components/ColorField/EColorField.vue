@@ -47,7 +47,9 @@ watch(model, (v) => {
 });
 
 const invalid = computed(() => touched.value && text.value.trim() !== "" && normalize(text.value) === null);
-const shownError = computed(() => props.error || (invalid.value ? t("colorInvalid") : undefined));
+const shownError = computed(
+  () => props.error || (invalid.value ? t("colorInvalid", { example: t("colorPlaceholder") }) : undefined),
+);
 const swatch = computed(() => normalize(model.value) ?? "#000000");
 
 function onText(e: Event) {
@@ -113,7 +115,7 @@ defineExpose({
           spellcheck="false"
           autocomplete="off"
           maxlength="7"
-          placeholder="#2c95b4"
+          :placeholder="t('colorPlaceholder')"
           :value="text"
           :disabled="disabled"
           :required="required"

@@ -14,6 +14,7 @@ export interface SegmentedOption {
 import { computed } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EFieldMessage from "../Field/EFieldMessage.vue";
+import { useMessages } from "../../config.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
@@ -29,6 +30,8 @@ const props = defineProps<{
   hint?: string;
   /** What to fix. Replaces the hint and is announced. */
   error?: string;
+  /** Adds the word "Optional" to the group's accessible name. Flag whichever is rarer. */
+  optional?: boolean;
   disabled?: boolean;
   /** The name the radios share, submitted with a form. Generated when left out. */
   name?: string;
@@ -36,6 +39,7 @@ const props = defineProps<{
 
 const model = defineModel<string>();
 
+const t = useMessages();
 const name = useUid(() => props.name);
 const hintId = computed(() => `${name.value}-hint`);
 const options = computed<SegmentedOption[]>(() =>
@@ -45,7 +49,7 @@ const current = computed(() => model.value ?? options.value[0]?.value);
 const attrs = useFieldAttrs();
 const groupAttrs = () => ({
   role: "radiogroup",
-  "aria-label": props.label,
+  "aria-label": props.optional ? `${props.label}, ${t("optional")}` : props.label,
   "aria-invalid": props.error ? ("true" as const) : undefined,
   ...attrs.input(props.error || props.hint ? hintId.value : undefined),
 });

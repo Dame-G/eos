@@ -108,6 +108,11 @@ describe("ESegmented", () => {
     expect(bad.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
   });
 
+  test("optional adds the word to the group's accessible name", async () => {
+    await render(ESegmented, { props: { label: "View", options, optional: true } });
+    await expect.element(page.getByRole("radiogroup", { name: "View, Optional" })).toBeVisible();
+  });
+
   test("disabled disables every option", async () => {
     const { container } = await render(ESegmented, { props: { label: "View", options, disabled: true } });
     expect([...container.querySelectorAll("input")].every((i) => i.disabled)).toBe(true);

@@ -1,6 +1,6 @@
 export default {
   extends: ["stylelint-config-standard", "stylelint-config-html"],
-  ignoreFiles: ["**/dist/**", "reference/**", "**/node_modules/**"],
+  ignoreFiles: ["**/dist/**", "**/node_modules/**"],
   rules: {
     "selector-class-pattern": null,
     "custom-property-pattern": null,

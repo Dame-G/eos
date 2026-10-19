@@ -1,4 +1,28 @@
 @layer e.containers {
+  .e-dialog,
+  .e-drawer {
+    z-index: var(--e-z-modal);
+    padding: 0;
+    border: 0;
+    background: var(--e-surface);
+    color: var(--e-ink);
+    box-shadow: var(--e-float);
+    font-family: var(--e-font-sans);
+  }
+
+  .e-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--e-z-modal);
+    background: var(--e-scrim);
+  }
+
+  .e-dialog-body,
+  .e-drawer-body {
+    padding: var(--e-space-3) var(--e-space-6) var(--e-space-6);
+    font: 400 var(--e-text-md) / 1.5 var(--e-font-sans);
+  }
+
   .e-dialog-head {
     display: flex;
     align-items: flex-start;

@@ -26,7 +26,7 @@ describe("EPagination", () => {
     expect(current[0]!.textContent!.trim()).toBe("2");
   });
 
-  test("Next gives the next page (the reference test), Previous the one before", async () => {
+  test("Next gives the next page, Previous the one before", async () => {
     const model = ref(2);
     const got: number[] = [];
     const { container } = await render(

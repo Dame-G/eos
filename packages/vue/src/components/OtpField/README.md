@@ -13,6 +13,7 @@ A one-time code entered one character per box, with paste and SMS autofill suppo
 | ------------ | --------------------- | ------------------- | ----------------------------------------------------------------------------- |
 | `modelValue` | `string`              | `""`                | v-model: the code typed so far.                                               |
 | `label`      | `string`              | `Verification code` | The field's label.                                                            |
+| `hideLabel`  | `boolean`             |                     | Keeps the label for screen readers only.                                      |
 | `length`     | `number`              | `6`                 | Number of boxes.                                                              |
 | `type`       | `"numeric" \| "text"` | `numeric`           | `numeric` opens the number pad; `text` takes letters and digits, upper-cased. |
 | `groupSize`  | `number`              | `0`                 | Gap between groups: 6 with 3 reads 123 456.                                   |
@@ -20,6 +21,8 @@ A one-time code entered one character per box, with paste and SMS autofill suppo
 | `autoFocus`  | `boolean`             |                     | Starts in the first empty box.                                                |
 | `hint`       | `string`              |                     | Read with each box.                                                           |
 | `error`      | `string`              |                     | Replaces the hint, marks every box invalid.                                   |
+| `required`   | `boolean`             |                     | Shows the word "Required" and sets `required` on every box.                   |
+| `optional`   | `boolean`             |                     | Shows the word "Optional". Flag whichever is rarer.                           |
 | `disabled`   | `boolean`             |                     |                                                                               |
 | `id`         | `string`              | generated           | First box's id.                                                               |
 

@@ -2,16 +2,21 @@
 import { computed, ref, watch } from "vue";
 import "../../styles/base.css";
 
-const props = defineProps<{
-  /** The person's name. Screen readers read it; the initials come from it. */
-  name: string;
-  /** A photo URL. If it fails to load, the initials appear. */
-  src?: string;
-  /** 28px, for rows. */
-  small?: boolean;
-  /** 56px, for a practitioner on an appointment card or a profile. */
-  large?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    /** The person's name. Screen readers read it; the initials come from it. */
+    name: string;
+    /** A photo URL. If it fails to load, the initials appear. */
+    src?: string;
+    /** 28px, for rows. */
+    small?: boolean;
+    /** 56px, for a practitioner on an appointment card or a profile. */
+    large?: boolean;
+    /** `button` makes it a control named by `name`, such as the trigger of an account menu. Default `span`. */
+    as?: "span" | "button";
+  }>(),
+  { as: "span" },
+);
 
 const failed = ref(false);
 watch(
@@ -30,10 +35,19 @@ const initials = computed(() => {
 </script>
 
 <template>
-  <span class="e-avatar" :class="{ 'e-avatar--s': small, 'e-avatar--l': large }" role="img" :aria-label="name">
+  <component
+    :is="as"
+    class="e-avatar"
+    :class="{ 'e-avatar--s': small, 'e-avatar--l': large, 'e-avatar--button': as === 'button' }"
+    :type="as === 'button' ? 'button' : undefined"
+    :role="as === 'button' ? undefined : 'img'"
+    :aria-label="as === 'button' ? undefined : name"
+  >
     <img v-if="src && !failed" class="e-avatar-img" :src="src" alt="" @error="failed = true" />
+    <span v-else-if="as === 'button'" aria-hidden="true">{{ initials }}</span>
     <template v-else>{{ initials }}</template>
-  </span>
+    <span v-if="as === 'button'" class="e-sr">{{ name }}</span>
+  </component>
 </template>
 
 <style>
@@ -51,6 +65,28 @@ const initials = computed(() => {
     color: var(--e-primary);
     font: 600 var(--e-text-sm) / 1 var(--e-font-mono);
     letter-spacing: 0.02em;
+  }
+
+  .e-avatar--button {
+    position: relative;
+    padding: 0;
+    cursor: pointer;
+    transition: border-color var(--e-duration-tap) var(--e-easing-out);
+  }
+
+  .e-avatar--button:hover {
+    border-color: var(--e-ink);
+  }
+
+  .e-avatar--button:focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: var(--e-focus-gap);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .e-avatar--button {
+      transition: none;
+    }
   }
 
   .e-avatar--s {

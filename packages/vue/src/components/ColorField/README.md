@@ -20,7 +20,7 @@ A colour input as `#rrggbb`: a swatch that opens the native picker plus a text b
 | `disabled`   | `boolean` |           |                                                                                                        |
 | `id`         | `string`  | generated | Id of the text input.                                                                                  |
 
-`class` and `style` land on the wrapper `div`; other attributes and listeners land on the text `input` element. Exposes `input` and `focus()`. It does not check contrast; pair it with `defineTheme()`.
+`class` and `style` land on the wrapper `div`; other attributes and listeners land on the text `input` element. The text box's example placeholder is the `colorPlaceholder` message. Exposes `input` and `focus()`. It does not check contrast; pair it with `defineTheme()`.
 
 ## Accessibility
 

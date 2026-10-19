@@ -3,8 +3,8 @@ import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
-    /** 1 to 3: sets both the element (`h1` to `h3`) and the size (36, 24 and 20px). One level 1 per page; do not skip levels. */
-    level?: 1 | 2 | 3;
+    /** 1 to 6: sets both the element (`h1` to `h6`) and the size (36, 24, 20, 18, 16 and 14px). One level 1 per page; do not skip levels. */
+    level?: 1 | 2 | 3 | 4 | 5 | 6;
     /** A small mono label above the heading. */
     kicker?: string;
   }>(),
@@ -52,6 +52,21 @@ defineSlots<{
   .e-h3 {
     font-size: var(--e-text-xl);
     line-height: 1.25;
+  }
+
+  .e-h4 {
+    font-size: var(--e-text-lg);
+    line-height: 1.3;
+  }
+
+  .e-h5 {
+    font-size: var(--e-text-md);
+    line-height: 1.3;
+  }
+
+  .e-h6 {
+    font-size: var(--e-text-sm);
+    line-height: 1.3;
   }
 }
 </style>

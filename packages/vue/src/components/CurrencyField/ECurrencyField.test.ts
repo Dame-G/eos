@@ -3,10 +3,11 @@ import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ECurrencyField from "./ECurrencyField.vue";
+import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ECurrencyField", () => {
-  test("shows the symbol and two decimals (the reference test)", async () => {
+  test("shows the symbol and two decimals", async () => {
     const { container } = await render(ECurrencyField, { props: { label: "Amount", modelValue: 162.4 } });
     expect(container.querySelector(".e-affix--pre")!.textContent).toBe("$");
     expect(container.querySelector("input")!.value).toBe("162.40");
@@ -18,7 +19,7 @@ describe("ECurrencyField", () => {
     expect(container.querySelector(".e-affix--pre")!.getAttribute("aria-hidden")).toBe("true");
   });
 
-  test("the symbol sits next to the value and a click on it focuses the input (the reference test)", async () => {
+  test("the symbol sits next to the value and a click on it focuses the input", async () => {
     const { container } = await render(ECurrencyField, { props: { label: "Amount", modelValue: 100 } });
     const symbol = container.querySelector<HTMLElement>(".e-affix--pre")!;
     const input = container.querySelector<HTMLInputElement>(".e-numinput")!;
@@ -35,6 +36,14 @@ describe("ECurrencyField", () => {
     expect(gbp.container.querySelector(".e-affix--pre")!.textContent).toBe("£");
     const bad = await render(ECurrencyField, { props: { label: "C", currency: "nope" } });
     expect(bad.container.querySelector(".e-affix--pre")!.textContent).toBe("$");
+  });
+
+  test("a code Intl rejects falls back to the configured currency, not a literal", async () => {
+    const { container } = await render(ECurrencyField, {
+      props: { label: "A", currency: "nope" },
+      global: { plugins: [createEos({ themeTarget: null, locale: "de-DE", currency: "EUR" })] },
+    });
+    expect(container.querySelector(".e-affix--pre")!.textContent).toBe("€");
   });
 
   test("prefix replaces the symbol", async () => {

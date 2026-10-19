@@ -87,7 +87,7 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
   }
 
   .e-detail .e-chip {
-    /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- two longhands, as in the reference */
+    /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- two longhands */
     align-self: center;
     justify-self: end;
   }

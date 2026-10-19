@@ -45,7 +45,7 @@ const toneClass = computed(() =>
     letter-spacing: 0.08em;
     text-transform: uppercase;
     white-space: nowrap;
-    /* stylelint-disable declaration-block-no-redundant-longhand-properties -- kept as two longhands, as in the reference */
+    /* stylelint-disable declaration-block-no-redundant-longhand-properties -- two longhands */
     align-self: flex-start;
     justify-self: start;
     /* stylelint-enable declaration-block-no-redundant-longhand-properties */

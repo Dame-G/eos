@@ -19,7 +19,10 @@ const signed = ref<SignatureValue>({ method: "type", name: "", image: "", agreed
 | `mode`       | `"type" \| "draw" \| "both"` | `type`                                                   | `both` adds a Type and Draw switch.                                  |
 | `agreement`  | `string`                     | `I agree and want to sign this form.`                    | The sentence the person agrees to.                                   |
 | `date`       | `Date`                       | today                                                    | The date shown with the signature, in the configured locale.         |
+| `hint`       | `string`                     |                                                          | Announced with the group.                                            |
+| `error`      | `string`                     |                                                          | Replaces the hint, marks the group invalid, is announced.            |
 | `disabled`   | `boolean`                    |                                                          | Disables the fields and the agreement.                               |
+| `name`       | `string`                     |                                                          | Submits the typed name, or the drawn image as a data URL.            |
 | `id`         | `string`                     | generated                                                | Id of the typed-name input.                                          |
 
 `class`, `style` and attributes land on the `fieldset` element. Switching method clears the image; the typed name is kept. The `SignatureValue` type is exported.

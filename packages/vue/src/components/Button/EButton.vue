@@ -3,7 +3,7 @@ import EIcon from "../Icon/EIcon.vue";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     /** `primary` is the one main action on a screen; `secondary` confirms; `outline` is for the other actions beside it; `danger` cancels or removes; `quiet` is an underlined text action. */
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
@@ -25,6 +25,12 @@ defineSlots<{
   /** The label: a verb that says what happens, like "Pay $162.40". */
   default(): unknown;
 }>();
+
+function blockWhenDisabled(event: Event) {
+  if (!props.disabled) return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+}
 </script>
 
 <template>
@@ -35,6 +41,10 @@ defineSlots<{
     :class="[variant !== 'primary' && `e-btn--${variant}`, block && 'e-btn--block']"
     :target="external ? '_blank' : undefined"
     :rel="external ? 'noreferrer' : undefined"
+    :aria-disabled="disabled ? 'true' : undefined"
+    :tabindex="disabled ? -1 : undefined"
+    @click.capture="blockWhenDisabled"
+    @auxclick.capture="blockWhenDisabled"
   >
     <EIcon v-if="icon" :name="icon" />
     <slot />
@@ -134,13 +144,13 @@ defineSlots<{
     text-decoration-color: var(--e-border-strong);
   }
 
-  .e-btn--quiet:not([disabled]):hover {
+  .e-btn--quiet:not([disabled], [aria-disabled="true"]):hover {
     border-color: var(--e-wash-ring);
     background: var(--e-wash-hover);
     text-decoration-color: currentcolor;
   }
 
-  .e-btn--quiet:not([disabled]):active {
+  .e-btn--quiet:not([disabled], [aria-disabled="true"]):active {
     border-color: var(--e-ink);
     background: var(--e-wash-press);
     box-shadow: none;
@@ -155,7 +165,8 @@ defineSlots<{
     width: 100%;
   }
 
-  .e-btn[disabled] {
+  .e-btn[disabled],
+  .e-btn[aria-disabled="true"] {
     cursor: not-allowed;
     background: transparent;
     color: var(--e-muted);
@@ -181,7 +192,8 @@ defineSlots<{
       border: 2px solid ButtonText;
     }
 
-    .e-btn[disabled] {
+    .e-btn[disabled],
+    .e-btn[aria-disabled="true"] {
       border-color: GrayText;
       color: GrayText;
     }

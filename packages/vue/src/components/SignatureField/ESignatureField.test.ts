@@ -54,13 +54,32 @@ describe("ESignatureField", () => {
     expect(container.querySelector(".e-sign-empty")!.textContent).toBe("Your signature appears here");
   });
 
+  test("hint and error are announced with the group", async () => {
+    const hinted = await mount({ hint: "Sign as the patient" });
+    const fs = hinted.container.querySelector("fieldset")!;
+    expect(fs.getAttribute("aria-describedby")).toBe(hinted.container.querySelector(".e-sign > .e-field-hint")!.id);
+    const bad = await mount({ hint: "Sign as the patient", error: "Sign the form" });
+    const badFs = bad.container.querySelector("fieldset")!;
+    expect(badFs.getAttribute("aria-invalid")).toBe("true");
+    expect(bad.container.querySelector(".e-sign > .e-field-hint")).toBeNull();
+    expect(bad.container.querySelector(".e-sign > [role=alert]")!.textContent).toContain("Sign the form");
+  });
+
+  test("name submits the typed name, or the drawn image, through a hidden input", async () => {
+    const { container } = await mount({ name: "signature" });
+    await page.getByRole("textbox", { name: /Type your full name/ }).fill("Ada Lovelace");
+    expect(container.querySelector<HTMLInputElement>("input[type=hidden][name=signature]")!.value).toBe("Ada Lovelace");
+    const none = await mount();
+    expect(none.container.querySelector("input[type=hidden]")).toBeNull();
+  });
+
   test("a custom label and agreement are used", async () => {
     await mount({ label: "Consent form", agreement: "I accept the terms." });
     await expect.element(page.getByRole("group", { name: "Consent form" })).toBeVisible();
     await expect.element(page.getByRole("checkbox", { name: "I accept the terms." })).toBeVisible();
   });
 
-  test("typing the name and agreeing reports both, and shows the name on the line (the reference test)", async () => {
+  test("typing the name and agreeing reports both, and shows the name on the line", async () => {
     const { container, got, model } = await mount();
     await page.getByRole("textbox", { name: /Type your full name/ }).fill("Maria Okafor");
     await page.getByRole("checkbox", { name: /I agree/ }).click();

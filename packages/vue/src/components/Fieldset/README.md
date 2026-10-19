@@ -11,17 +11,18 @@ Related controls in a bordered box. Use it, not a bare label, whenever two or mo
 
 ## Props
 
-| Prop              | Type      | Default   | Notes                                                        |
-| ----------------- | --------- | --------- | ------------------------------------------------------------ |
-| `legend`          | `string`  |           | The question the controls answer; names the group.           |
-| `bare`            | `boolean` |           | No box; the legend becomes a small label above the controls. |
-| `hint`            | `string`  |           | Announced with the group.                                    |
-| `error`           | `string`  |           | Replaces the hint; announced with the group.                 |
-| `required`        | `boolean` |           | "Required" at the end of the legend.                         |
-| `optional`        | `boolean` |           | "Optional" at the end of the legend.                         |
-| `disabled`        | `boolean` |           | Disables every control inside.                               |
-| `legendClassName` | `string`  |           | Extra classes for the legend.                                |
-| `id`              | `string`  | generated | Hint and error ids are built from it.                        |
+| Prop          | Type      | Default   | Notes                                                        |
+| ------------- | --------- | --------- | ------------------------------------------------------------ |
+| `legend`      | `string`  |           | The question the controls answer; names the group.           |
+| `bare`        | `boolean` |           | No box; the legend becomes a small label above the controls. |
+| `hint`        | `string`  |           | Announced with the group.                                    |
+| `error`       | `string`  |           | Replaces the hint; announced with the group.                 |
+| `required`    | `boolean` |           | "Required" at the end of the legend.                         |
+| `optional`    | `boolean` |           | "Optional" at the end of the legend.                         |
+| `disabled`    | `boolean` |           | Disables every control inside.                               |
+| `legendClass` | `string`  |           | Extra classes for the legend.                                |
+| `hideLegend`  | `boolean` |           | Keeps the legend for screen readers only.                    |
+| `id`          | `string`  | generated | Hint and error ids are built from it.                        |
 
 `class`, `style` and attributes land on the `fieldset` element.
 

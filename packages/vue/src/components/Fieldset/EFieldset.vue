@@ -21,7 +21,9 @@ const props = defineProps<{
   /** Disables every control inside. */
   disabled?: boolean;
   /** Extra classes for the legend. */
-  legendClassName?: string;
+  legendClass?: string;
+  /** Keep the legend for screen readers and remove it from the page. */
+  hideLegend?: boolean;
   /** The id the hint and error ids are built from. Generated when left out. */
   id?: string;
 }>();
@@ -43,7 +45,11 @@ const hintId = computed(() => `${id.value}-hint`);
     :aria-describedby="error || hint ? hintId : undefined"
     :aria-invalid="error ? 'true' : undefined"
   >
-    <legend v-if="legend" class="e-fieldset-legend" :class="[bare && 'e-kicker', legendClassName]">
+    <legend
+      v-if="legend"
+      class="e-fieldset-legend"
+      :class="[bare && 'e-kicker', hideLegend && 'e-fieldset-legend--hidden', legendClass]"
+    >
       <span class="e-fieldset-title">{{ legend }}</span>
       <span v-if="!bare" class="e-fieldset-rule" aria-hidden="true" />
       <EFieldFlag :required="required" :optional="optional" />
@@ -75,6 +81,15 @@ const hintId = computed(() => `${id.value}-hint`);
     gap: var(--e-space-3);
     width: 100%;
     padding: 0;
+  }
+
+  .e-fieldset-legend--hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .e-fieldset:not(.e-fieldset--box) > .e-fieldset-legend {

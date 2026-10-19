@@ -1,11 +1,10 @@
 import type { EOption, EOptionInput } from "../Select/options.js";
+import type { ELabelProps } from "../Field/labelProps.js";
 
 /** What ECombobox, EAutocomplete and EMultiSelect take besides their `v-model`. */
-export interface EComboboxProps {
-  /** The visible label, a mono kicker above the field. It also names the list. */
-  label: string;
-  /** Keep the label for screen readers and remove it from the page. */
-  hideLabel?: boolean;
+export type EComboboxProps = ELabelProps & EComboboxFields;
+
+export interface EComboboxFields {
   /** Strings, or `{ value, label, description, icon, group, disabled }`. A value is never an empty string. */
   options: readonly EOptionInput[];
   /** An example, never the label. */

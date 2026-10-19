@@ -1,18 +1,13 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import EField from "../Field/EField.vue";
+import type { ELabelProps } from "../Field/labelProps.js";
 import ESelectControl from "./ESelectControl.vue";
 import { normalizeOptions, type EOptionInput } from "./options.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import "../../styles/base.css";
 
-defineOptions({ inheritAttrs: false });
-
-const props = defineProps<{
-  /** The visible label, a mono kicker above the control. Required unless `bare`. */
-  label?: string;
-  /** Keep the label for screen readers and remove it from the page. */
-  hideLabel?: boolean;
+interface ESelectFields {
   /** Strings, or `{ value, label, description, icon, group, disabled }`. A value is never an empty string. */
   options: readonly EOptionInput[];
   /** What the button says while nothing is chosen. Default "Select". */
@@ -28,13 +23,13 @@ const props = defineProps<{
   disabled?: boolean;
   /** Submits the chosen value with a form (a hidden input carries it). */
   name?: string;
-  /** Only the control, no label, hint or error. Give it `ariaLabel`. For dense places such as table filters. */
-  bare?: boolean;
-  /** The accessible name when `bare`. */
-  ariaLabel?: string;
   /** The id of the button; the label points at it. Generated when left out. */
   id?: string;
-}>();
+}
+
+defineOptions({ inheritAttrs: false });
+
+const props = defineProps<ELabelProps & ESelectFields>();
 
 const model = defineModel<string>({ default: "" });
 
@@ -48,7 +43,7 @@ function triggerAttrs(field?: FieldSlot) {
   return {
     id: field?.id ?? props.id,
     "aria-invalid": field?.ariaInvalid,
-    "aria-label": props.bare ? props.ariaLabel : undefined,
+    "aria-label": props.bare ? (props.ariaLabel ?? props.label) : undefined,
     ...attrs.input(field?.ariaDescribedby),
   };
 }

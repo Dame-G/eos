@@ -14,7 +14,7 @@ A combobox that keeps several choices as removable tags. It has the same props, 
 | `open`       | `boolean`  | `false` | v-model:open: whether the list is open. A disabled field never opens.      |
 | `clearable`  | `boolean`  | `true`  | Clear button empties all tags.                                             |
 
-Other props as `ECombobox`: `label`, `options`, `placeholder`, `hideLabel`, `hint`, `error`, `required`, `optional`, `disabled`, `name`, `loading`, `emptyText`, `filter`, `id`. `name` submits one hidden input per chosen value; `placeholder` shows only while nothing is chosen. The list stays open while choosing. Attributes land as on `ECombobox`. Exposes `input()` and `focus()`.
+Other props as `ECombobox`: `label`, `options`, `placeholder`, `hideLabel`, `bare`, `ariaLabel`, `hint`, `error`, `required`, `optional`, `disabled`, `name`, `loading`, `emptyText`, `filter`, `id`. `name` submits one hidden input per chosen value; `placeholder` shows only while nothing is chosen. The list stays open while choosing. Attributes land as on `ECombobox`. Exposes `input()` and `focus()`.
 
 ## Events
 
