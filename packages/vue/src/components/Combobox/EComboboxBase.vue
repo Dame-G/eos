@@ -21,9 +21,8 @@ import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
 import "../Select/panel.css";
+import "./combo.css";
 
-// The one implementation behind ECombobox (one chosen value), EAutocomplete (free text with suggestions) and
-// EMultiSelect (several chosen values as tags). Internal: the three components are the API.
 defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<EComboboxProps & { mode: "single" | "free" | "multiple" }>(), {
@@ -35,7 +34,6 @@ const emit = defineEmits<{
   inputChange: [text: string];
 }>();
 
-/** The chosen value (a string), the text (Autocomplete) or the chosen values (an array, MultiSelect). */
 const model = defineModel<string | string[]>();
 
 const t = useMessages();
@@ -53,12 +51,10 @@ const rootValue = computed(() => (multiple.value ? values.value : single.value))
 function labelOf(v: string): string {
   return all.value.find((o) => o.value === v)?.label ?? (free.value ? v : "");
 }
-/** What the input shows when nobody is typing: the chosen option's label, the text, or nothing. */
 const resting = () => (multiple.value ? "" : labelOf(single.value));
 
 const text = ref(resting());
 const typing = ref(false);
-/** Whether the list is asked to be open. It still shows only while there is something to list and the field is enabled. */
 const wantOpen = defineModel<boolean>("open", { default: false });
 const anchor = ref<{ $el: HTMLElement } | null>(null);
 const query = computed(() => (typing.value ? text.value.trim().toLowerCase() : ""));
@@ -73,14 +69,11 @@ const shown = computed(() => {
 const sections = computed(() => sectionOptions(shown.value));
 const hasList = computed(() => shown.value.length > 0 || !!props.loading || !free.value);
 const open = computed(() => wantOpen.value && hasList.value && !props.disabled);
-/** What a screen reader hears when the list has no options to read. */
 const announce = computed(() =>
   open.value && !shown.value.length ? (props.loading ? t("searching") : props.emptyText || t("noMatches")) : "",
 );
 const hasValue = computed(() => (multiple.value ? values.value.length > 0 : !!text.value));
 
-// A value set from outside (a form reset, a loaded record) replaces what is in the input. A value this component set
-// itself already matches the text, so typing is left alone.
 watch(rootValue, () => {
   const rest = resting();
   if (rest !== text.value) {
@@ -88,13 +81,10 @@ watch(rootValue, () => {
     typing.value = false;
   }
 });
-// The label of a chosen option can arrive late (options fetched after the value).
 watch(all, () => {
   if (!typing.value && !open.value) text.value = resting();
 });
 
-// Reka gives the input the id of the list only once the list exists, and does not update it when the list is there
-// from the first render (`open` set at the start). Read the id once the list has mounted.
 const listId = ref<string | undefined>();
 const content = ref<{ $el: HTMLElement } | null>(null);
 onMounted(() => {
@@ -113,7 +103,6 @@ const focusInput = () => inputEl()?.focus();
 function isSelected(value: string): boolean {
   return multiple.value ? values.value.includes(value) : free.value ? single.value === value : single.value === value;
 }
-/** The value an item carries: in Autocomplete the chosen text itself, otherwise the option's value. */
 const itemValue = (o: { value: string; label: string }) => (free.value ? o.label : o.value);
 
 function onPick(v: unknown) {
@@ -160,7 +149,6 @@ function onKeydown(e: KeyboardEvent) {
   }
 }
 
-/** Home and End move the cursor in the text, as in any text field; the list moves with the arrows. */
 function keepCaretKeys(e: KeyboardEvent) {
   if (e.key === "Home" || e.key === "End") e.stopImmediatePropagation();
 }
@@ -173,7 +161,6 @@ function onBlur(e: FocusEvent) {
   if (!free.value) text.value = resting();
 }
 
-/** A press on the padding of the field puts the cursor in the input. */
 function onWrapDown(e: MouseEvent) {
   if (e.target === e.currentTarget && !props.disabled) {
     e.preventDefault();
@@ -182,7 +169,6 @@ function onWrapDown(e: MouseEvent) {
 }
 
 type FieldSlot = { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined };
-/** The input's own attributes, with the consumer's fall-through ones last. */
 function inputBind(field: FieldSlot) {
   return {
     id: field.id,
@@ -191,16 +177,13 @@ function inputBind(field: FieldSlot) {
     "aria-invalid": field.ariaInvalid,
     autocomplete: "off",
     ...(listId.value ? { "aria-controls": listId.value } : {}),
-    // Reka leaves the id of a row that has just been filtered away; an id that is not in the page is invalid.
     ...(shown.value.length ? {} : { "aria-activedescendant": undefined }),
     ...attrs.input(field.ariaDescribedby),
   };
 }
 
 defineExpose({
-  /** The `<input>` element. */
   input: computed(() => inputEl()),
-  /** Puts the cursor in the input. */
   focus: focusInput,
 });
 </script>
@@ -340,14 +323,6 @@ defineExpose({
 
 <style>
 @layer e.controls {
-  .e-combo {
-    position: relative;
-    flex-wrap: nowrap;
-    align-items: center;
-    min-height: var(--e-control-height);
-    padding-inline-end: var(--e-space-1);
-  }
-
   .e-combo-main {
     display: flex;
     flex: 1;
@@ -365,14 +340,6 @@ defineExpose({
     align-self: center;
   }
 
-  .e-combo .e-input {
-    flex: 1 1 6rem;
-    min-width: 4rem;
-    height: auto;
-    align-self: stretch;
-    padding-inline: var(--e-space-4) var(--e-space-2);
-  }
-
   .e-combo--multi {
     padding: 3px var(--e-space-1) 3px var(--e-space-2);
     gap: var(--e-space-1);
@@ -382,48 +349,6 @@ defineExpose({
     height: calc(var(--e-control-height) - 9px);
     align-self: center;
     padding-inline: var(--e-space-2);
-  }
-
-  .e-combo-btn {
-    display: inline-grid;
-    place-items: center;
-    position: relative;
-    flex: none;
-    width: calc(var(--e-control-height) - 9px);
-    height: calc(var(--e-control-height) - 9px);
-    padding: 0;
-    border: 0;
-    border-radius: var(--e-radius-sm);
-    background: transparent;
-    color: var(--e-ink);
-    cursor: pointer;
-    transition: background-color var(--e-duration-tap) var(--e-easing-out);
-  }
-
-  .e-combo-btn::after {
-    content: "";
-    position: absolute;
-    inset: -5px;
-  }
-
-  .e-combo-btn:hover:not(:disabled) {
-    background: var(--e-wash-hover);
-    box-shadow: inset 0 0 0 1px var(--e-wash-ring);
-  }
-
-  .e-combo-btn:active:not(:disabled) {
-    background: var(--e-wash-press);
-    box-shadow: inset 0 0 0 1.5px var(--e-ink);
-  }
-
-  .e-combo-btn:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: -2px;
-  }
-
-  .e-combo-btn:disabled {
-    color: var(--e-muted);
-    cursor: not-allowed;
   }
 
   .e-tag {
@@ -471,17 +396,6 @@ defineExpose({
   .e-tag-x:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: 1px;
-  }
-
-  .e-input-wrap:not(.e-combo) > .e-combo-btn {
-    align-self: center;
-    margin-inline-end: var(--e-space-1);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-combo-btn {
-      transition: none;
-    }
   }
 }
 </style>

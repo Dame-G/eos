@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { defineComponent, h } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ELink from "./ELink.vue";
@@ -67,6 +68,28 @@ describe("ELink", () => {
     const a = container.querySelector("a")!;
     expect(a.getAttribute("aria-label")).toBe("Open the list");
     expect(a.getAttribute("data-testid")).toBe("l");
+  });
+
+  test("icon puts a decorative icon before the text, by name or component", async () => {
+    const Mark = defineComponent({
+      render: () => h("svg", { viewBox: "0 0 16 16" }, [h("path", { d: "M0 0h16v16H0z" })]),
+    });
+    const named = await render(ELink, { props: { href: "#x", icon: "search" }, slots: { default: "Find" } });
+    const a = named.container.querySelector("a")!;
+    expect(a.classList.contains("e-link--icon")).toBe(true);
+    expect(a.firstElementChild!.getAttribute("aria-hidden")).toBe("true");
+    expect(a.textContent!.trim()).toBe("Find");
+    await expect.element(page.getByRole("link", { name: "Find" })).toBeVisible();
+    const custom = await render(ELink, {
+      props: { href: "https://example.com", external: true, icon: Mark },
+      slots: { default: "Repo" },
+    });
+    const b = custom.container.querySelector("a")!;
+    expect(b.querySelector("svg.e-icon path")).not.toBeNull();
+    expect(b.target).toBe("_blank");
+    expect(b.rel).toBe("noreferrer");
+    expect(getComputedStyle(b).display).toBe("inline-flex");
+    await expectNoViolations(custom.container);
   });
 
   test("has no accessibility violations", async () => {

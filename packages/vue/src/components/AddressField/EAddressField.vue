@@ -37,7 +37,6 @@ const props = withDefaults(
   { postalInputmode: "text" },
 );
 
-/** The address. Leave `v-model` off and the group keeps its own state. */
 const model = defineModel<Address>({ default: () => ({}) });
 
 const t = useMessages();

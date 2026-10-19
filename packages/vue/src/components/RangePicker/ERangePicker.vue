@@ -13,6 +13,7 @@ import { useQuietFocus } from "../Select/quietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
+import "../Combobox/combo.css";
 import "../DatePicker/picker.css";
 
 export interface RangePreset {
@@ -52,9 +53,7 @@ const props = defineProps<{
   id?: string;
 }>();
 
-/** The first date of the span. */
 const start = defineModel<Date | null>("start", { default: null });
-/** The last date of the span. */
 const end = defineModel<Date | null>("end", { default: null });
 
 const t = useMessages();
@@ -63,7 +62,6 @@ const loc = useLocale();
 const portal = usePortalTarget();
 const attrs = useFieldAttrs();
 
-/** Whether the calendar is open. */
 const open = defineModel<boolean>("open", { default: false });
 const shown = computed(() => open.value && !props.disabled);
 const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel, .e-combo"));
@@ -110,7 +108,6 @@ function setRange(r: { start: Date | null; end: Date | null }) {
 const outOfBounds = (d: Date) =>
   (!!props.min && compareDays(d, props.min) < 0) || (!!props.max && compareDays(d, props.max) > 0);
 
-/** Reads both boxes: a good span becomes the value, a bad one shows an error and leaves the value alone. */
 function commitText() {
   const a = startText.value.trim() ? loc.parseDate(startText.value) : null;
   const b = endText.value.trim() ? loc.parseDate(endText.value) : null;
@@ -166,9 +163,7 @@ function onKey(e: KeyboardEvent) {
 }
 
 defineExpose({
-  /** The start box. */
   input: startInput,
-  /** Puts the cursor in the start box. */
   focus: () => startInput.value?.focus(),
 });
 </script>
@@ -276,10 +271,6 @@ defineExpose({
 
 <style>
 @layer e.composites {
-  .e-calpanel .e-cal {
-    margin-inline: auto;
-  }
-
   .e-cal-presets {
     display: flex;
     flex-wrap: wrap;

@@ -1,6 +1,3 @@
-// Consumer smoke test: packs both packages exactly as they would be published, installs the tarballs into a fresh
-// Vite + Vue app (npm, not pnpm, as most consumers do), then type checks, builds for the browser, builds for SSR,
-// and lints the packages with publint and arethetypeswrong. Run after a build: node scripts/smoke.mjs
 import { execSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -33,9 +30,8 @@ const checks = [
   [vueTgz, ". ./resolver ./icons ./icons/iconify"],
 ];
 for (const [tgz, entrypoints] of checks) {
-  run(`npx --yes publint "${join(packs, tgz)}" --strict`);
-  // CSS files are listed in exports but have no types, so only the JavaScript entry points are checked
-  run(`npx --yes @arethetypeswrong/cli --pack "${join(packs, tgz)}" --profile esm-only --entrypoints ${entrypoints}`);
+  run(`corepack pnpm --filter @eos-ui/vue exec publint "${join(packs, tgz)}" --strict`);
+  run(`corepack pnpm --filter @eos-ui/vue exec attw --pack "${join(packs, tgz)}" --profile esm-only --entrypoints ${entrypoints}`);
 }
 
 step("create a fresh app");

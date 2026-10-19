@@ -1,4 +1,3 @@
-// After tsc: writes dist/tokens.css from the compiled theme code, so the shipped file and defineTheme() cannot differ.
 import { writeFileSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";

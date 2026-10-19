@@ -1,6 +1,6 @@
 # EIconButton
 
-An icon-only control with a 48px target.
+An icon-only button with a 48px target, for rows where a text button would crowd. Never use it for the main action.
 
 ```vue
 <EIconButton icon="download" label="Download receipt" @click="download" />
@@ -8,21 +8,14 @@ An icon-only control with a 48px target.
 
 ## Props
 
-| Prop       | Type       | Default | Notes                                                                             |
-| ---------- | ---------- | ------- | --------------------------------------------------------------------------------- |
-| `icon`     | `IconName` | none    | Required. The glyph.                                                              |
-| `label`    | `string`   | none    | Required. The accessible name; write it as an action, such as "Download receipt". |
-| `disabled` | `boolean`  | unset   |                                                                                   |
+| Prop       | Type       | Default | Notes                                            |
+| ---------- | ---------- | ------- | ------------------------------------------------ |
+| `icon`     | `IconProp` |         | Required. The icon.                              |
+| `label`    | `string`   |         | Required. Accessible name, written as an action. |
+| `disabled` | `boolean`  |         |                                                  |
 
-No slots. Native attributes and listeners land on the `<button>`: `@click`, `aria-*`, and `popovertarget` and `popovertargetaction` to open a native popover.
-
-## Rules
-
-- Use it where a text Button would crowd the row; never for the main action.
-- Pair it with a Tooltip when the icon is not obvious.
-- It is `type="button"`, so it never submits a form.
+`class`, `style`, attributes and listeners (`@click`, `aria-*`, `popovertarget`) land on the `button` element. It is `type="button"` and hidden in print.
 
 ## Accessibility
 
-- A real `<button>` named by `aria-label`; the icon is hidden from assistive technology. Tab focuses it, Enter and Space press it, and it has the focus ring.
-- Hidden when printed.
+- A `button` named by `label`; pair it with `ETooltip` when the icon is not obvious.

@@ -10,17 +10,13 @@ defineEmits<{
   inputChange: [text: string];
 }>();
 
-/** The value of the chosen option. An empty string is nothing chosen. */
 const model = defineModel<string>({ default: "" });
 
-/** Whether the list is open. */
 const open = defineModel<boolean>("open", { default: false });
 
 const base = ref<InstanceType<typeof EComboboxBase> | null>(null);
 defineExpose({
-  /** The `<input>` element. */
   input: () => base.value?.input ?? null,
-  /** Puts the cursor in the input. */
   focus: () => base.value?.focus(),
 });
 </script>

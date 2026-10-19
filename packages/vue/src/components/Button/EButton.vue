@@ -66,12 +66,12 @@ defineSlots<{
     justify-content: center;
     gap: var(--e-space-2);
     height: var(--e-control-height);
-    padding: 0 var(--e-space-4);
+    padding: var(--e-depth) var(--e-space-4) 0;
     border: var(--e-stroke-edge) solid var(--e-slab);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
     border-radius: var(--e-radius-md);
     background: var(--e-fill);
     color: var(--e-on-fill);
-    box-shadow: inset 0 -2px 0 0 var(--e-slab);
     font: 500 var(--e-text-md) / 1 var(--e-font-sans);
     letter-spacing: 0.01em;
     white-space: nowrap;
@@ -88,8 +88,8 @@ defineSlots<{
 
   .e-btn:active {
     background: var(--e-press);
-    box-shadow: inset 0 2px 0 0 rgb(0 0 0 / 0.22);
-    padding-top: 2px;
+    border-bottom-width: var(--e-stroke-edge);
+    box-shadow: inset 0 var(--e-depth) 0 0 rgb(0 0 0 / 0.22);
   }
 
   .e-btn--secondary {
@@ -111,20 +111,22 @@ defineSlots<{
   .e-btn--outline:hover {
     background: color-mix(in srgb, var(--e-surface) 92%, #000);
     border-color: var(--e-ink);
-    box-shadow: inset 0 -2px 0 0 var(--e-ink);
   }
 
   .e-btn--outline:active {
     background: color-mix(in srgb, var(--e-surface) 84%, #000);
     border-color: var(--e-ink);
-    box-shadow: inset 0 2px 0 0 rgb(0 0 0 / 0.14);
+    border-bottom-width: var(--e-stroke-edge);
+    box-shadow: inset 0 var(--e-depth) 0 0 rgb(0 0 0 / 0.14);
   }
 
   .e-btn--quiet {
     border-color: transparent;
+    border-bottom-width: var(--e-stroke-edge);
     background: transparent;
     color: var(--e-ink);
     box-shadow: none;
+    padding-top: 0;
     padding-inline: var(--e-space-3);
     text-decoration: underline;
     text-underline-offset: 5px;
@@ -168,7 +170,6 @@ defineSlots<{
     }
   }
 
-  /* Not part of the page when printed. The reference uses !important; a later rule in the same layer wins without it. */
   @media print {
     .e-btn {
       display: none;

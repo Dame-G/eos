@@ -10,7 +10,6 @@ afterEach(() => {
   document.body.removeAttribute("style");
 });
 
-/** A page with a button that opens the dialog, as an app has. */
 function host(extra: { actions?: boolean; attrs?: Record<string, unknown> } = {}) {
   const open = ref(false);
   const closed = ref(0);

@@ -89,3 +89,26 @@ export function tint(hex: string, lightness = 0.955, chroma = 0.025): string {
   const { h } = toOklch(hex);
   return fromOklch({ l: lightness, c: chroma, h });
 }
+
+/** The colour nearest `hex` (same hue and chroma, lightness stepped toward `against`) that still holds a contrast of `target` with `against`. Softens as far as the target allows; returns `hex` unchanged when it is already under the target. */
+export function settleContrast(hex: string, against: string, target: number): string {
+  const start = toOklch(hex);
+  const goal = toOklch(against).l;
+  const dir = goal >= start.l ? 1 : -1;
+  let best = hex;
+  if (contrast(hex, against) < target) return best;
+  for (let step = 1; step <= 400; step++) {
+    const l = start.l + dir * step * 0.0025;
+    if ((dir > 0 && l > goal) || (dir < 0 && l < goal)) break;
+    const next = fromOklch({ ...start, l });
+    if (contrast(next, against) < target) break;
+    best = next;
+  }
+  return best;
+}
+
+/** `hex` moved to OKLCH lightness `l`, optionally with a new chroma and hue, clamped to the sRGB gamut. */
+export function withLightness(hex: string, l: number, chroma?: number, hue?: number): string {
+  const o = toOklch(hex);
+  return fromOklch({ l: Math.min(1, Math.max(0, l)), c: chroma ?? o.c, h: hue ?? o.h });
+}

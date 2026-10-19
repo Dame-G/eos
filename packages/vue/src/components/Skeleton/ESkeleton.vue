@@ -37,7 +37,6 @@ const size = computed(() => ({
     animation: e-pulse 1.4s ease-in-out infinite;
   }
 
-  /* A text-line placeholder, used by lists and grids while rows load. */
   .e-skel {
     display: block;
     height: 14px;

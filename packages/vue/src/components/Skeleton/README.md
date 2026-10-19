@@ -1,28 +1,22 @@
 # ESkeleton
 
-A single placeholder block shown while content loads. Make it the size of what is coming: a statement card is about 220px tall, one line of text about 20px.
+A placeholder block shown while content loads. Size it like what is coming.
 
 ```vue
 <ESkeleton :height="220" />
-<ESkeleton :height="20" :width="160" />
 <ESkeleton circle :height="56" />
 ```
 
 ## Props
 
-| Prop     | Type               | Default    | Notes                                                        |
-| -------- | ------------------ | ---------- | ------------------------------------------------------------ |
-| `height` | `number \| string` | `96`       | A number is px; a string is any CSS length.                  |
-| `width`  | `number \| string` | full width | A number is px; a string is any CSS length.                  |
-| `circle` | `boolean`          | unset      | A round block, for a photo. Set `height`; the width follows. |
+| Prop     | Type               | Default    | Notes                                           |
+| -------- | ------------------ | ---------- | ----------------------------------------------- |
+| `height` | `number \| string` | `96`       | A number is px; a string is any CSS length.     |
+| `width`  | `number \| string` | full width | Same units as `height`.                         |
+| `circle` | `boolean`          |            | A round block; set `height`, the width follows. |
 
-No slots. Native attributes land on the root `<div>`; the `style` you pass is merged with the size.
-
-## Rules
-
-- It pulses slowly, and is static under reduced motion.
-- Use Spinner for a single action instead.
+`class`, `style` and attributes land on the `div` element; `style` is merged with the size.
 
 ## Accessibility
 
-- `role="status"` and `aria-busy="true"`, with screen-reader-only text "Loading" (message `loading`).
+- `role="status"` and `aria-busy="true"`, with screen-reader text "Loading".

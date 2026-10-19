@@ -8,7 +8,6 @@ import layers from "./scripts/postcss-layers.ts";
 
 const src = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
-// Everything the package declares as a dependency or peer stays external: consumers install it once and share it.
 const pkg = JSON.parse(readFileSync(src("./package.json"), "utf8")) as {
   dependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
@@ -26,8 +25,6 @@ export default defineConfig(({ command }) => ({
             tsconfigPath: "./tsconfig.build.json",
             entryRoot: "src",
             exclude: ["**/*.test.ts", "**/*.stories.ts", "test/**"],
-            // Native ESM consumers (moduleResolution node16 and nodenext) need explicit extensions in declaration files:
-            // "./EButton.vue" becomes "./EButton.vue.js" (which resolves to EButton.vue.d.ts) and "./x" becomes "./x.js".
             beforeWriteFile(filePath, content) {
               const fixed = content.replace(
                 /(\bfrom\s+|\bimport\(\s*|\bimport\s+)(["'])(\.{1,2}\/[^"']*)\2/g,
@@ -51,10 +48,7 @@ export default defineConfig(({ command }) => ({
   build: {
     target: "es2022",
     sourcemap: true,
-    // One stylesheet (dist/style.css) and no CSS imports in the JavaScript: the components then load in plain Node for
-    // server rendering without any bundler setup. The consumer imports "@eos-ui/vue/style.css" once.
     cssCodeSplit: false,
-    // Shipped unminified: a minifier may shorten the layer order statement, and the consumer's bundler minifies anyway.
     cssMinify: false,
     lib: {
       cssFileName: "style",

@@ -1,6 +1,6 @@
 # EAppFooter
 
-The bottom of the page: small print, privacy and terms links, contact. It is the `contentinfo` landmark, so keep it to links people expect there.
+The bottom of the page: small print, privacy and terms links, contact.
 
 ```vue
 <EAppFooter>
@@ -9,19 +9,15 @@ The bottom of the page: small print, privacy and terms links, contact. It is the
 </EAppFooter>
 ```
 
+`class`, `style` and attributes land on the `footer` element.
+
 ## Slots
 
-| Slot    | Holds                                         |
-| ------- | --------------------------------------------- |
-| default | The content, held to the page's 72rem column. |
-
-`class`, `style` and attributes fall through to the `footer`.
+| Slot      | Use                                                                                                                                                                                |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `default` | The content, held to the page's 72rem column. The first item stays at the start; everything after it is grouped at the end of the row. Put links in a `nav` to keep them together. |
 
 ## Accessibility
 
-- A `footer` that is not inside a section is the `contentinfo` landmark. Use one per page.
-- Text is the muted colour at the small size; links inside it follow the normal link rules.
-
-## Rules
-
-- No primary actions here. Put it last, in an EAppShell's `footer` slot.
+- Renders the `contentinfo` landmark: use one per page, last, in the `footer` slot of `EAppShell`.
+- No primary actions here.

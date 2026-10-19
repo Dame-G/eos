@@ -99,7 +99,6 @@ describe("EPageHeader", () => {
 
   test("has no accessibility violations at another heading level", async () => {
     const { container } = await render(EPageHeader, { props: { title: "Plain", headingLevel: 3 } });
-    // A level 3 with no level 2 above it is the consumer's page structure, not the component's.
     await expectNoViolations(container, { disable: ["heading-order"] });
   });
 });

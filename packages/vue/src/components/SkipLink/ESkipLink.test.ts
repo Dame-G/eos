@@ -5,7 +5,6 @@ import { render } from "vitest-browser-vue";
 import ESkipLink from "./ESkipLink.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
-// A page-like fixture: the link first, then a navigation, then the main content.
 const Page = defineComponent({
   props: { href: { type: String, default: undefined } },
   setup: (props) => () =>

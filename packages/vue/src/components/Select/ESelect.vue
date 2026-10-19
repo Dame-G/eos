@@ -36,17 +36,14 @@ const props = defineProps<{
   id?: string;
 }>();
 
-/** The value of the chosen option. An empty string is nothing chosen. */
 const model = defineModel<string>({ default: "" });
 
-/** Whether the list is open. */
 const open = defineModel<boolean>("open", { default: false });
 
 const attrs = useFieldAttrs();
 const options = computed(() => normalizeOptions(props.options));
 
 type FieldSlot = { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined };
-/** The button's own attributes, with the consumer's fall-through ones last. */
 function triggerAttrs(field?: FieldSlot) {
   return {
     id: field?.id ?? props.id,

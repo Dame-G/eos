@@ -7,7 +7,6 @@ import ENotice from "./ENotice.vue";
 import EButton from "../Button/EButton.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
-/** Renders a notice in a box of a given width, since the layout follows the notice's own width. */
 async function inBox(width: number, props: Record<string, unknown> = {}, slots: Record<string, () => unknown> = {}) {
   const box = document.createElement("div");
   box.className = "e-root";
@@ -76,18 +75,18 @@ describe("ENotice", () => {
     expect(container.querySelector("h1,h2,h3,h4,h5,h6")).toBeNull();
   });
 
-  test("the dismiss button shows only when someone listens, and emits dismiss", async () => {
+  test("the close button shows only when someone listens, and emits close", async () => {
     const none = await render(ENotice, { props: { title: "x" } });
-    expect(none.container.querySelector(".e-notice-dismiss")).toBeNull();
+    expect(none.container.querySelector(".e-notice-close")).toBeNull();
     let got = 0;
-    await render(ENotice, { props: { title: "x", onDismiss: () => got++ } });
+    await render(ENotice, { props: { title: "x", onClose: () => got++ } });
     await page.getByRole("button", { name: "Dismiss" }).click();
     expect(got).toBe(1);
   });
 
-  test("the dismiss button works from the keyboard", async () => {
+  test("the close button works from the keyboard", async () => {
     let got = 0;
-    await render(ENotice, { props: { title: "x", onDismiss: () => got++ } });
+    await render(ENotice, { props: { title: "x", onClose: () => got++ } });
     await userEvent.tab();
     await userEvent.keyboard("{Enter}");
     expect(got).toBe(1);
@@ -125,7 +124,7 @@ describe("ENotice", () => {
   });
 
   test("actions follow the message in reading and tab order", async () => {
-    await render(ENotice, { props: { title: "x", onDismiss: () => {} }, slots: { actions } });
+    await render(ENotice, { props: { title: "x", onClose: () => {} }, slots: { actions } });
     await userEvent.tab();
     expect(document.activeElement!.textContent).toBe("Sign");
     await userEvent.tab();
@@ -144,10 +143,10 @@ describe("ENotice", () => {
     expect(el.getAttribute("aria-live")).toBe("off");
   });
 
-  test("axe finds nothing in any tone, with actions and a dismiss button", async () => {
+  test("axe finds nothing in any tone, with actions and a close button", async () => {
     for (const tone of ["info", "success", "warning", "danger"] as const) {
       const { container } = await render(ENotice, {
-        props: { title: "Heads up", tone, onDismiss: () => {}, headingLevel: 2 },
+        props: { title: "Heads up", tone, onClose: () => {}, headingLevel: 2 },
         slots: { default: "Something to know.", actions },
       });
       container.classList.add("e-root");
@@ -161,16 +160,16 @@ describe("ENotice", () => {
     const { container } = await render(
       Vue.defineComponent({
         render: () =>
-          Vue.h(ENotice, { title: "x", dismissible: forced.value, ...(on.value ? { onDismiss: () => {} } : {}) }),
+          Vue.h(ENotice, { title: "x", closable: forced.value, ...(on.value ? { onClose: () => {} } : {}) }),
       }),
     );
-    expect(container.querySelector(".e-notice-dismiss")).toBeNull();
+    expect(container.querySelector(".e-notice-close")).toBeNull();
     on.value = true;
-    await expect.poll(() => container.querySelector(".e-notice-dismiss")).not.toBeNull();
+    await expect.poll(() => container.querySelector(".e-notice-close")).not.toBeNull();
     forced.value = false;
-    await expect.poll(() => container.querySelector(".e-notice-dismiss")).toBeNull();
+    await expect.poll(() => container.querySelector(".e-notice-close")).toBeNull();
     on.value = false;
     forced.value = true;
-    await expect.poll(() => container.querySelector(".e-notice-dismiss")).not.toBeNull();
+    await expect.poll(() => container.querySelector(".e-notice-close")).not.toBeNull();
   });
 });

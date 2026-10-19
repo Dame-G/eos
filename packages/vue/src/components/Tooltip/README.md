@@ -1,6 +1,6 @@
 # ETooltip
 
-A label that names an icon-only control. Built on Reka UI's Tooltip. Wrap one focusable element and provide `label`. It never holds anything you must read or click: use `EPopover` for that.
+A short label that names an icon-only control. It never holds anything to read or click; use `EPopover` for that.
 
 ```vue
 <ETooltip label="Download receipt">
@@ -10,23 +10,20 @@ A label that names an icon-only control. Built on Reka UI's Tooltip. Wrap one fo
 
 ## Props
 
-| Prop           | Type      | Notes                                                                                                                                              |
-| -------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `label`        | `string`  | Required. What the tooltip says.                                                                                                                   |
-| `v-model:open` | `boolean` | Whether the bubble is showing. Set it to show it from outside, or to start shown; hover, focus and Escape update it. Leave it off for local state. |
+| Prop    | Type      | Default | Notes                                                                      |
+| ------- | --------- | ------- | -------------------------------------------------------------------------- |
+| `label` | `string`  |         | Required. What the tooltip says.                                           |
+| `open`  | `boolean` | `false` | v-model:open: whether the bubble shows. Hover, focus and Escape update it. |
+
+`class`, `style` and attributes land on the bubble; the trigger is your own element.
 
 ## Slots
 
-| Slot    | Notes                                                                                                  |
-| ------- | ------------------------------------------------------------------------------------------------------ |
-| default | One focusable element (an icon button, a link). It becomes the trigger and is described by the bubble. |
+| Slot      | Use                                                                                       |
+| --------- | ----------------------------------------------------------------------------------------- |
+| `default` | One focusable element (icon button, link); it is the trigger and gets `aria-describedby`. |
 
-`class`, `style` and other attributes land on the bubble; the trigger is your own element.
+## Accessibility
 
-## Behaviour and accessibility
-
-- Shows on keyboard focus straight away, on hover after 400ms, and while a finger is held on the control (it goes a moment after the finger lifts). It hides on `Escape` (focus stays), when focus or the pointer leaves, and on a press.
-- The bubble is `role="tooltip"` and the trigger gets `aria-describedby` pointing at it while it is shown. The trigger keeps its own accessible name, so give an icon button its `label` as well: a tooltip is a description, not a name.
-- The bubble stays open while the pointer is over it (WCAG 1.4.13).
-- Black on white (`--e-ink` on `--e-surface`), small text, centred, at most 16rem wide. It sits above the trigger, 8px away, and flips when there is no room. It renders in the portal target with the `e-root` class, so a scoped theme reaches it.
-- Deliberate differences from the reference: the bubble is mounted only while shown (the reference kept it in the page at opacity 0) and is placed by floating-ui, so the reference's `.e-tip` wrapper and its reveal rules are gone; see `parity-allow.json`.
+- Shows on keyboard focus at once, on hover after 400ms and while a finger is held; hides on Escape (focus stays) and when focus or pointer leaves. It stays open while the pointer is over it (WCAG 1.4.13).
+- It describes, not names: give an icon button its own `label` as well.

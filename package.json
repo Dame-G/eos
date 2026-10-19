@@ -18,7 +18,9 @@
     "changeset": "changeset",
     "release": "pnpm build && changeset publish",
     "tokens": "node packages/tokens/scripts/build.mjs",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "check:package": "pnpm --filter @eos-ui/vue check:package",
+    "check:size": "node scripts/size.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",

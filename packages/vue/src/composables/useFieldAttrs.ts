@@ -8,9 +8,7 @@ import { useAttrs } from "vue";
 export function useFieldAttrs() {
   const attrs = useAttrs();
   return {
-    /** The attributes for the wrapper element. */
     wrapper: () => ({ class: attrs.class, style: attrs.style }),
-    /** The attributes for the input, with the component's own described-by ids joined to the consumer's. */
     input: (describedby?: string | undefined): Record<string, unknown> => {
       const rest = { ...attrs };
       delete rest.class;

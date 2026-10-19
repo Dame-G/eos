@@ -5,7 +5,6 @@ import { render } from "vitest-browser-vue";
 import ENumberField from "./ENumberField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
-/** Renders the field with a bound model and returns the model and everything it emitted. */
 async function bound(props: Record<string, unknown>, initial: number | null) {
   const model = ref<number | null>(initial);
   const got: (number | null)[] = [];

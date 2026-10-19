@@ -11,6 +11,7 @@ import { useQuietFocus } from "../Select/quietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
+import "../Combobox/combo.css";
 import "./picker.css";
 
 defineOptions({ inheritAttrs: false });
@@ -39,7 +40,6 @@ const props = defineProps<{
   id?: string;
 }>();
 
-/** The chosen date, or `null`. */
 const model = defineModel<Date | null>({ default: null });
 
 const t = useMessages();
@@ -50,7 +50,6 @@ const attrs = useFieldAttrs();
 
 const input = ref<HTMLInputElement | null>(null);
 const calendar = ref<InstanceType<typeof ECalendar> | null>(null);
-/** Whether the calendar is open. */
 const open = defineModel<boolean>("open", { default: false });
 const shown = computed(() => open.value && !props.disabled);
 const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel, .e-combo"));
@@ -75,7 +74,6 @@ function set(d: Date | null) {
   typedError.value = "";
 }
 
-/** Reads the text box: a good date becomes the value, a bad one shows an error and leaves the value alone. */
 function commit() {
   const raw = text.value.trim();
   if (!raw) {
@@ -125,7 +123,6 @@ function onCloseFocus(e: Event) {
   if (!outside) input.value?.focus();
 }
 function onEscape(e: KeyboardEvent) {
-  // Escape inside the months or years goes back to the days first; the calendar handles that itself.
   if (calendar.value && calendar.value.view !== "days") e.preventDefault();
 }
 
@@ -146,9 +143,7 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
 }
 
 defineExpose({
-  /** The text box. */
   input,
-  /** Puts the cursor in the text box. */
   focus: () => input.value?.focus(),
 });
 </script>
@@ -218,11 +213,3 @@ defineExpose({
     </template>
   </EField>
 </template>
-
-<style>
-@layer e.composites {
-  .e-calpanel .e-cal {
-    margin-inline: auto;
-  }
-}
-</style>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import "../../styles/base.css";
+import "../AppHeader/shell.css";
 
 defineSlots<{
   /** Small print, privacy and terms links, contact. */
@@ -31,16 +32,12 @@ defineSlots<{
     gap: var(--e-space-2) var(--e-space-6);
   }
 
-  .e-appfooter p {
-    margin: 0;
+  .e-appfooter .e-shell-inner > :first-child:not(:last-child) {
+    margin-inline-end: auto;
   }
 
-  /* the page's one column */
-  .e-shell-inner {
-    width: 100%;
-    max-width: 72rem;
-    margin-inline: auto;
-    padding-inline: var(--e-space-4);
+  .e-appfooter p {
+    margin: 0;
   }
 }
 </style>

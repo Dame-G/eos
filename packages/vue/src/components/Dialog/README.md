@@ -1,6 +1,6 @@
 # EDialog
 
-A modal dialog for a short decision. Built on Reka UI's Dialog: focus moves in and is trapped, Escape closes it, the page behind cannot be scrolled or reached, and focus returns to what opened it.
+A modal dialog for a short decision. Use `EDrawer` to read a statement or receipt beside a list.
 
 ```vue
 <EButton @click="open = true">Cancel appointment</EButton>
@@ -15,33 +15,30 @@ A modal dialog for a short decision. Built on Reka UI's Dialog: focus moves in a
 
 ## Props
 
-| Prop           | Type                         | Default | Notes                                                                             |
-| -------------- | ---------------------------- | ------- | --------------------------------------------------------------------------------- |
-| `v-model:open` | `boolean`                    |         | Whether it is open. Without a binding it keeps its own state.                     |
-| `title`        | `string`                     |         | The heading and the dialog's accessible name.                                     |
-| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `2`     | The title's heading element.                                                      |
-| `inline`       | `boolean`                    |         | Shows it in the page, without the backdrop or the focus trap. Only for a preview. |
+| Prop           | Type                         | Default | Notes                                                                       |
+| -------------- | ---------------------------- | ------- | --------------------------------------------------------------------------- |
+| `open`         | `boolean`                    |         | v-model:open: whether it is open. Without a binding it keeps its own state. |
+| `title`        | `string`                     |         | Required. The heading and accessible name; make it a real question.         |
+| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `2`     | Heading level of the title.                                                 |
+| `inline`       | `boolean`                    |         | Renders in the page without backdrop or focus trap; previews only.          |
 
-`class`, `style`, `id` and `data-*` attributes fall through to the dialog element.
+`class`, `style` and attributes land on the dialog element.
 
-## Events and slots
+## Slots
 
-| Name      | Use                                                                                                                 |
-| --------- | ------------------------------------------------------------------------------------------------------------------- |
-| `close`   | The person closed it with the Close button or Escape. `open` is already false.                                      |
-| `default` | The content: a sentence or two, or a short form.                                                                    |
-| `actions` | Buttons in a tinted foot bar (see EActions), left-aligned, the main action first. They stack full width on a phone. |
+| Slot      | Use                                                                           |
+| --------- | ----------------------------------------------------------------------------- |
+| `default` | A sentence or two, or a short form.                                           |
+| `actions` | Foot-bar buttons, main action first; name the danger button for what it does. |
+
+## Events
+
+| Event   | Payload | Notes                                                           |
+| ------- | ------- | --------------------------------------------------------------- |
+| `close` |         | The Close button or Escape was used; `open` is already `false`. |
 
 ## Accessibility
 
-- It is a `role="dialog"` named by its title (`aria-labelledby`). The Close button is named "Close" (the `close` message).
-- Focus moves to the first control inside, Tab and Shift+Tab stay inside, Escape closes, and focus goes back to the control that was focused when it opened.
-- While open the body cannot scroll and everything outside is hidden from assistive technology.
-- A press on the backdrop does not close it, as with a native dialog. Offer a Close or Cancel action.
-- The dialog renders into the configured portal target (`createEos({ portalTarget })`, the body by default) inside an `e-root` element, so a theme applied to part of the page reaches it.
-
-## Rules
-
-- Use it for a short decision. For a statement or receipt next to a list, use EDrawer.
-- Name the danger button for what it does ("Cancel appointment"), not "Yes".
-- Put the main action first. Give the dialog a real question or task as its title.
+- A `role="dialog"` named by its title; focus moves in, is trapped, and returns to the opener on close.
+- Escape closes it; a backdrop press does not, so always offer a Close or Cancel action.
+- It renders into the portal target inside `e-root`, so scoped themes apply.

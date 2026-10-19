@@ -10,25 +10,21 @@ export function useQuietFocus(open: Ref<boolean>, inside: (el: Element) => boole
   let hadFocus = false;
   let stop: (() => void) | undefined;
 
-  /** Call on a pointer or key press on the trigger. */
   function intent() {
     byPerson = true;
   }
 
-  /** True once for an open that a person started. Call from the popup's own focus handler. */
   function personOpened(): boolean {
     const was = byPerson;
     byPerson = false;
     return was;
   }
 
-  /** Call from the popup's close focus handler: true when focus should go back to the trigger. */
   function returnsFocus(): boolean {
     byPerson = false;
     return hadFocus;
   }
 
-  // Remember, as the popup closes, whether focus was inside it: that is a person using it.
   watch(
     open,
     (isOpen) => {
@@ -37,10 +33,6 @@ export function useQuietFocus(open: Ref<boolean>, inside: (el: Element) => boole
     { flush: "sync" },
   );
 
-  /**
-   * For popups whose library moves focus into the content by itself: while the popup settles, put focus back
-   * where it was if it lands inside the content.
-   */
   function undoFocusSteal() {
     stop?.();
     const prior = document.activeElement as HTMLElement | null;

@@ -1,4 +1,3 @@
-// Default words the components say. Override any of them with createEos({ messages }) or per app with vue-i18n.
 export const defaultMessages = {
   required: "Required",
   address: "Address",
@@ -66,6 +65,8 @@ export const defaultMessages = {
   chooseDates: "Choose dates",
   pickColor: "Pick a colour",
   colorInvalid: "Enter a colour like #2c95b4",
+  copyCode: "Copy code",
+  codeCopied: "Copied",
   dateFormat: "",
   dateAtTime: "{date} at {time}",
   dateError: "Enter a date as {format}.",

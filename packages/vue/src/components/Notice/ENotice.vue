@@ -26,15 +26,15 @@ const props = withDefaults(
     role?: string | false;
     /** Replaces the icon of the tone. */
     icon?: IconProp;
-    /** Forces the dismiss button on or off. Left out, it shows when a `@dismiss` listener is attached. */
-    dismissible?: boolean;
+    /** Forces the close button on or off. Left out, it shows when a `@close` listener is attached. */
+    closable?: boolean;
   }>(),
-  { tone: "info", role: undefined, dismissible: undefined },
+  { tone: "info", role: undefined, closable: undefined },
 );
 
 const emit = defineEmits<{
-  /** The dismiss button was pressed. The button only shows when a listener is attached. */
-  dismiss: [];
+  /** The close button was pressed. The button only shows when a listener is attached. */
+  close: [];
 }>();
 
 defineSlots<{
@@ -50,7 +50,7 @@ const TONE_ICON: Record<NoticeTone, string> = { info: "info", success: "check", 
 const role = computed(() =>
   props.role === false ? undefined : props.role || (props.tone === "danger" ? "alert" : "status"),
 );
-const hasDismiss = () => props.dismissible ?? !!instance?.vnode.props?.onDismiss;
+const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
 </script>
 
 <template>
@@ -68,8 +68,8 @@ const hasDismiss = () => props.dismissible ?? !!instance?.vnode.props?.onDismiss
         <div v-if="$slots.default" class="e-notice-text"><slot /></div>
       </div>
       <EActions v-if="$slots.actions" class="e-notice-actions"><slot name="actions" /></EActions>
-      <span v-if="hasDismiss()" class="e-notice-dismiss">
-        <EIconButton icon="x" :label="t('dismiss')" @click="emit('dismiss')" />
+      <span v-if="hasClose()" class="e-notice-close">
+        <EIconButton icon="x" :label="t('dismiss')" @click="emit('close')" />
       </span>
     </div>
   </div>
@@ -83,10 +83,11 @@ const hasDismiss = () => props.dismissible ?? !!instance?.vnode.props?.onDismiss
 
     container-type: inline-size;
     padding: var(--e-space-3) var(--e-space-4);
+    border: var(--e-stroke-edge) solid var(--e-tone);
+    border-top-width: calc(var(--e-stroke-edge) + var(--e-depth));
     border-radius: var(--e-radius-md);
     background: var(--e-bg);
     color: var(--e-ink);
-    box-shadow: inset 0 0 0 1.5px var(--e-tone);
   }
 
   .e-notice--success {

@@ -1,5 +1,3 @@
-// Adapters for bringing your own icons: `import { lucide } from "@eos-ui/vue/icons"`.
-// Nothing here imports an icon library; you pass the library's module in, so it stays out of Eos's dependencies.
 import type { IconsConfig } from "./types.js";
 
 export { iconNames } from "./types.js";

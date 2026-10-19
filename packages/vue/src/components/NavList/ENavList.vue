@@ -36,19 +36,20 @@ const props = withDefaults(
     sections?: NavSection[];
     /** Shorter rows and smaller words, for a long list such as the pages of a documentation site. */
     dense?: boolean;
+    /** `vertical` stacks the links, for a sidebar or a menu. `horizontal` lays them in a row, for a header: muted words, a bar under each, a heavier bar under the current page. */
+    orientation?: "vertical" | "horizontal";
     /** The landmark's name, so a page with two navigations tells them apart. Defaults to "Main". */
     label?: string;
     /** What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). */
     linkComponent?: string | Component;
   }>(),
-  { linkComponent: "a" },
+  { orientation: "vertical", linkComponent: "a" },
 );
 
 const t = useMessages();
 const uid = useUid();
 const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.items ?? [] }]);
 
-// Only attributes that have a value: an undefined `href` would override the one a router link computes.
 const linkAttrs = (item: NavItem) => ({
   ...(item.to !== undefined ? { to: item.to } : { href: item.href ?? "#" }),
   ...(item.current && { "aria-current": "page" }),
@@ -56,7 +57,11 @@ const linkAttrs = (item: NavItem) => ({
 </script>
 
 <template>
-  <nav class="e-nav" :class="dense && 'e-nav--dense'" :aria-label="label || t('mainNav')">
+  <nav
+    class="e-nav"
+    :class="[dense && 'e-nav--dense', orientation === 'horizontal' && 'e-nav--horizontal']"
+    :aria-label="label || t('mainNav')"
+  >
     <template v-for="(group, g) in groups" :key="g">
       <p v-if="group.label" :id="`${uid}-${g}`" class="e-nav-heading">{{ group.label }}</p>
       <ul :aria-labelledby="group.label ? `${uid}-${g}` : undefined">
@@ -88,7 +93,7 @@ const linkAttrs = (item: NavItem) => ({
     font: 600 var(--e-text-xs) / 1.2 var(--e-font-mono);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--e-muted);
+    color: var(--e-ink);
   }
 
   .e-nav > :first-child {
@@ -117,10 +122,19 @@ const linkAttrs = (item: NavItem) => ({
     outline-offset: var(--e-focus-gap);
   }
 
+  .e-nav:not(.e-nav--dense, .e-nav--horizontal) .e-nav-item {
+    box-sizing: border-box;
+    border: var(--e-stroke-edge) solid transparent;
+  }
+
   .e-nav-item[aria-current="page"] {
-    background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 1.5px var(--e-border-strong);
+    background: color-mix(in srgb, var(--e-surface-tint), var(--e-ink) 3%);
     font-weight: 600;
+  }
+
+  .e-nav:not(.e-nav--dense, .e-nav--horizontal) .e-nav-item[aria-current="page"] {
+    border-color: var(--e-border-strong);
+    border-top-width: calc(var(--e-stroke-edge) + var(--e-depth));
   }
 
   .e-nav-label {
@@ -129,9 +143,88 @@ const linkAttrs = (item: NavItem) => ({
   }
 
   .e-nav--dense .e-nav-item {
+    position: relative;
     height: 2.25rem;
     gap: var(--e-space-2);
+    border-radius: 0;
+    box-shadow: inset 2px 0 0 transparent;
+    color: var(--e-muted);
     font-size: var(--e-text-sm);
+  }
+
+  .e-nav--dense .e-nav-item::after {
+    content: "";
+    position: absolute;
+    inset-block: -4px;
+    inset-inline: 0;
+  }
+
+  .e-nav--dense .e-nav-item:hover {
+    background: transparent;
+    box-shadow: inset 2px 0 0 var(--e-border-strong);
+    color: var(--e-ink);
+  }
+
+  .e-nav--dense .e-nav-item[aria-current="page"] {
+    background: var(--e-surface-tint);
+    box-shadow: inset 3px 0 0 var(--e-primary);
+    color: var(--e-primary);
+    font-weight: 600;
+  }
+
+  .e-nav--dense .e-nav-heading {
+    margin-top: var(--e-space-4);
+    padding-top: var(--e-space-4);
+    border-top: var(--e-stroke-hair) solid var(--e-border);
+  }
+
+  .e-nav--dense > .e-nav-heading:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .e-nav--horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--e-space-2) var(--e-space-4);
+  }
+
+  .e-nav--horizontal ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-space-2);
+  }
+
+  .e-nav--horizontal .e-nav-heading {
+    margin: 0;
+    padding-inline: 0;
+  }
+
+  .e-nav--horizontal .e-nav-item {
+    height: 2.5rem;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: inset 0 -2px 0 transparent;
+    color: var(--e-muted);
+    font-size: var(--e-text-sm);
+  }
+
+  .e-nav--horizontal .e-nav-item:hover {
+    background: transparent;
+    box-shadow: inset 0 -2px 0 var(--e-border-strong);
+    color: var(--e-ink);
+  }
+
+  .e-nav--horizontal .e-nav-item[aria-current="page"] {
+    background: var(--e-surface-tint);
+    box-shadow: inset 0 -3px 0 var(--e-primary);
+    color: var(--e-primary);
+    font-weight: 600;
+  }
+
+  .e-nav--horizontal.e-nav--dense .e-nav-item {
+    height: 2.25rem;
   }
 
   .e-nav-count {
@@ -147,6 +240,12 @@ const linkAttrs = (item: NavItem) => ({
   @media (prefers-reduced-motion: reduce) {
     .e-nav-item {
       transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-nav--horizontal .e-nav-item[aria-current="page"] {
+      border-block-end: 3px solid Highlight;
     }
   }
 }

@@ -38,7 +38,6 @@ const emit = defineEmits<{
   complete: [code: string];
 }>();
 
-/** The code typed so far. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
@@ -55,7 +54,6 @@ function clean(s: unknown): string {
 }
 const value = computed(() => clean(model.value));
 
-/** The latest code, updated the moment it changes: focus moves before the parent re-renders, so handlers must not read a stale value. */
 let live = value.value;
 watch(value, (v) => (live = v), { flush: "sync" });
 
@@ -85,7 +83,6 @@ function onInput(i: number, e: Event) {
     commit(without(v, i));
     return;
   }
-  // typing over a filled box gives two characters: keep the new one, wherever the caret was
   if (v[i] && raw.length === 2) {
     const k = raw.indexOf(v[i]!);
     raw = k >= 0 ? without(raw, k) : raw.charAt(1);
@@ -99,7 +96,6 @@ function onInput(i: number, e: Event) {
     commit(v.slice(0, i) + chars + v.slice(i + 1));
     focusAt(i + 1);
   } else put(i, chars);
-  // a box shows exactly the character the code holds, even when the parent kept the old one
   target.value = live[i] ?? "";
 }
 function onKey(i: number, e: KeyboardEvent) {
@@ -144,7 +140,6 @@ onMounted(() => {
 });
 
 defineExpose({
-  /** Moves focus to the first empty box. */
   focus: () => focusAt(live.length),
 });
 </script>

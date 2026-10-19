@@ -1,6 +1,5 @@
 @import url("@eos-ui/tokens/tokens.css");
 
-/* Shared by every component: the root, the focus ring, the kicker label, the screen-reader-only class and the scrollbars. */
 @layer e.base {
   .e-root,
   .e-root * {
@@ -15,6 +14,28 @@
   :where(.e-btn, .e-icon-btn, .e-input, .e-linkbtn):focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: var(--e-focus-gap);
+  }
+
+  :where(
+    .e-btn,
+    .e-icon-btn,
+    .e-acc > summary,
+    .e-tab,
+    .e-seg-opt,
+    .e-choice,
+    .e-slot,
+    .e-day,
+    .e-cal-pick,
+    .e-page,
+    .e-step,
+    .e-combo-btn,
+    .e-menu-item,
+    .e-nav-item,
+    .e-linkbtn
+  ) {
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   .e-kicker {
@@ -67,6 +88,91 @@
     .e-root * {
       scrollbar-width: thin;
       scrollbar-color: var(--e-border-strong) transparent;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-input,
+    .e-input-wrap,
+    .e-check,
+    .e-radio,
+    .e-sel-trigger,
+    .e-combo,
+    .e-avatar {
+      border: 1px solid ButtonText;
+    }
+
+    .e-input-wrap .e-input {
+      border: 0;
+    }
+
+    .e-input:disabled,
+    .e-input-wrap[data-disabled],
+    .e-check:disabled,
+    .e-radio:disabled {
+      border-color: GrayText;
+    }
+
+    .e-input-wrap[data-invalid] {
+      border-width: 2px;
+    }
+
+    .e-tablist,
+    .e-panel-head {
+      border-bottom: 1px solid CanvasText;
+    }
+
+    .e-tab[aria-selected="true"] {
+      border-bottom-color: Highlight;
+    }
+
+    .e-tab-count {
+      border: 1px solid CanvasText;
+    }
+
+    .e-dialog,
+    .e-drawer,
+    .e-popover,
+    .e-listpanel,
+    .e-calpanel,
+    .e-panel,
+    .e-surface,
+    .e-menu,
+    .e-tip-bubble {
+      outline: 1px solid CanvasText;
+    }
+
+    .e-divider {
+      border-color: CanvasText;
+    }
+
+    .e-divider-label::before,
+    .e-divider-label::after {
+      border-color: CanvasText;
+    }
+
+    .e-switch-track {
+      border: 1px solid ButtonText;
+    }
+
+    .e-switch-input:checked + .e-switch-track {
+      forced-color-adjust: none;
+      background: Highlight;
+      border-color: Highlight;
+    }
+
+    .e-switch-input:checked + .e-switch-track::after {
+      forced-color-adjust: none;
+      background: HighlightText;
+    }
+
+    .e-input-wrap:focus-within,
+    .e-check:focus-visible,
+    .e-radio:focus-visible,
+    .e-switch-input:focus-visible + .e-switch-track,
+    .e-tab:focus-visible,
+    .e-combo-btn:focus-visible {
+      outline-color: Highlight;
     }
   }
 }

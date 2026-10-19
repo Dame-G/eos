@@ -38,7 +38,6 @@ function focusSummary() {
   root.value.scrollIntoView?.({ block: "nearest" });
 }
 
-// A tick later, so the summary is in the document and laid out before it is focused.
 onMounted(() => nextTick(focusSummary));
 watch(
   () => props.errors.length,

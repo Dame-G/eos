@@ -1,6 +1,6 @@
 # ENavList
 
-The sidebar list for an app, or the navigation row of an EAppHeader. The current page is tinted, outlined and bold, so it is not shown by colour alone. Rows are 48px; counts are pills, for things waiting on the person (bills to pay, forms to sign).
+The sidebar list for an app, or the navigation row of an `EAppHeader`, with optional counts and a current-page marker.
 
 ```vue
 <ENavList
@@ -15,40 +15,18 @@ The sidebar list for an app, or the navigation row of an EAppHeader. The current
 
 ## Props
 
-| Prop            | Type                  | Default | Notes                                                                                                 |
-| --------------- | --------------------- | ------- | ----------------------------------------------------------------------------------------------------- |
-| `items`         | `NavItem[]`           |         | `{ label, href?, to?, icon?, count?, current? }`. `icon` is a name or an icon component.              |
-| `sections`      | `NavSection[]`        |         | Groups instead of `items`: `{ label?, items }`. Each labelled section is a list named by its heading. |
-| `dense`         | `boolean`             |         | 36px rows and small words, for a long list such as the pages of a documentation site.                 |
-| `label`         | `string`              | "Main"  | The landmark's name. Give each navigation on a page its own.                                          |
-| `linkComponent` | `string \| Component` | `"a"`   | What renders each link. Pass `RouterLink` for vue-router. See "Router usage".                         |
+| Prop            | Type                         | Default    | Notes                                                                                                                                                                                      |
+| --------------- | ---------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `items`         | `NavItem[]`                  |            | `{ label, href?, to?, icon?, count?, current? }`. With no `href` or `to` a link goes to `#`. Set `current` yourself.                                                                       |
+| `sections`      | `NavSection[]`               |            | Groups instead of `items`: `{ label?, items }`. Label only when there is more than one section.                                                                                            |
+| `dense`         | `boolean`                    |            | Shorter rows and smaller text, with a bar at the start of the row, for long lists such as the pages of a site.                                                                             |
+| `orientation`   | `"vertical" \| "horizontal"` | `vertical` | `horizontal` lays the links in a row for a header: muted words, a bar under each on hover, a heavier primary bar and a tint under the current page. Composes with `dense` (a shorter row). |
+| `label`         | `string`                     | `Main`     | Landmark name; give each navigation on a page its own.                                                                                                                                     |
+| `linkComponent` | `string \| Component`        | `a`        | Renders each link. Pass `RouterLink` and give items `to`; it receives `to` or `href`, the class `e-nav-item` and `aria-current`.                                                           |
 
-`class`, `style` and attributes fall through to the `nav`.
-
-## Router usage
-
-Eos does not depend on vue-router. Give items a `to` and pass `RouterLink` as `linkComponent`:
-
-```vue
-<ENavList
-  :link-component="RouterLink"
-  :items="[
-    { label: 'Home', to: '/' },
-    { label: 'Forms', to: '/forms', count: 1 },
-  ]"
-/>
-```
-
-The link component receives `to` (or `href`), the `e-nav-item` class and, on the current item, `aria-current="page"`; its default slot holds the icon, label and count. Set `current` yourself from the route (for example `route.path === '/forms'`). An item with neither `href` nor `to` links to `#`.
+`class`, `style` and attributes land on the `nav` element. Rows have no separators; for a sidebar of page links with a rule down the start edge, use `ETabs` with `orientation="vertical"`.
 
 ## Accessibility
 
-- A `nav` landmark named by `label` (default "Main"), a list of links.
-- The current item has `aria-current="page"`, a heavier weight and an outline.
-- Focus shows the standard ring. In an EAppShell sidebar the `aside` is also a landmark: give it its own name with `sidebarLabel`.
-
-## Rules
-
-- Give a section a `label` only when there is more than one section; a single group needs no heading.
-- Use it for the app's top-level places. Counts are for things waiting on the person; leave them off otherwise.
-- Inside an EAppHeader the items sit in a wrapping row instead of a column.
+- A `nav` landmark named by `label`.
+- The current item has `aria-current="page"` and is also heavier and outlined, not colour alone.

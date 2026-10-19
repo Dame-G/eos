@@ -213,4 +213,15 @@ describe("EMenu", () => {
     await expect.poll(() => menu()).not.toBeNull();
     await expectNoViolations(document.body);
   });
+
+  test("a trigger slot replaces the button and still opens the menu", async () => {
+    const { container } = await render(EMenu, {
+      props: { label: "Account", items: ITEMS, align: "end" },
+      slots: { trigger: () => h("button", { type: "button", class: "mine", "aria-label": "Account menu" }, "A") },
+    });
+    expect(container.querySelector("button.e-btn")).toBeNull();
+    await page.getByRole("button", { name: "Account menu" }).click();
+    await expect.poll(() => menu()).not.toBeNull();
+    expect(rows().length).toBe(4);
+  });
 });

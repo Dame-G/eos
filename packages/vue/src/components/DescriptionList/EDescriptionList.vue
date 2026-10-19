@@ -14,7 +14,6 @@ defineProps<{
   items: DescriptionItem[];
 }>();
 
-/** Renders a string or VNode given as data. */
 const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["value"] });
 </script>
 

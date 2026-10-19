@@ -1,4 +1,4 @@
-import { inject, reactive, type InjectionKey } from "vue";
+import { computed, inject, reactive, type ComputedRef, type InjectionKey } from "vue";
 import { defaultMessages, type MessageKey } from "./messages.js";
 import type { Component } from "vue";
 import { phosphor, ICON_VIEWBOX, type IconMarkup } from "./icons/phosphor.js";
@@ -90,6 +90,7 @@ export function useIconResolver(): (icon: string | Component, bold: boolean) => 
 }
 
 /** The `to` for a Teleport or a Reka portal: pass it to every floating part so they inherit a scoped theme. */
-export function usePortalTarget(): string | HTMLElement {
-  return useConfig().portalTarget;
+export function usePortalTarget(): ComputedRef<string | HTMLElement> {
+  const config = useConfig();
+  return computed(() => config.portalTarget);
 }

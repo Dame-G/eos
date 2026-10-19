@@ -1,5 +1,3 @@
-// Day arithmetic shared by Calendar, DatePicker and RangePicker. Dates are local, held at noon so daylight saving never moves a day.
-
 /** The same day at noon. */
 export function startOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12);

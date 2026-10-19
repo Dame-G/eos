@@ -26,7 +26,6 @@ const props = defineProps<{
   id?: string;
 }>();
 
-/** The number, formatted. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
@@ -49,16 +48,13 @@ const shown = computed(() => formatPhone(model.value));
 
 async function onInput(value: string) {
   model.value = formatPhone(value);
-  // When the formatted text did not change, the model did not either, so put the formatted text back into the input.
   await nextTick();
   const el = field.value?.input;
   if (el && el.value !== shown.value) el.value = shown.value;
 }
 
 defineExpose({
-  /** The `<input>` element. */
   input: computed(() => field.value?.input ?? null),
-  /** Puts the cursor in the input. */
   focus: () => field.value?.focus(),
 });
 </script>
@@ -86,7 +82,6 @@ defineExpose({
 
 <style>
 @layer e.composites {
-  /* Digits line up as they are grouped. */
   .e-phone .e-input {
     font-variant-numeric: tabular-nums;
   }

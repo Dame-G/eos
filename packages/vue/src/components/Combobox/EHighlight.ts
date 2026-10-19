@@ -1,12 +1,9 @@
 import { defineComponent, h } from "vue";
 
-/** Shows `text` with the first match of `query` marked, as the reference does while people type. */
 export default defineComponent({
   name: "EHighlight",
   props: {
-    /** The text to show. */
     text: { type: String, required: true },
-    /** The lower-case text people typed. The first match in `text` is marked. */
     query: { type: String, required: true },
   },
   setup(props) {

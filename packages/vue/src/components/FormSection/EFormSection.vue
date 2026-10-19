@@ -10,7 +10,7 @@ const props = withDefaults(
     /** A short line under the title. */
     description?: string;
     /** The heading element, 1 to 4. */
-    headingLevel?: 1 | 2 | 3 | 4;
+    headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     /** Space between the fields: a space token number (1, 2, 3, 4, 6, 8) or any CSS length. */
     gap?: number | string;
     /** The id of the heading; the section is labelled by it. Generated when left out. */

@@ -46,11 +46,8 @@ const emit = defineEmits<{
   clear: [];
 }>();
 
-/** The chosen day (single mode). */
 const value = defineModel<Date | null>({ default: null });
-/** The first day of the span (range mode). */
 const start = defineModel<Date | null>("start", { default: null });
-/** The last day of the span (range mode). */
 const end = defineModel<Date | null>("end", { default: null });
 
 type View = "days" | "months" | "years";
@@ -62,7 +59,6 @@ const uid = useUid();
 const root = ref<HTMLElement | null>(null);
 const range = computed(() => props.mode === "range");
 const instance = getCurrentInstance();
-/** Read at render, so a listener added later counts. */
 const hasClear = () => props.clearable ?? !!instance?.vnode.props?.onClear;
 
 const today = startOfDay(new Date());
@@ -102,7 +98,6 @@ function clamp(d: Date): Date {
   if (props.max && compareDays(d, props.max) > 0) return startOfDay(props.max);
   return d;
 }
-/** The nearest day that can be chosen, walking `step` days at a time. `null` when there is none. */
 function settle(d: Date, step: number): Date | null {
   let n = d;
   for (let i = 0; i < 400 && off(n); i++) n = addDays(n, step);
@@ -113,10 +108,8 @@ function withMonthYear(y: number, m: number): Date {
   return clamp(new Date(y, m, Math.min(focus.value.getDate(), last), 12));
 }
 
-// A day that cannot be chosen is never the one the Tab key lands on.
 if (off(focus.value)) focus.value = settle(focus.value, 1) ?? settle(focus.value, -1) ?? focus.value;
 
-// Focus moves after the DOM has the element: remember the id, then focus it once rendered.
 let want: string | null = null;
 async function focusWanted() {
   await nextTick();
@@ -214,7 +207,6 @@ function backToDays() {
   view.value = "days";
   focusId(dayId(focus.value));
 }
-/** One button opens the years, a year opens its months, a month opens its days. Back goes up one step. */
 function back() {
   if (view.value === "months") openView("years");
   else backToDays();
@@ -238,7 +230,6 @@ function step(n: number) {
   focus.value = clamp(addMonths(focus.value, n));
 }
 
-/** -1 when the grid runs right to left, so ArrowRight still means "to the right". */
 function sign(): number {
   if (config.dir) return config.dir === "rtl" ? -1 : 1;
   return root.value && getComputedStyle(root.value).direction === "rtl" ? -1 : 1;
@@ -333,7 +324,6 @@ function onPickKey(e: KeyboardEvent) {
   focusId(`${uid.value}-${months ? "m" : "y"}-${next}`);
 }
 
-/** Escape goes up one level; from the days it is left to whoever holds the calendar (a popup closes). */
 function onRootKey(e: KeyboardEvent) {
   if (e.key !== "Escape" || view.value === "days") return;
   e.preventDefault();
@@ -367,9 +357,7 @@ const nowYear = today.getFullYear();
 const nowMonth = today.getMonth();
 
 defineExpose({
-  /** Which step is showing: the days, the months of a year, or the years. */
   view,
-  /** Focuses the day the keyboard is on. */
   focusDay: () => focusId(dayId(focus.value)),
 });
 </script>
@@ -504,9 +492,9 @@ defineExpose({
       </button>
     </div>
 
-    <p v-if="help" class="e-cal-help" aria-live="polite">{{ help }}</p>
+    <p v-if="range" class="e-cal-help" aria-live="polite">{{ help }}</p>
 
-    <EActions v-if="footer && view === 'days'" class="e-cal-foot">
+    <EActions v-if="footer" class="e-cal-foot" :class="view !== 'days' && 'e-cal-foot--idle'" :inert="view !== 'days'">
       <EButton variant="quiet" @click="goToday">{{ t("today") }}</EButton>
       <EButton v-if="hasClear()" variant="quiet" @click="emit('clear')">{{ t("clear") }}</EButton>
     </EActions>
@@ -599,6 +587,7 @@ defineExpose({
 
   .e-cal-grid {
     width: 100%;
+    height: 312px;
     border-collapse: collapse;
     table-layout: fixed;
   }
@@ -642,7 +631,7 @@ defineExpose({
 
   .e-day:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: -2px;
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-day--out {
@@ -671,7 +660,7 @@ defineExpose({
   .e-day--mark::after {
     content: "";
     position: absolute;
-    left: 50%;
+    inset-inline-start: 50%;
     bottom: 5px;
     width: 5px;
     height: 5px;
@@ -689,12 +678,11 @@ defineExpose({
     grid-template-columns: repeat(3, 1fr);
     grid-auto-rows: 1fr;
     gap: 6px;
-    min-height: 312px;
+    height: 312px;
     padding-top: 4px;
   }
 
   .e-cal-years {
-    max-height: 312px;
     overflow-y: auto;
     grid-auto-rows: 44px;
     padding-inline-end: 2px;
@@ -728,7 +716,7 @@ defineExpose({
 
   .e-cal-cell:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: -2px;
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-cal-cell:disabled {
@@ -745,6 +733,7 @@ defineExpose({
   }
 
   .e-cal-help {
+    min-height: calc(var(--e-text-sm) * 1.4);
     margin: var(--e-space-2) 0 0;
     font: 500 var(--e-text-sm) / 1.4 var(--e-font-sans);
     color: var(--e-muted);
@@ -759,6 +748,10 @@ defineExpose({
     margin-top: var(--e-space-2);
     padding-top: var(--e-space-2);
     border-top: var(--e-stroke-hair) solid var(--e-border);
+  }
+
+  .e-cal-foot--idle {
+    visibility: hidden;
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -5,7 +5,6 @@ import { render } from "vitest-browser-vue";
 import EAvatar from "./EAvatar.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
-// A 1 x 1 transparent GIF that always loads.
 const PIXEL = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 
 describe("EAvatar", () => {

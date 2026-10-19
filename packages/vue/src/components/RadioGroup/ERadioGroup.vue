@@ -38,7 +38,6 @@ defineSlots<{
   reveal(props: { option: RadioOption }): unknown;
 }>();
 
-/** The chosen option's value. */
 const model = defineModel<string>();
 
 const name = useUid(() => props.name);
@@ -52,7 +51,6 @@ function hasContent(nodes: VNode[]): boolean {
   );
 }
 
-/** One row per option, with the revealed nodes of the chosen option when the slot gives it any. */
 function rows() {
   return normalised().map((option) => {
     const chosen = model.value === option.value;

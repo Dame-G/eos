@@ -14,7 +14,6 @@ defineSlots<{
   default(): unknown;
 }>();
 
-/** Whether the button is pressed. */
 const model = defineModel<boolean>({ default: false });
 </script>
 
@@ -33,10 +32,12 @@ const model = defineModel<boolean>({ default: false });
 
 <style>
 @layer e.composites {
-  .e-toggle[aria-pressed="true"] {
+  .e-toggle[aria-pressed="true"],
+  .e-toggle[aria-pressed="true"]:hover {
+    border-color: var(--e-primary);
     background: var(--e-surface-tint);
     color: var(--e-primary);
-    box-shadow: inset 0 0 0 2px var(--e-primary);
+    box-shadow: inset 0 0 0 1px var(--e-primary);
   }
 
   @media (forced-colors: active) {

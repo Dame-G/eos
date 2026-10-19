@@ -1,5 +1,3 @@
-// Builds the tokens package with plain node, so sibling packages can call it without a package manager on the PATH:
-// generate src/generated, compile to dist, emit dist/tokens.css.
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";

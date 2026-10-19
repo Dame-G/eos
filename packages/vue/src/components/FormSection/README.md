@@ -1,6 +1,6 @@
 # EFormSection
 
-A titled section of a longer form, with a short description. A form of more than about six fields should be sections, each answering one question ("Your details", "How you will pay"), or steps of a Stepper.
+A titled section of a longer form. Split forms of more than about six fields into sections that each answer one question.
 
 ```vue
 <EFormSection title="Your details" description="As they appear on your card.">
@@ -11,17 +11,22 @@ A titled section of a longer form, with a short description. A form of more than
 
 ## Props
 
-| Prop           | Type               | Notes                                                                      |
-| -------------- | ------------------ | -------------------------------------------------------------------------- |
-| `title`        | `string`           | Required. The question the section answers.                                |
-| `description`  | `string`           | A short line under the title.                                              |
-| `headingLevel` | `1 \| 2 \| 3 \| 4` | The heading element. Default 2.                                            |
-| `gap`          | `number \| string` | Space between the fields: a space token number or a CSS length. Default 4. |
-| `id`           | `string`           | The heading's id. Generated when left out.                                 |
+| Prop           | Type                         | Default   | Notes                                                     |
+| -------------- | ---------------------------- | --------- | --------------------------------------------------------- |
+| `title`        | `string`                     |           | Required. The question the section answers.               |
+| `description`  | `string`                     |           | Short line under the title.                               |
+| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `2`       | Heading level of the title.                               |
+| `gap`          | `number \| string`           | `4`       | Space between fields: a space token number or CSS length. |
+| `id`           | `string`                     | generated | The heading's id.                                         |
 
-Slot: the fields (default), spaced evenly with `EStack`. `class` and other attributes land on the `<section>`.
+`class`, `style` and attributes land on the `section` element.
 
-## Rules
+## Slots
 
-- A `section` labelled by its heading, so it is a landmark region for screen readers.
-- Sections after the first are ruled apart with a hairline and `space-6` of padding; the first has neither.
+| Slot      | Use                               |
+| --------- | --------------------------------- |
+| `default` | The fields, spaced with `EStack`. |
+
+## Accessibility
+
+- A `section` labelled by its heading, so it is a landmark region.

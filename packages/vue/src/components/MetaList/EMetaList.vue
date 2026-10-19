@@ -18,7 +18,6 @@ const props = defineProps<{
 
 const shown = computed(() => props.items.filter((it): it is MetaItem => Boolean(it)));
 
-/** Renders a string or VNode given as data. */
 const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["value"] });
 </script>
 

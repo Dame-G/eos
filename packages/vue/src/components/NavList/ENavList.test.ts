@@ -45,7 +45,7 @@ describe("ENavList", () => {
     expect(current[0]!.textContent).toContain("Pay a bill");
     const cs = getComputedStyle(current[0]!);
     expect(cs.fontWeight).toBe("600");
-    expect(cs.boxShadow).not.toBe("none");
+    expect(parseFloat(cs.borderTopWidth)).toBeGreaterThan(parseFloat(cs.borderBottomWidth));
   });
 
   test("rows are control height and the count is a pill", async () => {
@@ -111,6 +111,28 @@ describe("ENavList", () => {
     );
     expect(container.querySelector("nav")!.classList.contains("e-nav--dense")).toBe(true);
     await expectNoViolations(container);
+  });
+
+  test("horizontal lays the links in a row with a bar under the current page", async () => {
+    const { container } = await render(ENavList, { props: { items, orientation: "horizontal" } });
+    const nav = container.querySelector("nav")!;
+    expect(nav.classList.contains("e-nav--horizontal")).toBe(true);
+    expect(getComputedStyle(container.querySelector("ul")!).display).toBe("flex");
+    const links = [...container.querySelectorAll<HTMLElement>("a")];
+    expect(links[0]!.getBoundingClientRect().top).toBe(links[1]!.getBoundingClientRect().top);
+    expect(links[0]!.getBoundingClientRect().height).toBe(40);
+    const current = getComputedStyle(container.querySelector("[aria-current]")!);
+    expect(current.fontWeight).toBe("600");
+    expect(current.boxShadow).toContain("3px");
+    expect(getComputedStyle(links[0]!).boxShadow).toContain("2px");
+    await expectNoViolations(container);
+  });
+
+  test("horizontal composes with dense for a shorter row, and vertical is the default", async () => {
+    const { container } = await render(ENavList, { props: { items, orientation: "horizontal", dense: true } });
+    expect(container.querySelector("a")!.getBoundingClientRect().height).toBe(36);
+    const other = await render(ENavList, { props: { items } });
+    expect(other.container.querySelector("nav")!.classList.contains("e-nav--horizontal")).toBe(false);
   });
 
   test("has no accessibility violations", async () => {

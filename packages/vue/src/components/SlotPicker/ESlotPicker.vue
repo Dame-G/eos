@@ -33,7 +33,6 @@ const props = defineProps<{
   name?: string;
 }>();
 
-/** The chosen time's value, or `null` when none is chosen. */
 const model = defineModel<string | null>({ default: null });
 
 const t = useMessages();
@@ -130,9 +129,11 @@ const options = computed<SlotOption[]>(() =>
   .e-slot-input:checked + .e-slot-text {
     background: var(--e-primary);
     border-color: var(--e-primary);
+    border-bottom-color: color-mix(in srgb, var(--e-primary) 70%, #000);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
+    padding-top: var(--e-depth);
     color: var(--e-on-primary);
     font-weight: 600;
-    box-shadow: inset 0 -2px 0 0 rgb(0 0 0 / 0.3);
   }
 
   .e-slot-input:focus-visible + .e-slot-text {

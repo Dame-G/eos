@@ -1,6 +1,6 @@
 # EText
 
-Running text in three sizes, capped at 62 characters wide.
+Running text in three sizes, capped at a readable line length.
 
 ```vue
 <EText variant="deck">You paid in full on 3 September.</EText>
@@ -9,21 +9,20 @@ Running text in three sizes, capped at 62 characters wide.
 
 ## Props
 
-| Prop      | Type                          | Default  | Notes                                                                               |
-| --------- | ----------------------------- | -------- | ----------------------------------------------------------------------------------- |
-| `variant` | `"body" \| "deck" \| "small"` | `"body"` | `body` 16px, `deck` 18px for the one-sentence reading of a statement, `small` 14px. |
-| `muted`   | `boolean`                     | unset    | Secondary copy, in the muted colour.                                                |
-| `as`      | `string`                      | `"p"`    | The element to render.                                                              |
+| Prop      | Type                          | Default | Notes                                   |
+| --------- | ----------------------------- | ------- | --------------------------------------- |
+| `variant` | `"body" \| "deck" \| "small"` | `body`  | `body` 16px, `deck` 18px, `small` 14px. |
+| `muted`   | `boolean`                     |         | Secondary copy in the muted colour.     |
+| `as`      | `string`                      | `p`     | The element to render.                  |
+
+`class`, `style` and attributes land on the rendered element. The line length is the `--e-measure` token.
 
 ## Slots
 
-| Slot      | What      |
+| Slot      | Use       |
 | --------- | --------- |
 | `default` | The text. |
 
-Native attributes land on the rendered element.
+## Accessibility
 
-## Rules
-
-- The measure is a token (`--e-measure`), so a theme can change it.
-- Muted text still meets contrast; do not use it for anything a person must act on.
+- Muted text meets contrast but should not carry anything a person must act on.

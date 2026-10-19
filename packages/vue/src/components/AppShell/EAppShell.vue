@@ -49,7 +49,7 @@ const t = useMessages();
     display: grid;
     grid-template-rows: auto 1fr auto;
     min-height: 100%;
-    background: var(--e-surface);
+    background: var(--e-background);
   }
 
   .e-shell-body {

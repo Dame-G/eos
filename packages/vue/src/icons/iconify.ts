@@ -1,4 +1,3 @@
-// The only file in Eos that imports @iconify/vue, which is an optional peer dependency.
 import { defineComponent, h, type Component } from "vue";
 import { Icon } from "@iconify/vue";
 import { iconifyAliases, iconifyBoldSuffix } from "./aliases.js";
@@ -13,7 +12,6 @@ export interface IconifyOptions {
   boldSuffix?: string | false;
 }
 
-// One component per full icon name, so a name resolves to the same component every time and Vue can patch it.
 const components = new Map<string, Component>();
 
 function iconComponent(icon: string): Component {

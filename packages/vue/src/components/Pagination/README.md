@@ -1,6 +1,6 @@
 # EPagination
 
-Paging through a long list.
+Previous, Next and page-number buttons for paging through a long list.
 
 ```vue
 <EPagination v-model="page" :page-count="12" />
@@ -8,16 +8,14 @@ Paging through a long list.
 
 ## Props
 
-| Prop        | Type     | Notes                                                   |
-| ----------- | -------- | ------------------------------------------------------- |
-| `v-model`   | `number` | The current page, from 1. Leave it off for local state. |
-| `pageCount` | `number` | Required. How many pages there are.                     |
+| Prop         | Type     | Default | Notes                               |
+| ------------ | -------- | ------- | ----------------------------------- |
+| `modelValue` | `number` | `1`     | v-model: current page, from 1.      |
+| `pageCount`  | `number` |         | Required. How many pages there are. |
 
-`class`, `style` and other attributes land on the `<nav>`. Pass `aria-label` to tell two pagers on a page apart.
+`class`, `style` and attributes land on the `nav` element. It shows first, last and neighbouring pages with ellipses; under 32rem only Previous and Next remain. Hidden in print.
 
-## Rules
+## Accessibility
 
-- A `nav` named "Pagination". The current page has `aria-current="page"`; every number is named "Page N".
-- Shows the first, last and neighbouring pages with ellipses (hidden from screen readers). A gap that would hide a single page shows that page instead.
-- Previous and Next are outline Buttons and disable at the ends. On a narrow screen (under 32rem) only Previous and Next remain.
-- Hidden when printed.
+- A `nav` named "Pagination"; pass `aria-label` to tell two pagers apart.
+- The current page has `aria-current="page"`; each number is named "Page N".

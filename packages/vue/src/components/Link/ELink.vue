@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import EIcon from "../Icon/EIcon.vue";
+import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
 defineProps<{
@@ -6,6 +8,8 @@ defineProps<{
   href: string;
   /** Opens in a new tab. */
   external?: boolean;
+  /** An icon before the text: a built-in name, a name from your icon set, or an icon component. */
+  icon?: IconProp;
 }>();
 
 defineSlots<{
@@ -15,7 +19,14 @@ defineSlots<{
 </script>
 
 <template>
-  <a class="e-link" :href="href" :target="external ? '_blank' : undefined" :rel="external ? 'noreferrer' : undefined">
+  <a
+    class="e-link"
+    :class="icon && 'e-link--icon'"
+    :href="href"
+    :target="external ? '_blank' : undefined"
+    :rel="external ? 'noreferrer' : undefined"
+  >
+    <EIcon v-if="icon" :name="icon" />
     <slot />
   </a>
 </template>
@@ -40,6 +51,17 @@ defineSlots<{
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: var(--e-focus-gap);
     border-radius: var(--e-radius-sm);
+  }
+
+  .e-link--icon {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--e-space-2);
+  }
+
+  .e-link--icon .e-icon {
+    width: 1.25em;
+    height: 1.25em;
   }
 
   @media print {

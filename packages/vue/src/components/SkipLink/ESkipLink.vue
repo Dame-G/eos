@@ -18,7 +18,6 @@ defineSlots<{
 
 const t = useMessages();
 
-// Following the link scrolls to the target; this also moves keyboard focus into it, which not every browser does for a target that is not a control.
 async function go(event: MouseEvent) {
   if (event.defaultPrevented || !props.href.startsWith("#") || props.href.length < 2) return;
   await nextTick();

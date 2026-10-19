@@ -1,6 +1,6 @@
 # EDetailRow
 
-A labelled detail from the account (name, email, phone, address) with a quiet Edit button.
+A labelled account detail (name, email, phone) with a quiet Edit button. Stack several inside an `EPanel`.
 
 ```vue
 <EPanel title="Contact">
@@ -11,28 +11,27 @@ A labelled detail from the account (name, email, phone, address) with a quiet Ed
 
 ## Props
 
-| Prop       | Type       | Notes                                                                        |
-| ---------- | ---------- | ---------------------------------------------------------------------------- |
-| `label`    | `string`   | What the detail is. Required. Names the Edit button.                         |
-| `status`   | `string`   | A word in a chip after the value, such as "Verified".                        |
-| `tone`     | `ChipTone` | The chip's tone.                                                             |
-| `editable` | `boolean`  | Forces the Edit button on or off. Left out, it follows the `@edit` listener. |
+| Prop       | Type       | Default         | Notes                                                 |
+| ---------- | ---------- | --------------- | ----------------------------------------------------- |
+| `label`    | `string`   |                 | Required. What the detail is; names the Edit button.  |
+| `status`   | `string`   |                 | A word in a chip after the value, such as "Verified". |
+| `tone`     | `ChipTone` |                 | The chip's tone.                                      |
+| `editable` | `boolean`  | follows `@edit` | Forces the Edit button on or off.                     |
 
-## Slots and events
+`class`, `style` and attributes land on the `div` element. The messages `edit` and `editItem` ("Edit {label}") are configurable.
 
-| Name      | Use                                                                                                                                                         |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `default` | The value.                                                                                                                                                  |
-| `@edit`   | Pressing Edit. The button appears when something listens for `edit`, checked on every render, so a listener added later counts. Set `editable` to override. |
+## Slots
 
-The words come from the messages `edit` ("Edit") and `editItem` ("Edit {label}"). Until the catalogue has them the English wording is used.
+| Slot      | Use        |
+| --------- | ---------- |
+| `default` | The value. |
+
+## Events
+
+| Event  | Payload | Notes                                                                                                |
+| ------ | ------- | ---------------------------------------------------------------------------------------------------- |
+| `edit` |         | The Edit button was pressed. The button shows only when something listens, unless `editable` is set. |
 
 ## Accessibility
 
-- The Edit button is labelled "Edit {label}" for screen readers, so several rows do not all say "Edit".
-- Tab reaches Edit; Enter and Space fire `edit`.
-
-## Rules
-
-- Stack them inside an EPanel. On a phone the value takes the full width and the chip and Edit sit beneath.
-- A long value wraps inside its column.
+- The Edit button is named "Edit {label}", so several rows do not all say "Edit".

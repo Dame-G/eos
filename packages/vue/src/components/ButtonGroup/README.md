@@ -1,6 +1,6 @@
 # EButtonGroup
 
-Buttons that belong together, side by side, announced as one labelled group.
+Buttons that belong together, side by side, announced as one labelled group. Use `ESegmented` for one choice from several.
 
 ```vue
 <EButtonGroup label="Record actions">
@@ -11,13 +11,20 @@ Buttons that belong together, side by side, announced as one labelled group.
 
 ## Props
 
-| Prop    | Type     | Notes                                                      |
-| ------- | -------- | ---------------------------------------------------------- |
-| `label` | `string` | Required. What the group is for; names the `role="group"`. |
+| Prop    | Type     | Default | Notes                                                      |
+| ------- | -------- | ------- | ---------------------------------------------------------- |
+| `label` | `string` |         | Required. What the group is for; names the `role="group"`. |
 
-Slot: the buttons (default). `class`, `style` and other attributes land on the group.
+`class`, `style` and attributes land on the `div` element.
 
-## Rules
+## Slots
 
-- The buttons sit in a row with `space-2` between them and wrap when there is no room.
-- For a choice of one from several, use `ESegmented`. For independent on-off options, use `EToggle`s in a group.
+| Slot      | Use          |
+| --------- | ------------ |
+| `default` | The buttons. |
+
+## Accessibility
+
+- Renders `role="group"` with `aria-label` set from `label`, so a screen reader announces the group name when focus enters it.
+- It adds no keyboard behaviour: every button stays its own tab stop and works with Enter and Space.
+- Each button needs its own accessible name; the group label does not replace it.

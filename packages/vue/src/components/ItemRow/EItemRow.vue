@@ -31,7 +31,6 @@ defineSlots<{
 }>();
 
 const inList = inject(ITEM_LIST_KEY, false);
-/** The row as it is when it sits in a list, wrapped in one when it stands alone. */
 const Frame: FunctionalComponent = (_props, { slots }) =>
   inList ? slots.default?.() : h(EItemList, null, { default: () => slots.default?.() });
 </script>

@@ -36,7 +36,6 @@ const status = computed(() => (props.error ? "error" : props.state || "ready"));
 const mount = ref<HTMLDivElement | null>(null);
 
 defineExpose({
-  /** The mount point: pass it to the payment provider to mount its hosted fields. */
   mount,
 });
 </script>

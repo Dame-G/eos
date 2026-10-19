@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import EIcon from "../Icon/EIcon.vue";
 import EButton from "../Button/EButton.vue";
+import { ref } from "vue";
 import { useMessages } from "../../config.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import "../../styles/base.css";
@@ -8,29 +9,46 @@ import "../TextField/input.css";
 
 defineOptions({ inheritAttrs: false });
 
-defineProps<{
-  /** What screen readers call the box. Default "Search". */
-  label?: string;
-  /** Say what can be searched, briefly. Default "Search". */
-  placeholder?: string;
-  /** The text on the button. Default "Search". */
-  action?: string;
-  /** The name submitted with a form. Default `q`. */
-  name?: string;
-  /** Search is unavailable. Say why in a Notice. */
-  disabled?: boolean;
-}>();
+withDefaults(
+  defineProps<{
+    /** What screen readers call the box. Default "Search". */
+    label?: string;
+    /** Say what can be searched, briefly. Default "Search". */
+    placeholder?: string;
+    /** The text on the button. Default "Search". */
+    action?: string;
+    /** Leaves out the button, for a box that filters or searches as you type. Enter still submits. */
+    hideAction?: boolean;
+    /** The clear button, shown when there is text. On by default. */
+    clearable?: boolean;
+    /** The name submitted with a form. Default `q`. */
+    name?: string;
+    /** Search is unavailable. Say why in a Notice. */
+    disabled?: boolean;
+  }>(),
+  { clearable: true },
+);
 
 const emit = defineEmits<{
   /** The person pressed Enter or the button. */
   submit: [value: string];
 }>();
 
-/** The text in the box. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
 const attrs = useFieldAttrs();
+const box = ref<HTMLInputElement | null>(null);
+
+function clear() {
+  model.value = "";
+  box.value?.focus();
+}
+
+defineExpose({
+  input: box,
+  focus: () => box.value?.focus(),
+});
 </script>
 
 <template>
@@ -43,6 +61,7 @@ const attrs = useFieldAttrs();
   >
     <span class="e-search-lead"><EIcon name="search" /></span>
     <input
+      ref="box"
       v-bind="attrs.input()"
       class="e-input"
       :name="name || 'q'"
@@ -52,7 +71,17 @@ const attrs = useFieldAttrs();
       :disabled="disabled"
       @input="model = ($event.target as HTMLInputElement).value"
     />
-    <EButton type="submit" :disabled="disabled">{{ action || t("search") }}</EButton>
+    <button
+      v-if="clearable && model && !disabled"
+      type="button"
+      class="e-search-clear"
+      :aria-label="t('clear')"
+      @mousedown.prevent
+      @click="clear"
+    >
+      <EIcon name="x" />
+    </button>
+    <EButton v-if="!hideAction" type="submit" :disabled="disabled">{{ action || t("search") }}</EButton>
   </form>
 </template>
 
@@ -86,6 +115,43 @@ const attrs = useFieldAttrs();
     content: "";
     position: absolute;
     inset: -3px;
+  }
+
+  .e-search-clear {
+    display: inline-grid;
+    place-items: center;
+    position: relative;
+    flex: none;
+    width: calc(var(--e-control-height) - 9px);
+    height: calc(var(--e-control-height) - 9px);
+    padding: 0;
+    border: 0;
+    border-radius: var(--e-radius-sm);
+    background: transparent;
+    color: var(--e-ink);
+    cursor: pointer;
+    transition: background-color var(--e-duration-tap) var(--e-easing-out);
+  }
+
+  .e-search-clear::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+  }
+
+  .e-search-clear:hover {
+    background: var(--e-wash-hover);
+    box-shadow: inset 0 0 0 1px var(--e-wash-ring);
+  }
+
+  .e-search-clear:active {
+    background: var(--e-wash-press);
+    box-shadow: inset 0 0 0 1.5px var(--e-ink);
+  }
+
+  .e-search-clear:focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-search-lead {

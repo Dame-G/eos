@@ -1,9 +1,8 @@
 # ESegmented
 
-A joined set of two to five options where exactly one is active. Use it to switch how a list is filtered or shown; use Tabs to switch between different content. It is a radio group underneath, so arrow keys work.
+A joined set of two to five options where exactly one is active. Use it to change how a list is filtered or shown, not to switch content.
 
 ```vue
-<ESegmented v-model="range" label="Show" :options="['Day', 'Week', 'Month']" />
 <ESegmented
   v-model="view"
   label="View"
@@ -17,21 +16,19 @@ A joined set of two to five options where exactly one is active. Use it to switc
 
 ## Props
 
-| Prop       | Type                            | Notes                                                               |
-| ---------- | ------------------------------- | ------------------------------------------------------------------- |
-| `v-model`  | `string`                        | The active value. The first option is active when nothing is bound. |
-| `label`    | `string`                        | Required. Read by screen readers as the group's name.               |
-| `options`  | `(string \| SegmentedOption)[]` | `SegmentedOption` is `{ value, label, icon?, disabled? }`.          |
-| `hint`     | `string`                        | Under the control, linked with `aria-describedby`.                  |
-| `error`    | `string`                        | Replaces the hint, announced.                                       |
-| `disabled` | `boolean`                       | Disables every option.                                              |
-| `name`     | `string`                        | Shared by the radios. Generated when left out.                      |
+| Prop         | Type                            | Default      | Notes                                                                                                  |
+| ------------ | ------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------ |
+| `modelValue` | `string`                        | first option | v-model: the active value.                                                                             |
+| `label`      | `string`                        |              | Required. Names the group.                                                                             |
+| `options`    | `(string \| SegmentedOption)[]` |              | Required. `SegmentedOption` is `{ value, label, icon?, disabled? }`; a string is both value and label. |
+| `hint`       | `string`                        |              | Under the control.                                                                                     |
+| `error`      | `string`                        |              | Replaces the hint, announced.                                                                          |
+| `disabled`   | `boolean`                       |              | Disables every option.                                                                                 |
+| `name`       | `string`                        | generated    | Shared by the radios; submitted with a form.                                                           |
 
-`class` and `style` stay on the outer element; other attributes land on the `role="radiogroup"` element.
+`class` and `style` land on the outer element; other attributes land on the `radiogroup` element.
 
-## Rules
+## Accessibility
 
-- The active option is filled with `primary` and bold, with white text. Forced colours use `Highlight`.
-- The control is 48px tall and as wide as its content (`fit-content`, capped at the container).
-- With a hint or error the control sits in `.e-seg-field` with the message 8px under it.
-- Export: `SegmentedOption` type.
+- A radio group: arrow keys move between options.
+- `label` is the group's accessible name.

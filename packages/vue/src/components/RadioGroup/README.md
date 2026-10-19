@@ -1,6 +1,6 @@
 # ERadioGroup
 
-Exactly one of five or fewer options. It is a bare `EFieldset`: the legend, hint and error are announced with the group. Arrow keys move between options (native radios sharing one `name`).
+Exactly one of five or fewer options. Use `ESelect` for more.
 
 ```vue
 <ERadioGroup
@@ -19,30 +19,27 @@ Exactly one of five or fewer options. It is a bare `EFieldset`: the legend, hint
 
 ## Props
 
-| Prop       | Type                        | Notes                                                                                           |
-| ---------- | --------------------------- | ----------------------------------------------------------------------------------------------- |
-| `v-model`  | `string`                    | The chosen value. Leave it off for local state.                                                 |
-| `label`    | `string`                    | Required. The legend.                                                                           |
-| `options`  | `(string \| RadioOption)[]` | A string is both value and label. `RadioOption` is `{ value, label, description?, disabled? }`. |
-| `hint`     | `string`                    | Announced with the group.                                                                       |
-| `error`    | `string`                    | Replaces the hint, announced.                                                                   |
-| `required` | `boolean`                   | The word "Required" and `required` on the radios.                                               |
-| `optional` | `boolean`                   | The word "Optional".                                                                            |
-| `disabled` | `boolean`                   | Disables every option.                                                                          |
-| `name`     | `string`                    | Shared by the radios, submitted with a form. Generated when left out.                           |
+| Prop         | Type                        | Default   | Notes                                                                                                   |
+| ------------ | --------------------------- | --------- | ------------------------------------------------------------------------------------------------------- |
+| `modelValue` | `string`                    |           | v-model: the chosen value.                                                                              |
+| `label`      | `string`                    |           | Required. The legend.                                                                                   |
+| `options`    | `(string \| RadioOption)[]` |           | Required. A string is both value and label. `RadioOption`: `{ value, label, description?, disabled? }`. |
+| `hint`       | `string`                    |           | Announced with the group.                                                                               |
+| `error`      | `string`                    |           | Replaces the hint.                                                                                      |
+| `required`   | `boolean`                   |           | The word "Required" and `required` on the radios.                                                       |
+| `optional`   | `boolean`                   |           | The word "Optional".                                                                                    |
+| `disabled`   | `boolean`                   |           | Disables every option.                                                                                  |
+| `name`       | `string`                    | generated | Shared by the radios, submitted with a form.                                                            |
 
-Other attributes and listeners (`class`, `style`, `@change`, `data-*`) land on the `<fieldset>`.
+`class`, `style`, attributes and listeners land on the `fieldset` element.
 
 ## Slots
 
-| Slot     | Props        | Notes                                                                                                                                                                          |
-| -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `reveal` | `{ option }` | A control shown under its option while that option is chosen. It is called for the chosen option only; render nothing for an option that has none and the option stays closed. |
+| Slot     | Use                                                                                                     |
+| -------- | ------------------------------------------------------------------------------------------------------- |
+| `reveal` | Receives `{ option }`; a control shown under the chosen option. Render nothing for options without one. |
 
-The chosen option gets `.e-choice--open` and the content sits in `.e-choice-reveal`, which spans the full width of the group, 4px under the option.
+## Accessibility
 
-## Rules
-
-- Five or fewer options. More is a select.
-- The hint and error sit 8px under the last radio.
-- Export: `RadioOption` type.
+- A `fieldset` whose legend, hint and error are announced with the group.
+- Native radios sharing one `name`: arrow keys move between options.

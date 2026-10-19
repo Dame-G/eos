@@ -1,5 +1,3 @@
-// Shared by check-css and css-parity: reads every stylesheet the library is written in
-// (the <style> block of each .vue file and src/styles/*.css) and flattens it into rules.
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, dirname } from "node:path";
 import { fileURLToPath } from "node:url";

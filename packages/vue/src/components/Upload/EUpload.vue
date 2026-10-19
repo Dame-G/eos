@@ -37,7 +37,6 @@ const emit = defineEmits<{
   files: [files: File[]];
 }>();
 
-/** The chosen files. */
 const model = defineModel<File[]>({ default: () => [] });
 
 const t = useMessages();
@@ -62,9 +61,7 @@ function onDrop(e: DragEvent) {
 }
 
 defineExpose({
-  /** The `<input type="file">` element. */
   input,
-  /** Moves focus to the file input. */
   focus: () => input.value?.focus(),
 });
 </script>

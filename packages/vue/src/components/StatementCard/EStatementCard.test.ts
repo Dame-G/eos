@@ -150,7 +150,7 @@ describe("EStatementCard", () => {
     expect(card.id).toBe("stmt-1");
   });
 
-  test("the amount sits at the end of the top line, right-aligned", async () => {
+  test("the amount leads the top line at the start and the stamp sits at the end", async () => {
     const at = (width: number) =>
       render(
         defineComponent({
@@ -161,8 +161,10 @@ describe("EStatementCard", () => {
     const wide = await at(640);
     const w = wide.container.querySelector(".e-stmt-top")!.getBoundingClientRect();
     const amount = wide.container.querySelector(".e-stmt-top .e-amount")!.getBoundingClientRect();
-    expect(Math.round(w.right - amount.right)).toBeLessThanOrEqual(1);
-    expect(getComputedStyle(wide.container.querySelector(".e-stmt-top .e-amount")!).textAlign).toBe("end");
+    const stamp = wide.container.querySelector(".e-stmt-top .e-stamp")!.getBoundingClientRect();
+    expect(Math.round(amount.left - w.left)).toBeLessThanOrEqual(1);
+    expect(Math.round(w.right - stamp.right)).toBeLessThanOrEqual(1);
+    expect(getComputedStyle(wide.container.querySelector(".e-stmt-top .e-amount")!).textAlign).toBe("start");
   });
 
   test("lays out in a Panel without overflowing at 320px", async () => {

@@ -1,6 +1,6 @@
 # EUpload
 
-A dropzone for attaching files. The whole area is the click target and a drop target; chosen files list below with their size. Say what is accepted and how large before the person tries.
+A dropzone for attaching files, clickable and droppable, listing the chosen files with their size.
 
 ```vue
 <EUpload v-model="files" label="Insurance card" accept=".pdf,.jpg,.png" multiple hint="Up to 5 MB each." />
@@ -9,31 +9,30 @@ A dropzone for attaching files. The whole area is the click target and a drop ta
 
 ## Props
 
-| Prop        | Type      | Notes                                                                         |
-| ----------- | --------- | ----------------------------------------------------------------------------- |
-| `v-model`   | `File[]`  | The chosen files. Leave it off for local state.                               |
-| `label`     | `string`  | Required.                                                                     |
-| `hideLabel` | `boolean` | Keeps the label for screen readers only.                                      |
-| `accept`    | `string`  | Extensions, such as `.pdf,.jpg`. Passed to the input and shown as "PDF, JPG". |
-| `multiple`  | `boolean` |                                                                               |
-| `name`      | `string`  | Submitted with a form.                                                        |
-| `hint`      | `string`  | Say what is accepted and how large.                                           |
-| `error`     | `string`  | Replaces the hint, marks the input invalid, announced.                        |
-| `required`  | `boolean` | The `required` attribute and the word "Required".                             |
-| `optional`  | `boolean` | The word "Optional".                                                          |
-| `disabled`  | `boolean` | Ignores drops and clicks and dims the edge.                                   |
-| `id`        | `string`  | The file input's id. Generated when left out.                                 |
+| Prop         | Type      | Default   | Notes                                                                         |
+| ------------ | --------- | --------- | ----------------------------------------------------------------------------- |
+| `modelValue` | `File[]`  | `[]`      | v-model: the chosen files.                                                    |
+| `label`      | `string`  |           | Required.                                                                     |
+| `hideLabel`  | `boolean` |           | Keeps the label for screen readers only.                                      |
+| `accept`     | `string`  |           | Extensions, such as `.pdf,.jpg`. Passed to the input and shown as "PDF, JPG". |
+| `multiple`   | `boolean` |           |                                                                               |
+| `name`       | `string`  |           | Submitted with a form.                                                        |
+| `hint`       | `string`  |           | Say what is accepted and how large before the person tries.                   |
+| `error`      | `string`  |           | Replaces the hint, marks the input invalid and is announced.                  |
+| `required`   | `boolean` |           | The `required` attribute and the word "Required".                             |
+| `optional`   | `boolean` |           | The word "Optional".                                                          |
+| `disabled`   | `boolean` |           | Ignores drops and clicks.                                                     |
+| `id`         | `string`  | generated | Id of the file input.                                                         |
+
+`class` and `style` land on the wrapper `div`; other attributes land on the `input type="file"` element. Exposes `input` and `focus()`.
 
 ## Events
 
-| Event   | Payload         | Notes                                                              |
-| ------- | --------------- | ------------------------------------------------------------------ |
-| `files` | `files: File[]` | The chosen or dropped files; the same list as `update:modelValue`. |
+| Event   | Payload         | Notes                                                    |
+| ------- | --------------- | -------------------------------------------------------- |
+| `files` | `files: File[]` | The chosen or dropped files, the same list as the model. |
 
-`class` and `style` stay on the wrapper; other attributes land on the `<input type="file">`. Exposed: `input` and `focus()`.
+## Accessibility
 
-## Rules
-
-- The visually hidden file input is the control: it takes focus with the keyboard and the dropzone draws the focus outline. The input's accessible name is the field label followed by the dropzone text, because both `<label>`s point at it.
-- Dragging over highlights the zone; a disabled upload ignores drops.
-- File sizes are shown in KB.
+- The visually hidden file input is the control and takes keyboard focus; its accessible name is the label followed by the dropzone text.
+- Say the accepted types and size limit in `hint`.

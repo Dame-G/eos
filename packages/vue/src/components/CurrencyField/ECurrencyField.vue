@@ -38,7 +38,6 @@ const props = defineProps<{
   id?: string;
 }>();
 
-/** The amount, or `null` when the field is empty. Round to the cent in code, not in the display. */
 const model = defineModel<number | null>({ default: null });
 
 const config = useConfig();
@@ -57,9 +56,7 @@ const symbol = computed(() => {
 });
 
 defineExpose({
-  /** The `<input>` element. */
   input: computed(() => field.value?.input ?? null),
-  /** Puts the cursor in the input. */
   focus: () => field.value?.focus(),
 });
 </script>
@@ -88,7 +85,6 @@ defineExpose({
 
 <style>
 @layer e.composites {
-  /* Digits line up under each other in a column of amounts. */
   .e-currency .e-input {
     font-variant-numeric: tabular-nums;
   }

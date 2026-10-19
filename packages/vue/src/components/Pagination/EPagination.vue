@@ -10,12 +10,10 @@ const props = defineProps<{
   pageCount: number;
 }>();
 
-/** The current page, from 1. */
 const page = defineModel<number>({ default: 1 });
 
 const t = useMessages();
 
-/** The first, last and neighbouring pages; a gap stands for the pages left out (a single hidden page is shown instead). */
 const items = computed<(number | "gap")[]>(() => {
   const list: (number | "gap")[] = [];
   for (let i = 1; i <= props.pageCount; i++) {

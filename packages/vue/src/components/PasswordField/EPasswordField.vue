@@ -16,6 +16,7 @@ import { focusInside } from "../../composables/focusInside.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
+import "../Combobox/combo.css";
 
 defineOptions({ inheritAttrs: false });
 
@@ -41,7 +42,6 @@ const props = defineProps<{
   id?: string;
 }>();
 
-/** The password. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
@@ -51,7 +51,6 @@ const shown = ref(false);
 
 const list = computed(() => props.rules ?? []);
 
-/** The input's own attributes, with the consumer's fall-through ones last. */
 function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }) {
   const describedby = [field.ariaDescribedby, list.value.length ? `${field.id}-rules` : ""].filter(Boolean).join(" ");
   return {
@@ -70,9 +69,7 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
 }
 
 defineExpose({
-  /** The `<input>` element. */
   input,
-  /** Puts the cursor in the input. */
   focus: () => input.value?.focus(),
 });
 </script>
@@ -122,48 +119,6 @@ defineExpose({
 
 <style>
 @layer e.composites {
-  .e-combo-btn {
-    display: inline-grid;
-    place-items: center;
-    position: relative;
-    flex: none;
-    width: calc(var(--e-control-height) - 9px);
-    height: calc(var(--e-control-height) - 9px);
-    padding: 0;
-    border: 0;
-    border-radius: var(--e-radius-sm);
-    background: transparent;
-    color: var(--e-ink);
-    cursor: pointer;
-    transition: background-color var(--e-duration-tap) var(--e-easing-out);
-  }
-
-  .e-combo-btn::after {
-    content: "";
-    position: absolute;
-    inset: -5px;
-  }
-
-  .e-combo-btn:hover:not(:disabled) {
-    background: var(--e-wash-hover);
-    box-shadow: inset 0 0 0 1px var(--e-wash-ring);
-  }
-
-  .e-combo-btn:active:not(:disabled) {
-    background: var(--e-wash-press);
-    box-shadow: inset 0 0 0 1.5px var(--e-ink);
-  }
-
-  .e-combo-btn:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: -2px;
-  }
-
-  .e-combo-btn:disabled {
-    color: var(--e-muted);
-    cursor: not-allowed;
-  }
-
   .e-rules {
     display: grid;
     gap: var(--e-space-1);
@@ -194,17 +149,6 @@ defineExpose({
     height: 14px;
     border: var(--e-stroke-edge) solid var(--e-border-strong);
     border-radius: 50%;
-  }
-
-  .e-input-wrap:not(.e-combo) > .e-combo-btn {
-    align-self: center;
-    margin-inline-end: var(--e-space-1);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-combo-btn {
-      transition: none;
-    }
   }
 }
 </style>

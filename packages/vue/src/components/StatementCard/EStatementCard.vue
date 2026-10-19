@@ -13,7 +13,7 @@ withDefaults(
   defineProps<
     StatementProps & {
       /** The heading level of the title, 1 to 4. */
-      headingLevel?: 1 | 2 | 3 | 4;
+      headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     }
   >(),
   { headingLevel: 3 },
@@ -30,8 +30,8 @@ const t = useMessages();
 <template>
   <ESurface as="article" class="e-stmt" pad="md">
     <div class="e-stmt-top">
-      <EStamp :status="status" :tone="tone" :label="label" :detail="detail" />
       <EAmount :label="amountLabel" :amount="amount" :details="details" :currency="currency" :locale="locale" />
+      <EStamp :status="status" :tone="tone" :label="label" :detail="detail" />
     </div>
     <div class="e-stmt-head">
       <component :is="`h${headingLevel}`" class="e-stmt-title">{{ title }}</component>
@@ -63,14 +63,8 @@ const t = useMessages();
     gap: var(--e-space-3) var(--e-space-4);
   }
 
-  .e-stmt-top .e-amount {
+  .e-stmt-top .e-stamp {
     margin-inline-start: auto;
-    text-align: end;
-    justify-items: end;
-  }
-
-  .e-stmt-top .e-amount-meta {
-    justify-content: flex-end;
   }
 
   .e-stmt-title {
@@ -93,14 +87,8 @@ const t = useMessages();
   }
 
   @media (max-width: 32rem) {
-    .e-stmt-top .e-amount {
+    .e-stmt-top .e-stamp {
       margin-inline-start: 0;
-      text-align: start;
-      justify-items: start;
-    }
-
-    .e-stmt-top .e-amount-meta {
-      justify-content: flex-start;
     }
   }
 

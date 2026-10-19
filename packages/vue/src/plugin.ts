@@ -23,6 +23,22 @@ export interface Eos {
 const isTheme = (t: Theme | ThemeInput): t is Theme => typeof (t as Theme).css === "function";
 
 /**
+ * The theme as CSS for the server. `createEos().install()` only applies the theme in a browser, so a server-rendered
+ * page paints unthemed until the client runs. Put this string in a `<style>` in the document head instead.
+ *
+ * ```ts
+ * const html = `<style>${themeCss({ brand: "#2c95b4" })}</style>`
+ * ```
+ *
+ * @param theme A theme from `defineTheme()`, or the same options. Default is the light theme.
+ * @param selector Element the tokens apply to. Default `:root`. Use the same `themeTarget` scope you pass to `createEos`.
+ */
+export function themeCss(theme?: Theme | ThemeInput, selector?: string): string {
+  const t = theme ? (isTheme(theme) ? theme : defineTheme(theme)) : defineTheme({ name: "light" });
+  return t.css(selector ? { selector } : undefined);
+}
+
+/**
  * Installs the library: provides the config (language, currency, direction, words, icons) and applies the theme.
  *
  * ```ts
@@ -60,7 +76,6 @@ export function createEos(options: EosOptions = {}): Eos {
       }
       const target = options.themeTarget ?? document.documentElement;
       theme.apply(target);
-      // The app owns `lang`; direction is only set when the app asks for it.
       watchEffect(() => {
         if (config.dir) target.setAttribute("dir", config.dir);
       });

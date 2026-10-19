@@ -26,7 +26,6 @@ const props = defineProps<{
   id?: string;
 }>();
 
-/** The colour as `#rrggbb`, lower case. Only a complete, valid colour is ever written to it. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
@@ -34,7 +33,6 @@ const attrs = useFieldAttrs();
 const input = ref<HTMLInputElement | null>(null);
 const swatchEl = ref<HTMLInputElement | null>(null);
 
-/** `#abc` and `abc` become `#aabbcc`; anything else is not a colour. */
 function normalize(raw: string): string | null {
   const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(raw.trim());
   if (!m) return null;
@@ -64,7 +62,6 @@ function onBlur() {
   if (hex) text.value = hex;
 }
 
-/** A click on the padding puts the cursor in the text input; the swatch keeps its own click. */
 function onWrapClick(e: MouseEvent) {
   if (e.target !== swatchEl.value && !props.disabled) input.value?.focus();
 }
@@ -75,9 +72,7 @@ function onPick(e: Event) {
 }
 
 defineExpose({
-  /** The text `<input>`. */
   input,
-  /** Puts the cursor in the text input. */
   focus: () => input.value?.focus(),
 });
 </script>
@@ -137,15 +132,15 @@ defineExpose({
   .e-colorfield {
     align-items: center;
     gap: var(--e-space-2);
-    padding-inline-start: var(--e-space-2);
+    padding-inline-start: var(--e-space-1);
   }
 
   .e-color-swatch {
     flex: none;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: calc(var(--e-control-height) - 2 * (var(--e-stroke-edge) + var(--e-space-1)));
+    height: calc(var(--e-control-height) - 2 * (var(--e-stroke-edge) + var(--e-space-1)));
     padding: 0;
-    border: var(--e-stroke-hair) solid var(--e-border-strong);
+    border: 0;
     border-radius: var(--e-radius-sm);
     background: none;
     cursor: pointer;
@@ -157,12 +152,14 @@ defineExpose({
 
   .e-color-swatch::-webkit-color-swatch {
     border: 0;
-    border-radius: calc(var(--e-radius-sm) - 1px);
+    border-radius: var(--e-radius-sm);
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) rgb(0 0 0 / 0.22);
   }
 
   .e-color-swatch::-moz-color-swatch {
     border: 0;
-    border-radius: calc(var(--e-radius-sm) - 1px);
+    border-radius: var(--e-radius-sm);
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) rgb(0 0 0 / 0.22);
   }
 
   .e-color-swatch:disabled {

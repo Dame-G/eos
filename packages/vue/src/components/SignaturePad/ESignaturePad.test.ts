@@ -5,7 +5,6 @@ import { render } from "vitest-browser-vue";
 import ESignaturePad from "./ESignaturePad.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
-/** Draws a short stroke with pointer events, as a finger or mouse would. */
 function draw(cv: HTMLCanvasElement) {
   const r = cv.getBoundingClientRect();
   const ev = (type: string, x: number, y: number) =>

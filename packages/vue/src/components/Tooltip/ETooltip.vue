@@ -3,7 +3,6 @@ import { TooltipContent, TooltipPortal, TooltipProvider, TooltipRoot, TooltipTri
 import { usePortalTarget } from "../../config.js";
 import "../../styles/base.css";
 
-// class, style and other attributes belong to the bubble; the trigger is the consumer's own element.
 defineOptions({ inheritAttrs: false });
 
 defineProps<{
@@ -17,10 +16,8 @@ defineSlots<{
 }>();
 
 const portal = usePortalTarget();
-/** Whether the tooltip is showing. */
 const open = defineModel<boolean>("open", { default: false });
 
-// The tooltip also shows while a finger is held on the control. It goes a moment after the finger lifts.
 let hold: ReturnType<typeof setTimeout> | undefined;
 function touchStart(e: PointerEvent) {
   if (e.pointerType !== "touch") return;

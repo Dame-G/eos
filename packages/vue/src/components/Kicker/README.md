@@ -1,6 +1,6 @@
 # EKicker
 
-The small uppercase mono label above a value or a section, in the muted colour.
+The small uppercase mono label above a value or a section, in the muted colour. It is a label, not a heading: use `EHeading` for the title that follows.
 
 ```vue
 <EKicker>Balance</EKicker>
@@ -8,19 +8,21 @@ The small uppercase mono label above a value or a section, in the muted colour.
 
 ## Props
 
-| Prop | Type     | Default | Notes                                         |
-| ---- | -------- | ------- | --------------------------------------------- |
-| `as` | `string` | `"p"`   | The element, if it should not be a paragraph. |
+| Prop | Type     | Default | Notes                  |
+| ---- | -------- | ------- | ---------------------- |
+| `as` | `string` | `p`     | The element to render. |
+
+`class`, `style` and attributes land on the rendered element. Write sentence case; the style sets capitals.
 
 ## Slots
 
-| Slot      | What            |
+| Slot      | Use             |
 | --------- | --------------- |
 | `default` | The label text. |
 
-Native attributes land on the rendered element. The styles are the shared `.e-kicker` class in `styles/base.css`, so the component has no CSS of its own.
+## Accessibility
 
-## Rules
-
-- It is a label, not a heading: use Heading for the title that follows.
-- Write sentence case; the class sets it in capitals.
+- A `p` by default, so it is absent from heading navigation.
+- To name a region with it, give it an `id` and point `aria-labelledby` at that id from the region.
+- The capitals come from CSS, so assistive technology reads the sentence-case text you wrote.
+- Keep it for short labels rather than body copy.

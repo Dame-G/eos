@@ -1,6 +1,6 @@
 # EAvatar
 
-A person, as a photo or as their initials on a rounded tile (the same shape as the date on an appointment card).
+A person, as a photo or as their initials on a rounded tile.
 
 ```vue
 <EAvatar name="Ada Lovelace" />
@@ -9,20 +9,15 @@ A person, as a photo or as their initials on a rounded tile (the same shape as t
 
 ## Props
 
-| Prop    | Type      | Default | Notes                                                                               |
-| ------- | --------- | ------- | ----------------------------------------------------------------------------------- |
-| `name`  | `string`  | none    | Required. Read by screen readers; the initials come from it (first and last word).  |
-| `src`   | `string`  | none    | A photo URL. If it fails to load, the initials appear.                              |
-| `small` | `boolean` | unset   | 28px, for rows.                                                                     |
-| `large` | `boolean` | unset   | 56px, for a practitioner on an appointment card or a profile. Default size is 40px. |
+| Prop    | Type      | Default | Notes                                                                                            |
+| ------- | --------- | ------- | ------------------------------------------------------------------------------------------------ |
+| `name`  | `string`  |         | Required. Read by screen readers. The initials are the first letters of its first and last word. |
+| `src`   | `string`  |         | Photo URL. The initials show if it fails to load.                                                |
+| `small` | `boolean` |         | 28px, for rows.                                                                                  |
+| `large` | `boolean` |         | 56px, for a profile or practitioner. The default is 40px.                                        |
 
-No slots. Native attributes land on the root `<span>`.
-
-## Rules
-
-- The photo is cropped to a rounded tile and is always decorative beside the name, so it has no alt text of its own.
-- Show a photo only where the organisation or the person chose to supply one.
+`class`, `style` and attributes land on the `span` element.
 
 ## Accessibility
 
-- The root is `role="img"` with `aria-label` set to `name`. The initials and the photo are not read separately.
+- The root is `role="img"` with `aria-label` set to `name`; the photo has no alt text of its own.

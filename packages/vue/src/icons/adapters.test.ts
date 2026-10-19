@@ -7,7 +7,6 @@ import { createEos } from "../plugin.js";
 import { defineIcons, heroicons, iconNames, lucide, phosphorVue, tabler } from "./index.js";
 import type { IconsConfig } from "./types.js";
 
-/** A stand-in for a library icon: an <svg> that records its name and the props it was given. */
 function fake(id: string): Component {
   return defineComponent({
     name: id,

@@ -19,20 +19,19 @@ export default tseslint.config(
   },
   {
     rules: {
-      // Components are named EThing, which is multi-word; folders and tests are not components.
+      "no-empty": ["error", { allowEmptyCatch: true }],
       "vue/multi-word-component-names": "off",
       "vue/block-order": ["error", { order: ["script", "template", "style"] }],
       "vue/define-macros-order": ["error", { order: ["defineOptions", "defineProps", "defineEmits", "defineSlots"] }],
-      "vue/no-v-html": "off", // the icon set is our own markup; see EIcon
+      "vue/no-v-html": "off",
       "vue/require-default-prop": "off",
-      // Formatting is Prettier's job.
       "vue/html-self-closing": "off",
       "vue/max-attributes-per-line": "off",
       "vue/singleline-html-element-content-newline": "off",
       "vue/html-indent": "off",
       "vue/html-closing-bracket-newline": "off",
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-      "vuejs-accessibility/label-has-for": "off", // labels are wired by id with useUid
+      "vuejs-accessibility/label-has-for": "off",
     },
   },
   {
@@ -40,7 +39,6 @@ export default tseslint.config(
     rules: { "no-console": "off" },
   },
   {
-    // Tests build small wrapper components inline.
     files: ["**/*.test.ts"],
     rules: { "vue/one-component-per-file": "off" },
   },

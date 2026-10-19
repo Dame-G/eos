@@ -51,7 +51,6 @@ defineProps<{
     }
   }
 
-  /* Not part of the page when printed. The reference uses !important; a later rule in the same layer wins without it. */
   @media print {
     .e-icon-btn {
       display: none;

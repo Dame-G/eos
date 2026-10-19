@@ -39,7 +39,7 @@ const props = withDefaults(
     /** The stamp's word. Overrides the status's; on its own it shows a stamp too. */
     label?: string;
     /** The heading level of the name or title, 1 to 4. */
-    headingLevel?: 1 | 2 | 3 | 4;
+    headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   }>(),
   { headingLevel: 3 },
 );
@@ -99,8 +99,6 @@ const facts = computed(() => [
   .e-appt-main {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-
-    /* the first row is never shorter than the date tile, so a card with a date tile is as tall as one with a photo */
     grid-template-rows: minmax(3.8rem, auto) auto;
     gap: var(--e-space-3) var(--e-space-4);
     align-items: start;
@@ -199,7 +197,6 @@ const facts = computed(() => [
     font-weight: 500;
   }
 
-  /* A narrow card: the stamp drops to its own row under the kind of booking, and the facts run the full width. */
   @container e-appt (max-width: 24rem) {
     .e-appt-head {
       display: contents;

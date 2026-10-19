@@ -1,6 +1,6 @@
 # EProgress
 
-A progress bar for a known fraction. The track is outlined and the fill is `primary`, so the filled share reads without colour.
+A progress bar for a known fraction. Use `ESpinner` or `ELoadingBar` when the length is unknown.
 
 ```vue
 <EProgress label="Upload" :value="40" />
@@ -9,20 +9,15 @@ A progress bar for a known fraction. The track is outlined and the fill is `prim
 
 ## Props
 
-| Prop        | Type     | Default | Notes                                                          |
-| ----------- | -------- | ------- | -------------------------------------------------------------- |
-| `label`     | `string` | none    | Required. What is progressing; also the bar's accessible name. |
-| `value`     | `number` | none    | Required. From 0 to `max`; the fill is clamped to the track.   |
-| `max`       | `number` | `100`   | The value that means finished.                                 |
-| `valueText` | `string` | percent | Text at the end of the row. Default is a rounded percentage.   |
+| Prop        | Type     | Default | Notes                                               |
+| ----------- | -------- | ------- | --------------------------------------------------- |
+| `label`     | `string` |         | Required. What is progressing; the accessible name. |
+| `value`     | `number` |         | Required. From 0 to `max`; the fill is clamped.     |
+| `max`       | `number` | `100`   | The value that means finished.                      |
+| `valueText` | `string` | percent | Text at the end of the row.                         |
 
-No slots. Native attributes land on the root `<div>`.
-
-## Rules
-
-- Use it for a known fraction; use Spinner or LoadingBar when the length is unknown.
-- The fill animates its width; the animation stops under reduced motion. In forced colours the fill is the system highlight.
+`class`, `style` and attributes land on the `div` element.
 
 ## Accessibility
 
-- The track is `role="progressbar"` with `aria-label`, `aria-valuemin`, `aria-valuemax` and `aria-valuenow`.
+- `role="progressbar"` with `aria-label`, `aria-valuemin`, `aria-valuemax` and `aria-valuenow`.

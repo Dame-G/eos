@@ -9,10 +9,11 @@
   ],
   "files": [
     "dist",
-    "src",
-    "!src/**/*.test.ts",
-    "!src/**/*.stories.ts"
+    "THIRD_PARTY.md"
   ],
+  "engines": {
+    "node": ">=22"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -53,7 +54,8 @@
     "test:watch": "vitest",
     "check:css": "node scripts/check-css.mjs",
     "parity": "node scripts/css-parity.mjs",
-    "check:layers": "node scripts/check-layers.mjs"
+    "check:layers": "node scripts/check-layers.mjs",
+    "check:package": "publint --pack npm --strict && attw --pack . --profile esm-only --entrypoints . ./resolver ./icons ./icons/iconify"
   },
   "peerDependencies": {
     "@iconify/vue": "^5.0.0",
@@ -72,6 +74,7 @@
     "reka-ui": "^2.11.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@vitejs/plugin-vue": "^6.0.10",
     "@vitest/browser-playwright": "^5.0.5",
     "@vue/tsconfig": "^0.9.1",
@@ -79,6 +82,7 @@
     "playwright": "^1.64.1",
     "postcss": "^8.5.30",
     "postcss-selector-parser": "^7.1.6",
+    "publint": "^0.3.25",
     "vite": "^8.3.4",
     "vite-plugin-dts": "^5.1.2",
     "vite-plugin-lib-inject-css": "^2.2.2",
