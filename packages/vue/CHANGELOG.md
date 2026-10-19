@@ -1,5 +1,13 @@
 # @eos-ui/vue
 
+## 0.1.1
+
+### Patch Changes
+
+- 2ec553e: The password field shows its dots at the normal input size, avatars are slightly larger (32px small, 44px default, 64px large), and a Select value no longer clips descenders such as g and y.
+- Updated dependencies [2ec553e]
+  - @eos-ui/tokens@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
