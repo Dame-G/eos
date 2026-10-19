@@ -1,19 +1,28 @@
 # EMultiSelect
 
-A combobox that keeps several choices, shown as removable tags in the field. A variant of `ECombobox`: the same props, events, attributes and rules (read `../Combobox/README.md`), with these differences.
+A combobox that keeps several choices as removable tags. It has the same props, events and rules as `ECombobox`.
 
 ```vue
 <EMultiSelect v-model="ways" label="Remind me by" name="remind" :options="['Text', 'Email', 'Call']" />
 ```
 
-- `v-model` is an array of option values, in the order they were chosen (`string[]`). The array is replaced, not mutated.
-- The list stays open while choosing; chosen options show a check and a click or Enter toggles them. The text is cleared after each choice.
-- Each tag has its own Remove button, named "Remove Text" (the `removeItem` message). `Backspace` in an empty field removes the last tag; with text in the field it edits the text.
-- The clear button empties them all. `name` submits one hidden input per chosen value, and nothing when none is chosen.
-- `placeholder` shows only while nothing is chosen. `required` is satisfied by a chosen value.
-- A one-row field is 48px tall like `ETextField` and `ESelect`; more tags wrap inside the field and make it taller.
+## Props
+
+| Prop         | Type       | Default | Notes                                                                      |
+| ------------ | ---------- | ------- | -------------------------------------------------------------------------- |
+| `modelValue` | `string[]` | `[]`    | v-model: chosen option values, in the order chosen. Replaced, not mutated. |
+| `open`       | `boolean`  | `false` | v-model:open: whether the list is open. A disabled field never opens.      |
+| `clearable`  | `boolean`  | `true`  | Clear button empties all tags.                                             |
+
+Other props as `ECombobox`: `label`, `options`, `placeholder`, `hideLabel`, `hint`, `error`, `required`, `optional`, `disabled`, `name`, `loading`, `emptyText`, `filter`, `id`. `name` submits one hidden input per chosen value; `placeholder` shows only while nothing is chosen. The list stays open while choosing. Attributes land as on `ECombobox`. Exposes `input()` and `focus()`.
+
+## Events
+
+| Event         | Payload        | Notes                                                                  |
+| ------------- | -------------- | ---------------------------------------------------------------------- |
+| `inputChange` | `text: string` | The input text changed by typing or choosing. Use it to fetch options. |
+
+## Accessibility
+
 - The listbox is `aria-multiselectable`.
-
-`v-model:open` (`boolean`) says whether the list is open. Set it to open the list from outside or to start open; it follows the person's typing, choosing and Escape. Opening or closing it from outside moves no focus, and a disabled field never opens.
-
-Props: `label`, `options`, `placeholder`, `hideLabel`, `hint`, `error`, `required`, `optional`, `disabled`, `name`, `loading`, `emptyText`, `clearable`, `filter`, `id`. Event: `inputChange(text)`. Exposed: `input()` and `focus()`.
+- Each tag has a Remove button ("Remove Text"); Backspace in an empty field removes the last tag.

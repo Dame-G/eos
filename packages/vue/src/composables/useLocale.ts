@@ -101,7 +101,6 @@ function build(locale: string): LocaleInfo {
 
 const pad2 = (n: number) => (n < 10 ? "0" : "") + n;
 
-/** Digits of any script to 0-9, so a date typed with Arabic-Indic digits still parses. */
 function asciiDigits(s: string): string {
   return s
     .replace(/[٠-٩]/g, (c) => String(c.charCodeAt(0) - 0x660))
@@ -118,14 +117,12 @@ export function useLocale() {
   const t = useMessages();
   const info = computed(() => build(config.locale));
 
-  /** The text a person types: the locale's order with its separator, two-digit day and month, four-digit year. */
   function formatDate(d: Date | null | undefined): string {
     if (!d) return "";
     const v = { month: pad2(d.getMonth() + 1), day: pad2(d.getDate()), year: String(d.getFullYear()).padStart(4, "0") };
     return info.value.order.map((p) => v[p]).join(info.value.separator);
   }
 
-  /** Reads what `formatDate` writes, with `/`, `-`, `.` or spaces between the parts. Returns `null` for anything else, including impossible days and two-digit years. */
   function parseDate(s: string): Date | null {
     const m = /^(\d{1,4})[/\-.\s]+(\d{1,2})[/\-.\s]+(\d{1,4})$/.exec(asciiDigits(String(s)).trim());
     if (!m) return null;
@@ -138,36 +135,24 @@ export function useLocale() {
   }
 
   return {
-    /** The BCP 47 tag in use. */
     locale: computed(() => config.locale),
-    /** `rtl` or `ltr`, from the config or the locale. */
     dir: computed<"ltr" | "rtl">(() => config.dir ?? (info.value.rtl ? "rtl" : "ltr")),
-    /** Twelve month names, January first. */
     months: computed(() => info.value.months),
-    /** Twelve short month names. */
     monthsShort: computed(() => info.value.monthsShort),
-    /** Seven weekday names, Sunday first. */
     weekdays: computed(() => info.value.weekdays),
-    /** Seven short weekday names, Sunday first. */
     weekdaysShort: computed(() => info.value.weekdaysShort),
-    /** First day of the week, 0 for Sunday to 6 for Saturday. */
     weekStart: computed(() => info.value.weekStart),
-    /** The order of month, day and year in typed dates. */
     dateOrder: computed(() => info.value.order),
-    /** The separator in typed dates. */
     dateSeparator: computed(() => info.value.separator),
-    /** The format as a hint, such as `MM/DD/YYYY`. The `dateFormat` message overrides it. */
     dateFormatLabel: (): string =>
       t("dateFormat") ||
       info.value.order.map((p) => (p === "month" ? "MM" : p === "day" ? "DD" : "YYYY")).join(info.value.separator),
     formatDate,
     parseDate,
-    /** A date in words for screen readers, such as "Thursday, October 22, 2026". */
     formatLong: (d: Date): string =>
       info.value.long
         ? info.value.long.format(d)
         : `${info.value.weekdays[d.getDay()]}, ${info.value.months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`,
-    /** An amount with the configured locale and currency, two decimals. */
     formatMoney: (n: number, options: { locale?: string; currency?: string } = {}): string => {
       try {
         return new Intl.NumberFormat(options.locale ?? config.locale, {

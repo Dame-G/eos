@@ -29,7 +29,6 @@ const props = defineProps<{
   id?: string;
 }>();
 
-/** Whether the box is checked. */
 const model = defineModel<boolean>({ default: false });
 
 const id = useUid(() => props.id);
@@ -46,7 +45,6 @@ watch(
   { flush: "post", immediate: true },
 );
 
-/** The checkbox's own attributes, with the consumer's fall-through ones last. */
 const inputBind = () => ({
   id: id.value,
   type: "checkbox" as const,
@@ -57,14 +55,12 @@ const inputBind = () => ({
   disabled: props.disabled,
   name: props.name,
   "aria-invalid": props.error ? ("true" as const) : undefined,
-  ...attrs.input(props.error ? errorId.value : undefined),
+  ...attrs.input(wrapped.value ? errorId.value : undefined),
 });
 const onChange = (e: Event) => (model.value = (e.target as HTMLInputElement).checked);
 
 defineExpose({
-  /** The `<input>` element. */
   input,
-  /** Moves focus to the checkbox. */
   focus: () => input.value?.focus(),
 });
 </script>

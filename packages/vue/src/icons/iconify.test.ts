@@ -2,7 +2,6 @@ import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 
-// @iconify/vue is an optional peer dependency and is not installed here, so a stand-in records what it was asked to draw.
 vi.mock("@iconify/vue", () => ({
   Icon: defineComponent({
     name: "Icon",

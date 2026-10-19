@@ -71,7 +71,6 @@ export interface PhosphorVueOptions extends AdapterOptions {
   weight?: "thin" | "light" | "regular" | "fill" | "duotone";
 }
 
-// One wrapper per component and weight, so a name resolves to the same component every time and Vue can patch it.
 const weighted = new WeakMap<Component, Map<string, Component>>();
 
 function withWeight(base: Component, weight: string): Component {

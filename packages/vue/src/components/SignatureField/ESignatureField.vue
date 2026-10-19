@@ -38,7 +38,6 @@ const props = withDefaults(
   { mode: "type" },
 );
 
-/** What the person has signed: the method, the typed name, the drawn image and the agreement. */
 const model = defineModel<SignatureValue>({
   default: () => ({ method: "type", name: "", image: "", agreed: false }),
 });
@@ -47,7 +46,6 @@ const t = useMessages();
 const config = useConfig();
 const id = useUid(() => props.id);
 
-/** With `both` the person chooses; otherwise the mode decides. */
 const method = computed<"type" | "draw">(() => (props.mode === "both" ? model.value.method : props.mode));
 const dateText = computed(() =>
   new Intl.DateTimeFormat(config.locale, { year: "numeric", month: "long", day: "numeric" }).format(
@@ -125,7 +123,7 @@ function update(patch: Partial<SignatureValue>) {
     align-items: flex-end;
     justify-content: space-between;
     gap: var(--e-space-3);
-    min-height: 72px;
+    min-height: 52px;
     padding: var(--e-space-2) var(--e-space-4);
     border-bottom: 2px solid var(--e-ink);
     background: var(--e-surface-tint);
@@ -134,7 +132,7 @@ function update(patch: Partial<SignatureValue>) {
 
   .e-sign-name {
     font:
-      italic 500 30px/1.2 "Segoe Script",
+      italic 500 28px/1.1 "Segoe Script",
       "Snell Roundhand",
       "Brush Script MT",
       cursive;

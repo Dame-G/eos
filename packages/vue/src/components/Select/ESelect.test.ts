@@ -8,7 +8,6 @@ import { expectNoViolations } from "../../../test/axe.js";
 
 const OPTIONS = ["Visa", "Bank", "Cash"];
 
-/** The floating list lives outside the rendered container, in the portal target. */
 const list = () => document.querySelector<HTMLElement>("[role=listbox]");
 const optionEls = () => Array.from(document.querySelectorAll<HTMLElement>("[role=option]"));
 const buttonOf = (c: Element) => c.querySelector("button")!;

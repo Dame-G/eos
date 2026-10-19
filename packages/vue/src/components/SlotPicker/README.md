@@ -1,6 +1,6 @@
 # ESlotPicker
 
-The times a person can choose for a visit, shown as a grid of 48px options. It is a radio group in a bare `EFieldset`, so arrow keys work and the group, hint and error are announced together.
+A grid of selectable times for a visit, as a radio group.
 
 ```vue
 <ESlotPicker
@@ -12,22 +12,20 @@ The times a person can choose for a visit, shown as a grid of 48px options. It i
 
 ## Props
 
-| Prop        | Type                       | Notes                                                                            |
-| ----------- | -------------------------- | -------------------------------------------------------------------------------- |
-| `v-model`   | `string \| null`           | The chosen value, `null` when none. Leave it off for local state.                |
-| `label`     | `string`                   | Required. The question the times answer, usually the day. Names the group.       |
-| `slots`     | `(string \| SlotOption)[]` | `SlotOption` is `{ value, label, disabled? }`. A string is both value and label. |
-| `emptyText` | `string`                   | Shown when there are no times. Default "No times are open on this day."          |
-| `hint`      | `string`                   | Announced with the group.                                                        |
-| `error`     | `string`                   | Replaces the hint, announced.                                                    |
-| `required`  | `boolean`                  | The `required` attribute and the word "Required".                                |
-| `disabled`  | `boolean`                  | Disables every time.                                                             |
-| `name`      | `string`                   | Shared by the radios, submitted with a form. Generated when left out.            |
+| Prop         | Type                       | Default                          | Notes                                                                                                      |
+| ------------ | -------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `modelValue` | `string \| null`           | `null`                           | v-model: the chosen value.                                                                                 |
+| `label`      | `string`                   |                                  | Required. The question the times answer, usually the day; names the group.                                 |
+| `slots`      | `(string \| SlotOption)[]` |                                  | Required. `SlotOption` is `{ value, label, disabled? }`; a string is both. A disabled time is a taken one. |
+| `emptyText`  | `string`                   | `No times are open on this day.` | Shown when there are no times.                                                                             |
+| `hint`       | `string`                   |                                  | Announced with the group.                                                                                  |
+| `error`      | `string`                   |                                  | Replaces the hint, announced.                                                                              |
+| `required`   | `boolean`                  |                                  | The `required` attribute and the word "Required".                                                          |
+| `disabled`   | `boolean`                  |                                  | Disables every time.                                                                                       |
+| `name`       | `string`                   | generated                        | Shared by the radios; submitted with a form.                                                               |
 
-`class`, `style` and other attributes land on the `<fieldset>`.
+`class`, `style` and attributes land on the `fieldset` element. The `SlotOption` type is exported.
 
-## Rules
+## Accessibility
 
-- The chosen time is filled with `primary` and bold; a taken time is dashed and struck through. Neither relies on colour.
-- The grid adds columns as space allows (`minmax(6.5rem, 1fr)`). Put it under a Calendar or beside it.
-- Export: `SlotOption` type.
+- A radio group: arrow keys move between times; the group, hint and error are announced together.

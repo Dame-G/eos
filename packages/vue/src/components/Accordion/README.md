@@ -1,6 +1,6 @@
 # EAccordion
 
-A stack of sections that open and close, to hide secondary detail on a page of settings. It is a column of EDisclosure in its card variant on native `details`, so it works without script.
+A stack of sections that open and close, to hide secondary detail on a page of settings. Use `EDisclosure` for a single section.
 
 ```vue
 <EAccordion
@@ -16,19 +16,19 @@ A stack of sections that open and close, to hide secondary detail on a page of s
 
 ## Props
 
-| Prop       | Type              | Default | Notes                                                                      |
-| ---------- | ----------------- | ------- | -------------------------------------------------------------------------- |
-| `items`    | `AccordionItem[]` |         | `{ id, title, meta?, defaultOpen? }`. `meta` is a short note at the right. |
-| `multiple` | `boolean`         |         | Lets several sections stay open. Otherwise opening one closes the others.  |
+| Prop       | Type              | Default | Notes                                                                                               |
+| ---------- | ----------------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `items`    | `AccordionItem[]` |         | Required. `{ id, title, meta?, defaultOpen? }`. `meta` is a short note at the right of the summary. |
+| `multiple` | `boolean`         |         | Several sections can stay open. Otherwise opening one closes the others.                            |
 
-`class`, `style` and attributes fall through to the root. Each section's content is the slot named by its `id`.
+`class`, `style` and attributes land on the `div` element.
+
+## Slots
+
+| Slot              | Use                                                               |
+| ----------------- | ----------------------------------------------------------------- |
+| one per item `id` | A section's content, for example `#billing`. Receives `{ item }`. |
 
 ## Accessibility
 
-- Native `details` and `summary`: Tab reaches each summary, Enter and Space open and close it, and the browser announces the expanded state.
-- One-at-a-time behaviour uses the native `name` attribute that groups `details`.
-
-## Rules
-
-- Hide secondary detail only. A single hidden section is an EDisclosure, not an accordion.
-- Why not Reka's Accordion: it renders buttons and regions, which changes the DOM and needs script. The native element works without script and keeps the same look.
+- Each section is a native `details` with a `summary`: Tab reaches each summary, Enter and Space toggle it, and the open state is announced.

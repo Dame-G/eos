@@ -4,10 +4,12 @@ import "../../styles/base.css";
 
 export type ChipTone = "neutral" | "ink" | "success" | "info" | "warning" | "danger";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   /** `success` (paid, confirmed, signed), `info` (due, scheduled, pending), `warning` (needs attention), `danger` (overdue, cancelled, failed). None is neutral. */
   tone?: ChipTone;
-}>();
+  /** `solid` is a filled badge with light text (the default); `subtle` is a soft tint with a tone-coloured outline and text. */
+  variant?: "solid" | "subtle";
+}>(), { variant: "solid" });
 
 defineSlots<{
   /** The word. Write sentence case; the chip sets it in capitals. */
@@ -20,7 +22,7 @@ const toneClass = computed(() =>
 </script>
 
 <template>
-  <span class="e-chip" :class="toneClass"><slot /></span>
+  <span class="e-chip" :class="[toneClass, variant === 'subtle' && 'e-chip--subtle']"><slot /></span>
 </template>
 
 <style>
@@ -28,6 +30,7 @@ const toneClass = computed(() =>
   .e-chip {
     --e-chip-text: var(--e-ink);
     --e-chip-soft: var(--e-surface-tint);
+    --e-chip-on: var(--e-surface);
 
     display: inline-flex;
     align-items: center;
@@ -35,9 +38,9 @@ const toneClass = computed(() =>
     height: var(--e-chip-height);
     padding: 0 var(--e-space-3);
     border-radius: var(--e-radius-pill);
-    background: var(--e-chip-soft);
-    color: var(--e-chip-text);
-    box-shadow: inset 0 0 0 1px var(--e-chip-text);
+    background: var(--e-chip-text);
+    color: var(--e-chip-on);
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-chip-text);
     font: 600 var(--e-text-xs) / 1 var(--e-font-mono);
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -51,21 +54,29 @@ const toneClass = computed(() =>
   .e-chip--success {
     --e-chip-text: var(--e-secondary);
     --e-chip-soft: var(--e-secondary-soft);
+    --e-chip-on: var(--e-on-secondary);
   }
 
   .e-chip--info {
     --e-chip-text: var(--e-primary);
     --e-chip-soft: var(--e-surface-tint);
+    --e-chip-on: var(--e-on-primary);
   }
 
   .e-chip--danger {
     --e-chip-text: var(--e-danger);
     --e-chip-soft: var(--e-danger-soft);
+    --e-chip-on: var(--e-on-danger);
   }
 
   .e-chip--warning {
     --e-chip-text: var(--e-warning-strong);
     --e-chip-soft: var(--e-warning-soft);
+  }
+
+  .e-chip--subtle {
+    background: var(--e-chip-soft);
+    color: var(--e-chip-text);
   }
 
   @media (forced-colors: active) {

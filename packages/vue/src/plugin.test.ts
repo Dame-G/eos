@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { createApp, defineComponent, h, nextTick } from "vue";
 import { contrast } from "@eos-ui/tokens";
-import { createEos } from "./plugin.js";
+import { createEos, themeCss } from "./plugin.js";
 import { useConfig, useMessages } from "./config.js";
 import EButton from "./components/Button/EButton.vue";
 import ETextField from "./components/TextField/ETextField.vue";
@@ -72,7 +72,6 @@ describe("createEos", () => {
       defaults,
     );
     void other;
-    // the inline variables on <html> are the last theme applied, so measure the first with its own value
     expect(getComputedStyle(button).backgroundColor).not.toBe("");
     expect(eos.theme.tokens["primary"]).not.toBe(defaults.theme.tokens["primary"]);
   });
@@ -146,3 +145,17 @@ function useConfigInApp(eos: ReturnType<typeof createEos>) {
   );
   return config;
 }
+
+describe("themeCss", () => {
+  test("renders the theme tokens as CSS without a document", () => {
+    const css = themeCss({ name: "clinic", brand: "#8a2be2" });
+    expect(css).toContain("@layer e.tokens");
+    expect(css).toContain("--e-primary:");
+    expect(css).toContain(":root {");
+  });
+
+  test("takes a built theme and a selector", () => {
+    const css = themeCss(createEos({ theme: { brand: "#2c95b4" } }).theme, ".scope");
+    expect(css).toContain(".scope {");
+  });
+});

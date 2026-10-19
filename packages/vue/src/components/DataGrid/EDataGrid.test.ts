@@ -24,14 +24,12 @@ const FILTER_COLS: DataGridColumn<Row>[] = [
 ];
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
-/** The grid as a table. Narrow test windows would otherwise turn it into cards, which hides the filter row and changes alignment. */
 const grid = (opts: { props: Record<string, unknown>; slots?: Record<string, unknown> }) =>
   render(EDataGrid as any, { ...opts, props: { cards: false, ...opts.props } } as any);
 const bodyRows = (c: Element) => [...c.querySelectorAll("tbody tr:not(.e-spacer)")] as HTMLElement[];
 const names = (c: Element) => bodyRows(c).map((r) => r.querySelector("td[data-label]")?.textContent?.trim());
 const bigRows = (n: number) => Array.from({ length: n }, (_, i) => ({ id: i, n: `Row ${i}`, a: i }));
 const input = (el: Element | null) => el as HTMLInputElement;
-/** Types into a native input the way a person does and waits for Vue. */
 async function typeInto(el: HTMLInputElement, text: string) {
   el.focus();
   el.value = text;
@@ -39,7 +37,6 @@ async function typeInto(el: HTMLInputElement, text: string) {
   await nextTick();
   await wait(20);
 }
-/** The grid inside a box of the given width, so container queries have something to measure. */
 function boxed(width: number, props: Record<string, unknown>) {
   return defineComponent({
     render: () => h("div", { style: { width: `${width}px` } }, [h(EDataGrid as any, props)]),
@@ -177,13 +174,11 @@ describe("EDataGrid", () => {
     expect(names(container)).toEqual(["Beta", "Alpha", "Gamma"]);
     expect(container.querySelector<HTMLInputElement>('input[type="search"]')!.value).toBe("");
 
-    // number range
     await typeInto(input(page.getByLabelText("Filter Amount minimum").element()), "5");
     expect(names(container)).toEqual(["Beta", "Alpha"]);
     await typeInto(input(page.getByLabelText("Filter Amount maximum").element()), "6");
     expect(names(container)).toEqual(["Beta"]);
 
-    // select
     await page.getByRole("button", { name: "Clear filters" }).first().click();
     await page.getByRole("combobox", { name: "Filter Status" }).click();
     await page.getByRole("option", { name: "due" }).click();
@@ -516,7 +511,6 @@ describe("EDataGrid", () => {
     await typeInto(input(container.querySelector(".e-grid-search input")), "Row 77");
     expect(container.querySelector("table")!.getAttribute("aria-rowcount")).toBe("112");
     expect(performance.now() - t0).toBeLessThan(5000);
-    // select all covers every filtered row when virtual
     expect(container.querySelector("thead label")!.textContent).toContain("Select all rows");
     (container.querySelector("thead .e-check") as HTMLInputElement).click();
     await expect.poll(() => container.querySelector(".e-grid-count")?.textContent).toBe("111 selected");
@@ -532,7 +526,6 @@ describe("EDataGrid", () => {
     expect(td.getAttribute("data-label")).toBe("Name");
     expect(getComputedStyle(td, "::before").content).toBe('"Name"');
     expect(getComputedStyle(td).display).toBe("grid");
-    // headings stay readable to a screen reader (clipped to 1px), and the table keeps its roles
     expect(narrow.container.querySelector("table")!.getAttribute("role")).toBe("table");
     expect(narrow.container.querySelector("tr")!.getAttribute("role")).toBe("row");
     expect(narrow.container.querySelector("th")!.getAttribute("role")).toBe("columnheader");
@@ -635,7 +628,6 @@ describe("EDataGrid", () => {
     expect(queries[1]).toMatchObject({ sort: { key: "a", dir: "asc" }, page: 1 });
     await typeInto(input(container.querySelector(".e-grid-search input")), "x");
     expect(queries.at(-1)).toMatchObject({ search: "x", page: 1 });
-    // the server's order and rows are trusted: nothing is sorted or filtered locally
     expect(names(container)).toEqual(["Beta", "Alpha"]);
   });
 

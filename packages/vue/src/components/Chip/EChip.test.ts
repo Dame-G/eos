@@ -5,6 +5,26 @@ import EChip from "./EChip.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("EChip", () => {
+  test("is solid by default and subtle on request", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(EChip, { tone: "danger" }, () => "Failed"),
+            h(EChip, { tone: "danger", variant: "subtle" }, () => "Failed"),
+          ]),
+      }),
+    );
+    const [solid, subtle] = [...container.querySelectorAll(".e-chip")];
+    expect(subtle!.classList.contains("e-chip--subtle")).toBe(true);
+    expect(solid!.classList.contains("e-chip--subtle")).toBe(false);
+    const a = getComputedStyle(solid!);
+    const b = getComputedStyle(subtle!);
+    expect(a.backgroundColor).toBe(b.color);
+    expect(a.backgroundColor).not.toBe(a.color);
+    expect(b.backgroundColor).not.toBe(a.backgroundColor);
+  });
+
   test("is a span with the word from the slot, neutral by default", async () => {
     const { container } = await render(EChip, { slots: { default: "Draft" } });
     const chip = container.querySelector("span")!;
@@ -32,13 +52,13 @@ describe("EChip", () => {
     expect(parseFloat(style.borderTopLeftRadius)).toBeGreaterThan(10);
   });
 
-  test("the tone changes the colour of the word", async () => {
+  test("the tone changes the colour of the chip", async () => {
     const { container } = await render(
       defineComponent({
         render: () => h("div", [h(EChip, null, () => "A"), h(EChip, { tone: "danger" }, () => "B")]),
       }),
     );
-    const [a, b] = [...container.querySelectorAll("span")].map((s) => getComputedStyle(s).color);
+    const [a, b] = [...container.querySelectorAll("span")].map((s) => getComputedStyle(s).backgroundColor);
     expect(a).not.toBe(b);
   });
 

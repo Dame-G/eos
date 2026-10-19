@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import "../../styles/base.css";
+import "./shell.css";
 
 defineProps<{
   /** Pins the header to the top while the page scrolls. */
@@ -88,7 +89,6 @@ defineSlots<{
     }
   }
 
-  /* the first label lines up with the logo, not the edge of its row */
   .e-appheader-nav .e-nav {
     margin-inline-start: calc(-1 * var(--e-space-3));
   }
@@ -97,14 +97,6 @@ defineSlots<{
     display: flex;
     flex-wrap: wrap;
     gap: var(--e-space-1);
-  }
-
-  /* the page's one column */
-  .e-shell-inner {
-    width: 100%;
-    max-width: 72rem;
-    margin-inline: auto;
-    padding-inline: var(--e-space-4);
   }
 }
 </style>

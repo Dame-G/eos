@@ -17,7 +17,6 @@ function paste(el: HTMLElement, text: string) {
   el.dispatchEvent(new ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true }));
 }
 
-/** Renders the field with a bound model and returns the model and what it emitted. */
 async function bound(props: Record<string, unknown>, initial = "") {
   const model = ref(initial);
   const got: string[] = [];

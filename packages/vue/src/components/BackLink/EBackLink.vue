@@ -23,7 +23,6 @@ defineSlots<{
 
 const t = useMessages();
 const attrs = useAttrs();
-// With a router, `to` goes to the link component and no `href` is set: an undefined `href` would override the one it computes.
 const linkAttrs = computed(() => ({ ...(attrs.to === undefined && { href: props.href ?? "#" }), ...attrs }));
 </script>
 

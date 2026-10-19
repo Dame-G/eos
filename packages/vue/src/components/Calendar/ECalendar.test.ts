@@ -17,7 +17,6 @@ const grid = (c: Element) => c.querySelector<HTMLElement>("table")!;
 const dayButton = (c: Element, label: RegExp) =>
   [...c.querySelectorAll<HTMLButtonElement>(".e-day")].find((b) => label.test(b.getAttribute("aria-label") ?? ""))!;
 
-/** A calendar bound to a model, so v-model round trips are real. */
 async function bound(props: Record<string, unknown>, initial: Date | null, global = {}) {
   const model = ref<Date | null>(initial);
   const result = await render(

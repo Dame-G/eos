@@ -1,6 +1,6 @@
 # ENumberField
 
-A number input with decrease and increase buttons, for quantities. An amount of money is `CurrencyField`.
+A number input with decrease and increase buttons, for quantities. Use `ECurrencyField` for money.
 
 ```vue
 <ENumberField v-model="visits" label="Visits" :min="0" :max="10" />
@@ -9,26 +9,28 @@ A number input with decrease and increase buttons, for quantities. An amount of 
 
 ## Props
 
-| Prop               | Type             | Notes                                                                  |
-| ------------------ | ---------------- | ---------------------------------------------------------------------- |
-| `v-model`          | `number \| null` | `null` when the field is empty. Leave it off for local state.          |
-| `label`            | `string`         | Required.                                                              |
-| `hideLabel`        | `boolean`        | Keeps the label for screen readers only.                               |
-| `min`, `max`       | `number`         | The value clamps; the buttons disable at the limits.                   |
-| `step`             | `number`         | Default 1. The decimals shown follow the step (`0.25` shows two).      |
-| `prefix`, `suffix` | `string`         | A unit beside the value, hidden from screen readers.                   |
-| `name`             | `string`         | Submitted with a form as a hidden input holding the number (or empty). |
-| `hint`, `error`    | `string`         | As on `ETextField`.                                                    |
-| `required`         | `boolean`        | The `required` attribute and the word "Required".                      |
-| `optional`         | `boolean`        | The word "Optional".                                                   |
-| `disabled`         | `boolean`        | Disables the input and both buttons.                                   |
-| `id`               | `string`         | The input's id. Generated when left out.                               |
+| Prop         | Type             | Default   | Notes                                                       |
+| ------------ | ---------------- | --------- | ----------------------------------------------------------- |
+| `modelValue` | `number \| null` | `null`    | v-model: the number; `null` when empty.                     |
+| `label`      | `string`         |           | Required.                                                   |
+| `hideLabel`  | `boolean`        |           | Keeps the label for screen readers only.                    |
+| `min`        | `number`         |           | The value clamps to it; the decrease button disables there. |
+| `max`        | `number`         |           | The value clamps to it; the increase button disables there. |
+| `step`       | `number`         | `1`       | Decimals shown follow the step (`0.25` shows two).          |
+| `prefix`     | `string`         |           | Unit before the value.                                      |
+| `suffix`     | `string`         |           | Unit after the value.                                       |
+| `name`       | `string`         |           | Submitted with a form: the number, or empty.                |
+| `hint`       | `string`         |           | Help under the field.                                       |
+| `error`      | `string`         |           | Replaces the hint; marks invalid, announced.                |
+| `required`   | `boolean`        |           | The `required` attribute and the word "Required".           |
+| `optional`   | `boolean`        |           | The word "Optional".                                        |
+| `disabled`   | `boolean`        |           | Disables the input and both buttons.                        |
+| `id`         | `string`         | generated | Id of the input.                                            |
 
-`class` and `style` stay on the wrapper; other attributes and listeners (`autocomplete`, `aria-*`, `data-*`, `@blur`, `@keydown`) land on the `<input>` and run alongside the component's own handlers. Exposed: `input` and `focus()`.
+`class` and `style` land on the wrapper `div`; other attributes and listeners land on the `input` element. Exposes `input` and `focus()`. Typed text commits on blur or Enter: it clamps, commas are ignored, unreadable text reverts, empty gives `null`. A unit sits next to the value with one word-space between them. When the field is narrow (under 10rem, or 13rem with a `prefix` or `suffix`), the buttons are hidden and the value is left-aligned; the arrow keys still step.
 
-## Rules
+## Accessibility
 
-- Arrow Up and Down step; Shift steps by ten. Typed text commits on blur or Enter: it clamps, commas are ignored, unreadable text goes back to the last number, empty text gives `null`.
-- The input is `role="spinbutton"` with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`. The buttons are named "Decrease" and "Increase" (configurable messages) and are in the tab order.
-- With a prefix or suffix the symbol sits beside the value and the pair is centred between the buttons.
-- The whole well is 48px tall; the buttons are 48px squares.
+- `role="spinbutton"` with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`.
+- ArrowUp and ArrowDown step; Shift steps by ten.
+- The buttons are named "Decrease" and "Increase" and are in the tab order.

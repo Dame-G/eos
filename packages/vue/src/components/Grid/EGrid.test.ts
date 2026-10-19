@@ -76,6 +76,21 @@ describe("EGrid", () => {
     expect(el.getAttribute("aria-label")).toBe("Cards");
   });
 
+  test("a cell with wide content stays inside its column", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: "width: 300px" }, [
+            h(EGrid, { min: "9rem" }, () => [h("div", { style: "white-space: nowrap" }, "x".repeat(80)), cell("b")]),
+          ]),
+      }),
+    );
+    const grid = container.querySelector(".e-grid-layout")!.getBoundingClientRect();
+    for (const c of container.querySelectorAll(".e-grid-layout > *")) {
+      expect(c.getBoundingClientRect().right).toBeLessThanOrEqual(grid.right + 1);
+    }
+  });
+
   test("has no accessibility violations", async () => {
     const { container } = await render(
       defineComponent({

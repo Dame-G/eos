@@ -34,7 +34,6 @@ const props = defineProps<{
   name?: string;
 }>();
 
-/** The active option's value. The first option when nothing is bound. */
 const model = defineModel<string>();
 
 const name = useUid(() => props.name);
@@ -47,6 +46,7 @@ const attrs = useFieldAttrs();
 const groupAttrs = () => ({
   role: "radiogroup",
   "aria-label": props.label,
+  "aria-invalid": props.error ? ("true" as const) : undefined,
   ...attrs.input(props.error || props.hint ? hintId.value : undefined),
 });
 </script>
@@ -92,7 +92,7 @@ const groupAttrs = () => ({
     height: var(--e-control-height);
     border: var(--e-stroke-edge) solid var(--e-border-strong);
     border-radius: var(--e-radius-md);
-    background: var(--e-surface);
+    background: var(--e-border-strong);
     overflow: hidden;
     max-width: 100%;
     width: fit-content;
@@ -123,6 +123,7 @@ const groupAttrs = () => ({
     gap: var(--e-space-2);
     min-width: 4rem;
     padding: 0 var(--e-space-4);
+    background: var(--e-surface);
     font: 500 var(--e-text-md)/1 var(--e-font-sans);
     white-space: nowrap;
     transition: background-color var(--e-duration-tap) var(--e-easing-out);
@@ -134,9 +135,9 @@ const groupAttrs = () => ({
 
   .e-seg-input:checked + .e-seg-text {
     background: var(--e-primary);
+    box-shadow: inset 0 var(--e-depth) 0 0 color-mix(in srgb, var(--e-primary) 58%, #000);
     color: var(--e-on-primary);
     font-weight: 600;
-    box-shadow: inset 0 -2px 0 0 rgb(0 0 0 / 0.3);
   }
 
   .e-seg-input:focus-visible + .e-seg-text {
@@ -153,7 +154,6 @@ const groupAttrs = () => ({
     background: transparent;
   }
 
-  /* A disabled option that is selected stays readable: ink on tint, with the bar that marks the choice. */
   .e-seg-input:disabled:checked + .e-seg-text,
   .e-seg-opt:has(:disabled:checked):hover .e-seg-text {
     background: var(--e-surface-tint);

@@ -24,7 +24,6 @@ const props = defineProps<{
 }>();
 
 defineSlots<{
-  /** The content of one section: the slot is named by the item's `id` (`<template #billing>`). */
   [id: string]: ((props: { item: AccordionItem }) => unknown) | undefined;
 }>();
 
@@ -56,7 +55,7 @@ const group = useUid();
     overflow: hidden;
   }
 
-  .e-acc + .e-acc {
+  .e-accordion > .e-acc + .e-acc {
     border-top: var(--e-stroke-hair) solid var(--e-border);
   }
 }

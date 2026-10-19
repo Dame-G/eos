@@ -46,6 +46,7 @@ const hintId = computed(() => `${id.value}-hint`);
 @layer e.controls {
   .e-field {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     align-content: start;
     gap: var(--e-space-2);
     min-width: 0;

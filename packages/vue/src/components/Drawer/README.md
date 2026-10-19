@@ -1,6 +1,6 @@
 # EDrawer
 
-A side panel for reading something next to the list the person is looking through, such as a statement or a receipt. It is a Dialog that slides in from an edge: focus is trapped, Escape closes it, the page behind cannot be scrolled or reached, and focus returns to what opened it.
+A side panel that slides in from an edge, for reading something beside the list, such as a statement or receipt. Use `EDialog` for a short decision.
 
 ```vue
 <EDrawer v-model:open="open" title="October statement">
@@ -11,35 +11,31 @@ A side panel for reading something next to the list the person is looking throug
 
 ## Props
 
-| Prop           | Type                         | Default | Notes                                                                             |
-| -------------- | ---------------------------- | ------- | --------------------------------------------------------------------------------- |
-| `v-model:open` | `boolean`                    |         | Whether it is open. Without a binding it keeps its own state.                     |
-| `title`        | `string`                     |         | The heading and the drawer's accessible name.                                     |
-| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `2`     | The title's heading element.                                                      |
-| `side`         | `"right" \| "left"`          | `right` | The edge it slides in from.                                                       |
-| `inline`       | `boolean`                    |         | Shows it in the page, without the backdrop or the focus trap. Only for a preview. |
+| Prop           | Type                            | Default | Notes                                                                       |
+| -------------- | ------------------------------- | ------- | --------------------------------------------------------------------------- |
+| `open`         | `boolean`                       |         | v-model:open: whether it is open. Without a binding it keeps its own state. |
+| `title`        | `string`                        |         | Required. The heading and accessible name.                                  |
+| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6`    | `2`     | Heading level of the title.                                                 |
+| `side`         | `"right" \| "left" \| "bottom"` | `right` | The edge it slides in from; `bottom` is a sheet for phones.                 |
+| `inline`       | `boolean`                       |         | Renders in the page without backdrop or focus trap; previews only.          |
 
-`class`, `style`, `id` and `data-*` attributes fall through to the drawer element.
+`class`, `style` and attributes land on the drawer element. It is full height and 28rem wide (full width on narrow screens).
 
-## Events and slots
+## Slots
 
-| Name      | Use                                                                               |
-| --------- | --------------------------------------------------------------------------------- |
-| `close`   | The person closed it with the Close button or Escape. `open` is already false.    |
-| `default` | The content. It scrolls inside the drawer.                                        |
-| `actions` | Buttons in a tinted foot bar, left-aligned, the main action first (see EActions). |
+| Slot      | Use                                        |
+| --------- | ------------------------------------------ |
+| `default` | The content; it scrolls inside the drawer. |
+| `actions` | Foot-bar buttons, main action first.       |
 
-## Size and motion
+## Events
 
-It is full height and 28rem wide, or the full screen width on a narrow screen. It slides in over 220ms. With `prefers-reduced-motion: reduce` it appears without sliding.
+| Event   | Payload | Notes                                                           |
+| ------- | ------- | --------------------------------------------------------------- |
+| `close` |         | The Close button or Escape was used; `open` is already `false`. |
 
 ## Accessibility
 
-- A `role="dialog"` named by its title, with a Close button named by the `close` message.
-- The scrolling body is a focusable `region` named by the title, so a keyboard user can scroll it with the arrow keys.
-- Focus is trapped while open, Escape closes, focus returns to the opener, the body does not scroll and the page behind is hidden from assistive technology. A press on the backdrop does not close it.
-- It renders into the configured portal target inside an `e-root` element, so a scoped theme reaches it.
-
-## Rules
-
-- Use it to show a statement or receipt beside the list. Use EDialog for a short decision.
+- A `role="dialog"` named by its title; focus is trapped while open and returns to the opener.
+- Escape closes it; a backdrop press does not.
+- The scrolling body is a focusable region, so it scrolls with the arrow keys.

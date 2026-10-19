@@ -142,9 +142,11 @@
   }
 
   .e-input[type="password"] {
+    padding-bottom: 0.15em;
+    line-height: 1;
     font-family: system-ui, sans-serif;
-    font-size: calc(var(--e-text-xl) * 1.4);
-    letter-spacing: 0.04em;
+    font-size: calc(var(--e-text-xl) * 1.8);
+    letter-spacing: 0.02em;
   }
 
   @media (prefers-reduced-motion: reduce) {

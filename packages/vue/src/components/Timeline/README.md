@@ -1,6 +1,6 @@
 # ETimeline
 
-A list of events, newest first. Each row has a source chip (You, Practice or Automatic), a sentence and when it happened.
+A newest-first list of events, each with a source chip, a sentence and when it happened. Use it for an activity history.
 
 ```vue
 <ETimeline
@@ -13,18 +13,12 @@ A list of events, newest first. Each row has a source chip (You, Practice or Aut
 
 ## Props
 
-| Prop    | Type           | Notes  |
-| ------- | -------------- | ------ |
-| `items` | `{ kind: "you" | "team" | "system" | "you" | "team" | "system" | "you" | "team" | "system"; note: string; source: string }[]` | Newest first. `system` reads as "Automatic". |
+| Prop    | Type             | Default | Notes                                                                                                                                                                                              |
+| ------- | ---------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `items` | `TimelineItem[]` |         | Required. `{ kind: "you" \| "team" \| "system", note: string, source: string }`, newest first. `kind` sets the chip (`system` reads as automatic); `source` is when and from where, never omit it. |
 
-The chip words come from the messages `you`, `team` and `automatic`.
+`class`, `style` and attributes land on the `ol` element. Chip words come from the `you`, `team` and `automatic` messages.
 
 ## Accessibility
 
-- A real ordered list (`ol`, one `li` per event) named "Activity, newest first" (the `activity` message). Pass `aria-label` to name it differently.
-- `class`, `style`, `id` and other attributes fall through to the `ol`.
-
-## Rules
-
-- Always say who did it and when. Never leave an event without a source.
-- Inside a statement, put it behind a disclosure (EStatementCard and EStatementRow do).
+- An ordered list named by the `activity` message ("Activity, newest first"); pass `aria-label` to rename it.

@@ -14,7 +14,6 @@ defineSlots<{
 const t = useMessages();
 const target = usePortalTarget();
 
-// An app that provided its own store (so toasts can be shown from outside components) keeps it.
 const provided = inject(TOAST_KEY, null);
 const store = provided ?? createToasts();
 if (!provided) {
@@ -22,7 +21,6 @@ if (!provided) {
   onBeforeUnmount(() => store.clear());
 }
 
-// Timers wait while the pointer or keyboard focus is on a toast (WCAG 2.2.1), then run on with the time they had left.
 const region = ref<HTMLElement>();
 let hovering = false;
 let focused = false;
@@ -46,7 +44,6 @@ useEventListener(region, "focusout", (e: FocusEvent) => {
   settle();
 });
 
-// The pointer cannot leave a toast that is gone: forget it when the last one closes.
 watch(
   () => store.items.length,
   (n) => {
@@ -92,7 +89,6 @@ Render.props = ["content"];
     gap: var(--e-space-2);
   }
 
-  /* The region shrinks to its content and a toast is size-contained, so a percentage width would collapse to nothing. */
   .e-toast-region > .e-toast {
     width: min(24rem, calc(100vw - 32px));
   }

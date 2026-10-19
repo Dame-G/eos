@@ -20,7 +20,6 @@ defineSlots<{
   default?(): unknown;
 }>();
 
-/** Whether it is open. Leave `v-model:open` off and it keeps its own state; set it once to start open. */
 const open = defineModel<boolean>("open");
 
 function onToggle(e: Event) {
@@ -53,11 +52,11 @@ function onToggle(e: Event) {
     list-style: none;
     cursor: pointer;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: var(--e-space-3);
     min-height: var(--e-control-height);
-    padding: 0 var(--e-space-1);
+    padding: var(--e-space-3) 0 0;
     border-top: var(--e-stroke-hair) solid var(--e-border);
     font: 600 var(--e-text-xs) / 1 var(--e-font-mono);
     letter-spacing: 0.08em;
@@ -95,11 +94,40 @@ function onToggle(e: Event) {
   }
 
   .e-details[open] > summary {
-    margin-bottom: var(--e-space-3);
+    min-height: 0;
+    padding-bottom: var(--e-space-3);
   }
 
   .e-details-body {
     padding-bottom: var(--e-space-2);
+  }
+
+  .e-acc {
+    overflow: hidden;
+    border-radius: var(--e-radius-md);
+    background: var(--e-surface);
+    box-shadow: var(--e-edge);
+  }
+
+  .e-disclosure.e-acc + .e-disclosure.e-acc {
+    margin-top: var(--e-space-2);
+  }
+
+  .e-accordion .e-acc {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .e-accordion .e-disclosure.e-acc + .e-disclosure.e-acc {
+    margin-top: 0;
+  }
+
+  .e-acc[open] > summary {
+    border-bottom: var(--e-stroke-hair) solid var(--e-border);
+  }
+
+  .e-accordion .e-acc[open] > summary {
+    border-bottom: 0;
   }
 
   .e-acc > summary {
@@ -139,7 +167,7 @@ function onToggle(e: Event) {
 
   .e-acc > summary:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: -2px;
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-acc-title {

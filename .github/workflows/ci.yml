@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -20,6 +24,8 @@ jobs:
       - run: pnpm --filter @eos-ui/vue exec playwright install --with-deps chromium
       - run: pnpm lint
       - run: pnpm build
+      - run: pnpm check:package
+      - run: pnpm check:size
       - run: pnpm typecheck
       - run: pnpm --filter @eos-ui/vue check:css
       - run: pnpm --filter @eos-ui/vue check:layers

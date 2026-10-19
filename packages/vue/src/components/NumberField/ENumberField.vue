@@ -40,7 +40,6 @@ const props = defineProps<{
   id?: string;
 }>();
 
-/** The number, or `null` when the field is empty. */
 const model = defineModel<number | null>({ default: null });
 
 const t = useMessages();
@@ -86,12 +85,11 @@ function onKeydown(e: KeyboardEvent) {
   } else if (e.key === "Enter") commit();
 }
 
-/** The input's own attributes, with the consumer's fall-through ones last. */
 function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }) {
   return {
     id: field.id,
     class: ["e-input", "e-numinput", !props.prefix && "e-numfield-first", !props.suffix && "e-numfield-last"],
-    style: { "--e-chars": Math.max(text.value.length, 4) },
+    style: { "--e-chars": Math.max(text.value.length, 1) },
     type: "text" as const,
     inputmode: "decimal" as const,
     role: "spinbutton",
@@ -108,9 +106,7 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
 }
 
 defineExpose({
-  /** The `<input>` element. */
   input,
-  /** Puts the cursor in the input. */
   focus: () => input.value?.focus(),
 });
 </script>
@@ -172,6 +168,7 @@ defineExpose({
 @layer e.controls {
   .e-numfield {
     align-items: stretch;
+    container-type: inline-size;
   }
 
   .e-numfield .e-numinput {
@@ -228,7 +225,7 @@ defineExpose({
 
   .e-numfield--affix .e-numinput {
     flex: none;
-    width: calc(var(--e-chars) * 1ch + var(--e-space-1));
+    width: calc(var(--e-chars) * 1ch);
     padding-inline: 0;
     text-align: start;
   }
@@ -247,6 +244,31 @@ defineExpose({
 
   .e-numfield--affix .e-numfield-last {
     margin-inline-end: auto;
+  }
+
+  @container (max-width: 10rem) {
+    .e-numbtn {
+      display: none;
+    }
+
+    .e-numfield .e-numinput {
+      text-align: start;
+      padding-inline: var(--e-space-3);
+    }
+  }
+
+  @container (max-width: 13rem) {
+    .e-numfield--affix .e-numbtn {
+      display: none;
+    }
+
+    .e-numfield--affix .e-numfield-first {
+      margin-inline-start: var(--e-space-3);
+    }
+
+    .e-numfield--affix .e-numfield-last {
+      margin-inline-end: 0;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

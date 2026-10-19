@@ -1,0 +1,30 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Package and version
+      placeholder: "@eos-ui/vue 0.1.0"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: A minimal code sample or a link to a reproduction.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser, assistive technology and framework
+      placeholder: "Firefox 140, NVDA 2025.1, Nuxt 4"

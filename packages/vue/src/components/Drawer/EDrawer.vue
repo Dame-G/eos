@@ -16,7 +16,7 @@ withDefaults(
     /** The level of the title's heading element, 1 to 6. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     /** The edge it slides in from. */
-    side?: "right" | "left";
+    side?: "right" | "left" | "bottom";
     /** Shows the drawer in the page, without the backdrop or the focus trap. Only for a preview. */
     inline?: boolean;
   }>(),
@@ -35,7 +35,6 @@ defineSlots<{
   actions?(): unknown;
 }>();
 
-/** Whether the drawer is open. */
 const open = defineModel<boolean>("open");
 
 const t = useMessages();
@@ -55,7 +54,7 @@ function setOpen(value: boolean) {
         <DialogContent
           v-bind="$attrs"
           class="e-drawer"
-          :class="[side === 'left' && 'e-drawer--left', inline && 'e-drawer--inline']"
+          :class="[side !== 'right' && `e-drawer--${side}`, inline && 'e-drawer--inline']"
           :aria-describedby="undefined"
           @interact-outside.prevent
         >
@@ -88,9 +87,7 @@ function setOpen(value: boolean) {
     border-radius: 0;
     background: var(--e-surface);
     color: var(--e-ink);
-    box-shadow:
-      0 0 0 1px var(--e-border),
-      var(--e-float);
+    box-shadow: var(--e-float);
     display: flex;
     flex-direction: column;
     font-family: var(--e-font-sans);
@@ -98,6 +95,15 @@ function setOpen(value: boolean) {
 
   .e-drawer--left {
     margin: 0 auto 0 0;
+  }
+
+  .e-drawer--bottom {
+    inset: auto 0 0;
+    width: 100%;
+    height: auto;
+    max-height: min(32rem, 85dvh);
+    margin: 0;
+    border-radius: var(--e-radius-lg) var(--e-radius-lg) 0 0;
   }
 
   .e-drawer[data-state="open"] {
@@ -114,6 +120,26 @@ function setOpen(value: boolean) {
 
   .e-drawer--left[data-state="closed"] {
     animation-name: e-drawer-out-left;
+  }
+
+  .e-drawer--bottom[data-state="open"] {
+    animation-name: e-drawer-in-bottom;
+  }
+
+  .e-drawer--bottom[data-state="closed"] {
+    animation-name: e-drawer-out-bottom;
+  }
+
+  @keyframes e-drawer-in-bottom {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes e-drawer-out-bottom {
+    to {
+      transform: translateY(100%);
+    }
   }
 
   @keyframes e-drawer-in {
@@ -163,9 +189,16 @@ function setOpen(value: boolean) {
     transform: none;
   }
 
+  .e-drawer--inline.e-drawer--bottom {
+    max-width: 28rem;
+    height: auto;
+    max-height: 18rem;
+    border-radius: var(--e-radius-lg);
+  }
+
   .e-drawer-body:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: -2px;
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   @media (prefers-reduced-motion: reduce) {

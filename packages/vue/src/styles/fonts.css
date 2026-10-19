@@ -1,6 +1,1 @@
-/*
-  Optional. The design uses Jost (text) and Spline Sans Mono (labels). Fonts are never bundled into components;
-  load them here, from your own host, or set other families with defineTheme({ fonts }).
-  This file loads them from Google Fonts. To self-host, install @fontsource/jost and @fontsource/spline-sans-mono instead.
-*/
 @import url("https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Spline+Sans+Mono:wght@500;600&display=swap");

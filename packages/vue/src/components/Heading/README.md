@@ -1,6 +1,6 @@
 # EHeading
 
-The three heading styles (36, 24 and 20px, weight 500) with an optional mono `kicker` above.
+The three heading styles (36, 24 and 20px) with an optional kicker label above.
 
 ```vue
 <EHeading :level="1" kicker="Statement 8842">Your visit on October 22</EHeading>
@@ -8,24 +8,19 @@ The three heading styles (36, 24 and 20px, weight 500) with an optional mono `ki
 
 ## Props
 
-| Prop     | Type          | Default | Notes                                                                             |
-| -------- | ------------- | ------- | --------------------------------------------------------------------------------- |
-| `level`  | `1 \| 2 \| 3` | `2`     | Sets both the element (`h1` to `h3`) and the size (36, 24 and 20px).              |
-| `kicker` | `string`      | none    | A small uppercase mono label above the heading. It is a paragraph, not a heading. |
+| Prop     | Type          | Default | Notes                                                          |
+| -------- | ------------- | ------- | -------------------------------------------------------------- |
+| `level`  | `1 \| 2 \| 3` | `2`     | Sets both the element (`h1` to `h3`) and the size.             |
+| `kicker` | `string`      |         | Small uppercase label above the heading; not itself a heading. |
+
+`class`, `style` and attributes land on the `div` element.
 
 ## Slots
 
-| Slot      | What              |
+| Slot      | Use               |
 | --------- | ----------------- |
 | `default` | The heading text. |
 
-Native attributes land on the wrapping `<div class="e-heading">`.
-
-## Rules
-
-- One level 1 per page; do not skip levels.
-- To choose the element and the size separately, use the `headingLevel` prop of the component that owns the title (Panel, StatementCard), not this one.
-
 ## Accessibility
 
-- The level is a real `h1` to `h3`, so the page outline is exposed to assistive technology.
+- Renders an `h1` to `h3`: one level 1 per page, and do not skip levels.

@@ -11,7 +11,6 @@ const items = [
   { label: "Visit on Oct 2" },
 ];
 
-// Stands in for RouterLink: takes `to`, renders the href itself, and wraps its default slot.
 const FakeRouterLink = defineComponent({
   props: { to: { type: String, required: true } },
   setup:
@@ -45,9 +44,11 @@ describe("EBreadcrumb", () => {
     expect(container.querySelectorAll("li:last-child .e-icon").length).toBe(0);
   });
 
-  test("each link is as tall as a control, so it is easy to hit", async () => {
+  test("each link has a 44px hit area without adding height to the row", async () => {
     const { container } = await render(EBreadcrumb, { props: { items } });
-    expect(container.querySelector("a.e-crumb")!.getBoundingClientRect().height).toBeGreaterThanOrEqual(48);
+    const link = container.querySelector("a.e-crumb")!;
+    expect(parseFloat(getComputedStyle(link, "::after").height)).toBeGreaterThanOrEqual(44);
+    expect(link.getBoundingClientRect().height).toBeLessThan(32);
   });
 
   test("keyboard: Tab visits each link in order", async () => {

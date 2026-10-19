@@ -1,13 +1,17 @@
-/* The layout a Notice and a Toast share: icon, text, actions and dismiss button on one grid. */
 @layer e.containers {
   .e-notice-grid {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "icon body dismiss";
+    align-items: center;
+    gap: var(--e-space-3);
+  }
+
+  .e-notice--actions .e-notice-grid,
+  .e-toast--actions .e-notice-grid {
     grid-template-areas:
       "icon body dismiss"
       ". actions .";
-    align-items: center;
-    gap: var(--e-space-3);
   }
 
   .e-notice-icon {

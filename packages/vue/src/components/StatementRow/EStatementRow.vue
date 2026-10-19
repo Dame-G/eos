@@ -65,24 +65,23 @@ const money = (n: number) => formatMoney(n, { currency: props.currency, locale: 
 <style>
 @layer e.account {
   .e-srow {
+    border-bottom: var(--e-depth) solid var(--e-border);
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
-    box-shadow:
-      var(--e-edge),
-      inset 0 -2px 0 0 var(--e-border);
+    box-shadow: var(--e-edge);
     transition:
       background-color var(--e-duration-tap) var(--e-easing-out),
       box-shadow var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-srow:not([open]):hover {
+    border-bottom-color: var(--e-border-strong);
     background: var(--e-surface-tint);
-    box-shadow:
-      0 0 0 1px var(--e-border-strong),
-      inset 0 -2px 0 0 var(--e-border-strong);
+    box-shadow: 0 0 0 1px var(--e-border-strong);
   }
 
   .e-srow[open] {
+    border-bottom-width: 0;
     box-shadow: var(--e-edge);
   }
 

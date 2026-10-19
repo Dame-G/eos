@@ -1,6 +1,5 @@
 import axe from "axe-core";
 
-/** Page-level rules that cannot pass for one component rendered alone. */
 const PAGE_RULES = [
   "region",
   "landmark-one-main",

@@ -81,9 +81,7 @@ const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? 
   }
 
   .e-surface--float {
-    box-shadow:
-      0 0 0 1px var(--e-border),
-      var(--e-float);
+    box-shadow: var(--e-float);
   }
 
   .e-surface--pad-sm {

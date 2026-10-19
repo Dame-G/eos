@@ -18,7 +18,6 @@ import "../../styles/base.css";
 import "../TextField/input.css";
 import "./panel.css";
 
-// The button, the list and the hidden input of ESelect. Internal: ESelect adds the label, hint and error around it.
 const props = defineProps<{
   /** The normalised options. */
   options: EOption[];
@@ -40,10 +39,8 @@ const portal = usePortalTarget();
 const sections = computed(() => sectionOptions(props.options));
 const selected = computed(() => props.options.find((o) => o.value === model.value));
 
-// A closed button answers typing like a native select: the matching option is chosen without opening the list.
 let typed = "";
 let typedAt = 0;
-// The list is open or closed by the person or by the consumer (v-model:open); a disabled select never opens.
 const open = defineModel<boolean>("open", { default: false });
 const isOpen = computed(() => open.value && !props.disabled);
 const quiet = useQuietFocus(isOpen, (el) => !!el.closest("[role=listbox]"));

@@ -21,7 +21,6 @@ const props = defineProps<{
   id?: string;
 }>();
 
-/** Whether the switch is on. */
 const model = defineModel<boolean>({ default: false });
 
 const id = useUid(() => props.id);
@@ -29,9 +28,7 @@ const input = ref<HTMLInputElement | null>(null);
 const attrs = useFieldAttrs();
 
 defineExpose({
-  /** The `<input>` element. */
   input,
-  /** Moves focus to the switch. */
   focus: () => input.value?.focus(),
 });
 </script>

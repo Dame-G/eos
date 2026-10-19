@@ -1,4 +1,3 @@
-/* The header, title and footer bar a Dialog and a Drawer share. */
 @layer e.containers {
   .e-dialog-head {
     display: flex;

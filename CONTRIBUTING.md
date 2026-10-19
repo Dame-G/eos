@@ -1,6 +1,6 @@
 # Contributing to Eos
 
-Eos is a set of accessible Vue 3 components and a token-based theming system. This page explains how the repository is laid out and what a component has to satisfy before it is merged.
+Eos is a set of accessible Vue 3 components and a token-based theming system. This page describes the repository layout and what a component needs before it is merged.
 
 ```
 packages/tokens   @eos-ui/tokens   tokens.json -> CSS variables, defineTheme(), contrast checks
@@ -13,12 +13,17 @@ packages/vue      @eos-ui/vue      components, plugin, composables
 corepack enable           # or install pnpm 12
 pnpm install
 pnpm build                # builds tokens, then the Vue package
-pnpm test                 # real-browser tests (Chromium; Edge is used locally if present)
-pnpm lint
+pnpm test                 # real-browser tests (Chromium in CI, Edge locally)
+pnpm lint                 # eslint and stylelint
 pnpm typecheck
+pnpm check:package        # package exports and types (needs a build)
+pnpm check:size           # stylesheet and JavaScript size budgets (needs a build)
+pnpm smoke                # builds, packs and installs both packages in a temporary app
 ```
 
-While working on one component, run from `packages/vue`:
+Node 22 or later is required.
+
+While working on one component, run from `packages/vue` (these need `pnpm build` or `pnpm test` to have generated the tokens once):
 
 | Command                                 | Use                                                                      |
 | --------------------------------------- | ------------------------------------------------------------------------ |
@@ -35,8 +40,8 @@ While working on one component, run from `packages/vue`:
 ```
 EChip.vue        script setup, template and the component's own <style>
 EChip.test.ts    Vitest browser tests
-README.md         what the consumer provides, what it does, the rules
-index.ts          export { default as EChip } from "./EChip.vue";   (plus exported types)
+README.md        what the consumer provides, what it does, the rules
+index.ts         export { default as EChip } from "./EChip.vue";   (plus exported types)
 ```
 
 `EButton` is the model.
@@ -57,7 +62,7 @@ index.ts          export { default as EChip } from "./EChip.vue";   (plus export
 
 ### Accessibility
 
-- Real elements first: `button`, `input`, `fieldset`, `details`, `dialog`, `popover`. ARIA only where no element does the job. Complex widgets (select, combobox, menu, dialog, tooltip, tabs) are built on Reka UI.
+- Real elements first: `button`, `input`, `fieldset`, `details`, `dialog`, `popover`. ARIA only where no element does the job. Complex widgets (select, combobox, menu, dialog, tooltip, tabs) use Reka UI parts.
 - Label, hint and error wiring uses `useUid`. Never a module counter.
 - Test every interactive state with the keyboard, and run `expectNoViolations` (axe) over each state: open, invalid, disabled, loading.
 - Respect `prefers-reduced-motion`.
@@ -96,4 +101,4 @@ index.ts          export { default as EChip } from "./EChip.vue";   (plus export
 
 ## Releases
 
-`pnpm changeset` for each user-facing change. Merging to `main` opens a version PR; merging that publishes both packages to npm.
+Run `pnpm changeset` for each user-facing change. Merging to `main` opens a version PR. Merging that PR publishes both packages to npm at one shared version.

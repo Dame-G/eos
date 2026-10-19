@@ -1,22 +1,32 @@
 # EGrid
 
-Cards in as many equal columns as fit. It responds to the width of its own container (no media query), so the same Grid is three columns on the page and one in a drawer. Use it for lists of StatementCards or AppointmentCards.
+Cards in as many equal columns as fit, responding to its container's width rather than the screen.
 
 ```vue
-<EGrid min="15rem" :gap="3"><ESurface>...</ESurface></EGrid>
+<EGrid min="15rem" :gap="3">
+  <ESurface>...</ESurface>
+  <ESurface>...</ESurface>
+</EGrid>
 ```
 
 ## Props
 
-| Prop  | Type               | Default | Notes                                                                           |
-| ----- | ------------------ | ------- | ------------------------------------------------------------------------------- |
-| `min` | `string`           | `16rem` | The narrowest a column may be. One column below that. Set through `--e-min`.    |
-| `gap` | `number \| string` | `4`     | A space token number (1, 2, 3, 4, 6, 8) or a CSS length. Set through `--e-gap`. |
-| `as`  | `string`           | `div`   | The element, for example `ul` with `li` children.                               |
+| Prop  | Type               | Default | Notes                                                              |
+| ----- | ------------------ | ------- | ------------------------------------------------------------------ |
+| `as`  | `string`           | `div`   | The element, for example `ul` with `li` children.                  |
+| `min` | `string`           | `16rem` | Narrowest a column may be, as a CSS length; one column below that. |
+| `gap` | `number \| string` | `4`     | A space token number (1, 2, 3, 4, 6, 8) or a CSS length.           |
 
-`class`, `style` and attributes fall through to the root. The default slot holds the cards.
+`class`, `style` and attributes land on the rendered element. Items stretch to the tallest in their row.
 
-## Rules
+## Slots
 
-- Items stretch to the tallest card in their row, so a card whose name wraps never leaves its neighbours short, and each card's actions bar stays level at the foot (see ESurface `actions`).
-- Not to be confused with the DataGrid; this class is `e-grid-layout`.
+| Slot      | Use        |
+| --------- | ---------- |
+| `default` | The cards. |
+
+## Accessibility
+
+- Layout only: no role, no landmark, and the DOM order is the reading and focus order. Columns wrap by CSS alone, so the order never changes; do not rely on visual position to convey sequence.
+- Items are children you supply; give each card its own heading or accessible name.
+- For a list of items use `as="ul"` with `li` children so the count is announced.

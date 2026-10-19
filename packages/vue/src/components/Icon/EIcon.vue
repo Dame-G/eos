@@ -15,7 +15,6 @@ const props = defineProps<{
 
 const resolve = useIconResolver();
 const resolved = computed(() => resolve(props.name as string, !!(props.small || props.bold)));
-// Arrows and chevrons that point left or right mirror in right-to-left text.
 const directional = computed(() => typeof props.name === "string" && /-(left|right)$/.test(props.name));
 </script>
 
@@ -54,13 +53,11 @@ const directional = computed(() => typeof props.name === "string" && /-(left|rig
     height: 20px;
   }
 
-  /* The built-in glyphs are filled paths. Icons from other sets keep their own fill and stroke (usually currentColor). */
   .e-icon--glyph {
     fill: currentcolor;
     stroke: none;
   }
 
-  /* A complete <svg> string sits in a box of the icon's size. */
   .e-icon--svg {
     display: inline-flex;
   }

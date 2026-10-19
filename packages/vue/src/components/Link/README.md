@@ -1,34 +1,34 @@
 # ELink
 
-An inline anchor. `primary` with an underline, `ink` on hover.
+An inline anchor for going somewhere. Things that change something are buttons.
 
 ```vue
 <ELink href="/statements">All statements</ELink>
 <ELink href="https://example.com/help" external>Help centre</ELink>
 ```
 
+An icon before the text, for a link such as the project's repository:
+
+```vue
+<ELink href="https://github.com/Dame-G/eos" external :icon="GithubMark">GitHub</ELink>
+```
+
 ## Props
 
-| Prop       | Type      | Default | Notes                                                       |
-| ---------- | --------- | ------- | ----------------------------------------------------------- |
-| `href`     | `string`  | none    | Where the link goes. Required.                              |
-| `external` | `boolean` | unset   | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`). |
+| Prop       | Type       | Default | Notes                                                                                                                                                |
+| ---------- | ---------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `href`     | `string`   |         | Required. Where the link goes.                                                                                                                       |
+| `external` | `boolean`  |         | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`).                                                                                          |
+| `icon`     | `IconProp` |         | An icon before the text: a built-in name, a name from your icon set or an icon component. It is hidden from screen readers; the text names the link. |
+
+`class`, `style`, attributes and listeners (`@click`, `aria-*`, `download`) land on the `a` element. In print the address is written after the text.
 
 ## Slots
 
-| Slot      | What                              |
+| Slot      | Use                               |
 | --------- | --------------------------------- |
 | `default` | The link text: say where it goes. |
 
-Native attributes and listeners (`@click`, `aria-*`, `download`, `hreflang`) land on the `<a>`.
-
-## Rules
-
-- Links go somewhere; things that change something are Buttons.
-- A dotted underline belongs to a Popover term, not to a link.
-- When printed, the address is written after the link text.
-
 ## Accessibility
 
-- A real `<a href>`: Tab focuses it, Enter follows it, and it has the focus ring.
-- An external link opens a new tab; say so in the text where it would surprise people.
+- An `a` with `href`: say in the text when an external link opens a new tab and that would surprise people.

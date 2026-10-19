@@ -20,7 +20,6 @@ defineSlots<{
 </template>
 
 <style>
-/* The .e-kicker rule is shared and lives in styles/base.css; this empty block only declares the layer. */
 /* stylelint-disable-next-line block-no-empty -- the layer declaration is the point */
 @layer e.primitives {
 }

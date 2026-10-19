@@ -1,6 +1,6 @@
 # Eos
 
-Accessible Vue 3 components with a token-based theme system. Calm, high-contrast and consistent by default, and rebrandable with a few lines.
+Accessible Vue 3 components with a token-based theme system. High contrast and consistent by default, rebrandable with a few lines.
 
 | Package                             | What it is                                                              |
 | ----------------------------------- | ----------------------------------------------------------------------- |
@@ -44,7 +44,9 @@ const email = ref("");
 </template>
 ```
 
-The stylesheet is one file (about 17 kB gzipped) and the JavaScript has no CSS imports, so server rendering works in plain Node without bundler setup. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. For template auto-import, use the resolver:
+The stylesheet is one file (about 19 kB gzipped). The JavaScript has no CSS imports, so server rendering works in plain Node without bundler setup. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. Components also work without the plugin, in English and US dollars.
+
+For template auto-import, use the resolver:
 
 ```ts
 import { EosResolver } from "@eos-ui/vue/resolver";
@@ -53,14 +55,16 @@ Components({ resolvers: [EosResolver()] }); // unplugin-vue-components
 
 ## Theming
 
-A theme is a set of CSS variables. Build one with `defineTheme()`, which derives the deep action colours from your brand colour and checks every promised contrast pair:
+A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes 15 inputs: `brand`, `accent`, `danger`, `warning`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `textScale`, `spaceScale`, `controlHeight` and `motion`.
 
 ```ts
+import { defineTheme } from "@eos-ui/vue";
+
 const clinic = defineTheme({ name: "clinic", brand: "#8a2be2", accent: "#2e7d32" });
 clinic.issues; // [] when every contrast pair holds
 ```
 
-Or override variables in plain CSS; it wins because the library is layered:
+Or override variables in plain CSS. Your CSS wins because the library is layered:
 
 ```css
 :root {
@@ -69,7 +73,7 @@ Or override variables in plain CSS; it wins because the library is layered:
 }
 ```
 
-The design rules (spacing rhythm, where depth is allowed, one control height) are not options. They are what makes every theme feel like the same system.
+The design rules (spacing rhythm, where depth is allowed, one control height) are not options. They keep every theme the same system.
 
 ## Words and language
 
@@ -106,7 +110,7 @@ phosphorVue(ph);
 iconify("lucide");
 ```
 
-Then `<EButton icon="credit-card">` finds the icon in your set, and the names Eos uses itself (`card`, `alert`, `home`) are renamed for you. Anything your set lacks falls back to the built-in icon, or turn that off with `builtin: false`. You can also pass a component directly (`:icon="CreditCard"`) or write your own resolver. All 41 names, the options and the resolver are in [packages/vue/src/icons/README.md](packages/vue/src/icons/README.md).
+`<EButton icon="credit-card">` then finds the icon in your set. The names Eos uses itself (`card`, `alert`, `home`) map to your set's names. Anything your set lacks falls back to the built-in icon; `builtin: false` turns that off. An `icon` prop also takes a component (`:icon="CreditCard"`). All 41 names, the options and the custom resolver are in [packages/vue/src/icons/README.md](packages/vue/src/icons/README.md).
 
 ## Contributing
 

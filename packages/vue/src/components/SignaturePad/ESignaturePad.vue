@@ -18,7 +18,6 @@ const props = withDefaults(
   { height: 160 },
 );
 
-/** The drawing as a PNG data URL, empty while the pad is clear. Set it to an empty string to clear the pad. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
@@ -30,7 +29,6 @@ interface Point {
   x: number;
   y: number;
 }
-// The strokes are kept as points so the pad can redraw after a resize and export in black whatever the theme.
 const strokes: Point[][] = [];
 let current: Point[] | null = null;
 
@@ -53,7 +51,6 @@ function paint(ctx: CanvasRenderingContext2D, color: string) {
   }
 }
 
-/** Sizes the bitmap to the element at the device pixel ratio, then redraws what was drawn. */
 function setup() {
   const cv = canvas.value;
   if (!cv) return;
@@ -78,9 +75,7 @@ function down(e: PointerEvent) {
   e.preventDefault();
   try {
     canvas.value!.setPointerCapture(e.pointerId);
-  } catch {
-    // some pointers cannot be captured; drawing still works while the pointer stays over the canvas
-  }
+  } catch {}
   const p = point(e);
   current = [p];
   strokes.push(current);
@@ -104,7 +99,6 @@ function move(e: PointerEvent) {
   ctx.stroke();
 }
 
-/** The image is black on transparent, as on paper, whatever the theme draws on screen. */
 function exportImage(): string {
   const cv = canvas.value!;
   const out = document.createElement("canvas");
@@ -142,15 +136,12 @@ function clear() {
   model.value = "";
 }
 
-// Setting the model to an empty string from outside clears the pad.
 watch(model, (v) => {
   if (!v && !empty.value) wipe();
 });
 
 defineExpose({
-  /** Clears the pad. */
   clear,
-  /** The `<canvas>` element. */
   canvas,
 });
 </script>

@@ -3,7 +3,6 @@ import { onMounted, ref } from "vue";
 import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 
-// The draggable and keyboard-operable edge of a column heading (the ARIA window splitter pattern). Internal to EDataGrid.
 const props = defineProps<{
   /** The column's label, for the accessible name. */
   label: string;
@@ -24,9 +23,7 @@ const t = useMessages();
 const el = ref<HTMLElement | null>(null);
 const measured = ref(props.min);
 
-/** The heading cell the edge belongs to. */
 const cellWidth = () => el.value?.parentElement?.getBoundingClientRect().width ?? props.min;
-/** Dragging towards the end of a line widens the column, which is leftwards in right-to-left text. */
 const sign = () => (el.value && getComputedStyle(el.value).direction === "rtl" ? -1 : 1);
 
 onMounted(() => (measured.value = Math.round(cellWidth())));
@@ -71,7 +68,6 @@ function onReset() {
 </script>
 
 <template>
-  <!-- A focusable separator is a widget (the ARIA window splitter), which the rule does not know. -->
   <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
   <span
     ref="el"

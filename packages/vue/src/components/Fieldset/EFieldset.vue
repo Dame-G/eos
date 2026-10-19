@@ -8,7 +8,7 @@ import "../../styles/base.css";
 const props = defineProps<{
   /** The question the controls answer. Names the group for screen readers. */
   legend?: string;
-  /** No box: the legend becomes a small mono label above the controls (RadioGroup, TimeSlots). */
+  /** No box: the legend becomes a small mono label above the controls (RadioGroup, SlotPicker). */
   bare?: boolean;
   /** Help that is announced with the group. */
   hint?: string;

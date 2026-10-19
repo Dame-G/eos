@@ -1,6 +1,3 @@
-// Eos's icon names mapped to the names each icon set uses. Checked against the live sets by
-// `node scripts/validate-icon-aliases.mjs`, and for completeness by aliases.test.ts.
-// This file holds data only (type imports are erased), so the script can load it directly.
 import type { IconName } from "./phosphor.js";
 
 export type AliasTable = Record<IconName, string>;
@@ -102,15 +99,15 @@ export const heroiconsAliases = {
   "arrow-left": "arrow-left",
   menu: "bars-3",
   "sign-out": "arrow-right-start-on-rectangle",
-  eraser: "backspace", // no eraser in Heroicons; nearest
+  eraser: "backspace",
   card: "credit-card",
   receipt: "receipt-percent",
-  signature: "pencil", // no signature in Heroicons; nearest
+  signature: "pencil",
   form: "clipboard-document-list",
   download: "arrow-down-tray",
   print: "printer",
   lock: "lock-closed",
-  pin: "map-pin", // no pushpin in Heroicons; nearest
+  pin: "map-pin",
   edit: "pencil-square",
   mail: "envelope",
   phone: "phone",
@@ -283,9 +280,9 @@ export const carbonAliases = {
   menu: "menu",
   "sign-out": "logout",
   eraser: "erase",
-  card: "money", // Carbon has no payment-card glyph; nearest
+  card: "money",
   receipt: "receipt",
-  signature: "pen", // no signature in Carbon; nearest
+  signature: "pen",
   form: "document",
   download: "download",
   print: "printer",

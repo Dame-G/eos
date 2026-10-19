@@ -32,10 +32,8 @@ defineSlots<{
 
 const t = useMessages();
 const instance = getCurrentInstance();
-/** The Edit button is shown only when the consumer listens for `edit`. Read at render, so a listener added later counts. */
 const showEdit = () => props.editable ?? Boolean(instance?.vnode.props?.onEdit);
 
-/** The message when the app's catalogue has it, the English wording otherwise. */
 function say(key: string, fallback: string, vars?: Record<string, string>) {
   const text = t(key, vars);
   return text === key ? fallback.replace(/\{(\w+)\}/g, (m, k: string) => vars?.[k] ?? m) : text;

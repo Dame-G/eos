@@ -5,7 +5,6 @@ import { render } from "vitest-browser-vue";
 import EPagination from "./EPagination.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
-/** The labels of the page buttons and gaps, in order. */
 function shape(container: Element): string[] {
   return [...container.querySelectorAll(".e-pages li")].map((li) => li.textContent!.trim());
 }

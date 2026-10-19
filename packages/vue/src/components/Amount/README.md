@@ -1,6 +1,6 @@
 # EAmount
 
-One amount in mono tabular figures, with an optional label and, only when they add information, a few lines beneath.
+One amount in mono tabular figures, with an optional label and detail lines, for statements and balances.
 
 ```vue
 <EAmount label="You owe" :amount="162.4" :details="[{ label: 'Insurance paid', value: 80 }]" />
@@ -8,18 +8,19 @@ One amount in mono tabular figures, with an optional label and, only when they a
 
 ## Props
 
-| Prop       | Type                                           | Notes                                                                       |
-| ---------- | ---------------------------------------------- | --------------------------------------------------------------------------- |
-| `amount`   | `number`                                       | The lead amount. Required.                                                  |
-| `label`    | `string`                                       | What it is: "You owe", "Paid", "Balance". A small uppercase label above it. |
-| `details`  | `{ label: string; value: number \| string }[]` | Lines under the amount. A number is shown as money, text as it is.          |
-| `currency` | `string`                                       | ISO 4217 code for this figure. Overrides the configured currency.           |
-| `locale`   | `string`                                       | BCP 47 tag for this figure. Overrides the configured locale.                |
+| Prop       | Type                                           | Default | Notes                                                           |
+| ---------- | ---------------------------------------------- | ------- | --------------------------------------------------------------- |
+| `amount`   | `number`                                       |         | Required. The lead amount, always two decimals.                 |
+| `label`    | `string`                                       |         | What it is ("You owe", "Paid"), shown small above.              |
+| `currency` | `string`                                       |         | ISO 4217 code; overrides the configured currency.               |
+| `locale`   | `string`                                       |         | BCP 47 tag; overrides the configured locale.                    |
+| `details`  | `{ label: string; value: number \| string }[]` |         | Lines under the amount. A number is shown as money, text as is. |
 
-`class`, `style` and `data-*` attributes fall through to the root element.
+`class`, `style` and attributes land on the `div` element. Formatting uses `Intl.NumberFormat` with the currency and locale from `createEos`. Show one lead amount per statement and do not repeat it in `details`.
 
-## Rules
+## Accessibility
 
-- Show one lead amount per statement. The label says what it is.
-- Money uses `Intl.NumberFormat` with the configured currency and locale (`createEos({ currency: "EUR", locale: "de-DE" })` turns $162.40 into 162,40 €), always with two decimals.
-- Add `details` only when they add information. Do not repeat the amount in them.
+- Plain text in `span`s with no role and no live region. A change to the amount is not announced; announce it with `useToast` or your own live region.
+- The label and the figure are separate spans and read in order ("You owe", then the amount). Pass a `label` when the figure is not clear from the surrounding heading.
+- Detail lines read as "label amount" with no separator; keep each label short.
+- Meaning comes from the text, never from colour or size.

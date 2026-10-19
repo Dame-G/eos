@@ -20,6 +20,23 @@ const STATUSES = [
 ] as const;
 
 describe("EStamp", () => {
+  test("is solid by default and subtle on request", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [h(EStamp, { status: "overdue" }), h(EStamp, { status: "overdue", variant: "subtle" })]),
+      }),
+    );
+    const [solid, subtle] = [...container.querySelectorAll(".e-stamp")];
+    expect(subtle!.classList.contains("e-stamp--subtle")).toBe(true);
+    expect(solid!.classList.contains("e-stamp--subtle")).toBe(false);
+    const a = getComputedStyle(solid!);
+    const b = getComputedStyle(subtle!);
+    expect(a.backgroundColor).toBe(b.color);
+    expect(a.backgroundColor).not.toBe(a.color);
+    expect(b.backgroundColor).not.toBe(a.backgroundColor);
+  });
+
   test("a status preset gives the word, a glyph and the label (suite: StatusStamp)", async () => {
     const { container } = await render(EStamp, { props: { status: "overdue" } });
     expect(container.querySelector(".e-stamp-word")!.textContent).toBe("Overdue");

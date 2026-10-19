@@ -1,32 +1,30 @@
 # ECheckbox
 
-A single yes/no choice. A setting that takes effect immediately is an `ESwitch`.
+A single yes/no choice. Use `ESwitch` for a setting that takes effect immediately.
 
 ```vue
 <ECheckbox v-model="agree" label="I agree to the terms" description="You can change this later." />
-<ECheckbox v-model="agree" label="I agree" :error="agree ? undefined : 'You must agree'" />
 ```
 
 ## Props
 
-| Prop            | Type      | Notes                                                                                  |
-| --------------- | --------- | -------------------------------------------------------------------------------------- |
-| `v-model`       | `boolean` | Checked or not. Leave it off for local state.                                          |
-| `label`         | `string`  | Required.                                                                              |
-| `description`   | `string`  | A line of detail under the label.                                                      |
-| `indeterminate` | `boolean` | The mixed state, such as select-all with some rows chosen.                             |
-| `bare`          | `boolean` | Hides the label visually but keeps it for screen readers, for a table cell.            |
-| `error`         | `string`  | Shown under the row, linked with `aria-describedby`, with `aria-invalid` on the input. |
-| `disabled`      | `boolean` |                                                                                        |
-| `required`      | `boolean` | The `required` attribute.                                                              |
-| `name`, `value` | `string`  | Submitted with a form.                                                                 |
-| `id`            | `string`  | Generated when left out.                                                               |
+| Prop            | Type      | Default   | Notes                                                      |
+| --------------- | --------- | --------- | ---------------------------------------------------------- |
+| `modelValue`    | `boolean` | `false`   | v-model: checked or not.                                   |
+| `label`         | `string`  |           | Required.                                                  |
+| `description`   | `string`  |           | Detail under the label.                                    |
+| `indeterminate` | `boolean` |           | Mixed state, such as select-all with some rows set.        |
+| `bare`          | `boolean` |           | Hides the label visually, for a table cell. No error text. |
+| `error`         | `string`  |           | Shown under the row; sets `aria-invalid`.                  |
+| `disabled`      | `boolean` |           |                                                            |
+| `required`      | `boolean` |           | The `required` attribute.                                  |
+| `name`          | `string`  |           | Submitted with a form.                                     |
+| `value`         | `string`  |           | Submitted with a form when checked.                        |
+| `id`            | `string`  | generated | Id of the input.                                           |
 
-`class` and `style` stay on the row (or on `div.e-choice-wrap` when there is an error); every other attribute and listener lands on the `<input>`. Exposed: `input` and `focus()`.
+`class` and `style` land on the row (the `label`, or the wrapper `div` when there is an error); other attributes and listeners land on the `input` element. Exposes `input` and `focus()`.
 
-## Rules
+## Accessibility
 
-- The whole 48px row is the target. Checked is a `primary` fill with a white tick; unchecked has a `border-strong` edge.
-- With an error the row is wrapped in `.e-choice-wrap` and the message sits 8px under the box.
-- The `bare` variant has no error text: show the problem elsewhere.
-- Shared choice styles (checkbox, radio) live in `choice.css` in this folder; `ERadioGroup` and `ESwitch` import it.
+- The label is required; with `bare` it stays for screen readers.
+- `error` is linked to the input with `aria-describedby`.

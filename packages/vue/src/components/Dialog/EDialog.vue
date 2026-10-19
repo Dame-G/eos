@@ -32,7 +32,6 @@ defineSlots<{
   actions?(): unknown;
 }>();
 
-/** Whether the dialog is open. */
 const open = defineModel<boolean>("open");
 
 const t = useMessages();
@@ -85,9 +84,7 @@ function setOpen(value: boolean) {
     border-radius: var(--e-radius-lg);
     background: var(--e-surface);
     color: var(--e-ink);
-    box-shadow:
-      0 0 0 1px var(--e-border),
-      var(--e-float);
+    box-shadow: var(--e-float);
     overflow: auto;
     font-family: var(--e-font-sans);
   }

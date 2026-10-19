@@ -32,12 +32,10 @@ const props = withDefaults(
   { rows: 4 },
 );
 
-/** The text in the textarea. */
 const model = defineModel<string>({ default: "" });
 
 const input = ref<HTMLTextAreaElement | null>(null);
 const attrs = useFieldAttrs();
-/** The textarea's own attributes, with the consumer's fall-through ones last. */
 function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }) {
   return {
     id: field.id,
@@ -52,9 +50,7 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
   };
 }
 defineExpose({
-  /** The `<textarea>` element. */
   input,
-  /** Puts the cursor in the textarea. */
   focus: () => input.value?.focus(),
 });
 </script>

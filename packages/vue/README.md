@@ -1,6 +1,6 @@
 # @eos-ui/vue
 
-Accessible Vue 3 components with a token-based theme system. Calm, high-contrast and consistent by default, and rebrandable with a few lines.
+Accessible Vue 3 components with a token-based theme system. High contrast and consistent by default, rebrandable with a few lines.
 
 Documentation, live examples and a theme playground: https://eos.dame.gg
 
@@ -37,9 +37,12 @@ const email = ref("");
 </template>
 ```
 
-- One stylesheet (about 17 kB gzipped), imported once. The JavaScript has no CSS imports, so server rendering needs no bundler setup.
+- One stylesheet (about 19 kB gzipped), imported once. The JavaScript has no CSS imports, so server rendering needs no bundler setup.
 - Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights.
-- Words, locale, currency and icons are configuration, not code: see the plugin options.
-- Bring your own icons: Lucide, Tabler, Heroicons, Phosphor, Iconify, or your own set (`@eos-ui/vue/icons`).
+- Words, locale, currency, text direction and icons are plugin options.
+- `defineTheme()` (re-exported from `@eos-ui/tokens`) builds a theme from `brand`, `accent` and other inputs and checks its contrast.
+- Icons: a built-in Phosphor set, or Lucide, Tabler, Heroicons, Phosphor (Vue), Iconify or your own set (`@eos-ui/vue/icons`).
+- `EosResolver` from `@eos-ui/vue/resolver` auto-imports components for `unplugin-vue-components`.
+- Components work without the plugin, in English and US dollars.
 
 Source, issues and contributing: https://github.com/Dame-G/eos. MIT licensed.

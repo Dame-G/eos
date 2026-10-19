@@ -12,7 +12,6 @@ const openIt = async () => {
   await userEvent.tab();
 };
 
-/** Mounts with a controlled `open`; `state` is the consumer's variable and `seen` lists what update:open reported. */
 async function bound(initial: boolean, extra: Record<string, unknown> = {}) {
   const state = ref(initial);
   const seen: boolean[] = [];

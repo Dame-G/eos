@@ -36,5 +36,9 @@ const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-
     gap: var(--e-gap, var(--e-space-4));
     align-items: stretch;
   }
+
+  .e-grid-layout > * {
+    min-width: 0;
+  }
 }
 </style>

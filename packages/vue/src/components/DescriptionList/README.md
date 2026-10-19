@@ -1,6 +1,6 @@
 # EDescriptionList
 
-Label and text rows, ruled apart: what a statement covers, how to pay, when it is due.
+Label and text rows, ruled apart, for facts such as what a statement covers or when it is due.
 
 ```vue
 <EDescriptionList
@@ -13,13 +13,12 @@ Label and text rows, ruled apart: what a statement covers, how to pay, when it i
 
 ## Props
 
-| Prop    | Type                                         | Notes                                                                                    |
-| ------- | -------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `items` | `{ label: string; text: string \| VNode }[]` | The rows. Labels are used as keys, so keep them unique. Exported type `DescriptionItem`. |
+| Prop    | Type                | Default | Notes                                                                                       |
+| ------- | ------------------- | ------- | ------------------------------------------------------------------------------------------- |
+| `items` | `DescriptionItem[]` |         | Required. `{ label: string, text: string \| VNode }`. Labels are keys, so keep them unique. |
 
-`class`, `style` and attributes fall through to the `dl`.
+`class`, `style` and attributes land on the `dl` element.
 
 ## Accessibility
 
-- It renders a real description list (`dl`, `dt`, `dd`, each pair wrapped in a `div`), so screen readers announce each pair.
-- The label sits beside the text and stacks above it below 26rem. In print each row is ruled by a bottom border.
+- A `dl` with `dt` and `dd` pairs, so screen readers announce each pair.

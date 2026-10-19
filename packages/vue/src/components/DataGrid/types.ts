@@ -1,7 +1,6 @@
 import type { EOptionInput } from "../Select/options.js";
 
 /** A row: any object with a unique `id`. */
-// An interface has no index signature, so only `any` lets a consumer's own row type through.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DataGridRow = { id: string | number } & Record<string, any>;
 

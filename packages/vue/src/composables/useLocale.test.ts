@@ -4,7 +4,6 @@ import { render } from "vitest-browser-vue";
 import { useLocale } from "./useLocale.js";
 import { createEos } from "../plugin.js";
 
-/** Runs `useLocale` inside a component, with the given config, and returns it. */
 async function locale(options: Parameters<typeof createEos>[0] = {}) {
   let api!: ReturnType<typeof useLocale>;
   const eos = createEos({ themeTarget: null, ...options });

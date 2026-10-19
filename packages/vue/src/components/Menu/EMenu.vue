@@ -40,7 +40,7 @@ defineOptions({ inheritAttrs: false });
 
 withDefaults(
   defineProps<{
-    /** The button's text. */
+    /** The button's text. With a `trigger` slot it is not shown; name your own trigger. */
     label: string;
     /** The actions, in order. `{ divider: true }` draws a rule. */
     items: readonly EMenuItem[];
@@ -48,8 +48,10 @@ withDefaults(
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
     /** An icon before the label. */
     icon?: IconProp;
+    /** Which edge of the trigger the menu lines up with. Use `end` for a trigger at the end of a bar. Default `start`. */
+    align?: "start" | "end";
   }>(),
-  { variant: "outline" },
+  { variant: "outline", align: "start" },
 );
 
 const emit = defineEmits<{
@@ -57,7 +59,11 @@ const emit = defineEmits<{
   select: [item: EMenuAction];
 }>();
 
-/** Whether the menu is open. */
+defineSlots<{
+  /** Your own trigger, one element that takes a click, such as a `button` around an avatar. It replaces the button; give it an accessible name. */
+  trigger?(): unknown;
+}>();
+
 const open = defineModel<boolean>("open", { default: false });
 
 const portal = usePortalTarget();
@@ -67,8 +73,6 @@ function choose(item: EMenuAction) {
   emit("select", item);
 }
 
-// A person opening the menu (pointer or key on the button) gets the first action focused. A menu that starts open or
-// is opened from outside moves no focus. Likewise, closing it from outside gives focus back to nothing.
 let byPerson = false;
 let hadFocus = false;
 const intent = () => (byPerson = true);
@@ -100,15 +104,17 @@ function returnFocus(event: Event) {
 <template>
   <DropdownMenuRoot v-model:open="open" :modal="false">
     <DropdownMenuTrigger as-child @click="intent" @keydown="intent">
-      <EButton :variant="variant" :icon="icon" v-bind="$attrs">
-        {{ label }}
-        <EIcon name="chevron-down" />
-      </EButton>
+      <slot name="trigger">
+        <EButton :variant="variant" :icon="icon" v-bind="$attrs">
+          {{ label }}
+          <EIcon name="chevron-down" />
+        </EButton>
+      </slot>
     </DropdownMenuTrigger>
     <DropdownMenuPortal :to="portal">
       <DropdownMenuContent
         class="e-popover e-menu e-root"
-        align="start"
+        :align="align"
         :side-offset="8"
         :collision-padding="16"
         loop
@@ -180,7 +186,6 @@ function returnFocus(event: Event) {
     margin: var(--e-space-1) 0;
   }
 
-  /* Reka UI marks the focused row with data-highlighted and a disabled row with data-disabled, on a div, where the reference used a button. */
   .e-menu-item[data-highlighted] {
     background: var(--e-surface-tint);
     outline: none;

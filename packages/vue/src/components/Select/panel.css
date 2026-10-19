@@ -1,4 +1,3 @@
-/* The floating panel and the option rows that Select, Combobox, Autocomplete, MultiSelect, Popover and Menu share. */
 @layer e.controls {
   .e-popover {
     position: fixed;
@@ -12,9 +11,7 @@
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     color: var(--e-ink);
-    box-shadow:
-      0 0 0 1px var(--e-border),
-      var(--e-float);
+    box-shadow: var(--e-float);
     font-family: var(--e-font-sans);
   }
 
@@ -106,11 +103,6 @@
     text-underline-offset: 3px;
   }
 
-  /*
-   * Reka UI places the panel with floating-ui inside its own wrapper and marks the highlighted row with data-highlighted,
-   * where the reference placed the popover by script and marked the row with a class. These rules carry the reference
-   * look onto that structure.
-   */
   [data-reka-popper-content-wrapper] > .e-popover {
     position: relative;
     z-index: var(--e-z-popover);

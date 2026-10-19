@@ -34,12 +34,10 @@ const props = defineProps<{
   id?: string;
 }>();
 
-/** The text in the input. */
 const model = defineModel<string>({ default: "" });
 
 const input = ref<HTMLInputElement | null>(null);
 const attrs = useFieldAttrs();
-/** The input's own attributes, with the consumer's fall-through ones last. */
 function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }) {
   return {
     id: field.id,
@@ -54,9 +52,7 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
   };
 }
 defineExpose({
-  /** The `<input>` element. */
   input,
-  /** Puts the cursor in the input. */
   focus: () => input.value?.focus(),
 });
 </script>

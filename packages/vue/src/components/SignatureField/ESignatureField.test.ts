@@ -24,7 +24,6 @@ function draw(cv: HTMLCanvasElement) {
   ev("pointerup", 80, 70);
 }
 
-/** Renders the field bound to a model and returns every value it reported. */
 async function mount(props: Record<string, unknown> = {}) {
   const model = ref<SignatureValue>({ method: "type", name: "", image: "", agreed: false });
   const got: SignatureValue[] = [];

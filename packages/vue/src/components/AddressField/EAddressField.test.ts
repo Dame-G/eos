@@ -9,7 +9,6 @@ import { expectNoViolations } from "../../../test/axe.js";
 const input = (c: Element, name: string) => c.querySelector<HTMLInputElement>(`input[name="${name}"]`)!;
 const regionButton = (c: Element) => c.querySelector<HTMLButtonElement>("button.e-sel-trigger")!;
 
-/** An address bound to a model, so v-model round trips are real. */
 async function bound(initial: Address, props: Record<string, unknown> = {}) {
   const model = ref<Address>(initial);
   const result = await render(

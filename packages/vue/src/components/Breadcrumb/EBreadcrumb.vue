@@ -25,7 +25,6 @@ withDefaults(
 
 const t = useMessages();
 
-// Only attributes that have a value: an undefined `href` would override the one a router link computes.
 const linkAttrs = (item: BreadcrumbItem) => ({
   ...(item.href !== undefined && { href: item.href }),
   ...(item.to !== undefined && { to: item.to }),
@@ -76,14 +75,20 @@ const linkAttrs = (item: BreadcrumbItem) => ({
   .e-crumb-current {
     display: inline-flex;
     align-items: center;
-    min-height: var(--e-control-height);
   }
 
   .e-crumb {
+    position: relative;
     color: var(--e-primary);
     text-decoration: underline;
     text-decoration-color: var(--e-primary);
     text-underline-offset: 3px;
+  }
+
+  .e-crumb::after {
+    content: "";
+    position: absolute;
+    inset: -12px -4px;
   }
 
   .e-crumb:hover {

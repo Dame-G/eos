@@ -9,7 +9,7 @@ withDefaults(
     /** A short line under the title. */
     description?: string;
     /** The heading level, 1 by default. A page has exactly one h1. */
-    headingLevel?: 1 | 2 | 3 | 4;
+    headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   }>(),
   { headingLevel: 1 },
 );
@@ -85,6 +85,10 @@ defineSlots<{
     flex-wrap: wrap;
     align-items: center;
     gap: var(--e-space-2) var(--e-space-4);
+  }
+
+  .e-pagehead-titlerow > :not(.e-pagehead-title) {
+    margin-top: var(--e-space-1);
   }
 }
 </style>

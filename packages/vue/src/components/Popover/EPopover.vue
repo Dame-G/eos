@@ -18,7 +18,7 @@ withDefaults(
     /** Adds a title row with this title and a Close button. */
     title?: string;
     /** The level of the title's heading, so it fits the page outline. Default 3. */
-    headingLevel?: 1 | 2 | 3 | 4;
+    headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   }>(),
   { headingLevel: 3 },
 );
@@ -32,14 +32,12 @@ defineSlots<{
   actions?(): unknown;
 }>();
 
-/** Whether the panel is open. */
 const open = defineModel<boolean>({ default: false });
 
 const t = useMessages();
 const portal = usePortalTarget();
 const id = useUid();
 
-// Reka names the panel by its trigger. The panel is better named by its title, or by the label when there is none.
 const trigger = ref<HTMLElement | null>(null);
 watch(
   open,
@@ -135,7 +133,6 @@ watch(
     padding-top: var(--e-space-1);
   }
 
-  /* Not part of the page when printed. The reference uses !important; a later rule in the same layer wins without it. */
   @media print {
     .e-linkbtn {
       display: none;
