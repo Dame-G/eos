@@ -30,8 +30,8 @@ const checks = [
   [vueTgz, ". ./resolver ./icons ./icons/iconify"],
 ];
 for (const [tgz, entrypoints] of checks) {
-  run(`npx --yes publint "${join(packs, tgz)}" --strict`);
-  run(`npx --yes @arethetypeswrong/cli --pack "${join(packs, tgz)}" --profile esm-only --entrypoints ${entrypoints}`);
+  run(`corepack pnpm --filter @eos-ui/vue exec publint "${join(packs, tgz)}" --strict`);
+  run(`corepack pnpm --filter @eos-ui/vue exec attw --pack "${join(packs, tgz)}" --profile esm-only --entrypoints ${entrypoints}`);
 }
 
 step("create a fresh app");
