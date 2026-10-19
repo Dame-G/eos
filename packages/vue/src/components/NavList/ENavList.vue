@@ -96,7 +96,7 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
   }
 
   .e-nav:not(.e-nav--dense, .e-nav--horizontal) .e-nav-item[aria-current="page"] {
-    border-color: var(--e-border-strong);
+    border-color: var(--e-primary);
     border-top-width: calc(var(--e-stroke-edge) + var(--e-depth));
   }
 
