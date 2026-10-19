@@ -21,7 +21,12 @@ describe("EPhoneField", () => {
     await expect.element(page.getByLabelText("Phone number")).toBeVisible();
   });
 
-  test("groups digits as you type (the reference test)", async () => {
+  test("name is set on the input", async () => {
+    const { container } = await render(EPhoneField, { props: { label: "Mobile", name: "mobile" } });
+    expect(container.querySelector("input")!.name).toBe("mobile");
+  });
+
+  test("groups digits as you type", async () => {
     const { container } = await render(EPhoneField, { props: { label: "Mobile" } });
     await page.getByRole("textbox", { name: "Mobile" }).fill("5551234567");
     expect(container.querySelector("input")!.value).toBe("(555) 123-4567");

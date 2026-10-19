@@ -43,17 +43,21 @@ const model = defineModel<number | null>({ default: null });
 const config = useConfig();
 const field = ref<InstanceType<typeof ENumberField> | null>(null);
 
-const symbol = computed(() => {
+function symbolOf(locale: string, currency: string): string | undefined {
   try {
-    const parts = new Intl.NumberFormat(props.locale || config.locale, {
-      style: "currency",
-      currency: props.currency || config.currency,
-    }).formatToParts(0);
-    return parts.find((p) => p.type === "currency")?.value ?? "$";
+    const parts = new Intl.NumberFormat(locale, { style: "currency", currency }).formatToParts(0);
+    return parts.find((p) => p.type === "currency")?.value;
   } catch {
-    return "$";
+    return undefined;
   }
-});
+}
+
+const symbol = computed(
+  () =>
+    symbolOf(props.locale || config.locale, props.currency || config.currency) ??
+    symbolOf(config.locale, config.currency) ??
+    config.currency,
+);
 
 defineExpose({
   input: computed(() => field.value?.input ?? null),

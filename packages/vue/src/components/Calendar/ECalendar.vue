@@ -623,7 +623,7 @@ defineExpose({
     transition: background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  /* stylelint-disable-next-line selector-not-notation -- the reference selector, kept for parity */
+  /* stylelint-disable-next-line selector-not-notation -- the selector stays in this form */
   .e-day:hover:not(:disabled):not(.e-day--sel) {
     background: var(--e-surface-tint);
     border-color: var(--e-border-strong);
@@ -708,7 +708,7 @@ defineExpose({
     height: 44px;
   }
 
-  /* stylelint-disable-next-line selector-not-notation -- the reference selector, kept for parity */
+  /* stylelint-disable-next-line selector-not-notation -- the selector stays in this form */
   .e-cal-cell:hover:not(:disabled):not(.e-day--sel) {
     background: var(--e-surface-tint);
     border-color: var(--e-border-strong);

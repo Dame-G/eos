@@ -26,6 +26,16 @@ describe("EMultiSelect", () => {
     expect(inputOf(container).placeholder).toBe("");
   });
 
+  test("bare: just the field, named by ariaLabel", async () => {
+    const { container } = await render(EMultiSelect, {
+      props: { bare: true, ariaLabel: "Channels", options: WAYS, modelValue: ["Text"] },
+    });
+    expect(container.querySelector("label")).toBeNull();
+    expect(container.querySelector(".e-field")).toBeNull();
+    expect(tags(container)).toEqual(["Text"]);
+    await expect.element(box("Channels")).toBeVisible();
+  });
+
   test("a one-row multi-select is the same height as a text field and a Select", async () => {
     const { container } = await render(
       defineComponent({

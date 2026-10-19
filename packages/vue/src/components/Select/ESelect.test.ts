@@ -336,6 +336,11 @@ describe("ESelect", () => {
     expect(container.querySelector("label")!.getAttribute("for")).toBe("pay");
   });
 
+  test("bare with only a label still names the button", async () => {
+    await render(ESelect, { props: { bare: true, label: "Status", options: OPTIONS } });
+    await expect.element(page.getByRole("combobox", { name: "Status" })).toBeVisible();
+  });
+
   test("bare: just the control, named by ariaLabel", async () => {
     const { container } = await render(ESelect, { props: { bare: true, ariaLabel: "Status", options: OPTIONS } });
     expect(container.querySelector("label")).toBeNull();

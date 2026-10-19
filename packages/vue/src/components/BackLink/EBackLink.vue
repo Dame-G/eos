@@ -13,7 +13,7 @@ const props = withDefaults(
     /** What renders the link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). */
     linkComponent?: string | Component;
   }>(),
-  { linkComponent: "a" },
+  { href: "#", linkComponent: "a" },
 );
 
 defineSlots<{
@@ -23,7 +23,7 @@ defineSlots<{
 
 const t = useMessages();
 const attrs = useAttrs();
-const linkAttrs = computed(() => ({ ...(attrs.to === undefined && { href: props.href ?? "#" }), ...attrs }));
+const linkAttrs = computed(() => ({ ...(attrs.to === undefined && { href: props.href }), ...attrs }));
 </script>
 
 <template>

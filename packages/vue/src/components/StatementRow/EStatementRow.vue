@@ -115,7 +115,7 @@ const money = (n: number) => formatMoney(n, { currency: props.currency, locale: 
   }
 
   .e-srow .e-stamp {
-    /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- two longhands, as in the reference */
+    /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- two longhands */
     justify-self: start;
     align-self: center;
   }

@@ -18,6 +18,8 @@ import "../Checkbox/choice.css";
 const props = defineProps<{
   /** The question, as the group's legend. */
   label: string;
+  /** Keep the legend for screen readers and remove it from the page. */
+  hideLabel?: boolean;
   /** Five or fewer. A string is both value and label. */
   options: (string | RadioOption)[];
   /** Help that is announced with the group. */
@@ -67,9 +69,10 @@ Nodes.props = ["nodes"];
   <EFieldset
     :id="`${name}-fs`"
     class="e-radiogroup"
-    legend-class-name="e-radiogroup-legend"
+    legend-class="e-radiogroup-legend"
     bare
     :legend="label"
+    :hide-legend="hideLabel"
     :hint="hint"
     :error="error"
     :required="required"

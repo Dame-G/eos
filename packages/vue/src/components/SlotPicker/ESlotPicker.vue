@@ -18,7 +18,7 @@ const props = defineProps<{
   /** The question the times answer, usually the day. Names the group for screen readers. */
   label: string;
   /** The times. A string is both value and label. */
-  slots: (string | SlotOption)[];
+  options: (string | SlotOption)[];
   /** Shown when the day has no times. Default "No times are open on this day." */
   emptyText?: string;
   /** Help that is announced with the group. */
@@ -27,6 +27,8 @@ const props = defineProps<{
   error?: string;
   /** The `required` attribute and the word "Required". */
   required?: boolean;
+  /** A word beside the legend. Flag whichever is rarer. */
+  optional?: boolean;
   /** Disables every time. */
   disabled?: boolean;
   /** The name the radios share, submitted with a form. Generated when left out. */
@@ -37,8 +39,8 @@ const model = defineModel<string | null>({ default: null });
 
 const t = useMessages();
 const name = useUid(() => props.name);
-const options = computed<SlotOption[]>(() =>
-  props.slots.map((s) => (typeof s === "string" ? { value: s, label: s } : s)),
+const times = computed<SlotOption[]>(() =>
+  props.options.map((s) => (typeof s === "string" ? { value: s, label: s } : s)),
 );
 </script>
 
@@ -47,15 +49,16 @@ const options = computed<SlotOption[]>(() =>
     :id="`${name}-fs`"
     bare
     class="e-slots"
-    legend-class-name="e-slots-legend"
+    legend-class="e-slots-legend"
     :legend="label"
     :hint="hint"
     :error="error"
     :required="required"
+    :optional="optional"
     :disabled="disabled"
   >
-    <div v-if="options.length" class="e-slots-grid">
-      <label v-for="o in options" :key="o.value" class="e-slot" :class="{ 'e-slot--off': o.disabled }">
+    <div v-if="times.length" class="e-slots-grid">
+      <label v-for="o in times" :key="o.value" class="e-slot" :class="{ 'e-slot--off': o.disabled }">
         <input
           type="radio"
           class="e-slot-input"

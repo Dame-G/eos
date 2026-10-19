@@ -33,12 +33,23 @@ describe("EFieldset", () => {
 
   test("the legend class and the wrapper's class are kept", async () => {
     const { container } = await render(EFieldset, {
-      props: { legend: "L", legendClassName: "extra" },
+      props: { legend: "L", legendClass: "extra" },
       attrs: { class: "mine" },
       slots: { default: street },
     });
     expect(container.querySelector("fieldset")!.className).toBe("e-fieldset e-fieldset--box mine");
     expect(container.querySelector("legend")!.classList.contains("extra")).toBe(true);
+  });
+
+  test("hideLegend keeps the legend for screen readers only", async () => {
+    const { container } = await render(EFieldset, {
+      props: { legend: "Hidden", hideLegend: true, bare: true },
+      slots: { default: street },
+    });
+    const legend = container.querySelector("legend")!;
+    expect(legend.classList.contains("e-fieldset-legend--hidden")).toBe(true);
+    expect(legend.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+    await expect.element(page.getByRole("group", { name: "Hidden" })).toBeInTheDocument();
   });
 
   test("title and Required sit on the top edge with room either side", async () => {

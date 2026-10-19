@@ -105,7 +105,7 @@ const Frame: FunctionalComponent = (_props, { slots }) =>
   .e-item > .e-icon-btn {
     grid-column: 3;
     grid-row: 1 / span 2;
-    /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- two longhands, as in the reference */
+    /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- two longhands */
     justify-self: end;
     align-self: center;
   }
@@ -140,7 +140,7 @@ const Frame: FunctionalComponent = (_props, { slots }) =>
       grid-column: 4;
       grid-row: 1;
       margin-top: 0;
-      /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- two longhands, as in the reference */
+      /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- two longhands */
       justify-self: end;
       align-self: center;
     }

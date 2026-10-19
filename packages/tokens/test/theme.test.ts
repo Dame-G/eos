@@ -225,7 +225,7 @@ describe("derived inputs", () => {
     expect(t["stroke-edge"]).toBe("3px");
     expect(t["stroke-focus"]).toBe("4px");
     expect(t["focus-gap"]).toBe("4px");
-    expect(t["focus-gap-field"]).toBe("0px");
+    expect(t["focus-gap-field"]).toBe("-1px");
     expect(t["edge"]).toBe("0 0 0 2px #7f8f96");
     expect(changed({ strokes: { focus: 3 } }).sort()).toEqual(["focus-gap", "stroke-focus"]);
   });

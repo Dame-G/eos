@@ -13,6 +13,7 @@ export interface SignatureValue {
 
 <script setup lang="ts">
 import { computed } from "vue";
+import EFieldMessage from "../Field/EFieldMessage.vue";
 import ESegmented from "../Segmented/ESegmented.vue";
 import ETextField from "../TextField/ETextField.vue";
 import ECheckbox from "../Checkbox/ECheckbox.vue";
@@ -31,7 +32,13 @@ const props = withDefaults(
     agreement?: string;
     /** The date shown with the signature. Today when left out. */
     date?: Date;
+    /** Help that is announced with the group. */
+    hint?: string;
+    /** What to fix. Replaces the hint and is announced with the group. */
+    error?: string;
     disabled?: boolean;
+    /** The name submitted with a form: the typed name, or the drawn image as a data URL. */
+    name?: string;
     /** The id of the typed-name input. Generated when left out. */
     id?: string;
   }>(),
@@ -45,6 +52,7 @@ const model = defineModel<SignatureValue>({
 const t = useMessages();
 const config = useConfig();
 const id = useUid(() => props.id);
+const hintId = computed(() => `${id.value}-sign-hint`);
 
 const method = computed<"type" | "draw">(() => (props.mode === "both" ? model.value.method : props.mode));
 const dateText = computed(() =>
@@ -60,7 +68,12 @@ function update(patch: Partial<SignatureValue>) {
 </script>
 
 <template>
-  <fieldset class="e-sign" :disabled="disabled">
+  <fieldset
+    class="e-sign"
+    :disabled="disabled"
+    :aria-describedby="error || hint ? hintId : undefined"
+    :aria-invalid="error ? 'true' : undefined"
+  >
     <legend class="e-kicker e-sign-legend">{{ label || t("signature") }}</legend>
     <ESegmented
       v-if="mode === 'both'"
@@ -99,6 +112,8 @@ function update(patch: Partial<SignatureValue>) {
       :disabled="disabled"
       @update:model-value="update({ agreed: $event })"
     />
+    <EFieldMessage :id="hintId" :error="error" :hint="hint" />
+    <input v-if="name" type="hidden" :name="name" :value="method === 'draw' ? model.image : model.name" />
   </fieldset>
 </template>
 

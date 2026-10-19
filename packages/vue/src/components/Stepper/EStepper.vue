@@ -124,7 +124,7 @@ const t = useMessages();
     color: var(--e-ink);
   }
 
-  /* stylelint-disable declaration-block-no-redundant-longhand-properties -- the longhands are kept as in the reference, so the rules compare one to one */
+  /* stylelint-disable declaration-block-no-redundant-longhand-properties -- the longhands stay separate */
   @media (max-width: 32rem) {
     .e-steps {
       grid-auto-flow: row;

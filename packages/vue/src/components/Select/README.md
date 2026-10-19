@@ -21,7 +21,7 @@ A dropdown for choosing one option from a list, when options need more than a li
 | ------------- | ---------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `modelValue`  | `string`         | `""`      | v-model: the chosen option's `value`; empty is nothing chosen.                                                                                                                                                                     |
 | `open`        | `boolean`        | `false`   | v-model:open: whether the list is open. A disabled field never opens.                                                                                                                                                              |
-| `label`       | `string`         |           | Required unless `bare`. Also names the list.                                                                                                                                                                                       |
+| `label`       | `string`         |           | Required unless `bare` with an `ariaLabel`. Also names the list.                                                                                                                                                                   |
 | `options`     | `EOptionInput[]` |           | Required. Strings, or `{ value, label, description?, icon?, group?, disabled? }`. A string is both value and label; `value` is never an empty string. A new `group` heading starts where `group` changes, so keep groups together. |
 | `placeholder` | `string`         | `Select`  | Shown while nothing is chosen.                                                                                                                                                                                                     |
 | `hideLabel`   | `boolean`        |           | Keeps the label for screen readers only.                                                                                                                                                                                           |
@@ -31,7 +31,7 @@ A dropdown for choosing one option from a list, when options need more than a li
 | `optional`    | `boolean`        |           | The word "Optional".                                                                                                                                                                                                               |
 | `disabled`    | `boolean`        |           | Never opens.                                                                                                                                                                                                                       |
 | `name`        | `string`         |           | Submits the value with a form.                                                                                                                                                                                                     |
-| `bare`        | `boolean`        |           | Control only, no label, hint or error; set `ariaLabel`.                                                                                                                                                                            |
+| `bare`        | `boolean`        |           | Control only, no label, hint or error; give `label` or `ariaLabel`.                                                                                                                                                                |
 | `ariaLabel`   | `string`         |           | The accessible name when `bare`.                                                                                                                                                                                                   |
 | `id`          | `string`         | generated | The button's id.                                                                                                                                                                                                                   |
 
@@ -40,4 +40,4 @@ A dropdown for choosing one option from a list, when options need more than a li
 ## Accessibility
 
 - Enter, Space or Arrow keys open the list; Arrow keys, Home and End move, letters jump to a match, Enter or Space chooses, Escape closes and returns focus.
-- Provide `label`, or `ariaLabel` with `bare`.
+- Provide `label`, or `bare` with `ariaLabel`; the types require one of them.

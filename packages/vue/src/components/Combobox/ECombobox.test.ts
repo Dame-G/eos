@@ -30,6 +30,21 @@ describe("ECombobox", () => {
     expect(document.querySelector("select")).toBeNull();
   });
 
+  test("bare: just the input, named by ariaLabel, with the list named the same", async () => {
+    const { container } = await render(ECombobox, { props: { bare: true, ariaLabel: "Filter", options: PEOPLE } });
+    expect(container.querySelector("label")).toBeNull();
+    expect(container.querySelector(".e-field")).toBeNull();
+    await expect.element(box("Filter")).toBeVisible();
+    await box("Filter").fill("a");
+    await expect.poll(() => listbox()?.getAttribute("aria-label")).toBe("Filter");
+  });
+
+  test("bare with only a label still names the input", async () => {
+    const { container } = await render(ECombobox, { props: { bare: true, label: "Practitioner", options: PEOPLE } });
+    expect(container.querySelector("label")).toBeNull();
+    await expect.element(box("Practitioner")).toBeVisible();
+  });
+
   test("typing filters the list, marks the match, and Enter picks the first match", async () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {

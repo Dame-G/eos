@@ -8,7 +8,7 @@ const props = withDefaults(
   defineProps<{
     /** The card's title, and the text of the one link the whole card is. */
     title: string;
-    /** Where the card goes. */
+    /** Where the card goes. Defaults to `#`. */
     href?: string;
     /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). Used instead of `href`. */
     to?: unknown;
@@ -25,7 +25,7 @@ const props = withDefaults(
     /** What renders the link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). */
     linkComponent?: string | Component;
   }>(),
-  { headingLevel: 3, as: "div", linkComponent: "a" },
+  { href: "#", headingLevel: 3, as: "div", linkComponent: "a" },
 );
 
 defineSlots<{
@@ -34,7 +34,7 @@ defineSlots<{
 }>();
 
 const linkAttrs = computed(() => ({
-  ...(props.to !== undefined ? { to: props.to } : { href: props.href ?? "#" }),
+  ...(props.to !== undefined ? { to: props.to } : { href: props.href }),
   ...(props.external && { target: "_blank", rel: "noreferrer" }),
 }));
 </script>

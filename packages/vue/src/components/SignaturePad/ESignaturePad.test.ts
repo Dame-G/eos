@@ -42,7 +42,7 @@ describe("ESignaturePad", () => {
     expect(tall.container.querySelector("canvas")!.getBoundingClientRect().height).toBe(220);
   });
 
-  test("drawing reports a PNG, hides the placeholder and enables Clear; Clear resets (the reference test)", async () => {
+  test("drawing reports a PNG, hides the placeholder and enables Clear; Clear resets", async () => {
     const got: string[] = [];
     const { container } = await render(ESignaturePad, {
       attrs: { "onUpdate:modelValue": (v: string) => got.push(v) },

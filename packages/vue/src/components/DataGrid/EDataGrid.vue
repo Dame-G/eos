@@ -1045,7 +1045,7 @@ watch([sort, page, search, filters], () => {
       width: 1px;
       height: 1px;
       overflow: hidden;
-      /* stylelint-disable-next-line property-no-deprecated -- the reference rule, kept for parity */
+      /* stylelint-disable-next-line property-no-deprecated -- clip hides text visually */
       clip: rect(0 0 0 0);
       white-space: nowrap;
     }

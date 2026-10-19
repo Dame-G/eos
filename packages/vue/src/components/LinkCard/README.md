@@ -14,7 +14,7 @@ A card with a title, a short description and one link, where the whole card is t
 | Prop            | Type                         | Default | Notes                                                                                                          |
 | --------------- | ---------------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
 | `title`         | `string`                     |         | Required. The card's title, and the text of its link.                                                          |
-| `href`          | `string`                     |         | Where the card goes. With no `href` or `to` the link goes to `#`.                                              |
+| `href`          | `string`                     | `#`     | Where the card goes. With no `href` or `to` the link goes to `#`.                                              |
 | `to`            | `unknown`                    |         | A router location, used instead of `href` with `linkComponent`.                                                |
 | `description`   | `string`                     |         | A line under the title saying what is there.                                                                   |
 | `kicker`        | `string`                     |         | A small mono label above the title.                                                                            |

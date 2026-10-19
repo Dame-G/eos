@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import { DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from "reka-ui";
-import EActions from "../Actions/EActions.vue";
-import EIconButton from "../IconButton/EIconButton.vue";
+import DialogFrame from "../Dialog/DialogFrame.vue";
 import EDrawerBody from "./EDrawerBody.vue";
-import { useMessages, usePortalTarget } from "../../config.js";
-import "../../styles/base.css";
-import "../Dialog/dialog.css";
 
 defineOptions({ inheritAttrs: false });
 
@@ -36,40 +31,21 @@ defineSlots<{
 }>();
 
 const open = defineModel<boolean>("open");
-
-const t = useMessages();
-const target = usePortalTarget();
-
-function setOpen(value: boolean) {
-  open.value = value;
-  if (!value) emit("close");
-}
 </script>
 
 <template>
-  <DialogRoot :open="!!open" :modal="!inline" @update:open="setOpen">
-    <DialogPortal :to="target" :disabled="inline">
-      <div class="e-root">
-        <DialogOverlay v-if="!inline" class="e-dialog-overlay" />
-        <DialogContent
-          v-bind="$attrs"
-          class="e-drawer"
-          :class="[side !== 'right' && `e-drawer--${side}`, inline && 'e-drawer--inline']"
-          :aria-describedby="undefined"
-          @interact-outside.prevent
-        >
-          <header class="e-dialog-head">
-            <DialogTitle :as="`h${headingLevel}`" class="e-dialog-title">{{ title }}</DialogTitle>
-            <DialogClose as-child>
-              <EIconButton icon="x" :label="t('close')" />
-            </DialogClose>
-          </header>
-          <EDrawerBody><slot /></EDrawerBody>
-          <EActions v-if="$slots.actions" as="footer" bar class="e-dialog-foot"><slot name="actions" /></EActions>
-        </DialogContent>
-      </div>
-    </DialogPortal>
-  </DialogRoot>
+  <DialogFrame
+    v-bind="$attrs"
+    v-model:open="open"
+    :title="title"
+    :heading-level="headingLevel"
+    :inline="inline"
+    :content-class="['e-drawer', side !== 'right' && `e-drawer--${side}`, inline && 'e-drawer--inline']"
+    @close="emit('close')"
+  >
+    <EDrawerBody><slot /></EDrawerBody>
+    <template v-if="$slots.actions" #actions><slot name="actions" /></template>
+  </DialogFrame>
 </template>
 
 <style>
@@ -77,20 +53,13 @@ function setOpen(value: boolean) {
   .e-drawer {
     position: fixed;
     inset: 0;
-    z-index: var(--e-z-modal);
     width: min(28rem, 100vw);
     height: 100dvh;
     max-height: none;
     margin: 0 0 0 auto;
-    padding: 0;
-    border: 0;
     border-radius: 0;
-    background: var(--e-surface);
-    color: var(--e-ink);
-    box-shadow: var(--e-float);
     display: flex;
     flex-direction: column;
-    font-family: var(--e-font-sans);
   }
 
   .e-drawer--left {
@@ -169,8 +138,6 @@ function setOpen(value: boolean) {
   .e-drawer-body {
     flex: 1;
     overflow: auto;
-    padding: var(--e-space-3) var(--e-space-6) var(--e-space-6);
-    font: 400 var(--e-text-md) / 1.5 var(--e-font-sans);
   }
 
   .e-drawer .e-dialog-foot {

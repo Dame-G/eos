@@ -44,7 +44,7 @@ function boxed(width: number, props: Record<string, unknown>) {
 }
 
 describe("EDataGrid", () => {
-  test("sort cycles ascending, descending, off; search filters; select all counts; cells carry labels (the reference test)", async () => {
+  test("sort cycles ascending, descending, off; search filters; select all counts; cells carry labels", async () => {
     const picked: string[][] = [];
     const { container } = await grid({
       props: {

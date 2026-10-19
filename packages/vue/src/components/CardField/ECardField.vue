@@ -43,7 +43,7 @@ defineExpose({
 <template>
   <div class="e-field">
     <span :id="`${id}-label`" class="e-field-label e-kicker">
-      {{ label || t("cardNumber") }}
+      {{ label || t("cardDetails") }}
       <EFieldFlag :required="required" />
     </span>
     <div

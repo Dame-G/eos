@@ -23,6 +23,7 @@ Exactly one of five or fewer options. Use `ESelect` for more.
 | ------------ | --------------------------- | --------- | ------------------------------------------------------------------------------------------------------- |
 | `modelValue` | `string`                    |           | v-model: the chosen value.                                                                              |
 | `label`      | `string`                    |           | Required. The legend.                                                                                   |
+| `hideLabel`  | `boolean`                   |           | Keeps the legend for screen readers only.                                                               |
 | `options`    | `(string \| RadioOption)[]` |           | Required. A string is both value and label. `RadioOption`: `{ value, label, description?, disabled? }`. |
 | `hint`       | `string`                    |           | Announced with the group.                                                                               |
 | `error`      | `string`                    |           | Replaces the hint.                                                                                      |

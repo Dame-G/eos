@@ -41,7 +41,7 @@ export interface ThemeInput {
   textScale?: number;
   /** Multiplier for the spacing scale, `space-1` to `space-8`. 1 is the default scale; non-finite or non-positive values are ignored. */
   spaceScale?: number;
-  /** Line weights in px. `hair` sets `stroke-hair` and `stroke-edge` (1.5 times it); `focus` sets `stroke-focus`, `focus-gap` (the same) and `focus-gap-field` (none: a field's focus outline touches its border). */
+  /** Line weights in px. `hair` sets `stroke-hair` and `stroke-edge` (1.5 times it); `focus` sets `stroke-focus`, `focus-gap` (the same) and `focus-gap-field` (a 1px overlap: a field's focus outline sits over its border). */
   strokes?: { hair?: number; focus?: number };
   /** How state changes feel: sets `duration-tap`, `duration-move` and `easing-out`. */
   motion?: MotionPreset;
@@ -153,7 +153,7 @@ function deriveStrokes(input: ThemeInput, out: Record<string, string>) {
   if (focus !== undefined) {
     out["stroke-focus"] = px(focus);
     out["focus-gap"] = px(focus);
-    out["focus-gap-field"] = "0px";
+    out["focus-gap-field"] = "-1px";
   }
 }
 

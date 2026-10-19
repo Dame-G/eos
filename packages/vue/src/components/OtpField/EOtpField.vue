@@ -12,6 +12,8 @@ const props = withDefaults(
   defineProps<{
     /** The visible label. "Verification code" when left out. */
     label?: string;
+    /** Keep the label for screen readers and remove it from the page. */
+    hideLabel?: boolean;
     /** How many characters. */
     length?: number;
     /** `numeric` opens the number pad; `text` takes letters and digits. */
@@ -26,6 +28,10 @@ const props = withDefaults(
     hint?: string;
     /** What to fix. Replaces the hint and is announced. */
     error?: string;
+    /** A word beside the label, and the `required` attribute on every box. */
+    required?: boolean;
+    /** A word beside the label. Flag whichever is rarer. */
+    optional?: boolean;
     disabled?: boolean;
     /** The id of the first box; the label and hint ids are built from it. Generated when left out. */
     id?: string;
@@ -145,7 +151,16 @@ defineExpose({
 </script>
 
 <template>
-  <EField v-bind="attrs.wrapper()" :id="id" :label="label || t('verificationCode')" :hint="hint" :error="error">
+  <EField
+    v-bind="attrs.wrapper()"
+    :id="id"
+    :label="label || t('verificationCode')"
+    :hide-label="hideLabel"
+    :hint="hint"
+    :error="error"
+    :required="required"
+    :optional="optional"
+  >
     <template #default="field">
       <div role="group" :aria-labelledby="`${field.id}-label`" class="e-otp" v-bind="attrs.input()">
         <template v-for="i in length" :key="i">
@@ -161,6 +176,7 @@ defineExpose({
             :spellcheck="false"
             :value="value[i - 1] || ''"
             :disabled="disabled"
+            :required="required"
             :data-filled="value[i - 1] ? '' : undefined"
             :aria-label="t(numeric ? 'otpDigit' : 'otpChar', { n: i, total: length })"
             :aria-invalid="field.ariaInvalid"

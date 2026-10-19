@@ -20,9 +20,10 @@ A phone number input that groups digits as you type. Attributes behave as on `ET
 | `required`    | `boolean`        |                                          | The `required` attribute and the word "Required".                                 |
 | `optional`    | `boolean`        |                                          | The word "Optional".                                                              |
 | `disabled`    | `boolean`        |                                          |                                                                                   |
+| `name`        | `string`         |                                          | The name submitted with a form.                                                   |
 | `id`          | `string`         | generated                                | Id of the input.                                                                  |
 
-`class` and `style` land on the wrapper `div`; other attributes and listeners land on the `input` element. `type="tel"`, `inputmode="tel"` and `autocomplete="tel"` are defaults you can override. Add `name` for forms. Exposes `input` and `focus()`.
+`class` and `style` land on the wrapper `div`; other attributes and listeners land on the `input` element. `type="tel"`, `inputmode="tel"` and `autocomplete="tel"` are defaults you can override. Exposes `input` and `focus()`.
 
 ## Accessibility
 

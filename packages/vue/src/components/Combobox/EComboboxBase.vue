@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from "vue";
+import { computed, h, nextTick, onMounted, ref, watch, type FunctionalComponent } from "vue";
 import {
   ComboboxAnchor,
   ComboboxContent,
@@ -40,6 +40,24 @@ const t = useMessages();
 const portal = usePortalTarget();
 const attrs = useFieldAttrs();
 const groupId = useUid();
+const bareId = useUid(() => props.id);
+
+const Bare: FunctionalComponent = (_, { slots }) =>
+  h("div", attrs.wrapper(), slots.default?.({ id: bareId.value, ariaInvalid: undefined, ariaDescribedby: undefined }));
+const frame = computed(() =>
+  props.bare
+    ? {}
+    : {
+        id: props.id,
+        label: props.label,
+        hideLabel: props.hideLabel,
+        hint: props.hint,
+        error: props.error,
+        required: props.required,
+        optional: props.optional,
+      },
+);
+const listName = computed(() => (props.bare ? (props.ariaLabel ?? props.label) : props.label));
 
 const multiple = computed(() => props.mode === "multiple");
 const free = computed(() => props.mode === "free");
@@ -175,6 +193,7 @@ function inputBind(field: FieldSlot) {
     required: props.required && !(multiple.value && values.value.length) ? true : undefined,
     placeholder: multiple.value && values.value.length ? "" : props.placeholder,
     "aria-invalid": field.ariaInvalid,
+    "aria-label": props.bare ? listName.value : undefined,
     autocomplete: "off",
     ...(listId.value ? { "aria-controls": listId.value } : {}),
     ...(shown.value.length ? {} : { "aria-activedescendant": undefined }),
@@ -189,16 +208,7 @@ defineExpose({
 </script>
 
 <template>
-  <EField
-    v-bind="attrs.wrapper()"
-    :id="id"
-    :label="label"
-    :hide-label="hideLabel"
-    :hint="hint"
-    :error="error"
-    :required="required"
-    :optional="optional"
-  >
+  <component :is="bare ? Bare : EField" v-bind="{ ...attrs.wrapper(), ...frame }">
     <template #default="field">
       <ComboboxRoot
         class="e-combo-root"
@@ -214,7 +224,7 @@ defineExpose({
           ref="anchor"
           class="e-input-wrap e-combo"
           :class="{ 'e-combo--multi': multiple }"
-          :data-invalid="error ? '' : undefined"
+          :data-invalid="error && !bare ? '' : undefined"
           :data-disabled="disabled ? '' : undefined"
           @mousedown="onWrapDown"
           @focusout="onBlur"
@@ -280,7 +290,7 @@ defineExpose({
             :side-offset="6"
             :collision-padding="8"
             class="e-popover e-listpanel e-root"
-            :aria-label="label"
+            :aria-label="listName"
             :aria-busy="loading ? 'true' : undefined"
           >
             <ComboboxViewport>
@@ -318,7 +328,7 @@ defineExpose({
         </ComboboxPortal>
       </ComboboxRoot>
     </template>
-  </EField>
+  </component>
 </template>
 
 <style>

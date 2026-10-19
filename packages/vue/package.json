@@ -53,7 +53,6 @@
     "test": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vitest run",
     "test:watch": "vitest",
     "check:css": "node scripts/check-css.mjs",
-    "parity": "node scripts/css-parity.mjs",
     "check:layers": "node scripts/check-layers.mjs",
     "check:package": "publint --pack npm --strict && attw --pack . --profile esm-only --entrypoints . ./resolver ./icons ./icons/iconify"
   },

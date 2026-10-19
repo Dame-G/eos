@@ -1,32 +1,18 @@
 <script setup lang="ts">
 import { computed, type Component } from "vue";
 import EIcon from "../Icon/EIcon.vue";
+import LinkNav, { type LinkItem, type LinkSection } from "../Tabs/LinkNav.vue";
 import type { IconProp } from "../../icons/types.js";
-import { useMessages } from "../../config.js";
-import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
 
-export interface NavItem {
-  /** The words for this destination. */
-  label: string;
-  /** Where it goes. */
-  href?: string;
-  /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). */
-  to?: unknown;
+export interface NavItem extends LinkItem {
   /** An icon before the label. */
   icon?: IconProp;
   /** A count of things waiting on the person (bills to pay, forms to sign). */
   count?: number;
-  /** The page the person is on. */
-  current?: boolean;
 }
 
-export interface NavSection {
-  /** A small heading over the section. Leave it out for a section that needs none. */
-  label?: string;
-  /** The destinations of the section, in order. */
-  items: NavItem[];
-}
+export type NavSection = LinkSection<NavItem>;
 
 const props = withDefaults(
   defineProps<{
@@ -46,35 +32,25 @@ const props = withDefaults(
   { orientation: "vertical", linkComponent: "a" },
 );
 
-const t = useMessages();
-const uid = useUid();
 const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.items ?? [] }]);
-
-const linkAttrs = (item: NavItem) => ({
-  ...(item.to !== undefined ? { to: item.to } : { href: item.href ?? "#" }),
-  ...(item.current && { "aria-current": "page" }),
-});
 </script>
 
 <template>
-  <nav
+  <LinkNav
     class="e-nav"
     :class="[dense && 'e-nav--dense', orientation === 'horizontal' && 'e-nav--horizontal']"
-    :aria-label="label || t('mainNav')"
+    :groups="groups"
+    :label="label"
+    :link-component="linkComponent"
+    item-class="e-nav-item"
+    heading-class="e-nav-heading"
   >
-    <template v-for="(group, g) in groups" :key="g">
-      <p v-if="group.label" :id="`${uid}-${g}`" class="e-nav-heading">{{ group.label }}</p>
-      <ul :aria-labelledby="group.label ? `${uid}-${g}` : undefined">
-        <li v-for="(item, i) in group.items" :key="i">
-          <component :is="linkComponent" class="e-nav-item" v-bind="linkAttrs(item)">
-            <EIcon v-if="item.icon" :name="item.icon" />
-            <span class="e-nav-label">{{ item.label }}</span>
-            <span v-if="item.count != null" class="e-nav-count">{{ item.count }}</span>
-          </component>
-        </li>
-      </ul>
+    <template #item="{ item }">
+      <EIcon v-if="item.icon" :name="item.icon" />
+      <span class="e-nav-label">{{ item.label }}</span>
+      <span v-if="item.count != null" class="e-nav-count">{{ item.count }}</span>
     </template>
-  </nav>
+  </LinkNav>
 </template>
 
 <style>
@@ -85,19 +61,6 @@ const linkAttrs = (item: NavItem) => ({
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-
-  .e-nav-heading {
-    margin: var(--e-space-6) 0 var(--e-space-2);
-    padding-inline: var(--e-space-3);
-    font: 600 var(--e-text-xs) / 1.2 var(--e-font-mono);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--e-ink);
-  }
-
-  .e-nav > :first-child {
-    margin-top: 0;
   }
 
   .e-nav-item {

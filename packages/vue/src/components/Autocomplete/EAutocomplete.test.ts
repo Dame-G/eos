@@ -22,6 +22,13 @@ describe("EAutocomplete", () => {
     expect(document.querySelector("select")).toBeNull();
   });
 
+  test("bare: just the input, named by ariaLabel", async () => {
+    const { container } = await render(EAutocomplete, { props: { bare: true, ariaLabel: "Street", options: STREETS } });
+    expect(container.querySelector("label")).toBeNull();
+    expect(container.querySelector(".e-field")).toBeNull();
+    await expect.element(box("Street")).toBeVisible();
+  });
+
   test("suggestions appear as people type, and anything typed is accepted", async () => {
     const got: string[] = [];
     const { container } = await render(EAutocomplete, {

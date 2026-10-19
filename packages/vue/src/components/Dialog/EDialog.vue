@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import { DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from "reka-ui";
-import EActions from "../Actions/EActions.vue";
-import EIconButton from "../IconButton/EIconButton.vue";
-import { useMessages, usePortalTarget } from "../../config.js";
-import "../../styles/base.css";
-import "./dialog.css";
+import DialogFrame from "./DialogFrame.vue";
 
 defineOptions({ inheritAttrs: false });
 
@@ -33,40 +28,21 @@ defineSlots<{
 }>();
 
 const open = defineModel<boolean>("open");
-
-const t = useMessages();
-const target = usePortalTarget();
-
-function setOpen(value: boolean) {
-  open.value = value;
-  if (!value) emit("close");
-}
 </script>
 
 <template>
-  <DialogRoot :open="!!open" :modal="!inline" @update:open="setOpen">
-    <DialogPortal :to="target" :disabled="inline">
-      <div class="e-root">
-        <DialogOverlay v-if="!inline" class="e-dialog-overlay" />
-        <DialogContent
-          v-bind="$attrs"
-          class="e-dialog"
-          :class="inline && 'e-dialog--inline'"
-          :aria-describedby="undefined"
-          @interact-outside.prevent
-        >
-          <header class="e-dialog-head">
-            <DialogTitle :as="`h${headingLevel}`" class="e-dialog-title">{{ title }}</DialogTitle>
-            <DialogClose as-child>
-              <EIconButton icon="x" :label="t('close')" />
-            </DialogClose>
-          </header>
-          <div class="e-dialog-body"><slot /></div>
-          <EActions v-if="$slots.actions" as="footer" bar class="e-dialog-foot"><slot name="actions" /></EActions>
-        </DialogContent>
-      </div>
-    </DialogPortal>
-  </DialogRoot>
+  <DialogFrame
+    v-bind="$attrs"
+    v-model:open="open"
+    :title="title"
+    :heading-level="headingLevel"
+    :inline="inline"
+    :content-class="['e-dialog', inline && 'e-dialog--inline']"
+    @close="emit('close')"
+  >
+    <div class="e-dialog-body"><slot /></div>
+    <template v-if="$slots.actions" #actions><slot name="actions" /></template>
+  </DialogFrame>
 </template>
 
 <style>
@@ -74,26 +50,12 @@ function setOpen(value: boolean) {
   .e-dialog {
     position: fixed;
     inset: 0;
-    z-index: var(--e-z-modal);
     width: min(32rem, calc(100vw - 32px));
     height: fit-content;
     max-height: calc(100dvh - 32px);
     margin: auto;
-    padding: 0;
-    border: 0;
     border-radius: var(--e-radius-lg);
-    background: var(--e-surface);
-    color: var(--e-ink);
-    box-shadow: var(--e-float);
     overflow: auto;
-    font-family: var(--e-font-sans);
-  }
-
-  .e-dialog-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: var(--e-z-modal);
-    background: var(--e-scrim);
   }
 
   .e-dialog--inline {
@@ -101,11 +63,6 @@ function setOpen(value: boolean) {
     margin: 0;
     width: 100%;
     max-width: 32rem;
-  }
-
-  .e-dialog-body {
-    padding: var(--e-space-3) var(--e-space-6) var(--e-space-6);
-    font: 400 var(--e-text-md) / 1.5 var(--e-font-sans);
   }
 }
 </style>
