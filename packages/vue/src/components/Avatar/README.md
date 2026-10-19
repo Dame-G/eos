@@ -16,8 +16,8 @@ A person, as a photo or as their initials on a rounded tile.
 | ------- | -------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `name`  | `string`             |         | Required. Read by screen readers. The initials are the first letters of its first and last word.                          |
 | `src`   | `string`             |         | Photo URL. The initials show if it fails to load.                                                                         |
-| `small` | `boolean`            |         | 28px, for rows.                                                                                                           |
-| `large` | `boolean`            |         | 56px, for a profile or practitioner. The default is 40px.                                                                 |
+| `small` | `boolean`            |         | 32px, for rows and bars.                                                                                                  |
+| `large` | `boolean`            |         | 64px, for a profile or practitioner. The default is 44px.                                                                 |
 | `as`    | `"span" \| "button"` | `span`  | `button` renders a `button` with `type="button"`, a pointer cursor and a focus ring, such as the `trigger` of an `EMenu`. |
 
 `class`, `style` and attributes land on the `span` or `button` element.

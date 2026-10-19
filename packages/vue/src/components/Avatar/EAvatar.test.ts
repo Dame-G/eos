@@ -40,7 +40,7 @@ describe("EAvatar", () => {
     expect(container.textContent!.trim()).toBe("AL");
   });
 
-  test("small and large are 28px and 56px, the default 40px", async () => {
+  test("small and large are 32px and 64px, the default 44px", async () => {
     const { container } = await render(
       defineComponent({
         render: () =>
@@ -52,7 +52,7 @@ describe("EAvatar", () => {
       }),
     );
     const sizes = [...container.querySelectorAll(".e-avatar")].map((e) => e.getBoundingClientRect().width);
-    expect(sizes).toEqual([40, 28, 56]);
+    expect(sizes).toEqual([44, 32, 64]);
   });
 
   test("as button renders a button named by the person, not an image", async () => {
@@ -77,7 +77,7 @@ describe("EAvatar", () => {
     );
     const el = container.querySelector<HTMLButtonElement>("button.e-avatar")!;
     expect(getComputedStyle(el).cursor).toBe("pointer");
-    expect(el.getBoundingClientRect().width).toBe(40);
+    expect(el.getBoundingClientRect().width).toBe(44);
     await userEvent.tab();
     expect(document.activeElement).toBe(el);
     const style = getComputedStyle(el);
