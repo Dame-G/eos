@@ -211,8 +211,11 @@ describe("EBookingCard", () => {
     expect(rect(narrow.container, ".e-appt-facts").left).toBeLessThan(rect(narrow.container, ".e-appt-body").left);
     const wide = await render(box("34rem"));
     expect(rect(wide.container, ".e-appt .e-stamp").top).toBeLessThan(rect(wide.container, ".e-appt-sub").top);
-    expect(rect(wide.container, ".e-appt-facts").left).toBeGreaterThanOrEqual(
+    expect(rect(wide.container, ".e-appt-facts li > span:last-child").left).toBeGreaterThanOrEqual(
       rect(wide.container, ".e-appt-body").left - 1,
     );
+    const tile = rect(wide.container, ".e-appt-fact-icon");
+    const lead = rect(wide.container, ".e-avatar, .e-appt-date");
+    expect(Math.abs(tile.left + tile.width / 2 - (lead.left + lead.width / 2))).toBeLessThan(1);
   });
 });

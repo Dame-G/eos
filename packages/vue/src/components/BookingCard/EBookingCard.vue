@@ -3,8 +3,9 @@ import { computed } from "vue";
 import ESurface from "../Surface/ESurface.vue";
 import EAvatar from "../Avatar/EAvatar.vue";
 import EStamp from "../Stamp/EStamp.vue";
-import EMetaList from "../MetaList/EMetaList.vue";
+import EIcon from "../Icon/EIcon.vue";
 import type { StampStatus, StampTone } from "../Stamp/EStamp.vue";
+import type { IconName } from "../../icons/phosphor.js";
 import { useMessages } from "../../config.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
@@ -52,10 +53,13 @@ defineSlots<{
 const t = useMessages();
 const { monthsShort, formatLong } = useLocale();
 const who = computed(() => props.provider?.name);
-const facts = computed(() => [
-  { icon: "calendar", text: t("dateAtTime", { date: formatLong(props.date), time: props.time }) },
-  props.location ? { icon: "pin", text: props.location } : null,
-]);
+const facts = computed(() => {
+  const list: { icon: IconName; text: string }[] = [
+    { icon: "calendar", text: t("dateAtTime", { date: formatLong(props.date), time: props.time }) },
+  ];
+  if (props.location) list.push({ icon: "pin", text: props.location });
+  return list;
+});
 </script>
 
 <template>
@@ -79,7 +83,12 @@ const facts = computed(() => [
           <span v-else-if="subtitle" class="e-appt-role">{{ subtitle }}</span>
         </p>
       </div>
-      <EMetaList class="e-appt-facts" :items="facts" />
+      <ul class="e-appt-facts">
+        <li v-for="fact in facts" :key="fact.icon">
+          <span class="e-appt-fact-icon"><EIcon :name="fact.icon" /></span>
+          <span>{{ fact.text }}</span>
+        </li>
+      </ul>
     </div>
     <template v-if="$slots.actions" #actions><slot name="actions" /></template>
   </ESurface>
@@ -184,10 +193,39 @@ const facts = computed(() => [
   }
 
   .e-appt-facts {
-    grid-column: 2;
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    gap: var(--e-space-2) var(--e-space-4);
     margin: 0;
     padding: var(--e-space-3) 0 0;
     border-top: var(--e-stroke-hair) solid var(--e-border);
+    list-style: none;
+    font: 400 var(--e-text-md) / 1.4 var(--e-font-sans);
+  }
+
+  .e-appt-facts li {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .e-appt-fact-icon {
+    display: grid;
+    place-items: center;
+    justify-self: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--e-radius-md);
+    background: var(--e-surface-tint);
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
+  }
+
+  .e-appt-fact-icon .e-icon {
+    width: 22px;
+    height: 22px;
   }
 
   .e-appt-kind {
@@ -210,10 +248,6 @@ const facts = computed(() => [
       order: 1;
       justify-self: start;
       margin-inline-start: 0;
-    }
-
-    .e-appt-facts {
-      grid-column: 1 / -1;
     }
   }
 
