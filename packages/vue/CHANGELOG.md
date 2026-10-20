@@ -1,5 +1,15 @@
 # @eos-ui/vue
 
+## 0.3.0
+
+### Minor Changes
+
+- b8930cc: `ETabs` has a `fill` prop that shares the row width equally between the tabs, for a narrow container where they must all fit. Labels truncate instead of the row scrolling.
+
+### Patch Changes
+
+- @eos-ui/tokens@0.3.0
+
 ## 0.2.1
 
 ### Patch Changes

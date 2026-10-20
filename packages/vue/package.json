@@ -1,6 +1,6 @@
 {
   "name": "@eos-ui/vue",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Eos: accessible Vue 3 components for the Eos portal.",
   "type": "module",
   "license": "MIT",
