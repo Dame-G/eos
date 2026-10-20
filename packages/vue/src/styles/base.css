@@ -19,11 +19,9 @@
   :where(
     .e-btn,
     .e-icon-btn,
-    .e-acc > summary,
     .e-tab,
     .e-seg-opt,
     .e-choice,
-    .e-slot,
     .e-day,
     .e-cal-pick,
     .e-page,
@@ -117,8 +115,7 @@
       border-width: 2px;
     }
 
-    .e-tablist,
-    .e-panel-head {
+    .e-tablist {
       border-bottom: 1px solid CanvasText;
     }
 
@@ -135,7 +132,6 @@
     .e-popover,
     .e-listpanel,
     .e-calpanel,
-    .e-panel,
     .e-surface,
     .e-menu,
     .e-tip-bubble {

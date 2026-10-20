@@ -11,12 +11,16 @@ The panel shown when a list, search or table has no content. Never leave a list 
 
 ## Props
 
-| Prop           | Type                         | Default | Notes                                                 |
-| -------------- | ---------------------------- | ------- | ----------------------------------------------------- |
-| `title`        | `string`                     |         | Required. What is missing, in the person's words.     |
-| `icon`         | `IconProp`                   |         | Icon in a round badge above the title.                |
-| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `3`     | Heading level of the title; fit the page outline.     |
-| `bare`         | `boolean`                    |         | Removes the outline, for use inside a table or panel. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `icon` | `IconProp` | — | A glyph in a round badge above the title. |
+| `title` | `string` | **Required** | What is missing, in the person's words. |
+| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `3` | The level of the title's heading element, 1 to 6; fit the page outline. |
+| `bare` | `boolean` | `false` | Removes the dashed outline, for use inside a table or panel. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `div` element.
 

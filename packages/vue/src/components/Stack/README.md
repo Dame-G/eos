@@ -8,11 +8,15 @@ Children in a column with an even gap. Use it instead of margins.
 
 ## Props
 
-| Prop    | Type                | Default | Notes                                                                                          |
-| ------- | ------------------- | ------- | ---------------------------------------------------------------------------------------------- |
-| `as`    | `string`            | `div`   | The element, such as `ul` (with `li` children).                                                |
-| `gap`   | `number \| string`  | `4`     | A space token number (1, 2, 3, 4, 6, 8) becomes `var(--e-space-N)`; a string is used as given. |
-| `align` | `"center" \| "end"` |         | Aligns children across the column. Stretched by default.                                       |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `as` | `string` | `"div"` | The element to render, `div` by default; such as `ul` (with `li` children). |
+| `gap` | `number \| string` | `4` | A space token number (1, 2, 3, 4, 6, 8) becomes `var(--e-space-N)`; a string is used as given, so any CSS length works. |
+| `align` | `"center" \| "end"` | — | Aligns the children across the column: `center` or `end`. Stretched by default. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the rendered element.
 

@@ -59,6 +59,31 @@ describe("EProgress", () => {
     expect(el.classList.contains("mine")).toBe(true);
   });
 
+  test("without a value it is indeterminate: no value attributes, no percentage, a moving fill", async () => {
+    const { container } = await render(EProgress, { props: { label: "Checking your account" } });
+    const bar = container.querySelector("[role=progressbar]")!;
+    await expect.element(page.getByRole("progressbar", { name: "Checking your account" })).toBeVisible();
+    expect(bar.hasAttribute("aria-valuenow")).toBe(false);
+    expect(bar.hasAttribute("aria-valuemax")).toBe(false);
+    expect(bar.getAttribute("aria-busy")).toBe("true");
+    expect(container.querySelector(".e-progress-value")!.textContent).toBe("");
+    const fill = container.querySelector(".e-progress-fill") as HTMLElement;
+    expect(fill.style.width).toBe("");
+    expect(getComputedStyle(fill).animationName).not.toBe("none");
+  });
+
+  test("indeterminate with no label is named Loading and shows no text row", async () => {
+    const { container } = await render(EProgress);
+    await expect.element(page.getByRole("progressbar", { name: "Loading" })).toBeVisible();
+    expect(container.querySelector(".e-progress-head")).toBeNull();
+  });
+
+  test("a value of 0 is still determinate", async () => {
+    const { container } = await render(EProgress, { props: { label: "Upload", value: 0 } });
+    expect(container.querySelector("[role=progressbar]")!.getAttribute("aria-valuenow")).toBe("0");
+    expect(container.querySelector(".e-progress--indeterminate")).toBeNull();
+  });
+
   test("has no accessibility violations at empty, partial and full", async () => {
     const { container } = await render(
       defineComponent({
@@ -67,6 +92,8 @@ describe("EProgress", () => {
             h(EProgress, { label: "Empty", value: 0 }),
             h(EProgress, { label: "Partial", value: 40 }),
             h(EProgress, { label: "Full", value: 4, max: 4, valueText: "4 of 4" }),
+            h(EProgress, { label: "Unknown length" }),
+            h(EProgress),
           ]),
       }),
     );

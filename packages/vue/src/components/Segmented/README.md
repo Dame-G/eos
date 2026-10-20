@@ -16,16 +16,20 @@ A joined set of two to five options where exactly one is active. Use it to chang
 
 ## Props
 
-| Prop         | Type                            | Default      | Notes                                                                                                  |
-| ------------ | ------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------ |
-| `modelValue` | `string`                        | first option | v-model: the active value.                                                                             |
-| `label`      | `string`                        |              | Required. Names the group.                                                                             |
-| `options`    | `(string \| SegmentedOption)[]` |              | Required. `SegmentedOption` is `{ value, label, icon?, disabled? }`; a string is both value and label. |
-| `hint`       | `string`                        |              | Under the control.                                                                                     |
-| `error`      | `string`                        |              | Replaces the hint, announced.                                                                          |
-| `optional`   | `boolean`                       |              | Adds "Optional" to the group's accessible name; nothing is shown. Flag whichever is rarer.             |
-| `disabled`   | `boolean`                       |              | Disables every option.                                                                                 |
-| `name`       | `string`                        | generated    | Shared by the radios; submitted with a form.                                                           |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `modelValue` | `string` | `first option` | `v-model`: the active value. |
+| `label` | `string` | **Required** | Read by screen readers as the name of the group. |
+| `options` | `(string \| SegmentedOption)[]` | **Required** | Two to five. A string is both value and label. `SegmentedOption` is `{ value, label, icon?, disabled? }`. |
+| `hint` | `string` | — | Help under the control, linked with `aria-describedby`. |
+| `error` | `string` | — | What to fix. Replaces the hint and is announced. |
+| `optional` | `boolean` | `false` | Adds the word "Optional" to the group's accessible name; nothing is shown. Flag whichever is rarer. |
+| `disabled` | `boolean` | `false` | Disables every option. |
+| `name` | `string` | `generated` | The name the radios share, submitted with a form. |
+
+<!-- props:end -->
 
 `class` and `style` land on the outer element; other attributes land on the `radiogroup` element.
 

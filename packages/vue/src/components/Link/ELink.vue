@@ -6,9 +6,9 @@ import "../../styles/base.css";
 defineProps<{
   /** Where the link goes. */
   href: string;
-  /** Opens in a new tab. */
+  /** Opens in a new tab (`target="_blank"`, `rel="noreferrer"`). */
   external?: boolean;
-  /** An icon before the text: a built-in name, a name from your icon set, or an icon component. */
+  /** An icon before the text: a built-in name, a name from your icon set, or an icon component. It is hidden from screen readers; the text names the link. */
   icon?: IconProp;
 }>();
 

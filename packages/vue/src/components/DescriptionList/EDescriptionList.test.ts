@@ -46,6 +46,36 @@ describe("EDescriptionList", () => {
     }
   });
 
+  test("icon, badge and Edit button sit on the row; Edit emits the item", async () => {
+    const seen: string[] = [];
+    const { container } = await render(EDescriptionList, {
+      props: {
+        items: [{ label: "Email", text: "a@b.co", icon: "mail", badge: "Verified", badgeTone: "success", editable: true }],
+        onEdit: (item: { label?: string }) => seen.push(item.label ?? ""),
+      },
+    });
+    expect(container.querySelector("dt .e-icon")).not.toBeNull();
+    expect(container.querySelector("dd .e-stamp")!.textContent).toBe("Verified");
+    await page.getByRole("button", { name: "Edit Email" }).click();
+    expect(seen).toEqual(["Email"]);
+  });
+
+  test("the action slot renders at the end of every row", async () => {
+    const { container } = await render(EDescriptionList, {
+      props: { items },
+      slots: { action: ({ item }: { item: { label?: string } }) => h("button", { type: "button" }, `Go ${item.label}`) },
+    });
+    expect(container.querySelectorAll("dd button").length).toBe(2);
+  });
+
+  test("with no labels it is a plain list of facts", async () => {
+    const { container } = await render(EDescriptionList, {
+      props: { items: [{ text: "One", icon: "mail" }, null, { text: "Two" }] },
+    });
+    expect(container.querySelectorAll("ul.e-facts > li").length).toBe(2);
+    expect(container.querySelector("dl")).toBeNull();
+  });
+
   test("class, style and attributes fall through to the list", async () => {
     const { container } = await render(EDescriptionList, {
       props: { items },

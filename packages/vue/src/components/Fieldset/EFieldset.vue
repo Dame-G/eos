@@ -8,23 +8,25 @@ import "../../styles/base.css";
 const props = defineProps<{
   /** The question the controls answer. Names the group for screen readers. */
   legend?: string;
-  /** No box: the legend becomes a small mono label above the controls (RadioGroup, SlotPicker). */
+  /** No box: the legend becomes a small mono label above the controls (RadioGroup). */
   bare?: boolean;
   /** Help that is announced with the group. */
   hint?: string;
   /** What to fix. Replaces the hint and is announced with the group. */
   error?: string;
-  /** A word at the end of the legend. */
+  /** "Required" at the end of the legend. */
   required?: boolean;
   /** A word at the end of the legend. Flag whichever is rarer. */
   optional?: boolean;
+  /** A titled form section: no box, a larger legend ruled off from what comes before, and the hint under the legend. Replaces `EFormSection`. */
+  section?: boolean;
   /** Disables every control inside. */
   disabled?: boolean;
   /** Extra classes for the legend. */
   legendClass?: string;
   /** Keep the legend for screen readers and remove it from the page. */
   hideLegend?: boolean;
-  /** The id the hint and error ids are built from. Generated when left out. */
+  /** The id the hint and error ids are built from. @default generated */
   id?: string;
 }>();
 
@@ -40,7 +42,7 @@ const hintId = computed(() => `${id.value}-hint`);
 <template>
   <fieldset
     class="e-fieldset"
-    :class="{ 'e-fieldset--box': !bare }"
+    :class="{ 'e-fieldset--box': !bare && !section, 'e-fieldset--section': section }"
     :disabled="disabled"
     :aria-describedby="error || hint ? hintId : undefined"
     :aria-invalid="error ? 'true' : undefined"
@@ -51,10 +53,15 @@ const hintId = computed(() => `${id.value}-hint`);
       :class="[bare && 'e-kicker', hideLegend && 'e-fieldset-legend--hidden', legendClass]"
     >
       <span class="e-fieldset-title">{{ legend }}</span>
-      <span v-if="!bare" class="e-fieldset-rule" aria-hidden="true" />
+      <span v-if="!bare && !section" class="e-fieldset-rule" aria-hidden="true" />
       <EFieldFlag :required="required" :optional="optional" />
     </legend>
-    <template v-if="bare">
+    <div v-if="section" class="e-fieldset-body">
+      <EFieldMessage v-if="!error" :id="hintId" :hint="hint" />
+      <slot />
+      <EFieldMessage v-if="error" :id="hintId" :error="error" />
+    </div>
+    <template v-else-if="bare">
       <slot />
       <EFieldMessage :id="hintId" :error="error" :hint="hint" />
     </template>
@@ -92,25 +99,37 @@ const hintId = computed(() => `${id.value}-hint`);
     white-space: nowrap;
   }
 
-  .e-fieldset:not(.e-fieldset--box) > .e-fieldset-legend {
+  .e-fieldset:not(.e-fieldset--box, .e-fieldset--section) > .e-fieldset-legend {
     float: inline-start;
     margin-bottom: var(--e-space-2);
   }
 
-  .e-fieldset:not(.e-fieldset--box) > .e-fieldset-legend + * {
+  .e-fieldset:not(.e-fieldset--box, .e-fieldset--section) > .e-fieldset-legend + * {
     clear: both;
   }
 
+  /* The ring is the outline alone: a native fieldset border is broken around its legend, so pairing it with the overlay painted a second, unbroken line. The legend straddles the ring and its own surface background breaks the line instead. */
   .e-fieldset--box {
     padding: 0 var(--e-space-4) var(--e-space-4);
-    border: var(--e-stroke-hair) solid var(--e-border);
+    border: 0;
+
+    --e-bc: var(--e-border);
+
+    outline: var(--e-stroke-hair) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-hair));
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
   }
 
   .e-fieldset--box > .e-fieldset-legend {
+    position: relative;
     align-items: center;
     gap: 0;
+    width: fit-content;
+    max-width: 100%;
+    inset-block-start: -0.65em;
+    margin: 0 0 var(--e-space-3) calc(-1 * var(--e-space-2));
+    background: var(--e-surface);
     font: 500 var(--e-text-md)/1.3 var(--e-font-sans);
     letter-spacing: 0;
     text-transform: none;
@@ -119,13 +138,39 @@ const hintId = computed(() => `${id.value}-hint`);
 
   .e-fieldset--box .e-fieldset-title,
   .e-fieldset--box .e-field-flag {
-    padding-inline: var(--e-space-3);
+    padding-inline: var(--e-space-2);
+  }
+
+  /* The rule is the legend's own border, never a native fieldset border (which would break around the legend). */
+  .e-fieldset--section > .e-fieldset-legend {
+    display: block;
+    padding-top: var(--e-space-6);
+    border-top: var(--e-stroke-hair) solid var(--e-border);
+    font: 500 var(--e-text-xl)/1.25 var(--e-font-sans);
+    color: var(--e-ink);
+  }
+
+  .e-fieldset--section:first-child > .e-fieldset-legend {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .e-fieldset--section > .e-fieldset-legend .e-fieldset-title {
+    padding: 0;
+  }
+
+  .e-fieldset--section > .e-fieldset-body {
+    padding-top: var(--e-space-4);
+  }
+
+  .e-fieldset--section > .e-fieldset-body > .e-field-hint {
+    margin-top: calc(var(--e-space-4) * -1 + var(--e-space-1));
+    max-width: var(--e-measure);
   }
 
   .e-fieldset-rule {
-    flex: 1;
-    min-width: var(--e-space-4);
-    border-top: var(--e-stroke-hair) solid var(--e-border);
+    flex: none;
+    width: var(--e-space-2);
   }
 
   .e-fieldset-body {
@@ -134,8 +179,8 @@ const hintId = computed(() => `${id.value}-hint`);
     padding-top: var(--e-space-1);
   }
 
-  .e-fieldset:not(.e-slots) > .e-field-hint,
-  .e-fieldset:not(.e-slots) > .e-field-error {
+  .e-fieldset > .e-field-hint,
+  .e-fieldset > .e-field-error {
     margin-top: -6px;
   }
 

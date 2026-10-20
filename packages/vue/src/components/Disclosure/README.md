@@ -1,24 +1,26 @@
 # EDisclosure
 
-A section that opens and closes, for secondary detail. Use `EAccordion` for a stack of them.
+A section that opens and closes, for secondary detail. Give several the same `group` for an accordion that keeps one open at a time.
 
 ```vue
 <EDisclosure title="History (4)">
-  <ETimeline :items="history" />
+  <EDescriptionList :items="history" />
 </EDisclosure>
 ```
 
 ## Props
 
-| Prop      | Type              | Default | Notes                                                                       |
-| --------- | ----------------- | ------- | --------------------------------------------------------------------------- |
-| `title`   | `string`          |         | Required. The summary line.                                                 |
-| `variant` | `"row" \| "card"` | `row`   | `row` is flush with a divider above; `card` is a roomy row for stacking.    |
-| `meta`    | `string`          |         | A short note at the right of the summary. `card` only.                      |
-| `group`   | `string`          |         | Rows sharing a group open one at a time (the native `name` of `details`).   |
-| `open`    | `boolean`         |         | v-model:open: whether it is open. Without a binding it keeps its own state. |
+<!-- props:start -->
 
-`class`, `style` and attributes land on the `details` element. Stacked `card` disclosures are 8px apart; inside an `EAccordion` they sit flush.
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` | `boolean` | `false` | `v-model:open`: whether it is open. Without a binding it keeps its own state. |
+| `title` | `string` | — | The summary line you press to open and close. Use the `title` slot for rich content. |
+| `group` | `string` | — | Rows that share a group open one at a time (the native `name` of `details`). |
+
+<!-- props:end -->
+
+`class`, `style` and attributes land on the `details` element.
 
 ## Slots
 

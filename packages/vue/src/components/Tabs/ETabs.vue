@@ -1,40 +1,24 @@
 <script lang="ts">
-import type { LinkItem, LinkSection } from "./LinkNav.vue";
-
-export interface TabItem extends LinkItem {
-  /** Names the tab's slot, and is the value of `v-model`. Not needed for a link. */
-  id?: string;
+export interface TabItem {
+  /** Names the tab's slot, and is the value of `v-model`. */
+  id: string;
+  /** The tab's words. */
+  label: string;
   /** A number or short word in a small badge after the label. */
   count?: number | string;
 }
-
-export type TabSection = LinkSection<TabItem>;
 </script>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch, type Component } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from "reka-ui";
-import LinkNav from "./LinkNav.vue";
 import { useConfig } from "../../config.js";
 import "../../styles/base.css";
 
-const props = withDefaults(
-  defineProps<{
-    /** The tabs, in order. Two to five for panels; give them `href` or `to` to make a row or column of links. */
-    items?: TabItem[];
-    /** Links in labelled groups, instead of `items`. */
-    sections?: TabSection[];
-    /** `vertical` stacks the links with a rule down the start edge, for a sidebar or an outline. Links only. */
-    orientation?: "horizontal" | "vertical";
-    /** Shorter rows and smaller words, for a long list of links. */
-    dense?: boolean;
-    /** The landmark's name when the tabs are links. Defaults to "Main". */
-    label?: string;
-    /** What renders each link: `"a"` by default, or `RouterLink`. */
-    linkComponent?: string | Component;
-  }>(),
-  { orientation: "horizontal", linkComponent: "a" },
-);
+const props = defineProps<{
+  /** The tabs, in order: `{ id, label, count? }`. Two to five, with short labels. `id` names the slot and is the `v-model` value. */
+  items?: TabItem[];
+}>();
 
 defineSlots<{
   [id: string]: ((props: { item: TabItem }) => unknown) | undefined;
@@ -42,10 +26,9 @@ defineSlots<{
   panel?(props: { item: TabItem }): unknown;
 }>();
 
-const groups = computed<TabSection[]>(() => props.sections ?? [{ items: props.items ?? [] }]);
-const flat = computed(() => groups.value.flatMap((g) => g.items));
-const isNav = computed(() => flat.value.some((i) => i.href !== undefined || i.to !== undefined));
+const flat = computed(() => props.items ?? []);
 
+/** The `id` of the selected tab. Keeps its own state when unbound. @default first tab */
 const model = defineModel<string>();
 
 const config = useConfig();
@@ -72,31 +55,15 @@ watch(current, () => reveal(true));
 </script>
 
 <template>
-  <LinkNav
-    v-if="isNav"
-    class="e-tabs e-tabs--links"
-    :class="[orientation === 'vertical' && 'e-tabs--vertical', dense && 'e-tabs--dense']"
-    :groups="groups"
-    :label="label"
-    :link-component="linkComponent"
-    item-class="e-tab"
-    heading-class="e-tabs-heading"
-    list-class="e-tablist"
-  >
-    <template #item="{ item }">
-      {{ item.label }}
-      <span v-if="item.count != null" class="e-tab-count">{{ item.count }}</span>
-    </template>
-  </LinkNav>
-  <TabsRoot v-else class="e-tabs" :model-value="current" :dir="dir" @update:model-value="model = String($event)">
+  <TabsRoot class="e-tabs" :model-value="current" :dir="dir" @update:model-value="model = String($event)">
     <TabsList ref="list" class="e-tablist">
-      <TabsTrigger v-for="item in flat" :key="item.id" :value="item.id!" class="e-tab">
+      <TabsTrigger v-for="item in flat" :key="item.id" :value="item.id" class="e-tab">
         {{ item.label }}
         <span v-if="item.count != null" class="e-tab-count">{{ item.count }}</span>
       </TabsTrigger>
     </TabsList>
-    <TabsContent v-for="item in flat" :key="item.id" :value="item.id!" class="e-tabpanel">
-      <slot :name="item.id!" :item="item"><slot name="panel" :item="item" /></slot>
+    <TabsContent v-for="item in flat" :key="item.id" :value="item.id" class="e-tabpanel">
+      <slot :name="item.id" :item="item"><slot name="panel" :item="item" /></slot>
     </TabsContent>
   </TabsRoot>
 </template>
@@ -105,81 +72,21 @@ watch(current, () => reveal(true));
 @layer e.containers {
   .e-tablist {
     display: flex;
-    gap: var(--e-space-1);
+    gap: 0;
     /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- the two axes are set apart */
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
-    border-bottom: var(--e-stroke-hair) solid var(--e-border);
   }
 
   .e-tablist::-webkit-scrollbar {
     display: none;
   }
 
-  .e-tab + .e-tab::before,
-  .e-tablist > li + li > .e-tab::before {
-    content: "";
-    position: absolute;
-    inset-block: 30%;
-    inset-inline-start: calc(var(--e-space-1) * -0.5);
-    border-inline-start: var(--e-stroke-hair) solid color-mix(in srgb, var(--e-border) 40%, transparent);
-  }
-
-  .e-tablist:has(> li) {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .e-tablist > li {
-    display: contents;
-  }
-
-  a.e-tab {
-    text-decoration: none;
-  }
-
-  .e-tabs--dense .e-tab {
-    height: 2.25rem;
-    font-size: var(--e-text-sm);
-  }
-
-  .e-tabs--vertical .e-tablist {
-    flex-direction: column;
-    gap: 0;
-    overflow: visible;
-    border-bottom: 0;
-    border-inline-start: var(--e-stroke-edge) solid var(--e-border);
-  }
-
-  .e-tabs--vertical .e-tab {
-    background-clip: padding-box;
-    justify-content: flex-start;
-    height: auto;
-    min-height: 2rem;
-    margin-inline-start: calc(-1 * var(--e-stroke-edge));
-    padding-block: var(--e-space-1);
-    border-bottom: 0;
-    border-inline-start: 3px solid transparent;
-    line-height: 1.35;
-    text-align: start;
-  }
-
-  .e-tabs--vertical .e-tablist > li > .e-tab::before {
-    content: none;
-  }
-
-  .e-tabs--vertical.e-tabs--dense .e-tab {
-    min-height: 2.25rem;
-  }
-
-  .e-tabs--vertical .e-tab[aria-current="page"] {
-    border-inline-start-color: var(--e-primary);
-    background: var(--e-surface-tint);
-  }
-
+  /* Tabs are button-like: every tab is ringed and neighbours sit flush and share an edge, so only the outer ends of the row are rounded. The selected tab is outlined in the primary colour with a thick slab underneath. */
   .e-tab {
+    --e-bc: var(--e-border-strong);
+
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -187,8 +94,10 @@ watch(current, () => reveal(true));
     flex: none;
     height: var(--e-control-height);
     padding: 0 var(--e-space-4);
-    border: 0;
-    border-bottom: 3px solid transparent;
+    border: var(--e-stroke-edge) solid var(--e-bc);
+    border-radius: 0;
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     background: transparent;
     color: var(--e-muted);
     font: 500 var(--e-text-md) / 1 var(--e-font-sans);
@@ -198,30 +107,53 @@ watch(current, () => reveal(true));
       background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  .e-tab:hover {
-    color: var(--e-ink);
-    background: var(--e-surface-tint);
+  /* Only the outer ends of the row are rounded. */
+  .e-tab:first-child {
+    border-start-start-radius: var(--e-radius-md);
+    border-end-start-radius: var(--e-radius-md);
   }
 
-  .e-tab[aria-selected="true"],
-  .e-tab[aria-current="page"] {
+  .e-tab:last-child {
+    border-start-end-radius: var(--e-radius-md);
+    border-end-end-radius: var(--e-radius-md);
+  }
+
+  .e-tab + .e-tab {
+    margin-inline-start: calc(-1 * var(--e-stroke-edge));
+  }
+
+  .e-tab:hover {
+    --e-bc: var(--e-ink);
+
+    z-index: var(--e-z-raised);
     color: var(--e-ink);
-    border-bottom-color: var(--e-primary);
+    background-color: var(--e-surface-hover);
+  }
+
+  .e-tab[aria-selected="true"] {
+    --e-bc: var(--e-primary);
+
+    z-index: var(--e-z-sticky);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
+    background-color: color-mix(in srgb, var(--e-surface-tint), var(--e-ink) 3%);
+    color: var(--e-ink);
     font-weight: 600;
   }
 
   .e-tab:focus-visible {
+    z-index: var(--e-z-focus);
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
-    border-radius: var(--e-radius-sm);
+    outline-offset: var(--e-focus-gap);
   }
 
   .e-tab-count {
-    min-width: 22px;
-    padding: 0 6px;
+    min-width: var(--e-space-6);
+    padding: 0 var(--e-space-2);
     border-radius: var(--e-radius-pill);
-    background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 1px var(--e-border-strong);
+    background: color-mix(in srgb, var(--e-primary) 12%, var(--e-surface));
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-primary);
+    outline: var(--e-stroke-hair) solid var(--e-primary);
+    outline-offset: calc(-1 * var(--e-stroke-hair));
     font: 600 var(--e-text-xs) / 20px var(--e-font-mono);
     text-align: center;
     color: var(--e-ink);
@@ -238,8 +170,7 @@ watch(current, () => reveal(true));
   }
 
   @media (forced-colors: active) {
-    .e-tab[aria-selected="true"],
-    .e-tab[aria-current="page"] {
+    .e-tab[aria-selected="true"] {
       forced-color-adjust: none;
       background: Highlight;
       color: HighlightText;

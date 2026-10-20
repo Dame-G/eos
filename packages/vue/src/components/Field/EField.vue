@@ -18,7 +18,7 @@ const props = defineProps<{
   required?: boolean;
   /** A word beside the label. Flag whichever is rarer. */
   optional?: boolean;
-  /** The id of the control; the label points at it. Generated when left out. */
+  /** The id of the control; the label points at it. @default generated */
   id?: string;
 }>();
 

@@ -4,27 +4,31 @@ A one-time code entered one character per box, with paste and SMS autofill suppo
 
 ```vue
 <EOtpField v-model="code" label="Sign-in code" hint="We texted you a code." @complete="verify" />
-<EOtpField v-model="code" :length="8" type="text" :group-size="4" />
+<EOtpField v-model="code" :length="8" inputmode="text" :group-size="4" />
 ```
 
 ## Props
 
-| Prop         | Type                  | Default             | Notes                                                                         |
-| ------------ | --------------------- | ------------------- | ----------------------------------------------------------------------------- |
-| `modelValue` | `string`              | `""`                | v-model: the code typed so far.                                               |
-| `label`      | `string`              | `Verification code` | The field's label.                                                            |
-| `hideLabel`  | `boolean`             |                     | Keeps the label for screen readers only.                                      |
-| `length`     | `number`              | `6`                 | Number of boxes.                                                              |
-| `type`       | `"numeric" \| "text"` | `numeric`           | `numeric` opens the number pad; `text` takes letters and digits, upper-cased. |
-| `groupSize`  | `number`              | `0`                 | Gap between groups: 6 with 3 reads 123 456.                                   |
-| `name`       | `string`              |                     | Submits the whole code through a hidden input.                                |
-| `autoFocus`  | `boolean`             |                     | Starts in the first empty box.                                                |
-| `hint`       | `string`              |                     | Read with each box.                                                           |
-| `error`      | `string`              |                     | Replaces the hint, marks every box invalid.                                   |
-| `required`   | `boolean`             |                     | Shows the word "Required" and sets `required` on every box.                   |
-| `optional`   | `boolean`             |                     | Shows the word "Optional". Flag whichever is rarer.                           |
-| `disabled`   | `boolean`             |                     |                                                                               |
-| `id`         | `string`              | generated           | First box's id.                                                               |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `modelValue` | `string` | `""` | `v-model`: the code typed so far. |
+| `label` | `string` | `"Verification code"` | The field's label. |
+| `hideLabel` | `boolean` | `false` | Keep the label for screen readers and remove it from the page. |
+| `length` | `number` | `6` | How many characters: the number of boxes. |
+| `inputmode` | `"numeric" \| "text"` | `"numeric"` | `numeric` opens the number pad; `text` takes letters and digits, upper-cased. |
+| `groupSize` | `number` | `0` | A gap between groups: 6 with 3 reads 123 456. |
+| `name` | `string` | — | The name submitted with a form (the whole code), through a hidden input. |
+| `autoFocus` | `boolean` | `false` | Start in the first empty box. |
+| `hint` | `string` | — | Help under the boxes, read with each box. |
+| `error` | `string` | — | What to fix. Replaces the hint, marks every box invalid and is announced. |
+| `required` | `boolean` | `false` | A word beside the label, and the `required` attribute on every box. |
+| `optional` | `boolean` | `false` | A word beside the label. Flag whichever is rarer. |
+| `disabled` | `boolean` | `false` | Disables every box. |
+| `id` | `string` | `generated` | The id of the first box; the label and hint ids are built from it. |
+
+<!-- props:end -->
 
 `class` and `style` land on the wrapper `div`; other attributes and listeners land on the `role="group"` element. Exposes `focus()` (first empty box).
 

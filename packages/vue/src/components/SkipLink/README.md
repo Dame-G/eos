@@ -10,9 +10,13 @@ A link, hidden until focused, that lets keyboard users jump past navigation to t
 
 ## Props
 
-| Prop   | Type     | Default | Notes                                                   |
-| ------ | -------- | ------- | ------------------------------------------------------- |
-| `href` | `string` | `#main` | The in-page target; must match the main content's `id`. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `href` | `string` | `"#main"` | The in-page target, `#main` by default. It must match the `id` of the main content. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `a` element.
 

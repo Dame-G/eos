@@ -8,17 +8,21 @@ A colour input as `#rrggbb`: a swatch that opens the native picker plus a text b
 
 ## Props
 
-| Prop         | Type      | Default   | Notes                                                                                                  |
-| ------------ | --------- | --------- | ------------------------------------------------------------------------------------------------------ |
-| `modelValue` | `string`  | `""`      | v-model: `#rrggbb`, lower case. Only complete, valid colours are written. `#abc` expands to `#aabbcc`. |
-| `label`      | `string`  |           | Required.                                                                                              |
-| `hideLabel`  | `boolean` |           | Keeps the label for screen readers only.                                                               |
-| `hint`       | `string`  |           | Help under the field.                                                                                  |
-| `error`      | `string`  |           | Replaces the hint; marks invalid. Invalid typed text shows "Enter a colour like #2c95b4" after blur.   |
-| `required`   | `boolean` |           | The `required` attribute and the word "Required".                                                      |
-| `optional`   | `boolean` |           | The word "Optional".                                                                                   |
-| `disabled`   | `boolean` |           |                                                                                                        |
-| `id`         | `string`  | generated | Id of the text input.                                                                                  |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `modelValue` | `string` | `""` | `v-model`: `#rrggbb`, lower case. Only complete, valid colours are written. `#abc` expands to `#aabbcc`. |
+| `label` | `string` | **Required** | The visible label, a mono kicker above the input. |
+| `hideLabel` | `boolean` | `false` | Keep the label for screen readers and remove it from the page. |
+| `hint` | `string` | — | Help that stays under the input. |
+| `error` | `string` | — | What to fix. Replaces the hint, marks the input invalid and is announced. Invalid typed text shows "Enter a colour like #2c95b4" after blur. |
+| `required` | `boolean` | `false` | The `required` attribute and a word beside the label. |
+| `optional` | `boolean` | `false` | A word beside the label. Flag whichever is rarer. |
+| `disabled` | `boolean` | `false` | Disables the field. |
+| `id` | `string` | `generated` | The id of the text input; the label points at it. |
+
+<!-- props:end -->
 
 `class` and `style` land on the wrapper `div`; other attributes and listeners land on the text `input` element. The text box's example placeholder is the `colorPlaceholder` message. Exposes `input` and `focus()`. It does not check contrast; pair it with `defineTheme()`.
 

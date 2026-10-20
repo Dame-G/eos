@@ -13,8 +13,9 @@ const props = defineProps<{
   label: string;
   /** Keep the label for screen readers and remove it from the page. */
   hideLabel?: boolean;
-  /** Accepted extensions, such as `.pdf,.jpg`. Shown under the prompt. */
+  /** Accepted extensions, such as `.pdf,.jpg`. Passed to the input and shown under the prompt as "PDF, JPG". */
   accept?: string;
+  /** Allows choosing more than one file. */
   multiple?: boolean;
   /** The name submitted with a form. */
   name?: string;
@@ -22,13 +23,13 @@ const props = defineProps<{
   hint?: string;
   /** What to fix. Replaces the hint, marks the input invalid and is announced. */
   error?: string;
-  /** A word beside the label. */
+  /** The `required` attribute and a word beside the label. */
   required?: boolean;
   /** A word beside the label. Flag whichever is rarer. */
   optional?: boolean;
   /** Ignores drops and clicks and dims the edge. */
   disabled?: boolean;
-  /** The id of the file input; the label points at it. Generated when left out. */
+  /** The id of the file input; the label points at it. @default generated */
   id?: string;
 }>();
 
@@ -37,6 +38,7 @@ const emit = defineEmits<{
   files: [files: File[]];
 }>();
 
+/** The chosen files. */
 const model = defineModel<File[]>({ default: () => [] });
 
 const t = useMessages();
@@ -138,10 +140,14 @@ defineExpose({
       border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  .e-drop:hover,
-  .e-drop--over {
-    background: var(--e-surface-tint);
+  .e-drop:hover {
+    background: var(--e-surface-hover);
     border-color: var(--e-ink);
+  }
+
+  .e-drop--over {
+    background: var(--e-secondary-soft);
+    border-color: var(--e-secondary);
   }
 
   .e-drop-main {
@@ -205,6 +211,14 @@ defineExpose({
   @media (prefers-reduced-motion: reduce) {
     .e-drop {
       transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-drop:hover,
+    .e-drop--over {
+      border-style: solid;
+      border-color: Highlight;
     }
   }
 }

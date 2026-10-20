@@ -45,7 +45,7 @@ describe("ENavList", () => {
     expect(current[0]!.textContent).toContain("Pay a bill");
     const cs = getComputedStyle(current[0]!);
     expect(cs.fontWeight).toBe("600");
-    expect(parseFloat(cs.borderTopWidth)).toBeGreaterThan(parseFloat(cs.borderBottomWidth));
+    expect(parseFloat(cs.borderBottomWidth)).toBeGreaterThan(parseFloat(cs.borderTopWidth));
   });
 
   test("rows are control height and the count is a pill", async () => {
@@ -96,7 +96,6 @@ describe("ENavList", () => {
   test("sections: a heading names its list, and a section without a label has no heading", async () => {
     const { container } = await render(ENavList, {
       props: {
-        dense: true,
         sections: [
           { items: [{ label: "Overview", href: "/" }] },
           { label: "Layers", items: [{ label: "Blocks", href: "/blocks" }] },
@@ -109,30 +108,26 @@ describe("ENavList", () => {
     expect(container.querySelector(`#${CSS.escape(list.getAttribute("aria-labelledby")!)}`)?.textContent).toBe(
       "Layers",
     );
-    expect(container.querySelector("nav")!.classList.contains("e-nav--dense")).toBe(true);
     await expectNoViolations(container);
   });
 
-  test("horizontal lays the links in a row with a bar under the current page", async () => {
+  test("horizontal lays the links in a row, outlining the current page", async () => {
     const { container } = await render(ENavList, { props: { items, orientation: "horizontal" } });
     const nav = container.querySelector("nav")!;
     expect(nav.classList.contains("e-nav--horizontal")).toBe(true);
     expect(getComputedStyle(container.querySelector("ul")!).display).toBe("flex");
     const links = [...container.querySelectorAll<HTMLElement>("a")];
     expect(links[0]!.getBoundingClientRect().top).toBe(links[1]!.getBoundingClientRect().top);
-    expect(links[0]!.getBoundingClientRect().height).toBe(40);
+    expect(links[0]!.getBoundingClientRect().height).toBe(48);
     const current = getComputedStyle(container.querySelector("[aria-current]")!);
     expect(current.fontWeight).toBe("600");
-    expect(current.boxShadow).toContain("3px");
-    expect(getComputedStyle(links[0]!).boxShadow).toContain("2px");
+    expect(current.borderBottomWidth).not.toBe(current.borderTopWidth);
     await expectNoViolations(container);
   });
 
-  test("horizontal composes with dense for a shorter row, and vertical is the default", async () => {
-    const { container } = await render(ENavList, { props: { items, orientation: "horizontal", dense: true } });
-    expect(container.querySelector("a")!.getBoundingClientRect().height).toBe(36);
-    const other = await render(ENavList, { props: { items } });
-    expect(other.container.querySelector("nav")!.classList.contains("e-nav--horizontal")).toBe(false);
+  test("vertical is the default", async () => {
+    const { container } = await render(ENavList, { props: { items } });
+    expect(container.querySelector("nav")!.classList.contains("e-nav--horizontal")).toBe(false);
   });
 
   test("has no accessibility violations", async () => {

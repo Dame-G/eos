@@ -9,15 +9,15 @@ const props = defineProps<{
   label: string;
   /** Keep the label for screen readers and remove it from the page. */
   hideLabel?: boolean;
-  /** ISO 4217 code for the symbol. Default: the configured currency. */
+  /** ISO 4217 code. An unknown code falls back to the configured currency's symbol. @default configured currency */
   currency?: string;
-  /** BCP 47 tag for the symbol. Default: the configured locale. */
+  /** BCP 47 tag used for the symbol. @default configured locale */
   locale?: string;
-  /** The lowest value. Default 0, so no negatives. */
+  /** The lowest value, so no negatives by default. @default 0 */
   min?: number;
   /** The highest value. */
   max?: number;
-  /** How far a button or arrow key moves the amount. Default 0.01. */
+  /** The size of one step of the buttons and arrow keys. Decimals shown follow the step. @default 0.01 */
   step?: number;
   /** Replaces the currency symbol before the value. */
   prefix?: string;
@@ -29,15 +29,17 @@ const props = defineProps<{
   hint?: string;
   /** What to fix. Replaces the hint, marks the field invalid and is announced. */
   error?: string;
-  /** A word beside the label. */
+  /** The `required` attribute and a word beside the label. */
   required?: boolean;
   /** A word beside the label. Flag whichever is rarer. */
   optional?: boolean;
+  /** Disables the field and its buttons. */
   disabled?: boolean;
-  /** The id of the input; the label points at it. Generated when left out. */
+  /** The id of the input; the label points at it. @default generated */
   id?: string;
 }>();
 
+/** The amount; round to the cent in code. */
 const model = defineModel<number | null>({ default: null });
 
 const config = useConfig();

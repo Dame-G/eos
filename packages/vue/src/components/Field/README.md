@@ -10,15 +10,19 @@ The label, hint and error wrapper for a control the system does not wrap itself.
 
 ## Props
 
-| Prop        | Type      | Default   | Notes                                                       |
-| ----------- | --------- | --------- | ----------------------------------------------------------- |
-| `label`     | `string`  |           | Required. The visible label above the control.              |
-| `hideLabel` | `boolean` |           | Keeps the label for screen readers only.                    |
-| `hint`      | `string`  |           | Help under the control.                                     |
-| `error`     | `string`  |           | Replaces the hint, marks the control invalid, is announced. |
-| `required`  | `boolean` |           | Shows the word "Required".                                  |
-| `optional`  | `boolean` |           | Shows the word "Optional". Flag whichever is rarer.         |
-| `id`        | `string`  | generated | The control's id; the label points at it.                   |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `string` | **Required** | The visible label, a small mono kicker above the control. |
+| `hideLabel` | `boolean` | `false` | Keep the label for screen readers and remove it from the page. |
+| `hint` | `string` | — | Help that stays under the control. |
+| `error` | `string` | — | What to fix. Replaces the hint, turns the control invalid and is announced. |
+| `required` | `boolean` | `false` | A word beside the label. |
+| `optional` | `boolean` | `false` | A word beside the label. Flag whichever is rarer. |
+| `id` | `string` | `generated` | The id of the control; the label points at it. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `div` element.
 

@@ -107,7 +107,7 @@ describe("EDialog", () => {
     await expect.poll(() => document.activeElement).toBe(trigger);
   });
 
-  test("a press on the backdrop does not close it", async () => {
+  test("a press on the backdrop does not close it by default", async () => {
     const { Host, open } = host();
     await render(Host);
     open.value = true;
@@ -117,6 +117,16 @@ describe("EDialog", () => {
     overlay.click();
     await nextTick();
     expect(open.value).toBe(true);
+  });
+
+  test("dismissible closes it on a backdrop press", async () => {
+    const { Host, open } = host({ attrs: { dismissible: true } });
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    const overlay = document.querySelector<HTMLElement>(".e-dialog-overlay")!;
+    await userEvent.click(overlay, { position: { x: 4, y: 4 } });
+    await expect.poll(() => open.value).toBe(false);
   });
 
   test("scroll is locked and the page behind is hidden from assistive technology while open", async () => {

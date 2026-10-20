@@ -26,7 +26,7 @@ export interface RangePreset {
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  /** The visible label, a mono kicker above the field. */
+  /** The visible label, a mono kicker above the field. It also names the group. */
   label: string;
   /** Keep the label for screen readers and remove it from the page. */
   hideLabel?: boolean;
@@ -34,26 +34,29 @@ const props = defineProps<{
   hint?: string;
   /** What to fix. Replaces the hint and marks both boxes invalid. A typed span that cannot be used shows its own error. */
   error?: string;
-  /** A word beside the label. */
+  /** The `required` attribute and a word beside the label. */
   required?: boolean;
   /** A word beside the label. Flag whichever is rarer. */
   optional?: boolean;
+  /** Disables both boxes and the button. */
   disabled?: boolean;
   /** The earliest date that can be chosen or typed. */
   min?: Date;
   /** The latest date that can be chosen or typed. */
   max?: Date;
-  /** Submits the first date as `YYYY-MM-DD` with a form. */
+  /** Submits the first date as `YYYY-MM-DD` with a form, through a hidden input. */
   startName?: string;
-  /** Submits the last date as `YYYY-MM-DD` with a form. */
+  /** Submits the last date as `YYYY-MM-DD` with a form, through a hidden input. */
   endName?: string;
-  /** Buttons under the calendar that choose a span at once. Default: Last 7 days, Last 30 days, This month. */
+  /** Buttons under the calendar; one sets the span and closes. @default Last 7 days, Last 30 days, This month */
   presets?: RangePreset[];
-  /** The id of the start box; the label points at it. Generated when left out. */
+  /** The id of the start box; the label points at it. @default generated */
   id?: string;
 }>();
 
+/** The first date of the span. */
 const start = defineModel<Date | null>("start", { default: null });
+/** The last date of the span. */
 const end = defineModel<Date | null>("end", { default: null });
 
 const t = useMessages();
@@ -62,6 +65,7 @@ const loc = useLocale();
 const portal = usePortalTarget();
 const attrs = useFieldAttrs();
 
+/** Whether the calendar is open. A disabled field never opens. */
 const open = defineModel<boolean>("open", { default: false });
 const shown = computed(() => open.value && !props.disabled);
 const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel, .e-combo"));

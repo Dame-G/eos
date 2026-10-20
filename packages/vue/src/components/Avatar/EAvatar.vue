@@ -4,15 +4,15 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** The person's name. Screen readers read it; the initials come from it. */
+    /** The person's name. Screen readers read it; the initials are the first letters of its first and last word. */
     name: string;
     /** A photo URL. If it fails to load, the initials appear. */
     src?: string;
-    /** 28px, for rows. */
+    /** 32px, for rows and bars. */
     small?: boolean;
-    /** 56px, for a practitioner on an appointment card or a profile. */
+    /** 64px, for a profile or practitioner on an appointment card. The default is 44px. */
     large?: boolean;
-    /** `button` makes it a control named by `name`, such as the trigger of an account menu. Default `span`. */
+    /** `button` renders a `button` with `type="button"`, a pointer cursor and a focus ring, named by `name`, such as the `trigger` of an `EMenu`. Default `span`. */
     as?: "span" | "button";
   }>(),
   { as: "span" },
@@ -57,10 +57,15 @@ const initials = computed(() => {
     place-items: center;
     flex: none;
     box-sizing: border-box;
-    width: 44px;
-    height: 44px;
+    width: var(--e-tap, 44px);
+    height: var(--e-tap, 44px);
     overflow: hidden;
     border: var(--e-stroke-edge) solid var(--e-border-strong);
+
+    --e-bc: var(--e-border-strong);
+
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
     color: var(--e-primary);
@@ -77,6 +82,8 @@ const initials = computed(() => {
 
   .e-avatar--button:hover {
     border-color: var(--e-ink);
+
+    --e-bc: var(--e-ink);
   }
 
   .e-avatar--button:focus-visible {
@@ -108,6 +115,18 @@ const initials = computed(() => {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  @media (forced-colors: active) {
+    .e-avatar {
+      border-color: CanvasText;
+      outline-color: CanvasText;
+      color: CanvasText;
+    }
+
+    .e-avatar--button:focus-visible {
+      outline-color: Highlight;
+    }
   }
 }
 </style>

@@ -11,19 +11,19 @@ defineOptions({ inheritAttrs: false });
 
 withDefaults(
   defineProps<{
-    /** What screen readers call the box. Default "Search". */
+    /** Names the box and the search landmark; there is no visible label. @default "Search" */
     label?: string;
-    /** Say what can be searched, briefly. Default "Search". */
+    /** Say what can be searched, briefly. @default "Search" */
     placeholder?: string;
-    /** The text on the button. Default "Search". */
+    /** The text on the button. @default "Search" */
     action?: string;
     /** Leaves out the button, for a box that filters or searches as you type. Enter still submits. */
     hideAction?: boolean;
     /** The clear button, shown when there is text. On by default. */
     clearable?: boolean;
-    /** The name submitted with a form. Default `q`. */
+    /** The name submitted with a form. @default "q" */
     name?: string;
-    /** Search is unavailable. Say why in a Notice. */
+    /** Disables the box and button. Say why in an `ENotice`. */
     disabled?: boolean;
   }>(),
   { clearable: true },
@@ -34,6 +34,7 @@ const emit = defineEmits<{
   submit: [value: string];
 }>();
 
+/** The text. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
@@ -94,6 +95,11 @@ defineExpose({
     height: var(--e-control-height);
     padding: 0 var(--e-space-1) 0 var(--e-space-2);
     border: var(--e-stroke-edge) solid var(--e-border-strong);
+
+    --e-bc: var(--e-border-strong);
+
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     box-shadow: var(--e-well);
@@ -102,6 +108,8 @@ defineExpose({
 
   .e-search:hover {
     border-color: var(--e-ink);
+
+    --e-bc: var(--e-ink);
   }
 
   .e-search .e-btn {
@@ -141,12 +149,12 @@ defineExpose({
 
   .e-search-clear:hover {
     background: var(--e-wash-hover);
-    box-shadow: inset 0 0 0 1px var(--e-wash-ring);
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-wash-ring);
   }
 
   .e-search-clear:active {
     background: var(--e-wash-press);
-    box-shadow: inset 0 0 0 1.5px var(--e-ink);
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ink);
   }
 
   .e-search-clear:focus-visible {
@@ -158,7 +166,7 @@ defineExpose({
     display: grid;
     place-items: center;
     flex: none;
-    width: 28px;
+    width: var(--e-space-8);
     color: var(--e-muted);
   }
 
@@ -167,6 +175,7 @@ defineExpose({
     text-overflow: ellipsis;
     height: 100%;
     border: 0;
+    outline: 0;
     background: transparent;
     box-shadow: none;
     font-size: var(--e-text-md);
@@ -185,6 +194,9 @@ defineExpose({
 
   .e-search:focus-within {
     border-color: var(--e-focus-field);
+
+    --e-bc: var(--e-focus-field);
+
     outline: var(--e-stroke-focus) solid var(--e-focus-field);
     outline-offset: var(--e-focus-gap-field);
   }

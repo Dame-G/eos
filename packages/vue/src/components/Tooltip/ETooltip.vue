@@ -16,6 +16,7 @@ defineSlots<{
 }>();
 
 const portal = usePortalTarget();
+/** Whether the bubble shows. Hover, focus and Escape update it. */
 const open = defineModel<boolean>("open", { default: false });
 
 let hold: ReturnType<typeof setTimeout> | undefined;
@@ -52,7 +53,7 @@ function touchEnd(e: PointerEvent) {
     z-index: var(--e-z-tooltip);
     width: max-content;
     max-width: 16rem;
-    padding: 6px 10px;
+    padding: var(--e-space-2) var(--e-space-3);
     border-radius: var(--e-radius-sm);
     background: var(--e-ink);
     color: var(--e-surface);

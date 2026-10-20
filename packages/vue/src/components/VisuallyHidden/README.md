@@ -8,9 +8,13 @@ Text that is read out but not shown, for context sighted people get from layout,
 
 ## Props
 
-| Prop | Type     | Default | Notes                  |
-| ---- | -------- | ------- | ---------------------- |
-| `as` | `string` | `span`  | The element to render. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `as` | `string` | `"span"` | The element to render. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the rendered element.
 

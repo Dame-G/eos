@@ -19,7 +19,7 @@ const props = defineProps<{
   min?: number;
   /** The highest value. The value clamps to it and the increase button disables there. */
   max?: number;
-  /** How far a button or arrow key moves the value. Decimals shown follow the step. */
+  /** The amount one step of the buttons and arrow keys changes the value. Decimals shown follow the step (`0.25` shows two). @default 1 */
   step?: number;
   /** A unit before the value. */
   prefix?: string;
@@ -31,15 +31,17 @@ const props = defineProps<{
   hint?: string;
   /** What to fix. Replaces the hint, marks the field invalid and is announced. */
   error?: string;
-  /** A word beside the label. */
+  /** The `required` attribute and a word beside the label. */
   required?: boolean;
   /** A word beside the label. Flag whichever is rarer. */
   optional?: boolean;
+  /** Disables the input and both buttons. */
   disabled?: boolean;
-  /** The id of the input; the label points at it. Generated when left out. */
+  /** The id of the input; the label points at it. @default generated */
   id?: string;
 }>();
 
+/** The number; `null` when empty. */
 const model = defineModel<number | null>({ default: null });
 
 const t = useMessages();
@@ -214,7 +216,7 @@ defineExpose({
 
   .e-numbtn:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: -3px;
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-numbtn:disabled {

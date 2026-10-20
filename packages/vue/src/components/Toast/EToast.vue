@@ -43,7 +43,7 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
 
 <template>
   <ESurface
-    tone="float"
+    raised
     class="e-toast"
     :class="[`e-toast--${tone}`, $slots.action && 'e-toast--actions']"
     :role="tone === 'danger' ? 'alert' : 'status'"
@@ -101,7 +101,7 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
 
   @media (forced-colors: active) {
     .e-toast {
-      border: 1px solid CanvasText;
+      border: var(--e-stroke-card) solid CanvasText;
     }
   }
 }

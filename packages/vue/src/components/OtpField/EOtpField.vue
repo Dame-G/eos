@@ -10,33 +10,34 @@ defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
   defineProps<{
-    /** The visible label. "Verification code" when left out. */
+    /** The field's label. @default "Verification code" */
     label?: string;
     /** Keep the label for screen readers and remove it from the page. */
     hideLabel?: boolean;
-    /** How many characters. */
+    /** How many characters: the number of boxes. */
     length?: number;
-    /** `numeric` opens the number pad; `text` takes letters and digits. */
-    type?: "numeric" | "text";
+    /** `numeric` opens the number pad; `text` takes letters and digits, upper-cased. */
+    inputmode?: "numeric" | "text";
     /** A gap between groups: 6 with 3 reads 123 456. */
     groupSize?: number;
-    /** The name submitted with a form (the whole code). */
+    /** The name submitted with a form (the whole code), through a hidden input. */
     name?: string;
     /** Start in the first empty box. */
     autoFocus?: boolean;
     /** Help under the boxes, read with each box. */
     hint?: string;
-    /** What to fix. Replaces the hint and is announced. */
+    /** What to fix. Replaces the hint, marks every box invalid and is announced. */
     error?: string;
     /** A word beside the label, and the `required` attribute on every box. */
     required?: boolean;
     /** A word beside the label. Flag whichever is rarer. */
     optional?: boolean;
+    /** Disables every box. */
     disabled?: boolean;
-    /** The id of the first box; the label and hint ids are built from it. Generated when left out. */
+    /** The id of the first box; the label and hint ids are built from it. @default generated */
     id?: string;
   }>(),
-  { length: 6, type: "numeric", groupSize: 0 },
+  { length: 6, inputmode: "numeric", groupSize: 0 },
 );
 
 const emit = defineEmits<{
@@ -44,11 +45,12 @@ const emit = defineEmits<{
   complete: [code: string];
 }>();
 
+/** The code typed so far. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
 const attrs = useFieldAttrs();
-const numeric = computed(() => props.type !== "text");
+const numeric = computed(() => props.inputmode !== "text");
 const refs: (HTMLInputElement | null)[] = [];
 
 function clean(s: unknown): string {

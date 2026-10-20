@@ -25,7 +25,7 @@ import "./combo.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = withDefaults(defineProps<EComboboxProps & { mode: "single" | "free" | "multiple" }>(), {
+const props = withDefaults(defineProps<EComboboxProps>(), {
   clearable: true,
 });
 
@@ -59,8 +59,9 @@ const frame = computed(() =>
 );
 const listName = computed(() => (props.bare ? (props.ariaLabel ?? props.label) : props.label));
 
-const multiple = computed(() => props.mode === "multiple");
-const free = computed(() => props.mode === "free");
+const multiple = computed(() => props.multiple);
+// Free text is for one value; with `multiple` it is ignored.
+const free = computed(() => props.freeform && !props.multiple);
 const all = computed(() => normalizeOptions(props.options));
 const values = computed<string[]>(() => (multiple.value && Array.isArray(model.value) ? model.value : []));
 const single = computed(() => (typeof model.value === "string" ? model.value : ""));
@@ -365,11 +366,11 @@ defineExpose({
     display: inline-flex;
     align-items: center;
     gap: var(--e-space-1);
-    height: 32px;
+    height: var(--e-space-8);
     padding: 0 var(--e-space-1) 0 var(--e-space-3);
     border-radius: var(--e-radius-pill);
     background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 1px var(--e-primary);
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-primary);
     color: var(--e-ink);
     font: 500 var(--e-text-sm)/1 var(--e-font-sans);
   }
@@ -377,15 +378,15 @@ defineExpose({
   .e-tag-x::after {
     content: "";
     position: absolute;
-    inset: -10px;
+    inset: calc((var(--e-tap) - var(--e-space-6)) / -2);
   }
 
   .e-tag-x {
     position: relative;
     display: inline-grid;
     place-items: center;
-    width: 24px;
-    height: 24px;
+    width: var(--e-space-6);
+    height: var(--e-space-6);
     padding: 0;
     border: 0;
     border-radius: 50%;
@@ -396,7 +397,7 @@ defineExpose({
 
   .e-tag-x:hover {
     background: var(--e-wash-hover);
-    box-shadow: inset 0 0 0 1px var(--e-primary);
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-primary);
   }
 
   .e-tag-x:active {
@@ -405,7 +406,13 @@ defineExpose({
 
   .e-tag-x:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: 1px;
+    outline-offset: var(--e-focus-gap);
+  }
+
+  @media (forced-colors: active) {
+    .e-tag {
+      outline: var(--e-stroke-card) solid CanvasText;
+    }
   }
 }
 </style>

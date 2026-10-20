@@ -1,19 +1,24 @@
 # EText
 
-Running text in three sizes, capped at a readable line length.
+Running text in three sizes (body, `small`, `large`), capped at a readable line length.
 
 ```vue
-<EText variant="deck">You paid in full on 3 September.</EText>
-<EText variant="small" muted>Receipts are kept for seven years.</EText>
+<EText large>You paid in full on 3 September.</EText>
+<EText small muted>Receipts are kept for seven years.</EText>
 ```
 
 ## Props
 
-| Prop      | Type                          | Default | Notes                                   |
-| --------- | ----------------------------- | ------- | --------------------------------------- |
-| `variant` | `"body" \| "deck" \| "small"` | `body`  | `body` 16px, `deck` 18px, `small` 14px. |
-| `muted`   | `boolean`                     |         | Secondary copy in the muted colour.     |
-| `as`      | `string`                      | `p`     | The element to render.                  |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `small` | `boolean` | `false` | 14px, for captions and fine print. |
+| `large` | `boolean` | `false` | 18px, for the one-sentence reading of a statement. |
+| `muted` | `boolean` | `false` | Secondary copy, in the muted colour. |
+| `as` | `string` | `"p"` | The element to render. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the rendered element. The line length is the `--e-measure` token.
 

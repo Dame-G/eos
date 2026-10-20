@@ -4,11 +4,11 @@ import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
-  /** Height in px, or any CSS length. Defaults to 96. Make it the size of what is coming. */
+  /** A number is px; a string is any CSS length. @default 96 */
   height?: number | string;
-  /** Width in px, or any CSS length. Defaults to the full width. */
+  /** Same units as `height`. @default full width */
   width?: number | string;
-  /** A round block, for a photo. */
+  /** A round block, for a photo; set `height` and the width follows. */
   circle?: boolean;
 }>();
 
@@ -33,7 +33,9 @@ const size = computed(() => ({
     width: 100%;
     border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 1px var(--e-border);
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
+    outline: var(--e-stroke-card) solid var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-card));
     animation: e-pulse 1.4s ease-in-out infinite;
   }
 
@@ -42,7 +44,9 @@ const size = computed(() => ({
     height: 14px;
     border-radius: var(--e-radius-sm);
     background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 1px var(--e-border);
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
+    outline: var(--e-stroke-card) solid var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-card));
     animation: e-pulse 1.4s ease-in-out infinite;
   }
 
@@ -62,6 +66,13 @@ const size = computed(() => ({
     .e-skel,
     .e-skeleton {
       animation: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-skel,
+    .e-skeleton {
+      outline-color: GrayText;
     }
   }
 }

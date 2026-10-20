@@ -7,13 +7,15 @@ const props = withDefaults(
   defineProps<{
     /** `primary` is the one main action on a screen; `secondary` confirms; `outline` is for the other actions beside it; `danger` cancels or removes; `quiet` is an underlined text action. */
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
-    /** An icon before the label. */
+    /** An icon before the label: a name such as `download`, or a component. */
     icon?: IconProp;
     /** Full width. */
     block?: boolean;
+    /** Dashed and unfilled; not focusable, ignores clicks. With `href` the link gets `aria-disabled="true"` and `tabindex="-1"` and does not navigate. */
     disabled?: boolean;
+    /** Set `submit` on the one that submits a form. */
     type?: "button" | "submit" | "reset";
-    /** Renders a link that looks like the button, for a destination rather than an action. */
+    /** Renders a link that looks like the button, for a destination rather than an action (a call to action that goes to a page). Space does not follow it. */
     href?: string;
     /** With `href`: opens in a new tab. */
     external?: boolean;
@@ -66,9 +68,9 @@ function blockWhenDisabled(event: Event) {
   .e-btn {
     --e-fill: var(--e-primary);
     --e-on-fill: var(--e-on-primary);
-    --e-slab: color-mix(in srgb, var(--e-fill) 58%, #000);
-    --e-hover: color-mix(in srgb, var(--e-fill) 88%, #000);
-    --e-press: color-mix(in srgb, var(--e-fill) 78%, #000);
+    --e-slab: color-mix(in srgb, var(--e-fill), var(--e-shade-slab));
+    --e-hover: color-mix(in srgb, var(--e-fill), var(--e-shade-hover));
+    --e-press: color-mix(in srgb, var(--e-fill), var(--e-shade-press));
 
     position: relative;
     display: inline-flex;
@@ -78,6 +80,11 @@ function blockWhenDisabled(event: Event) {
     height: var(--e-control-height);
     padding: var(--e-depth) var(--e-space-4) 0;
     border: var(--e-stroke-edge) solid var(--e-slab);
+
+    --e-bc: var(--e-slab);
+
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
     border-radius: var(--e-radius-md);
     background: var(--e-fill);
@@ -99,7 +106,7 @@ function blockWhenDisabled(event: Event) {
   .e-btn:active {
     background: var(--e-press);
     border-bottom-width: var(--e-stroke-edge);
-    box-shadow: inset 0 var(--e-depth) 0 0 rgb(0 0 0 / 0.22);
+    box-shadow: inset 0 var(--e-depth) 0 0 color-mix(in srgb, transparent, var(--e-shade-press));
   }
 
   .e-btn--secondary {
@@ -119,19 +126,27 @@ function blockWhenDisabled(event: Event) {
   }
 
   .e-btn--outline:hover {
-    background: color-mix(in srgb, var(--e-surface) 92%, #000);
+    background: color-mix(in srgb, var(--e-surface), var(--e-shade-hover));
     border-color: var(--e-ink);
+
+    --e-bc: var(--e-ink);
   }
 
   .e-btn--outline:active {
-    background: color-mix(in srgb, var(--e-surface) 84%, #000);
+    background: color-mix(in srgb, var(--e-surface), var(--e-shade-press));
     border-color: var(--e-ink);
+
+    --e-bc: var(--e-ink);
+
     border-bottom-width: var(--e-stroke-edge);
-    box-shadow: inset 0 var(--e-depth) 0 0 rgb(0 0 0 / 0.14);
+    box-shadow: inset 0 var(--e-depth) 0 0 color-mix(in srgb, transparent, var(--e-shade-press));
   }
 
   .e-btn--quiet {
     border-color: transparent;
+
+    --e-bc: transparent;
+
     border-bottom-width: var(--e-stroke-edge);
     background: transparent;
     color: var(--e-ink);
@@ -146,23 +161,41 @@ function blockWhenDisabled(event: Event) {
 
   .e-btn--quiet:not([disabled], [aria-disabled="true"]):hover {
     border-color: var(--e-wash-ring);
+
+    --e-bc: var(--e-wash-ring);
+
     background: var(--e-wash-hover);
     text-decoration-color: currentcolor;
   }
 
   .e-btn--quiet:not([disabled], [aria-disabled="true"]):active {
     border-color: var(--e-ink);
+
+    --e-bc: var(--e-ink);
+
     background: var(--e-wash-press);
     box-shadow: none;
     padding-top: 0;
   }
 
   .e-btn .e-icon {
-    margin-inline-start: -2px;
+    margin-inline-start: calc(-0.5 * var(--e-space-1));
   }
 
   .e-btn--block {
     width: 100%;
+  }
+
+  /* A toggle: any button with aria-pressed="true" reads as selected. */
+  .e-btn[aria-pressed="true"],
+  .e-btn[aria-pressed="true"]:hover,
+  .e-btn[aria-pressed="true"]:active {
+    --e-slab: var(--e-primary);
+    --e-bc: var(--e-primary);
+
+    border-color: var(--e-primary);
+    background: var(--e-surface-hover);
+    color: var(--e-primary);
   }
 
   .e-btn[disabled],
@@ -171,6 +204,7 @@ function blockWhenDisabled(event: Event) {
     background: transparent;
     color: var(--e-muted);
     border: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline: 0;
     box-shadow: none;
     padding-top: 0;
   }
@@ -189,7 +223,13 @@ function blockWhenDisabled(event: Event) {
 
   @media (forced-colors: active) {
     .e-btn {
-      border: 2px solid ButtonText;
+      border: var(--e-stroke-focus) solid ButtonText;
+    }
+
+    .e-btn[aria-pressed="true"] {
+      forced-color-adjust: none;
+      background: Highlight;
+      color: HighlightText;
     }
 
     .e-btn[disabled],

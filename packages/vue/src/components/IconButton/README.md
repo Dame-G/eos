@@ -8,11 +8,15 @@ An icon-only button with a 48px target, for rows where a text button would crowd
 
 ## Props
 
-| Prop       | Type       | Default | Notes                                            |
-| ---------- | ---------- | ------- | ------------------------------------------------ |
-| `icon`     | `IconProp` |         | Required. The icon.                              |
-| `label`    | `string`   |         | Required. Accessible name, written as an action. |
-| `disabled` | `boolean`  |         |                                                  |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `icon` | `IconProp` | **Required** | The glyph. |
+| `label` | `string` | **Required** | The accessible name. Write it as an action, such as "Download receipt". |
+| `disabled` | `boolean` | `false` | Disables the button. |
+
+<!-- props:end -->
 
 `class`, `style`, attributes and listeners (`@click`, `aria-*`, `popovertarget`) land on the `button` element. It is `type="button"` and hidden in print.
 

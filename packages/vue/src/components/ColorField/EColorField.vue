@@ -15,17 +15,19 @@ const props = defineProps<{
   hideLabel?: boolean;
   /** Help that stays under the input. */
   hint?: string;
-  /** What to fix. Replaces the hint, marks the input invalid and is announced. */
+  /** What to fix. Replaces the hint, marks the input invalid and is announced. Invalid typed text shows "Enter a colour like #2c95b4" after blur. */
   error?: string;
-  /** A word beside the label. */
+  /** The `required` attribute and a word beside the label. */
   required?: boolean;
   /** A word beside the label. Flag whichever is rarer. */
   optional?: boolean;
+  /** Disables the field. */
   disabled?: boolean;
-  /** The id of the text input; the label points at it. Generated when left out. */
+  /** The id of the text input; the label points at it. @default generated */
   id?: string;
 }>();
 
+/** `#rrggbb`, lower case. Only complete, valid colours are written. `#abc` expands to `#aabbcc`. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
@@ -155,18 +157,19 @@ defineExpose({
   .e-color-swatch::-webkit-color-swatch {
     border: 0;
     border-radius: var(--e-radius-sm);
-    box-shadow: inset 0 0 0 var(--e-stroke-hair) rgb(0 0 0 / 0.22);
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 
   .e-color-swatch::-moz-color-swatch {
     border: 0;
     border-radius: var(--e-radius-sm);
-    box-shadow: inset 0 0 0 var(--e-stroke-hair) rgb(0 0 0 / 0.22);
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 
   .e-color-swatch:disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    outline: var(--e-stroke-hair) dashed var(--e-muted);
+    outline-offset: calc(-1 * var(--e-stroke-hair));
   }
 
   .e-colorfield .e-input {

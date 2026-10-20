@@ -1,7 +1,7 @@
 @layer e.page {
   .e-shell-inner {
     width: 100%;
-    max-width: 72rem;
+    max-width: var(--e-shell-width, 72rem);
     margin-inline: auto;
     padding-inline: var(--e-space-4);
   }

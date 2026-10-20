@@ -42,13 +42,13 @@ withDefaults(
   defineProps<{
     /** The button's text. With a `trigger` slot it is not shown; name your own trigger. */
     label: string;
-    /** The actions, in order. `{ divider: true }` draws a rule. */
+    /** The actions, in order. Action: `{ label, icon?, onClick?, danger?, disabled? }`; `{ divider: true }` draws a rule. Put destructive last. */
     items: readonly EMenuItem[];
-    /** The look of the button. Default `outline`. */
+    /** The look of the button. */
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
     /** An icon before the label. */
     icon?: IconProp;
-    /** Which edge of the trigger the menu lines up with. Use `end` for a trigger at the end of a bar. Default `start`. */
+    /** Which edge of the trigger the menu lines up with. Use `end` for a trigger at the end of a bar. */
     align?: "start" | "end";
   }>(),
   { variant: "outline", align: "start" },
@@ -64,6 +64,7 @@ defineSlots<{
   trigger?(): unknown;
 }>();
 
+/** The open state. Opening it from outside moves no focus. */
 const open = defineModel<boolean>("open", { default: false });
 
 const portal = usePortalTarget();
@@ -146,7 +147,7 @@ function returnFocus(event: Event) {
   .e-menu {
     width: max-content;
     min-width: 12rem;
-    max-width: min(20rem, calc(100vw - 32px));
+    max-width: min(20rem, calc(100vw - 2 * var(--e-space-4)));
     padding: var(--e-space-1);
   }
 
@@ -167,10 +168,12 @@ function returnFocus(event: Event) {
   }
 
   .e-menu-item:hover,
-  .e-menu-item:focus-visible {
-    background: var(--e-surface-tint);
-    outline: none;
-    box-shadow: inset 0 0 0 1px var(--e-border-strong);
+  .e-menu-item:focus-visible,
+  .e-menu-item[data-highlighted] {
+    background: var(--e-surface-hover);
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
+    outline: var(--e-stroke-card) solid var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-card));
   }
 
   .e-menu-item--danger {
@@ -186,18 +189,26 @@ function returnFocus(event: Event) {
     margin: var(--e-space-1) 0;
   }
 
-  .e-menu-item[data-highlighted] {
-    background: var(--e-surface-tint);
-    outline: none;
-    box-shadow: inset 0 0 0 1px var(--e-border-strong);
-  }
-
   .e-menu-item[data-disabled] {
     color: var(--e-muted);
     cursor: not-allowed;
   }
 
+  .e-menu-item[disabled]:hover,
+  .e-menu-item[data-disabled][data-highlighted] {
+    background: transparent;
+    box-shadow: none;
+    outline: 0;
+  }
+
   @media (forced-colors: active) {
+    .e-menu-item[disabled],
+    .e-menu-item[data-disabled] {
+      color: GrayText;
+    }
+
+    .e-menu-item:hover,
+    .e-menu-item:focus-visible,
     .e-menu-item[data-highlighted] {
       forced-color-adjust: none;
       background: Highlight;

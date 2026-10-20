@@ -5,8 +5,8 @@
 
   .e-calpanel {
     width: auto;
-    max-width: calc(100vw - 16px);
-    max-height: calc(100dvh - 16px);
+    max-width: calc(100vw - var(--e-space-4));
+    max-height: calc(100dvh - var(--e-space-4));
     margin: 0;
     padding: var(--e-space-3);
     overflow: auto;
@@ -15,6 +15,8 @@
     background: var(--e-surface);
     color: var(--e-ink);
     box-shadow: var(--e-float);
+    outline: var(--e-stroke-card) solid var(--e-border-strong);
+    outline-offset: 0;
     font-family: var(--e-font-sans);
   }
 }

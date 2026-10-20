@@ -8,12 +8,16 @@ A signature drawn with a finger, stylus or mouse. Most forms should use `ESignat
 
 ## Props
 
-| Prop         | Type      | Default   | Notes                                                                               |
-| ------------ | --------- | --------- | ----------------------------------------------------------------------------------- |
-| `modelValue` | `string`  | `""`      | v-model: PNG data URL (black on transparent); empty while clear. Set `""` to clear. |
-| `height`     | `number`  | `160`     | Drawing area height in pixels.                                                      |
-| `disabled`   | `boolean` |           | Ignores drawing and disables Clear.                                                 |
-| `id`         | `string`  | generated | Id of the canvas.                                                                   |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `modelValue` | `string` | `""` | `v-model`: A PNG data URL (black on transparent); empty while clear. Set `""` to clear. |
+| `height` | `number` | `160` | The height of the drawing area in pixels. |
+| `disabled` | `boolean` | `false` | Ignores drawing and disables Clear. |
+| `id` | `string` | `generated` | The id of the canvas. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `div` element. A non-empty value set from outside is not drawn onto the pad. Exposes `clear()` and `canvas`.
 

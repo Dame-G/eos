@@ -29,7 +29,7 @@ import EPagination from "../Pagination/EPagination.vue";
 import ESelect from "../Select/ESelect.vue";
 import ETextField from "../TextField/ETextField.vue";
 import EDataGridResizer from "./EDataGridResizer.vue";
-import "../Popover/EPopover.vue";
+import "../Definition/EDefinition.vue";
 import { normalizeOptions, type EOption } from "../Select/options.js";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages, usePortalTarget } from "../../config.js";
@@ -49,15 +49,15 @@ import "../Select/panel.css";
 
 const props = withDefaults(
   defineProps<{
-    /** The columns, in order. See `DataGridColumn`. */
+    /** The columns, in order. See `DataGridColumn` below. */
     columns: DataGridColumn<Row>[];
-    /** The rows. Each needs a unique `id`. */
+    /** The rows. Each needs a unique `id`; selection is by id. */
     rows: Row[];
-    /** Names the table for screen readers and the scrolling region. Required. */
+    /** Names the table for screen readers, and its scrolling region. */
     caption: string;
     /** One search box over all shown columns. */
     searchable?: boolean;
-    /** The search box's placeholder. Default "Search all columns". */
+    /** The search box's placeholder. @default "Search all columns" */
     searchPlaceholder?: string;
     /** A filter row under the headings, for columns that define a `filter`. */
     filterable?: boolean;
@@ -69,28 +69,28 @@ const props = withDefaults(
     columnToggle?: boolean;
     /** A checkbox on each row and a select-all in the heading. */
     selectable?: boolean;
-    /** Rows per page; 0 turns paging off. Default 10. */
+    /** Rows per page; 0 turns paging off. */
     pageSize?: number;
-    /** Stops the table growing past this height (any CSS length) and scrolls inside it. */
+    /** Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header. */
     maxHeight?: string;
-    /** Renders only the rows in view, for thousands of rows. Replaces paging. */
+    /** Renders only the rows in view, for thousands of rows. Replaces paging. `true` or `{ rowHeight = 48, height = 440, overscan = 8 }`. */
     virtual?: boolean | DataGridVirtual;
-    /** Turns rows into cards below 40rem of the grid's own width. Default on; virtual and resizable grids keep the table. */
+    /** Turns rows into cards below 40rem of the grid's own width. On by default; `virtual` and `resizable` grids keep the table. */
     cards?: boolean;
-    /** Data lives on a server: show the rows given, and report every change through `queryChange`. */
+    /** Data lives on a server: show the rows given, in the order given, and report every change through `queryChange`. */
     manual?: boolean;
     /** With `manual`, how many rows there are in all. */
     total?: number;
-    /** Shows placeholder rows while data loads. */
+    /** Shows placeholder rows while data loads, with `aria-busy`. */
     loading?: boolean;
-    /** The title when there are no rows. Default "No results". */
+    /** The title when there are no rows. @default "No results" */
     emptyTitle?: string;
-    /** The sentence under the title when there are no rows. */
+    /** The sentence under the empty title, when there are no rows. */
     emptyText?: string;
-    /** The glyph above the title when there are no rows. Default "search". */
+    /** The icon above the empty title. @default "search" */
     emptyIcon?: IconProp;
-    /** A bare table for a short static list: no toolbar, filters, paging or footer. */
-    plain?: boolean;
+    /** No chrome: a bare table for a short static list, with no toolbar, filters, paging or footer. */
+    bare?: boolean;
   }>(),
   { pageSize: 10, cards: true },
 );
@@ -109,10 +109,15 @@ const slots = defineSlots<{
   toolbar?: () => unknown;
 }>();
 
+/** The sort: `{ key, dir: "asc" | "desc" }`, or `null` for none. */
 const sort = defineModel<DataGridSort | null>("sort", { default: null });
+/** The current page, from 1. */
 const page = defineModel<number>("page", { default: 1 });
+/** The text in the search box. */
 const search = defineModel<string>("search", { default: "" });
+/** The column filters, by column `key`: text, or `{ min, max }` strings for `number`. */
 const filters = defineModel<Record<string, DataGridFilterValue>>("filters", { default: () => ({}) });
+/** The selected row ids, kept across pages and filters. */
 const selected = defineModel<string[]>("selected", { default: () => [] });
 
 const t = useMessages();
@@ -177,9 +182,9 @@ const columnDefs = computed<ColumnDef<typeof features, Row>[]>(() =>
 const vopt = computed(() =>
   props.virtual ? { rowHeight: 48, height: 440, overscan: 8, ...(props.virtual === true ? {} : props.virtual) } : null,
 );
-const pageSize = computed(() => (vopt.value || props.plain ? 0 : (props.pageSize ?? 10)));
+const pageSize = computed(() => (vopt.value || props.bare ? 0 : (props.pageSize ?? 10)));
 const paging = computed(() => pageSize.value > 0 && !props.manual);
-const resizable = computed(() => !!props.resizable && !props.plain);
+const resizable = computed(() => !!props.resizable && !props.bare);
 const cards = computed(() => props.cards !== false && !vopt.value && !resizable.value);
 const q = computed(() => search.value.trim().toLowerCase());
 const anyFilter = computed(() => Object.values(filters.value).some(filterActive));
@@ -246,7 +251,7 @@ const cols = computed(() =>
     .map((c) => colByKey.value.get(c.id))
     .filter((c): c is DataGridColumn<Row> => !!c),
 );
-const hasFilterRow = computed(() => !!props.filterable && !props.plain && cols.value.some((c) => c.filter));
+const hasFilterRow = computed(() => !!props.filterable && !props.bare && cols.value.some((c) => c.filter));
 const colCount = computed(() => cols.value.length + (props.selectable ? 1 : 0));
 const from = computed(() =>
   total.value === 0 ? 0 : (cur.value - 1) * (pageSize.value > 0 ? pageSize.value : total.value) + 1,
@@ -329,7 +334,7 @@ const hasToolbar = computed(() => !!slots.toolbar);
 const barOther = computed(
   () => !!props.searchable || !!props.columnToggle || nPicked.value > 0 || anyFilter.value || hasToolbar.value,
 );
-const showBar = computed(() => !props.plain && (barOther.value || showSortSelect.value));
+const showBar = computed(() => !props.bare && (barOther.value || showSortSelect.value));
 
 function onSearch(e: Event) {
   search.value = (e.target as HTMLInputElement).value;
@@ -387,7 +392,7 @@ watch([sort, page, search, filters], () => {
 </script>
 
 <template>
-  <div class="e-grid" :class="{ 'e-grid--plain': plain, 'e-grid--cards': cards }">
+  <div class="e-grid" :class="{ 'e-grid--bare': bare, 'e-grid--cards': cards }">
     <div class="e-grid-frame">
       <div v-if="showBar" class="e-grid-bar" :class="{ 'e-grid-bar--sortonly': !barOther }">
         <div v-if="searchable" class="e-input-wrap e-grid-search">
@@ -628,7 +633,7 @@ watch([sort, page, search, filters], () => {
           </tbody>
         </table>
       </div>
-      <div v-if="!plain" class="e-grid-foot">
+      <div v-if="!bare" class="e-grid-foot">
         <span class="e-grid-range">{{
           total === 0
             ? t("rows", { n: 0 })
@@ -685,7 +690,7 @@ watch([sort, page, search, filters], () => {
   }
 
   .e-table tbody tr:hover td {
-    background: var(--e-surface-tint);
+    background: var(--e-surface-hover);
   }
 
   .e-table .e-num {
@@ -708,7 +713,9 @@ watch([sort, page, search, filters], () => {
     height: 14px;
     border-radius: var(--e-radius-sm);
     background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 1px var(--e-border);
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border);
+    outline: var(--e-stroke-hair) solid var(--e-border);
+    outline-offset: calc(-1 * var(--e-stroke-hair));
     animation: e-pulse 1.4s ease-in-out infinite;
   }
 
@@ -725,6 +732,8 @@ watch([sort, page, search, filters], () => {
   }
 
   .e-grid {
+    --e-grid-head-h: 45px;
+
     isolation: isolate;
     border-radius: var(--e-radius-md);
     min-width: 0;
@@ -736,7 +745,9 @@ watch([sort, page, search, filters], () => {
     inset: 0;
     z-index: var(--e-z-sticky);
     border-radius: inherit;
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border);
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
+    outline: var(--e-stroke-card) solid var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-card));
     pointer-events: none;
   }
 
@@ -802,7 +813,7 @@ watch([sort, page, search, filters], () => {
     position: sticky;
     top: 0;
     z-index: var(--e-z-raised);
-    height: 45px;
+    height: var(--e-grid-head-h);
     box-sizing: border-box;
   }
 
@@ -816,7 +827,7 @@ watch([sort, page, search, filters], () => {
     align-items: center;
     gap: var(--e-space-1);
     min-height: var(--e-control-height);
-    padding: 4px 0;
+    padding: var(--e-space-1) 0;
     border: 0;
     background: transparent;
     color: inherit;
@@ -847,7 +858,7 @@ watch([sort, page, search, filters], () => {
   }
 
   .e-gridtable tbody tr[data-selected]:hover td {
-    background: var(--e-surface-tint);
+    background: var(--e-surface-hover);
     box-shadow: inset 0 0 0 0 transparent;
   }
 
@@ -881,7 +892,7 @@ watch([sort, page, search, filters], () => {
     border-bottom: var(--e-stroke-card) solid var(--e-border-strong);
     border-top: 0;
     position: sticky;
-    top: 45px;
+    top: var(--e-grid-head-h);
     z-index: var(--e-z-raised);
   }
 
@@ -910,9 +921,9 @@ watch([sort, page, search, filters], () => {
   .e-resizer {
     position: absolute;
     top: 0;
-    inset-inline-end: -12px;
+    inset-inline-end: calc(var(--e-space-6) / -2);
     z-index: var(--e-z-raised);
-    width: 24px;
+    width: var(--e-space-6);
     height: 100%;
     cursor: col-resize;
     touch-action: none;
@@ -930,7 +941,7 @@ watch([sort, page, search, filters], () => {
     position: absolute;
     top: 22%;
     inset-inline-start: 11px;
-    width: 1px;
+    width: var(--e-stroke-hair);
     height: 56%;
     background: var(--e-border-strong);
     transition: width var(--e-duration-tap) var(--e-easing-out);
@@ -941,7 +952,7 @@ watch([sort, page, search, filters], () => {
     inset-inline-start: 10px;
     width: 3px;
     background: var(--e-primary);
-    border-radius: 2px;
+    border-radius: var(--e-radius-sm);
   }
 
   .e-resizer:focus-visible {
@@ -959,7 +970,7 @@ watch([sort, page, search, filters], () => {
   .e-gridtable .e-sticky {
     position: sticky;
     z-index: var(--e-z-raised);
-    box-shadow: inset -1px 0 0 var(--e-border);
+    box-shadow: inset calc(-1 * var(--e-stroke-hair)) 0 0 var(--e-border);
   }
 
   .e-gridtable thead th.e-sticky {
@@ -972,7 +983,7 @@ watch([sort, page, search, filters], () => {
   }
 
   .e-gridtable tbody tr:hover td.e-sticky {
-    background: var(--e-surface-tint);
+    background: var(--e-surface-hover);
   }
 
   .e-gridtable tbody tr[data-selected] td.e-sticky {
@@ -995,6 +1006,27 @@ watch([sort, page, search, filters], () => {
   @media (prefers-reduced-motion: reduce) {
     .e-resizer::after {
       transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-gridtable tbody tr[data-selected] td {
+      forced-color-adjust: none;
+      background: Highlight;
+      color: HighlightText;
+    }
+
+    .e-resizer::after {
+      background: CanvasText;
+    }
+
+    .e-resizer:hover::after,
+    .e-resizer:focus-visible::after {
+      background: Highlight;
+    }
+
+    .e-skel {
+      background: GrayText;
     }
   }
 
@@ -1066,6 +1098,8 @@ watch([sort, page, search, filters], () => {
       border-radius: var(--e-radius-md);
       background: var(--e-surface);
       box-shadow: var(--e-edge);
+      outline: var(--e-stroke-card) solid var(--e-border-strong);
+      outline-offset: 0;
     }
 
     .e-grid--cards .e-gridtable tbody tr:hover td {

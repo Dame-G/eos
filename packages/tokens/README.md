@@ -24,7 +24,7 @@ All variables are prefixed `--e-` (`--e-primary`, `--e-space-4`). Documentation:
 
 ## Inputs
 
-`defineTheme()` takes 15 inputs and emits every token. Any token can also be set by name in `tokens`, which wins over everything derived. `name` labels the theme (`data-e-theme`), and `strict` throws on a contrast failure instead of listing it in `issues`.
+`defineTheme()` takes 16 inputs and emits every token. Any token can also be set by name in `tokens`, which wins over everything derived. `name` labels the theme (`data-e-theme`), and `strict` throws on a contrast failure instead of listing it in `issues`.
 
 | Input                                                  | Derives                                                                                         |
 | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
@@ -33,7 +33,8 @@ All variables are prefixed `--e-` (`--e-primary`, `--e-space-4`). Documentation:
 | `background`, `surface`, `foreground`                  | the grounds, `ink`, `muted`, `border`, `border-strong`; a dark surface lifts the action colours |
 | `fonts`, `radius`                                      | `font-sans`, `font-mono`; `radius-sm` to `radius-lg`                                            |
 | `textScale`, `spaceScale`                              | `text-xs` to `text-4xl`; `space-1` to `space-8` (1 is the default)                              |
-| `strokes` `{ hair, focus }`                            | `stroke-hair`, `stroke-edge`, `stroke-focus`, `focus-gap`, `focus-gap-field`                    |
+| `strokes` `{ hair, focus, edge, card }`                | `stroke-hair`, `stroke-card`, `stroke-edge`, `stroke-focus`, `focus-gap`, `focus-gap-field`     |
+| `contrast` `"standard" | "high"`                      | `high`: `border`, `border-strong` = `ink`; `muted` at 15:1; neutral `surface-tint`; darker `scrim` |
 | `motion` `"default" \| "snappy" \| "gentle" \| "none"` | `duration-tap`, `duration-move`, `easing-out`                                                   |
 | `elevation` `"outline" \| "lifted" \| "bold"`          | `edge`, `well`, `float`; shadow tint follows `background`                                       |
 | `controlHeight`                                        | `control-height`, `chip-height`                                                                 |

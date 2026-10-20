@@ -5,11 +5,11 @@ import { useConfig, useMessages } from "../../config.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
-  /** The visible label, a mono kicker above the input. Default "Phone number". */
+  /** The field's label. @default "Phone number" */
   label?: string;
   /** Keep the label for screen readers and remove it from the page. */
   hideLabel?: boolean;
-  /** `us` groups the digits as you type, (555) 123-4567; `none` leaves them alone. Default `us` for the en-US locale, `none` otherwise. */
+  /** `us` gives (555) 123-4567, drops a leading 1 and keeps ten digits. No validation. @default us for the en-US locale, else none */
   format?: "us" | "none";
   /** Help that stays under the input. */
   hint?: string;
@@ -17,17 +17,19 @@ const props = defineProps<{
   error?: string;
   /** An example, never the label. */
   placeholder?: string;
-  /** A word beside the label. */
+  /** The `required` attribute and a word beside the label. */
   required?: boolean;
   /** A word beside the label. Flag whichever is rarer. */
   optional?: boolean;
+  /** Disables the field. */
   disabled?: boolean;
   /** The name submitted with a form. */
   name?: string;
-  /** The id of the input; the label points at it. Generated when left out. */
+  /** The id of the input; the label points at it. @default generated */
   id?: string;
 }>();
 
+/** The formatted number. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();

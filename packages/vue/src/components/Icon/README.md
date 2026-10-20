@@ -11,11 +11,15 @@ One 20px icon in the colour of the surrounding text, for putting a glyph beside 
 
 ## Props
 
-| Prop    | Type       | Default | Notes                                                                                               |
-| ------- | ---------- | ------- | --------------------------------------------------------------------------------------------------- |
-| `name`  | `IconProp` |         | Required. A name (built-in or from your icon set) or an icon component; a component is drawn as is. |
-| `small` | `boolean`  |         | 14px, bold weight; for chips and stamps.                                                            |
-| `bold`  | `boolean`  |         | Bold weight at normal size, where the icon set has one.                                             |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `name` | `IconProp` | **Required** | A name (from the built-in list or your icon set, such as `"credit-card"` or `"lucide:credit-card"`), or an icon component. |
+| `small` | `boolean` | `false` | 14px with the bold weight, for chips and stamps. |
+| `bold` | `boolean` | `false` | The bold weight at the normal size, where the icon set has one. |
+
+<!-- props:end -->
 
 `class` and attributes land on the icon element. A name resolves through `createEos({ icons })`, then the set's resolver and aliases, then the built-in set; an unknown name draws nothing and logs once in development. Names ending in `-left` or `-right` mirror in right-to-left text. See [Bring your own icons](../../icons/README.md).
 

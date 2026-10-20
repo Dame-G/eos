@@ -16,7 +16,7 @@ describe("EosResolver", () => {
 
   test("every component the package exports is claimed, and every claim is exported", () => {
     const exported = Object.keys(library).filter((k) => /^E[A-Z]/.test(k));
-    expect(exported.length).toBeGreaterThan(80);
+    expect(exported.length).toBeGreaterThan(60);
     for (const name of exported) expect(resolver.resolve(name), name).toBeDefined();
   });
 

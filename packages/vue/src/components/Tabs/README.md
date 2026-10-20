@@ -1,6 +1,6 @@
 # ETabs
 
-Tabs for switching between views of the same record or list. Items with `href` or `to` make a row or column of navigation links instead of panels. Use `EAccordion` for sections that open and close.
+Tabs for switching between views of the same record or list. It switches panels only; use `ENavList` for links to other pages, in a sidebar, outline or header row. Use `EDisclosure` (with a shared `group`) for sections that open and close.
 
 ```vue
 <ETabs
@@ -17,17 +17,16 @@ Tabs for switching between views of the same record or list. Items with `href` o
 
 ## Props
 
-| Prop            | Type                         | Default      | Notes                                                                                                                        |
-| --------------- | ---------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| `modelValue`    | `string`                     | first tab    | v-model: the `id` of the selected tab. Keeps its own state when unbound. Panels only.                                        |
-| `items`         | `TabItem[]`                  |              | `{ id?, label, count?, href?, to?, current? }`. Two to five tabs with short labels. `id` names the slot; links need no `id`. |
-| `sections`      | `TabSection[]`               |              | Links in labelled groups instead of `items`: `{ label?, items }`.                                                            |
-| `orientation`   | `"horizontal" \| "vertical"` | `horizontal` | `vertical` stacks links with a rule down the start edge, for a sidebar or outline. Links only.                               |
-| `dense`         | `boolean`                    |              | Shorter rows and smaller text, for a long list of links.                                                                     |
-| `label`         | `string`                     | `Main`       | The landmark name when the tabs are links.                                                                                   |
-| `linkComponent` | `string \| Component`        | `a`          | Renders each link. Pass `RouterLink` and give items `to`.                                                                    |
+<!-- props:start -->
 
-`class`, `style` and attributes land on the root element (`div` for panels, `nav` for links). A faint divider sits between tabs. If the tabs are wider than the space, the row scrolls sideways with no scrollbar; keep the labels short.
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `modelValue` | `string` | `first tab` | `v-model`: the `id` of the selected tab. Keeps its own state when unbound. |
+| `items` | `TabItem[]` | — | The tabs, in order: `{ id, label, count? }`. Two to five, with short labels. `id` names the slot and is the `v-model` value. |
+
+<!-- props:end -->
+
+`class`, `style` and attributes land on the root `div` element. Tabs are ringed and sit flush edge to edge, rounded only at the ends of the row; the selected one is outlined in the primary colour. If the tabs are wider than the space, the row scrolls sideways with no scrollbar; keep the labels short.
 
 ## Slots
 
@@ -40,4 +39,3 @@ Tabs for switching between views of the same record or list. Items with `href` o
 
 - Arrow Left and Right select the previous or next tab, wrapping and following the reading direction; Home and End go to the first and last; Tab moves into the panel.
 - `count` is part of the tab's accessible name ("Open 3").
-- Links form a `nav` landmark named by `label`; the item with `current` has `aria-current="page"`.

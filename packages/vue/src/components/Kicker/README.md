@@ -8,9 +8,13 @@ The small uppercase mono label above a value or a section, in the muted colour. 
 
 ## Props
 
-| Prop | Type     | Default | Notes                  |
-| ---- | -------- | ------- | ---------------------- |
-| `as` | `string` | `p`     | The element to render. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `as` | `string` | `"p"` | The element to render, if it should not be a paragraph. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the rendered element. Write sentence case; the style sets capitals.
 

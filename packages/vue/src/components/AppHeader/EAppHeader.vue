@@ -47,7 +47,7 @@ defineSlots<{
     align-items: center;
     justify-content: space-between;
     gap: var(--e-space-4);
-    min-height: 64px;
+    min-height: calc(var(--e-control-height) + var(--e-space-4));
     padding: 0 var(--e-space-4);
   }
 

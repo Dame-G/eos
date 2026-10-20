@@ -13,9 +13,13 @@ Label and text rows, ruled apart, for facts such as what a statement covers or w
 
 ## Props
 
-| Prop    | Type                | Default | Notes                                                                                       |
-| ------- | ------------------- | ------- | ------------------------------------------------------------------------------------------- |
-| `items` | `DescriptionItem[]` |         | Required. `{ label: string, text: string \| VNode }`. Labels are keys, so keep them unique. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `items` | `(DescriptionItem \| null \| undefined)[]` | **Required** | Label and text rows, ruled apart: `{ label: string, text: string \| VNode }`. Labels are keys, so keep them unique. `null` items are skipped. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `dl` element.
 

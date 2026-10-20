@@ -5,13 +5,13 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** The element to render, `div` by default. */
+    /** The element to render, `div` by default. Use `article`, `section` or `aside` for a real block. */
     as?: string;
-    /** Padding: `sm`, `md` or `lg`. Omit for none. */
+    /** Padding: `sm`, `md` or `lg`. None by default. */
     pad?: "sm" | "md" | "lg";
-    /** `default`, `tint` (the tinted look) or `float` (the lifted look of a Toast). */
-    tone?: "default" | "tint" | "float";
-    /** Hides what overflows the rounded corners. */
+    /** The lifted shadow of something floating above the page, such as a Toast. */
+    raised?: boolean;
+    /** Hides what overflows the rounded corners. Ignored when there is an `actions` slot. */
     clip?: boolean;
   }>(),
   { as: "div" },
@@ -24,7 +24,6 @@ defineSlots<{
   actions(): unknown;
 }>();
 
-const tone = computed(() => (props.tone && props.tone !== "default" ? `e-surface--${props.tone}` : null));
 const pad = computed(() => (props.pad ? `e-surface--pad-${props.pad}` : null));
 const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? "footer" : "div"));
 </script>
@@ -33,7 +32,7 @@ const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? 
   <component
     :is="as"
     class="e-surface"
-    :class="[tone, $slots.actions ? 'e-surface--actions' : [pad, clip && 'e-surface--clip']]"
+    :class="[raised && 'e-surface--raised', $slots.actions ? 'e-surface--actions' : [pad, clip && 'e-surface--clip']]"
   >
     <template v-if="$slots.actions">
       <div class="e-surface-body" :class="pad">
@@ -54,10 +53,8 @@ const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? 
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     box-shadow: var(--e-edge);
-  }
-
-  .e-surface--tint {
-    background: var(--e-surface-tint);
+    outline: var(--e-stroke-card) solid var(--e-border);
+    outline-offset: 0;
   }
 
   .e-surface--clip {
@@ -80,8 +77,10 @@ const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? 
     border-end-end-radius: var(--e-radius-md);
   }
 
-  .e-surface--float {
+  .e-surface--raised {
     box-shadow: var(--e-float);
+    outline: var(--e-stroke-card) solid var(--e-border);
+    outline-offset: 0;
   }
 
   .e-surface--pad-sm {
@@ -99,8 +98,15 @@ const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? 
   @media print {
     .e-surface {
       box-shadow: none;
-      border: 1px solid #000;
+      outline: 0;
+      border: var(--e-stroke-hair) solid var(--e-print-ink, #000);
       break-inside: avoid;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-surface {
+      outline-color: CanvasText;
     }
   }
 }

@@ -631,11 +631,11 @@ describe("EDataGrid", () => {
     expect(names(container)).toEqual(["Beta", "Alpha"]);
   });
 
-  test("plain: a bare table without toolbar, filters, paging or footer", async () => {
+  test("bare: a bare table without toolbar, filters, paging or footer", async () => {
     const { container } = await grid({
-      props: { caption: "T", columns: FILTER_COLS, rows: bigRows(30), plain: true, searchable: true, filterable: true },
+      props: { caption: "T", columns: FILTER_COLS, rows: bigRows(30), bare: true, searchable: true, filterable: true },
     });
-    expect(container.querySelector(".e-grid--plain")).not.toBeNull();
+    expect(container.querySelector(".e-grid--bare")).not.toBeNull();
     expect(container.querySelector(".e-grid-bar")).toBeNull();
     expect(container.querySelector(".e-filterrow")).toBeNull();
     expect(container.querySelector(".e-grid-foot")).toBeNull();

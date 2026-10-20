@@ -1,6 +1,6 @@
 import type { IconProp } from "../../icons/types.js";
 
-/** One choice in a Select, Combobox, Autocomplete or MultiSelect. */
+/** One choice in a Select or Combobox. */
 export interface EOption {
   /** What the model holds when this option is chosen. Never an empty string. */
   value: string;

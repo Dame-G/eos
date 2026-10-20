@@ -5,9 +5,9 @@ import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
-    /** The `id` of the main content, which the skip link targets. */
+    /** The `id` of the `main` element, which the skip link targets. Keep it unique. */
     mainId?: string;
-    /** The sidebar landmark's name. Defaults to "Main". */
+    /** The name of the sidebar landmark. @default "Main" */
     sidebarLabel?: string;
   }>(),
   { mainId: "main" },
@@ -46,6 +46,7 @@ const t = useMessages();
 <style>
 @layer e.page {
   .e-shell {
+    position: relative;
     display: grid;
     grid-template-rows: auto 1fr auto;
     min-height: 100%;
@@ -57,9 +58,25 @@ const t = useMessages();
     grid-template-columns: minmax(0, 1fr);
     gap: var(--e-space-6);
     width: 100%;
-    max-width: 72rem;
+    max-width: var(--e-shell-width, 72rem);
     margin-inline: auto;
     padding: var(--e-space-6) var(--e-space-4);
+  }
+
+  /* Hairlines down both edges of the page column, drawn over the header and footer. */
+  @media (min-width: 64rem) {
+    .e-shell::after {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline: 0;
+      z-index: var(--e-z-sticky);
+      box-sizing: border-box;
+      width: min(100%, var(--e-shell-width, 72rem));
+      margin-inline: auto;
+      border-inline: var(--e-stroke-hair) solid var(--e-shell-rail, var(--e-border));
+      pointer-events: none;
+    }
   }
 
   @media (min-width: 48rem) {
@@ -72,17 +89,23 @@ const t = useMessages();
     min-width: 0;
   }
 
-  .e-shell-main:focus {
+  .e-shell-main:focus:not(:focus-visible) {
     outline: none;
+  }
+
+  .e-shell-main:focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   @media print {
     .e-root,
     body {
-      background: #fff;
-      color: #000;
+      background: var(--e-print-paper, #fff);
+      color: var(--e-print-ink, #000);
     }
 
+    .e-shell::after,
     .e-shell-side {
       display: none;
     }

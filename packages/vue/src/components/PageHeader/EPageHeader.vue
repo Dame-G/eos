@@ -8,7 +8,7 @@ withDefaults(
     title: string;
     /** A short line under the title. */
     description?: string;
-    /** The heading level, 1 by default. A page has exactly one h1. */
+    /** The heading level of the title, 1 by default. A page has exactly one h1; change it only when the header is not the page's title. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   }>(),
   { headingLevel: 1 },

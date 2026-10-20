@@ -20,18 +20,19 @@ const props = defineProps<{
   label: string;
   /** Keep the legend for screen readers and remove it from the page. */
   hideLabel?: boolean;
-  /** Five or fewer. A string is both value and label. */
+  /** Five or fewer. A string is both value and label. `RadioOption`: `{ value, label, description?, disabled? }`. */
   options: (string | RadioOption)[];
   /** Help that is announced with the group. */
   hint?: string;
   /** What to fix. Replaces the hint and is announced with the group. */
   error?: string;
+  /** A word beside the legend, and `required` on the radios. */
   required?: boolean;
   /** A word beside the legend. Flag whichever is rarer. */
   optional?: boolean;
   /** Disables every option. */
   disabled?: boolean;
-  /** The name the radios share, submitted with a form. Generated when left out. */
+  /** Shared by the radios, submitted with a form. @default generated */
   name?: string;
 }>();
 
@@ -40,6 +41,7 @@ defineSlots<{
   reveal(props: { option: RadioOption }): unknown;
 }>();
 
+/** The chosen value. */
 const model = defineModel<string>();
 
 const name = useUid(() => props.name);
@@ -118,7 +120,7 @@ Nodes.props = ["nodes"];
 
   .e-radiogroup > .e-field-hint,
   .e-radiogroup > .e-field-error {
-    margin-top: -6px;
+    margin-top: calc(var(--e-space-1) - var(--e-space-2) - var(--e-focus-gap));
   }
 
   .e-choice--open {

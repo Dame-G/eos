@@ -9,7 +9,7 @@ withDefaults(
     icon?: IconProp;
     /** What is missing, in the person's words. */
     title: string;
-    /** The level of the title's heading element, 1 to 6. */
+    /** The level of the title's heading element, 1 to 6; fit the page outline. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     /** Removes the dashed outline, for use inside a table or panel. */
     bare?: boolean;
@@ -53,12 +53,18 @@ defineSlots<{
   .e-empty-icon {
     display: grid;
     place-items: center;
+    box-sizing: border-box;
     width: 56px;
     height: 56px;
     margin-bottom: var(--e-space-1);
     border-radius: 50%;
-    background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 1px var(--e-border-strong);
+    background: var(--e-secondary-soft);
+    border: var(--e-stroke-hair) solid var(--e-secondary);
+
+    --e-bc: var(--e-secondary);
+
+    outline: var(--e-stroke-hair) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-hair));
   }
 
   .e-empty-icon .e-icon {
@@ -76,6 +82,13 @@ defineSlots<{
     max-width: 38ch;
     font: 400 var(--e-text-md) / 1.5 var(--e-font-sans);
     color: var(--e-muted);
+  }
+
+  @media (forced-colors: active) {
+    .e-empty-icon {
+      border-color: CanvasText;
+      outline-color: CanvasText;
+    }
   }
 }
 </style>

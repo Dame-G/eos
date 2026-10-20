@@ -1,6 +1,6 @@
 # ETooltip
 
-A short label that names an icon-only control. It never holds anything to read or click; use `EPopover` for that.
+A short label that names an icon-only control. It never holds anything to read or click; use `EDefinition` for that.
 
 ```vue
 <ETooltip label="Download receipt">
@@ -10,10 +10,14 @@ A short label that names an icon-only control. It never holds anything to read o
 
 ## Props
 
-| Prop    | Type      | Default | Notes                                                                      |
-| ------- | --------- | ------- | -------------------------------------------------------------------------- |
-| `label` | `string`  |         | Required. What the tooltip says.                                           |
-| `open`  | `boolean` | `false` | v-model:open: whether the bubble shows. Hover, focus and Escape update it. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` | `boolean` | `false` | `v-model:open`: whether the bubble shows. Hover, focus and Escape update it. |
+| `label` | `string` | **Required** | What the tooltip says: a name for the control, never anything you must read or click. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the bubble; the trigger is your own element.
 

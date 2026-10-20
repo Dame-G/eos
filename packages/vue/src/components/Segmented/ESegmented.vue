@@ -24,19 +24,21 @@ defineOptions({ inheritAttrs: false });
 const props = defineProps<{
   /** Read by screen readers as the name of the group. */
   label: string;
-  /** Two to five. A string is both value and label. */
+  /** Two to five. A string is both value and label. `SegmentedOption` is `{ value, label, icon?, disabled? }`. */
   options: (string | SegmentedOption)[];
   /** Help under the control, linked with `aria-describedby`. */
   hint?: string;
   /** What to fix. Replaces the hint and is announced. */
   error?: string;
-  /** Adds the word "Optional" to the group's accessible name. Flag whichever is rarer. */
+  /** Adds the word "Optional" to the group's accessible name; nothing is shown. Flag whichever is rarer. */
   optional?: boolean;
+  /** Disables every option. */
   disabled?: boolean;
-  /** The name the radios share, submitted with a form. Generated when left out. */
+  /** The name the radios share, submitted with a form. @default generated */
   name?: string;
 }>();
 
+/** The active value. @default first option */
 const model = defineModel<string>();
 
 const t = useMessages();
@@ -95,6 +97,11 @@ const groupAttrs = () => ({
     display: inline-flex;
     height: var(--e-control-height);
     border: var(--e-stroke-edge) solid var(--e-border-strong);
+
+    --e-bc: var(--e-border-strong);
+
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: var(--e-border-strong);
     overflow: hidden;
@@ -134,19 +141,19 @@ const groupAttrs = () => ({
   }
 
   .e-seg-opt:hover .e-seg-text {
-    background: var(--e-surface-tint);
+    background: var(--e-surface-hover);
   }
 
   .e-seg-input:checked + .e-seg-text {
     background: var(--e-primary);
-    box-shadow: inset 0 var(--e-depth) 0 0 color-mix(in srgb, var(--e-primary) 58%, #000);
+    box-shadow: inset 0 var(--e-depth) 0 0 color-mix(in srgb, var(--e-primary), var(--e-shade-slab));
     color: var(--e-on-primary);
     font-weight: 600;
   }
 
   .e-seg-input:focus-visible + .e-seg-text {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: -4px;
+    outline-offset: calc(-1 * var(--e-space-1));
   }
 
   .e-seg-input:disabled + .e-seg-text {
@@ -160,9 +167,9 @@ const groupAttrs = () => ({
 
   .e-seg-input:disabled:checked + .e-seg-text,
   .e-seg-opt:has(:disabled:checked):hover .e-seg-text {
-    background: var(--e-surface-tint);
+    background: var(--e-surface-hover);
     color: var(--e-ink);
-    box-shadow: inset 0 -2px 0 0 var(--e-border-strong);
+    box-shadow: inset 0 calc(-1 * var(--e-depth)) 0 0 var(--e-border-strong);
   }
 
   .e-seg-field {

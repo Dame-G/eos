@@ -151,41 +151,4 @@ describe("ETabs", () => {
     await expect.element(page.getByRole("tabpanel")).toHaveTextContent("Panel C");
     await expectNoViolations(container);
   });
-
-  describe("as links", () => {
-    const links = [
-      { label: "Guide", href: "#guide" },
-      { label: "Components", href: "#components", current: true },
-    ];
-
-    test("renders a nav landmark of links with the current page marked", async () => {
-      const { container } = await render(ETabs, { props: { items: links, label: "Site" } });
-      await expect.element(page.getByRole("navigation", { name: "Site" })).toBeVisible();
-      expect(container.querySelector("[role=tablist]")).toBeNull();
-      const current = container.querySelector("a[aria-current=page]")!;
-      expect(current.textContent!.trim()).toBe("Components");
-      expect(getComputedStyle(current).fontWeight).toBe("600");
-      await expectNoViolations(container);
-    });
-
-    test("vertical draws a rule down the start edge, and sections get headings", async () => {
-      const { container } = await render(ETabs, {
-        props: {
-          orientation: "vertical",
-          dense: true,
-          label: "Pages",
-          sections: [
-            { label: "Start", items: links },
-            { label: "More", items: [{ label: "Extra", href: "#extra" }] },
-          ],
-        },
-      });
-      const list = container.querySelector("ul")!;
-      expect(getComputedStyle(list).flexDirection).toBe("column");
-      expect(parseFloat(getComputedStyle(list).borderInlineStartWidth)).toBeGreaterThan(0);
-      expect(container.querySelectorAll(".e-tabs-heading").length).toBe(2);
-      expect(getComputedStyle(container.querySelector("[aria-current]")!).borderInlineStartColor).not.toBe("rgba(0, 0, 0, 0)");
-      await expectNoViolations(container);
-    });
-  });
 });

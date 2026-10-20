@@ -6,11 +6,11 @@ import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
-  /** The text to show, as plain text. Leave it out to put your own highlighted markup in the slot. */
+  /** The text to show, as plain text. Leave it out to use the slot and put your own highlighted markup there. */
   code?: string;
   /** The language, named for screen readers (the code's accessible name). */
   lang?: string;
-  /** The copy button's name. Default "Copy code". Say what is copied when there are several blocks: "Copy CSS". */
+  /** The copy button's name; say what is copied when a page has several. @default "Copy code" */
   copyLabel?: string;
 }>();
 
@@ -61,6 +61,19 @@ async function copy() {
 <style>
 @layer e.blocks {
   .e-code {
+    /* The colours a Shiki dual-theme (css-variables) highlighter reads for syntax tokens. */
+    --shiki-foreground: var(--e-ink);
+    --shiki-background: transparent;
+    --shiki-token-comment: var(--e-muted);
+    --shiki-token-keyword: var(--e-primary);
+    --shiki-token-function: var(--e-primary);
+    --shiki-token-string: var(--e-secondary);
+    --shiki-token-string-expression: var(--e-secondary);
+    --shiki-token-constant: var(--e-warning-strong);
+    --shiki-token-parameter: var(--e-ink);
+    --shiki-token-punctuation: var(--e-muted);
+    --shiki-token-link: var(--e-primary);
+
     display: flex;
     align-items: stretch;
     min-width: 0;
@@ -68,6 +81,20 @@ async function copy() {
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     box-shadow: var(--e-edge);
+    outline: var(--e-stroke-card) solid var(--e-border);
+    outline-offset: 0;
+  }
+
+  /* Code blocks stacked back to back share one seam: the rings overlap into a single line. */
+  .e-code:has(+ .e-code) {
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+  }
+
+  .e-code + .e-code {
+    margin-top: max(var(--e-stroke-card), 1px);
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
   }
 
   .e-code-body {

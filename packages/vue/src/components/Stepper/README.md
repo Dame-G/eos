@@ -15,10 +15,14 @@ Shows where a person is in a multi-step flow such as registration. It displays p
 
 ## Props
 
-| Prop    | Type     | Default    | Notes                                                                                                                           |
-| ------- | -------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `steps` | `Step[]` |            | Required. `{ label, state }`; `state` is `done`, `current` or `upcoming` (`todo` is an alias). Keep labels to one or two words. |
-| `label` | `string` | `Progress` | The list's accessible name.                                                                                                     |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `steps` | `Step[]` | **Required** | The steps in order: `{ label, state }`; `state` is `done`, `current` or `upcoming` (`todo` is an alias). Exactly one is normally `current`. Keep labels to one or two words. |
+| `label` | `string` | `"Progress"` | The list's accessible name. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `ol` element. The steps stack vertically on narrow screens.
 
