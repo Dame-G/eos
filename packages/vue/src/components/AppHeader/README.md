@@ -6,7 +6,7 @@ The bar across the top of the page, with logo, actions and a navigation row that
 <EAppHeader sticky>
   <template #logo><RouterLink to="/">Acme</RouterLink></template>
   <template #actions><EButton variant="outline" icon="user">Maria</EButton></template>
-  <ENavList label="Main" :link-component="RouterLink" :items="items" />
+  <ENavList label="Main" orientation="horizontal" :link-component="RouterLink" :items="items" />
 </EAppHeader>
 ```
 
