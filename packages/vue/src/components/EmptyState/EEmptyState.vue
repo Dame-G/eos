@@ -61,10 +61,7 @@ defineSlots<{
     background: var(--e-secondary-soft);
     border: var(--e-stroke-hair) solid var(--e-secondary);
 
-    --e-bc: var(--e-secondary);
 
-    outline: var(--e-stroke-hair) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-hair));
   }
 
   .e-empty-icon .e-icon {

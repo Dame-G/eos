@@ -189,11 +189,6 @@ defineExpose({
     position: relative;
     overflow: hidden;
     border: var(--e-stroke-edge) solid var(--e-border-strong);
-
-    --e-bc: var(--e-border-strong);
-
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     box-shadow: var(--e-well);

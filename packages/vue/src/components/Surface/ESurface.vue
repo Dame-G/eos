@@ -53,8 +53,6 @@ const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? 
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     box-shadow: var(--e-edge);
-    outline: var(--e-stroke-card) solid var(--e-border);
-    outline-offset: 0;
   }
 
   .e-surface--clip {
@@ -79,8 +77,6 @@ const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? 
 
   .e-surface--raised {
     box-shadow: var(--e-float);
-    outline: var(--e-stroke-card) solid var(--e-border);
-    outline-offset: 0;
   }
 
   .e-surface--pad-sm {

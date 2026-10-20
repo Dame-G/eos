@@ -72,22 +72,21 @@ function blockWhenDisabled(event: Event) {
     --e-hover: color-mix(in srgb, var(--e-fill), var(--e-shade-hover));
     --e-press: color-mix(in srgb, var(--e-fill), var(--e-shade-press));
 
+    /* The face is a whole rounded box and the slab is an offset copy of it showing underneath, in the colour of the face's own edge. The margin gives back the room the slab takes, so the button is still one control height tall, and pressing sinks the face onto the slab. */
+    --e-lift: var(--e-depth);
+
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--e-space-2);
-    height: var(--e-control-height);
-    padding: var(--e-depth) var(--e-space-4) 0;
+    height: calc(var(--e-control-height) - var(--e-lift));
+    margin-block-end: var(--e-lift);
+    padding: 0 var(--e-space-4);
     border: var(--e-stroke-edge) solid var(--e-slab);
-
-    --e-bc: var(--e-slab);
-
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
     border-radius: var(--e-radius-md);
     background: var(--e-fill);
+    box-shadow: 0 var(--e-lift) 0 0 var(--e-slab);
     color: var(--e-on-fill);
     font: 500 var(--e-text-md) / 1 var(--e-font-sans);
     letter-spacing: 0.01em;
@@ -95,6 +94,7 @@ function blockWhenDisabled(event: Event) {
     text-decoration: none;
     cursor: pointer;
     transition:
+      transform var(--e-duration-tap) var(--e-easing-out),
       box-shadow var(--e-duration-tap) var(--e-easing-out),
       background-color var(--e-duration-tap) var(--e-easing-out);
   }
@@ -105,8 +105,8 @@ function blockWhenDisabled(event: Event) {
 
   .e-btn:active {
     background: var(--e-press);
-    border-bottom-width: var(--e-stroke-edge);
-    box-shadow: inset 0 var(--e-depth) 0 0 color-mix(in srgb, transparent, var(--e-shade-press));
+    box-shadow: 0 0 0 0 var(--e-slab);
+    transform: translateY(var(--e-lift));
   }
 
   .e-btn--secondary {
@@ -129,29 +129,22 @@ function blockWhenDisabled(event: Event) {
     background: color-mix(in srgb, var(--e-surface), var(--e-shade-hover));
     border-color: var(--e-ink);
 
-    --e-bc: var(--e-ink);
   }
 
   .e-btn--outline:active {
     background: color-mix(in srgb, var(--e-surface), var(--e-shade-press));
     border-color: var(--e-ink);
 
-    --e-bc: var(--e-ink);
-
-    border-bottom-width: var(--e-stroke-edge);
-    box-shadow: inset 0 var(--e-depth) 0 0 color-mix(in srgb, transparent, var(--e-shade-press));
   }
 
   .e-btn--quiet {
     border-color: transparent;
 
-    --e-bc: transparent;
+    --e-lift: 0px;
 
-    border-bottom-width: var(--e-stroke-edge);
     background: transparent;
     color: var(--e-ink);
     box-shadow: none;
-    padding-top: 0;
     padding-inline: var(--e-space-3);
     text-decoration: underline;
     text-underline-offset: 5px;
@@ -161,21 +154,14 @@ function blockWhenDisabled(event: Event) {
 
   .e-btn--quiet:not([disabled], [aria-disabled="true"]):hover {
     border-color: var(--e-wash-ring);
-
-    --e-bc: var(--e-wash-ring);
-
     background: var(--e-wash-hover);
     text-decoration-color: currentcolor;
   }
 
   .e-btn--quiet:not([disabled], [aria-disabled="true"]):active {
     border-color: var(--e-ink);
-
-    --e-bc: var(--e-ink);
-
     background: var(--e-wash-press);
-    box-shadow: none;
-    padding-top: 0;
+    transform: none;
   }
 
   .e-btn .e-icon {
@@ -191,7 +177,6 @@ function blockWhenDisabled(event: Event) {
   .e-btn[aria-pressed="true"]:hover,
   .e-btn[aria-pressed="true"]:active {
     --e-slab: var(--e-primary);
-    --e-bc: var(--e-primary);
 
     border-color: var(--e-primary);
     background: var(--e-surface-hover);
@@ -200,13 +185,15 @@ function blockWhenDisabled(event: Event) {
 
   .e-btn[disabled],
   .e-btn[aria-disabled="true"] {
+    --e-lift: 0px;
+
     cursor: not-allowed;
     background: transparent;
     color: var(--e-muted);
     border: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline: 0;
     box-shadow: none;
-    padding-top: 0;
+    transform: none;
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -127,7 +127,8 @@ describe("ETabs", () => {
     expect(getComputedStyle(first).fontWeight).toBe("600");
     expect(getComputedStyle(second).fontWeight).toBe("500");
     expect(getComputedStyle(first).borderBottomColor).not.toBe(getComputedStyle(second).borderBottomColor);
-    expect(getComputedStyle(first).borderBottomWidth).toBe("3px");
+    expect(getComputedStyle(first).boxShadow).not.toBe("none");
+    expect(getComputedStyle(second).boxShadow).toBe("none");
   });
 
   test("the strip scrolls sideways when the tabs do not fit", async () => {

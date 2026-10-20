@@ -89,17 +89,19 @@ watch(current, () => reveal(true));
   .e-tab {
     --e-bc: var(--e-border-strong);
 
+    /* A selected tab rises: its face is a whole rounded box with an offset copy in the primary colour showing underneath. The margin gives back the room that copy takes, so every tab row is one control height tall. */
+    --e-lift: 0px;
+
     position: relative;
     display: inline-flex;
     align-items: center;
     gap: var(--e-space-2);
     flex: none;
-    height: var(--e-control-height);
+    height: calc(var(--e-control-height) - var(--e-lift));
+    margin-block-end: var(--e-lift);
     padding: 0 var(--e-space-4);
     border: var(--e-stroke-edge) solid var(--e-bc);
     border-radius: 0;
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     background: transparent;
     color: var(--e-muted);
     font: 500 var(--e-text-md) / 1 var(--e-font-sans);
@@ -134,10 +136,11 @@ watch(current, () => reveal(true));
 
   .e-tab[aria-selected="true"] {
     --e-bc: var(--e-primary);
+    --e-lift: var(--e-depth);
 
     z-index: var(--e-z-sticky);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
     background-color: color-mix(in srgb, var(--e-surface-tint), var(--e-ink) 3%);
+    box-shadow: 0 var(--e-lift) 0 0 var(--e-primary);
     color: var(--e-ink);
     font-weight: 600;
   }
@@ -165,8 +168,6 @@ watch(current, () => reveal(true));
     border-radius: var(--e-radius-pill);
     background: color-mix(in srgb, var(--e-primary) 12%, var(--e-surface));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-primary);
-    outline: var(--e-stroke-hair) solid var(--e-primary);
-    outline-offset: calc(-1 * var(--e-stroke-hair));
     font: 600 var(--e-text-xs) / 20px var(--e-font-mono);
     text-align: center;
     color: var(--e-ink);

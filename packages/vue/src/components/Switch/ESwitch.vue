@@ -83,11 +83,6 @@ defineExpose({
     width: var(--e-switch-w);
     height: 24px;
     border: var(--e-stroke-edge) solid var(--e-border-strong);
-
-    --e-bc: var(--e-border-strong);
-
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-pill);
     background: var(--e-surface-tint);
     transition:
@@ -111,14 +106,12 @@ defineExpose({
   .e-switch:hover .e-switch-track {
     border-color: var(--e-ink);
 
-    --e-bc: var(--e-ink);
   }
 
   .e-switch-input:checked + .e-switch-track {
     background: var(--e-primary);
     border-color: var(--e-primary);
 
-    --e-bc: var(--e-primary);
   }
 
   .e-switch-input:checked + .e-switch-track::after {

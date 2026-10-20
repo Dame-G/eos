@@ -7,8 +7,6 @@
     background: var(--e-surface);
     color: var(--e-ink);
     box-shadow: var(--e-float);
-    outline: var(--e-stroke-card) solid var(--e-border);
-    outline-offset: 0;
     font-family: var(--e-font-sans);
   }
 

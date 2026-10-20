@@ -155,11 +155,6 @@ defineExpose({
     width: 14px;
     height: 14px;
     border: var(--e-stroke-edge) solid var(--e-border-strong);
-
-    --e-bc: var(--e-border-strong);
-
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: 50%;
   }
 }

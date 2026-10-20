@@ -100,8 +100,6 @@ defineExpose({ focus, focusFirst });
     padding: var(--e-space-1);
     border-radius: var(--e-radius-md);
     box-shadow: var(--e-edge);
-    outline: var(--e-stroke-card) solid var(--e-border-strong);
-    outline-offset: 0;
     color: var(--e-ink);
   }
 
@@ -121,8 +119,6 @@ defineExpose({ focus, focusFirst });
   .e-results .e-opt:focus-visible {
     background: var(--e-surface-hover);
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
-    outline: var(--e-stroke-hair) solid var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-hair));
   }
 
   .e-results .e-opt:focus-visible {
