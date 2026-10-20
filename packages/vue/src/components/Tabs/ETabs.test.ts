@@ -29,6 +29,13 @@ describe("ETabs", () => {
     expect(container.querySelector(".e-tabs > .e-tablist")).not.toBeNull();
   });
 
+  test("fill shares the width equally between the tabs", async () => {
+    const { container } = await render(ETabs, { props: { items, fill: true }, slots });
+    expect(container.querySelector(".e-tabs")!.classList.contains("e-tabs--fill")).toBe(true);
+    const widths = [...container.querySelectorAll<HTMLElement>("[role=tab]")].map((t) => Math.round(t.getBoundingClientRect().width));
+    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+  });
+
   test("the count shows in a badge after the label", async () => {
     const { container } = await render(ETabs, { props: { items }, slots });
     expect(container.querySelector(".e-tab-count")!.textContent).toBe("3");

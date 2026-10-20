@@ -23,6 +23,7 @@ Tabs for switching between views of the same record or list. It switches panels 
 | --- | --- | --- | --- |
 | `modelValue` | `string` | `first tab` | `v-model`: the `id` of the selected tab. Keeps its own state when unbound. |
 | `items` | `TabItem[]` | — | The tabs, in order: `{ id, label, count? }`. Two to five, with short labels. `id` names the slot and is the `v-model` value. |
+| `fill` | `boolean` | `false` | Share the width equally between the tabs instead of letting each take its own. For a narrow container where the tabs must all fit; labels truncate. |
 
 <!-- props:end -->
 
