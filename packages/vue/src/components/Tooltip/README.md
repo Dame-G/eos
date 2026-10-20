@@ -1,6 +1,6 @@
 # ETooltip
 
-A short label that names an icon-only control. It never holds anything to read or click; use `EDefinition` for that.
+A short label that names an icon-only control. It never holds anything to read or click; use [`EDefinition`](../Definition/README.md) for that.
 
 ```vue
 <ETooltip label="Download receipt">
@@ -12,10 +12,10 @@ A short label that names an icon-only control. It never holds anything to read o
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `open` | `boolean` | `false` | `v-model:open`: whether the bubble shows. Hover, focus and Escape update it. |
-| `label` | `string` | **Required** | What the tooltip says: a name for the control, never anything you must read or click. |
+| Prop    | Type      | Default      | Notes                                                                                 |
+| ------- | --------- | ------------ | ------------------------------------------------------------------------------------- |
+| `open`  | `boolean` | `false`      | `v-model:open`: whether the bubble shows. Hover, focus and Escape update it.          |
+| `label` | `string`  | **Required** | What the tooltip says: a name for the control, never anything you must read or click. |
 
 <!-- props:end -->
 

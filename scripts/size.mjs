@@ -14,7 +14,7 @@ const jsFiles = (dir) =>
   });
 
 const budgets = [
-  { name: "style.css", size: gzip(join(dist, "style.css")), limit: 19800 },
+  { name: "style.css", size: gzip(join(dist, "style.css")), limit: 21200 },
   { name: "index.js", size: gzip(join(dist, "index.js")), limit: 2250 },
   {
     name: "all JavaScript files (each gzipped)",

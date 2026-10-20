@@ -23,10 +23,10 @@ The frame of a whole page: skip link, header, optional side navigation, main con
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `mainId` | `string` | `"main"` | The `id` of the `main` element, which the skip link targets. Keep it unique. |
-| `sidebarLabel` | `string` | `"Main"` | The name of the sidebar landmark. |
+| Prop           | Type     | Default  | Notes                                                                        |
+| -------------- | -------- | -------- | ---------------------------------------------------------------------------- |
+| `mainId`       | `string` | `"main"` | The `id` of the `main` element, which the skip link targets. Keep it unique. |
+| `sidebarLabel` | `string` | `"Main"` | The name of the sidebar landmark.                                            |
 
 <!-- props:end -->
 

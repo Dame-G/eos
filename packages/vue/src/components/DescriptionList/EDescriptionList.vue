@@ -56,7 +56,7 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
     <li v-for="(item, i) in shown" :key="i" class="e-fact">
       <EIcon v-if="item.icon" :name="item.icon" />
       <span class="e-fact-text"><Render :value="item.text" /></span>
-      <EStamp v-if="item.badge" :tone="item.badgeTone" size="sm">{{ item.badge }}</EStamp>
+      <EStamp v-if="item.badge" :tone="item.badgeTone" small>{{ item.badge }}</EStamp>
       <slot name="action" :item="item" :index="i" />
     </li>
   </ul>
@@ -67,7 +67,7 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
       </dt>
       <dd class="e-fact-text">
         <span class="e-fact-value"><Render :value="item.text" /></span>
-        <EStamp v-if="item.badge" :tone="item.badgeTone" size="sm">{{ item.badge }}</EStamp>
+        <EStamp v-if="item.badge" :tone="item.badgeTone" small>{{ item.badge }}</EStamp>
         <slot name="action" :item="item" :index="i" />
         <EButton
           v-if="item.editable"

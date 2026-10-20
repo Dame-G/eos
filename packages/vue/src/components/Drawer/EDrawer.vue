@@ -76,7 +76,7 @@ const open = defineModel<boolean>("open");
     height: auto;
     max-height: min(32rem, 85dvh);
     margin: 0;
-    border-radius: var(--e-radius-lg) var(--e-radius-lg) 0 0;
+    border-radius: var(--e-radius-md) var(--e-radius-md) 0 0;
   }
 
   .e-drawer[data-state="open"] {
@@ -164,7 +164,7 @@ const open = defineModel<boolean>("open");
     max-width: 28rem;
     height: auto;
     max-height: 18rem;
-    border-radius: var(--e-radius-lg);
+    border-radius: var(--e-radius-md);
   }
 
   .e-drawer-body:focus-visible {

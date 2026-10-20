@@ -83,7 +83,7 @@ const items = computed<(number | "gap")[]>(() => {
     min-width: var(--e-control-height);
     height: var(--e-control-height);
     padding: 0 var(--e-space-2);
-    border: var(--e-stroke-edge) solid transparent;
+    border: 0;
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
@@ -92,13 +92,12 @@ const items = computed<(number | "gap")[]>(() => {
     cursor: pointer;
     transition:
       background-color var(--e-duration-tap) var(--e-easing-out),
-      border-color var(--e-duration-tap) var(--e-easing-out);
+      box-shadow var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-page:hover {
     background: var(--e-surface-hover);
-    border-color: var(--e-border-strong);
-
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
   }
 
   .e-page:focus-visible {
@@ -108,7 +107,7 @@ const items = computed<(number | "gap")[]>(() => {
 
   .e-page[aria-current="page"] {
     background: var(--e-primary);
-    border-color: var(--e-primary);
+    box-shadow: none;
     color: var(--e-on-primary);
     font-weight: 600;
     cursor: default;

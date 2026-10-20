@@ -1,6 +1,6 @@
 # ECheckbox
 
-A single yes/no choice. Use `ESwitch` for a setting that takes effect immediately.
+A single yes/no choice. Use [`ESwitch`](../Switch/README.md) for a setting that takes effect immediately.
 
 ```vue
 <ECheckbox v-model="agree" label="I agree to the terms" description="You can change this later." />
@@ -10,19 +10,19 @@ A single yes/no choice. Use `ESwitch` for a setting that takes effect immediatel
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `modelValue` | `boolean` | `false` | `v-model`: whether it is checked. |
-| `label` | `string` | **Required** | What the person agrees to or turns on. |
-| `description` | `string` | — | A line of detail under the label. |
-| `indeterminate` | `boolean` | `false` | A mixed state, such as select-all with some rows chosen. |
-| `bare` | `boolean` | `false` | Hide the label visually but keep it for screen readers, for a table cell. No error text. |
-| `disabled` | `boolean` | `false` | Disables the checkbox. |
-| `required` | `boolean` | `false` | The `required` attribute. |
-| `error` | `string` | — | What to fix. Shown under the row; sets `aria-invalid`. |
-| `name` | `string` | — | The name submitted with a form. |
-| `value` | `string` | — | The value submitted with a form when checked. |
-| `id` | `string` | `generated` | The id of the input; the label points at it. |
+| Prop            | Type      | Default      | Notes                                                                                    |
+| --------------- | --------- | ------------ | ---------------------------------------------------------------------------------------- |
+| `modelValue`    | `boolean` | `false`      | `v-model`: whether it is checked.                                                        |
+| `label`         | `string`  | **Required** | What the person agrees to or turns on.                                                   |
+| `description`   | `string`  | —            | A line of detail under the label.                                                        |
+| `indeterminate` | `boolean` | `false`      | A mixed state, such as select-all with some rows chosen.                                 |
+| `bare`          | `boolean` | `false`      | Hide the label visually but keep it for screen readers, for a table cell. No error text. |
+| `disabled`      | `boolean` | `false`      | Not focusable and not submitted.                                                         |
+| `required`      | `boolean` | `false`      | The `required` attribute.                                                                |
+| `error`         | `string`  | —            | What to fix. Shown under the row; sets `aria-invalid`.                                   |
+| `name`          | `string`  | —            | The name submitted with a form.                                                          |
+| `value`         | `string`  | —            | The value submitted with a form when checked.                                            |
+| `id`            | `string`  | `generated`  | The id of the input; the label points at it.                                             |
 
 <!-- props:end -->
 

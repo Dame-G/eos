@@ -77,6 +77,7 @@ export * from "./components/Stamp/index.js";
 export * from "./components/Stepper/index.js";
 export * from "./components/Surface/index.js";
 export * from "./components/Switch/index.js";
+export * from "./components/Table/index.js";
 export * from "./components/Tabs/index.js";
 export * from "./components/Text/index.js";
 export * from "./components/TextField/index.js";

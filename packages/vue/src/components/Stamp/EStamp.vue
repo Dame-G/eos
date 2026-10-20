@@ -20,8 +20,8 @@ const props = defineProps<{
   icon?: IconProp;
   /** A date or day count, set after the word. */
   detail?: string;
-  /** `sm` is shorter, for rows and tables. @default "md" */
-  size?: "sm" | "md";
+  /** Shorter, for rows and tables. */
+  small?: boolean;
 }>();
 
 defineSlots<{
@@ -50,7 +50,7 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
 </script>
 
 <template>
-  <span class="e-stamp" :class="[toneClass, size === 'sm' && 'e-stamp--sm']">
+  <span class="e-stamp" :class="[toneClass, small && 'e-stamp--sm']">
     <EIcon v-if="icon" :name="icon" bold />
     <span class="e-stamp-word"><slot>{{ text }}</slot></span>
     <span v-if="detail" class="e-stamp-detail">{{ detail }}</span>
@@ -69,15 +69,11 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
     white-space: nowrap;
     align-items: center;
     gap: var(--e-space-2);
-
-    --e-bc: var(--e-strong);
-
     min-height: calc(var(--e-chip-height) + var(--e-space-1));
     padding: 0 var(--e-space-3);
     border-radius: var(--e-radius-sm);
     background: var(--e-strong);
     color: var(--e-on);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-bc);
     cursor: default;
     justify-self: start;
   }

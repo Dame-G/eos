@@ -5,7 +5,7 @@ import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
-    /** A glyph in a round badge above the title. */
+    /** A glyph in the primary colour above the title. */
     icon?: IconProp;
     /** What is missing, in the person's words. */
     title: string;
@@ -41,32 +41,26 @@ defineSlots<{
     justify-items: center;
     gap: var(--e-space-2);
     padding: var(--e-space-8) var(--e-space-4);
-    border: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     text-align: center;
   }
 
   .e-empty--bare {
-    border: 0;
+    outline: 0;
   }
 
   .e-empty-icon {
     display: grid;
     place-items: center;
-    box-sizing: border-box;
-    width: 56px;
-    height: 56px;
     margin-bottom: var(--e-space-1);
-    border-radius: 50%;
-    background: var(--e-secondary-soft);
-    border: var(--e-stroke-hair) solid var(--e-secondary);
-
-
+    color: var(--e-primary);
   }
 
   .e-empty-icon .e-icon {
-    width: 26px;
-    height: 26px;
+    width: 40px;
+    height: 40px;
   }
 
   .e-empty-title {
@@ -82,9 +76,12 @@ defineSlots<{
   }
 
   @media (forced-colors: active) {
-    .e-empty-icon {
-      border-color: CanvasText;
+    .e-empty {
       outline-color: CanvasText;
+    }
+
+    .e-empty-icon {
+      color: CanvasText;
     }
   }
 }

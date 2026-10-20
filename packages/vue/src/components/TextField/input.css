@@ -1,17 +1,21 @@
 @layer e.controls {
   .e-input {
+    --e-ring: var(--e-border-strong);
+
     width: 100%;
     min-width: 0;
     height: var(--e-control-height);
     padding: 0 var(--e-space-4);
-    border: var(--e-stroke-edge) solid var(--e-border-strong);
+    border: 0;
     border-radius: var(--e-radius-md);
     background-color: var(--e-surface);
-    box-shadow: var(--e-well);
+    box-shadow:
+      inset 0 0 0 var(--e-stroke-edge) var(--e-ring),
+      var(--e-well);
     color: var(--e-ink);
     font: 400 var(--e-text-md)/1 var(--e-font-sans);
     transition:
-      border-color var(--e-duration-tap) var(--e-easing-out),
+      box-shadow var(--e-duration-tap) var(--e-easing-out),
       background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
@@ -20,25 +24,34 @@
   }
 
   .e-input:hover {
-    border-color: var(--e-ink);
     background-color: var(--e-surface-hover);
   }
 
   .e-input:focus {
-    border-color: var(--e-focus-field);
+    --e-ring: var(--e-focus-field);
+
     background-color: var(--e-surface);
   }
 
+  /* A field's focus outline lies over its border and then reaches at least as far outside it again, so the field looks thicker on every stroke preset. */
   .e-input:focus-visible {
+    outline-width: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge)));
     outline-color: var(--e-focus-field);
     outline-offset: var(--e-focus-gap-field);
   }
 
   .e-input[aria-invalid="true"] {
-    border-color: var(--e-danger);
+    --e-ring: var(--e-danger);
+
     background-color: var(--e-surface);
-    box-shadow:
-      var(--e-well), inset 0 0 0 var(--e-stroke-hair) var(--e-danger);
+  }
+
+  .e-input[aria-invalid="true"]:hover {
+    background-color: var(--e-danger-soft);
+  }
+
+  .e-input[aria-invalid="true"]:focus {
+    background-color: var(--e-surface);
   }
 
   .e-input[aria-invalid="true"]:focus-visible {
@@ -47,8 +60,8 @@
 
   .e-input:disabled {
     cursor: not-allowed;
-    border-style: dashed;
-    outline: 0;
+    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     background-color: var(--e-surface-tint);
     box-shadow: none;
     color: var(--e-muted);
@@ -59,46 +72,52 @@
   }
 
   .e-input-wrap {
+    --e-ring: var(--e-border-strong);
+
     display: flex;
     align-items: stretch;
     min-width: 0;
     min-height: var(--e-control-height);
-    border: var(--e-stroke-edge) solid var(--e-border-strong);
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
-    box-shadow: var(--e-well);
+    box-shadow:
+      inset 0 0 0 var(--e-stroke-edge) var(--e-ring),
+      var(--e-well);
     transition:
-      border-color var(--e-duration-tap) var(--e-easing-out),
+      box-shadow var(--e-duration-tap) var(--e-easing-out),
       background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-input-wrap:hover {
-    border-color: var(--e-ink);
     background: var(--e-surface-hover);
   }
 
   .e-input-wrap:focus-within {
-    border-color: var(--e-focus-field);
+    --e-ring: var(--e-focus-field);
+
     background: var(--e-surface);
-    outline: var(--e-stroke-focus) solid var(--e-focus-field);
+    outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
     outline-offset: var(--e-focus-gap-field);
   }
 
   .e-input-wrap[data-invalid] {
-    border-color: var(--e-danger);
-    box-shadow:
-      var(--e-well), inset 0 0 0 var(--e-stroke-hair) var(--e-danger);
+    --e-ring: var(--e-danger);
+
     background: var(--e-surface);
   }
 
+  .e-input-wrap[data-invalid]:hover {
+    background: var(--e-danger-soft);
+  }
+
   .e-input-wrap[data-invalid]:focus-within {
-    border-color: var(--e-danger);
+    background: var(--e-surface);
     outline-color: var(--e-danger);
   }
 
   .e-input-wrap[data-disabled] {
-    border-style: dashed;
-    outline: 0;
+    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     background: var(--e-surface-tint);
     box-shadow: none;
     color: var(--e-muted);
@@ -106,7 +125,6 @@
 
   .e-input-wrap .e-input {
     flex: 1;
-    border: 0;
     outline: 0;
     background: transparent;
     box-shadow: none;
@@ -158,7 +176,7 @@
 
     .e-input:disabled,
     .e-input-wrap[data-disabled] {
-      border-color: GrayText;
+      outline-color: GrayText;
     }
 
     .e-input:focus-visible,

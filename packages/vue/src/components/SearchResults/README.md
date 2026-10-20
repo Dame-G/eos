@@ -28,13 +28,13 @@ A list of search results as links, with a title and a muted line under it, arrow
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `items` | `SearchResultItem[]` | **Required** | The results, best first: `{ label, description?, href?, to? }`. With no `href` or `to` a link goes to `#`. |
-| `label` | `string` | **Required** | The accessible name of the list, such as "Search results". |
-| `emptyText` | `string` | — | Shown when there are no results, such as `Nothing found for "tax"`. Leave it out to show nothing at all, for example before anyone has typed. |
-| `query` | `string` | — | The text that was searched for: its first match in each title and description is marked, as in `ECombobox` options. |
-| `linkComponent` | `string \| Component` | `"a"` | What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). Give items `to`; it receives `to` or `href` and the class `e-opt`. |
+| Prop            | Type                  | Default      | Notes                                                                                                                                                                                         |
+| --------------- | --------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `items`         | `SearchResultItem[]`  | **Required** | The results, best first: `{ label, description?, href?, to? }`. With no `href` or `to` a link goes to `#`.                                                                                    |
+| `label`         | `string`              | **Required** | The accessible name of the list, such as "Search results".                                                                                                                                    |
+| `emptyText`     | `string`              | —            | Shown when there are no results, such as `Nothing found for "tax"`. Leave it out to show nothing at all, for example before anyone has typed.                                                 |
+| `query`         | `string`              | —            | The text that was searched for: its first match in each title and description is marked, as in `ECombobox` options.                                                                           |
+| `linkComponent` | `string \| Component` | `"a"`        | What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). Give items `to`; it receives `to` or `href` and the class `e-opt`. |
 
 <!-- props:end -->
 
@@ -49,8 +49,5 @@ A list of search results as links, with a title and a muted line under it, arrow
 
 ## Accessibility
 
-- A list of links, named by `label`; Enter and click open a result, Tab reaches each one.
-- ArrowDown and ArrowUp move focus between results; ArrowUp on the first result emits `edge` so you can return focus to the search box. ArrowDown from the box is yours to wire with `focusFirst()`.
-- The result under the pointer or with focus gets a tint and an outline, so it is not shown by colour alone; in forced-colors mode it uses the system highlight colours.
-- The component does not announce the number of results. Put a polite live region (`role="status"`) beside it that says "3 results" or "No results".
-- The marked text is underlined and bold, not only coloured.
+- A list of links named by `label`; Tab reaches each one. ArrowDown and ArrowUp move between them. Wire ArrowDown from the search box to `focusFirst()`.
+- It does not announce the result count. Put a polite live region (`role="status"`) beside it that says "3 results" or "No results".

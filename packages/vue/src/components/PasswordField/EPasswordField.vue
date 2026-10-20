@@ -154,8 +154,8 @@ defineExpose({
     flex: none;
     width: 14px;
     height: 14px;
-    border: var(--e-stroke-edge) solid var(--e-border-strong);
     border-radius: 50%;
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
   }
 }
 </style>

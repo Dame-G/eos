@@ -1,6 +1,6 @@
 # EToast
 
-A floating message that confirms or reports something just done. Show toasts through `useToast()` and `EToastProvider`; use this component directly only to build something else.
+A floating message that confirms or reports something just done. Show toasts through `useToast()` and [`EToastProvider`](../ToastProvider/README.md); use this component directly only to build something else.
 
 ```vue
 <EToast tone="success" title="Payment received" @close="hide">A receipt was sent to your email.</EToast>
@@ -10,12 +10,12 @@ A floating message that confirms or reports something just done. Show toasts thr
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `title` | `string` | **Required** | What happened, in a few words. |
-| `tone` | `"info" \| "success" \| "warning" \| "danger"` | `"info"` | `info` is the default. `danger` is announced at once. |
-| `icon` | `IconProp` | — | Replaces the icon of the tone. |
-| `closable` | `boolean` | — | Forces the dismiss button on or off. Left out, it shows when a `@close` listener is attached. |
+| Prop       | Type                                           | Default      | Notes                                                                                         |
+| ---------- | ---------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------- |
+| `title`    | `string`                                       | **Required** | What happened, in a few words.                                                                |
+| `tone`     | `"info" \| "success" \| "warning" \| "danger"` | `"info"`     | `info` is the default. `danger` is announced at once.                                         |
+| `icon`     | `IconProp`                                     | —            | Replaces the icon of the tone.                                                                |
+| `closable` | `boolean`                                      | —            | Forces the dismiss button on or off. Left out, it shows when a `@close` listener is attached. |
 
 <!-- props:end -->
 

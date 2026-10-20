@@ -10,11 +10,11 @@ An icon-only button with a 48px target, for rows where a text button would crowd
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `icon` | `IconProp` | **Required** | The glyph. |
-| `label` | `string` | **Required** | The accessible name. Write it as an action, such as "Download receipt". |
-| `disabled` | `boolean` | `false` | Disables the button. |
+| Prop       | Type       | Default      | Notes                                                                   |
+| ---------- | ---------- | ------------ | ----------------------------------------------------------------------- |
+| `icon`     | `IconProp` | **Required** | The glyph.                                                              |
+| `label`    | `string`   | **Required** | The accessible name. Write it as an action, such as "Download receipt". |
+| `disabled` | `boolean`  | `false`      | Disables the button.                                                    |
 
 <!-- props:end -->
 

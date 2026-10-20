@@ -5,7 +5,7 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** The element to render, `div` by default. Use `article`, `section` or `aside` for a real block. */
+    /** The element to render. Use `article`, `section` or `aside` for a real block. */
     as?: string;
     /** Padding: `sm`, `md` or `lg`. None by default. */
     pad?: "sm" | "md" | "lg";

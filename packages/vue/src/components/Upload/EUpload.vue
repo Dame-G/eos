@@ -130,24 +130,25 @@ defineExpose({
     justify-items: center;
     gap: var(--e-space-1);
     padding: var(--e-space-6) var(--e-space-4);
-    border: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     text-align: center;
     cursor: pointer;
     transition:
       background-color var(--e-duration-tap) var(--e-easing-out),
-      border-color var(--e-duration-tap) var(--e-easing-out);
+      outline-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-drop:hover {
     background: var(--e-surface-hover);
-    border-color: var(--e-ink);
+    outline-color: var(--e-ink);
   }
 
   .e-drop--over {
     background: var(--e-secondary-soft);
-    border-color: var(--e-secondary);
+    outline-color: var(--e-secondary);
   }
 
   .e-drop-main {
@@ -176,7 +177,7 @@ defineExpose({
 
   .e-drop-input:focus-visible + .e-files,
   .e-field:focus-within .e-drop {
-    outline: var(--e-stroke-focus) solid var(--e-focus-field);
+    outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
     outline-offset: var(--e-focus-gap-field);
   }
 
@@ -217,8 +218,8 @@ defineExpose({
   @media (forced-colors: active) {
     .e-drop:hover,
     .e-drop--over {
-      border-style: solid;
-      border-color: Highlight;
+      outline-style: solid;
+      outline-color: Highlight;
     }
   }
 }

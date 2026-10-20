@@ -11,12 +11,12 @@ Running text in three sizes (body, `small`, `large`), capped at a readable line 
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `small` | `boolean` | `false` | 14px, for captions and fine print. |
+| Prop    | Type      | Default | Notes                                              |
+| ------- | --------- | ------- | -------------------------------------------------- |
+| `small` | `boolean` | `false` | 14px, for captions and fine print.                 |
 | `large` | `boolean` | `false` | 18px, for the one-sentence reading of a statement. |
-| `muted` | `boolean` | `false` | Secondary copy, in the muted colour. |
-| `as` | `string` | `"p"` | The element to render. |
+| `muted` | `boolean` | `false` | Secondary copy, in the muted colour.               |
+| `as`    | `string`  | `"p"`   | The element to render.                             |
 
 <!-- props:end -->
 

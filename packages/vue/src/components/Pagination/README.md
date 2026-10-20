@@ -10,10 +10,10 @@ Previous, Next and page-number buttons for paging through a long list.
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `modelValue` | `number` | `1` | `v-model`: the current page, from 1. |
-| `pageCount` | `number` | **Required** | How many pages there are. |
+| Prop         | Type     | Default      | Notes                                |
+| ------------ | -------- | ------------ | ------------------------------------ |
+| `modelValue` | `number` | `1`          | `v-model`: the current page, from 1. |
+| `pageCount`  | `number` | **Required** | How many pages there are.            |
 
 <!-- props:end -->
 

@@ -19,6 +19,8 @@ const props = withDefaults(
     href?: string;
     /** With `href`: opens in a new tab. */
     external?: boolean;
+    /** Swaps the icon for a spinner, flattens the face, dashes its edge and animates stripes across it, and ignores clicks while an action runs. The button keeps its width and stays focusable, and is announced as busy. */
+    loading?: boolean;
   }>(),
   { variant: "primary", type: "button" },
 );
@@ -29,7 +31,7 @@ defineSlots<{
 }>();
 
 function blockWhenDisabled(event: Event) {
-  if (!props.disabled) return;
+  if (!props.disabled && !props.loading) return;
   event.preventDefault();
   event.stopImmediatePropagation();
 }
@@ -40,25 +42,30 @@ function blockWhenDisabled(event: Event) {
     v-if="href"
     :href="href"
     class="e-btn"
-    :class="[variant !== 'primary' && `e-btn--${variant}`, block && 'e-btn--block']"
+    :class="[variant !== 'primary' && `e-btn--${variant}`, block && 'e-btn--block', loading && 'e-btn--loading']"
     :target="external ? '_blank' : undefined"
     :rel="external ? 'noreferrer' : undefined"
     :aria-disabled="disabled ? 'true' : undefined"
+    :aria-busy="loading ? 'true' : undefined"
     :tabindex="disabled ? -1 : undefined"
     @click.capture="blockWhenDisabled"
     @auxclick.capture="blockWhenDisabled"
   >
-    <EIcon v-if="icon" :name="icon" />
+    <svg v-if="loading" class="e-btn-spinner" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /></svg>
+    <EIcon v-else-if="icon" :name="icon" />
     <slot />
   </a>
   <button
     v-else
     :type="type"
     class="e-btn"
-    :class="[variant !== 'primary' && `e-btn--${variant}`, block && 'e-btn--block']"
+    :class="[variant !== 'primary' && `e-btn--${variant}`, block && 'e-btn--block', loading && 'e-btn--loading']"
     :disabled="disabled"
+    :aria-busy="loading ? 'true' : undefined"
+    @click.capture="blockWhenDisabled"
   >
-    <EIcon v-if="icon" :name="icon" />
+    <svg v-if="loading" class="e-btn-spinner" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /></svg>
+    <EIcon v-else-if="icon" :name="icon" />
     <slot />
   </button>
 </template>
@@ -72,21 +79,24 @@ function blockWhenDisabled(event: Event) {
     --e-hover: color-mix(in srgb, var(--e-fill), var(--e-shade-hover));
     --e-press: color-mix(in srgb, var(--e-fill), var(--e-shade-press));
 
-    /* The face is a whole rounded box and the slab is an offset copy of it showing underneath, in the colour of the face's own edge. The margin gives back the room the slab takes, so the button is still one control height tall, and pressing sinks the face onto the slab. */
+    /* One rounded box, one control height tall. The slab is an inset shadow shifted up by the lift: the part of the box left uncovered along its bottom, which follows the corners up the sides, in the colour of the box's own edge. It is cut by the box's one outline, so nothing sits behind the curve. Pressing sinks the face over it. */
     --e-lift: var(--e-depth);
+    --e-band: calc(var(--e-lift) + var(--e-stroke-edge));
+    --e-ring: var(--e-slab);
 
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--e-space-2);
-    height: calc(var(--e-control-height) - var(--e-lift));
-    margin-block-end: var(--e-lift);
-    padding: 0 var(--e-space-4);
-    border: var(--e-stroke-edge) solid var(--e-slab);
+    height: var(--e-control-height);
+    padding: 0 var(--e-space-4) var(--e-lift);
+    border: 0;
     border-radius: var(--e-radius-md);
-    background: var(--e-fill);
-    box-shadow: 0 var(--e-lift) 0 0 var(--e-slab);
+    background-color: var(--e-fill);
+    box-shadow:
+      inset 0 0 0 var(--e-stroke-edge) var(--e-ring),
+      inset 0 calc(-1 * var(--e-band)) 0 0 var(--e-slab);
     color: var(--e-on-fill);
     font: 500 var(--e-text-md) / 1 var(--e-font-sans);
     letter-spacing: 0.01em;
@@ -94,19 +104,21 @@ function blockWhenDisabled(event: Event) {
     text-decoration: none;
     cursor: pointer;
     transition:
-      transform var(--e-duration-tap) var(--e-easing-out),
       box-shadow var(--e-duration-tap) var(--e-easing-out),
       background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-btn:hover {
-    background: var(--e-hover);
+    --e-slab: color-mix(in srgb, var(--e-hover), var(--e-shade-slab));
+
+    background-color: var(--e-hover);
   }
 
   .e-btn:active {
-    background: var(--e-press);
-    box-shadow: 0 0 0 0 var(--e-slab);
-    transform: translateY(var(--e-lift));
+    --e-lift: 0px;
+
+    background-color: var(--e-press);
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ring);
   }
 
   .e-btn--secondary {
@@ -126,25 +138,26 @@ function blockWhenDisabled(event: Event) {
   }
 
   .e-btn--outline:hover {
-    background: color-mix(in srgb, var(--e-surface), var(--e-shade-hover));
-    border-color: var(--e-ink);
+    --e-ring: var(--e-ink);
+    --e-slab: var(--e-ink);
 
+    background-color: color-mix(in srgb, var(--e-surface), var(--e-shade-hover));
   }
 
   .e-btn--outline:active {
-    background: color-mix(in srgb, var(--e-surface), var(--e-shade-press));
-    border-color: var(--e-ink);
+    --e-ring: var(--e-ink);
+    --e-slab: var(--e-ink);
 
+    background-color: color-mix(in srgb, var(--e-surface), var(--e-shade-press));
   }
 
   .e-btn--quiet {
-    border-color: transparent;
-
+    --e-ring: transparent;
     --e-lift: 0px;
 
     background: transparent;
     color: var(--e-ink);
-    box-shadow: none;
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ring);
     padding-inline: var(--e-space-3);
     text-decoration: underline;
     text-underline-offset: 5px;
@@ -153,19 +166,79 @@ function blockWhenDisabled(event: Event) {
   }
 
   .e-btn--quiet:not([disabled], [aria-disabled="true"]):hover {
-    border-color: var(--e-wash-ring);
+    --e-ring: var(--e-wash-ring);
+
     background: var(--e-wash-hover);
     text-decoration-color: currentcolor;
   }
 
   .e-btn--quiet:not([disabled], [aria-disabled="true"]):active {
-    border-color: var(--e-ink);
+    --e-ring: var(--e-ink);
+
     background: var(--e-wash-press);
     transform: none;
   }
 
-  .e-btn .e-icon {
+  .e-btn .e-icon,
+  .e-btn-spinner {
     margin-inline-start: calc(-0.5 * var(--e-space-1));
+  }
+
+  .e-btn-spinner {
+    flex: none;
+    width: 1.125em;
+    height: 1.125em;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 36 56;
+    animation: e-btn-spin 0.9s linear infinite;
+  }
+
+  /* Busy reads as unavailable and in progress: a soft tint of the button's colour with a dashed edge like a disabled button, and stripes that move. The face grows over its slab, so the button stays one control height tall. The edge is a pseudo-element, so a page's focus reset cannot remove it. */
+  .e-btn--loading {
+    --e-lift: 0px;
+    --e-tint: var(--e-fill);
+    --e-busy: color-mix(in srgb, var(--e-tint) 80%, var(--e-ink));
+  }
+
+  .e-btn--outline.e-btn--loading {
+    --e-tint: var(--e-border-strong);
+  }
+
+  .e-btn--loading,
+  .e-btn--loading:hover,
+  .e-btn--loading:active {
+    background-color: color-mix(in srgb, var(--e-tint) 14%, var(--e-surface));
+    background-image: repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in srgb, var(--e-tint) 20%, transparent) 8px 16px);
+    background-size: 22.63px 22.63px;
+    box-shadow: none;
+    color: var(--e-busy);
+    transform: none;
+    cursor: not-allowed;
+    animation: e-btn-stripes 0.8s linear infinite;
+  }
+
+  .e-btn--loading::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: var(--e-stroke-edge) dashed var(--e-busy);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  @keyframes e-btn-stripes {
+    to {
+      background-position-x: 22.63px;
+    }
+  }
+
+  @keyframes e-btn-spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .e-btn--block {
@@ -177,9 +250,9 @@ function blockWhenDisabled(event: Event) {
   .e-btn[aria-pressed="true"]:hover,
   .e-btn[aria-pressed="true"]:active {
     --e-slab: var(--e-primary);
+    --e-ring: var(--e-primary);
 
-    border-color: var(--e-primary);
-    background: var(--e-surface-hover);
+    background-color: var(--e-surface-hover);
     color: var(--e-primary);
   }
 
@@ -190,8 +263,8 @@ function blockWhenDisabled(event: Event) {
     cursor: not-allowed;
     background: transparent;
     color: var(--e-muted);
-    border: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline: 0;
+    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     box-shadow: none;
     transform: none;
   }
@@ -199,6 +272,14 @@ function blockWhenDisabled(event: Event) {
   @media (prefers-reduced-motion: reduce) {
     .e-btn {
       transition: none;
+    }
+
+    .e-btn-spinner {
+      animation-duration: 3s;
+    }
+
+    .e-btn--loading {
+      animation: none;
     }
   }
 
@@ -221,7 +302,7 @@ function blockWhenDisabled(event: Event) {
 
     .e-btn[disabled],
     .e-btn[aria-disabled="true"] {
-      border-color: GrayText;
+      outline-color: GrayText;
       color: GrayText;
     }
   }

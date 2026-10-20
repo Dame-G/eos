@@ -77,19 +77,20 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     display: flex;
     align-items: center;
     gap: var(--e-space-3);
-    height: calc(var(--e-control-height) - var(--e-lift));
-    margin-block-end: var(--e-lift);
+    height: var(--e-control-height);
     box-sizing: border-box;
-    padding: 0 var(--e-space-3);
+    padding: 0 var(--e-space-3) var(--e-lift);
 
     --e-lift: 0px;
 
-    border: var(--e-stroke-edge) solid transparent;
+    border: 0;
     border-radius: var(--e-radius-md);
     color: var(--e-ink);
     font: 400 var(--e-text-md) / 1 var(--e-font-sans);
     text-decoration: none;
-    transition: background-color var(--e-duration-tap) var(--e-easing-out);
+    transition:
+      background-color var(--e-duration-tap) var(--e-easing-out),
+      box-shadow var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-nav-item:hover {
@@ -104,11 +105,17 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
   .e-nav-item[aria-current="page"] {
     background-color: color-mix(in srgb, var(--e-surface-tint), var(--e-ink) 3%);
     font-weight: 600;
-    border-color: var(--e-primary);
 
     --e-lift: var(--e-depth);
+    --e-slab: var(--e-primary);
 
-    box-shadow: 0 var(--e-lift) 0 0 var(--e-primary);
+    box-shadow:
+      inset 0 0 0 var(--e-stroke-edge) var(--e-primary),
+      inset 0 calc(-1 * (var(--e-lift) + var(--e-stroke-edge))) 0 0 var(--e-slab);
+  }
+
+  .e-nav-item[aria-current="page"]:hover {
+    --e-slab: color-mix(in srgb, var(--e-primary), var(--e-shade-slab));
   }
 
   .e-nav-label {

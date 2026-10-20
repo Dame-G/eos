@@ -19,7 +19,7 @@ withDefaults(
     action?: string;
     /** Leaves out the button, for a box that filters or searches as you type. Enter still submits. */
     hideAction?: boolean;
-    /** The clear button, shown when there is text. On by default. */
+    /** The clear button, shown when there is text. */
     clearable?: boolean;
     /** The name submitted with a form. @default "q" */
     name?: string;
@@ -89,27 +89,29 @@ defineExpose({
 <style>
 @layer e.controls {
   .e-search {
+    --e-ring: var(--e-border-strong);
+
     display: flex;
     align-items: center;
     gap: var(--e-space-1);
     height: var(--e-control-height);
     padding: 0 var(--e-space-1) 0 var(--e-space-2);
-    border: var(--e-stroke-edge) solid var(--e-border-strong);
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
-    box-shadow: var(--e-well);
-    transition: border-color var(--e-duration-tap) var(--e-easing-out);
+    box-shadow:
+      inset 0 0 0 var(--e-stroke-edge) var(--e-ring),
+      var(--e-well);
+    transition: box-shadow var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-search:hover {
-    border-color: var(--e-ink);
-
+    background: var(--e-surface-hover);
   }
 
   .e-search .e-btn {
     position: relative;
-    height: calc(var(--e-control-height) - 6px - var(--e-lift));
-    padding: 0 var(--e-space-3);
+    height: calc(var(--e-control-height) - 6px);
+    padding: 0 var(--e-space-3) var(--e-lift);
     font-size: var(--e-text-md);
   }
 
@@ -187,8 +189,10 @@ defineExpose({
   }
 
   .e-search:focus-within {
-    border-color: var(--e-focus-field);
-    outline: var(--e-stroke-focus) solid var(--e-focus-field);
+    --e-ring: var(--e-focus-field);
+
+    background: var(--e-surface);
+    outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
     outline-offset: var(--e-focus-gap-field);
   }
 

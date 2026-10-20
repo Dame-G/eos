@@ -1,6 +1,6 @@
 # ESkipLink
 
-A link, hidden until focused, that lets keyboard users jump past navigation to the main content. `EAppShell` renders one.
+A link, hidden until focused, that lets keyboard users jump past navigation to the main content. [`EAppShell`](../AppShell/README.md) renders one.
 
 ```vue
 <ESkipLink />
@@ -12,8 +12,8 @@ A link, hidden until focused, that lets keyboard users jump past navigation to t
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
+| Prop   | Type     | Default   | Notes                                                                               |
+| ------ | -------- | --------- | ----------------------------------------------------------------------------------- |
 | `href` | `string` | `"#main"` | The in-page target, `#main` by default. It must match the `id` of the main content. |
 
 <!-- props:end -->

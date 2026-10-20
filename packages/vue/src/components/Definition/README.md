@@ -1,6 +1,6 @@
 # EDefinition
 
-A term that opens a small floating panel with a definition or short explanation. Use a dialog when the reader must decide something and `EMenu` for actions.
+A term that opens a small floating panel with a definition or short explanation. Use a dialog when the reader must decide something and [`EMenu`](../Menu/README.md) for actions.
 
 ```vue
 <EDefinition label="About payment plans" title="Payment plan">
@@ -16,12 +16,12 @@ A term that opens a small floating panel with a definition or short explanation.
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `modelValue` | `boolean` | `false` | `v-model`: the open state. |
-| `label` | `string` | **Required** | Names the panel for screen readers (when there is no `title`) and is read after the term. |
-| `title` | `string` | — | Adds a title row with this title and a Close button. |
-| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `3` | The level of the title's heading, so it fits the page outline. |
+| Prop           | Type                         | Default      | Notes                                                                                     |
+| -------------- | ---------------------------- | ------------ | ----------------------------------------------------------------------------------------- |
+| `modelValue`   | `boolean`                    | `false`      | `v-model`: the open state.                                                                |
+| `label`        | `string`                     | **Required** | Names the panel for screen readers (when there is no `title`) and is read after the term. |
+| `title`        | `string`                     | —            | Adds a title row with this title and a Close button.                                      |
+| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `3`          | The level of the title's heading, so it fits the page outline.                            |
 
 <!-- props:end -->
 

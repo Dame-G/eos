@@ -54,9 +54,9 @@ describe("EStepper", () => {
   test("the states look different without relying on colour: dashed, outlined and filled dots", async () => {
     const { container } = await render(EStepper, { props: { steps } });
     const dots = [...container.querySelectorAll<HTMLElement>(".e-step-dot")].map((d) => getComputedStyle(d));
-    expect(dots[3]!.borderStyle).toBe("dashed");
-    expect(dots[2]!.borderTopWidth).toBe("2px");
-    expect(dots[0]!.borderStyle).toBe("solid");
+    expect(dots[3]!.outlineStyle).toBe("dashed");
+    expect(dots[2]!.boxShadow).toContain("2px");
+    expect(dots[0]!.outlineStyle).toBe("none");
     expect(dots[0]!.backgroundColor).not.toBe(dots[3]!.backgroundColor);
   });
 

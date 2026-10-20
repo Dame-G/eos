@@ -1,6 +1,6 @@
 # ETabs
 
-Tabs for switching between views of the same record or list. It switches panels only; use `ENavList` for links to other pages, in a sidebar, outline or header row. Use `EDisclosure` (with a shared `group`) for sections that open and close.
+Tabs for switching between views of the same record or list. It switches panels only; use [`ENavList`](../NavList/README.md) for links to other pages, in a sidebar, outline or header row. Use [`EDisclosure`](../Disclosure/README.md) (with a shared `group`) for sections that open and close.
 
 ```vue
 <ETabs
@@ -22,8 +22,10 @@ Tabs for switching between views of the same record or list. It switches panels 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `modelValue` | `string` | `first tab` | `v-model`: the `id` of the selected tab. Keeps its own state when unbound. |
-| `items` | `TabItem[]` | — | The tabs, in order: `{ id, label, count? }`. Two to five, with short labels. `id` names the slot and is the `v-model` value. |
+| `items` | `TabItem[]` | — | The tabs, in order: `{ id, label, count? }`. Two to five across, with short labels; a vertical list can be longer. `id` names the slot and is the `v-model` value. |
 | `fill` | `boolean` | `false` | Share the width equally between the tabs instead of letting each take its own. For a narrow container where the tabs must all fit; labels truncate. |
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | `vertical` stacks the tabs in a column beside their panel, for a long list of sections. Use it when there are more tabs than fit across; `fill` has no effect. |
+| `framed` | `boolean` | `false` | Joins the tabs to their panel so the two read as one card: the panel is outlined, the row of tabs sits on its edge like folder tabs, and the chosen tab opens into the panel with no line between. The edge stays open where there are no tabs. |
 
 <!-- props:end -->
 

@@ -11,8 +11,8 @@ A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to 
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
+| Prop    | Type      | Default | Notes                                                   |
+| ------- | --------- | ------- | ------------------------------------------------------- |
 | `small` | `boolean` | `false` | The smaller size, for a hint inside running small text. |
 
 <!-- props:end -->
@@ -27,7 +27,5 @@ A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to 
 
 ## Accessibility
 
-- A `kbd` element, which assistive technology reads as the key text.
-- It describes a shortcut only; the shortcut itself must work and be named elsewhere, for example with `aria-keyshortcuts` on the control it triggers.
-- When a nearby control already announces the shortcut, add `aria-hidden="true"` so it is not read twice.
-- The muted text colour and a visible border give the keycap its shape without relying on colour; in forced-colors mode the border is drawn in the system text colour.
+- It only describes a shortcut: the shortcut must work and be named elsewhere, for example with `aria-keyshortcuts` on the control.
+- Add `aria-hidden="true"` when a nearby control already announces the shortcut.

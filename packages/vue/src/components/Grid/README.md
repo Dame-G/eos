@@ -13,12 +13,12 @@ Cards in as many equal columns as fit, responding to its container's width rathe
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `as` | `string` | `"div"` | The element to render, `div` by default; for example `ul` with `li` children. |
-| `min` | `string` | `"16rem"` | The narrowest a column may be, as a CSS length. One column below that. |
-| `gap` | `number \| string` | `4` | A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string. |
-| `masonry` | `boolean` | `false` | Pack cards of uneven height into columns with no gaps under the short ones. Items flow top to bottom within each column. |
+| Prop      | Type               | Default   | Notes                                                                                                                    |
+| --------- | ------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `as`      | `string`           | `"div"`   | The element to render, for example `ul` with `li` children.                                                              |
+| `min`     | `string`           | `"16rem"` | The narrowest a column may be, as a CSS length. One column below that.                                                   |
+| `gap`     | `number \| string` | `4`       | A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string.                                                  |
+| `masonry` | `boolean`          | `false`   | Pack cards of uneven height into columns with no gaps under the short ones. Items flow top to bottom within each column. |
 
 <!-- props:end -->
 
@@ -34,6 +34,6 @@ With `masonry` the grid is CSS multi-column: `min` is the column width, the gap 
 
 ## Accessibility
 
-- Layout only: no role, no landmark, and the DOM order is the reading and focus order. Columns wrap by CSS alone, so the order never changes; do not rely on visual position to convey sequence.
-- Items are children you supply; give each card its own heading or accessible name.
+- Layout only: no role, and the DOM order is the reading and focus order. Do not rely on visual position to convey sequence.
+- Give each card its own heading or accessible name.
 - For a list of items use `as="ul"` with `li` children so the count is announced.

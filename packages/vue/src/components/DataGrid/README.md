@@ -30,34 +30,34 @@ The models work without a binding.
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `sort` | `DataGridSort \| null` | `null` | `v-model:sort`: the sort: `{ key, dir: "asc" \| "desc" }`, or `null` for none. |
-| `page` | `number` | `1` | `v-model:page`: the current page, from 1. |
-| `search` | `string` | `""` | `v-model:search`: the text in the search box. |
-| `filters` | `Record<string, DataGridFilterValue>` | `{}` | `v-model:filters`: the column filters, by column `key`: text, or `{ min, max }` strings for `number`. |
-| `selected` | `string[]` | `[]` | `v-model:selected`: the selected row ids, kept across pages and filters. |
-| `columns` | `DataGridColumn<Row>[]` | **Required** | The columns, in order. See `DataGridColumn` below. |
-| `rows` | `Row[]` | **Required** | The rows. Each needs a unique `id`; selection is by id. |
-| `caption` | `string` | **Required** | Names the table for screen readers, and its scrolling region. |
-| `searchable` | `boolean` | `false` | One search box over all shown columns. |
-| `searchPlaceholder` | `string` | `"Search all columns"` | The search box's placeholder. |
-| `filterable` | `boolean` | `false` | A filter row under the headings, for columns that define a `filter`. |
-| `resizable` | `boolean` | `false` | Column edges can be dragged, or moved with the arrow keys. |
-| `stickyFirst` | `boolean` | `false` | Keeps the first column in view while scrolling sideways. |
-| `columnToggle` | `boolean` | `false` | A Columns menu to show and hide columns. |
-| `selectable` | `boolean` | `false` | A checkbox on each row and a select-all in the heading. |
-| `pageSize` | `number` | `10` | Rows per page; 0 turns paging off. |
-| `maxHeight` | `string` | — | Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header. |
-| `virtual` | `boolean \| DataGridVirtual` | — | Renders only the rows in view, for thousands of rows. Replaces paging. `true` or `{ rowHeight = 48, height = 440, overscan = 8 }`. |
-| `cards` | `boolean` | `true` | Turns rows into cards below 40rem of the grid's own width. On by default; `virtual` and `resizable` grids keep the table. |
-| `manual` | `boolean` | `false` | Data lives on a server: show the rows given, in the order given, and report every change through `queryChange`. |
-| `total` | `number` | — | With `manual`, how many rows there are in all. |
-| `loading` | `boolean` | `false` | Shows placeholder rows while data loads, with `aria-busy`. |
-| `emptyTitle` | `string` | `"No results"` | The title when there are no rows. |
-| `emptyText` | `string` | — | The sentence under the empty title, when there are no rows. |
-| `emptyIcon` | `IconProp` | `"search"` | The icon above the empty title. |
-| `bare` | `boolean` | `false` | No chrome: a bare table for a short static list, with no toolbar, filters, paging or footer. |
+| Prop                | Type                                  | Default                | Notes                                                                                                                              |
+| ------------------- | ------------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `sort`              | `DataGridSort \| null`                | `null`                 | `v-model:sort`: the sort: `{ key, dir: "asc" \| "desc" }`, or `null` for none.                                                     |
+| `page`              | `number`                              | `1`                    | `v-model:page`: the current page, from 1.                                                                                          |
+| `search`            | `string`                              | `""`                   | `v-model:search`: the text in the search box.                                                                                      |
+| `filters`           | `Record<string, DataGridFilterValue>` | `{}`                   | `v-model:filters`: the column filters, by column `key`: text, or `{ min, max }` strings for `number`.                              |
+| `selected`          | `string[]`                            | `[]`                   | `v-model:selected`: the selected row ids, kept across pages and filters.                                                           |
+| `columns`           | `DataGridColumn<Row>[]`               | **Required**           | The columns, in order. See `DataGridColumn` below.                                                                                 |
+| `rows`              | `Row[]`                               | **Required**           | The rows. Each needs a unique `id`; selection is by id.                                                                            |
+| `caption`           | `string`                              | **Required**           | Names the table for screen readers, and its scrolling region.                                                                      |
+| `searchable`        | `boolean`                             | `false`                | One search box over all shown columns.                                                                                             |
+| `searchPlaceholder` | `string`                              | `"Search all columns"` | The search box's placeholder.                                                                                                      |
+| `filterable`        | `boolean`                             | `false`                | A filter row under the headings, for columns that define a `filter`.                                                               |
+| `resizable`         | `boolean`                             | `false`                | Column edges can be dragged, or moved with the arrow keys.                                                                         |
+| `stickyFirst`       | `boolean`                             | `false`                | Keeps the first column in view while scrolling sideways.                                                                           |
+| `columnToggle`      | `boolean`                             | `false`                | A Columns menu to show and hide columns.                                                                                           |
+| `selectable`        | `boolean`                             | `false`                | A checkbox on each row and a select-all in the heading.                                                                            |
+| `pageSize`          | `number`                              | `10`                   | Rows per page; 0 turns paging off.                                                                                                 |
+| `maxHeight`         | `string`                              | —                      | Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header.                             |
+| `virtual`           | `boolean \| DataGridVirtual`          | —                      | Renders only the rows in view, for thousands of rows. Replaces paging. `true` or `{ rowHeight = 48, height = 440, overscan = 8 }`. |
+| `cards`             | `boolean`                             | `true`                 | Turns rows into cards below 40rem of the grid's own width. `virtual` and `resizable` grids keep the table.                         |
+| `manual`            | `boolean`                             | `false`                | Data lives on a server: show the rows given, in the order given, and report every change through `queryChange`.                    |
+| `total`             | `number`                              | —                      | With `manual`, how many rows there are in all.                                                                                     |
+| `loading`           | `boolean`                             | `false`                | Shows placeholder rows while data loads, with `aria-busy`.                                                                         |
+| `emptyTitle`        | `string`                              | `"No results"`         | The title when there are no rows.                                                                                                  |
+| `emptyText`         | `string`                              | —                      | The sentence under the empty title, when there are no rows.                                                                        |
+| `emptyIcon`         | `IconProp`                            | `"search"`             | The icon above the empty title.                                                                                                    |
+| `bare`              | `boolean`                             | `false`                | No chrome: a bare table for a short static list, with no toolbar, filters, paging or footer.                                       |
 
 <!-- props:end -->
 

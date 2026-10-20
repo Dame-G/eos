@@ -17,7 +17,7 @@ const props = defineProps<{
   indeterminate?: boolean;
   /** Hide the label visually but keep it for screen readers, for a table cell. No error text. */
   bare?: boolean;
-  /** Disables the checkbox. */
+  /** Not focusable and not submitted. */
   disabled?: boolean;
   /** The `required` attribute. */
   required?: boolean;

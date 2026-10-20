@@ -47,7 +47,8 @@ defineProps<{
   }
 
   .e-icon-btn:disabled {
-    border: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     color: var(--e-muted);
     cursor: not-allowed;
   }
@@ -72,7 +73,7 @@ defineProps<{
     }
 
     .e-icon-btn:disabled {
-      border-color: GrayText;
+      outline-color: GrayText;
       color: GrayText;
     }
   }

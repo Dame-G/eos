@@ -12,7 +12,7 @@ const props = withDefaults(
     small?: boolean;
     /** 64px, for a profile or practitioner on an appointment card. The default is 44px. */
     large?: boolean;
-    /** `button` renders a `button` with `type="button"`, a pointer cursor and a focus ring, named by `name`, such as the `trigger` of an `EMenu`. Default `span`. */
+    /** `button` renders a `button` with `type="button"`, a pointer cursor and a focus ring, named by `name`, such as the `trigger` of an `EMenu`. */
     as?: "span" | "button";
   }>(),
   { as: "span" },
@@ -53,6 +53,9 @@ const initials = computed(() => {
 <style>
 @layer e.primitives {
   .e-avatar {
+    --e-ring: var(--e-border-strong);
+
+    position: relative;
     display: inline-grid;
     place-items: center;
     flex: none;
@@ -60,7 +63,7 @@ const initials = computed(() => {
     width: var(--e-tap, 44px);
     height: var(--e-tap, 44px);
     overflow: hidden;
-    border: var(--e-stroke-edge) solid var(--e-border-strong);
+    border: 0;
     border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
     color: var(--e-primary);
@@ -68,16 +71,25 @@ const initials = computed(() => {
     letter-spacing: 0.02em;
   }
 
+  /* The ring sits over the picture so an image never covers it. */
+  .e-avatar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ring);
+    pointer-events: none;
+    transition: box-shadow var(--e-duration-tap) var(--e-easing-out);
+  }
+
   .e-avatar--button {
     position: relative;
     padding: 0;
     cursor: pointer;
-    transition: border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-avatar--button:hover {
-    border-color: var(--e-ink);
-
+    --e-ring: var(--e-ink);
   }
 
   .e-avatar--button:focus-visible {

@@ -30,6 +30,7 @@ jobs:
       - run: pnpm --filter @eos-ui/vue check:css
       - run: pnpm --filter @eos-ui/vue check:layers
       - run: pnpm --filter @eos-ui/vue check:props
+      - run: pnpm --filter @eos-ui/vue check:docs
       - run: pnpm test
 
   smoke:

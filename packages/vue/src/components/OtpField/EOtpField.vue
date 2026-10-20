@@ -224,7 +224,7 @@ defineExpose({
 
   /* stylelint-disable-next-line selector-not-notation */
   .e-otp .e-otp-box[data-filled]:not(:focus):not([aria-invalid="true"]) {
-    border-color: var(--e-ink);
+    --e-ring: var(--e-ink);
   }
 }
 </style>

@@ -18,11 +18,11 @@ For your own highlighting, put the markup in the slot; the button copies the tex
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `code` | `string` | — | The text to show, as plain text. Leave it out to use the slot and put your own highlighted markup there. |
-| `lang` | `string` | — | The language, named for screen readers (the code's accessible name). |
-| `copyLabel` | `string` | `"Copy code"` | The copy button's name; say what is copied when a page has several. |
+| Prop        | Type     | Default       | Notes                                                                                                    |
+| ----------- | -------- | ------------- | -------------------------------------------------------------------------------------------------------- |
+| `code`      | `string` | —             | The text to show, as plain text. Leave it out to use the slot and put your own highlighted markup there. |
+| `lang`      | `string` | —             | The language, named for screen readers (the code's accessible name).                                     |
+| `copyLabel` | `string` | `"Copy code"` | The copy button's name; say what is copied when a page has several.                                      |
 
 <!-- props:end -->
 

@@ -395,7 +395,7 @@ describe("ECombobox", () => {
     expect(inputOf(container).disabled).toBe(true);
     const wrap = container.querySelector(".e-input-wrap")!;
     expect(wrap.hasAttribute("data-disabled")).toBe(true);
-    expect(getComputedStyle(wrap).borderStyle).toBe("dashed");
+    expect(getComputedStyle(wrap).outlineStyle).toBe("dashed");
     expect((container.querySelector("[aria-label='Show options']") as HTMLButtonElement).disabled).toBe(true);
     expect(listbox()).toBeNull();
   });

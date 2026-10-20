@@ -1,6 +1,6 @@
 # ESwitch
 
-A pill switch for a setting that takes effect the moment it is flipped. Use `ECheckbox` for a choice submitted later with a form.
+A pill switch for a setting that takes effect the moment it is flipped. Use [`ECheckbox`](../Checkbox/README.md) for a choice submitted later with a form.
 
 ```vue
 <ESwitch v-model="reminders" label="Text reminders" description="The day before a visit." />
@@ -10,15 +10,15 @@ A pill switch for a setting that takes effect the moment it is flipped. Use `ECh
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `modelValue` | `boolean` | `false` | `v-model`: on or off. |
-| `label` | `string` | **Required** | The setting, named by what it does. |
-| `description` | `string` | — | A line of detail under the label. |
-| `disabled` | `boolean` | `false` | Disables the switch. |
-| `name` | `string` | — | The name submitted with a form. |
-| `value` | `string` | — | The value submitted with a form when on. |
-| `id` | `string` | `generated` | The id of the input; the label points at it. |
+| Prop          | Type      | Default      | Notes                                        |
+| ------------- | --------- | ------------ | -------------------------------------------- |
+| `modelValue`  | `boolean` | `false`      | `v-model`: on or off.                        |
+| `label`       | `string`  | **Required** | The setting, named by what it does.          |
+| `description` | `string`  | —            | A line of detail under the label.            |
+| `disabled`    | `boolean` | `false`      | Disables the switch.                         |
+| `name`        | `string`  | —            | The name submitted with a form.              |
+| `value`       | `string`  | —            | The value submitted with a form when on.     |
+| `id`          | `string`  | `generated`  | The id of the input; the label points at it. |
 
 <!-- props:end -->
 

@@ -75,19 +75,20 @@ defineExpose({
   .e-switch-track {
     --e-switch-w: 44px;
     --e-thumb: 14px;
-    --e-thumb-inset: calc(var(--e-space-1) - var(--e-stroke-card));
-    --e-thumb-travel: calc(var(--e-switch-w) - 2 * var(--e-stroke-edge) - var(--e-thumb) - 2 * var(--e-thumb-inset));
+    --e-thumb-inset: var(--e-space-1);
+    --e-thumb-travel: calc(var(--e-switch-w) - var(--e-thumb) - 2 * var(--e-thumb-inset));
+    --e-ring: var(--e-border-strong);
 
     position: relative;
     flex: none;
     width: var(--e-switch-w);
     height: 24px;
-    border: var(--e-stroke-edge) solid var(--e-border-strong);
     border-radius: var(--e-radius-pill);
     background: var(--e-surface-tint);
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ring);
     transition:
       background-color var(--e-duration-tap) var(--e-easing-out),
-      border-color var(--e-duration-tap) var(--e-easing-out);
+      box-shadow var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-switch-track::after {
@@ -104,14 +105,13 @@ defineExpose({
   }
 
   .e-switch:hover .e-switch-track {
-    border-color: var(--e-ink);
-
+    --e-ring: var(--e-ink);
   }
 
   .e-switch-input:checked + .e-switch-track {
-    background: var(--e-primary);
-    border-color: var(--e-primary);
+    --e-ring: var(--e-primary);
 
+    background: var(--e-primary);
   }
 
   .e-switch-input:checked + .e-switch-track::after {
@@ -120,8 +120,9 @@ defineExpose({
   }
 
   .e-switch-input:disabled + .e-switch-track {
-    border-style: dashed;
-    outline: 0;
+    box-shadow: none;
+    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     background: var(--e-surface-tint);
   }
 

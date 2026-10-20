@@ -151,7 +151,7 @@ describe("EUpload", () => {
     container.classList.add("e-root");
     const zone = container.querySelector(".e-drop")!;
     const hint = container.querySelector(".e-field-hint")!.getBoundingClientRect();
-    expect(getComputedStyle(zone).borderStyle).toBe("dashed");
+    expect(getComputedStyle(zone).outlineStyle).toBe("dashed");
     expect(hint.top - zone.getBoundingClientRect().bottom).toBe(8);
   });
 

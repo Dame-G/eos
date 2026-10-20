@@ -96,20 +96,22 @@ const t = useMessages();
     width: var(--e-dot);
     height: var(--e-dot);
     border-radius: 50%;
-    border: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     background: var(--e-surface);
     color: var(--e-muted);
     font: 600 var(--e-text-xs) / 1 var(--e-font-mono);
   }
 
   .e-step[data-state="done"] .e-step-dot {
-    border: var(--e-stroke-edge) solid var(--e-primary);
+    outline: 0;
     background: var(--e-primary);
     color: var(--e-on-primary);
   }
 
   .e-step[data-state="current"] .e-step-dot {
-    border: var(--e-stroke-focus) solid var(--e-primary);
+    outline: 0;
+    box-shadow: inset 0 0 0 var(--e-stroke-focus) var(--e-primary);
     color: var(--e-primary);
     background: var(--e-surface);
   }
@@ -173,7 +175,6 @@ const t = useMessages();
     .e-step[data-state="done"] .e-step-dot {
       forced-color-adjust: none;
       background: Highlight;
-      border-color: Highlight;
       color: HighlightText;
     }
   }

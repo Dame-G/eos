@@ -1,6 +1,6 @@
 # EKicker
 
-The small uppercase mono label above a value or a section, in the muted colour. It is a label, not a heading: use `EHeading` for the title that follows.
+The small uppercase mono label above a value or a section, in the muted colour. It is a label, not a heading: use [`EHeading`](../Heading/README.md) for the title that follows.
 
 ```vue
 <EKicker>Balance</EKicker>
@@ -10,9 +10,9 @@ The small uppercase mono label above a value or a section, in the muted colour. 
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `as` | `string` | `"p"` | The element to render, if it should not be a paragraph. |
+| Prop | Type     | Default | Notes                                                   |
+| ---- | -------- | ------- | ------------------------------------------------------- |
+| `as` | `string` | `"p"`   | The element to render, if it should not be a paragraph. |
 
 <!-- props:end -->
 

@@ -254,7 +254,8 @@ describe("ECombobox multiple", () => {
       props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text"], disabled: true },
     });
     expect(inputOf(container).disabled).toBe(true);
-    expect((page.getByRole("button", { name: "Remove Text" }).element() as HTMLButtonElement).disabled).toBe(true);
+    expect(container.querySelector(".e-tag")!.textContent).toContain("Text");
+    expect(container.querySelector(".e-tag-x")).toBeNull();
     expect(container.querySelector("[aria-label=Clear]")).toBeNull();
   });
 

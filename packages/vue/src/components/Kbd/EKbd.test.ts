@@ -18,7 +18,7 @@ describe("EKbd", () => {
     const small = await render(EKbd, { props: { small: true }, slots: { default: "/" } });
     const a = getComputedStyle(normal.container.querySelector("kbd")!);
     const b = getComputedStyle(small.container.querySelector("kbd")!);
-    expect(parseFloat(a.borderTopWidth)).toBeGreaterThan(0);
+    expect(a.boxShadow).not.toBe("none");
     expect(a.fontFamily).toBe(b.fontFamily);
     expect(parseFloat(b.fontSize)).toBeLessThan(parseFloat(a.fontSize));
     expect(small.container.querySelector("kbd")!.classList.contains("e-kbd--s")).toBe(true);

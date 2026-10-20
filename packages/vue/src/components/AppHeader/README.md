@@ -6,7 +6,7 @@ The bar across the top of the page, with logo, actions and a navigation row that
 <EAppHeader sticky>
   <template #logo><RouterLink to="/">Acme</RouterLink></template>
   <template #actions><EButton variant="outline" icon="user">Maria</EButton></template>
-  <ENavList label="Main" :link-component="RouterLink" :items="items" />
+  <ENavList label="Main" orientation="horizontal" :link-component="RouterLink" :items="items" />
 </EAppHeader>
 ```
 
@@ -14,8 +14,8 @@ The bar across the top of the page, with logo, actions and a navigation row that
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
+| Prop     | Type      | Default | Notes                                              |
+| -------- | --------- | ------- | -------------------------------------------------- |
 | `sticky` | `boolean` | `false` | Pins the header to the top while the page scrolls. |
 
 <!-- props:end -->

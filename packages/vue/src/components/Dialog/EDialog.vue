@@ -58,7 +58,7 @@ const open = defineModel<boolean>("open");
     height: fit-content;
     max-height: calc(100dvh - var(--e-space-8));
     margin: auto;
-    border-radius: var(--e-radius-lg);
+    border-radius: var(--e-radius-md);
     overflow: auto;
   }
 

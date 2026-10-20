@@ -6,6 +6,41 @@ import EButton from "./EButton.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("EButton", () => {
+  test("loading shows a spinner in place of the icon, marks the button busy and ignores clicks", async () => {
+    let clicks = 0;
+    const { container } = await render(EButton, {
+      props: { loading: true, icon: "download", onClick: () => clicks++ },
+      slots: { default: "Save" },
+    });
+    const button = container.querySelector("button")!;
+    expect(button.getAttribute("aria-busy")).toBe("true");
+    expect(button.disabled).toBe(false);
+    expect(button.querySelector(".e-btn-spinner")).not.toBeNull();
+    expect(button.querySelector(".e-icon")).toBeNull();
+    expect(button.className).toContain("e-btn--loading");
+    const idleBtn = await render(EButton, { slots: { default: "Save" } });
+    const idleBox = idleBtn.container.querySelector("button")!;
+    const full = (el: HTMLElement) => el.getBoundingClientRect().height + parseFloat(getComputedStyle(el).marginBottom);
+    expect(full(button)).toBe(full(idleBox));
+    await userEvent.click(button);
+    expect(clicks).toBe(0);
+    const idle = await render(EButton, { slots: { default: "Save" } });
+    expect(idle.container.querySelector("button")!.hasAttribute("aria-busy")).toBe(false);
+  });
+
+  test("a loading link does not navigate", async () => {
+    let clicks = 0;
+    const { container } = await render(EButton, {
+      props: { href: "/pay", loading: true, onClick: () => clicks++ },
+      slots: { default: "Pay" },
+    });
+    const a = container.querySelector("a")!;
+    expect(a.getAttribute("aria-busy")).toBe("true");
+    a.addEventListener("click", (e) => e.preventDefault());
+    await userEvent.click(a);
+    expect(clicks).toBe(0);
+  });
+
   test("is a button with the label from the slot, primary by default", async () => {
     const { container } = await render(EButton, { slots: { default: "Pay now" } });
     const button = page.getByRole("button", { name: "Pay now" });
@@ -68,8 +103,8 @@ describe("EButton", () => {
     const disabled = await render(EButton, { props: { disabled: true }, slots: { default: "Plain" } });
     const link = getComputedStyle(a);
     const button = getComputedStyle(disabled.container.querySelector("button")!);
-    expect(link.borderTopStyle).toBe("dashed");
-    for (const prop of ["cursor", "color", "backgroundColor", "borderTopStyle", "borderBottomWidth"] as const) {
+    expect(link.outlineStyle).toBe("dashed");
+    for (const prop of ["cursor", "color", "backgroundColor", "outlineStyle", "outlineWidth"] as const) {
       expect(link[prop]).toBe(button[prop]);
     }
   });

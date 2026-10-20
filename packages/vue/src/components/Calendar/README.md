@@ -12,20 +12,20 @@ A month grid to choose a day or a span, with names, week start and date order fr
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `modelValue` | `Date \| null` | `null` | `v-model`: the chosen day (`single` mode). |
-| `start` | `Date \| null` | `null` | `v-model:start`: the first day of the span (`range` mode). |
-| `end` | `Date \| null` | `null` | `v-model:end`: the last day of the span (`range` mode). |
-| `mode` | `"single" \| "range"` | `"single"` | `single` chooses one day (`v-model`); `range` chooses a span (`v-model:start` and `v-model:end`): the first click sets the start, the second the end, and a click before the start restarts. |
-| `disabledDate` | `(date: Date) => boolean` | — | Days that cannot be chosen or focused, such as days with nothing to book. Arrow keys skip them. |
-| `marked` | `Date[] \| ((date: Date) => boolean)` | — | Days that get a dot: a list of dates or a function. Screen readers hear `markLabel`. |
-| `markLabel` | `string` | `times available` | What screen readers hear on a marked day. |
-| `min` | `Date` | — | The earliest day that can be chosen. Earlier days cannot be focused or chosen; navigation stops there. |
-| `max` | `Date` | — | The latest day that can be chosen. Later days cannot be focused or chosen; navigation stops there. |
-| `month` | `Date` | — | The month to open on, when nothing is chosen. Changing it moves the view. |
-| `footer` | `boolean` | `true` | `false` hides the Today and Clear buttons. |
-| `clearable` | `boolean` | — | Forces the Clear button on or off. Left out, it shows when a `@clear` listener is attached. |
+| Prop           | Type                                  | Default             | Notes                                                                                                                                                                                        |
+| -------------- | ------------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`   | `Date \| null`                        | `null`              | `v-model`: the chosen day (`single` mode).                                                                                                                                                   |
+| `start`        | `Date \| null`                        | `null`              | `v-model:start`: the first day of the span (`range` mode).                                                                                                                                   |
+| `end`          | `Date \| null`                        | `null`              | `v-model:end`: the last day of the span (`range` mode).                                                                                                                                      |
+| `mode`         | `"single" \| "range"`                 | `"single"`          | `single` chooses one day (`v-model`); `range` chooses a span (`v-model:start` and `v-model:end`): the first click sets the start, the second the end, and a click before the start restarts. |
+| `disabledDate` | `(date: Date) => boolean`             | —                   | Days that cannot be chosen or focused, such as days with nothing to book. Arrow keys skip them.                                                                                              |
+| `marked`       | `Date[] \| ((date: Date) => boolean)` | —                   | Days that get a dot: a list of dates or a function. Screen readers hear `markLabel`.                                                                                                         |
+| `markLabel`    | `string`                              | `"times available"` | What screen readers hear on a marked day.                                                                                                                                                    |
+| `min`          | `Date`                                | —                   | The earliest day that can be chosen. Earlier days cannot be focused or chosen; navigation stops there.                                                                                       |
+| `max`          | `Date`                                | —                   | The latest day that can be chosen. Later days cannot be focused or chosen; navigation stops there.                                                                                           |
+| `month`        | `Date`                                | —                   | The month to open on, when nothing is chosen. Changing it moves the view.                                                                                                                    |
+| `footer`       | `boolean`                             | `true`              | `false` hides the Today and Clear buttons.                                                                                                                                                   |
+| `clearable`    | `boolean`                             | —                   | Forces the Clear button on or off. Left out, it shows when a `@clear` listener is attached.                                                                                                  |
 
 <!-- props:end -->
 
