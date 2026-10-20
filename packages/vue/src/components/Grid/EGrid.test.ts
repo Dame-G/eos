@@ -62,6 +62,27 @@ describe("EGrid", () => {
     expect(Math.round(b!.getBoundingClientRect().height)).toBe(120);
   });
 
+  test("masonry packs uneven cards into columns without stretching them", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: { width: "600px" } }, [
+            h(EGrid, { min: "15rem", gap: 3, masonry: true }, () => [
+              cell("a", { height: "120px" }),
+              cell("b", { height: "40px" }),
+              cell("c", { height: "40px" }),
+            ]),
+          ]),
+      }),
+    );
+    expect(container.querySelector(".e-grid-layout")!.classList.contains("e-grid-layout--masonry")).toBe(true);
+    const [a, b, c] = [...container.querySelectorAll<HTMLElement>(".cell")].map((x) => x.getBoundingClientRect());
+    expect(Math.round(a!.height)).toBe(120);
+    expect(Math.round(b!.height)).toBe(40);
+    expect(b!.left).toBeGreaterThan(a!.left);
+    expect(Math.round(c!.top)).toBeGreaterThan(Math.round(b!.top));
+  });
+
   test("`as` chooses the element; class, style and attributes fall through", async () => {
     const { container } = await render(EGrid, {
       props: { as: "ul" },

@@ -9,9 +9,13 @@ A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to 
 
 ## Props
 
-| Prop    | Type      | Default | Notes                                                   |
-| ------- | --------- | ------- | ------------------------------------------------------- |
-| `small` | `boolean` |         | The smaller size, for a hint inside running small text. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `small` | `boolean` | `false` | The smaller size, for a hint inside running small text. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `kbd` element.
 

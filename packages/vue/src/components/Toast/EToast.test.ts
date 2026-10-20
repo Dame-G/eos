@@ -22,7 +22,7 @@ describe("EToast", () => {
   test("is a floating surface with a title, detail and the icon of its tone", async () => {
     const { container } = await render(EToast, { props: { title: "Saved" }, slots: { default: "All changes kept." } });
     const el = container.querySelector(".e-toast")!;
-    expect(el.classList.contains("e-surface--float")).toBe(true);
+    expect(el.classList.contains("e-surface--raised")).toBe(true);
     expect(el.classList.contains("e-toast--info")).toBe(true);
     expect(el.querySelector(".e-toast-title")!.textContent).toBe("Saved");
     expect(el.querySelector(".e-toast-text")!.textContent).toBe("All changes kept.");

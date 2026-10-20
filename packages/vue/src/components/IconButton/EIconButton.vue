@@ -8,6 +8,7 @@ defineProps<{
   icon: IconProp;
   /** The accessible name. Write it as an action, such as "Download receipt". */
   label: string;
+  /** Disables the button. */
   disabled?: boolean;
 }>();
 </script>
@@ -35,14 +36,20 @@ defineProps<{
     transition: background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  .e-icon-btn:hover {
+  .e-icon-btn:not(:disabled):hover {
     background: var(--e-wash-hover);
-    box-shadow: inset 0 0 0 1px var(--e-wash-ring);
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-wash-ring);
   }
 
-  .e-icon-btn:active {
+  .e-icon-btn:not(:disabled):active {
     background: var(--e-wash-press);
-    box-shadow: inset 0 0 0 1.5px var(--e-ink);
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ink);
+  }
+
+  .e-icon-btn:disabled {
+    border: var(--e-stroke-edge) dashed var(--e-border-strong);
+    color: var(--e-muted);
+    cursor: not-allowed;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -54,6 +61,19 @@ defineProps<{
   @media print {
     .e-icon-btn {
       display: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-icon-btn:not(:disabled):hover,
+    .e-icon-btn:not(:disabled):active {
+      outline: var(--e-stroke-edge) solid Highlight;
+      outline-offset: calc(-1 * var(--e-stroke-edge));
+    }
+
+    .e-icon-btn:disabled {
+      border-color: GrayText;
+      color: GrayText;
     }
   }
 }

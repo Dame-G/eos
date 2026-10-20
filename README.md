@@ -55,7 +55,7 @@ Components({ resolvers: [EosResolver()] }); // unplugin-vue-components
 
 ## Theming
 
-A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes 15 inputs: `brand`, `accent`, `danger`, `warning`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `textScale`, `spaceScale`, `controlHeight` and `motion`.
+A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes 16 inputs: `brand`, `accent`, `danger`, `warning`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `textScale`, `spaceScale`, `controlHeight` and `motion`.
 
 ```ts
 import { defineTheme } from "@eos-ui/vue";

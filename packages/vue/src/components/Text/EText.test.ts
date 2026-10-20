@@ -8,17 +8,17 @@ describe("EText", () => {
   test("is a paragraph in the body size by default", async () => {
     const { container } = await render(EText, { slots: { default: "You paid in full." } });
     const p = container.querySelector("p")!;
-    expect(p.className).toBe("e-text e-text--body");
+    expect(p.className).toBe("e-text");
     expect(p.textContent).toBe("You paid in full.");
     const style = getComputedStyle(p);
     expect(style.fontSize).toBe("16px");
     expect(style.lineHeight).toBe("24px");
   });
 
-  test("deck is 18px and small is 14px", async () => {
+  test("large is 18px and small is 14px", async () => {
     const { container } = await render(
       defineComponent({
-        render: () => h("div", [h(EText, { variant: "deck" }, () => "D"), h(EText, { variant: "small" }, () => "S")]),
+        render: () => h("div", [h(EText, { large: true }, () => "D"), h(EText, { small: true }, () => "S")]),
       }),
     );
     const [deck, small] = [...container.querySelectorAll("p")];
@@ -35,7 +35,7 @@ describe("EText", () => {
       }),
     );
     const [a, b] = [...container.querySelectorAll("p")];
-    expect(b!.className).toBe("e-text e-text--body e-text--muted");
+    expect(b!.className).toBe("e-text e-text--muted");
     expect(getComputedStyle(a!).color).not.toBe(getComputedStyle(b!).color);
   });
 
@@ -62,14 +62,14 @@ describe("EText", () => {
     expect(p.classList.contains("mine")).toBe(true);
   });
 
-  test("has no accessibility violations in any variant", async () => {
+  test("has no accessibility violations in any size", async () => {
     const { container } = await render(
       defineComponent({
         render: () =>
           h("div", [
             h(EText, null, () => "Body"),
-            h(EText, { variant: "deck" }, () => "Deck"),
-            h(EText, { variant: "small", muted: true }, () => "Small muted"),
+            h(EText, { large: true }, () => "Large"),
+            h(EText, { small: true, muted: true }, () => "Small muted"),
           ]),
       }),
     );

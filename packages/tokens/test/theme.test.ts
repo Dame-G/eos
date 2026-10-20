@@ -225,9 +225,34 @@ describe("derived inputs", () => {
     expect(t["stroke-edge"]).toBe("3px");
     expect(t["stroke-focus"]).toBe("4px");
     expect(t["focus-gap"]).toBe("4px");
-    expect(t["focus-gap-field"]).toBe("-1px");
+    expect(t["focus-gap-field"]).toBe("calc(-1 * var(--e-stroke-edge))");
     expect(t["edge"]).toBe("0 0 0 2px #7f8f96");
     expect(changed({ strokes: { focus: 3 } }).sort()).toEqual(["focus-gap", "stroke-focus"]);
+  });
+
+  test("strokes.edge and strokes.card set their tokens outright", () => {
+    const t = defineTheme({ elevation: "bold", strokes: { hair: 2, edge: 2, card: 3 } }).tokens;
+    expect(t["stroke-hair"]).toBe("2px");
+    expect(t["stroke-edge"]).toBe("2px");
+    expect(t["stroke-card"]).toBe("3px");
+    expect(t["edge"]).toContain("0 0 0 3px");
+    expect(changed({ strokes: { edge: 2 } })).toEqual(["stroke-edge"]);
+    expect(defineTheme({ strokes: { edge: 0 } }).tokens).toEqual(base);
+  });
+
+  test("contrast high pins lines to the foreground and neutralises the tint", () => {
+    const t = defineTheme({ brand: "#0044cc", contrast: "high" }).tokens;
+    expect(t["border"]).toBe(t["ink"]);
+    expect(t["border-strong"]).toBe(t["ink"]);
+    expect(t["scrim"]).toBe("rgb(0 0 0 / 0.75)");
+    expect(contrast(t["muted"]!, t["surface"]!)).toBeGreaterThanOrEqual(14.9);
+    expect(toOklch(t["surface-tint"]!).c).toBeLessThan(0.005);
+    expect(t["edge"]).toContain(t["border"]!);
+    expect(defineTheme({ contrast: "standard" }).tokens).toEqual(base);
+    expect(defineTheme({ contrast: "high" }).issues).toEqual([]);
+    const dark = defineTheme({ surface: "#0f1418", background: "#0a0e11", foreground: "#ffffff", contrast: "high" });
+    expect(dark.tokens["border"]).toBe("#ffffff");
+    expect(dark.issues).toEqual([]);
   });
 
   test("motion presets set the three motion tokens", () => {

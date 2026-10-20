@@ -1,67 +1,60 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import EIcon from "../Icon/EIcon.vue";
-import type { IconName } from "../../icons/phosphor.js";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 
-export type StampTone = "success" | "info" | "warning" | "danger";
+export type StampTone = "neutral" | "ink" | "success" | "info" | "warning" | "danger";
 export type StampStatus =
   "paid" | "due" | "overdue" | "action" | "scheduled" | "confirmed" | "cancelled" | "signed" | "pending" | "complete";
 
-const props = withDefaults(
-  defineProps<{
-  /** A preset: sets the tone, the word and the glyph. */
+const props = defineProps<{
+  /** A preset: sets the tone and the word (message `status.<name>`). */
   status?: StampStatus;
-  /** Overrides the preset's tone. Without a status, defaults to `info`. */
+  /** Overrides the preset's tone. Without a status it is `neutral` (ink; `ink` is the same). `success`: paid, confirmed. `info`: due, scheduled. `warning`: needs attention. `danger`: overdue, failed. @default "ink" */
   tone?: StampTone;
-  /** The word. Overrides the preset's. */
+  /** The word. Overrides the preset's; the default slot overrides both. @default preset's word, else Status */
   label?: string;
-  /** Overrides the preset's glyph. */
+  /** A glyph before the word. None by default. */
   icon?: IconProp;
   /** A date or day count, set after the word. */
   detail?: string;
-  /** Smaller, for rows. */
-  small?: boolean;
-  /** `solid` is a filled badge with light text (the default); `subtle` is a soft tint with a tone-coloured outline and text. */
-  variant?: "solid" | "subtle";
-}>(),
-  { variant: "solid" },
-);
+  /** `sm` is shorter, for rows and tables. @default "md" */
+  size?: "sm" | "md";
+}>();
 
-const PRESETS: Record<StampStatus, [StampTone, IconName]> = {
-  paid: ["success", "check"],
-  due: ["info", "clock"],
-  overdue: ["danger", "alert"],
-  action: ["warning", "alert"],
-  scheduled: ["info", "calendar"],
-  confirmed: ["success", "check"],
-  cancelled: ["danger", "x"],
-  signed: ["success", "check"],
-  pending: ["info", "clock"],
-  complete: ["success", "check"],
+defineSlots<{
+  /** The word, instead of `label` or the preset's. Write sentence case; the stamp sets it in capitals. */
+  default?(): unknown;
+}>();
+
+const PRESETS: Record<StampStatus, StampTone> = {
+  paid: "success",
+  due: "info",
+  overdue: "danger",
+  action: "warning",
+  scheduled: "info",
+  confirmed: "success",
+  cancelled: "danger",
+  signed: "success",
+  pending: "info",
+  complete: "success",
 };
-const TONE_ICON: Record<StampTone, IconName> = { info: "info", success: "check", warning: "alert", danger: "alert" };
 
 const t = useMessages();
 const preset = computed(() => (props.status ? PRESETS[props.status] : undefined));
-const tone = computed<StampTone>(() => props.tone || preset.value?.[0] || "info");
+const tone = computed<StampTone>(() => props.tone || preset.value || "neutral");
+const toneClass = computed(() => (tone.value === "neutral" || tone.value === "ink" ? null : `e-stamp--${tone.value}`));
 const text = computed(() => props.label || (preset.value ? t(`status.${props.status}`) : t("status")));
-const glyph = computed(() => props.icon || preset.value?.[1] || TONE_ICON[tone.value]);
 </script>
 
 <template>
-  <div
-    class="e-stamp"
-    :class="[`e-stamp--${tone}`, small && 'e-stamp--s', variant === 'subtle' && 'e-stamp--subtle']"
-    role="img"
-    :aria-label="text + (detail ? ', ' + detail : '')"
-  >
-    <EIcon :name="glyph" bold />
-    <span class="e-stamp-word">{{ text }}</span>
+  <span class="e-stamp" :class="[toneClass, size === 'sm' && 'e-stamp--sm']">
+    <EIcon v-if="icon" :name="icon" bold />
+    <span class="e-stamp-word"><slot>{{ text }}</slot></span>
     <span v-if="detail" class="e-stamp-detail">{{ detail }}</span>
-  </div>
+  </span>
 </template>
 
 <style>
@@ -76,12 +69,17 @@ const glyph = computed(() => props.icon || preset.value?.[1] || TONE_ICON[tone.v
     white-space: nowrap;
     align-items: center;
     gap: var(--e-space-2);
-    min-height: 28px;
+
+    --e-bc: var(--e-strong);
+
+    min-height: calc(var(--e-chip-height) + var(--e-space-1));
     padding: 0 var(--e-space-3);
     border-radius: var(--e-radius-sm);
     background: var(--e-strong);
     color: var(--e-on);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-strong);
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-bc);
+    outline: var(--e-stroke-card) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-card));
     cursor: default;
     justify-self: start;
   }
@@ -110,12 +108,7 @@ const glyph = computed(() => props.icon || preset.value?.[1] || TONE_ICON[tone.v
     --e-on: var(--e-surface);
   }
 
-  .e-stamp--subtle {
-    background: var(--e-soft);
-    color: var(--e-strong);
-  }
-
-  .e-stamp:not(.e-stamp--subtle) .e-stamp-detail {
+  .e-stamp .e-stamp-detail {
     border-inline-start-color: color-mix(in srgb, var(--e-on) 55%, transparent);
   }
 
@@ -129,7 +122,7 @@ const glyph = computed(() => props.icon || preset.value?.[1] || TONE_ICON[tone.v
     font: 500 var(--e-text-xs) / 1 var(--e-font-mono);
     letter-spacing: 0.04em;
     padding-inline-start: var(--e-space-2);
-    border-inline-start: 1px solid currentColor;
+    border-inline-start: var(--e-stroke-hair) solid currentColor;
   }
 
   .e-stamp .e-icon {
@@ -137,19 +130,18 @@ const glyph = computed(() => props.icon || preset.value?.[1] || TONE_ICON[tone.v
     height: 14px;
   }
 
-  .e-stamp--s {
-    min-height: 24px;
-    gap: 6px;
-    padding: 0 10px;
+  .e-stamp--sm {
+    min-height: var(--e-chip-height);
+    gap: var(--e-space-1);
     align-self: flex-start;
   }
 
-  .e-stamp--s .e-icon {
+  .e-stamp--sm .e-icon {
     width: 13px;
     height: 13px;
   }
 
-  .e-stamp--s .e-stamp-word {
+  .e-stamp--sm .e-stamp-word {
     font-size: var(--e-text-xs);
     line-height: 14px;
     letter-spacing: 0.06em;
@@ -157,15 +149,17 @@ const glyph = computed(() => props.icon || preset.value?.[1] || TONE_ICON[tone.v
 
   @media (forced-colors: active) {
     .e-stamp {
-      border: 1px solid CanvasText;
+      border: var(--e-stroke-card) solid CanvasText;
     }
   }
 
   @media print {
     .e-stamp {
-      border: 1px solid #000;
+      border: var(--e-stroke-card) solid var(--e-print-ink);
+      outline: 0;
       background: none;
-      color: #000;
+      box-shadow: none;
+      color: var(--e-print-ink);
     }
   }
 }

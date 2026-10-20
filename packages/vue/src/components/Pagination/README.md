@@ -8,10 +8,14 @@ Previous, Next and page-number buttons for paging through a long list.
 
 ## Props
 
-| Prop         | Type     | Default | Notes                               |
-| ------------ | -------- | ------- | ----------------------------------- |
-| `modelValue` | `number` | `1`     | v-model: current page, from 1.      |
-| `pageCount`  | `number` |         | Required. How many pages there are. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `modelValue` | `number` | `1` | `v-model`: the current page, from 1. |
+| `pageCount` | `number` | **Required** | How many pages there are. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `nav` element. It shows first, last and neighbouring pages with ellipses; under 32rem only Previous and Next remain. Hidden in print.
 

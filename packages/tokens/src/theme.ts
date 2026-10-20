@@ -15,6 +15,7 @@ export type TokenValues = Partial<Record<TokenName, string>>;
 
 export type MotionPreset = "default" | "snappy" | "gentle" | "none";
 export type ElevationPreset = "outline" | "lifted" | "bold";
+export type ContrastPreset = "standard" | "high";
 
 export interface ThemeInput {
   /** Identifies the theme. It becomes the value of `data-e-theme` when the theme is scoped to an element. */
@@ -41,8 +42,10 @@ export interface ThemeInput {
   textScale?: number;
   /** Multiplier for the spacing scale, `space-1` to `space-8`. 1 is the default scale; non-finite or non-positive values are ignored. */
   spaceScale?: number;
-  /** Line weights in px. `hair` sets `stroke-hair` and `stroke-edge` (1.5 times it); `focus` sets `stroke-focus`, `focus-gap` (the same) and `focus-gap-field` (a 1px overlap: a field's focus outline sits over its border). */
-  strokes?: { hair?: number; focus?: number };
+  /** Line weights in px. `hair` sets `stroke-hair`, `stroke-card` and `stroke-edge` (1.5 times it); `focus` sets `stroke-focus` and `focus-gap` (the same). `edge` and `card` set `stroke-edge` (controls) and `stroke-card` (containers, chips) outright and win over what `hair` and a bold `elevation` give. `focus-gap-field` always follows `stroke-edge` in CSS (minus the border width), so a field's focus outline sits exactly over its border. */
+  strokes?: { hair?: number; focus?: number; edge?: number; card?: number };
+  /** `"high"` draws every line and secondary text at full strength: `border` and `border-strong` become the foreground colour, `muted` is softened only until it holds 15:1, `surface-tint` is a neutral grey (no brand tint) and `scrim` is darker. Pair it with heavier `strokes`. Default `"standard"`. */
+  contrast?: ContrastPreset;
   /** How state changes feel: sets `duration-tap`, `duration-move` and `easing-out`. */
   motion?: MotionPreset;
   /** How depth is drawn: sets `edge`, `well` and `float` from the border, ink and hairline. `outline` is flat rings, `lifted` adds soft drops, `bold` uses heavy rings and a hard offset shadow. */
@@ -85,7 +88,7 @@ export interface Theme {
 
 /** Cascade order of the library. Later layers win, and each layer only builds on the ones before it. */
 export const LAYER_ORDER =
-  "e.reset, e.tokens, e.base, e.primitives, e.blocks, e.controls, e.composites, e.containers, e.account, e.page";
+  "e.reset, e.tokens, e.base, e.primitives, e.blocks, e.controls, e.composites, e.containers, e.page";
 
 const RADII = {
   sharp: { sm: "0px", md: "2px", lg: "4px" },
@@ -145,6 +148,8 @@ function toneHue(soft: "danger-soft" | "warning-soft", strong: "danger" | "warni
 function deriveStrokes(input: ThemeInput, out: Record<string, string>) {
   const hair = positive(input.strokes?.hair);
   const focus = positive(input.strokes?.focus);
+  const edge = positive(input.strokes?.edge);
+  const card = positive(input.strokes?.card);
   if (hair !== undefined) {
     out["stroke-hair"] = px(hair);
     out["stroke-card"] = px(hair);
@@ -153,8 +158,9 @@ function deriveStrokes(input: ThemeInput, out: Record<string, string>) {
   if (focus !== undefined) {
     out["stroke-focus"] = px(focus);
     out["focus-gap"] = px(focus);
-    out["focus-gap-field"] = "-1px";
   }
+  if (edge !== undefined) out["stroke-edge"] = px(edge);
+  if (card !== undefined) out["stroke-card"] = px(card);
 }
 
 type ShadowLayer = [y: number, blur: number, spread: number, alpha: number];
@@ -188,10 +194,11 @@ function layers(set: ShadowLayer[], dark: boolean, base: string) {
     .join(", ");
 }
 
-function deriveElevation(style: ElevationPreset, out: Record<string, string>, dark: boolean) {
+function deriveElevation(style: ElevationPreset, out: Record<string, string>, dark: boolean, strokes?: ThemeInput["strokes"]) {
   const ring = (w: string) => `0 0 0 ${w} ${out["border"]}`;
   const hair = out["stroke-hair"]!;
-  const card = style === "bold" ? "2px" : hair;
+  const given = positive(strokes?.card);
+  const card = given !== undefined ? px(given) : style === "bold" ? "2px" : hair;
   out["stroke-card"] = card;
   const base = shadowRgb(out, dark);
   if (style === "lifted") {
@@ -231,12 +238,23 @@ function deriveGround(input: ThemeInput, out: Record<string, string>, dark: bool
     }
   }
   out["background"] = input.background ?? (input.surface ? surface : out["background"]!);
-  const foreground = input.foreground ?? (input.surface ? (dark ? WHITE : defaults["ink"]) : undefined);
+  const foreground =
+    input.foreground ?? (input.surface ? (dark ? WHITE : defaults["ink"]) : input.contrast === "high" ? defaults["ink"] : undefined);
   if (foreground) {
     out["ink"] = foreground;
     out["muted"] = settleContrast(foreground, surface, 7);
     out["border"] = settleContrast(foreground, surface, 3.4);
     out["border-strong"] = settleContrast(foreground, surface, 4.5);
+    if (input.contrast === "high") {
+      out["muted"] = settleContrast(foreground, surface, 15);
+      out["border"] = foreground;
+      out["border-strong"] = foreground;
+    }
+  }
+  if (input.contrast === "high") {
+    const l = toOklch(surface).l;
+    out["surface-tint"] = fromOklch({ l: Math.min(1, Math.max(0, dark ? l + 0.06 : l - 0.04)), c: 0, h: 0 });
+    out["scrim"] = "rgb(0 0 0 / 0.75)";
   }
 }
 
@@ -248,6 +266,9 @@ function derive(input: ThemeInput): Record<string, string> {
     out["warning-strong"] = input.warning ?? DARK_WARNING;
     out["scrim"] = "rgb(0 0 0 / 0.7)";
     out["well"] = DARK_WELL;
+    out["shade-hover"] = "white 12%";
+    out["shade-press"] = "white 20%";
+    out["shade-slab"] = "black 45%";
   }
   const dangerBase = input.danger ?? (dark ? DARK_DANGER : undefined);
   if (dangerBase) out["danger"] = reachContrast(dangerBase, out["on-danger"]!, 7);
@@ -300,8 +321,16 @@ function derive(input: ThemeInput): Record<string, string> {
     out["control-height"] = px(height);
     out["chip-height"] = px(Math.max(2, Math.round(height / 4) * 2));
   }
-  if (input.elevation || input.background || input.surface || input.foreground || positive(input.strokes?.hair) !== undefined) {
-    deriveElevation(input.elevation ?? "outline", out, dark);
+  if (
+    input.elevation ||
+    input.background ||
+    input.surface ||
+    input.foreground ||
+    input.contrast === "high" ||
+    positive(input.strokes?.hair) !== undefined ||
+    positive(input.strokes?.card) !== undefined
+  ) {
+    deriveElevation(input.elevation ?? "outline", out, dark, input.strokes);
   }
   Object.assign(out, input.tokens);
   return out;

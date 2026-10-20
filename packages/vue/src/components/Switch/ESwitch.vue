@@ -12,15 +12,17 @@ const props = defineProps<{
   label: string;
   /** A line of detail under the label. */
   description?: string;
+  /** Disables the switch. */
   disabled?: boolean;
   /** The name submitted with a form. */
   name?: string;
   /** The value submitted with a form when on. */
   value?: string;
-  /** The id of the input; the label points at it. Generated when left out. */
+  /** The id of the input; the label points at it. @default generated */
   id?: string;
 }>();
 
+/** On or off. */
 const model = defineModel<boolean>({ default: false });
 
 const id = useUid(() => props.id);
@@ -71,11 +73,21 @@ defineExpose({
   }
 
   .e-switch-track {
+    --e-switch-w: 44px;
+    --e-thumb: 14px;
+    --e-thumb-inset: calc(var(--e-space-1) - var(--e-stroke-card));
+    --e-thumb-travel: calc(var(--e-switch-w) - 2 * var(--e-stroke-edge) - var(--e-thumb) - 2 * var(--e-thumb-inset));
+
     position: relative;
     flex: none;
-    width: 44px;
+    width: var(--e-switch-w);
     height: 24px;
     border: var(--e-stroke-edge) solid var(--e-border-strong);
+
+    --e-bc: var(--e-border-strong);
+
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-pill);
     background: var(--e-surface-tint);
     transition:
@@ -87,10 +99,10 @@ defineExpose({
     content: "";
     position: absolute;
     top: 50%;
-    inset-inline-start: 3px;
-    width: 14px;
-    height: 14px;
-    margin-top: -7px;
+    inset-inline-start: var(--e-thumb-inset);
+    width: var(--e-thumb);
+    height: var(--e-thumb);
+    margin-top: calc(var(--e-thumb) / -2);
     border-radius: 50%;
     background: var(--e-ink);
     transition: transform var(--e-duration-move, 160ms) var(--e-easing-out);
@@ -98,20 +110,25 @@ defineExpose({
 
   .e-switch:hover .e-switch-track {
     border-color: var(--e-ink);
+
+    --e-bc: var(--e-ink);
   }
 
   .e-switch-input:checked + .e-switch-track {
     background: var(--e-primary);
     border-color: var(--e-primary);
+
+    --e-bc: var(--e-primary);
   }
 
   .e-switch-input:checked + .e-switch-track::after {
     background: var(--e-on-primary);
-    transform: translateX(20px);
+    transform: translateX(var(--e-thumb-travel));
   }
 
   .e-switch-input:disabled + .e-switch-track {
     border-style: dashed;
+    outline: 0;
     background: var(--e-surface-tint);
   }
 
@@ -138,7 +155,7 @@ defineExpose({
   }
 
   :dir(rtl) .e-switch-input:checked + .e-switch-track::after {
-    transform: translateX(-20px);
+    transform: translateX(calc(-1 * var(--e-thumb-travel)));
   }
 }
 </style>

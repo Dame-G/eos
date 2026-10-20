@@ -5,8 +5,10 @@ withDefaults(
   defineProps<{
     /** The element to render, `div` by default. Use `footer` for a bar at the end of a card. */
     as?: string;
-    /** Puts the group on a tinted footer bar with a rule above. Use it for a group that ends a card or an overlay. */
+    /** Puts the group on a tinted footer bar with a rule above, for actions that end a card or an overlay. Buttons stack full width up to 32rem. Leave it off for the next step on a page. */
     bar?: boolean;
+    /** Names the group for screen readers (for example "Record actions"): renders `role="group"` with `aria-label`. Use it for buttons that belong together, such as a filter row. */
+    label?: string;
   }>(),
   { as: "div" },
 );
@@ -18,7 +20,13 @@ defineSlots<{
 </script>
 
 <template>
-  <component :is="as" class="e-actions" :class="bar && 'e-actions--bar'">
+  <component
+    :is="as"
+    class="e-actions"
+    :class="bar && 'e-actions--bar'"
+    :role="label ? 'group' : undefined"
+    :aria-label="label"
+  >
     <slot />
   </component>
 </template>

@@ -9,9 +9,13 @@ A short run of text set off in the accent colour: a name, a value or a word wort
 
 ## Props
 
-| Prop   | Type      | Default | Notes                                                                                                                                   |
-| ------ | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `code` | `boolean` |         | Renders a `code` element in the mono font, for a name, value or snippet. Without it the element is a `mark`, for a word worth noticing. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `code` | `boolean` | `false` | Renders a `code` element in the mono font, for a name, value or snippet inside a sentence. Without it the element is a `mark`, for a word worth noticing. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `code` or `mark` element. The marker is the `secondary` token, so the theme's accent input sets its colour. It has no border and repeats its padding and rounded ends on every line when the text wraps.
 

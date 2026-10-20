@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, type Component } from "vue";
-import EHighlight from "../Combobox/EHighlight.js";
+import EMatchHighlight from "../Combobox/matchHighlight.js";
 import "../../styles/base.css";
 import "../Select/panel.css";
 
@@ -17,15 +17,15 @@ export interface SearchResultItem {
 
 const props = withDefaults(
   defineProps<{
-    /** The results, best first. */
+    /** The results, best first: `{ label, description?, href?, to? }`. With no `href` or `to` a link goes to `#`. */
     items: SearchResultItem[];
     /** The accessible name of the list, such as "Search results". */
     label: string;
     /** Shown when there are no results, such as `Nothing found for "tax"`. Leave it out to show nothing at all, for example before anyone has typed. */
     emptyText?: string;
-    /** The text that was searched for: its first match in each title and description is marked. */
+    /** The text that was searched for: its first match in each title and description is marked, as in `ECombobox` options. */
     query?: string;
-    /** What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). */
+    /** What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). Give items `to`; it receives `to` or `href` and the class `e-opt`. */
     linkComponent?: string | Component;
   }>(),
   { linkComponent: "a" },
@@ -79,9 +79,9 @@ defineExpose({ focus, focusFirst });
       <li v-for="(item, i) in items" :key="i">
         <component :is="linkComponent" class="e-opt" v-bind="linkAttrs(item)" @click="onClick(item, $event)">
           <span class="e-opt-text">
-            <span class="e-opt-label"><EHighlight :text="item.label" :query="needle" /></span>
+            <span class="e-opt-label"><EMatchHighlight :text="item.label" :query="needle" /></span>
             <span v-if="item.description" class="e-opt-desc">
-              <EHighlight :text="item.description" :query="needle" />
+              <EMatchHighlight :text="item.description" :query="needle" />
             </span>
           </span>
         </component>
@@ -100,6 +100,8 @@ defineExpose({ focus, focusFirst });
     padding: var(--e-space-1);
     border-radius: var(--e-radius-md);
     box-shadow: var(--e-edge);
+    outline: var(--e-stroke-card) solid var(--e-border-strong);
+    outline-offset: 0;
     color: var(--e-ink);
   }
 
@@ -117,8 +119,10 @@ defineExpose({ focus, focusFirst });
 
   .e-results .e-opt:hover,
   .e-results .e-opt:focus-visible {
-    background: var(--e-surface-tint);
+    background: var(--e-surface-hover);
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
+    outline: var(--e-stroke-hair) solid var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-hair));
   }
 
   .e-results .e-opt:focus-visible {

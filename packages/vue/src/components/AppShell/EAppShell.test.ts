@@ -67,7 +67,7 @@ describe("EAppShell", () => {
     await userEvent.keyboard("{Enter}");
     const main = container.querySelector("main")!;
     expect(document.activeElement).toBe(main);
-    expect(getComputedStyle(main).outlineStyle).toBe("none");
+    expect(getComputedStyle(main).outlineStyle).toBe("solid");
     await userEvent.tab();
     expect(document.activeElement!.textContent).toBe("Pay now");
   });

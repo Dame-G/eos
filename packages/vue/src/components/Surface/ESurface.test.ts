@@ -8,21 +8,21 @@ import EGrid from "../Grid/EGrid.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESurface", () => {
-  test("is a plain card with the slot inside; tone and pad add modifier classes", async () => {
-    const { container } = await render(ESurface, { props: { pad: "md", tone: "tint" }, slots: { default: "x" } });
+  test("is a plain card with the slot inside; pad adds a modifier class", async () => {
+    const { container } = await render(ESurface, { props: { pad: "md" }, slots: { default: "x" } });
     const el = container.querySelector("div")!;
-    expect(el.className).toBe("e-surface e-surface--tint e-surface--pad-md");
+    expect(el.className).toBe("e-surface e-surface--pad-md");
     expect(el.textContent).toBe("x");
   });
 
-  test("the default tone adds no class, clip adds one", async () => {
-    const { container } = await render(ESurface, { props: { tone: "default", clip: true }, slots: { default: "x" } });
+  test("clip adds a class", async () => {
+    const { container } = await render(ESurface, { props: { clip: true }, slots: { default: "x" } });
     expect(container.querySelector("div")!.className).toBe("e-surface e-surface--clip");
   });
 
-  test("float tone adds its class", async () => {
-    const { container } = await render(ESurface, { props: { tone: "float" }, slots: { default: "x" } });
-    expect(container.querySelector(".e-surface--float")).not.toBeNull();
+  test("raised adds its class", async () => {
+    const { container } = await render(ESurface, { props: { raised: true }, slots: { default: "x" } });
+    expect(container.querySelector(".e-surface--raised")).not.toBeNull();
   });
 
   test("`as` chooses the element", async () => {
@@ -138,8 +138,8 @@ describe("ESurface", () => {
         render: () =>
           h("div", [
             h(ESurface, { pad: "sm" }, () => h("h2", "Plain")),
-            h(ESurface, { tone: "tint", pad: "lg", clip: true, as: "section", "aria-label": "Tinted" }, () => "Tinted"),
-            h(ESurface, { tone: "float" }, () => "Float"),
+            h(ESurface, { pad: "lg", clip: true, as: "section", "aria-label": "Padded" }, () => "Padded"),
+            h(ESurface, { raised: true }, () => "Raised"),
             h(
               ESurface,
               { as: "article", "aria-label": "With bar" },

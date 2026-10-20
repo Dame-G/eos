@@ -24,27 +24,29 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** Names the group and heads it. Say what the form is. Default "Signature". */
+    /** Names the group and heads it. Say what the form is. @default "Signature" */
     label?: string;
     /** `type` the default, `draw`, or `both` which adds a Type and Draw switch. A drawn signature cannot be made from a keyboard, so `both` is the usual choice. */
     mode?: "type" | "draw" | "both";
-    /** The sentence the person agrees to. Default "I agree and want to sign this form." */
+    /** The sentence the person agrees to. @default "I agree and want to sign this form." */
     agreement?: string;
-    /** The date shown with the signature. Today when left out. */
+    /** The date shown with the signature, in the configured locale. @default today */
     date?: Date;
     /** Help that is announced with the group. */
     hint?: string;
-    /** What to fix. Replaces the hint and is announced with the group. */
+    /** What to fix. Replaces the hint, marks the group invalid and is announced with the group. */
     error?: string;
+    /** Disables the fields and the agreement. */
     disabled?: boolean;
     /** The name submitted with a form: the typed name, or the drawn image as a data URL. */
     name?: string;
-    /** The id of the typed-name input. Generated when left out. */
+    /** The id of the typed-name input. @default generated */
     id?: string;
   }>(),
   { mode: "type" },
 );
 
+/** `image` is a PNG data URL, empty unless `method` is `draw`. */
 const model = defineModel<SignatureValue>({
   default: () => ({ method: "type", name: "", image: "", agreed: false }),
 });
@@ -138,10 +140,10 @@ function update(patch: Partial<SignatureValue>) {
     align-items: flex-end;
     justify-content: space-between;
     gap: var(--e-space-3);
-    min-height: 52px;
+    min-height: calc(var(--e-control-height) + var(--e-space-1));
     padding: var(--e-space-2) var(--e-space-4);
-    border-bottom: 2px solid var(--e-ink);
-    background: var(--e-surface-tint);
+    border-bottom: var(--e-stroke-edge) solid var(--e-secondary);
+    background: var(--e-secondary-soft);
     border-radius: var(--e-radius-md) var(--e-radius-md) 0 0;
   }
 

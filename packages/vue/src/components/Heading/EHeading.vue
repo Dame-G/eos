@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import EKicker from "../Kicker/EKicker.vue";
 import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
     /** 1 to 6: sets both the element (`h1` to `h6`) and the size (36, 24, 20, 18, 16 and 14px). One level 1 per page; do not skip levels. */
     level?: 1 | 2 | 3 | 4 | 5 | 6;
-    /** A small mono label above the heading. */
+    /** A small mono label above the heading; renders an `EKicker`, which is not itself a heading. */
     kicker?: string;
   }>(),
   { level: 2 },
@@ -19,7 +20,7 @@ defineSlots<{
 
 <template>
   <div class="e-heading">
-    <p v-if="kicker" class="e-kicker" style="margin: 0">{{ kicker }}</p>
+    <EKicker v-if="kicker">{{ kicker }}</EKicker>
     <component :is="`h${level}`" class="e-h" :class="`e-h${level}`"><slot /></component>
   </div>
 </template>
@@ -29,6 +30,10 @@ defineSlots<{
   .e-heading {
     display: grid;
     gap: var(--e-space-1);
+  }
+
+  .e-heading > .e-kicker {
+    margin: 0;
   }
 
   .e-h {

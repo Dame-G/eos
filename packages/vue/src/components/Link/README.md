@@ -15,11 +15,15 @@ An icon before the text, for a link such as the project's repository:
 
 ## Props
 
-| Prop       | Type       | Default | Notes                                                                                                                                                |
-| ---------- | ---------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `href`     | `string`   |         | Required. Where the link goes.                                                                                                                       |
-| `external` | `boolean`  |         | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`).                                                                                          |
-| `icon`     | `IconProp` |         | An icon before the text: a built-in name, a name from your icon set or an icon component. It is hidden from screen readers; the text names the link. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `href` | `string` | **Required** | Where the link goes. |
+| `external` | `boolean` | `false` | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`). |
+| `icon` | `IconProp` | — | An icon before the text: a built-in name, a name from your icon set, or an icon component. It is hidden from screen readers; the text names the link. |
+
+<!-- props:end -->
 
 `class`, `style`, attributes and listeners (`@click`, `aria-*`, `download`) land on the `a` element. In print the address is written after the text.
 

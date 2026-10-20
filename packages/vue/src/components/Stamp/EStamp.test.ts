@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
-import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EStamp from "./EStamp.vue";
 import { createEos } from "../../plugin.js";
@@ -20,29 +19,13 @@ const STATUSES = [
 ] as const;
 
 describe("EStamp", () => {
-  test("is solid by default and subtle on request", async () => {
-    const { container } = await render(
-      defineComponent({
-        render: () =>
-          h("div", [h(EStamp, { status: "overdue" }), h(EStamp, { status: "overdue", variant: "subtle" })]),
-      }),
-    );
-    const [solid, subtle] = [...container.querySelectorAll(".e-stamp")];
-    expect(subtle!.classList.contains("e-stamp--subtle")).toBe(true);
-    expect(solid!.classList.contains("e-stamp--subtle")).toBe(false);
-    const a = getComputedStyle(solid!);
-    const b = getComputedStyle(subtle!);
-    expect(a.backgroundColor).toBe(b.color);
-    expect(a.backgroundColor).not.toBe(a.color);
-    expect(b.backgroundColor).not.toBe(a.backgroundColor);
-  });
-
-  test("a status preset gives the word, a glyph and the label (suite: StatusStamp)", async () => {
+  test("a status preset gives the word as plain text", async () => {
     const { container } = await render(EStamp, { props: { status: "overdue" } });
     expect(container.querySelector(".e-stamp-word")!.textContent).toBe("Overdue");
-    expect(container.querySelector(".e-stamp svg")).not.toBeNull();
-    expect(container.querySelector(".e-stamp")!.getAttribute("aria-label")).toBe("Overdue");
-    await expect.element(page.getByRole("img", { name: "Overdue" })).toBeVisible();
+    expect(container.querySelector(".e-stamp svg")).toBeNull();
+    expect(container.querySelector(".e-stamp")!.tagName).toBe("SPAN");
+    expect(container.querySelector(".e-stamp")!.hasAttribute("role")).toBe(false);
+    expect(container.querySelector(".e-stamp")!.textContent).toBe("Overdue");
   });
 
   test.each(STATUSES)("preset %s reads %s and uses the %s tone", async (status, word, tone) => {
@@ -58,9 +41,9 @@ describe("EStamp", () => {
     expect(container.querySelector("svg.e-icon")).not.toBeNull();
   });
 
-  test("with nothing it is an info stamp that says Status", async () => {
+  test("with nothing it is a neutral stamp that says Status", async () => {
     const { container } = await render(EStamp);
-    expect(container.querySelector(".e-stamp")!.className).toBe("e-stamp e-stamp--info");
+    expect(container.querySelector(".e-stamp")!.className).toBe("e-stamp");
     expect(container.querySelector(".e-stamp-word")!.textContent).toBe("Status");
   });
 
@@ -70,30 +53,42 @@ describe("EStamp", () => {
     expect(container.querySelector(".e-stamp")!.className).toBe("e-stamp e-stamp--info");
   });
 
-  test("a detail is shown after the word and joins the accessible name", async () => {
-    const { container } = await render(EStamp, { props: { status: "due", detail: "in 3 days" } });
-    expect(container.querySelector(".e-stamp-detail")!.textContent).toBe("in 3 days");
-    expect(container.querySelector(".e-stamp")!.getAttribute("aria-label")).toBe("Due, in 3 days");
-    await expect.element(page.getByRole("img", { name: "Due, in 3 days" })).toBeVisible();
+  test("the slot is the word, and neutral and ink tones add no modifier", async () => {
+    for (const tone of ["neutral", "ink"] as const) {
+      const { container } = await render(EStamp, { props: { tone }, slots: { default: "Draft" } });
+      expect(container.querySelector(".e-stamp")!.className).toBe("e-stamp");
+      expect(container.querySelector(".e-stamp-word")!.textContent).toBe("Draft");
+    }
   });
 
-  test("small is shorter", async () => {
+  test("capitals come from CSS, so the text stays sentence case", async () => {
+    const { container } = await render(EStamp, { slots: { default: "Paid in full" } });
+    expect(container.querySelector(".e-stamp-word")!.textContent).toBe("Paid in full");
+    expect(getComputedStyle(container.querySelector(".e-stamp-word")!).textTransform).toBe("uppercase");
+  });
+
+  test("a detail is shown after the word in the text", async () => {
+    const { container } = await render(EStamp, { props: { status: "due", detail: "in 3 days" } });
+    expect(container.querySelector(".e-stamp-detail")!.textContent).toBe("in 3 days");
+    expect(container.querySelector(".e-stamp")!.textContent).toContain("in 3 days");
+  });
+
+  test("size sm is shorter", async () => {
     const { container } = await render(
       defineComponent({
-        render: () => h("div", [h(EStamp, { status: "paid" }), h(EStamp, { status: "paid", small: true })]),
+        render: () => h("div", [h(EStamp, { status: "paid" }), h(EStamp, { status: "paid", size: "sm" })]),
       }),
     );
     const [big, small] = [...container.querySelectorAll(".e-stamp")].map((e) => e.getBoundingClientRect().height);
     expect(big).toBeGreaterThanOrEqual(28);
     expect(small).toBeLessThan(big!);
-    expect(container.querySelector(".e-stamp--s")).not.toBeNull();
+    expect(container.querySelector(".e-stamp--sm")).not.toBeNull();
   });
 
   test("the words come from the configured messages", async () => {
     const plugin = createEos({ messages: { "status.paid": "Settled up" }, warnOnContrast: false });
     const { container } = await render(EStamp, { props: { status: "paid" }, global: { plugins: [plugin] } });
     expect(container.querySelector(".e-stamp-word")!.textContent).toBe("Settled up");
-    expect(container.querySelector(".e-stamp")!.getAttribute("aria-label")).toBe("Settled up");
   });
 
   test("is not interactive", async () => {
@@ -119,8 +114,10 @@ describe("EStamp", () => {
         render: () =>
           h("div", [
             ...STATUSES.map(([status]) => h(EStamp, { status })),
-            h(EStamp, { status: "due", detail: "in 3 days", small: true }),
+            h(EStamp, { status: "due", detail: "in 3 days", size: "sm" }),
             h(EStamp, { tone: "warning", label: "Review" }),
+            h(EStamp, null, () => "Draft"),
+            h(EStamp, { tone: "ink" }, () => "Ink"),
           ]),
       }),
     );

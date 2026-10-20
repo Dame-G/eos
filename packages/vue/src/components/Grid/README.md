@@ -11,13 +11,20 @@ Cards in as many equal columns as fit, responding to its container's width rathe
 
 ## Props
 
-| Prop  | Type               | Default | Notes                                                              |
-| ----- | ------------------ | ------- | ------------------------------------------------------------------ |
-| `as`  | `string`           | `div`   | The element, for example `ul` with `li` children.                  |
-| `min` | `string`           | `16rem` | Narrowest a column may be, as a CSS length; one column below that. |
-| `gap` | `number \| string` | `4`     | A space token number (1, 2, 3, 4, 6, 8) or a CSS length.           |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `as` | `string` | `"div"` | The element to render, `div` by default; for example `ul` with `li` children. |
+| `min` | `string` | `"16rem"` | The narrowest a column may be, as a CSS length. One column below that. |
+| `gap` | `number \| string` | `4` | A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string. |
+| `masonry` | `boolean` | `false` | Pack cards of uneven height into columns with no gaps under the short ones. Items flow top to bottom within each column. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the rendered element. Items stretch to the tallest in their row.
+
+With `masonry` the grid is CSS multi-column: `min` is the column width, the gap applies between columns and between rows, and items keep their own height. Items flow top to bottom within each column, then on to the next, so the visual order is column by column, not row by row. Put the most important cards first.
 
 ## Slots
 

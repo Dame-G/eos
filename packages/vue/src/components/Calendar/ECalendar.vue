@@ -17,19 +17,19 @@ export interface CalendarRange {
 
 const props = withDefaults(
   defineProps<{
-    /** `single` chooses one day (`v-model`); `range` chooses a span (`v-model:start` and `v-model:end`). */
+    /** `single` chooses one day (`v-model`); `range` chooses a span (`v-model:start` and `v-model:end`): the first click sets the start, the second the end, and a click before the start restarts. */
     mode?: "single" | "range";
-    /** Days that cannot be chosen or focused, such as days with nothing to book. */
+    /** Days that cannot be chosen or focused, such as days with nothing to book. Arrow keys skip them. */
     disabledDate?: (date: Date) => boolean;
     /** Days that get a dot: a list of dates or a function. Screen readers hear `markLabel`. */
     marked?: Date[] | ((date: Date) => boolean);
-    /** What screen readers hear on a marked day. Default "times available". */
+    /** What screen readers hear on a marked day. @default times available */
     markLabel?: string;
-    /** The earliest day that can be chosen. */
+    /** The earliest day that can be chosen. Earlier days cannot be focused or chosen; navigation stops there. */
     min?: Date;
-    /** The latest day that can be chosen. */
+    /** The latest day that can be chosen. Later days cannot be focused or chosen; navigation stops there. */
     max?: Date;
-    /** The month to open on, when nothing is chosen. */
+    /** The month to open on, when nothing is chosen. Changing it moves the view. */
     month?: Date;
     /** `false` hides the Today and Clear buttons. */
     footer?: boolean;
@@ -46,8 +46,11 @@ const emit = defineEmits<{
   clear: [];
 }>();
 
+/** The chosen day (`single` mode). */
 const value = defineModel<Date | null>({ default: null });
+/** The first day of the span (`range` mode). */
 const start = defineModel<Date | null>("start", { default: null });
+/** The last day of the span (`range` mode). */
 const end = defineModel<Date | null>("end", { default: null });
 
 type View = "days" | "months" | "years";
@@ -534,10 +537,15 @@ defineExpose({
   .e-cal-pick {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--e-space-1);
     height: var(--e-control-height);
     padding: 0 var(--e-space-2);
     border: var(--e-stroke-edge) solid transparent;
+
+    --e-bc: transparent;
+
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
@@ -547,13 +555,15 @@ defineExpose({
   }
 
   .e-cal-pick:hover {
-    background: var(--e-surface-tint);
+    background: var(--e-surface-hover);
     border-color: var(--e-border-strong);
+
+    --e-bc: var(--e-border-strong);
   }
 
   .e-cal-pick:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: 1px;
+    outline-offset: var(--e-focus-gap);
   }
 
   .e-cal-pick .e-icon {
@@ -571,8 +581,8 @@ defineExpose({
 
   .e-cal-gap {
     display: block;
-    width: 44px;
-    height: 44px;
+    width: var(--e-tap);
+    height: var(--e-tap);
   }
 
   .e-cal-head .e-icon-btn:disabled {
@@ -587,13 +597,13 @@ defineExpose({
 
   .e-cal-grid {
     width: 100%;
-    height: 312px;
+    height: calc(6 * var(--e-tap) + var(--e-space-8) + var(--e-space-4));
     border-collapse: collapse;
     table-layout: fixed;
   }
 
   .e-cal-grid th {
-    height: 32px;
+    height: var(--e-space-8);
     font: 600 var(--e-text-sm) / 1 var(--e-font-sans);
     color: var(--e-muted);
     text-align: center;
@@ -605,15 +615,20 @@ defineExpose({
   }
 
   .e-cal-in {
-    background: var(--e-surface-tint);
+    background: color-mix(in srgb, var(--e-primary) 12%, var(--e-surface));
   }
 
   .e-day {
     position: relative;
     width: 100%;
-    height: 44px;
+    height: var(--e-tap);
     padding: 0;
     border: var(--e-stroke-edge) solid transparent;
+
+    --e-bc: transparent;
+
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
@@ -625,8 +640,10 @@ defineExpose({
 
   /* stylelint-disable-next-line selector-not-notation -- the selector stays in this form */
   .e-day:hover:not(:disabled):not(.e-day--sel) {
-    background: var(--e-surface-tint);
+    background: var(--e-surface-hover);
     border-color: var(--e-border-strong);
+
+    --e-bc: var(--e-border-strong);
   }
 
   .e-day:focus-visible {
@@ -640,12 +657,15 @@ defineExpose({
   }
 
   .e-day--today {
-    box-shadow: inset 0 0 0 1.5px var(--e-ink);
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-primary);
   }
 
   .e-day--sel {
     background: var(--e-primary);
     border-color: var(--e-primary);
+
+    --e-bc: var(--e-primary);
+
     font-weight: 700;
     color: var(--e-on-primary);
   }
@@ -678,13 +698,13 @@ defineExpose({
     grid-template-columns: repeat(3, 1fr);
     grid-auto-rows: 1fr;
     gap: 6px;
-    height: 312px;
-    padding-top: 4px;
+    height: calc(6 * var(--e-tap) + var(--e-space-8) + var(--e-space-4));
+    padding-top: var(--e-space-1);
   }
 
   .e-cal-years {
     overflow-y: auto;
-    grid-auto-rows: 44px;
+    grid-auto-rows: var(--e-tap);
     padding-inline-end: 2px;
     align-content: start;
   }
@@ -692,9 +712,14 @@ defineExpose({
   .e-cal-cell {
     width: 100%;
     height: 100%;
-    min-height: 44px;
+    min-height: var(--e-tap);
     padding: 0;
     border: var(--e-stroke-edge) solid transparent;
+
+    --e-bc: transparent;
+
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
@@ -705,13 +730,15 @@ defineExpose({
   }
 
   .e-cal-years .e-cal-cell {
-    height: 44px;
+    height: var(--e-tap);
   }
 
   /* stylelint-disable-next-line selector-not-notation -- the selector stays in this form */
   .e-cal-cell:hover:not(:disabled):not(.e-day--sel) {
-    background: var(--e-surface-tint);
+    background: var(--e-surface-hover);
     border-color: var(--e-border-strong);
+
+    --e-bc: var(--e-border-strong);
   }
 
   .e-cal-cell:focus-visible {
@@ -728,6 +755,9 @@ defineExpose({
   .e-cal-cell.e-day--sel {
     background: var(--e-primary);
     border-color: var(--e-primary);
+
+    --e-bc: var(--e-primary);
+
     font-weight: 700;
     color: var(--e-on-primary);
   }

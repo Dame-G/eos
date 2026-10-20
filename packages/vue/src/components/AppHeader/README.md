@@ -12,9 +12,13 @@ The bar across the top of the page, with logo, actions and a navigation row that
 
 ## Props
 
-| Prop     | Type      | Default | Notes                                       |
-| -------- | --------- | ------- | ------------------------------------------- |
-| `sticky` | `boolean` |         | Pins the header to the top while scrolling. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `sticky` | `boolean` | `false` | Pins the header to the top while the page scrolls. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `header` element.
 

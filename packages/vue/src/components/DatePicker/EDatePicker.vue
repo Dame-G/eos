@@ -23,23 +23,25 @@ const props = defineProps<{
   hideLabel?: boolean;
   /** Help that stays under the field. */
   hint?: string;
-  /** What to fix. Replaces the hint and marks the field invalid. A typed date that cannot be used shows its own error. */
+  /** What to fix. Replaces the hint and marks the field invalid. A typed date that cannot be used shows its own error (`dateError`, `dateBetween`). */
   error?: string;
-  /** A word beside the label. */
+  /** The `required` attribute and a word beside the label. */
   required?: boolean;
   /** A word beside the label. Flag whichever is rarer. */
   optional?: boolean;
+  /** Disables the field and its calendar button. */
   disabled?: boolean;
   /** The earliest date that can be chosen or typed. */
   min?: Date;
   /** The latest date that can be chosen or typed. */
   max?: Date;
-  /** Submits the date as `YYYY-MM-DD` with a form. */
+  /** Submits the date as `YYYY-MM-DD` with a form, through a hidden input. */
   name?: string;
-  /** The id of the text box; the label points at it. Generated when left out. */
+  /** The id of the text box; the label points at it. @default generated */
   id?: string;
 }>();
 
+/** The chosen date. */
 const model = defineModel<Date | null>({ default: null });
 
 const t = useMessages();
@@ -50,6 +52,7 @@ const attrs = useFieldAttrs();
 
 const input = ref<HTMLInputElement | null>(null);
 const calendar = ref<InstanceType<typeof ECalendar> | null>(null);
+/** Whether the calendar is open. Setting it moves no focus; a disabled field never opens. */
 const open = defineModel<boolean>("open", { default: false });
 const shown = computed(() => open.value && !props.disabled);
 const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel, .e-combo"));

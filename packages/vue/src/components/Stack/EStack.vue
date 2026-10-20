@@ -4,9 +4,9 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** The element to render, `div` by default. */
+    /** The element to render, `div` by default; such as `ul` (with `li` children). */
     as?: string;
-    /** A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string. */
+    /** A space token number (1, 2, 3, 4, 6, 8) becomes `var(--e-space-N)`; a string is used as given, so any CSS length works. */
     gap?: number | string;
     /** Aligns the children across the column: `center` or `end`. Stretched by default. */
     align?: "center" | "end";

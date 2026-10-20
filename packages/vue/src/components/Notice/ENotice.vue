@@ -18,7 +18,7 @@ const props = withDefaults(
     tone?: NoticeTone;
     /** What happened, in one short line. */
     title: string;
-    /** Renders the title as a heading of this level (1 to 6) so the notice is findable by heading. */
+    /** Renders the title as a heading of this level (1 to 6) so the notice is findable by heading; without it the title is a paragraph. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     /** The id of the title element, for a parent that labels itself by it. */
     titleId?: string;
@@ -84,7 +84,12 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
     container-type: inline-size;
     padding: var(--e-space-3) var(--e-space-4);
     border: var(--e-stroke-edge) solid var(--e-tone);
-    border-top-width: calc(var(--e-stroke-edge) + var(--e-depth));
+
+    --e-bc: var(--e-tone);
+
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
+    border-left-width: calc(var(--e-stroke-edge) + 2 * var(--e-depth));
     border-radius: var(--e-radius-md);
     background: var(--e-bg);
     color: var(--e-ink);
@@ -118,7 +123,7 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
 
   @media (forced-colors: active) {
     .e-notice {
-      border: 1px solid CanvasText;
+      border: var(--e-stroke-edge) solid CanvasText;
     }
   }
 }

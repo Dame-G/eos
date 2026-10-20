@@ -45,7 +45,7 @@ describe("EPageHeader", () => {
     const root = container.firstElementChild!;
     expect(root.firstElementChild!.tagName).toBe("NAV");
     const titleRow = container.querySelector(".e-pagehead-titlerow")!;
-    expect([...titleRow.children].map((c) => c.tagName)).toEqual(["H1", "DIV"]);
+    expect([...titleRow.children].map((c) => c.tagName)).toEqual(["H1", "SPAN"]);
     expect(titleRow.children[1]!.classList.contains("e-stamp")).toBe(true);
     const actions = container.querySelector(".e-pagehead-actions")!;
     expect(actions.classList.contains("e-actions")).toBe(true);

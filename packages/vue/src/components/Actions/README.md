@@ -11,10 +11,15 @@ A group of buttons in the order of the content, main action first, left-aligned,
 
 ## Props
 
-| Prop  | Type      | Default | Notes                                                                                                                                                        |
-| ----- | --------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `as`  | `string`  | `div`   | The element. Use `footer` for a bar at the end of a card.                                                                                                    |
-| `bar` | `boolean` |         | Tinted footer bar with a rule above, for actions that end a card or overlay. Buttons stack full width up to 32rem. Leave it off for the next step on a page. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `as` | `string` | `"div"` | The element to render, `div` by default. Use `footer` for a bar at the end of a card. |
+| `bar` | `boolean` | `false` | Puts the group on a tinted footer bar with a rule above, for actions that end a card or an overlay. Buttons stack full width up to 32rem. Leave it off for the next step on a page. |
+| `label` | `string` | — | Names the group for screen readers (for example "Record actions"): renders `role="group"` with `aria-label`. Use it for buttons that belong together, such as a filter row. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the rendered element.
 
@@ -27,4 +32,5 @@ A group of buttons in the order of the content, main action first, left-aligned,
 ## Accessibility
 
 - Source order is tab order: put the main action first.
-- Add `role="group"` and `aria-label` when the buttons alone do not make the purpose clear.
+- Pass `label` when the buttons alone do not make the purpose clear; it renders `role="group"` with `aria-label`. It adds no keyboard behaviour: every button stays its own tab stop.
+- To mark a button as a toggle, pass `aria-pressed` to `EButton` (see the Recipes page).

@@ -8,12 +8,16 @@ A floating message that confirms or reports something just done. Show toasts thr
 
 ## Props
 
-| Prop       | Type                                           | Default | Notes                                                               |
-| ---------- | ---------------------------------------------- | ------- | ------------------------------------------------------------------- |
-| `title`    | `string`                                       |         | Required. What happened, in a few words.                            |
-| `tone`     | `"info" \| "success" \| "warning" \| "danger"` | `info`  | `danger` is announced at once.                                      |
-| `icon`     | `IconProp`                                     |         | Replaces the tone's icon.                                           |
-| `closable` | `boolean`                                      |         | Forces the dismiss button on or off. Left out, it follows `@close`. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` | `string` | **Required** | What happened, in a few words. |
+| `tone` | `"info" \| "success" \| "warning" \| "danger"` | `"info"` | `info` is the default. `danger` is announced at once. |
+| `icon` | `IconProp` | — | Replaces the icon of the tone. |
+| `closable` | `boolean` | — | Forces the dismiss button on or off. Left out, it shows when a `@close` listener is attached. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the rendered element.
 

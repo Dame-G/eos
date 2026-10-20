@@ -10,8 +10,10 @@ withDefaults(
     title: string;
     /** The level of the title's heading element, 1 to 6. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
-    /** The edge it slides in from. */
+    /** The edge it slides in from; `bottom` is a sheet for phones. */
     side?: "right" | "left" | "bottom";
+    /** Also closes when the backdrop is pressed. Leave it off for a form, where a stray press would throw the work away. */
+    dismissible?: boolean;
     /** Shows the drawer in the page, without the backdrop or the focus trap. Only for a preview. */
     inline?: boolean;
   }>(),
@@ -19,7 +21,7 @@ withDefaults(
 );
 
 const emit = defineEmits<{
-  /** The person closed it: the Close button, or Escape. `open` is already false. */
+  /** The person closed it: the Close button, Escape, or the backdrop when `dismissible`. `open` is already false. */
   close: [];
 }>();
 
@@ -30,6 +32,7 @@ defineSlots<{
   actions?(): unknown;
 }>();
 
+/** Whether it is open. Without a binding it keeps its own state. */
 const open = defineModel<boolean>("open");
 </script>
 
@@ -40,6 +43,7 @@ const open = defineModel<boolean>("open");
     :title="title"
     :heading-level="headingLevel"
     :inline="inline"
+    :dismissible="dismissible"
     :content-class="['e-drawer', side !== 'right' && `e-drawer--${side}`, inline && 'e-drawer--inline']"
     @close="emit('close')"
   >

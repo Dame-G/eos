@@ -104,7 +104,7 @@ describe("EOtpField", () => {
     boxesOf(numeric.container)[0]!.focus();
     await userEvent.keyboard("a1b2");
     expect(numeric.got.at(-1)).toBe("12");
-    const text = await bound({ label: "Code2", type: "text", length: 4 });
+    const text = await bound({ label: "Code2", inputmode: "text", length: 4 });
     boxesOf(text.container)[0]!.focus();
     await userEvent.keyboard("a1b2");
     expect(text.got.at(-1)).toBe("A1B2");
@@ -251,7 +251,7 @@ describe("EOtpField", () => {
             h(EOtpField, { label: "Empty" }),
             h(EOtpField, { label: "Filled", modelValue: "123456", hint: "A hint" }),
             h(EOtpField, { label: "Invalid", modelValue: "12", error: "Wrong code", groupSize: 3 }),
-            h(EOtpField, { label: "Disabled", disabled: true, type: "text", length: 4 }),
+            h(EOtpField, { label: "Disabled", disabled: true, inputmode: "text", length: 4 }),
           ]),
       }),
     );

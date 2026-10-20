@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, type Component } from "vue";
 import EIcon from "../Icon/EIcon.vue";
-import LinkNav, { type LinkItem, type LinkSection } from "../Tabs/LinkNav.vue";
+import LinkNav, { type LinkItem, type LinkSection } from "./LinkNav.vue";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
@@ -16,17 +16,15 @@ export type NavSection = LinkSection<NavItem>;
 
 const props = withDefaults(
   defineProps<{
-    /** The destinations, in order. */
+    /** The destinations, in order: `{ label, href?, to?, icon?, count?, current? }`. With no `href` or `to` a link goes to `#`. Set `current` yourself. */
     items?: NavItem[];
-    /** Destinations in labelled groups, instead of `items`. Give a heading only when there is more than one section. */
+    /** Destinations in labelled groups, instead of `items`: `{ label?, items }`. Give a label only when there is more than one section. */
     sections?: NavSection[];
-    /** Shorter rows and smaller words, for a long list such as the pages of a documentation site. */
-    dense?: boolean;
-    /** `vertical` stacks the links, for a sidebar or a menu. `horizontal` lays them in a row, for a header: muted words, a bar under each, a heavier bar under the current page. */
+    /** `vertical` stacks the links, for a sidebar or a menu. `horizontal` lays them in a row, for a header, with a hairline between each. Items look the same as in the vertical list: a tint on hover, and a primary outline with a heavier bottom edge on the current page. */
     orientation?: "vertical" | "horizontal";
-    /** The landmark's name, so a page with two navigations tells them apart. Defaults to "Main". */
+    /** The landmark's name; give each navigation on a page its own. @default "Main" */
     label?: string;
-    /** What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). */
+    /** What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). Give items `to`; it receives `to` or `href`, the class `e-nav-item` and `aria-current`. */
     linkComponent?: string | Component;
   }>(),
   { orientation: "vertical", linkComponent: "a" },
@@ -38,7 +36,7 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
 <template>
   <LinkNav
     class="e-nav"
-    :class="[dense && 'e-nav--dense', orientation === 'horizontal' && 'e-nav--horizontal']"
+    :class="orientation === 'horizontal' && 'e-nav--horizontal'"
     :groups="groups"
     :label="label"
     :link-component="linkComponent"
@@ -57,10 +55,22 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
 @layer e.page {
   .e-nav ul {
     display: grid;
-    gap: 2px;
+    gap: calc(var(--e-space-1) / 2);
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  .e-nav:not(.e-nav--horizontal) ul {
+    gap: 0;
+  }
+
+  .e-nav:not(.e-nav--horizontal) li + li::before {
+    content: "";
+    display: block;
+    height: var(--e-stroke-hair);
+    margin-block: var(--e-space-2);
+    background: color-mix(in srgb, var(--e-border) 60%, transparent);
   }
 
   .e-nav-item {
@@ -68,7 +78,9 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     align-items: center;
     gap: var(--e-space-3);
     height: var(--e-control-height);
+    box-sizing: border-box;
     padding: 0 var(--e-space-3);
+    border: var(--e-stroke-edge) solid transparent;
     border-radius: var(--e-radius-md);
     color: var(--e-ink);
     font: 400 var(--e-text-md) / 1 var(--e-font-sans);
@@ -77,7 +89,7 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
   }
 
   .e-nav-item:hover {
-    background: var(--e-surface-tint);
+    background: var(--e-surface-hover);
   }
 
   .e-nav-item:focus-visible {
@@ -85,65 +97,16 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     outline-offset: var(--e-focus-gap);
   }
 
-  .e-nav:not(.e-nav--dense, .e-nav--horizontal) .e-nav-item {
-    box-sizing: border-box;
-    border: var(--e-stroke-edge) solid transparent;
-  }
-
   .e-nav-item[aria-current="page"] {
     background: color-mix(in srgb, var(--e-surface-tint), var(--e-ink) 3%);
     font-weight: 600;
-  }
-
-  .e-nav:not(.e-nav--dense, .e-nav--horizontal) .e-nav-item[aria-current="page"] {
     border-color: var(--e-primary);
-    border-top-width: calc(var(--e-stroke-edge) + var(--e-depth));
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
   }
 
   .e-nav-label {
     flex: 1;
     min-width: 0;
-  }
-
-  .e-nav--dense .e-nav-item {
-    position: relative;
-    height: 2.25rem;
-    gap: var(--e-space-2);
-    border-radius: 0;
-    box-shadow: inset 2px 0 0 transparent;
-    color: var(--e-muted);
-    font-size: var(--e-text-sm);
-  }
-
-  .e-nav--dense .e-nav-item::after {
-    content: "";
-    position: absolute;
-    inset-block: -4px;
-    inset-inline: 0;
-  }
-
-  .e-nav--dense .e-nav-item:hover {
-    background: transparent;
-    box-shadow: inset 2px 0 0 var(--e-border-strong);
-    color: var(--e-ink);
-  }
-
-  .e-nav--dense .e-nav-item[aria-current="page"] {
-    background: var(--e-surface-tint);
-    box-shadow: inset 3px 0 0 var(--e-primary);
-    color: var(--e-primary);
-    font-weight: 600;
-  }
-
-  .e-nav--dense .e-nav-heading {
-    margin-top: var(--e-space-4);
-    padding-top: var(--e-space-4);
-    border-top: var(--e-stroke-hair) solid var(--e-border);
-  }
-
-  .e-nav--dense > .e-nav-heading:first-child {
-    padding-top: 0;
-    border-top: 0;
   }
 
   .e-nav--horizontal {
@@ -153,10 +116,24 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     gap: var(--e-space-2) var(--e-space-4);
   }
 
+  /* The separator sits inside the next item's li, so the list has no gap of its own: the margins on the separator space both sides equally. */
   .e-nav--horizontal ul {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--e-space-2);
+    gap: 0;
+  }
+
+  .e-nav--horizontal li {
+    display: flex;
+    align-items: center;
+  }
+
+  .e-nav--horizontal li + li::before {
+    content: "";
+    width: var(--e-stroke-hair);
+    height: 1.75rem;
+    margin-inline: var(--e-space-2);
+    background: color-mix(in srgb, var(--e-border) 60%, transparent);
   }
 
   .e-nav--horizontal .e-nav-heading {
@@ -164,38 +141,14 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     padding-inline: 0;
   }
 
-  .e-nav--horizontal .e-nav-item {
-    height: 2.5rem;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: inset 0 -2px 0 transparent;
-    color: var(--e-muted);
-    font-size: var(--e-text-sm);
-  }
-
-  .e-nav--horizontal .e-nav-item:hover {
-    background: transparent;
-    box-shadow: inset 0 -2px 0 var(--e-border-strong);
-    color: var(--e-ink);
-  }
-
-  .e-nav--horizontal .e-nav-item[aria-current="page"] {
-    background: var(--e-surface-tint);
-    box-shadow: inset 0 -3px 0 var(--e-primary);
-    color: var(--e-primary);
-    font-weight: 600;
-  }
-
-  .e-nav--horizontal.e-nav--dense .e-nav-item {
-    height: 2.25rem;
-  }
-
   .e-nav-count {
-    min-width: 22px;
-    padding: 0 6px;
+    min-width: var(--e-space-6);
+    padding: 0 var(--e-space-2);
     border-radius: var(--e-radius-pill);
-    background: var(--e-surface);
-    box-shadow: inset 0 0 0 1px var(--e-border-strong);
+    background: color-mix(in srgb, var(--e-primary) 12%, var(--e-surface));
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-primary);
+    outline: var(--e-stroke-hair) solid var(--e-primary);
+    outline-offset: calc(-1 * var(--e-stroke-hair));
     font: 600 var(--e-text-xs) / 20px var(--e-font-mono);
     text-align: center;
   }
@@ -207,8 +160,8 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
   }
 
   @media (forced-colors: active) {
-    .e-nav--horizontal .e-nav-item[aria-current="page"] {
-      border-block-end: 3px solid Highlight;
+    .e-nav-item[aria-current="page"] {
+      border-color: Highlight;
     }
   }
 }

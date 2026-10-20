@@ -5,6 +5,11 @@
     height: var(--e-control-height);
     padding: 0 var(--e-space-4);
     border: var(--e-stroke-edge) solid var(--e-border-strong);
+
+    --e-bc: var(--e-border-strong);
+
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background-color: var(--e-surface);
     box-shadow: var(--e-well);
@@ -21,11 +26,17 @@
 
   .e-input:hover {
     border-color: var(--e-ink);
-    background-color: var(--e-surface-tint);
+
+    --e-bc: var(--e-ink);
+
+    background-color: var(--e-surface-hover);
   }
 
   .e-input:focus {
     border-color: var(--e-focus-field);
+
+    --e-bc: var(--e-focus-field);
+
     background-color: var(--e-surface);
   }
 
@@ -36,10 +47,12 @@
 
   .e-input[aria-invalid="true"] {
     border-color: var(--e-danger);
+
+    --e-bc: var(--e-danger);
+
     background-color: var(--e-surface);
     box-shadow:
-      var(--e-well),
-      inset 0 0 0 1px var(--e-danger);
+      var(--e-well), inset 0 0 0 var(--e-stroke-hair) var(--e-danger);
   }
 
   .e-input[aria-invalid="true"]:focus-visible {
@@ -49,6 +62,7 @@
   .e-input:disabled {
     cursor: not-allowed;
     border-style: dashed;
+    outline: 0;
     background-color: var(--e-surface-tint);
     box-shadow: none;
     color: var(--e-muted);
@@ -64,6 +78,11 @@
     min-width: 0;
     min-height: var(--e-control-height);
     border: var(--e-stroke-edge) solid var(--e-border-strong);
+
+    --e-bc: var(--e-border-strong);
+
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     box-shadow: var(--e-well);
@@ -74,11 +93,17 @@
 
   .e-input-wrap:hover {
     border-color: var(--e-ink);
-    background: var(--e-surface-tint);
+
+    --e-bc: var(--e-ink);
+
+    background: var(--e-surface-hover);
   }
 
   .e-input-wrap:focus-within {
     border-color: var(--e-focus-field);
+
+    --e-bc: var(--e-focus-field);
+
     background: var(--e-surface);
     outline: var(--e-stroke-focus) solid var(--e-focus-field);
     outline-offset: var(--e-focus-gap-field);
@@ -86,19 +111,25 @@
 
   .e-input-wrap[data-invalid] {
     border-color: var(--e-danger);
+
+    --e-bc: var(--e-danger);
+
     box-shadow:
-      var(--e-well),
-      inset 0 0 0 1px var(--e-danger);
+      var(--e-well), inset 0 0 0 var(--e-stroke-hair) var(--e-danger);
     background: var(--e-surface);
   }
 
   .e-input-wrap[data-invalid]:focus-within {
     border-color: var(--e-danger);
+
+    --e-bc: var(--e-danger);
+
     outline-color: var(--e-danger);
   }
 
   .e-input-wrap[data-disabled] {
     border-style: dashed;
+    outline: 0;
     background: var(--e-surface-tint);
     box-shadow: none;
     color: var(--e-muted);
@@ -107,6 +138,7 @@
   .e-input-wrap .e-input {
     flex: 1;
     border: 0;
+    outline: 0;
     background: transparent;
     box-shadow: none;
     height: auto;
@@ -141,13 +173,28 @@
     padding-inline-start: 0;
   }
 
-  .e-input[type="password"] {
-    padding-top: 0.3em;
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .e-input {
       transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-input:disabled,
+    .e-input-wrap[data-disabled],
+    .e-input::placeholder,
+    .e-affix {
+      color: GrayText;
+    }
+
+    .e-input:disabled,
+    .e-input-wrap[data-disabled] {
+      border-color: GrayText;
+    }
+
+    .e-input:focus-visible,
+    .e-input-wrap:focus-within {
+      outline-color: Highlight;
     }
   }
 }

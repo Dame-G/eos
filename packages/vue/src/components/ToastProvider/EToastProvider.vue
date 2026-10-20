@@ -82,19 +82,19 @@ Render.props = ["content"];
   .e-toast-region {
     justify-items: end;
     position: fixed;
-    inset-inline-end: max(16px, env(safe-area-inset-right, 0px));
-    bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    inset-inline-end: max(var(--e-space-4), env(safe-area-inset-right, 0px));
+    bottom: max(var(--e-space-4), env(safe-area-inset-bottom, 0px));
     z-index: var(--e-z-toast);
     display: grid;
     gap: var(--e-space-2);
   }
 
   .e-toast-region > .e-toast {
-    width: min(24rem, calc(100vw - 32px));
+    width: min(24rem, calc(100vw - 2 * var(--e-space-4)));
   }
 
   .e-toast-region > .e-toast--actions {
-    width: min(40rem, calc(100vw - 32px));
+    width: min(40rem, calc(100vw - 2 * var(--e-space-4)));
   }
 
   @media print {

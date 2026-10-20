@@ -8,10 +8,14 @@ The six heading styles (36, 24, 20, 18, 16 and 14px) with an optional kicker lab
 
 ## Props
 
-| Prop     | Type                         | Default | Notes                                                          |
-| -------- | ---------------------------- | ------- | -------------------------------------------------------------- |
-| `level`  | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `2`     | Sets both the element (`h1` to `h6`) and the size.             |
-| `kicker` | `string`                     |         | Small uppercase label above the heading; not itself a heading. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `level` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `2` | 1 to 6: sets both the element (`h1` to `h6`) and the size (36, 24, 20, 18, 16 and 14px). One level 1 per page; do not skip levels. |
+| `kicker` | `string` | — | A small mono label above the heading; renders an `EKicker`, which is not itself a heading. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `div` element.
 

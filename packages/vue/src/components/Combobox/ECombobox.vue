@@ -10,8 +10,10 @@ defineEmits<{
   inputChange: [text: string];
 }>();
 
-const model = defineModel<string>({ default: "" });
+/** The `value` of the chosen option, empty for nothing; with `multiple` the chosen values in the order chosen (replaced, not mutated); with `freeform` the typed text, updated on every key. @default "" or [] */
+const model = defineModel<string | string[]>();
 
+/** Whether the list is open. Setting it moves no focus; a disabled field never opens. */
 const open = defineModel<boolean>("open", { default: false });
 
 const base = ref<InstanceType<typeof EComboboxBase> | null>(null);
@@ -27,7 +29,6 @@ defineExpose({
     v-bind="props"
     v-model="model"
     v-model:open="open"
-    mode="single"
     @input-change="(text: string) => $emit('inputChange', text)"
   />
 </template>

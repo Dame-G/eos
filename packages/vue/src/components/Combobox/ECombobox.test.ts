@@ -48,7 +48,7 @@ describe("ECombobox", () => {
   test("typing filters the list, marks the match, and Enter picks the first match", async () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, "onUpdate:modelValue": (v: string) => got.push(v) },
+      props: { label: "Practitioner", options: PEOPLE, "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string) },
     });
     await box("Practitioner").fill("ma");
     await expect.poll(() => optionEls().length).toBe(2);
@@ -70,7 +70,7 @@ describe("ECombobox", () => {
           { value: "c1", label: "North Clinic", description: "Elm Street" },
           { value: "c2", label: "South Clinic" },
         ],
-        "onUpdate:modelValue": (v: string) => got.push(v),
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
       },
     });
     await box("Clinic").fill("elm");
@@ -83,7 +83,7 @@ describe("ECombobox", () => {
   test("arrows open and move; the highlighted option is the active descendant; Enter chooses", async () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, "onUpdate:modelValue": (v: string) => got.push(v) },
+      props: { label: "Practitioner", options: PEOPLE, "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string) },
     });
     const input = inputOf(container);
     input.focus();
@@ -103,7 +103,7 @@ describe("ECombobox", () => {
   test("a mouse click on an option chooses it and keeps the focus in the input", async () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, "onUpdate:modelValue": (v: string) => got.push(v) },
+      props: { label: "Practitioner", options: PEOPLE, "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string) },
     });
     await page.getByRole("button", { name: "Show options" }).click();
     await expanded(inputOf(container), "true");
@@ -130,7 +130,7 @@ describe("ECombobox", () => {
         label: "Practitioner",
         options: PEOPLE,
         modelValue: "Priya Nair",
-        "onUpdate:modelValue": (v: string) => got.push(v),
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
       },
     });
     const input = inputOf(container);
@@ -218,7 +218,7 @@ describe("ECombobox", () => {
         label: "Practitioner",
         options: PEOPLE,
         modelValue: "Priya Nair",
-        "onUpdate:modelValue": (v: string) => got.push(v),
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
         onInputChange: (t: string) => heard.push(t),
       },
     });
@@ -291,9 +291,9 @@ describe("ECombobox", () => {
             label: "Practitioner",
             options: PEOPLE,
             modelValue: model.value,
-            "onUpdate:modelValue": (v: string) => {
-              got.push(v);
-              model.value = v;
+            "onUpdate:modelValue": (v?: string | string[]) => {
+              got.push(v as string);
+              model.value = v as string;
             },
           }),
       }),
@@ -340,7 +340,7 @@ describe("ECombobox", () => {
           { value: "2", label: "Nice", group: "France", disabled: true },
           { value: "3", label: "Turin", group: "Italy" },
         ],
-        "onUpdate:modelValue": (v: string) => got.push(v),
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
       },
     });
     await page.getByRole("button", { name: "Show options" }).click();

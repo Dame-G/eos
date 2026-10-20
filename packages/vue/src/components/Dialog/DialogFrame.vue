@@ -13,6 +13,7 @@ withDefaults(
     title: string;
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     inline?: boolean;
+    dismissible?: boolean;
     contentClass?: unknown;
   }>(),
   { headingLevel: 2 },
@@ -47,7 +48,7 @@ function setOpen(value: boolean) {
           v-bind="$attrs"
           :class="contentClass"
           :aria-describedby="undefined"
-          @interact-outside.prevent
+          @interact-outside="(e) => !dismissible && e.preventDefault()"
         >
           <header class="e-dialog-head">
             <DialogTitle :as="`h${headingLevel}`" class="e-dialog-title">{{ title }}</DialogTitle>

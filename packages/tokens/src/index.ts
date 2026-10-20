@@ -4,6 +4,7 @@ export type {
   ThemeInput,
   MotionPreset,
   ElevationPreset,
+  ContrastPreset,
   TokenValues,
   ContrastIssue,
   CssOptions,

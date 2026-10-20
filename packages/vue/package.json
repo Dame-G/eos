@@ -54,6 +54,8 @@
     "test:watch": "vitest",
     "check:css": "node scripts/check-css.mjs",
     "check:layers": "node scripts/check-layers.mjs",
+    "gen:props": "node scripts/gen-props.mjs",
+    "check:props": "node scripts/gen-props.mjs --check",
     "check:package": "publint --pack npm --strict && attw --pack . --profile esm-only --entrypoints . ./resolver ./icons ./icons/iconify"
   },
   "peerDependencies": {

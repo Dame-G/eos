@@ -15,9 +15,9 @@ export interface BreadcrumbItem {
 
 withDefaults(
   defineProps<{
-    /** The path, top level first. The last item is the current page and is not a link. */
+    /** The path as `{ label, href?, to? }`, top level first. The last item is the current page and is not a link. */
     items: BreadcrumbItem[];
-    /** What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). */
+    /** What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). With `RouterLink`, give items a `to` (items can mix `href` and `to`); it receives only the attributes the item has. */
     linkComponent?: string | Component;
   }>(),
   { linkComponent: "a" },
@@ -88,7 +88,7 @@ const linkAttrs = (item: BreadcrumbItem) => ({
   .e-crumb::after {
     content: "";
     position: absolute;
-    inset: -12px -4px;
+    inset: calc((var(--e-tap, 44px) - 20px) / -2) calc(-1 * var(--e-space-1));
   }
 
   .e-crumb:hover {

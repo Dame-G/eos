@@ -11,9 +11,9 @@ export interface Step {
 }
 
 defineProps<{
-  /** The steps in order. Exactly one is normally `current`. */
+  /** The steps in order: `{ label, state }`; `state` is `done`, `current` or `upcoming` (`todo` is an alias). Exactly one is normally `current`. Keep labels to one or two words. */
   steps: Step[];
-  /** The list's name for assistive technology, such as "Registration". Defaults to "Progress". */
+  /** The list's accessible name. @default "Progress" */
   label?: string;
 }>();
 
@@ -55,6 +55,8 @@ const t = useMessages();
   }
 
   .e-step {
+    --e-dot: 28px;
+
     display: grid;
     justify-items: center;
     align-content: start;
@@ -67,10 +69,10 @@ const t = useMessages();
   .e-step::before {
     content: "";
     position: absolute;
-    top: 13px;
+    top: calc((var(--e-dot) - var(--e-stroke-focus)) / 2);
     inset-inline-end: 50%;
     width: 100%;
-    border-top: 2px solid var(--e-border-strong);
+    border-top: var(--e-stroke-focus) solid var(--e-border-strong);
     z-index: 0;
   }
 
@@ -78,7 +80,10 @@ const t = useMessages();
     display: none;
   }
 
-  .e-step[data-state="done"]::before,
+  .e-step[data-state="done"]::before {
+    border-top-color: var(--e-primary);
+  }
+
   .e-step[data-state="current"]::before {
     border-top-color: var(--e-primary);
   }
@@ -88,8 +93,8 @@ const t = useMessages();
     z-index: var(--e-z-raised);
     display: grid;
     place-items: center;
-    width: 28px;
-    height: 28px;
+    width: var(--e-dot);
+    height: var(--e-dot);
     border-radius: 50%;
     border: var(--e-stroke-edge) dashed var(--e-border-strong);
     background: var(--e-surface);
@@ -104,8 +109,8 @@ const t = useMessages();
   }
 
   .e-step[data-state="current"] .e-step-dot {
-    border: 2px solid var(--e-ink);
-    color: var(--e-ink);
+    border: var(--e-stroke-focus) solid var(--e-primary);
+    color: var(--e-primary);
     background: var(--e-surface);
   }
 
@@ -142,18 +147,21 @@ const t = useMessages();
       display: block;
       top: calc(-1 * var(--e-space-3));
       inset-inline-end: auto;
-      inset-inline-start: 13px;
+      inset-inline-start: calc((var(--e-dot) - var(--e-stroke-focus)) / 2);
       width: 0;
       height: var(--e-space-3);
       border-top: 0;
-      border-inline-start: 2px solid var(--e-border-strong);
+      border-inline-start: var(--e-stroke-focus) solid var(--e-border-strong);
     }
 
     .e-step:first-child::before {
       display: none;
     }
 
-    .e-step[data-state="done"]::before,
+    .e-step[data-state="done"]::before {
+      border-inline-start-color: var(--e-primary);
+    }
+
     .e-step[data-state="current"]::before {
       border-inline-start-color: var(--e-primary);
     }

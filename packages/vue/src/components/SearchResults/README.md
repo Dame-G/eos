@@ -26,13 +26,17 @@ A list of search results as links, with a title and a muted line under it, arrow
 
 ## Props
 
-| Prop            | Type                  | Default | Notes                                                                                                               |
-| --------------- | --------------------- | ------- | ------------------------------------------------------------------------------------------------------------------- |
-| `items`         | `SearchResultItem[]`  |         | Required. `{ label, description?, href?, to? }`, best first. With no `href` or `to` a link goes to `#`.             |
-| `label`         | `string`              |         | Required. The accessible name of the list, such as "Search results".                                                |
-| `emptyText`     | `string`              |         | Shown when `items` is empty. Leave it out to render nothing, for example before anyone has typed.                   |
-| `query`         | `string`              |         | The text that was searched for. Its first match in each title and description is marked, as in `ECombobox` options. |
-| `linkComponent` | `string \| Component` | `a`     | Renders each link. Pass `RouterLink` and give items `to`; it receives `to` or `href` and the class `e-opt`.         |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `items` | `SearchResultItem[]` | **Required** | The results, best first: `{ label, description?, href?, to? }`. With no `href` or `to` a link goes to `#`. |
+| `label` | `string` | **Required** | The accessible name of the list, such as "Search results". |
+| `emptyText` | `string` | — | Shown when there are no results, such as `Nothing found for "tax"`. Leave it out to show nothing at all, for example before anyone has typed. |
+| `query` | `string` | — | The text that was searched for: its first match in each title and description is marked, as in `ECombobox` options. |
+| `linkComponent` | `string \| Component` | `"a"` | What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). Give items `to`; it receives `to` or `href` and the class `e-opt`. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `div` element around the list. Exposes `focusFirst()` (focus the first result) and `focus()` (focus the result that has focus, or the first).
 

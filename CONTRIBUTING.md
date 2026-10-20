@@ -32,6 +32,8 @@ While working on one component, run from `packages/vue` (these need `pnpm build`
 | `node scripts/check-layers.mjs`         | a component only uses components of its own layer or an earlier one      |
 | `npx vue-tsc --noEmit -p tsconfig.json` | types, including `.vue` files                                            |
 | `node scripts/gen-index.mjs`            | rewrites `src/index.ts` from what is on disk (never edit `src/index.ts`) |
+| `node scripts/gen-props.mjs`            | rewrites every README's props table from the component source            |
+| `node scripts/gen-props.mjs --check`    | fails if a props table is out of date (CI runs it as `check:props`)      |
 
 ## A component
 
@@ -55,10 +57,33 @@ index.ts         export { default as EChip } from "./EChip.vue";   (plus exporte
 ### Props, events and slots
 
 - Props use `defineProps<{ ... }>()` with a one-line doc comment each (it becomes the editor tooltip).
+- The README's props table (between `<!-- props:start -->` and `<!-- props:end -->`) is generated from the source: edit the doc comment, the `withDefaults` value or the `defineModel` comment in the `.vue` file, never the table, then run `node scripts/gen-props.mjs` in `packages/vue`. A prop that has no default and is not required shows `—`; a flag is `false` unless it has a default. Write a default that the code applies elsewhere (a generated id, an i18n string) as `@default value` at the end of the doc comment. Do not start a doc comment with "Required."; the table shows it.
 - The main value is `defineModel()` (`v-model`). Two values use named models (`v-model:start`, `v-model:end`). Leaving `v-model` off gives local state, so there is no `defaultValue` prop.
 - Other signals are emits declared with `defineEmits`, value first.
 - Content goes in slots, declared with `defineSlots`. A render-prop is a scoped slot.
 - Native attributes land where the consumer expects: on the `<input>` for inputs (`inheritAttrs: false`, `v-bind="$attrs"`), with `class` and `style` on the wrapper.
+
+### Prop conventions
+
+One name means one thing across the library. A component may have props of its own where it needs them; these are the shared ones.
+
+| Prop                                                | Means                                                                                                                                                                                                | Where                                                         |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `variant`                                           | Emphasis: how loudly an action speaks (`primary`, `secondary`, `outline`, `danger`, `quiet`). Nothing else uses it.                                                                                  | `EButton`, `EMenu`                                            |
+| `tone`                                              | Meaning in a colour: `success`, `info`, `warning`, `danger`. Never a look.                                                                                                                           | `EChip`, `EStamp`, `ENotice`, `EToast`                        |
+| `status`                                            | A `StampStatus` preset (`paid`, `due`, `overdue`...). It sets the tone and the word.                                                                                                                 | `EStamp`, and composites that show one                        |
+| `status*`, `badge*`                                 | On a composite, the props that feed its inner stamp or chip get the prefix: `statusTone`, `statusLabel`, `statusDetail`, `badge`, `badgeTone`. A bare `tone` or `label` on a composite is ambiguous. | `EItemRow`, `EDetailRow`                                      |
+| `small`, `large`                                    | Size, as booleans. There is no `size` enum and no `dense`. Medium is the default and has no prop.                                                                                                    | `EIcon`, `EAvatar`, `EKbd`, `EStamp`, `EText`                 |
+| `bare`                                              | Drops the component's own chrome (box, label, toolbar) so the parent supplies it.                                                                                                                    | fields, `EFieldset`, `EEmptyState`, `EDataGrid`, `ECheckbox`  |
+| `raised`                                            | The lifted shadow of something floating above the page.                                                                                                                                              | `ESurface`                                                    |
+| `label`                                             | The name of the thing itself: the visible label of a field, or the accessible name of a control with no visible text.                                                                                | fields, `EProgress`, `ESpinner`, `ETooltip`...                |
+| `hideLabel`, `hideLegend`, `hideAction`             | Keep the text for screen readers and hide it. Always `hide` plus the part.                                                                                                                           | fields, `EFieldset`, `ESearchBar`                             |
+| `headingLevel`                                      | The level of the heading a component renders inside itself. `EHeading` is the heading, so its prop is `level`.                                                                                       | cards, panels, dialogs, drawers                               |
+| `mode`                                              | A change in what the component does (`single` or `range`, `current` or `new`). Keyboard hints are `inputmode`, never `type`.                                                                         | `ECalendar`, `EPasswordField`, `ESignatureField`, `EOtpField` |
+| `required`, `optional`, `disabled`, `error`, `hint` | Field state and help. `error` is one message; a list of them is `errors`.                                                                                                                            | every field                                                   |
+| `as`, `gap`, `align`, `justify`, `side`             | The element; spacing from the space scale; cross-axis and main-axis alignment; which edge.                                                                                                           | layout components                                             |
+
+There are no look variants. A component has one good default; if two looks are both needed they are two components. Do not add `dense`, `compact`, `plain`, `card`, `outlined` or similar switches.
 
 ### Accessibility
 
@@ -83,12 +108,12 @@ index.ts         export { default as EChip } from "./EChip.vue";   (plus exporte
   | `e.controls`   | form controls                        |
   | `e.composites` | controls built from controls         |
   | `e.containers` | things that hold or announce content |
-  | `e.account`    | statements, bookings, details        |
   | `e.page`       | navigation and the page frame        |
 
   A component uses only components of its own layer or an earlier one.
 
 - `import "../../styles/base.css";` at the top of the script.
+- A hairline stroke on a rounded box is painted twice, because one antialiased pass looks thinner on the curve than on the straight edges. A `box-shadow` ring (`var(--e-edge)`, `var(--e-float)`) gets `outline: <width> solid <colour>; outline-offset: 0`; an inset ring gets the same outline with `outline-offset: calc(-1 * <width>)`; a rounded `border` also sets `--e-bc` to its colour and `outline: <width> solid var(--e-bc); outline-offset: calc(-1 * <width>)`, and a state that changes `border-color` sets `--e-bc` too. Do not repeat a ring: at fractional display scaling that thickens the straight edges. Print styles set `outline: 0`.
 - Values come from tokens (`var(--e-space-4)`); a raw colour, size or duration means a missing token, which is added to `packages/tokens/src/tokens.json` with a usage note. Logical properties only (`margin-inline-start`).
 - Space belongs to the parent: a component sets no outer margin. Layout that depends on the component's own width uses container queries, not viewport media queries.
 

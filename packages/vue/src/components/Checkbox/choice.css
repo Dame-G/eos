@@ -5,7 +5,7 @@
     align-items: flex-start;
     gap: var(--e-space-3);
     min-height: var(--e-control-height);
-    padding: 10px 0;
+    padding: calc(var(--e-space-2) + var(--e-focus-gap)) 0;
     cursor: pointer;
   }
 
@@ -16,7 +16,7 @@
 
   .e-choice-text {
     display: grid;
-    gap: 2px;
+    gap: calc(var(--e-space-1) / 2);
     min-width: 0;
     font: 400 var(--e-text-md)/24px var(--e-font-sans);
   }
@@ -53,7 +53,7 @@
   .e-check:hover,
   .e-radio:hover {
     border-color: var(--e-ink);
-    background-color: var(--e-surface-tint);
+    background-color: var(--e-surface-hover);
   }
 
   .e-check:checked {
@@ -84,7 +84,7 @@
 
   .e-check:checked:hover,
   .e-radio:checked:hover {
-    background-color: color-mix(in srgb, var(--e-primary) 84%, #000);
+    background-color: color-mix(in srgb, var(--e-primary), var(--e-shade-hover));
   }
 
   .e-check:focus-visible,

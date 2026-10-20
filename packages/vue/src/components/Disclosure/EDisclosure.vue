@@ -1,25 +1,21 @@
 <script setup lang="ts">
 import "../../styles/base.css";
 
-const props = withDefaults(
-  defineProps<{
-    /** The summary line you press to open and close. */
-    title: string;
-    /** `row` is flush, with a divider above and a mono title. `card` is a roomy row for stacking, as in Accordion. */
-    variant?: "row" | "card";
-    /** A short note at the right of the summary. Card variant only. */
-    meta?: string;
+defineProps<{
+    /** The summary line you press to open and close. Use the `title` slot for rich content. */
+    title?: string;
     /** Rows that share a group open one at a time (the native `name` of `details`). */
     group?: string;
-  }>(),
-  { variant: "row" },
-);
+}>();
 
 defineSlots<{
+  /** The summary line, in place of the `title` prop. */
+  title?(): unknown;
   /** What opens and closes. */
   default?(): unknown;
 }>();
 
+/** Whether it is open. Without a binding it keeps its own state. */
 const open = defineModel<boolean>("open");
 
 function onToggle(e: Event) {
@@ -29,20 +25,13 @@ function onToggle(e: Event) {
 
 <template>
   <details
-    class="e-disclosure"
-    :class="props.variant === 'card' ? 'e-acc' : 'e-details'"
+    class="e-disclosure e-details"
     :name="group"
     :open="open || undefined"
     @toggle="onToggle"
   >
-    <summary>
-      <template v-if="variant === 'card'">
-        <span class="e-acc-title">{{ title }}</span>
-        <span v-if="meta" class="e-acc-meta">{{ meta }}</span>
-      </template>
-      <template v-else>{{ title }}</template>
-    </summary>
-    <div :class="variant === 'card' ? 'e-acc-body' : 'e-details-body'"><slot /></div>
+    <summary><slot name="title">{{ title }}</slot></summary>
+    <div class="e-details-body"><slot /></div>
   </details>
 </template>
 
@@ -70,8 +59,8 @@ function onToggle(e: Event) {
     width: 8px;
     height: 8px;
     margin-inline-end: 3px;
-    border-inline-end: 2px solid currentcolor;
-    border-bottom: 2px solid currentcolor;
+    border-inline-end: var(--e-stroke-card) solid currentcolor;
+    border-bottom: var(--e-stroke-card) solid currentcolor;
     transform: translateY(-2px) rotate(45deg);
     transition: transform var(--e-duration-tap) var(--e-easing-out);
   }
@@ -102,92 +91,23 @@ function onToggle(e: Event) {
     padding-bottom: var(--e-space-2);
   }
 
-  .e-acc {
-    overflow: hidden;
-    border-radius: var(--e-radius-md);
-    background: var(--e-surface);
-    box-shadow: var(--e-edge);
-  }
+  @media (forced-colors: active) {
+    .e-details > summary {
+      border-top-color: CanvasText;
+      color: CanvasText;
+    }
 
-  .e-disclosure.e-acc + .e-disclosure.e-acc {
-    margin-top: var(--e-space-2);
-  }
+    .e-details > summary:hover {
+      color: Highlight;
+    }
 
-  .e-accordion .e-acc {
-    border-radius: 0;
-    box-shadow: none;
-  }
-
-  .e-accordion .e-disclosure.e-acc + .e-disclosure.e-acc {
-    margin-top: 0;
-  }
-
-  .e-acc[open] > summary {
-    border-bottom: var(--e-stroke-hair) solid var(--e-border);
-  }
-
-  .e-accordion .e-acc[open] > summary {
-    border-bottom: 0;
-  }
-
-  .e-acc > summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--e-space-3);
-    min-height: 52px;
-    padding: 0 var(--e-space-4);
-    list-style: none;
-    cursor: pointer;
-    transition: background-color var(--e-duration-tap) var(--e-easing-out);
-  }
-
-  .e-acc > summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .e-acc > summary::after {
-    content: "";
-    flex: none;
-    width: 8px;
-    height: 8px;
-    margin-inline-end: 3px;
-    border-inline-end: 2px solid currentcolor;
-    border-bottom: 2px solid currentcolor;
-    transform: translateY(-2px) rotate(45deg);
-  }
-
-  .e-acc[open] > summary::after {
-    transform: translateY(2px) rotate(-135deg);
-  }
-
-  .e-acc > summary:hover {
-    background: var(--e-surface-tint);
-  }
-
-  .e-acc > summary:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
-  }
-
-  .e-acc-title {
-    flex: 1;
-    font: 500 var(--e-text-md) / 1.3 var(--e-font-sans);
-  }
-
-  .e-acc-meta {
-    font: 500 var(--e-text-xs) / 1 var(--e-font-mono);
-    color: var(--e-muted);
-  }
-
-  .e-acc-body {
-    padding: var(--e-space-2) var(--e-space-4) var(--e-space-4);
-    font: 400 var(--e-text-md) / 1.5 var(--e-font-sans);
+    .e-details > summary:focus-visible {
+      outline-color: Highlight;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .e-details > summary::after,
-    .e-acc > summary {
+    .e-details > summary::after {
       transition: none;
     }
   }

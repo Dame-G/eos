@@ -15,23 +15,6 @@ describe("EDisclosure", () => {
     expect(details.querySelector(".e-details-body")!.textContent).toBe("Body");
   });
 
-  test("the card variant has a title, a meta note and a roomy body", async () => {
-    const { container } = await render(EDisclosure, {
-      props: { title: "Billing", variant: "card", meta: "3 items" },
-      slots: { default: "Body" },
-    });
-    const details = container.querySelector("details")!;
-    expect(details.className).toBe("e-disclosure e-acc");
-    expect(details.querySelector(".e-acc-title")!.textContent).toBe("Billing");
-    expect(details.querySelector(".e-acc-meta")!.textContent).toBe("3 items");
-    expect(details.querySelector(".e-acc-body")!.textContent).toBe("Body");
-  });
-
-  test("meta is not shown by the row variant", async () => {
-    const { container } = await render(EDisclosure, { props: { title: "History", meta: "x" } });
-    expect(container.querySelector(".e-acc-meta")).toBeNull();
-  });
-
   test("clicking the summary opens and closes it", async () => {
     const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
     const details = container.querySelector("details")!;
@@ -51,6 +34,11 @@ describe("EDisclosure", () => {
     expect(details.open).toBe(true);
     await userEvent.keyboard(" ");
     expect(details.open).toBe(false);
+  });
+
+  test("the title slot replaces the title prop", async () => {
+    const { container } = await render(EDisclosure, { slots: { title: "<b>Rich</b> title", default: "Body" } });
+    expect(container.querySelector("summary b")!.textContent).toBe("Rich");
   });
 
   test("v-model:open round trip", async () => {
@@ -111,16 +99,11 @@ describe("EDisclosure", () => {
     expect(el.dataset.x).toBe("1");
   });
 
-  test("axe finds nothing, open or closed, in both variants", async () => {
-    for (const variant of ["row", "card"] as const) {
-      const { container } = await render(EDisclosure, {
-        props: { title: "History", variant, meta: variant === "card" ? "2" : undefined },
-        slots: { default: "Body" },
-      });
-      container.classList.add("e-root");
-      await expectNoViolations(container);
-      await page.getByText("History").last().click();
-      await expectNoViolations(container);
-    }
+  test("axe finds nothing, open or closed", async () => {
+    const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
+    container.classList.add("e-root");
+    await expectNoViolations(container);
+    await page.getByText("History").last().click();
+    await expectNoViolations(container);
   });
 });

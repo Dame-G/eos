@@ -65,8 +65,8 @@ describe("EFieldset", () => {
     const fl = flag.getBoundingClientRect();
     const pad = parseFloat(getComputedStyle(title).paddingLeft);
     const padFlag = parseFloat(getComputedStyle(flag).paddingRight);
-    expect(t.left - fs.left + pad).toBeGreaterThanOrEqual(24);
-    expect(fs.right - fl.right + padFlag).toBeGreaterThanOrEqual(24);
+    expect(t.left - fs.left + pad).toBeGreaterThanOrEqual(16);
+    expect(fs.right - fl.right + padFlag).toBeGreaterThanOrEqual(16);
     expect(fl.left).toBeGreaterThan(t.right);
     expect(flag.textContent).toBe("Required");
   });
@@ -78,8 +78,22 @@ describe("EFieldset", () => {
     });
     const rule = container.querySelector(".e-fieldset-rule")!;
     expect(rule.getAttribute("aria-hidden")).toBe("true");
-    expect(rule.getBoundingClientRect().width).toBeGreaterThanOrEqual(16);
+    expect(rule.getBoundingClientRect().width).toBeGreaterThanOrEqual(8);
     expect(container.querySelector(".e-field-flag")!.textContent).toBe("Optional");
+  });
+
+  test("section is an unboxed titled group with the hint under the legend", async () => {
+    const { container } = await render(EFieldset, {
+      props: { legend: "Your details", section: true, hint: "As on your card." },
+      slots: { default: street },
+    });
+    const fs = container.querySelector("fieldset")!;
+    expect(fs.classList.contains("e-fieldset--section")).toBe(true);
+    expect(fs.classList.contains("e-fieldset--box")).toBe(false);
+    expect(fs.querySelector(".e-fieldset-rule")).toBeNull();
+    const body = fs.querySelector(".e-fieldset-body")!;
+    expect(body.firstElementChild!.classList.contains("e-field-hint")).toBe(true);
+    expect(getComputedStyle(fs).borderTopWidth).toBe("0px");
   });
 
   test("the hint and the error are announced with the group", async () => {

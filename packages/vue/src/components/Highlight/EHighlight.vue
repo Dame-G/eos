@@ -20,13 +20,13 @@ defineSlots<{
 <style>
 @layer e.primitives {
   .e-highlight {
-    padding: 0 0.2em;
-    border-radius: 0.15em;
+    padding: 0.1em 0.35em;
+    border-radius: 0.25em;
     background: linear-gradient(
       to bottom,
-      transparent 18%,
-      color-mix(in srgb, var(--e-secondary) 38%, transparent) 18% 94%,
-      transparent 94%
+      transparent 4%,
+      color-mix(in srgb, var(--e-secondary) 38%, transparent) 4% 100%,
+      transparent 100%
     );
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
@@ -34,9 +34,20 @@ defineSlots<{
     font-weight: 500;
   }
 
+  /* Inside a link the highlight gives way to the link: no wash, an underline instead. */
+  a:any-link > .e-highlight {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: var(--e-stroke-edge);
+    text-decoration-color: currentcolor;
+    text-underline-offset: var(--e-space-1);
+  }
+
   .e-highlight--code {
     font-family: var(--e-font-mono);
-    font-size: 0.9em;
+    font-size: var(--e-text-sm);
   }
 
   @media (forced-colors: active) {

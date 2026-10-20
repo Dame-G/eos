@@ -21,17 +21,19 @@ const props = withDefaults(
     placeholder?: string;
     /** Visible lines. */
     rows?: number;
-    /** A word beside the label. */
+    /** The `required` attribute and a word beside the label. */
     required?: boolean;
     /** A word beside the label. Flag whichever is rarer. */
     optional?: boolean;
+    /** Disables the field. */
     disabled?: boolean;
-    /** The id of the textarea; the label points at it. Generated when left out. */
+    /** The id of the textarea; the label points at it. @default generated */
     id?: string;
   }>(),
   { rows: 4 },
 );
 
+/** The text. */
 const model = defineModel<string>({ default: "" });
 
 const input = ref<HTMLTextAreaElement | null>(null);

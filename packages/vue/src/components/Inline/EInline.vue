@@ -4,13 +4,13 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** The element to render, `div` by default. */
+    /** The element to render, `div` by default; for example `ul`. */
     as?: string;
     /** A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string. */
     gap?: number | string;
-    /** `between` or `end`; start by default. */
+    /** Main-axis placement: `between` or `end`; start by default. */
     justify?: "between" | "end";
-    /** `start` or `baseline`; centred by default. */
+    /** Cross-axis alignment: `start` or `baseline`; centred by default. */
     align?: "start" | "baseline";
     /** Keeps the children on one line instead of wrapping. */
     nowrap?: boolean;

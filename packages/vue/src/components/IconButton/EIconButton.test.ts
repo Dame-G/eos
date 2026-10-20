@@ -64,6 +64,11 @@ describe("EIconButton", () => {
     expect(document.activeElement).not.toBe(container.querySelector("button"));
   });
 
+  test("a disabled button is drawn with a dashed edge, like a disabled EButton", async () => {
+    const { container } = await render(EIconButton, { props: { icon: "trash", label: "Delete", disabled: true } });
+    expect(getComputedStyle(container.querySelector("button")!).borderTopStyle).toBe("dashed");
+  });
+
   test("other attributes fall through to the button, such as popovertarget", async () => {
     const { container } = await render(EIconButton, {
       props: { icon: "menu", label: "Open menu" },

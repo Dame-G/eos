@@ -17,14 +17,18 @@ A button that opens a short list of actions. Use it when there are three or more
 
 ## Props
 
-| Prop      | Type                                                           | Default   | Notes                                                                                                                       |
-| --------- | -------------------------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `label`   | `string`                                                       |           | Required. Button text.                                                                                                      |
-| `items`   | `(EMenuAction \| EMenuDivider)[]`                              |           | Required. Action: `{ label, icon?, onClick?, danger?, disabled? }`; `{ divider: true }` draws a rule. Put destructive last. |
-| `variant` | `"primary" \| "secondary" \| "outline" \| "danger" \| "quiet"` | `outline` | Button look.                                                                                                                |
-| `icon`    | `IconProp`                                                     |           | Icon before the label.                                                                                                      |
-| `align`   | `"start" \| "end"`                                             | `start`   | Which edge of the trigger the menu lines up with; `end` for a trigger at the end of a bar.                                  |
-| `open`    | `boolean`                                                      | `false`   | v-model:open: open state. Opening it from outside moves no focus.                                                           |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` | `boolean` | `false` | `v-model:open`: the open state. Opening it from outside moves no focus. |
+| `label` | `string` | **Required** | The button's text. With a `trigger` slot it is not shown; name your own trigger. |
+| `items` | `readonly EMenuItem[]` | **Required** | The actions, in order. Action: `{ label, icon?, onClick?, danger?, disabled? }`; `{ divider: true }` draws a rule. Put destructive last. |
+| `variant` | `"primary" \| "secondary" \| "outline" \| "danger" \| "quiet"` | `"outline"` | The look of the button. |
+| `icon` | `IconProp` | — | An icon before the label. |
+| `align` | `"start" \| "end"` | `"start"` | Which edge of the trigger the menu lines up with. Use `end` for a trigger at the end of a bar. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `button` element; with a `trigger` slot they are not applied.
 

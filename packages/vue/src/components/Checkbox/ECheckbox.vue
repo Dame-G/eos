@@ -15,20 +15,23 @@ const props = defineProps<{
   description?: string;
   /** A mixed state, such as select-all with some rows chosen. */
   indeterminate?: boolean;
-  /** Hide the label visually but keep it for screen readers, for a table cell. */
+  /** Hide the label visually but keep it for screen readers, for a table cell. No error text. */
   bare?: boolean;
+  /** Disables the checkbox. */
   disabled?: boolean;
+  /** The `required` attribute. */
   required?: boolean;
-  /** What to fix. Shown under the row, with `aria-invalid`. */
+  /** What to fix. Shown under the row; sets `aria-invalid`. */
   error?: string;
   /** The name submitted with a form. */
   name?: string;
   /** The value submitted with a form when checked. */
   value?: string;
-  /** The id of the input; the label points at it. Generated when left out. */
+  /** The id of the input; the label points at it. @default generated */
   id?: string;
 }>();
 
+/** Whether it is checked. */
 const model = defineModel<boolean>({ default: false });
 
 const id = useUid(() => props.id);
@@ -106,7 +109,7 @@ defineExpose({
   }
 
   .e-choice-wrap > .e-field-error {
-    margin-top: -6px;
+    margin-top: calc(var(--e-space-1) - var(--e-space-2) - var(--e-focus-gap));
   }
 }
 </style>

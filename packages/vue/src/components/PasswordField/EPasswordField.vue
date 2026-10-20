@@ -21,27 +21,29 @@ import "../Combobox/combo.css";
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  /** The visible label, a mono kicker above the field. Default "Password". */
+  /** The visible label, a mono kicker above the field. @default "Password" */
   label?: string;
   /** Keep the label for screen readers and remove it from the page. */
   hideLabel?: boolean;
-  /** `current` for signing in, `new` for choosing one. Sets the autocomplete token so a password manager can fill or suggest. */
+  /** `current` for signing in, `new` for choosing one. Sets `autocomplete` (`current-password` or `new-password`) so a password manager can fill or suggest. */
   mode?: "current" | "new";
-  /** A checklist that updates as the person types. Each rule shows a tick or an empty circle and says "met" or "not met yet". */
+  /** `{ label, test(value) }`. A checklist under the field that updates as the person types. Each rule shows a tick or an empty circle and says "met" or "not met yet". */
   rules?: PasswordRule[];
   /** Help that stays under the field. */
   hint?: string;
   /** What to fix. Replaces the hint, marks the input invalid and is announced. */
   error?: string;
-  /** A word beside the label. */
+  /** The `required` attribute and a word beside the label. */
   required?: boolean;
   /** A word beside the label. Flag whichever is rarer. */
   optional?: boolean;
+  /** Disables the input and the toggle. */
   disabled?: boolean;
-  /** The id of the input; the label points at it. Generated when left out. */
+  /** The id of the input; the label points at it. @default generated */
   id?: string;
 }>();
 
+/** The password. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
@@ -119,6 +121,11 @@ defineExpose({
 
 <style>
 @layer e.composites {
+  /* The hidden-character dots keep the size of plain text so the caret matches when they are shown. */
+  .e-input-wrap .e-input[type="password"] {
+    letter-spacing: 0.12em;
+  }
+
   .e-rules {
     display: grid;
     gap: var(--e-space-1);
@@ -148,6 +155,11 @@ defineExpose({
     width: 14px;
     height: 14px;
     border: var(--e-stroke-edge) solid var(--e-border-strong);
+
+    --e-bc: var(--e-border-strong);
+
+    outline: var(--e-stroke-edge) solid var(--e-bc);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: 50%;
   }
 }

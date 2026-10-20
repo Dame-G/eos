@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ComboboxItem } from "reka-ui";
 import EIcon from "../Icon/EIcon.vue";
-import EHighlight from "./EHighlight.js";
+import EMatchHighlight from "./matchHighlight.js";
 import type { EOption } from "../Select/options.js";
 
 defineProps<{
@@ -26,9 +26,9 @@ defineProps<{
   >
     <EIcon v-if="option.icon" :name="option.icon" />
     <span class="e-opt-text">
-      <span class="e-opt-label"><EHighlight :text="option.label" :query="query" /></span>
+      <span class="e-opt-label"><EMatchHighlight :text="option.label" :query="query" /></span>
       <span v-if="option.description" class="e-opt-desc">
-        <EHighlight :text="option.description" :query="query" />
+        <EMatchHighlight :text="option.description" :query="query" />
       </span>
     </span>
     <EIcon v-if="selected" name="check" bold />

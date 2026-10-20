@@ -12,13 +12,17 @@ A person, as a photo or as their initials on a rounded tile.
 
 ## Props
 
-| Prop    | Type                 | Default | Notes                                                                                                                     |
-| ------- | -------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `name`  | `string`             |         | Required. Read by screen readers. The initials are the first letters of its first and last word.                          |
-| `src`   | `string`             |         | Photo URL. The initials show if it fails to load.                                                                         |
-| `small` | `boolean`            |         | 32px, for rows and bars.                                                                                                  |
-| `large` | `boolean`            |         | 64px, for a profile or practitioner. The default is 44px.                                                                 |
-| `as`    | `"span" \| "button"` | `span`  | `button` renders a `button` with `type="button"`, a pointer cursor and a focus ring, such as the `trigger` of an `EMenu`. |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `name` | `string` | **Required** | The person's name. Screen readers read it; the initials are the first letters of its first and last word. |
+| `src` | `string` | — | A photo URL. If it fails to load, the initials appear. |
+| `small` | `boolean` | `false` | 32px, for rows and bars. |
+| `large` | `boolean` | `false` | 64px, for a profile or practitioner on an appointment card. The default is 44px. |
+| `as` | `"span" \| "button"` | `"span"` | `button` renders a `button` with `type="button"`, a pointer cursor and a focus ring, named by `name`, such as the `trigger` of an `EMenu`. Default `span`. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `span` or `button` element.
 

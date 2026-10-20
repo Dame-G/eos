@@ -79,10 +79,18 @@ describe("EActions", () => {
     await expect.element(page.getByRole("button", { name: "Details" })).toHaveFocus();
   });
 
+  test("a label makes it a named group; without one it has no role", async () => {
+    const { container } = await render(EActions, { props: { label: "Record actions" }, slots: { default: buttons } });
+    await expect.element(page.getByRole("group", { name: "Record actions" })).toBeVisible();
+    const plain = await render(EActions, { slots: { default: buttons } });
+    expect(plain.container.firstElementChild!.hasAttribute("role")).toBe(false);
+    expect(container.querySelectorAll("button").length).toBe(2);
+  });
+
   test("has no accessibility violations inline or as a bar", async () => {
     const { container } = await render(
       defineComponent({
-        render: () => h("div", [h(EActions, null, buttons), h(EActions, { bar: true, as: "footer" }, buttons)]),
+        render: () => h("div", [h(EActions, null, buttons), h(EActions, { bar: true, as: "footer" }, buttons), h(EActions, { label: "Tools" }, buttons)]),
       }),
     );
     await expectNoViolations(container);

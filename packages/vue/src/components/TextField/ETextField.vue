@@ -9,7 +9,7 @@ import "./input.css";
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  /** The visible label, a mono kicker above the input. */
+  /** The visible label, a mono kicker above the input. The placeholder is an example, never the label. */
   label: string;
   /** Keep the label for screen readers and remove it from the page. */
   hideLabel?: boolean;
@@ -19,21 +19,23 @@ const props = defineProps<{
   error?: string;
   /** An example, never the label. */
   placeholder?: string;
-  /** The input type. */
+  /** The input type. @default "text" */
   type?: string;
-  /** A unit before the value, such as $. */
+  /** A unit before the value, such as `$`. Hidden from screen readers. */
   prefix?: string;
-  /** A unit after the value, such as USD. */
+  /** A unit after the value, such as `USD`. Hidden from screen readers. */
   suffix?: string;
-  /** A word beside the label. */
+  /** The `required` attribute and a word beside the label. */
   required?: boolean;
   /** A word beside the label. Flag whichever is rarer. */
   optional?: boolean;
+  /** Disables the field. */
   disabled?: boolean;
-  /** The id of the input; the label points at it. Generated when left out. */
+  /** The id of the input; the label points at it. @default generated */
   id?: string;
 }>();
 
+/** The text. */
 const model = defineModel<string>({ default: "" });
 
 const input = ref<HTMLInputElement | null>(null);

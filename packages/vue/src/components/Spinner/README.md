@@ -8,10 +8,14 @@ A ring that shows a single action is loading. Say what is being waited for.
 
 ## Props
 
-| Prop    | Type      | Default | Notes                                                             |
-| ------- | --------- | ------- | ----------------------------------------------------------------- |
-| `label` | `string`  |         | Shown beside the ring. Without it, screen readers hear "Loading". |
-| `block` | `boolean` |         | Centres the spinner in a panel.                                   |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `label` | `string` | — | Shown beside the ring. Without it the ring is announced as "Loading". |
+| `block` | `boolean` | `false` | Centre it in a panel. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the `span` element.
 

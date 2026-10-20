@@ -11,13 +11,17 @@ Children in a row that wraps when it runs out of room, for a title with a status
 
 ## Props
 
-| Prop      | Type                    | Default | Notes                                                    |
-| --------- | ----------------------- | ------- | -------------------------------------------------------- |
-| `as`      | `string`                | `div`   | The element, for example `ul`.                           |
-| `gap`     | `number \| string`      | `2`     | A space token number (1, 2, 3, 4, 6, 8) or a CSS length. |
-| `justify` | `"between" \| "end"`    |         | Main-axis placement. Start by default.                   |
-| `align`   | `"start" \| "baseline"` |         | Cross-axis alignment. Centred by default.                |
-| `nowrap`  | `boolean`               |         | Keeps the children on one line.                          |
+<!-- props:start -->
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `as` | `string` | `"div"` | The element to render, `div` by default; for example `ul`. |
+| `gap` | `number \| string` | `2` | A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string. |
+| `justify` | `"between" \| "end"` | — | Main-axis placement: `between` or `end`; start by default. |
+| `align` | `"start" \| "baseline"` | — | Cross-axis alignment: `start` or `baseline`; centred by default. |
+| `nowrap` | `boolean` | `false` | Keeps the children on one line instead of wrapping. |
+
+<!-- props:end -->
 
 `class`, `style` and attributes land on the rendered element.
 
