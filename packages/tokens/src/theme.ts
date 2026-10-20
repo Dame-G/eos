@@ -42,7 +42,7 @@ export interface ThemeInput {
   textScale?: number;
   /** Multiplier for the spacing scale, `space-1` to `space-8`. 1 is the default scale; non-finite or non-positive values are ignored. */
   spaceScale?: number;
-  /** Line weights in px. `hair` sets `stroke-hair`, `stroke-card` and `stroke-edge` (1.5 times it); `focus` sets `stroke-focus` and `focus-gap` (the same). `edge` and `card` set `stroke-edge` (controls) and `stroke-card` (containers, chips) outright and win over what `hair` and a bold `elevation` give. `focus-gap-field` always follows `stroke-edge` in CSS (minus the border width), so a field's focus outline sits exactly over its border. */
+  /** Line weights in px. `hair` sets `stroke-hair`, `stroke-card` and `stroke-edge` (1.5 times it, rounded down to whole pixels); `focus` sets `stroke-focus` and `focus-gap` (the same). `edge` and `card` set `stroke-edge` (controls) and `stroke-card` (containers, chips) outright and win over what `hair` and a bold `elevation` give. `focus-gap-field` always follows `stroke-edge` in CSS (minus the border width), so a field's focus outline sits exactly over its border. */
   strokes?: { hair?: number; focus?: number; edge?: number; card?: number };
   /** `"high"` draws every line and secondary text at full strength: `border` and `border-strong` become the foreground colour, `muted` is softened only until it holds 15:1, `surface-tint` is a neutral grey (no brand tint) and `scrim` is darker. Pair it with heavier `strokes`. Default `"standard"`. */
   contrast?: ContrastPreset;
@@ -153,7 +153,7 @@ function deriveStrokes(input: ThemeInput, out: Record<string, string>) {
   if (hair !== undefined) {
     out["stroke-hair"] = px(hair);
     out["stroke-card"] = px(hair);
-    out["stroke-edge"] = px(hair * 1.5);
+    out["stroke-edge"] = px(Math.max(1, Math.floor(hair * 1.5)));
   }
   if (focus !== undefined) {
     out["stroke-focus"] = px(focus);
