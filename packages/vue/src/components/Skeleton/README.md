@@ -11,11 +11,11 @@ A placeholder block shown while content loads. Size it like what is coming.
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `height` | `number \| string` | `96` | A number is px; a string is any CSS length. |
-| `width` | `number \| string` | `full width` | Same units as `height`. |
-| `circle` | `boolean` | `false` | A round block, for a photo; set `height` and the width follows. |
+| Prop     | Type               | Default      | Notes                                                           |
+| -------- | ------------------ | ------------ | --------------------------------------------------------------- |
+| `height` | `number \| string` | `96`         | A number is px; a string is any CSS length.                     |
+| `width`  | `number \| string` | `full width` | Same units as `height`.                                         |
+| `circle` | `boolean`          | `false`      | A round block, for a photo; set `height` and the width follows. |
 
 <!-- props:end -->
 

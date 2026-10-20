@@ -1,10 +1,10 @@
 # EExpandableRow
 
-A one-line row that opens to more: a leading item, a title with a subtitle, and a value at the end. Use it for lists where each entry has a short summary and a longer body. For a section inside a page use `EDisclosure`.
+A one-line row that opens to more: a leading item, a title with a subtitle, and a value at the end. Use it for lists where each entry has a short summary and a longer body. For a section inside a page use [`EDisclosure`](../Disclosure/README.md).
 
 ```vue
 <EExpandableRow title="Lab work" subtitle="Oct 3, 2026">
-  <template #leading><EStamp status="paid" size="sm" /></template>
+  <template #leading><EStamp status="paid" small /></template>
   <template #trailing>$42.40</template>
   Blood panel and urinalysis.
   <template #actions><EButton>Download</EButton></template>
@@ -15,10 +15,10 @@ A one-line row that opens to more: a leading item, a title with a subtitle, and 
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `title` | `string` | **Required** | The row's name, always visible in the summary. |
-| `subtitle` | `string` | — | A muted line under the title. |
+| Prop       | Type     | Default      | Notes                                          |
+| ---------- | -------- | ------------ | ---------------------------------------------- |
+| `title`    | `string` | **Required** | The row's name, always visible in the summary. |
+| `subtitle` | `string` | —            | A muted line under the title.                  |
 
 <!-- props:end -->
 

@@ -36,6 +36,21 @@ describe("ETabs", () => {
     expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
   });
 
+  test("vertical stacks the tabs in a column beside the panel and keeps the arrow keys", async () => {
+    const { container } = await render(ETabs, { props: { items, orientation: "vertical" }, slots });
+    const root = container.querySelector(".e-tabs")!;
+    expect(root.classList.contains("e-tabs--vertical")).toBe(true);
+    expect(root.querySelector("[role=tablist]")!.getAttribute("aria-orientation")).toBe("vertical");
+    const tabs = [...container.querySelectorAll<HTMLElement>("[role=tab]")].map((x) => x.getBoundingClientRect());
+    expect(tabs[1]!.top).toBeGreaterThan(tabs[0]!.top);
+    expect(Math.round(tabs[1]!.right)).toBe(Math.round(tabs[0]!.right));
+    const panel = container.querySelector("[role=tabpanel]")!.getBoundingClientRect();
+    expect(panel.left).toBeGreaterThanOrEqual(tabs[0]!.right);
+    container.querySelector<HTMLElement>("[role=tab]")!.focus();
+    await userEvent.keyboard("{ArrowDown}");
+    await expect.element(page.getByRole("tab", { name: "Two 3" })).toHaveFocus();
+  });
+
   test("the count shows in a badge after the label", async () => {
     const { container } = await render(ETabs, { props: { items }, slots });
     expect(container.querySelector(".e-tab-count")!.textContent).toBe("3");
@@ -126,9 +141,9 @@ describe("ETabs", () => {
     const [first, second] = [...container.querySelectorAll<HTMLElement>("[role=tab]")] as [HTMLElement, HTMLElement];
     expect(getComputedStyle(first).fontWeight).toBe("600");
     expect(getComputedStyle(second).fontWeight).toBe("500");
-    expect(getComputedStyle(first).borderBottomColor).not.toBe(getComputedStyle(second).borderBottomColor);
-    expect(getComputedStyle(first).boxShadow).not.toBe("none");
-    expect(getComputedStyle(second).boxShadow).toBe("none");
+    // The selected tab has the slab, an inset shadow shifted up; the others have only the ring.
+    expect(getComputedStyle(first).boxShadow.match(/inset/g)).toHaveLength(2);
+    expect(getComputedStyle(second).boxShadow.match(/inset/g)).toHaveLength(1);
   });
 
   test("the strip scrolls sideways when the tabs do not fit", async () => {

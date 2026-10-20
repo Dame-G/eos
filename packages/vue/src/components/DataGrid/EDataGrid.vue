@@ -44,6 +44,7 @@ import type {
   DataGridVirtual,
 } from "./types.js";
 import "../../styles/base.css";
+import "../Table/table.css";
 import "../TextField/input.css";
 import "../Select/panel.css";
 
@@ -75,7 +76,7 @@ const props = withDefaults(
     maxHeight?: string;
     /** Renders only the rows in view, for thousands of rows. Replaces paging. `true` or `{ rowHeight = 48, height = 440, overscan = 8 }`. */
     virtual?: boolean | DataGridVirtual;
-    /** Turns rows into cards below 40rem of the grid's own width. On by default; `virtual` and `resizable` grids keep the table. */
+    /** Turns rows into cards below 40rem of the grid's own width. `virtual` and `resizable` grids keep the table. */
     cards?: boolean;
     /** Data lives on a server: show the rows given, in the order given, and report every change through `queryChange`. */
     manual?: boolean;
@@ -661,53 +662,6 @@ watch([sort, page, search, filters], () => {
 
 <style>
 @layer e.containers {
-  .e-table {
-    width: 100%;
-    border-collapse: collapse;
-    font: 400 var(--e-text-md) / 1.4 var(--e-font-sans);
-  }
-
-  .e-table th {
-    padding: var(--e-space-3) var(--e-space-4);
-    border-bottom: var(--e-stroke-card) solid var(--e-border-strong);
-    background: var(--e-surface-tint);
-    text-align: start;
-    white-space: nowrap;
-    font: 600 var(--e-text-xs) / 1.2 var(--e-font-mono);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--e-muted);
-  }
-
-  .e-table td {
-    padding: var(--e-space-3) var(--e-space-4);
-    border-top: var(--e-stroke-hair) solid var(--e-border);
-    vertical-align: middle;
-  }
-
-  .e-table tbody tr:first-child td {
-    border-top: 0;
-  }
-
-  .e-table tbody tr:hover td {
-    background: var(--e-surface-hover);
-  }
-
-  .e-table .e-num {
-    text-align: end;
-    font-family: var(--e-font-mono);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-
-  .e-table th.e-num {
-    font-family: var(--e-font-mono);
-  }
-
-  .e-table .e-center {
-    text-align: center;
-  }
-
   .e-skel {
     display: block;
     height: 14px;
@@ -885,7 +839,7 @@ watch([sort, page, search, filters], () => {
   .e-filterrow td {
     padding: var(--e-space-1) var(--e-space-3);
     background: var(--e-surface);
-    border-bottom: var(--e-stroke-card) solid var(--e-border-strong);
+    box-shadow: inset 0 calc(-1 * var(--e-stroke-card)) 0 var(--e-border-strong);
     border-top: 0;
     position: sticky;
     top: var(--e-grid-head-h);

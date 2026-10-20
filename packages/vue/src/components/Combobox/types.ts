@@ -23,13 +23,13 @@ export interface EComboboxFields {
   optional?: boolean;
   /** Disables the field; a disabled field never opens. */
   disabled?: boolean;
-  /** Submits the value with a form, through a hidden input (hidden inputs carry it, one per chosen value). */
+  /** Submits the value with a form, through a hidden input. */
   name?: string;
   /** Show the Searching spinner in the list instead of the options, while a server answers. */
   loading?: boolean;
   /** What the list says when nothing matches. @default "No matches" */
   emptyText?: string;
-  /** The clear button, shown when there is something to clear. On by default. */
+  /** The clear button, shown when there is something to clear. */
   clearable?: boolean;
   /** Replaces the default match (the typed text appears in the label or description). `query` is trimmed and lower case. Return `true` when the server filters. @default label or description contains query */
   filter?: (option: EOption, query: string) => boolean;

@@ -4,7 +4,7 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** The element to render, `div` by default; for example `ul`. */
+    /** The element to render, for example `ul`. */
     as?: string;
     /** A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string. */
     gap?: number | string;

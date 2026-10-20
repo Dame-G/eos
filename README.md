@@ -7,7 +7,7 @@ Accessible Vue 3 components with a token-based theme system. High contrast and c
 | [`@eos-ui/vue`](packages/vue)       | Components (`EButton`, `ETextField`, ...), plugin, composables          |
 | [`@eos-ui/tokens`](packages/tokens) | Design tokens as CSS variables and `defineTheme()` with contrast checks |
 
-Documentation and live examples: https://eos.dame.gg
+[Documentation and live examples](https://eos.dame.gg)
 
 ## Use
 
@@ -55,7 +55,7 @@ Components({ resolvers: [EosResolver()] }); // unplugin-vue-components
 
 ## Theming
 
-A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes 16 inputs: `brand`, `accent`, `danger`, `warning`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `textScale`, `spaceScale`, `controlHeight` and `motion`.
+A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes 16 inputs: `brand`, `accent`, `danger`, `warning`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `contrast`, `textScale`, `spaceScale`, `controlHeight` and `motion`.
 
 ```ts
 import { defineTheme } from "@eos-ui/vue";

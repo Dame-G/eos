@@ -1,0 +1,65 @@
+/* The table look shared by ETable and EDataGrid: tinted mono headings, hairline rows, a hover row and numeric columns. */
+@layer e.containers {
+  .e-table {
+    width: 100%;
+    border-collapse: collapse;
+    font: 400 var(--e-text-md) / 1.4 var(--e-font-sans);
+  }
+
+  .e-table th {
+    padding: var(--e-space-3) var(--e-space-4);
+    border-bottom: 0;
+
+    /* The rule under a heading is a shadow, not a border: a sticky cell in a collapsed table drops its border when the table scrolls. */
+    box-shadow: inset 0 calc(-1 * var(--e-stroke-card)) 0 var(--e-border-strong);
+    background: var(--e-surface-tint);
+    text-align: start;
+    white-space: nowrap;
+    font: 600 var(--e-text-xs) / 1.2 var(--e-font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--e-muted);
+  }
+
+  /* A heading at the start of a row names the row: it reads as a label, not as a column heading. */
+  .e-table tbody th {
+    padding: var(--e-space-3) var(--e-space-4);
+    border-top: var(--e-stroke-hair) solid var(--e-border);
+    border-bottom: 0;
+    box-shadow: none;
+    background: transparent;
+    font: 600 var(--e-text-md) / 1.4 var(--e-font-sans);
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--e-ink);
+  }
+
+  .e-table td {
+    padding: var(--e-space-3) var(--e-space-4);
+    border-top: var(--e-stroke-hair) solid var(--e-border);
+    vertical-align: middle;
+  }
+
+  .e-table tbody tr:first-child :is(td, th) {
+    border-top: 0;
+  }
+
+  .e-table tbody tr:hover :is(td, th) {
+    background: var(--e-surface-hover);
+  }
+
+  .e-table .e-num {
+    text-align: end;
+    font-family: var(--e-font-mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .e-table th.e-num {
+    font-family: var(--e-font-mono);
+  }
+
+  .e-table .e-center {
+    text-align: center;
+  }
+}

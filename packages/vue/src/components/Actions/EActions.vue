@@ -3,7 +3,7 @@ import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
-    /** The element to render, `div` by default. Use `footer` for a bar at the end of a card. */
+    /** The element to render. Use `footer` for a bar at the end of a card. */
     as?: string;
     /** Puts the group on a tinted footer bar with a rule above, for actions that end a card or an overlay. Buttons stack full width up to 32rem. Leave it off for the next step on a page. */
     bar?: boolean;

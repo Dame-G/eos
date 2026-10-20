@@ -11,20 +11,20 @@ A dropzone for attaching files, clickable and droppable, listing the chosen file
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `modelValue` | `File[]` | `[]` | `v-model`: the chosen files. |
-| `label` | `string` | **Required** | The visible label, a mono kicker above the dropzone. |
-| `hideLabel` | `boolean` | `false` | Keep the label for screen readers and remove it from the page. |
-| `accept` | `string` | — | Accepted extensions, such as `.pdf,.jpg`. Passed to the input and shown under the prompt as "PDF, JPG". |
-| `multiple` | `boolean` | `false` | Allows choosing more than one file. |
-| `name` | `string` | — | The name submitted with a form. |
-| `hint` | `string` | — | Say what is accepted and how large before the person tries. |
-| `error` | `string` | — | What to fix. Replaces the hint, marks the input invalid and is announced. |
-| `required` | `boolean` | `false` | The `required` attribute and a word beside the label. |
-| `optional` | `boolean` | `false` | A word beside the label. Flag whichever is rarer. |
-| `disabled` | `boolean` | `false` | Ignores drops and clicks and dims the edge. |
-| `id` | `string` | `generated` | The id of the file input; the label points at it. |
+| Prop         | Type      | Default      | Notes                                                                                                   |
+| ------------ | --------- | ------------ | ------------------------------------------------------------------------------------------------------- |
+| `modelValue` | `File[]`  | `[]`         | `v-model`: the chosen files.                                                                            |
+| `label`      | `string`  | **Required** | The visible label, a mono kicker above the dropzone.                                                    |
+| `hideLabel`  | `boolean` | `false`      | Keep the label for screen readers and remove it from the page.                                          |
+| `accept`     | `string`  | —            | Accepted extensions, such as `.pdf,.jpg`. Passed to the input and shown under the prompt as "PDF, JPG". |
+| `multiple`   | `boolean` | `false`      | Allows choosing more than one file.                                                                     |
+| `name`       | `string`  | —            | The name submitted with a form.                                                                         |
+| `hint`       | `string`  | —            | Say what is accepted and how large before the person tries.                                             |
+| `error`      | `string`  | —            | What to fix. Replaces the hint, marks the input invalid and is announced.                               |
+| `required`   | `boolean` | `false`      | The `required` attribute and a word beside the label.                                                   |
+| `optional`   | `boolean` | `false`      | A word beside the label. Flag whichever is rarer.                                                       |
+| `disabled`   | `boolean` | `false`      | Ignores drops and clicks and dims the edge.                                                             |
+| `id`         | `string`  | `generated`  | The id of the file input; the label points at it.                                                       |
 
 <!-- props:end -->
 

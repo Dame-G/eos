@@ -10,10 +10,10 @@ A ring that shows a single action is loading. Say what is being waited for.
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `label` | `string` | — | Shown beside the ring. Without it the ring is announced as "Loading". |
-| `block` | `boolean` | `false` | Centre it in a panel. |
+| Prop    | Type      | Default | Notes                                                                 |
+| ------- | --------- | ------- | --------------------------------------------------------------------- |
+| `label` | `string`  | —       | Shown beside the ring. Without it the ring is announced as "Loading". |
+| `block` | `boolean` | `false` | Centre it in a panel.                                                 |
 
 <!-- props:end -->
 

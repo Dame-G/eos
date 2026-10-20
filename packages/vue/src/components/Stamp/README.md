@@ -4,7 +4,7 @@ A small non-interactive mark with a word that says where something stands, such 
 
 ```vue
 <EStamp status="overdue" detail="12 days" />
-<EStamp tone="warning" label="Review" icon="pin" size="sm" />
+<EStamp tone="warning" label="Review" icon="pin" small />
 <EStamp tone="success">Paid</EStamp>
 ```
 
@@ -12,14 +12,14 @@ A small non-interactive mark with a word that says where something stands, such 
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `status` | `StampStatus` | — | A preset: sets the tone and the word (message `status.<name>`). |
-| `tone` | `StampTone` | `"ink"` | Overrides the preset's tone. Without a status it is `neutral` (ink; `ink` is the same). `success`: paid, confirmed. `info`: due, scheduled. `warning`: needs attention. `danger`: overdue, failed. |
-| `label` | `string` | `preset's word, else Status` | The word. Overrides the preset's; the default slot overrides both. |
-| `icon` | `IconProp` | — | A glyph before the word. None by default. |
-| `detail` | `string` | — | A date or day count, set after the word. |
-| `size` | `"sm" \| "md"` | `"md"` | `sm` is shorter, for rows and tables. |
+| Prop     | Type          | Default                      | Notes                                                                                                                                                                                              |
+| -------- | ------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `status` | `StampStatus` | —                            | A preset: sets the tone and the word (message `status.<name>`).                                                                                                                                    |
+| `tone`   | `StampTone`   | `"ink"`                      | Overrides the preset's tone. Without a status it is `neutral` (ink; `ink` is the same). `success`: paid, confirmed. `info`: due, scheduled. `warning`: needs attention. `danger`: overdue, failed. |
+| `label`  | `string`      | `preset's word, else Status` | The word. Overrides the preset's; the default slot overrides both.                                                                                                                                 |
+| `icon`   | `IconProp`    | —                            | A glyph before the word. None by default.                                                                                                                                                          |
+| `detail` | `string`      | —                            | A date or day count, set after the word.                                                                                                                                                           |
+| `small`  | `boolean`     | `false`                      | Shorter, for rows and tables.                                                                                                                                                                      |
 
 <!-- props:end -->
 

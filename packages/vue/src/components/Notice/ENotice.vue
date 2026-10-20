@@ -84,11 +84,11 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
     container-type: inline-size;
     padding: var(--e-space-3) var(--e-space-4);
     padding-left: calc(var(--e-space-4) + 2 * var(--e-depth));
-    border: var(--e-stroke-edge) solid var(--e-tone);
+    border: 0;
     border-radius: var(--e-radius-md);
     background-color: var(--e-bg);
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-tone);
     background-image: linear-gradient(to right, var(--e-tone) calc(var(--e-stroke-edge) + 2 * var(--e-depth)), transparent calc(var(--e-stroke-edge) + 2 * var(--e-depth)));
-    background-origin: border-box;
     background-repeat: no-repeat;
     color: var(--e-ink);
   }

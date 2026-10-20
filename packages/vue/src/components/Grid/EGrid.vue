@@ -4,7 +4,7 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** The element to render, `div` by default; for example `ul` with `li` children. */
+    /** The element to render, for example `ul` with `li` children. */
     as?: string;
     /** The narrowest a column may be, as a CSS length. One column below that. */
     min?: string;

@@ -96,6 +96,8 @@
     .e-radio,
     .e-sel-trigger,
     .e-combo,
+    .e-search,
+    .e-seg,
     .e-avatar {
       border: 1px solid ButtonText;
     }

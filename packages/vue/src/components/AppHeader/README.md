@@ -14,8 +14,8 @@ The bar across the top of the page, with logo, actions and a navigation row that
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
+| Prop     | Type      | Default | Notes                                              |
+| -------- | --------- | ------- | -------------------------------------------------- |
 | `sticky` | `boolean` | `false` | Pins the header to the top while the page scrolls. |
 
 <!-- props:end -->

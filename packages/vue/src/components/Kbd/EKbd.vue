@@ -22,9 +22,10 @@ defineSlots<{
     display: inline-block;
     min-width: 1.5em;
     padding: 0 var(--e-space-1);
-    border: var(--e-stroke-hair) solid var(--e-border-strong);
+    border: 0;
     border-radius: var(--e-radius-sm);
     background: var(--e-surface-tint);
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
     color: var(--e-muted);
     font: 500 var(--e-text-sm) / 1.5 var(--e-font-mono);
     text-align: center;
@@ -37,7 +38,8 @@ defineSlots<{
 
   @media (forced-colors: active) {
     .e-kbd {
-      border-color: ButtonText;
+      outline: var(--e-stroke-hair) solid ButtonText;
+      outline-offset: calc(-1 * var(--e-stroke-hair));
     }
   }
 }

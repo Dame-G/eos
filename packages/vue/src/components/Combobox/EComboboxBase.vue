@@ -235,10 +235,10 @@ defineExpose({
               <span v-for="v in values" :key="v" class="e-tag">
                 {{ labelOf(v) }}
                 <button
+                  v-if="!disabled"
                   type="button"
                   class="e-tag-x"
                   :aria-label="t('removeItem', { label: labelOf(v) })"
-                  :disabled="disabled"
                   @click="remove(v)"
                 >
                   <EIcon name="x" small />
@@ -360,6 +360,10 @@ defineExpose({
     height: calc(var(--e-control-height) - 9px);
     align-self: center;
     padding-inline: var(--e-space-2);
+  }
+
+  .e-combo-main .e-tag:not(:has(.e-tag-x)) {
+    padding-inline-end: var(--e-space-3);
   }
 
   .e-tag {

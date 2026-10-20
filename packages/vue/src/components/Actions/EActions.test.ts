@@ -41,7 +41,7 @@ describe("EActions", () => {
 
     const narrow = await render(
       defineComponent({
-        render: () => h("div", { style: { width: "150px" } }, [h(EActions, null, buttons)]),
+        render: () => h("div", { style: { width: "120px" } }, [h(EActions, null, buttons)]),
       }),
     );
     const [c, d] = [...narrow.container.querySelectorAll<HTMLElement>(".e-btn")];

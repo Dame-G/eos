@@ -122,6 +122,20 @@ describe("ETextField", () => {
     await expect.element(page.getByRole("textbox", { name: "Email" })).toHaveAccessibleDescription("Enter an email");
   });
 
+  test("an invalid input keeps the error colour on hover and tints its background", async () => {
+    const { container } = await render(ETextField, { props: { label: "Email", error: "Enter an email" } });
+    container.classList.add("e-root");
+    const input = container.querySelector("input")!;
+    const idle = getComputedStyle(input);
+    const idleBg = idle.backgroundColor;
+    const idleShadow = idle.boxShadow;
+    await userEvent.hover(input);
+    await new Promise((r) => setTimeout(r, 250));
+    const hovered = getComputedStyle(input);
+    expect(hovered.backgroundColor).not.toBe(idleBg);
+    expect(hovered.boxShadow).toBe(idleShadow);
+  });
+
   test("required sets the attribute and the word; optional only the word", async () => {
     const req = await render(ETextField, { props: { label: "Nom", required: true } });
     expect(req.container.querySelector("input")!.required).toBe(true);
@@ -139,7 +153,7 @@ describe("ETextField", () => {
     expect(input.type).toBe("email");
     expect(input.placeholder).toBe("you@example.com");
     expect(input.disabled).toBe(true);
-    expect(getComputedStyle(input).borderStyle).toBe("dashed");
+    expect(getComputedStyle(input).outlineStyle).toBe("dashed");
   });
 
   test("read-only stays focusable", async () => {

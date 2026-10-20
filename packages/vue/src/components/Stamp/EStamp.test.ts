@@ -76,7 +76,7 @@ describe("EStamp", () => {
   test("size sm is shorter", async () => {
     const { container } = await render(
       defineComponent({
-        render: () => h("div", [h(EStamp, { status: "paid" }), h(EStamp, { status: "paid", size: "sm" })]),
+        render: () => h("div", [h(EStamp, { status: "paid" }), h(EStamp, { status: "paid", small: true })]),
       }),
     );
     const [big, small] = [...container.querySelectorAll(".e-stamp")].map((e) => e.getBoundingClientRect().height);
@@ -114,7 +114,7 @@ describe("EStamp", () => {
         render: () =>
           h("div", [
             ...STATUSES.map(([status]) => h(EStamp, { status })),
-            h(EStamp, { status: "due", detail: "in 3 days", size: "sm" }),
+            h(EStamp, { status: "due", detail: "in 3 days", small: true }),
             h(EStamp, { tone: "warning", label: "Review" }),
             h(EStamp, null, () => "Draft"),
             h(EStamp, { tone: "ink" }, () => "Ink"),

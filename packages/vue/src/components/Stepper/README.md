@@ -17,10 +17,10 @@ Shows where a person is in a multi-step flow such as registration. It displays p
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
+| Prop    | Type     | Default      | Notes                                                                                                                                                                        |
+| ------- | -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `steps` | `Step[]` | **Required** | The steps in order: `{ label, state }`; `state` is `done`, `current` or `upcoming` (`todo` is an alias). Exactly one is normally `current`. Keep labels to one or two words. |
-| `label` | `string` | `"Progress"` | The list's accessible name. |
+| `label` | `string` | `"Progress"` | The list's accessible name.                                                                                                                                                  |
 
 <!-- props:end -->
 

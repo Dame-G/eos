@@ -1,6 +1,6 @@
 # ESignaturePad
 
-A signature drawn with a finger, stylus or mouse. Most forms should use `ESignatureField`, which adds a typed alternative and an agreement.
+A signature drawn with a finger, stylus or mouse. Most forms should use [`ESignatureField`](../SignatureField/README.md), which adds a typed alternative and an agreement.
 
 ```vue
 <ESignaturePad v-model="image" :height="180" />
@@ -10,12 +10,12 @@ A signature drawn with a finger, stylus or mouse. Most forms should use `ESignat
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `modelValue` | `string` | `""` | `v-model`: A PNG data URL (black on transparent); empty while clear. Set `""` to clear. |
-| `height` | `number` | `160` | The height of the drawing area in pixels. |
-| `disabled` | `boolean` | `false` | Ignores drawing and disables Clear. |
-| `id` | `string` | `generated` | The id of the canvas. |
+| Prop         | Type      | Default     | Notes                                                                                   |
+| ------------ | --------- | ----------- | --------------------------------------------------------------------------------------- |
+| `modelValue` | `string`  | `""`        | `v-model`: A PNG data URL (black on transparent); empty while clear. Set `""` to clear. |
+| `height`     | `number`  | `160`       | The height of the drawing area in pixels.                                               |
+| `disabled`   | `boolean` | `false`     | Ignores drawing and disables Clear.                                                     |
+| `id`         | `string`  | `generated` | The id of the canvas.                                                                   |
 
 <!-- props:end -->
 

@@ -23,7 +23,7 @@ const props = withDefaults(
     disabledDate?: (date: Date) => boolean;
     /** Days that get a dot: a list of dates or a function. Screen readers hear `markLabel`. */
     marked?: Date[] | ((date: Date) => boolean);
-    /** What screen readers hear on a marked day. @default times available */
+    /** What screen readers hear on a marked day. @default "times available" */
     markLabel?: string;
     /** The earliest day that can be chosen. Earlier days cannot be focused or chosen; navigation stops there. */
     min?: Date;
@@ -540,7 +540,7 @@ defineExpose({
     gap: var(--e-space-1);
     height: var(--e-control-height);
     padding: 0 var(--e-space-2);
-    border: var(--e-stroke-edge) solid transparent;
+    border: 0;
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
@@ -551,8 +551,7 @@ defineExpose({
 
   .e-cal-pick:hover {
     background: var(--e-surface-hover);
-    border-color: var(--e-border-strong);
-
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
   }
 
   .e-cal-pick:focus-visible {
@@ -617,7 +616,7 @@ defineExpose({
     width: 100%;
     height: var(--e-tap);
     padding: 0;
-    border: var(--e-stroke-edge) solid transparent;
+    border: 0;
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
@@ -630,8 +629,7 @@ defineExpose({
   /* stylelint-disable-next-line selector-not-notation -- the selector stays in this form */
   .e-day:hover:not(:disabled):not(.e-day--sel) {
     background: var(--e-surface-hover);
-    border-color: var(--e-border-strong);
-
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
   }
 
   .e-day:focus-visible {
@@ -650,7 +648,7 @@ defineExpose({
 
   .e-day--sel {
     background: var(--e-primary);
-    border-color: var(--e-primary);
+    box-shadow: none;
     font-weight: 700;
     color: var(--e-on-primary);
   }
@@ -699,7 +697,7 @@ defineExpose({
     height: 100%;
     min-height: var(--e-tap);
     padding: 0;
-    border: var(--e-stroke-edge) solid transparent;
+    border: 0;
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
@@ -716,8 +714,7 @@ defineExpose({
   /* stylelint-disable-next-line selector-not-notation -- the selector stays in this form */
   .e-cal-cell:hover:not(:disabled):not(.e-day--sel) {
     background: var(--e-surface-hover);
-    border-color: var(--e-border-strong);
-
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
   }
 
   .e-cal-cell:focus-visible {
@@ -733,7 +730,7 @@ defineExpose({
 
   .e-cal-cell.e-day--sel {
     background: var(--e-primary);
-    border-color: var(--e-primary);
+    box-shadow: none;
     font-weight: 700;
     color: var(--e-on-primary);
   }

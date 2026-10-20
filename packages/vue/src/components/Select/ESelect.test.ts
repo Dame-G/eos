@@ -302,7 +302,7 @@ describe("ESelect", () => {
     button.click();
     await nextTick();
     expect(button.getAttribute("aria-expanded")).toBe("false");
-    expect(getComputedStyle(button).borderStyle).toBe("dashed");
+    expect(getComputedStyle(button).outlineStyle).toBe("dashed");
   });
 
   test("passes aria-*, data-* and listeners to the button; class and style stay on the wrapper", async () => {

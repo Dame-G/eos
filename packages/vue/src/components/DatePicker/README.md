@@ -1,6 +1,6 @@
 # EDatePicker
 
-A date field with a text box in the locale's order and a button that opens an `ECalendar` popup. There is no native date input.
+A date field with a text box in the locale's order and a button that opens an [`ECalendar`](../Calendar/README.md) popup. There is no native date input.
 
 ```vue
 <EDatePicker v-model="born" label="Date of birth" name="dob" required :max="today" />
@@ -10,21 +10,21 @@ A date field with a text box in the locale's order and a button that opens an `E
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `modelValue` | `Date \| null` | `null` | `v-model`: the chosen date. |
-| `open` | `boolean` | `false` | `v-model:open`: whether the calendar is open. Setting it moves no focus; a disabled field never opens. |
-| `label` | `string` | **Required** | The visible label, a mono kicker above the field. |
-| `hideLabel` | `boolean` | `false` | Keep the label for screen readers and remove it from the page. |
-| `hint` | `string` | — | Help that stays under the field. |
-| `error` | `string` | — | What to fix. Replaces the hint and marks the field invalid. A typed date that cannot be used shows its own error (`dateError`, `dateBetween`). |
-| `required` | `boolean` | `false` | The `required` attribute and a word beside the label. |
-| `optional` | `boolean` | `false` | A word beside the label. Flag whichever is rarer. |
-| `disabled` | `boolean` | `false` | Disables the field and its calendar button. |
-| `min` | `Date` | — | The earliest date that can be chosen or typed. |
-| `max` | `Date` | — | The latest date that can be chosen or typed. |
-| `name` | `string` | — | Submits the date as `YYYY-MM-DD` with a form, through a hidden input. |
-| `id` | `string` | `generated` | The id of the text box; the label points at it. |
+| Prop         | Type           | Default      | Notes                                                                                                                                          |
+| ------------ | -------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue` | `Date \| null` | `null`       | `v-model`: the chosen date.                                                                                                                    |
+| `open`       | `boolean`      | `false`      | `v-model:open`: whether the calendar is open. Setting it moves no focus; a disabled field never opens.                                         |
+| `label`      | `string`       | **Required** | The visible label, a mono kicker above the field.                                                                                              |
+| `hideLabel`  | `boolean`      | `false`      | Keep the label for screen readers and remove it from the page.                                                                                 |
+| `hint`       | `string`       | —            | Help that stays under the field.                                                                                                               |
+| `error`      | `string`       | —            | What to fix. Replaces the hint and marks the field invalid. A typed date that cannot be used shows its own error (`dateError`, `dateBetween`). |
+| `required`   | `boolean`      | `false`      | The `required` attribute and a word beside the label.                                                                                          |
+| `optional`   | `boolean`      | `false`      | A word beside the label. Flag whichever is rarer.                                                                                              |
+| `disabled`   | `boolean`      | `false`      | Disables the field and its calendar button.                                                                                                    |
+| `min`        | `Date`         | —            | The earliest date that can be chosen or typed.                                                                                                 |
+| `max`        | `Date`         | —            | The latest date that can be chosen or typed.                                                                                                   |
+| `name`       | `string`       | —            | Submits the date as `YYYY-MM-DD` with a form, through a hidden input.                                                                          |
+| `id`         | `string`       | `generated`  | The id of the text box; the label points at it.                                                                                                |
 
 <!-- props:end -->
 

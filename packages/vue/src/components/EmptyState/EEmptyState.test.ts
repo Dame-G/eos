@@ -7,6 +7,15 @@ import EButton from "../Button/EButton.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("EEmptyState", () => {
+  test("the icon stands alone in the primary colour, with no circle behind it", async () => {
+    const { container } = await render(EEmptyState, { props: { icon: "file", title: "x" } });
+    container.classList.add("e-root");
+    const holder = getComputedStyle(container.querySelector(".e-empty-icon")!);
+    expect(holder.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(holder.borderTopWidth).toBe("0px");
+    expect(holder.borderRadius).toBe("0px");
+  });
+
   test("shows the icon, title, text and action in that order", async () => {
     const { container } = await render(EEmptyState, {
       props: { icon: "file", title: "No statements yet" },
@@ -42,12 +51,12 @@ describe("EEmptyState", () => {
     const a = await render(EEmptyState, { props: { title: "x" } });
     a.container.classList.add("e-root");
     const outlined = getComputedStyle(a.container.querySelector(".e-empty")!);
-    expect(outlined.borderTopStyle).toBe("dashed");
+    expect(outlined.outlineStyle).toBe("dashed");
     const b = await render(EEmptyState, { props: { title: "x", bare: true } });
     b.container.classList.add("e-root");
     const bare = b.container.querySelector(".e-empty")!;
     expect(bare.classList.contains("e-empty--bare")).toBe(true);
-    expect(getComputedStyle(bare).borderTopWidth).toBe("0px");
+    expect(getComputedStyle(bare).outlineStyle).toBe("none");
   });
 
   test("the content is centred", async () => {

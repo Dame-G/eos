@@ -1,6 +1,6 @@
 # ERadioGroup
 
-Exactly one of five or fewer options. Use `ESelect` for more.
+Exactly one of five or fewer options. Use [`ESelect`](../Select/README.md) for more.
 
 ```vue
 <ERadioGroup
@@ -21,18 +21,18 @@ Exactly one of five or fewer options. Use `ESelect` for more.
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `modelValue` | `string` | — | `v-model`: the chosen value. |
-| `label` | `string` | **Required** | The question, as the group's legend. |
-| `hideLabel` | `boolean` | `false` | Keep the legend for screen readers and remove it from the page. |
-| `options` | `(string \| RadioOption)[]` | **Required** | Five or fewer. A string is both value and label. `RadioOption`: `{ value, label, description?, disabled? }`. |
-| `hint` | `string` | — | Help that is announced with the group. |
-| `error` | `string` | — | What to fix. Replaces the hint and is announced with the group. |
-| `required` | `boolean` | `false` | A word beside the legend, and `required` on the radios. |
-| `optional` | `boolean` | `false` | A word beside the legend. Flag whichever is rarer. |
-| `disabled` | `boolean` | `false` | Disables every option. |
-| `name` | `string` | `generated` | Shared by the radios, submitted with a form. |
+| Prop         | Type                        | Default      | Notes                                                                                                        |
+| ------------ | --------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
+| `modelValue` | `string`                    | —            | `v-model`: the chosen value.                                                                                 |
+| `label`      | `string`                    | **Required** | The question, as the group's legend.                                                                         |
+| `hideLabel`  | `boolean`                   | `false`      | Keep the legend for screen readers and remove it from the page.                                              |
+| `options`    | `(string \| RadioOption)[]` | **Required** | Five or fewer. A string is both value and label. `RadioOption`: `{ value, label, description?, disabled? }`. |
+| `hint`       | `string`                    | —            | Help that is announced with the group.                                                                       |
+| `error`      | `string`                    | —            | What to fix. Replaces the hint and is announced with the group.                                              |
+| `required`   | `boolean`                   | `false`      | A word beside the legend, and `required` on the radios.                                                      |
+| `optional`   | `boolean`                   | `false`      | A word beside the legend. Flag whichever is rarer.                                                           |
+| `disabled`   | `boolean`                   | `false`      | Disables every option.                                                                                       |
+| `name`       | `string`                    | `generated`  | Shared by the radios, submitted with a form.                                                                 |
 
 <!-- props:end -->
 

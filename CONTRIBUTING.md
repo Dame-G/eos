@@ -34,6 +34,7 @@ While working on one component, run from `packages/vue` (these need `pnpm build`
 | `node scripts/gen-index.mjs`            | rewrites `src/index.ts` from what is on disk (never edit `src/index.ts`) |
 | `node scripts/gen-props.mjs`            | rewrites every README's props table from the component source            |
 | `node scripts/gen-props.mjs --check`    | fails if a props table is out of date (CI runs it as `check:props`)      |
+| `node scripts/check-docs.mjs`           | README links, bare URLs, table pipes, icon names (CI: `check:docs`)      |
 
 ## A component
 
@@ -117,11 +118,25 @@ There are no look variants. A component has one good default; if two looks are b
 - Values come from tokens (`var(--e-space-4)`); a raw colour, size or duration means a missing token, which is added to `packages/tokens/src/tokens.json` with a usage note. Logical properties only (`margin-inline-start`).
 - Space belongs to the parent: a component sets no outer margin. Layout that depends on the component's own width uses container queries, not viewport media queries.
 
+### Documentation
+
+A README says what the consumer provides, what the component does and the rules. It does not repeat what the props table, the types or the source already say.
+
+- **Terse.** One sentence per fact, no history ("replaces the old...") and no restating a default: the table has a Default column, so a note never says "on by default". An accessibility bullet states a behaviour the consumer must know or act on, not one the prop note already gives or an implementation detail (percentages, colour washes).
+- **Section order:** intro, example, Props, the line on where `class`, `style` and attributes land, Slots, Events, Accessibility. Drop a section that has nothing in it.
+- **The intro** says what the component is for in one sentence, then names the sibling to use instead ("Use `EDrawer` to read a statement"). Link the first mention of each sibling: ``[`EDrawer`](../Drawer/README.md)``. Later mentions stay plain code.
+- **Links.** Relative links between repo files; named links for sites (`[Documentation](https://eos.dame.gg)`), never a bare URL. A package README may link other packages by path. Do not link a heading to itself.
+- **Highlighting.** Code font for anything the reader types or the code names: components, props, events, slots, CSS properties, message keys, attribute values and key names in code (`aria-pressed`, `Escape` as `event.key`). Quotes for words a user sees or hears ("Copied", "Page 2"). Plain text for key names in a keyboard list (Arrow Left, Enter). Bold only for the **Required** marker the generator writes.
+- **Examples** use only values that work: icon names from the built-in set (`iconNames`), real props, no `size` enum.
+- **Tables.** Escape `|` inside a cell as `\|`. Props tables are generated; edit the source comment (see above).
+
+`pnpm --filter @eos-ui/vue check:docs` checks links, bare URLs, table pipes, sibling links in the intro and icon names in examples. CI runs it.
+
 ### Definition of done
 
 1. Tests pass, including keyboard and axe.
 2. `check-css`, `check-layers`, `vue-tsc`, `eslint` and `stylelint` are clean.
-3. README, `index.ts` and exported prop types exist.
+3. README (following Documentation above), `index.ts` and exported prop types exist.
 4. The component works without the plugin installed and with a custom theme applied.
 
 ## Releases

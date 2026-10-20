@@ -93,12 +93,17 @@ const groupAttrs = () => ({
 
 <style>
 @layer e.controls {
+  /* A pressed-in track. The chosen option fills its cell edge to edge in the primary colour, covering the track's outline there so the outline turns primary where it is chosen, and the track clips it, so only the pieces at either end take the track's rounded corners: a value you set, not a place you go (that is Tabs). */
   .e-seg {
     display: inline-flex;
+    box-sizing: border-box;
     height: var(--e-control-height);
-    border: var(--e-stroke-edge) solid var(--e-border-strong);
+    position: relative;
     border-radius: var(--e-radius-md);
-    background: var(--e-border-strong);
+    background: var(--e-surface-tint);
+    box-shadow:
+      inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong),
+      var(--e-well);
     overflow: hidden;
     max-width: 100%;
     width: fit-content;
@@ -108,10 +113,6 @@ const groupAttrs = () => ({
     position: relative;
     display: inline-flex;
     cursor: pointer;
-  }
-
-  .e-seg-opt + .e-seg-opt {
-    border-inline-start: var(--e-stroke-hair) solid var(--e-border-strong);
   }
 
   .e-seg-input {
@@ -127,20 +128,26 @@ const groupAttrs = () => ({
     align-items: center;
     justify-content: center;
     gap: var(--e-space-2);
+    box-sizing: border-box;
     min-width: 4rem;
     padding: 0 var(--e-space-4);
-    background: var(--e-surface);
+    background: transparent;
+    color: var(--e-ink);
     font: 500 var(--e-text-md)/1 var(--e-font-sans);
     white-space: nowrap;
     transition: background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-seg-opt:hover .e-seg-text {
-    background: var(--e-surface-hover);
+    background: var(--e-wash-hover);
   }
 
-  .e-seg-input:checked + .e-seg-text {
-    background: var(--e-primary);
+  .e-seg-input:checked + .e-seg-text,
+  .e-seg-opt:hover .e-seg-input:checked + .e-seg-text {
+    background-color: var(--e-primary);
+
+    /* The darker band along the bottom is the slab, drawn inside the piece and the track clips it to the corners. */
+    background-image: linear-gradient(to top, color-mix(in srgb, var(--e-primary), var(--e-shade-slab)) var(--e-depth), transparent var(--e-depth));
     color: var(--e-on-primary);
     font-weight: 600;
   }
@@ -159,9 +166,12 @@ const groupAttrs = () => ({
     background: transparent;
   }
 
+  /* Chosen but unavailable: a flat piece with ink text, so it stays readable. */
   .e-seg-input:disabled:checked + .e-seg-text,
   .e-seg-opt:has(:disabled:checked):hover .e-seg-text {
-    background: var(--e-surface-hover);
+    background-color: var(--e-surface);
+    background-image: none;
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
     color: var(--e-ink);
   }
 

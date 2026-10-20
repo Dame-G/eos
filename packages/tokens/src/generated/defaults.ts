@@ -203,7 +203,7 @@ export const usage: Record<string, string> = {
   "space-8": "Section padding.",
   "radius-sm": "Stamps and tags.",
   "radius-md": "Buttons, inputs, cards, notices.",
-  "radius-lg": "Dialogs.",
+  "radius-lg": "Large custom surfaces. Dialogs and drawers use `radius-md`, like cards, so one corner setting rounds everything alike.",
   "radius-pill": "Chips and round buttons, echoing the logo's round caps.",
   "edge": "The flat outline of everything that is not clickable: cards, summaries, the SearchBar. A 1px `border` ring (3.4:1 on white), no depth.",
   "well": "Inputs, meters and empty slots pressed into the page.",

@@ -138,7 +138,8 @@ function typeahead(e: KeyboardEvent) {
   }
 
   .e-sel-trigger[aria-expanded="true"] {
-    border-color: var(--e-ink);
+    --e-ring: var(--e-ink);
+
     background-color: var(--e-surface);
   }
 

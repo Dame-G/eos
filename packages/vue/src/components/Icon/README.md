@@ -13,11 +13,11 @@ One 20px icon in the colour of the surrounding text, for putting a glyph beside 
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `name` | `IconProp` | **Required** | A name (from the built-in list or your icon set, such as `"credit-card"` or `"lucide:credit-card"`), or an icon component. |
-| `small` | `boolean` | `false` | 14px with the bold weight, for chips and stamps. |
-| `bold` | `boolean` | `false` | The bold weight at the normal size, where the icon set has one. |
+| Prop    | Type       | Default      | Notes                                                                                                                      |
+| ------- | ---------- | ------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `name`  | `IconProp` | **Required** | A name (from the built-in list or your icon set, such as `"credit-card"` or `"lucide:credit-card"`), or an icon component. |
+| `small` | `boolean`  | `false`      | 14px with the bold weight, for chips and stamps.                                                                           |
+| `bold`  | `boolean`  | `false`      | The bold weight at the normal size, where the icon set has one.                                                            |
 
 <!-- props:end -->
 
