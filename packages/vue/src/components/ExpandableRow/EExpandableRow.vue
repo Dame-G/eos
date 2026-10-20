@@ -41,37 +41,36 @@ defineSlots<{
 <style>
 @layer e.containers {
   .e-xrow {
-    border-bottom: var(--e-depth) solid var(--e-border);
+    --e-band-c: var(--e-border);
+
+    border-bottom: var(--e-depth) solid transparent;
     border-radius: var(--e-radius-md);
-    background: var(--e-surface);
+    background-color: var(--e-surface);
+    background-image: linear-gradient(to top, var(--e-band-c) var(--e-depth), transparent var(--e-depth));
+    background-origin: border-box;
+    background-repeat: no-repeat;
     box-shadow: var(--e-edge);
-    outline: var(--e-stroke-card) solid var(--e-border);
-    outline-offset: 0;
     transition:
       background-color var(--e-duration-tap) var(--e-easing-out),
       box-shadow var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-xrow:not([open]):hover {
-    border-bottom-color: var(--e-border-strong);
-    background: var(--e-surface-hover);
+    --e-band-c: var(--e-border-strong);
+
+    background-color: var(--e-surface-hover);
     box-shadow: 0 0 0 var(--e-stroke-card) var(--e-border-strong);
-    outline: var(--e-stroke-card) solid var(--e-border-strong);
-    outline-offset: 0;
   }
 
   .e-xrow[open] {
     border-bottom-width: 0;
+    background-image: none;
     box-shadow: var(--e-edge);
-    outline: var(--e-stroke-card) solid var(--e-border);
-    outline-offset: 0;
   }
 
   .e-xrow[open]:has(> summary:hover) {
     background-color: var(--e-surface-hover);
     box-shadow: 0 0 0 var(--e-stroke-card) var(--e-border-strong);
-    outline: var(--e-stroke-card) solid var(--e-border-strong);
-    outline-offset: 0;
   }
 
   .e-xrow[open] > summary:hover {

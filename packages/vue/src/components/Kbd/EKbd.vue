@@ -23,11 +23,6 @@ defineSlots<{
     min-width: 1.5em;
     padding: 0 var(--e-space-1);
     border: var(--e-stroke-hair) solid var(--e-border-strong);
-
-    --e-bc: var(--e-border-strong);
-
-    outline: var(--e-stroke-hair) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-hair));
     border-radius: var(--e-radius-sm);
     background: var(--e-surface-tint);
     color: var(--e-muted);

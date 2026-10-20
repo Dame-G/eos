@@ -34,8 +34,6 @@ const size = computed(() => ({
     border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
-    outline: var(--e-stroke-card) solid var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-card));
     animation: e-pulse 1.4s ease-in-out infinite;
   }
 
@@ -45,8 +43,6 @@ const size = computed(() => ({
     border-radius: var(--e-radius-sm);
     background: var(--e-surface-tint);
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
-    outline: var(--e-stroke-card) solid var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-card));
     animation: e-pulse 1.4s ease-in-out infinite;
   }
 

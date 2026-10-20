@@ -61,11 +61,6 @@ const initials = computed(() => {
     height: var(--e-tap, 44px);
     overflow: hidden;
     border: var(--e-stroke-edge) solid var(--e-border-strong);
-
-    --e-bc: var(--e-border-strong);
-
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
     color: var(--e-primary);
@@ -83,7 +78,6 @@ const initials = computed(() => {
   .e-avatar--button:hover {
     border-color: var(--e-ink);
 
-    --e-bc: var(--e-ink);
   }
 
   .e-avatar--button:focus-visible {

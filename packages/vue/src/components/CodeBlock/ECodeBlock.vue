@@ -81,8 +81,6 @@ async function copy() {
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     box-shadow: var(--e-edge);
-    outline: var(--e-stroke-card) solid var(--e-border);
-    outline-offset: 0;
   }
 
   /* Code blocks stacked back to back share one seam: the rings overlap into a single line. */

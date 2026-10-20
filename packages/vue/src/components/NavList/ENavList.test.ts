@@ -45,7 +45,7 @@ describe("ENavList", () => {
     expect(current[0]!.textContent).toContain("Pay a bill");
     const cs = getComputedStyle(current[0]!);
     expect(cs.fontWeight).toBe("600");
-    expect(parseFloat(cs.borderBottomWidth)).toBeGreaterThan(parseFloat(cs.borderTopWidth));
+    expect(cs.boxShadow).not.toBe("none");
   });
 
   test("rows are control height and the count is a pill", async () => {
@@ -121,7 +121,7 @@ describe("ENavList", () => {
     expect(links[0]!.getBoundingClientRect().height).toBe(48);
     const current = getComputedStyle(container.querySelector("[aria-current]")!);
     expect(current.fontWeight).toBe("600");
-    expect(current.borderBottomWidth).not.toBe(current.borderTopWidth);
+    expect(current.boxShadow).not.toBe("none");
     await expectNoViolations(container);
   });
 

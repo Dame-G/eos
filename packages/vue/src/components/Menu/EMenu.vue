@@ -172,8 +172,6 @@ function returnFocus(event: Event) {
   .e-menu-item[data-highlighted] {
     background: var(--e-surface-hover);
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
-    outline: var(--e-stroke-card) solid var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-card));
   }
 
   .e-menu-item--danger {

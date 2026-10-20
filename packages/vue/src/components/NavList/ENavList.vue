@@ -77,9 +77,13 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     display: flex;
     align-items: center;
     gap: var(--e-space-3);
-    height: var(--e-control-height);
+    height: calc(var(--e-control-height) - var(--e-lift));
+    margin-block-end: var(--e-lift);
     box-sizing: border-box;
     padding: 0 var(--e-space-3);
+
+    --e-lift: 0px;
+
     border: var(--e-stroke-edge) solid transparent;
     border-radius: var(--e-radius-md);
     color: var(--e-ink);
@@ -89,7 +93,7 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
   }
 
   .e-nav-item:hover {
-    background: var(--e-surface-hover);
+    background-color: var(--e-surface-hover);
   }
 
   .e-nav-item:focus-visible {
@@ -98,10 +102,13 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
   }
 
   .e-nav-item[aria-current="page"] {
-    background: color-mix(in srgb, var(--e-surface-tint), var(--e-ink) 3%);
+    background-color: color-mix(in srgb, var(--e-surface-tint), var(--e-ink) 3%);
     font-weight: 600;
     border-color: var(--e-primary);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
+
+    --e-lift: var(--e-depth);
+
+    box-shadow: 0 var(--e-lift) 0 0 var(--e-primary);
   }
 
   .e-nav-label {
@@ -147,8 +154,6 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     border-radius: var(--e-radius-pill);
     background: color-mix(in srgb, var(--e-primary) 12%, var(--e-surface));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-primary);
-    outline: var(--e-stroke-hair) solid var(--e-primary);
-    outline-offset: calc(-1 * var(--e-stroke-hair));
     font: 600 var(--e-text-xs) / 20px var(--e-font-mono);
     text-align: center;
   }

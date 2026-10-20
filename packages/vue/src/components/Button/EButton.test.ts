@@ -106,7 +106,9 @@ describe("EButton", () => {
 
   test("is exactly as tall as an input (the control height)", async () => {
     const { container } = await render(EButton, { slots: { default: "Pay now" } });
-    expect(container.querySelector("button")!.getBoundingClientRect().height).toBe(48);
+    const button = container.querySelector("button")!;
+    // The face is shorter by the slab; the margin under it gives the room back.
+    expect(button.getBoundingClientRect().height + parseFloat(getComputedStyle(button).marginBottom)).toBe(48);
   });
 
   test("an icon sits before the label and stays out of the accessible name", async () => {

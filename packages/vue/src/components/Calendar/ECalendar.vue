@@ -541,11 +541,6 @@ defineExpose({
     height: var(--e-control-height);
     padding: 0 var(--e-space-2);
     border: var(--e-stroke-edge) solid transparent;
-
-    --e-bc: transparent;
-
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
@@ -558,7 +553,6 @@ defineExpose({
     background: var(--e-surface-hover);
     border-color: var(--e-border-strong);
 
-    --e-bc: var(--e-border-strong);
   }
 
   .e-cal-pick:focus-visible {
@@ -624,11 +618,6 @@ defineExpose({
     height: var(--e-tap);
     padding: 0;
     border: var(--e-stroke-edge) solid transparent;
-
-    --e-bc: transparent;
-
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
@@ -643,7 +632,6 @@ defineExpose({
     background: var(--e-surface-hover);
     border-color: var(--e-border-strong);
 
-    --e-bc: var(--e-border-strong);
   }
 
   .e-day:focus-visible {
@@ -663,9 +651,6 @@ defineExpose({
   .e-day--sel {
     background: var(--e-primary);
     border-color: var(--e-primary);
-
-    --e-bc: var(--e-primary);
-
     font-weight: 700;
     color: var(--e-on-primary);
   }
@@ -715,11 +700,6 @@ defineExpose({
     min-height: var(--e-tap);
     padding: 0;
     border: var(--e-stroke-edge) solid transparent;
-
-    --e-bc: transparent;
-
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
@@ -738,7 +718,6 @@ defineExpose({
     background: var(--e-surface-hover);
     border-color: var(--e-border-strong);
 
-    --e-bc: var(--e-border-strong);
   }
 
   .e-cal-cell:focus-visible {
@@ -755,9 +734,6 @@ defineExpose({
   .e-cal-cell.e-day--sel {
     background: var(--e-primary);
     border-color: var(--e-primary);
-
-    --e-bc: var(--e-primary);
-
     font-weight: 700;
     color: var(--e-on-primary);
   }

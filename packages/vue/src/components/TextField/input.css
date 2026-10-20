@@ -5,11 +5,6 @@
     height: var(--e-control-height);
     padding: 0 var(--e-space-4);
     border: var(--e-stroke-edge) solid var(--e-border-strong);
-
-    --e-bc: var(--e-border-strong);
-
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background-color: var(--e-surface);
     box-shadow: var(--e-well);
@@ -26,17 +21,11 @@
 
   .e-input:hover {
     border-color: var(--e-ink);
-
-    --e-bc: var(--e-ink);
-
     background-color: var(--e-surface-hover);
   }
 
   .e-input:focus {
     border-color: var(--e-focus-field);
-
-    --e-bc: var(--e-focus-field);
-
     background-color: var(--e-surface);
   }
 
@@ -47,9 +36,6 @@
 
   .e-input[aria-invalid="true"] {
     border-color: var(--e-danger);
-
-    --e-bc: var(--e-danger);
-
     background-color: var(--e-surface);
     box-shadow:
       var(--e-well), inset 0 0 0 var(--e-stroke-hair) var(--e-danger);
@@ -78,11 +64,6 @@
     min-width: 0;
     min-height: var(--e-control-height);
     border: var(--e-stroke-edge) solid var(--e-border-strong);
-
-    --e-bc: var(--e-border-strong);
-
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     box-shadow: var(--e-well);
@@ -93,17 +74,11 @@
 
   .e-input-wrap:hover {
     border-color: var(--e-ink);
-
-    --e-bc: var(--e-ink);
-
     background: var(--e-surface-hover);
   }
 
   .e-input-wrap:focus-within {
     border-color: var(--e-focus-field);
-
-    --e-bc: var(--e-focus-field);
-
     background: var(--e-surface);
     outline: var(--e-stroke-focus) solid var(--e-focus-field);
     outline-offset: var(--e-focus-gap-field);
@@ -111,9 +86,6 @@
 
   .e-input-wrap[data-invalid] {
     border-color: var(--e-danger);
-
-    --e-bc: var(--e-danger);
-
     box-shadow:
       var(--e-well), inset 0 0 0 var(--e-stroke-hair) var(--e-danger);
     background: var(--e-surface);
@@ -121,9 +93,6 @@
 
   .e-input-wrap[data-invalid]:focus-within {
     border-color: var(--e-danger);
-
-    --e-bc: var(--e-danger);
-
     outline-color: var(--e-danger);
   }
 

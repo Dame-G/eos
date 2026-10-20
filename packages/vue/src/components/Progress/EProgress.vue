@@ -73,8 +73,6 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     border-radius: var(--e-radius-pill);
     background: var(--e-surface-tint);
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
-    outline: var(--e-stroke-card) solid var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-card));
     overflow: hidden;
   }
 
@@ -83,8 +81,6 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     border-radius: var(--e-radius-pill);
     background: var(--e-primary);
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-primary);
-    outline: var(--e-stroke-card) solid var(--e-primary);
-    outline-offset: calc(-1 * var(--e-stroke-card));
     transition: width var(--e-duration-move) var(--e-easing-out);
   }
 

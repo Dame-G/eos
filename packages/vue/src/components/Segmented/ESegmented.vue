@@ -97,11 +97,6 @@ const groupAttrs = () => ({
     display: inline-flex;
     height: var(--e-control-height);
     border: var(--e-stroke-edge) solid var(--e-border-strong);
-
-    --e-bc: var(--e-border-strong);
-
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: var(--e-border-strong);
     overflow: hidden;
@@ -146,7 +141,6 @@ const groupAttrs = () => ({
 
   .e-seg-input:checked + .e-seg-text {
     background: var(--e-primary);
-    box-shadow: inset 0 var(--e-depth) 0 0 color-mix(in srgb, var(--e-primary), var(--e-shade-slab));
     color: var(--e-on-primary);
     font-weight: 600;
   }
@@ -169,7 +163,6 @@ const groupAttrs = () => ({
   .e-seg-opt:has(:disabled:checked):hover .e-seg-text {
     background: var(--e-surface-hover);
     color: var(--e-ink);
-    box-shadow: inset 0 calc(-1 * var(--e-depth)) 0 0 var(--e-border-strong);
   }
 
   .e-seg-field {

@@ -84,11 +84,6 @@ const items = computed<(number | "gap")[]>(() => {
     height: var(--e-control-height);
     padding: 0 var(--e-space-2);
     border: var(--e-stroke-edge) solid transparent;
-
-    --e-bc: transparent;
-
-    outline: var(--e-stroke-edge) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
@@ -104,7 +99,6 @@ const items = computed<(number | "gap")[]>(() => {
     background: var(--e-surface-hover);
     border-color: var(--e-border-strong);
 
-    --e-bc: var(--e-border-strong);
   }
 
   .e-page:focus-visible {
@@ -115,9 +109,6 @@ const items = computed<(number | "gap")[]>(() => {
   .e-page[aria-current="page"] {
     background: var(--e-primary);
     border-color: var(--e-primary);
-
-    --e-bc: var(--e-primary);
-
     color: var(--e-on-primary);
     font-weight: 600;
     cursor: default;

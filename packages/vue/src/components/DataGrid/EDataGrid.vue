@@ -714,8 +714,6 @@ watch([sort, page, search, filters], () => {
     border-radius: var(--e-radius-sm);
     background: var(--e-surface-tint);
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border);
-    outline: var(--e-stroke-hair) solid var(--e-border);
-    outline-offset: calc(-1 * var(--e-stroke-hair));
     animation: e-pulse 1.4s ease-in-out infinite;
   }
 
@@ -746,8 +744,6 @@ watch([sort, page, search, filters], () => {
     z-index: var(--e-z-sticky);
     border-radius: inherit;
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
-    outline: var(--e-stroke-card) solid var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-card));
     pointer-events: none;
   }
 
@@ -1098,8 +1094,6 @@ watch([sort, page, search, filters], () => {
       border-radius: var(--e-radius-md);
       background: var(--e-surface);
       box-shadow: var(--e-edge);
-      outline: var(--e-stroke-card) solid var(--e-border-strong);
-      outline-offset: 0;
     }
 
     .e-grid--cards .e-gridtable tbody tr:hover td {

@@ -78,8 +78,6 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
     background: var(--e-strong);
     color: var(--e-on);
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-bc);
-    outline: var(--e-stroke-card) solid var(--e-bc);
-    outline-offset: calc(-1 * var(--e-stroke-card));
     cursor: default;
     justify-self: start;
   }
