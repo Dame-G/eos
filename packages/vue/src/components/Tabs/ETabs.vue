@@ -18,6 +18,8 @@ import "../../styles/base.css";
 const props = defineProps<{
   /** The tabs, in order: `{ id, label, count? }`. Two to five, with short labels. `id` names the slot and is the `v-model` value. */
   items?: TabItem[];
+  /** Share the width equally between the tabs instead of letting each take its own. For a narrow container where the tabs must all fit; labels truncate. @default false */
+  fill?: boolean;
 }>();
 
 defineSlots<{
@@ -55,7 +57,7 @@ watch(current, () => reveal(true));
 </script>
 
 <template>
-  <TabsRoot class="e-tabs" :model-value="current" :dir="dir" @update:model-value="model = String($event)">
+  <TabsRoot class="e-tabs" :class="{ 'e-tabs--fill': fill }" :model-value="current" :dir="dir" @update:model-value="model = String($event)">
     <TabsList ref="list" class="e-tablist">
       <TabsTrigger v-for="item in flat" :key="item.id" :value="item.id" class="e-tab">
         {{ item.label }}
@@ -144,6 +146,17 @@ watch(current, () => reveal(true));
     z-index: var(--e-z-focus);
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: var(--e-focus-gap);
+  }
+
+  .e-tabs--fill .e-tablist {
+    overflow-x: hidden;
+  }
+
+  .e-tabs--fill .e-tab {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    padding-inline: var(--e-space-1);
   }
 
   .e-tab-count {
