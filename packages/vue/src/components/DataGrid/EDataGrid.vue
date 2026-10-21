@@ -691,7 +691,6 @@ watch([sort, page, search, filters], () => {
     min-width: 0;
   }
 
-  /* The outline is a border and the fill stops inside it, so the corner carries the edge colour alone; the contents are clipped inside it. */
   .e-grid-frame {
     position: relative;
     overflow: hidden;

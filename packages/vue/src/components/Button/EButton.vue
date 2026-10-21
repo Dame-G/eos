@@ -106,7 +106,6 @@ function blockWhenDisabled(event: Event) {
     cursor: pointer;
     transition:
       border-color var(--e-duration-tap) var(--e-easing-out),
-      border-bottom-width var(--e-duration-tap) var(--e-easing-out),
       background-color var(--e-duration-tap) var(--e-easing-out);
   }
 

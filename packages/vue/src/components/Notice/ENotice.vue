@@ -84,8 +84,6 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
     container-type: inline-size;
     padding: calc(var(--e-space-3) - var(--e-stroke-edge)) calc(var(--e-space-4) - var(--e-stroke-edge));
     padding-left: calc(var(--e-space-4) - var(--e-stroke-edge) + 2 * var(--e-depth));
-
-    /* The edge is a border and the fill stops inside it, so the corner pixels carry the edge colour alone. */
     border: var(--e-stroke-edge) solid var(--e-tone);
     border-radius: var(--e-radius-md);
     background-color: var(--e-bg);

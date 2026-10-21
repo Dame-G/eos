@@ -83,8 +83,6 @@ defineExpose({
     flex: none;
     width: var(--e-switch-w);
     height: 24px;
-
-    /* The edge is a border and the fill stops inside it, so the curve carries the edge colour alone. */
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--e-ring);
     border-radius: var(--e-radius-pill);

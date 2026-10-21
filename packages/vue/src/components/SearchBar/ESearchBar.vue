@@ -102,9 +102,7 @@ defineExpose({
     background: var(--e-surface);
     background-clip: padding-box;
     box-shadow: var(--e-well);
-    transition:
-      border-color var(--e-duration-tap) var(--e-easing-out),
-      box-shadow var(--e-duration-tap) var(--e-easing-out);
+    transition: border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-search:hover {

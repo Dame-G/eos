@@ -97,7 +97,7 @@ watch(current, () => reveal(true));
     display: none;
   }
 
-  /* Tabs are button-like: every tab is ringed and neighbours sit flush and share an edge, so only the outer ends of the row are rounded. The selected tab is outlined in the primary colour with a thick slab along its bottom. The edge is a border and the fill stops inside it, so a rounded corner carries the edge colour alone. */
+  /* Tabs are button-like: every tab is ringed and neighbours sit flush and share an edge, so only the outer ends of the row are rounded. The selected tab is outlined in the primary colour with a thick slab along its bottom. */
   .e-tab {
     --e-bc: var(--e-border-strong);
 
@@ -123,8 +123,7 @@ watch(current, () => reveal(true));
     transition:
       color var(--e-duration-tap) var(--e-easing-out),
       background-color var(--e-duration-tap) var(--e-easing-out),
-      border-color var(--e-duration-tap) var(--e-easing-out),
-      border-width var(--e-duration-tap) var(--e-easing-out);
+      border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   /* Only the outer ends of the row are rounded. */

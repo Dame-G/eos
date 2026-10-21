@@ -92,8 +92,7 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     text-decoration: none;
     transition:
       background-color var(--e-duration-tap) var(--e-easing-out),
-      border-color var(--e-duration-tap) var(--e-easing-out),
-      border-width var(--e-duration-tap) var(--e-easing-out);
+      border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-nav-item:hover {

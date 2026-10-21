@@ -7,7 +7,7 @@
     height: var(--e-control-height);
     padding: 0 calc(var(--e-space-4) - var(--e-stroke-edge));
 
-    /* The edge is a border and the fill stops inside it, so the corner pixels carry the edge colour alone. A fill under an inset-shadow edge shows through the antialiased corner as a fringe of its own colour. */
+    /* The edge is a border and the fill stops inside it: a fill under an inset-shadow edge leaks into the antialiased corner. */
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--e-ring);
     border-radius: var(--e-radius-md);
@@ -18,7 +18,6 @@
     font: 400 var(--e-text-md)/1 var(--e-font-sans);
     transition:
       border-color var(--e-duration-tap) var(--e-easing-out),
-      box-shadow var(--e-duration-tap) var(--e-easing-out),
       background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
@@ -90,7 +89,6 @@
     box-shadow: var(--e-well);
     transition:
       border-color var(--e-duration-tap) var(--e-easing-out),
-      box-shadow var(--e-duration-tap) var(--e-easing-out),
       background-color var(--e-duration-tap) var(--e-easing-out);
   }
 

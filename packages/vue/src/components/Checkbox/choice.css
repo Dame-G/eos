@@ -37,7 +37,6 @@
     --e-ring: var(--e-border-strong);
 
 
-    /* The edge is a border and the fill stops inside it, so a rounded corner carries the edge colour alone. */
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--e-ring);
     background: var(--e-surface);
@@ -46,7 +45,6 @@
     cursor: inherit;
     transition:
       border-color var(--e-duration-tap) var(--e-easing-out),
-      box-shadow var(--e-duration-tap) var(--e-easing-out),
       background-color var(--e-duration-tap) var(--e-easing-out);
   }
 

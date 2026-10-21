@@ -40,8 +40,6 @@ const style = computed(() => (props.maxHeight ? { "--e-table-max-h": props.maxHe
   .e-table-wrap {
     position: relative;
     min-width: 0;
-
-    /* The outline is a border outside the scroller and its sticky headings, so nothing covers it, and the fill stops inside it, so the corner carries the edge colour alone. */
     border: var(--e-stroke-card) solid var(--e-border);
     border-radius: var(--e-radius-md);
     background: var(--e-surface);

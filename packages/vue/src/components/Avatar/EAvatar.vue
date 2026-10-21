@@ -63,8 +63,6 @@ const initials = computed(() => {
     width: var(--e-tap, 44px);
     height: var(--e-tap, 44px);
     overflow: hidden;
-
-    /* The edge is a border, outside the picture, so an image never covers it and the fill stops inside it. */
     border: var(--e-stroke-edge) solid var(--e-ring);
     border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
