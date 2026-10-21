@@ -73,6 +73,8 @@ export default defineConfig(({ command }) => ({
   test: {
     include: ["src/**/*.test.ts"],
     setupFiles: ["./test/setup.ts"],
+    // A passing assertion returns at once; the longer limit only gives a slow CI runner room to open a popup or settle a layout.
+    expect: { poll: { timeout: 5000 } },
     browser: {
       enabled: true,
       headless: true,
