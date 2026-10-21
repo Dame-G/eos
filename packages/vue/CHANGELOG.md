@@ -1,5 +1,14 @@
 # @eos-ui/vue
 
+## 0.8.1
+
+### Patch Changes
+
+- e6e03e5: In a boxed EFieldset, the Required or Optional word now sits at the right end of the line, with the outline running between it and the title, instead of right after the title.
+- 689bc82: An inline EDialog (the preview form) no longer moves focus when it opens or closes. Closing one used to send focus back to whatever had it when the dialog mounted, such as a tab, which then switched to that tab.
+- 253fdac: The selected tab's edges are now as thick as its slab all round: the sides in horizontal and vertical lists, and the top in a horizontal list.
+- @eos-ui/tokens@0.8.1
+
 ## 0.8.0
 
 ### Minor Changes
