@@ -14,9 +14,9 @@ const props = defineProps<{
   hint?: string;
   /** What to fix. Replaces the hint and is announced with the group. */
   error?: string;
-  /** "Required" at the end of the legend. */
+  /** "Required" beside the legend: after it, or before it where the box's outline runs through the title. */
   required?: boolean;
-  /** A word at the end of the legend. Flag whichever is rarer. */
+  /** "Optional" beside the legend, placed like `required`. Flag whichever is rarer. */
   optional?: boolean;
   /** A titled form section: no box, a larger legend ruled off from what comes before, and the hint under the legend. Replaces `EFormSection`. */
   section?: boolean;
@@ -139,6 +139,11 @@ const hintId = computed(() => `${id.value}-hint`);
   .e-fieldset--box .e-fieldset-title,
   .e-fieldset--box .e-field-flag {
     padding-inline: var(--e-space-2);
+  }
+
+  /* Where the outline runs through the title, the Required or Optional word comes first, so it is the first thing at the left of the line rather than trailing after the title. The markup keeps the title first, so a screen reader still hears the legend before the flag. */
+  .e-fieldset--box .e-field-flag {
+    order: -1;
   }
 
   /* The rule is the legend's own border, never a native fieldset border (which would break around the legend). */

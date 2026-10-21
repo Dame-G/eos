@@ -52,7 +52,7 @@ describe("EFieldset", () => {
     await expect.element(page.getByRole("group", { name: "Hidden" })).toBeInTheDocument();
   });
 
-  test("title and Required sit on the top edge with room either side", async () => {
+  test("Required comes first on the top edge, then the title, with room before them", async () => {
     const { container } = await render(EFieldset, {
       props: { legend: "Home address", required: true },
       slots: { default: street },
@@ -63,15 +63,15 @@ describe("EFieldset", () => {
     const flag = container.querySelector(".e-field-flag")!;
     const t = title.getBoundingClientRect();
     const fl = flag.getBoundingClientRect();
-    const pad = parseFloat(getComputedStyle(title).paddingLeft);
-    const padFlag = parseFloat(getComputedStyle(flag).paddingRight);
-    expect(t.left - fs.left + pad).toBeGreaterThanOrEqual(16);
-    expect(fs.right - fl.right + padFlag).toBeGreaterThanOrEqual(16);
-    expect(fl.left).toBeGreaterThan(t.right);
+    const padFlag = parseFloat(getComputedStyle(flag).paddingLeft);
+    expect(fl.left - fs.left + padFlag).toBeGreaterThanOrEqual(16);
+    expect(t.left).toBeGreaterThanOrEqual(fl.right);
     expect(flag.textContent).toBe("Required");
+    // The markup keeps the title first, so a screen reader reads the legend before the flag.
+    expect(title.compareDocumentPosition(flag) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  test("the rule runs between the title and the flag", async () => {
+  test("the rule follows the title, aside from the flag", async () => {
     const { container } = await render(EFieldset, {
       props: { legend: "Home address", optional: true },
       slots: { default: street },
