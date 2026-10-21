@@ -20,6 +20,10 @@ theme.apply(document.documentElement); // or set them in the browser
 @import "@eos-ui/tokens/tokens.css";
 ```
 
+```ts
+theme.dtcg(); // the same tokens as W3C Design Tokens JSON
+```
+
 All variables are prefixed `--e-` (`--e-primary`, `--e-space-4`). [Documentation](https://eos.dame.gg). MIT licensed.
 
 ## Inputs
@@ -40,3 +44,11 @@ All variables are prefixed `--e-` (`--e-primary`, `--e-space-4`). [Documentation
 | `controlHeight`                                        | `control-height`, `chip-height`                                                                    |
 
 `derivedFrom`, `constants` and `inputTokens` say which input drives each token and which tokens are fixed. Fixed tokens include `depth`, the thickness of a raised or pressed edge.
+
+## Design tools
+
+`theme.dtcg()` returns the theme as [W3C Design Tokens](https://www.designtokens.org) JSON, grouped by kind (`color`, `spacing`, `radius`, `shadow`, `fontSize`, `size`, `stroke`, `duration`, `easing`, `zIndex`, `font`). The default theme is also published as `@eos-ui/tokens/tokens.dtcg.json`, ready to import into Tokens Studio for Figma or to feed Style Dictionary.
+
+- A token that is just another token becomes an alias: `"focus-ring": { "$value": "{color.ink}" }`.
+- Colours, dimensions, durations, cubic-bezier easings, z-indexes and font stacks carry a `$type`. A value no DTCG type can hold, such as a stacked shadow or a `color-mix()`, keeps its CSS string and has no `$type`.
+- Each token's usage note is its `$description`.

@@ -337,3 +337,32 @@ describe("token metadata", () => {
     expect(derivedFrom["danger"]).toBe("danger,surface");
   });
 });
+
+describe("dtcg", () => {
+  const tree = defineTheme({ name: "light" }).dtcg();
+  test("groups tokens by kind and types the ones a design tool understands", () => {
+    expect(tree.color!["primary"]).toMatchObject({ $type: "color", $value: defaults["primary"] });
+    expect(tree.spacing!["space-2"]).toMatchObject({ $type: "dimension", $value: "8px" });
+    expect(tree.duration!["duration-tap"]).toMatchObject({ $type: "duration" });
+    expect(tree.easing!["easing-out"]).toMatchObject({ $type: "cubicBezier", $value: [0.2, 0.8, 0.2, 1] });
+    expect(tree.zIndex!["z-modal"]!.$type).toBe("number");
+    expect(tree.font!["font-sans"]!.$type).toBe("fontFamily");
+  });
+  test("a token that is only another token is an alias", () => {
+    expect(tree.color!["focus-ring"]!.$value).toBe("{color.ink}");
+  });
+  test("a CSS expression with no DTCG type keeps its string and has no type", () => {
+    expect(tree.shadow!["edge"]!.$type).toBeUndefined();
+    expect(tree.color!["surface-hover"]!.$type).toBeUndefined();
+    expect(typeof tree.color!["surface-hover"]!.$value).toBe("string");
+  });
+  test("carries the usage note as the description, and every token appears once", () => {
+    expect(tree.color!["primary"]!.$description).toMatch(/Action blue/);
+    const count = Object.values(tree).reduce((n, g) => n + Object.keys(g).length, 0);
+    expect(count).toBe(Object.keys(defineTheme({ name: "light" }).tokens).length);
+  });
+  test("follows the theme: a custom brand changes the exported colour", () => {
+    const custom = defineTheme({ brand: "#8a2be2" }).dtcg();
+    expect(custom.color!["primary"]!.$value).not.toBe(tree.color!["primary"]!.$value);
+  });
+});

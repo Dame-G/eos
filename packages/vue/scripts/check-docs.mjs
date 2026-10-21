@@ -26,6 +26,7 @@ const files = [
   join(repo, "packages", "tokens", "README.md"),
   join(pkg, "README.md"),
   join(pkg, "src", "icons", "README.md"),
+  join(pkg, "src", "composables", "README.md"),
   ...names.map((n) => join(components, n, "README.md")),
 ];
 

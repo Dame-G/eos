@@ -35,6 +35,8 @@
       "types": "./dist/icons/iconify.d.ts",
       "default": "./dist/icons/iconify.js"
     },
+    "./llms.txt": "./dist/llms.txt",
+    "./llms-full.txt": "./dist/llms-full.txt",
     "./package.json": "./package.json",
     "./style.css": "./dist/style.css"
   },
@@ -48,7 +50,7 @@
     "directory": "packages/vue"
   },
   "scripts": {
-    "build": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vite build",
+    "build": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vite build && node scripts/gen-llms.mjs",
     "typecheck": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vue-tsc --noEmit -p tsconfig.json",
     "test": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vitest run",
     "test:watch": "vitest",

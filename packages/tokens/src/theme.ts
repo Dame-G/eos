@@ -1,4 +1,5 @@
 import { defaults, groups, type TokenName } from "./generated/defaults.js";
+import { toDtcg, type DtcgTokens } from "./dtcg.js";
 import {
   contrast,
   fromOklch,
@@ -82,6 +83,8 @@ export interface Theme {
   issues: ContrastIssue[];
   /** The theme as CSS custom properties on a selector, in the token layer. Render it into `<head>` on the server. */
   css(options?: CssOptions): string;
+  /** The tokens as W3C Design Tokens JSON, for Figma (Tokens Studio), Style Dictionary and other design tools. */
+  dtcg(): DtcgTokens;
   /** Sets the tokens on an element as inline custom properties and marks it `data-e-theme`. Browser only. */
   apply(el?: HTMLElement): void;
 }
@@ -184,17 +187,27 @@ const CARD: ShadowLayer[] = [
 
 function shadowRgb(out: Record<string, string>, dark: boolean) {
   const ground = toOklch(out["background"]!);
-  const [r, g, b] = parseHex(fromOklch({ l: dark ? 0.07 : 0.2613, c: Math.min(ground.c, dark ? 0.03 : 0.0408), h: ground.h }));
+  const [r, g, b] = parseHex(
+    fromOklch({ l: dark ? 0.07 : 0.2613, c: Math.min(ground.c, dark ? 0.03 : 0.0408), h: ground.h }),
+  );
   return `${r}, ${g}, ${b}`;
 }
 
 function layers(set: ShadowLayer[], dark: boolean, base: string) {
   return set
-    .map(([y, blur, spread, alpha]) => `0 ${y}px ${blur}px ${spread}px rgba(${base}, ${Math.round(Math.min(0.9, dark ? alpha * 2.4 : alpha) * 100) / 100})`)
+    .map(
+      ([y, blur, spread, alpha]) =>
+        `0 ${y}px ${blur}px ${spread}px rgba(${base}, ${Math.round(Math.min(0.9, dark ? alpha * 2.4 : alpha) * 100) / 100})`,
+    )
     .join(", ");
 }
 
-function deriveElevation(style: ElevationPreset, out: Record<string, string>, dark: boolean, strokes?: ThemeInput["strokes"]) {
+function deriveElevation(
+  style: ElevationPreset,
+  out: Record<string, string>,
+  dark: boolean,
+  strokes?: ThemeInput["strokes"],
+) {
   const ring = (w: string) => `0 0 0 ${w} ${out["border"]}`;
   const hair = out["stroke-hair"]!;
   const given = positive(strokes?.card);
@@ -207,7 +220,8 @@ function deriveElevation(style: ElevationPreset, out: Record<string, string>, da
   } else if (style === "bold") {
     out["edge"] = ring(card);
     out["well"] = `inset 0 3px 0 0 ${dark ? "rgba(0, 0, 0, 0.55)" : "rgba(0, 0, 0, 0.14)"}`;
-    out["float"] = `${ring(card)}, 4px 4px 0 0 rgba(${base}, ${dark ? 0.75 : 0.32}), 0 14px 28px -10px rgba(${base}, ${dark ? 0.7 : 0.22})`;
+    out["float"] =
+      `${ring(card)}, 4px 4px 0 0 rgba(${base}, ${dark ? 0.75 : 0.32}), 0 14px 28px -10px rgba(${base}, ${dark ? 0.7 : 0.22})`;
   } else {
     out["edge"] = ring(card);
     out["float"] = `${ring(card)}, ${layers(SOFT, dark, base)}`;
@@ -239,7 +253,8 @@ function deriveGround(input: ThemeInput, out: Record<string, string>, dark: bool
   }
   out["background"] = input.background ?? (input.surface ? surface : out["background"]!);
   const foreground =
-    input.foreground ?? (input.surface ? (dark ? WHITE : defaults["ink"]) : input.contrast === "high" ? defaults["ink"] : undefined);
+    input.foreground ??
+    (input.surface ? (dark ? WHITE : defaults["ink"]) : input.contrast === "high" ? defaults["ink"] : undefined);
   if (foreground) {
     out["ink"] = foreground;
     out["muted"] = settleContrast(foreground, surface, 7);
@@ -390,6 +405,9 @@ export function defineTheme(input: ThemeInput = {}): Theme {
       const rules = `${selector} {\n  color-scheme: ${scheme};\n${decls}\n}\n${derived}\n`;
       const body = layer ? `@layer e.tokens {\n${rules}}\n` : rules;
       return (header ? `/* Generated from tokens.json. Theme: ${name}. */\n@layer ${LAYER_ORDER};\n` : "") + body;
+    },
+    dtcg() {
+      return toDtcg(tokens);
     },
     apply(el = document.documentElement) {
       for (const [k, v] of Object.entries(tokens)) el.style.setProperty(`--e-${k}`, v);
