@@ -691,12 +691,21 @@ watch([sort, page, search, filters], () => {
     min-width: 0;
   }
 
+  .e-grid-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: var(--e-z-sticky);
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
+    pointer-events: none;
+  }
+
   .e-grid-frame {
     position: relative;
     overflow: hidden;
     border-radius: inherit;
     background: var(--e-surface);
-    box-shadow: 0 0 0 var(--e-stroke-card) var(--e-border-strong);
   }
 
   .e-grid-bar {
@@ -1026,7 +1035,10 @@ watch([sort, page, search, filters], () => {
     .e-grid--cards .e-grid-frame {
       overflow: visible;
       background: transparent;
-      box-shadow: none;
+    }
+
+    .e-grid--cards .e-grid-frame::after {
+      content: none;
     }
 
     .e-grid--cards .e-gridtable tbody tr {

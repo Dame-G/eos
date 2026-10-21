@@ -42,9 +42,17 @@ const style = computed(() => (props.maxHeight ? { "--e-table-max-h": props.maxHe
     min-width: 0;
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
+  }
 
-    /* Drawn outside the box, like a card's, so the scrolling content never paints over the edge's curve. */
-    box-shadow: 0 0 0 var(--e-stroke-card) var(--e-border);
+  /* The outline is drawn once, above the scroller and its sticky headings, so nothing covers it. */
+  .e-table-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: var(--e-z-sticky);
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border);
+    pointer-events: none;
   }
 
   .e-table-scroll {
@@ -98,8 +106,8 @@ const style = computed(() => (props.maxHeight ? { "--e-table-max-h": props.maxHe
       max-height: none;
     }
 
-    .e-table-wrap {
-      box-shadow: none;
+    .e-table-wrap::after {
+      display: none;
     }
   }
 

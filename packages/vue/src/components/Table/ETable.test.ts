@@ -58,13 +58,12 @@ describe("ETable", () => {
     expect(getComputedStyle(container.querySelector("th")!).position).toBe("sticky");
   });
 
-  test("the frame outline is drawn outside the box, so the scroller never paints over it", async () => {
+  test("the frame outline is drawn once, as a ring over the scroller", async () => {
     const { container } = await render(ETable, { props: { caption: "Plans" }, slots: { default: rows } });
     container.classList.add("e-root");
     const wrap = container.querySelector(".e-table-wrap")!;
     expect(getComputedStyle(wrap).borderTopWidth).toBe("0px");
-    expect(getComputedStyle(wrap).boxShadow).not.toBe("none");
-    expect(getComputedStyle(container.querySelector(".e-table-scroll")!).borderTopWidth).toBe("0px");
+    expect(getComputedStyle(wrap, "::after").boxShadow).not.toBe("none");
   });
 
   test("has no accessibility violations", async () => {

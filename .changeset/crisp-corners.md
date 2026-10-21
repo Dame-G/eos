@@ -10,4 +10,4 @@ The raised edge of buttons, selected tabs and the current nav item is now the bo
 
 `ESelect`: an open trigger now shows its focused look (focus ring colour and outline). Focus moves into the list when it opens, so the field only looked focused after a choice was made.
 
-The table and data grid frames draw their outline outside the box, the way cards do, so the scrolling content never paints over the corner curve. The progress track keeps its fill under its border so no gap shows between the outline and the bar.
+The table and data grid frames keep their outline laid over the content, which measures closest to an ideal rounded corner when a tinted header sits in it. The progress bar stops half a stroke inside its outline so no gap or colour shows at the curve.
