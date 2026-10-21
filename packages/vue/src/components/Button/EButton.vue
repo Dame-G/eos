@@ -79,7 +79,7 @@ function blockWhenDisabled(event: Event) {
     --e-hover: color-mix(in srgb, var(--e-fill), var(--e-shade-hover));
     --e-press: color-mix(in srgb, var(--e-fill), var(--e-shade-press));
 
-    /* One rounded box, one control height tall, drawn as a single border with the fill stopped inside it, so the corner pixels carry the edge colour alone. The slab is the bottom edge made thicker by the lift: with the corner radius it tapers up the curve to the width of the side edge, which gives the raised look. Pressing sinks the face over it. */
+    /* One border, one control height tall. The slab is the bottom edge made thicker by the lift; the radius tapers it up the corners. Pressing sinks the face over it. */
     --e-lift: var(--e-depth);
     --e-ring: var(--e-slab);
 
@@ -96,7 +96,7 @@ function blockWhenDisabled(event: Event) {
     border-radius: var(--e-radius-md);
     background-color: var(--e-fill);
 
-    /* A solid face is the colour of its own edge, so the fill runs under the border and no page colour can show between them. Faces that differ from their edge stop inside it (outline). */
+    /* A solid face runs under its border so no page colour shows between them. */
     background-clip: border-box;
     color: var(--e-on-fill);
     font: 500 var(--e-text-md) / 1 var(--e-font-sans);

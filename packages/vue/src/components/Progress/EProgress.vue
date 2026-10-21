@@ -70,16 +70,25 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   .e-progress-track {
     position: relative;
     height: 10px;
-    box-sizing: border-box;
-    border: var(--e-stroke-card) solid var(--e-border-strong);
     border-radius: var(--e-radius-pill);
     background: var(--e-surface-tint);
     overflow: hidden;
   }
 
+  /* The outline lies over the bar, which runs under it, so no light rim shows. */
+  .e-progress-track::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: var(--e-stroke-card) solid var(--e-border-strong);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
   .e-progress-fill {
     height: 100%;
-    border-radius: var(--e-radius-pill);
+    border-start-end-radius: var(--e-radius-pill);
+    border-end-end-radius: var(--e-radius-pill);
     background: var(--e-primary);
     transition: width var(--e-duration-move) var(--e-easing-out);
   }
@@ -88,6 +97,7 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     position: absolute;
     inset: 0 auto 0 0;
     width: 40%;
+    border-radius: var(--e-radius-pill);
     transition: none;
     animation: e-progress-slide 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
@@ -119,8 +129,8 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   }
 
   @media (forced-colors: active) {
-    .e-progress-track {
-      border: var(--e-stroke-card) solid CanvasText;
+    .e-progress-track::after {
+      border-color: CanvasText;
     }
 
     .e-progress-fill {
