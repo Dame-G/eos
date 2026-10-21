@@ -40,16 +40,17 @@ const style = computed(() => (props.maxHeight ? { "--e-table-max-h": props.maxHe
   .e-table-wrap {
     position: relative;
     min-width: 0;
-    border: var(--e-stroke-card) solid var(--e-border);
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
-    background-clip: padding-box;
+
+    /* Drawn outside the box, like a card's, so the scrolling content never paints over the edge's curve. */
+    box-shadow: 0 0 0 var(--e-stroke-card) var(--e-border);
   }
 
   .e-table-scroll {
     overflow: auto;
     max-height: var(--e-table-max-h, none);
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-card)));
+    border-radius: inherit;
   }
 
   .e-table-scroll:focus-visible {
@@ -98,7 +99,7 @@ const style = computed(() => (props.maxHeight ? { "--e-table-max-h": props.maxHe
     }
 
     .e-table-wrap {
-      border-color: transparent;
+      box-shadow: none;
     }
   }
 

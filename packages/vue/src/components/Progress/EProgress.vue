@@ -74,7 +74,6 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     border: var(--e-stroke-card) solid var(--e-border-strong);
     border-radius: var(--e-radius-pill);
     background: var(--e-surface-tint);
-    background-clip: padding-box;
     overflow: hidden;
   }
 

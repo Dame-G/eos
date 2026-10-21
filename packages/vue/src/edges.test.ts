@@ -6,7 +6,6 @@ import ESwitch from "./components/Switch/ESwitch.vue";
 import ECheckbox from "./components/Checkbox/ECheckbox.vue";
 import ENotice from "./components/Notice/ENotice.vue";
 import ETabs from "./components/Tabs/ETabs.vue";
-import ETable from "./components/Table/ETable.vue";
 
 /**
  * A fill under an inset-shadow edge shows through the antialiased pixels of a rounded corner as a fringe of the fill
@@ -40,7 +39,6 @@ describe("edges", () => {
     ["a switch", () => render(ESwitch, { props: { label: "Reminders" } }), ".e-switch-track"],
     ["a checkbox", () => render(ECheckbox, { props: { label: "Agree" } }), ".e-check"],
     ["a notice", () => render(ENotice, { props: { title: "Heads up" }, slots: { default: () => "Body" } }), ".e-notice"],
-    ["a table frame", () => render(ETable, { props: { caption: "Plans" }, slots: { default: () => "" } }), ".e-table-wrap"],
   ])("%s draws its edge as a border with the fill stopped inside it", async (_name, mount, selector) => {
     const { container } = await mount();
     expectBorderEdge(container.querySelector(selector)!);

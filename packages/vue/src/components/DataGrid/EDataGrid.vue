@@ -694,10 +694,9 @@ watch([sort, page, search, filters], () => {
   .e-grid-frame {
     position: relative;
     overflow: hidden;
-    border: var(--e-stroke-card) solid var(--e-border-strong);
     border-radius: inherit;
     background: var(--e-surface);
-    background-clip: padding-box;
+    box-shadow: 0 0 0 var(--e-stroke-card) var(--e-border-strong);
   }
 
   .e-grid-bar {
@@ -1026,8 +1025,8 @@ watch([sort, page, search, filters], () => {
 
     .e-grid--cards .e-grid-frame {
       overflow: visible;
-      border-color: transparent;
       background: transparent;
+      box-shadow: none;
     }
 
     .e-grid--cards .e-gridtable tbody tr {
