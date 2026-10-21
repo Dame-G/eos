@@ -1,5 +1,12 @@
 # @eos-ui/tokens
 
+## 0.5.0
+
+### Patch Changes
+
+- 1917529: `EDialog` and the bottom `EDrawer` now round their corners with `--e-radius-md`, like cards and inputs, so the `radius` setting changes every surface together. `--e-radius-lg` stays available for your own large surfaces.
+- 1917529: EStamp: the `size="sm"` prop is now the boolean `small`, like `EIcon`, `EAvatar` and `EKbd`. README fixes: working icon names in examples, linked sibling components, shorter accessibility notes.
+
 ## 0.4.0
 
 No changes in this release.
