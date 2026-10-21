@@ -11,6 +11,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      # A step's own env is not visible to its `if`, so the secret's presence is read here.
+      HAS_SITE_TOKEN: ${{ secrets.SITE_DEPLOY_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -21,6 +24,7 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
       - uses: changesets/action@v2
+        id: changesets
         with:
           # Publishing starts once the NPM_PUBLISH repository variable is "true". npm trusted publishing signs the release in.
           publish-script: ${{ vars.NPM_PUBLISH == 'true' && 'pnpm release' || '' }}
@@ -30,3 +34,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"
+
+      # The site shows the library version and is built against it, so a release redeploys it. GITHUB_TOKEN cannot start a workflow in another repository, so this needs SITE_DEPLOY_TOKEN: a fine-grained token with "Actions: read and write" on Dame-G/eos-site.
+      - name: Redeploy the docs site
+        if: steps.changesets.outputs.published == 'true' && env.HAS_SITE_TOKEN == 'true'
+        run: gh workflow run deploy.yml --repo Dame-G/eos-site --ref main
+        env:
+          GH_TOKEN: ${{ secrets.SITE_DEPLOY_TOKEN }}
+
+      - name: Warn when the site cannot be redeployed
+        if: steps.changesets.outputs.published == 'true' && env.HAS_SITE_TOKEN != 'true'
+        run: echo "::warning::SITE_DEPLOY_TOKEN is not set, so the docs site was not redeployed after this release."
