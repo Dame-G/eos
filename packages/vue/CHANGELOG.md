@@ -1,5 +1,23 @@
 # @eos-ui/vue
 
+## 0.5.4
+
+### Patch Changes
+
+- bc684bf: A theme now sets `color-scheme` (`dark` for a dark surface, `light` otherwise), in its CSS and in `apply()`, so the browser's own controls, such as the colour picker and autofill, match it.
+
+  Scrolling to the end of a dialog, drawer, picker, list or search panel no longer scrolls the page behind it (`overscroll-behavior: contain`).
+
+  Scrollbars use the standard `scrollbar-width` and `scrollbar-color` everywhere; the hand-drawn `::-webkit-scrollbar` bar remains only as a fallback for browsers without them. Dropped the deprecated `clip` from the screen-reader-only class.
+
+- bc684bf: Hover styles now apply only on devices that can hover (`@media (hover: hover)`). A tap on a touch screen no longer leaves a button, row or field stuck in its hover look.
+- bc684bf: `NumberField` with a prefix or suffix no longer clips its value in a narrow column (under 10rem, as on a phone in the playground's spacing and control-height fields). The narrow-column side padding was also being applied to the fixed-width input and squeezed the digits out.
+- bc684bf: `Segmented` now scrolls sideways, with no scrollbar, when its options are wider than the space (a phone) instead of clipping them. Its outline stays put and the chosen option is brought into view. A `Segmented` with a hint or error no longer lets the grid cell grow past its container.
+- bc684bf: `AppShell` no longer draws its side hairlines when the page column fills the screen. The lines now sit just outside the column's edges instead of on them, so they fall off the screen whenever the viewport is no wider than the shell (a narrow desktop window as well as a phone) and show only beside a column that is narrower than the screen.
+- bc684bf: A framed `Tabs` panel now squares its top outer corner when the row of tabs is wider than its space and scrolls, so the panel meets the tabs instead of curving away from them. With room to spare, the corner stays rounded.
+- Updated dependencies [bc684bf]
+  - @eos-ui/tokens@0.5.4
+
 ## 0.5.3
 
 ### Patch Changes
