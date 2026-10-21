@@ -14,9 +14,9 @@ const props = defineProps<{
   hint?: string;
   /** What to fix. Replaces the hint and is announced with the group. */
   error?: string;
-  /** "Required" beside the legend: after it, or before it where the box's outline runs through the title. */
+  /** "Required" at the end of the legend: at the right end of the line where the box's outline runs through the title. */
   required?: boolean;
-  /** "Optional" beside the legend, placed like `required`. Flag whichever is rarer. */
+  /** A word at the end of the legend, placed like `required`. Flag whichever is rarer. */
   optional?: boolean;
   /** A titled form section: no box, a larger legend ruled off from what comes before, and the hint under the legend. Replaces `EFormSection`. */
   section?: boolean;
@@ -125,25 +125,26 @@ const hintId = computed(() => `${id.value}-hint`);
     position: relative;
     align-items: center;
     gap: 0;
-    width: fit-content;
-    max-width: 100%;
+    width: calc(100% + var(--e-space-4));
     inset-block-start: -0.65em;
     margin: 0 0 var(--e-space-3) calc(-1 * var(--e-space-2));
-    background: var(--e-surface);
     font: 500 var(--e-text-md)/1.3 var(--e-font-sans);
     letter-spacing: 0;
     text-transform: none;
     color: var(--e-ink);
   }
 
+  /* The title and the Required or Optional word each break the outline on their own surface, the title at the left and the word always at the right end of the line, with the outline running between them. */
   .e-fieldset--box .e-fieldset-title,
   .e-fieldset--box .e-field-flag {
     padding-inline: var(--e-space-2);
+    background: var(--e-surface);
   }
 
-  /* Where the outline runs through the title, the Required or Optional word comes first, so it is the first thing at the left of the line rather than trailing after the title. The markup keeps the title first, so a screen reader still hears the legend before the flag. */
-  .e-fieldset--box .e-field-flag {
-    order: -1;
+  .e-fieldset--box .e-fieldset-rule {
+    flex: 1 1 var(--e-space-2);
+    width: auto;
+    min-width: var(--e-space-2);
   }
 
   /* The rule is the legend's own border, never a native fieldset border (which would break around the legend). */

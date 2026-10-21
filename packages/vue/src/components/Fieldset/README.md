@@ -19,8 +19,8 @@ Related controls in a bordered box. Use it, not a bare label, whenever two or mo
 | `bare` | `boolean` | `false` | No box: the legend becomes a small mono label above the controls (RadioGroup). |
 | `hint` | `string` | — | Help that is announced with the group. |
 | `error` | `string` | — | What to fix. Replaces the hint and is announced with the group. |
-| `required` | `boolean` | `false` | "Required" beside the legend: after it, or before it where the box's outline runs through the title. |
-| `optional` | `boolean` | `false` | "Optional" beside the legend, placed like `required`. Flag whichever is rarer. |
+| `required` | `boolean` | `false` | "Required" at the end of the legend: at the right end of the line where the box's outline runs through the title. |
+| `optional` | `boolean` | `false` | A word at the end of the legend, placed like `required`. Flag whichever is rarer. |
 | `section` | `boolean` | `false` | A titled form section: no box, a larger legend ruled off from what comes before, and the hint under the legend. Replaces `EFormSection`. |
 | `disabled` | `boolean` | `false` | Disables every control inside. |
 | `legendClass` | `string` | — | Extra classes for the legend. |
