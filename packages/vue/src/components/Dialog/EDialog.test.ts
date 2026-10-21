@@ -189,6 +189,34 @@ describe("EDialog", () => {
     expect(document.querySelector(".e-dialog-overlay")).toBeNull();
   });
 
+  test("an inline preview does not take focus when it opens or send it anywhere when it closes", async () => {
+    const shown = ref(false);
+    const Host = defineComponent({
+      render: () =>
+        h("div", [
+          h("button", { id: "outside" }, "Outside"),
+          shown.value
+            ? h(
+                EDialog,
+                { title: "Preview", inline: true, open: true, "onUpdate:open": (v?: boolean) => (shown.value = !!v) },
+                { default: () => "Body" },
+              )
+            : null,
+        ]),
+    });
+    await render(Host);
+    const outside = document.getElementById("outside")!;
+    outside.focus();
+    shown.value = true;
+    await nextTick();
+    await nextTick();
+    expect(document.activeElement).toBe(outside);
+    shown.value = false;
+    await nextTick();
+    await nextTick();
+    expect(document.activeElement).toBe(outside);
+  });
+
   test("renders into the portal target (the body by default)", async () => {
     const { Host, open } = host();
     await render(Host);
