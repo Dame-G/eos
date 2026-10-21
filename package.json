@@ -2,7 +2,7 @@
   "name": "eos-monorepo",
   "private": true,
   "version": "0.0.0",
-  "description": "Eos: Accessible Vue 3 components and design tokens.",
+  "description": "EOS: a component library for Vue, and its design tokens.",
   "type": "module",
   "packageManager": "pnpm@12.14.0",
   "engines": {

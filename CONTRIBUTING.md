@@ -1,6 +1,6 @@
 # Contributing to EOS
 
-Eos is a set of accessible Vue 3 components and a token-based theming system. This page describes the repository layout and what a component needs before it is merged.
+EOS is a component library for Vue, with a token-based theming system. This page describes the repository layout and what a component needs before it is merged.
 
 ```
 packages/tokens   @eos-ui/tokens   tokens.json -> CSS variables, defineTheme(), contrast checks

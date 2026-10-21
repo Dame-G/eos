@@ -1,6 +1,6 @@
 # EOS
 
-Accessible Vue 3 components with a token-based theme system. High contrast and consistent by default, rebrandable with a few lines.
+A component library for Vue. High contrast and consistent by default, rebrandable with a few lines.
 
 | Package                             | What it is                                                              |
 | ----------------------------------- | ----------------------------------------------------------------------- |
