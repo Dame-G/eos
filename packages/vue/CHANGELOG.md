@@ -1,5 +1,20 @@
 # @eos-ui/vue
 
+## 0.6.0
+
+### Minor Changes
+
+- c8324dd: New `ECommandPalette`: a modal search box over grouped commands, opened with `mod+k` or `v-model:open`, with built-in matching (or your own `filter`), keycaps for each command's shortcut, a custom `item` slot, and a combobox/listbox pattern with `aria-activedescendant`.
+- c8324dd: New `ECopyButton` and `useCopy()`: copy text, show a check mark, announce "Copied" or "Couldn't copy", and fall back to a hidden textarea where the async clipboard is missing. `ECodeBlock` now uses them, so its copy announcement comes from the shared announcer.
+- c8324dd: The build now writes `llms.txt` (an index of every component) and `llms-full.txt` (all the documentation in one file) for AI coding assistants. They ship as `@eos-ui/vue/llms.txt` and `@eos-ui/vue/llms-full.txt`. A new composables README documents every composable.
+- c8324dd: `useAnnouncer()` says something to screen reader users through one shared hidden live region (`announce("3 rows selected")`, or `{ assertive: true }` for errors).
+- c8324dd: `useShortcuts()` binds keys for the life of a component (`"mod+k"`, `escape`, `?`), skips key-only shortcuts while a text field has focus, and `formatShortcut()` gives the keycaps for `EKbd`.
+
+### Patch Changes
+
+- Updated dependencies [c8324dd]
+  - @eos-ui/tokens@0.6.0
+
 ## 0.5.4
 
 ### Patch Changes

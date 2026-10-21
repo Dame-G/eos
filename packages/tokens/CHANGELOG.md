@@ -1,5 +1,11 @@
 # @eos-ui/tokens
 
+## 0.6.0
+
+### Minor Changes
+
+- c8324dd: `theme.dtcg()` returns the theme as W3C Design Tokens JSON (typed colours, dimensions, durations and easings; aliases for tokens that reference others; usage notes as descriptions). The default theme ships as `@eos-ui/tokens/tokens.dtcg.json` for Tokens Studio and Style Dictionary.
+
 ## 0.5.4
 
 ### Patch Changes
