@@ -36,10 +36,10 @@ describe("ECodeBlock", () => {
   test("copies the text and says so", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal("navigator", { ...navigator, clipboard: { writeText } });
-    const { container } = await render(ECodeBlock, { props: { code: "one\ntwo", copyLabel: "Copy CSS" } });
+    await render(ECodeBlock, { props: { code: "one\ntwo", copyLabel: "Copy CSS" } });
     await page.getByRole("button", { name: "Copy CSS" }).click();
     expect(writeText).toHaveBeenCalledWith("one\ntwo");
-    await expect.poll(() => container.querySelector("[role=status]")!.textContent).toBe("Copied");
+    await expect.poll(() => document.querySelector("[data-e-announcer=polite]")!.textContent).toBe("Copied");
     vi.unstubAllGlobals();
   });
 

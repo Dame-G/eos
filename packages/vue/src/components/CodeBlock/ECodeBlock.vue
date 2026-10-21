@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { h, ref } from "vue";
-import EIconButton from "../IconButton/EIconButton.vue";
-import EVisuallyHidden from "../VisuallyHidden/EVisuallyHidden.vue";
+import { ref } from "vue";
+import ECopyButton from "../CopyButton/ECopyButton.vue";
 import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 
@@ -20,28 +19,8 @@ defineSlots<{
 }>();
 
 const t = useMessages();
-
-const CopyIcon = () =>
-  h(
-    "svg",
-    { viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", "stroke-width": "1.6", "aria-hidden": "true" },
-    [
-      h("rect", { x: "7", y: "7", width: "9", height: "9", rx: "2" }),
-      h("path", { d: "M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" }),
-    ],
-  );
-
 const root = ref<HTMLElement | null>(null);
-const copied = ref(false);
-
-async function copy() {
-  const text = props.code ?? root.value?.querySelector("pre")?.textContent ?? "";
-  try {
-    await navigator.clipboard.writeText(text);
-    copied.value = true;
-    setTimeout(() => (copied.value = false), 2000);
-  } catch {}
-}
+const text = () => props.code ?? root.value?.querySelector("pre")?.textContent ?? "";
 </script>
 
 <template>
@@ -52,9 +31,8 @@ async function copy() {
       </slot>
     </div>
     <div class="e-code-side">
-      <EIconButton :icon="copied ? 'check' : CopyIcon" :label="copyLabel || t('copyCode')" @click="copy" />
+      <ECopyButton :text="text" :label="copyLabel || t('copyCode')" />
     </div>
-    <EVisuallyHidden role="status">{{ copied ? t("codeCopied") : "" }}</EVisuallyHidden>
   </div>
 </template>
 

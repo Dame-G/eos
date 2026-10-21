@@ -43,6 +43,8 @@ const email = ref("");
 - `defineTheme()` (re-exported from [`@eos-ui/tokens`](../tokens)) builds a theme from `brand`, `accent` and other inputs and checks its contrast.
 - Icons: a built-in Phosphor set, or Lucide, Tabler, Heroicons, Phosphor (Vue), Iconify or your own set (`@eos-ui/vue/icons`; see [Bring your own icons](src/icons/README.md)).
 - `EosResolver` from `@eos-ui/vue/resolver` auto-imports components for `unplugin-vue-components`.
+- Composables for common needs: `useAnnouncer` (screen reader announcements), `useShortcuts` (keyboard shortcuts), `useCopy`, `useToast`. See [Composables](src/composables/README.md).
+- `@eos-ui/vue/llms.txt` and `llms-full.txt` give AI coding assistants an index and the complete docs.
 - Components work without the plugin, in English and US dollars.
 
 [Source, issues and contributing](https://github.com/Dame-G/eos). MIT licensed.

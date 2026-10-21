@@ -37,5 +37,5 @@ For your own highlighting, put the markup in the slot; the button copies the tex
 ## Accessibility
 
 - The `<pre>` is focusable so it scrolls by keyboard; `lang` names it.
-- "Copied" is announced politely. If the clipboard is blocked nothing is copied.
+- "Copied" is announced politely through the page's shared announcer (see `useAnnouncer`). If the clipboard is blocked nothing is copied and "Couldn't copy" is announced.
 - Nothing is highlighted for you; your colours must meet contrast.
