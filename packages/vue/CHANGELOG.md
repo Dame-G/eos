@@ -1,5 +1,12 @@
 # @eos-ui/vue
 
+## 0.7.1
+
+### Patch Changes
+
+- 65271f4: The package description and README open with "A component library for Vue."
+- @eos-ui/tokens@0.7.1
+
 ## 0.7.0
 
 ### Minor Changes
