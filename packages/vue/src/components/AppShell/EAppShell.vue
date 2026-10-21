@@ -47,6 +47,7 @@ const t = useMessages();
 @layer e.page {
   .e-shell {
     position: relative;
+    overflow-x: clip;
     display: grid;
     grid-template-rows: auto 1fr auto;
     min-height: 100%;
@@ -63,20 +64,19 @@ const t = useMessages();
     padding: var(--e-space-6) var(--e-space-4);
   }
 
-  /* Hairlines down both edges of the page column, drawn over the header and footer. */
-  @media (min-width: 64rem) {
-    .e-shell::after {
-      content: "";
-      position: absolute;
-      inset-block: 0;
-      inset-inline: 0;
-      z-index: var(--e-z-sticky);
-      box-sizing: border-box;
-      width: min(100%, var(--e-shell-width, 72rem));
-      margin-inline: auto;
-      border-inline: var(--e-stroke-hair) solid var(--e-shell-rail, var(--e-border));
-      pointer-events: none;
-    }
+  /* Hairlines just outside both edges of the page column, drawn over the header and footer. When the column fills the screen they fall off it and nothing shows. */
+  .e-shell::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0;
+    z-index: var(--e-z-sticky);
+    width: min(100%, var(--e-shell-width, 72rem));
+    margin-inline: auto;
+    box-shadow:
+      calc(-1 * var(--e-stroke-hair)) 0 0 0 var(--e-shell-rail, var(--e-border)),
+      var(--e-stroke-hair) 0 0 0 var(--e-shell-rail, var(--e-border));
+    pointer-events: none;
   }
 
   @media (min-width: 48rem) {
