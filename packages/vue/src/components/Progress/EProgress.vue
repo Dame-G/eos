@@ -70,23 +70,34 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   .e-progress-track {
     position: relative;
     height: 10px;
+    box-sizing: border-box;
+    padding: calc(var(--e-stroke-card) / 2);
     border-radius: var(--e-radius-pill);
     background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
+    background-clip: content-box;
     overflow: hidden;
+  }
+
+  /* The outline lies over the track and bar, which stop half a stroke inside its outer edge: nothing shows outside the curve or in a gap inside it. */
+  .e-progress-track::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: var(--e-stroke-card) solid var(--e-border-strong);
+    border-radius: inherit;
+    pointer-events: none;
   }
 
   .e-progress-fill {
     height: 100%;
     border-radius: var(--e-radius-pill);
     background: var(--e-primary);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-primary);
     transition: width var(--e-duration-move) var(--e-easing-out);
   }
 
   .e-progress--indeterminate .e-progress-fill {
     position: absolute;
-    inset: 0 auto 0 0;
+    inset: calc(var(--e-stroke-card) / 2) auto calc(var(--e-stroke-card) / 2) calc(var(--e-stroke-card) / 2);
     width: 40%;
     transition: none;
     animation: e-progress-slide 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
@@ -119,8 +130,8 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   }
 
   @media (forced-colors: active) {
-    .e-progress-track {
-      border: var(--e-stroke-card) solid CanvasText;
+    .e-progress-track::after {
+      border-color: CanvasText;
     }
 
     .e-progress-fill {

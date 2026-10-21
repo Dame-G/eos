@@ -132,15 +132,24 @@ function typeahead(e: KeyboardEvent) {
     align-items: center;
     justify-content: space-between;
     gap: var(--e-space-2);
-    padding-inline-end: var(--e-space-3);
+    padding-inline-end: calc(var(--e-space-3) - var(--e-stroke-edge));
     text-align: start;
     cursor: pointer;
   }
 
+  /* Open, the trigger looks focused: focus moves into the list, so the field's own :focus no longer applies. */
   .e-sel-trigger[aria-expanded="true"] {
-    --e-ring: var(--e-ink);
+    --e-ring: var(--e-focus-field);
 
     background-color: var(--e-surface);
+    outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
+    outline-offset: var(--e-focus-gap-field);
+  }
+
+  .e-sel-trigger[aria-expanded="true"][aria-invalid="true"] {
+    --e-ring: var(--e-danger);
+
+    outline-color: var(--e-danger);
   }
 
   .e-sel-value {

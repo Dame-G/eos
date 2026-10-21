@@ -95,13 +95,14 @@ defineExpose({
     align-items: center;
     gap: var(--e-space-1);
     height: var(--e-control-height);
-    padding: 0 var(--e-space-1) 0 var(--e-space-2);
+    padding: 0 calc(var(--e-space-1) - var(--e-stroke-edge)) 0 calc(var(--e-space-2) - var(--e-stroke-edge));
+    box-sizing: border-box;
+    border: var(--e-stroke-edge) solid var(--e-ring);
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
-    box-shadow:
-      inset 0 0 0 var(--e-stroke-edge) var(--e-ring),
-      var(--e-well);
-    transition: box-shadow var(--e-duration-tap) var(--e-easing-out);
+    background-clip: padding-box;
+    box-shadow: var(--e-well);
+    transition: border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-search:hover {
@@ -111,7 +112,7 @@ defineExpose({
   .e-search .e-btn {
     position: relative;
     height: calc(var(--e-control-height) - 6px);
-    padding: 0 var(--e-space-3) var(--e-lift);
+    padding: 0 calc(var(--e-space-3) - var(--e-stroke-edge));
     font-size: var(--e-text-md);
   }
 

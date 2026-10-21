@@ -4,7 +4,7 @@
     flex-wrap: nowrap;
     align-items: center;
     min-height: var(--e-control-height);
-    padding-inline-end: var(--e-space-1);
+    padding-inline-end: calc(var(--e-space-1) - var(--e-stroke-edge));
   }
 
   .e-combo:not(.e-combo--multi) .e-input {
@@ -12,7 +12,7 @@
     min-width: 4rem;
     height: auto;
     align-self: stretch;
-    padding-inline: var(--e-space-4) var(--e-space-2);
+    padding-inline: calc(var(--e-space-4) - var(--e-stroke-edge)) calc(var(--e-space-2) - var(--e-stroke-edge));
   }
 
   .e-combo-btn {

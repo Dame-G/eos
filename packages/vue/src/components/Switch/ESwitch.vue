@@ -83,19 +83,21 @@ defineExpose({
     flex: none;
     width: var(--e-switch-w);
     height: 24px;
+    box-sizing: border-box;
+    border: var(--e-stroke-edge) solid var(--e-ring);
     border-radius: var(--e-radius-pill);
     background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ring);
+    background-clip: padding-box;
     transition:
       background-color var(--e-duration-tap) var(--e-easing-out),
-      box-shadow var(--e-duration-tap) var(--e-easing-out);
+      border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-switch-track::after {
     content: "";
     position: absolute;
     top: 50%;
-    inset-inline-start: var(--e-thumb-inset);
+    inset-inline-start: calc(var(--e-thumb-inset) - var(--e-stroke-edge));
     width: var(--e-thumb);
     height: var(--e-thumb);
     margin-top: calc(var(--e-thumb) / -2);
@@ -111,7 +113,8 @@ defineExpose({
   .e-switch-input:checked + .e-switch-track {
     --e-ring: var(--e-primary);
 
-    background: var(--e-primary);
+    background-color: var(--e-primary);
+    background-clip: border-box;
   }
 
   .e-switch-input:checked + .e-switch-track::after {
@@ -120,10 +123,10 @@ defineExpose({
   }
 
   .e-switch-input:disabled + .e-switch-track {
-    box-shadow: none;
+    border-color: transparent;
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
-    background: var(--e-surface-tint);
+    background-color: var(--e-surface-tint);
   }
 
   .e-switch-input:disabled + .e-switch-track::after {

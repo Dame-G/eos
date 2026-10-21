@@ -20,6 +20,18 @@ for (const { file, css } of sourceStyles()) {
       `${file}:${n.source?.start?.line ?? "?"}: top-level ${n.type === "rule" ? n.selector : "@" + n.name} is outside an @layer e.* block`,
     );
   });
+  // An edge drawn as an inset shadow over a fill paints the fill into the antialiased corner pixels, which shows as a fringe of the fill colour outside the curve. Where the fill is strong, draw the edge as a border and stop the fill inside it with background-clip: padding-box. Fills that are only a tint of the ground they sit on (tints, hover and wash colours) cannot show a fringe.
+  root.walkRules((rule) => {
+    const decls = [];
+    rule.each((n) => n.type === "decl" && decls.push(n));
+    const subtle = /^(transparent|none|inherit|initial|unset|currentcolor)\b|--e-(surface-tint|surface-hover|wash-)|color-mix\(|var\(--e-border/i;
+    const strongFill = decls.find((d) => /^background(-color)?$/.test(d.prop) && !subtle.test(d.value.trim()));
+    const ring = decls.find((d) => d.prop === "box-shadow" && /(^|,)\s*inset\s+0\s+0\s+0\s+(?!0\b)\S+\s+\S/.test(d.value));
+    if (strongFill && ring)
+      problems.push(
+        `${file}:${ring.source?.start?.line}: ${rule.selector.replace(/\s+/g, " ")} draws its edge as an inset shadow over a fill; use a border with background-clip: padding-box`,
+      );
+  });
   root.walkDecls((d) => {
     if (d.important) problems.push(`${file}:${d.source?.start?.line}: !important on ${d.prop}`);
     if (d.prop === "z-index" && /^\d+$/.test(d.value.trim()) && d.value.trim() !== "0")

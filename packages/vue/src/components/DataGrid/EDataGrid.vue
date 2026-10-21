@@ -849,12 +849,12 @@ watch([sort, page, search, filters], () => {
   .e-filterrow .e-input {
     height: var(--e-control-height);
     font-size: var(--e-text-md);
-    padding-inline: var(--e-space-3);
+    padding-inline: calc(var(--e-space-3) - var(--e-stroke-edge));
   }
 
   .e-filterrow .e-sel-trigger {
     height: var(--e-control-height);
-    padding-inline-end: var(--e-space-2);
+    padding-inline-end: calc(var(--e-space-2) - var(--e-stroke-edge));
   }
 
   .e-filter-range {

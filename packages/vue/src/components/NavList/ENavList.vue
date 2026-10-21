@@ -79,18 +79,20 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     gap: var(--e-space-3);
     height: var(--e-control-height);
     box-sizing: border-box;
-    padding: 0 var(--e-space-3) var(--e-lift);
+    padding: 0 calc(var(--e-space-3) - var(--e-stroke-edge));
 
     --e-lift: 0px;
 
-    border: 0;
+    /* The current page is outlined with a border and its fill stops inside it, so the corner carries the edge colour alone; the other items have no edge and fill to the box. */
+    border: var(--e-stroke-edge) solid transparent;
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-lift));
     border-radius: var(--e-radius-md);
     color: var(--e-ink);
     font: 400 var(--e-text-md) / 1 var(--e-font-sans);
     text-decoration: none;
     transition:
       background-color var(--e-duration-tap) var(--e-easing-out),
-      box-shadow var(--e-duration-tap) var(--e-easing-out);
+      border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-nav-item:hover {
@@ -109,9 +111,9 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     --e-lift: var(--e-depth);
     --e-slab: var(--e-primary);
 
-    box-shadow:
-      inset 0 0 0 var(--e-stroke-edge) var(--e-primary),
-      inset 0 calc(-1 * (var(--e-lift) + var(--e-stroke-edge))) 0 0 var(--e-slab);
+    border-color: var(--e-primary);
+    border-bottom-color: var(--e-slab);
+    background-clip: padding-box;
   }
 
   .e-nav-item[aria-current="page"]:hover {

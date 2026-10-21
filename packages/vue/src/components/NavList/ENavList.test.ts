@@ -45,7 +45,9 @@ describe("ENavList", () => {
     expect(current[0]!.textContent).toContain("Pay a bill");
     const cs = getComputedStyle(current[0]!);
     expect(cs.fontWeight).toBe("600");
-    expect(cs.boxShadow).not.toBe("none");
+    // The page is also marked by an edge with a thicker bottom (the slab), not by colour alone.
+    expect(cs.borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(parseFloat(cs.borderBottomWidth)).toBeGreaterThan(parseFloat(cs.borderTopWidth));
   });
 
   test("rows are control height and the count is a pill", async () => {
@@ -121,7 +123,8 @@ describe("ENavList", () => {
     expect(links[0]!.getBoundingClientRect().height).toBe(48);
     const current = getComputedStyle(container.querySelector("[aria-current]")!);
     expect(current.fontWeight).toBe("600");
-    expect(current.boxShadow).not.toBe("none");
+    expect(current.borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(parseFloat(current.borderBottomWidth)).toBeGreaterThan(parseFloat(current.borderTopWidth));
     await expectNoViolations(container);
   });
 

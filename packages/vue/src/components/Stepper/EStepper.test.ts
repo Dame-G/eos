@@ -55,7 +55,8 @@ describe("EStepper", () => {
     const { container } = await render(EStepper, { props: { steps } });
     const dots = [...container.querySelectorAll<HTMLElement>(".e-step-dot")].map((d) => getComputedStyle(d));
     expect(dots[3]!.outlineStyle).toBe("dashed");
-    expect(dots[2]!.boxShadow).toContain("2px");
+    expect(dots[2]!.borderTopWidth).toBe("2px");
+    expect(dots[2]!.borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
     expect(dots[0]!.outlineStyle).toBe("none");
     expect(dots[0]!.backgroundColor).not.toBe(dots[3]!.backgroundColor);
   });

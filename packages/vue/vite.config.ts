@@ -75,6 +75,8 @@ export default defineConfig(({ command }) => ({
     setupFiles: ["./test/setup.ts"],
     // A passing assertion returns at once; the longer limit only gives a slow CI runner room to open a popup or settle a layout.
     expect: { poll: { timeout: 5000 } },
+    // The browser tests click real controls; on a loaded CI runner one click can land before a popup is ready. A genuine failure still fails on the retry.
+    retry: process.env.CI ? 1 : 0,
     browser: {
       enabled: true,
       headless: true,

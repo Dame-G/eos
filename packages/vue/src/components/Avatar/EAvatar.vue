@@ -63,23 +63,14 @@ const initials = computed(() => {
     width: var(--e-tap, 44px);
     height: var(--e-tap, 44px);
     overflow: hidden;
-    border: 0;
+    border: var(--e-stroke-edge) solid var(--e-ring);
     border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
+    background-clip: padding-box;
     color: var(--e-primary);
     font: 600 var(--e-text-sm) / 1 var(--e-font-mono);
     letter-spacing: 0.02em;
-  }
-
-  /* The ring sits over the picture so an image never covers it. */
-  .e-avatar::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ring);
-    pointer-events: none;
-    transition: box-shadow var(--e-duration-tap) var(--e-easing-out);
+    transition: border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-avatar--button {

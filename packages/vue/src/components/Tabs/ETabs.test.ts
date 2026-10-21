@@ -151,9 +151,10 @@ describe("ETabs", () => {
     const [first, second] = [...container.querySelectorAll<HTMLElement>("[role=tab]")] as [HTMLElement, HTMLElement];
     expect(getComputedStyle(first).fontWeight).toBe("600");
     expect(getComputedStyle(second).fontWeight).toBe("500");
-    // The selected tab has the slab, an inset shadow shifted up; the others have only the ring.
-    expect(getComputedStyle(first).boxShadow.match(/inset/g)).toHaveLength(2);
-    expect(getComputedStyle(second).boxShadow.match(/inset/g)).toHaveLength(1);
+    // The slab is the selected tab's bottom border made thicker; the others have an even edge. No tab uses a shadow.
+    expect(parseFloat(getComputedStyle(first).borderBottomWidth)).toBeGreaterThan(parseFloat(getComputedStyle(first).borderTopWidth));
+    expect(getComputedStyle(second).borderBottomWidth).toBe(getComputedStyle(second).borderTopWidth);
+    expect(getComputedStyle(first).boxShadow).toBe("none");
   });
 
   test("the strip scrolls sideways when the tabs do not fit", async () => {

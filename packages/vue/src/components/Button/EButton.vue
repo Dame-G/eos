@@ -79,9 +79,8 @@ function blockWhenDisabled(event: Event) {
     --e-hover: color-mix(in srgb, var(--e-fill), var(--e-shade-hover));
     --e-press: color-mix(in srgb, var(--e-fill), var(--e-shade-press));
 
-    /* One rounded box, one control height tall. The slab is an inset shadow shifted up by the lift: the part of the box left uncovered along its bottom, which follows the corners up the sides, in the colour of the box's own edge. It is cut by the box's one outline, so nothing sits behind the curve. Pressing sinks the face over it. */
+    /* One border, one control height tall. The slab is the bottom edge made thicker by the lift; the radius tapers it up the corners. Pressing sinks the face over it. */
     --e-lift: var(--e-depth);
-    --e-band: calc(var(--e-lift) + var(--e-stroke-edge));
     --e-ring: var(--e-slab);
 
     position: relative;
@@ -90,13 +89,15 @@ function blockWhenDisabled(event: Event) {
     justify-content: center;
     gap: var(--e-space-2);
     height: var(--e-control-height);
-    padding: 0 var(--e-space-4) var(--e-lift);
-    border: 0;
+    padding: 0 calc(var(--e-space-4) - var(--e-stroke-edge));
+    box-sizing: border-box;
+    border: var(--e-stroke-edge) solid var(--e-ring);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-lift));
     border-radius: var(--e-radius-md);
     background-color: var(--e-fill);
-    box-shadow:
-      inset 0 0 0 var(--e-stroke-edge) var(--e-ring),
-      inset 0 calc(-1 * var(--e-band)) 0 0 var(--e-slab);
+
+    /* A solid face runs under its border so no page colour shows between them. */
+    background-clip: border-box;
     color: var(--e-on-fill);
     font: 500 var(--e-text-md) / 1 var(--e-font-sans);
     letter-spacing: 0.01em;
@@ -104,7 +105,7 @@ function blockWhenDisabled(event: Event) {
     text-decoration: none;
     cursor: pointer;
     transition:
-      box-shadow var(--e-duration-tap) var(--e-easing-out),
+      border-color var(--e-duration-tap) var(--e-easing-out),
       background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
@@ -118,7 +119,6 @@ function blockWhenDisabled(event: Event) {
     --e-lift: 0px;
 
     background-color: var(--e-press);
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ring);
   }
 
   .e-btn--secondary {
@@ -135,6 +135,8 @@ function blockWhenDisabled(event: Event) {
     --e-fill: var(--e-surface);
     --e-on-fill: var(--e-ink);
     --e-slab: var(--e-border-strong);
+
+    background-clip: padding-box;
   }
 
   .e-btn--outline:hover {
@@ -157,8 +159,7 @@ function blockWhenDisabled(event: Event) {
 
     background: transparent;
     color: var(--e-ink);
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ring);
-    padding-inline: var(--e-space-3);
+    padding-inline: calc(var(--e-space-3) - var(--e-stroke-edge));
     text-decoration: underline;
     text-underline-offset: 5px;
     text-decoration-thickness: var(--e-stroke-edge);
@@ -213,7 +214,8 @@ function blockWhenDisabled(event: Event) {
     background-color: color-mix(in srgb, var(--e-tint) 14%, var(--e-surface));
     background-image: repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in srgb, var(--e-tint) 20%, transparent) 8px 16px);
     background-size: 22.63px 22.63px;
-    box-shadow: none;
+    background-clip: padding-box;
+    border-color: transparent;
     color: var(--e-busy);
     transform: none;
     cursor: not-allowed;
@@ -223,7 +225,7 @@ function blockWhenDisabled(event: Event) {
   .e-btn--loading::before {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: calc(-1 * var(--e-stroke-edge));
     border: var(--e-stroke-edge) dashed var(--e-busy);
     border-radius: inherit;
     pointer-events: none;
@@ -265,7 +267,7 @@ function blockWhenDisabled(event: Event) {
     color: var(--e-muted);
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
-    box-shadow: none;
+    border-color: transparent;
     transform: none;
   }
 
