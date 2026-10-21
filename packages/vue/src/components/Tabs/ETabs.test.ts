@@ -51,6 +51,16 @@ describe("ETabs", () => {
     await expect.element(page.getByRole("tab", { name: "Two 3" })).toHaveFocus();
   });
 
+  test("tabs inside a vertical, framed panel keep their own plain horizontal look", async () => {
+    const inner = () => h(ETabs, { items: [{ id: "x", label: "Inner one" }, { id: "y", label: "Inner two" }] }, { x: () => "X", y: () => "Y" });
+    const { container } = await render(ETabs, { props: { items: [{ id: "a", label: "Outer" }], orientation: "vertical", framed: true }, slots: { a: inner } });
+    const lists = container.querySelectorAll<HTMLElement>(".e-tablist");
+    expect(getComputedStyle(lists[0]!).flexDirection).toBe("column");
+    expect(getComputedStyle(lists[1]!).flexDirection).toBe("row");
+    const innerTabs = [...lists[1]!.querySelectorAll<HTMLElement>("[role=tab]")].map((x) => x.getBoundingClientRect());
+    expect(Math.round(innerTabs[1]!.top)).toBe(Math.round(innerTabs[0]!.top));
+  });
+
   test("the count shows in a badge after the label", async () => {
     const { container } = await render(ETabs, { props: { items }, slots });
     expect(container.querySelector(".e-tab-count")!.textContent).toBe("3");
