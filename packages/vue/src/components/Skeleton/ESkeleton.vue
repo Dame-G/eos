@@ -28,12 +28,12 @@ const size = computed(() => ({
 
 <style>
 @layer e.primitives {
+  /* No container or outline: a faint neutral tint that pulses. */
   .e-skeleton {
     display: block;
     width: 100%;
     border-radius: var(--e-radius-md);
-    background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
+    background-color: color-mix(in srgb, var(--e-ink) 6%, var(--e-surface));
     animation: e-pulse 1.4s ease-in-out infinite;
   }
 
@@ -41,8 +41,7 @@ const size = computed(() => ({
     display: block;
     height: 14px;
     border-radius: var(--e-radius-sm);
-    background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
+    background-color: color-mix(in srgb, var(--e-ink) 6%, var(--e-surface));
     animation: e-pulse 1.4s ease-in-out infinite;
   }
 
@@ -68,7 +67,8 @@ const size = computed(() => ({
   @media (forced-colors: active) {
     .e-skel,
     .e-skeleton {
-      outline-color: GrayText;
+      forced-color-adjust: none;
+      background: GrayText;
     }
   }
 }

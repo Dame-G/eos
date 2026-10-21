@@ -666,8 +666,7 @@ watch([sort, page, search, filters], () => {
     display: block;
     height: 14px;
     border-radius: var(--e-radius-sm);
-    background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border);
+    background-color: color-mix(in srgb, var(--e-ink) 6%, var(--e-surface));
     animation: e-pulse 1.4s ease-in-out infinite;
   }
 

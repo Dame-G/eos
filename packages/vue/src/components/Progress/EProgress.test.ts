@@ -44,9 +44,9 @@ describe("EProgress", () => {
     expect((under.container.querySelector(".e-progress-fill") as HTMLElement).style.width).toBe("0%");
   });
 
-  test("the track is 10px tall", async () => {
+  test("the track is 12px tall", async () => {
     const { container } = await render(EProgress, { props: { label: "Upload", value: 40 } });
-    expect(container.querySelector(".e-progress-track")!.getBoundingClientRect().height).toBe(10);
+    expect(container.querySelector(".e-progress-track")!.getBoundingClientRect().height).toBe(12);
   });
 
   test("attributes fall through to the root", async () => {

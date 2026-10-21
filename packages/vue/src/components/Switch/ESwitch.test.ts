@@ -46,12 +46,12 @@ describe("ESwitch", () => {
     await expect.element(page.getByRole("switch", { name: "Reminders" })).toBeChecked();
   });
 
-  test("the knob sits at the start when off and travels 22px when on", async () => {
+  test("the knob sits at the start when off and travels 20px when on", async () => {
     const { container } = await render(ESwitch, { props: { label: "Reminders" }, attrs: {} });
     const track = container.querySelector(".e-switch-track")!;
     expect(getComputedStyle(track, "::after").transform).toBe("none");
     await page.getByText("Reminders").click();
-    await expect.poll(() => getComputedStyle(track, "::after").transform).toBe("matrix(1, 0, 0, 1, 22, 0)");
+    await expect.poll(() => getComputedStyle(track, "::after").transform).toBe("matrix(1, 0, 0, 1, 20, 0)");
   });
 
   test("description, disabled, name and value", async () => {
