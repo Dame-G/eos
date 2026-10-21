@@ -5,6 +5,7 @@ import { playwright } from "@vitest/browser-playwright";
 import { copyFileSync, mkdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import layers from "./scripts/postcss-layers.ts";
+import hover from "./scripts/postcss-hover.ts";
 
 const src = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
@@ -44,7 +45,7 @@ export default defineConfig(({ command }) => ({
       },
     },
   ],
-  css: { postcss: { plugins: [layers()] } },
+  css: { postcss: { plugins: [layers(), hover()] } },
   build: {
     target: "es2022",
     sourcemap: true,
