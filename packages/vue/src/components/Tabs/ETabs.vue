@@ -112,7 +112,6 @@ watch(current, () => reveal(true));
     flex: none;
     height: var(--e-control-height);
     padding: 0 calc(var(--e-space-4) - var(--e-stroke-edge));
-    box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--e-bc);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--e-lift));
     border-radius: 0;

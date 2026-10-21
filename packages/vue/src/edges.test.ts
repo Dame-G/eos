@@ -21,13 +21,18 @@ function expectBorderEdge(el: Element) {
 }
 
 describe("edges", () => {
-  test("a button's raised edge is its own border: thicker at the bottom, with the fill inside", async () => {
+  test("a button's raised edge is its own border, thicker at the bottom, with no shadow", async () => {
     const { container } = await render(EButton, { slots: { default: () => "Pay" } });
-    const btn = container.querySelector(".e-btn")!;
-    expectBorderEdge(btn);
-    const cs = getComputedStyle(btn);
+    const cs = getComputedStyle(container.querySelector(".e-btn")!);
     expect(parseFloat(cs.borderBottomWidth)).toBeGreaterThan(parseFloat(cs.borderTopWidth));
     expect(cs.boxShadow).toBe("none");
+    // A solid face is the colour of its edge, so it runs under the border; an outline face stops inside it.
+    expect(cs.backgroundClip).toBe("border-box");
+  });
+
+  test("an outline button stops its fill inside the border", async () => {
+    const { container } = await render(EButton, { props: { variant: "outline" }, slots: { default: () => "Cancel" } });
+    expectBorderEdge(container.querySelector(".e-btn")!);
   });
 
   test.each([

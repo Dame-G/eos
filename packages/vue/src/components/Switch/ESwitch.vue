@@ -116,6 +116,7 @@ defineExpose({
     --e-ring: var(--e-primary);
 
     background-color: var(--e-primary);
+    background-clip: border-box;
   }
 
   .e-switch-input:checked + .e-switch-track::after {

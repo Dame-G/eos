@@ -95,7 +95,9 @@ function blockWhenDisabled(event: Event) {
     border-bottom-width: calc(var(--e-stroke-edge) + var(--e-lift));
     border-radius: var(--e-radius-md);
     background-color: var(--e-fill);
-    background-clip: padding-box;
+
+    /* A solid face is the colour of its own edge, so the fill runs under the border and no page colour can show between them. Faces that differ from their edge stop inside it (outline). */
+    background-clip: border-box;
     color: var(--e-on-fill);
     font: 500 var(--e-text-md) / 1 var(--e-font-sans);
     letter-spacing: 0.01em;
@@ -134,6 +136,8 @@ function blockWhenDisabled(event: Event) {
     --e-fill: var(--e-surface);
     --e-on-fill: var(--e-ink);
     --e-slab: var(--e-border-strong);
+
+    background-clip: padding-box;
   }
 
   .e-btn--outline:hover {

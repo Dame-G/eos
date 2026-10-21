@@ -65,9 +65,11 @@
     background-color: var(--e-surface-hover);
   }
 
-  .e-check:checked {
+  .e-check:checked,
+  .e-radio:checked {
     border-color: var(--e-primary);
     background-color: var(--e-primary);
+    background-clip: border-box;
     box-shadow: none;
   }
 
@@ -85,9 +87,6 @@
   }
 
   .e-radio:checked {
-    border-color: var(--e-primary);
-    background-color: var(--e-primary);
-    box-shadow: none;
     background-image: radial-gradient(circle, var(--e-on-primary) 0 4px, transparent 5px);
   }
 
