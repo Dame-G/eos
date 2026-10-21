@@ -48,7 +48,7 @@ describe("ESkeleton", () => {
 
   test("pulses", async () => {
     const { container } = await render(ESkeleton);
-    expect(getComputedStyle(container.querySelector(".e-skeleton")!).animationName).toContain("e-pulse");
+    expect(getComputedStyle(container.querySelector(".e-skeleton")!).animationName).toBe("e-pulse");
   });
 
   test("attributes and styles fall through to the root", async () => {

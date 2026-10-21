@@ -28,21 +28,13 @@ const size = computed(() => ({
 
 <style>
 @layer e.primitives {
-  /* No container or outline: the stripes of a busy button run across a faint neutral tint. */
+  /* No container or outline: a faint neutral tint that pulses. */
   .e-skeleton {
     display: block;
     width: 100%;
     border-radius: var(--e-radius-md);
     background-color: color-mix(in srgb, var(--e-ink) 6%, var(--e-surface));
-    background-image: repeating-linear-gradient(
-      135deg,
-      transparent 0 8px,
-      color-mix(in srgb, var(--e-ink) 10%, transparent) 8px 16px
-    );
-    background-size: 22.63px 22.63px;
-    animation:
-      e-skeleton-stripes 0.8s linear infinite,
-      e-pulse 1.4s ease-in-out infinite;
+    animation: e-pulse 1.4s ease-in-out infinite;
   }
 
   .e-skel {
@@ -50,15 +42,7 @@ const size = computed(() => ({
     height: 14px;
     border-radius: var(--e-radius-sm);
     background-color: color-mix(in srgb, var(--e-ink) 6%, var(--e-surface));
-    background-image: repeating-linear-gradient(
-      135deg,
-      transparent 0 8px,
-      color-mix(in srgb, var(--e-ink) 10%, transparent) 8px 16px
-    );
-    background-size: 22.63px 22.63px;
-    animation:
-      e-skeleton-stripes 0.8s linear infinite,
-      e-pulse 1.4s ease-in-out infinite;
+    animation: e-pulse 1.4s ease-in-out infinite;
   }
 
   .e-skeleton--circle {
@@ -70,12 +54,6 @@ const size = computed(() => ({
   @keyframes e-pulse {
     50% {
       opacity: 0.5;
-    }
-  }
-
-  @keyframes e-skeleton-stripes {
-    to {
-      background-position-x: 22.63px;
     }
   }
 
