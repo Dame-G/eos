@@ -178,6 +178,19 @@ describe("ETabs", () => {
     expect(root.dataset.x).toBe("1");
   });
 
+  test("a framed panel squares its top corner at the end of a row that scrolls", async () => {
+    const many = Array.from({ length: 8 }, (_, i) => ({ id: `t${i}`, label: `Section number ${i}` }));
+    const { container } = await render(ETabs, { props: { items: many, framed: true }, slots: { t0: "x" } });
+    container.classList.add("e-root");
+    const root = container.querySelector<HTMLElement>(".e-tabs")!;
+    root.style.width = "20rem";
+    await expect.poll(() => root.classList.contains("e-tabs--scrolls")).toBe(true);
+    expect(getComputedStyle(container.querySelector(".e-tabpanel")!).borderStartEndRadius).toBe("0px");
+    root.style.width = "100rem";
+    await expect.poll(() => root.classList.contains("e-tabs--scrolls")).toBe(false);
+    expect(parseFloat(getComputedStyle(container.querySelector(".e-tabpanel")!).borderStartEndRadius)).toBeGreaterThan(0);
+  });
+
   test("axe finds nothing, with the first and another tab selected", async () => {
     const { container } = await render(ETabs, { props: { items }, slots });
     await expectNoViolations(container);

@@ -687,6 +687,7 @@ defineExpose({
 
   .e-cal-years {
     overflow-y: auto;
+    overscroll-behavior: contain;
     grid-auto-rows: var(--e-tap);
     padding-inline-end: 2px;
     align-content: start;

@@ -1,4 +1,4 @@
-import type { AtRule, Plugin, Rule } from "postcss";
+import type { AtRule, Container, Document, Plugin, Rule } from "postcss";
 
 // A tap leaves :hover stuck on a touch screen, so every hover style is held back for devices that can really hover.
 export default function hover(): Plugin {
@@ -6,7 +6,7 @@ export default function hover(): Plugin {
     postcssPlugin: "e-hover",
     Rule(rule: Rule, { AtRule: AtRuleNode }) {
       if (!rule.selector.includes(":hover")) return;
-      for (let p = rule.parent; p; p = p.parent) {
+      for (let p: Container | Document | undefined = rule.parent; p; p = p.parent) {
         if (p.type === "atrule" && ((p as AtRule).name === "keyframes" || (p as AtRule).params.includes("hover:"))) return;
       }
       const hovering = rule.selectors.filter((s) => s.includes(":hover"));

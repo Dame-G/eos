@@ -142,6 +142,7 @@ const open = defineModel<boolean>("open");
   .e-drawer-body {
     flex: 1;
     overflow: auto;
+    overscroll-behavior: contain;
   }
 
   .e-drawer .e-dialog-foot {

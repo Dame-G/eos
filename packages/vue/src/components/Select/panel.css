@@ -6,6 +6,7 @@
     width: min(24rem, calc(100vw - var(--e-space-8)));
     max-height: min(60dvh, 32rem);
     overflow: auto;
+    overscroll-behavior: contain;
     padding: 0;
     border: 0;
     border-radius: var(--e-radius-md);
@@ -26,6 +27,7 @@
     padding: var(--e-space-1);
     list-style: none;
     overflow: auto;
+    overscroll-behavior: contain;
   }
 
   .e-opt {

@@ -97,6 +97,7 @@ defineExpose({ focus, focusFirst });
     max-height: min(24rem, 50vh);
     min-height: 3rem;
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding: var(--e-space-1);
     border-radius: var(--e-radius-md);
     box-shadow: var(--e-edge);

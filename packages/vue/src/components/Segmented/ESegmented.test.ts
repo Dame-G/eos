@@ -164,4 +164,21 @@ describe("ESegmented", () => {
     expect(getComputedStyle(text).backgroundColor).not.toBe(fill);
     expect(getComputedStyle(text).color).toBe(ink);
   });
+
+  test("in a narrow space the options scroll, and the chosen one is brought into view", async () => {
+    const options = Array.from({ length: 6 }, (_, i) => `Option number ${i}`);
+    const { container } = await render(ESegmented, { props: { label: "Pick", options } });
+    container.classList.add("e-root");
+    const track = container.querySelector<HTMLElement>(".e-seg")!;
+    container.style.width = "16rem";
+    await expect.poll(() => track.scrollWidth).toBeGreaterThan(track.clientWidth);
+    expect(getComputedStyle(track).overflowX).toBe("auto");
+    const inView = () => {
+      const chosen = container.querySelector<HTMLElement>(".e-seg-input:checked")!.parentElement!.getBoundingClientRect();
+      const box = track.getBoundingClientRect();
+      return chosen.right <= box.right + 1 && chosen.left >= box.left - 1;
+    };
+    await page.getByRole("radio", { name: "Option number 5" }).click({ force: true });
+    await expect.poll(inView).toBe(true);
+  });
 });

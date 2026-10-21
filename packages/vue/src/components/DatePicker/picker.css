@@ -10,6 +10,7 @@
     margin: 0;
     padding: var(--e-space-3);
     overflow: auto;
+    overscroll-behavior: contain;
     border: 0;
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
