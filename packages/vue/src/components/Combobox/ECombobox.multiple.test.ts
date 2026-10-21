@@ -257,6 +257,7 @@ describe("ECombobox multiple", () => {
     expect(container.querySelector(".e-tag")!.textContent).toContain("Text");
     expect(container.querySelector(".e-tag-x")).toBeNull();
     expect(container.querySelector("[aria-label=Clear]")).toBeNull();
+    expect(container.querySelector(".e-combo-btn")).toBeNull();
   });
 
   test("passes aria-*, data-* and listeners to the input; class and style stay on the wrapper", async () => {

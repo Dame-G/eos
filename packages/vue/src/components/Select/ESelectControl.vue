@@ -90,7 +90,7 @@ function typeahead(e: KeyboardEvent) {
           <EIcon v-if="selected.icon" :name="selected.icon" />{{ selected.label }}
         </span>
         <span v-else class="e-sel-placeholder">{{ placeholder || t("select") }}</span>
-        <EIcon name="chevron-down" bold />
+        <EIcon v-if="!disabled" name="chevron-down" bold />
       </SelectTrigger>
       <SelectPortal :to="portal">
         <SelectContent
