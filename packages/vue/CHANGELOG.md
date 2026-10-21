@@ -1,5 +1,18 @@
 # @eos-ui/vue
 
+## 0.7.0
+
+### Minor Changes
+
+- 9cf6521: EHighlight takes a `swatch` colour and draws a small square of it to the right of the text, for showing a colour value such as `#2c95b4`. Highlight is also text colour only now, with no background wash.
+- 9cf6521: ETabs has a `side` prop: a vertical list can sit on the `end` side of its panel (the right in a left-to-right page), with the selected tab's band on the outer edge and the tab opening into the panel.
+
+### Patch Changes
+
+- 9cf6521: The EDatePicker and ERangePicker calendars now open above positioned fields and sticky bars instead of underneath them.
+- 9cf6521: EDataGrid in its narrow card layout no longer draws the toolbar's bottom border across the first card's rounded corners.
+- @eos-ui/tokens@0.7.0
+
 ## 0.6.0
 
 ### Minor Changes
