@@ -132,7 +132,7 @@ function typeahead(e: KeyboardEvent) {
     align-items: center;
     justify-content: space-between;
     gap: var(--e-space-2);
-    padding-inline-end: var(--e-space-3);
+    padding-inline-end: calc(var(--e-space-3) - var(--e-stroke-edge));
     text-align: start;
     cursor: pointer;
   }

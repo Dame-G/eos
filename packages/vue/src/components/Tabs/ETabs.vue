@@ -97,13 +97,12 @@ watch(current, () => reveal(true));
     display: none;
   }
 
-  /* Tabs are button-like: every tab is ringed and neighbours sit flush and share an edge, so only the outer ends of the row are rounded. The selected tab is outlined in the primary colour with a thick slab along its bottom. */
+  /* Tabs are button-like: every tab is ringed and neighbours sit flush and share an edge, so only the outer ends of the row are rounded. The selected tab is outlined in the primary colour with a thick slab along its bottom. The edge is a border and the fill stops inside it, so a rounded corner carries the edge colour alone. */
   .e-tab {
     --e-bc: var(--e-border-strong);
 
     /* A selected tab rises: the slab is a band the tab paints along one edge itself, so there is no second shape behind the corners. Every tab is one control height tall either way. */
     --e-lift: 0px;
-    --e-band: calc(var(--e-lift) + var(--e-stroke-edge));
     --e-slab: var(--e-primary);
 
     position: relative;
@@ -112,18 +111,21 @@ watch(current, () => reveal(true));
     gap: var(--e-space-2);
     flex: none;
     height: var(--e-control-height);
-    padding: 0 var(--e-space-4) var(--e-lift);
-    border: 0;
+    padding: 0 calc(var(--e-space-4) - var(--e-stroke-edge));
+    box-sizing: border-box;
+    border: var(--e-stroke-edge) solid var(--e-bc);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-lift));
     border-radius: 0;
     background: transparent;
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-bc);
+    background-clip: padding-box;
     color: var(--e-muted);
     font: 500 var(--e-text-md) / 1 var(--e-font-sans);
     cursor: pointer;
     transition:
       color var(--e-duration-tap) var(--e-easing-out),
       background-color var(--e-duration-tap) var(--e-easing-out),
-      box-shadow var(--e-duration-tap) var(--e-easing-out);
+      border-color var(--e-duration-tap) var(--e-easing-out),
+      border-width var(--e-duration-tap) var(--e-easing-out);
   }
 
   /* Only the outer ends of the row are rounded. */
@@ -154,10 +156,8 @@ watch(current, () => reveal(true));
     --e-lift: var(--e-depth);
 
     z-index: var(--e-z-sticky);
+    border-bottom-color: var(--e-slab);
     background-color: color-mix(in srgb, var(--e-surface-tint), var(--e-ink) 3%);
-    box-shadow:
-      inset 0 0 0 var(--e-stroke-edge) var(--e-bc),
-      inset 0 calc(-1 * var(--e-band)) 0 0 var(--e-slab);
     color: var(--e-ink);
     font-weight: 600;
   }
@@ -181,7 +181,7 @@ watch(current, () => reveal(true));
     flex: 1 1 0;
     min-width: 0;
     justify-content: center;
-    padding-inline: var(--e-space-1);
+    padding-inline: max(0px, calc(var(--e-space-1) - var(--e-stroke-edge)));
   }
 
   /* Vertical: the tabs stack beside the panel, flush and sharing edges. The selected tab rises towards the panel, so its slab is a band down the inline-start side, away from the panel, instead of along the bottom, and only the top and bottom ends of the column are rounded. */
@@ -201,7 +201,6 @@ watch(current, () => reveal(true));
     --e-lift: 0px;
 
     height: var(--e-control-height);
-    padding-block-end: 0;
     justify-content: flex-start;
     border-radius: 0;
   }
@@ -224,22 +223,16 @@ watch(current, () => reveal(true));
   .e-tabs--vertical > .e-tablist > .e-tab[aria-selected="true"] {
     --e-lift: var(--e-depth);
 
-    padding-inline-start: calc(var(--e-space-4) + var(--e-lift));
-    box-shadow:
-      inset 0 0 0 var(--e-stroke-edge) var(--e-bc),
-      inset var(--e-band) 0 0 0 var(--e-slab);
+    border-bottom-width: var(--e-stroke-edge);
+    border-bottom-color: var(--e-bc);
+    border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-lift));
+    border-inline-start-color: var(--e-slab);
   }
 
   .e-tabs--vertical > .e-tabpanel {
     flex: 1 1 0;
     min-width: 0;
     padding-top: 0;
-  }
-
-  :dir(rtl) .e-tabs--vertical > .e-tablist > .e-tab[aria-selected="true"] {
-    box-shadow:
-      inset 0 0 0 var(--e-stroke-edge) var(--e-bc),
-      inset calc(-1 * var(--e-band)) 0 0 0 var(--e-slab);
   }
 
   /* Framed: tabs and panel are one outlined card. The tab row sits over the panel's edge by one stroke, so a tab's lower edge and the panel's upper edge are the same line; the chosen tab has no edge on that side and its fill covers the panel's, opening into it. Tabs sit flush with their neighbours, square where they meet; only the card's outer corner at the first tab is rounded, and the panel's own corner beside it is square. The row always leaves a corner's width of open edge past the last tab, so the panel's curve never lands against a tab's straight edge. */
@@ -278,20 +271,20 @@ watch(current, () => reveal(true));
     --e-bc: var(--e-primary);
     --e-lift: var(--e-depth);
 
-    padding-block: var(--e-lift) 0;
+    padding-block-end: var(--e-stroke-edge);
+    border-bottom-width: 0;
+    border-top-width: calc(var(--e-stroke-edge) + var(--e-lift));
+    border-top-color: var(--e-slab);
     background-color: var(--e-surface);
-    box-shadow:
-      inset var(--e-stroke-edge) 0 0 0 var(--e-bc),
-      inset calc(-1 * var(--e-stroke-edge)) 0 0 0 var(--e-bc),
-      inset 0 var(--e-band) 0 0 var(--e-slab);
   }
 
   .e-tabs--framed > .e-tabpanel {
-    padding: var(--e-space-4);
+    padding: calc(var(--e-space-4) - var(--e-stroke-edge));
+    border: var(--e-stroke-edge) solid var(--e-border-strong);
     border-radius: var(--e-radius-md);
     border-start-start-radius: 0;
     background: var(--e-surface);
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
+    background-clip: padding-box;
   }
 
   .e-tabs--framed.e-tabs--fill > .e-tabpanel {
@@ -320,18 +313,13 @@ watch(current, () => reveal(true));
   .e-tabs--framed.e-tabs--vertical > .e-tablist > .e-tab[aria-selected="true"] {
     margin-block: calc(-1 * var(--e-stroke-edge)) 0;
     padding-block: 0;
-    padding-inline-start: calc(var(--e-space-4) + var(--e-lift));
-    box-shadow:
-      inset 0 var(--e-stroke-edge) 0 0 var(--e-bc),
-      inset 0 calc(-1 * var(--e-stroke-edge)) 0 0 var(--e-bc),
-      inset var(--e-band) 0 0 0 var(--e-slab);
-  }
-
-  :dir(rtl) .e-tabs--framed.e-tabs--vertical > .e-tablist > .e-tab[aria-selected="true"] {
-    box-shadow:
-      inset 0 var(--e-stroke-edge) 0 0 var(--e-bc),
-      inset 0 calc(-1 * var(--e-stroke-edge)) 0 0 var(--e-bc),
-      inset calc(-1 * var(--e-band)) 0 0 0 var(--e-slab);
+    border-block-start-width: var(--e-stroke-edge);
+    border-block-start-color: var(--e-bc);
+    border-block-end-width: var(--e-stroke-edge);
+    border-block-end-color: var(--e-bc);
+    border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-lift));
+    border-inline-start-color: var(--e-slab);
+    border-inline-end-width: 0;
   }
 
   .e-tabs--framed.e-tabs--vertical > .e-tablist > .e-tab[aria-selected="true"]:first-child {
@@ -339,7 +327,7 @@ watch(current, () => reveal(true));
   }
 
   .e-tabs--framed.e-tabs--vertical > .e-tabpanel {
-    padding: var(--e-space-4);
+    padding: calc(var(--e-space-4) - var(--e-stroke-edge));
   }
 
   .e-tab-count {

@@ -691,21 +691,14 @@ watch([sort, page, search, filters], () => {
     min-width: 0;
   }
 
-  .e-grid-frame::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: var(--e-z-sticky);
-    border-radius: inherit;
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
-    pointer-events: none;
-  }
-
+  /* The outline is a border and the fill stops inside it, so the corner carries the edge colour alone; the contents are clipped inside it. */
   .e-grid-frame {
     position: relative;
     overflow: hidden;
+    border: var(--e-stroke-card) solid var(--e-border-strong);
     border-radius: inherit;
     background: var(--e-surface);
+    background-clip: padding-box;
   }
 
   .e-grid-bar {
@@ -849,12 +842,12 @@ watch([sort, page, search, filters], () => {
   .e-filterrow .e-input {
     height: var(--e-control-height);
     font-size: var(--e-text-md);
-    padding-inline: var(--e-space-3);
+    padding-inline: calc(var(--e-space-3) - var(--e-stroke-edge));
   }
 
   .e-filterrow .e-sel-trigger {
     height: var(--e-control-height);
-    padding-inline-end: var(--e-space-2);
+    padding-inline-end: calc(var(--e-space-2) - var(--e-stroke-edge));
   }
 
   .e-filter-range {
@@ -1034,11 +1027,8 @@ watch([sort, page, search, filters], () => {
 
     .e-grid--cards .e-grid-frame {
       overflow: visible;
+      border-color: transparent;
       background: transparent;
-    }
-
-    .e-grid--cards .e-grid-frame::after {
-      content: none;
     }
 
     .e-grid--cards .e-gridtable tbody tr {

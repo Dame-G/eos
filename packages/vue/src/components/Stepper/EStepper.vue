@@ -95,25 +95,30 @@ const t = useMessages();
     place-items: center;
     width: var(--e-dot);
     height: var(--e-dot);
+    box-sizing: border-box;
+    border: var(--e-stroke-edge) solid transparent;
     border-radius: 50%;
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     background: var(--e-surface);
+    background-clip: padding-box;
     color: var(--e-muted);
     font: 600 var(--e-text-xs) / 1 var(--e-font-mono);
   }
 
   .e-step[data-state="done"] .e-step-dot {
     outline: 0;
+    border-color: var(--e-primary);
     background: var(--e-primary);
     color: var(--e-on-primary);
   }
 
   .e-step[data-state="current"] .e-step-dot {
     outline: 0;
-    box-shadow: inset 0 0 0 var(--e-stroke-focus) var(--e-primary);
+    border: var(--e-stroke-focus) solid var(--e-primary);
     color: var(--e-primary);
     background: var(--e-surface);
+    background-clip: padding-box;
   }
 
   .e-step-label {

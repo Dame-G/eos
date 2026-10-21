@@ -40,25 +40,18 @@ const style = computed(() => (props.maxHeight ? { "--e-table-max-h": props.maxHe
   .e-table-wrap {
     position: relative;
     min-width: 0;
+
+    /* The outline is a border outside the scroller and its sticky headings, so nothing covers it, and the fill stops inside it, so the corner carries the edge colour alone. */
+    border: var(--e-stroke-card) solid var(--e-border);
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
-  }
-
-  /* The outline is drawn once, above the scroller and its sticky headings, so nothing covers it. */
-  .e-table-wrap::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    z-index: var(--e-z-sticky);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border);
-    pointer-events: none;
+    background-clip: padding-box;
   }
 
   .e-table-scroll {
     overflow: auto;
     max-height: var(--e-table-max-h, none);
-    border-radius: inherit;
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-card)));
   }
 
   .e-table-scroll:focus-visible {
@@ -106,8 +99,8 @@ const style = computed(() => (props.maxHeight ? { "--e-table-max-h": props.maxHe
       max-height: none;
     }
 
-    .e-table-wrap::after {
-      display: none;
+    .e-table-wrap {
+      border-color: transparent;
     }
   }
 

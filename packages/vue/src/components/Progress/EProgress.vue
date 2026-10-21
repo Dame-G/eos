@@ -70,9 +70,11 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   .e-progress-track {
     position: relative;
     height: 10px;
+    box-sizing: border-box;
+    border: var(--e-stroke-card) solid var(--e-border-strong);
     border-radius: var(--e-radius-pill);
     background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
+    background-clip: padding-box;
     overflow: hidden;
   }
 
@@ -80,7 +82,6 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     height: 100%;
     border-radius: var(--e-radius-pill);
     background: var(--e-primary);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-primary);
     transition: width var(--e-duration-move) var(--e-easing-out);
   }
 

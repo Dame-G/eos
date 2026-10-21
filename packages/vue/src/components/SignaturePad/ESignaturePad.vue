@@ -188,11 +188,11 @@ defineExpose({
   .e-pad-surface {
     position: relative;
     overflow: hidden;
+    border: var(--e-stroke-edge) solid var(--e-border-strong);
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
-    box-shadow:
-      inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong),
-      var(--e-well);
+    background-clip: padding-box;
+    box-shadow: var(--e-well);
   }
 
   .e-pad-surface::after {

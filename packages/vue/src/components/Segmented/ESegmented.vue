@@ -171,7 +171,8 @@ const groupAttrs = () => ({
   .e-seg-opt:has(:disabled:checked):hover .e-seg-text {
     background-color: var(--e-surface);
     background-image: none;
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
+    outline: var(--e-stroke-edge) solid var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
     color: var(--e-ink);
   }
 

@@ -80,7 +80,7 @@ defineExpose({
   .e-textarea {
     height: auto;
     min-height: 6.5rem;
-    padding: var(--e-space-3) var(--e-space-4);
+    padding: calc(var(--e-space-3) - var(--e-stroke-edge)) calc(var(--e-space-4) - var(--e-stroke-edge));
     line-height: 1.5;
     resize: vertical;
   }
