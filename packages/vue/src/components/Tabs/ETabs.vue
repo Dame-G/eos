@@ -399,6 +399,10 @@ watch(flat, watchRow);
     border-inline-width: calc(var(--e-stroke-edge) + var(--e-lift));
   }
 
+  .e-tabs:not(.e-tabs--vertical, .e-tabs--framed) > .e-tablist > .e-tab[aria-selected="true"] {
+    border-top-width: calc(var(--e-stroke-edge) + var(--e-lift));
+  }
+
   /* Equal-width tabs stay equal: the chosen tab's thicker sides come out of its own padding. */
   .e-tabs--fill:not(.e-tabs--vertical) > .e-tablist > .e-tab[aria-selected="true"] {
     padding-inline: max(0px, calc(var(--e-space-1) - var(--e-stroke-edge) - var(--e-lift)));

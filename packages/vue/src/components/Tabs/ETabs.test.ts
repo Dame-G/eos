@@ -179,11 +179,14 @@ describe("ETabs", () => {
     const [first, second] = [...container.querySelectorAll<HTMLElement>("[role=tab]")] as [HTMLElement, HTMLElement];
     expect(getComputedStyle(first).fontWeight).toBe("600");
     expect(getComputedStyle(second).fontWeight).toBe("500");
-    // The slab is the selected tab's bottom border made thicker; the others have an even edge. No tab uses a shadow.
-    expect(parseFloat(getComputedStyle(first).borderBottomWidth)).toBeGreaterThan(
-      parseFloat(getComputedStyle(first).borderTopWidth),
-    );
-    expect(getComputedStyle(second).borderBottomWidth).toBe(getComputedStyle(second).borderTopWidth);
+    // The selected tab's edges are all as thick as its slab, and thicker than the even edge of the others. No tab uses a shadow.
+    const chosen = getComputedStyle(first);
+    const other = getComputedStyle(second);
+    expect(parseFloat(chosen.borderTopWidth)).toBeGreaterThan(parseFloat(other.borderTopWidth));
+    expect(chosen.borderTopWidth).toBe(chosen.borderBottomWidth);
+    expect(chosen.borderTopWidth).toBe(chosen.borderLeftWidth);
+    expect(chosen.borderTopWidth).toBe(chosen.borderRightWidth);
+    expect(other.borderBottomWidth).toBe(other.borderTopWidth);
     expect(getComputedStyle(first).boxShadow).toBe("none");
   });
 
