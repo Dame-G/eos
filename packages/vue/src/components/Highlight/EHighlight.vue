@@ -41,8 +41,9 @@ defineSlots<{
     font-weight: 600;
   }
 
-  /* Inside a link the highlight gives way to the link: its colour, an underline. */
+  /* Inside a link the highlight gives way to the link: its colour, an underline, no tint. */
   a:any-link > .e-highlight {
+    background: transparent;
     color: inherit;
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);

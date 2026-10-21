@@ -25,6 +25,15 @@ describe("EHighlight", () => {
     expect(cs.color).not.toBe(getComputedStyle(container).color);
   });
 
+  test("inside a link it has no tint and takes the link colour", async () => {
+    const { container } = await render(
+      defineComponent({ render: () => h("a", { href: "#x" }, [h(EHighlight, null, () => "due")]) }),
+    );
+    const cs = getComputedStyle(container.querySelector("mark")!);
+    expect(cs.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(cs.textDecorationLine).toBe("underline");
+  });
+
   test("attributes fall through to the element", async () => {
     const { container } = await render(EHighlight, {
       props: { code: true },
