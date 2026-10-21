@@ -122,18 +122,19 @@ describe("ETextField", () => {
     await expect.element(page.getByRole("textbox", { name: "Email" })).toHaveAccessibleDescription("Enter an email");
   });
 
-  test("an invalid input keeps the error colour on hover and tints its background", async () => {
+  test("an invalid input keeps the error colour on hover and fills to its top edge", async () => {
     const { container } = await render(ETextField, { props: { label: "Email", error: "Enter an email" } });
     container.classList.add("e-root");
     const input = container.querySelector("input")!;
     const idle = getComputedStyle(input);
-    const idleBg = idle.backgroundColor;
+    const idleBorder = idle.borderColor;
     const idleShadow = idle.boxShadow;
     await userEvent.hover(input);
     await new Promise((r) => setTimeout(r, 250));
     const hovered = getComputedStyle(input);
-    expect(hovered.backgroundColor).not.toBe(idleBg);
-    expect(hovered.boxShadow).toBe(idleShadow);
+    expect(hovered.borderColor).toBe(idleBorder);
+    expect(hovered.boxShadow).not.toBe(idleShadow);
+    expect(hovered.boxShadow).not.toBe("none");
   });
 
   test("required sets the attribute and the word; optional only the word", async () => {
