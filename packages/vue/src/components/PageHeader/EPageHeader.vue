@@ -86,9 +86,5 @@ defineSlots<{
     align-items: center;
     gap: var(--e-space-2) var(--e-space-4);
   }
-
-  .e-pagehead-titlerow > :not(.e-pagehead-title) {
-    margin-top: var(--e-space-1);
-  }
 }
 </style>

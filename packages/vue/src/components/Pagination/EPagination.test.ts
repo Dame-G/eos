@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h, nextTick, ref } from "vue";
+import { defineComponent, h, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EPagination from "./EPagination.vue";
@@ -43,10 +43,9 @@ describe("EPagination", () => {
       }),
     );
     (container.querySelectorAll(".e-btn")[1] as HTMLButtonElement).click();
-    await nextTick();
-    expect(got).toEqual([3]);
+    await expect.poll(() => got).toEqual([3]);
     await page.getByRole("button", { name: "Previous" }).click();
-    expect(got).toEqual([3, 2]);
+    await expect.poll(() => got).toEqual([3, 2]);
   });
 
   test("clicking a page number chooses it", async () => {
