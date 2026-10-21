@@ -7,3 +7,5 @@ Rounded corners no longer show a fringe of the fill colour outside the curve. A 
 The raised edge of buttons, selected tabs and the current nav item is now the border itself, thicker on the raised side, instead of a shadow over the face; it tapers up the corners the same way. Sizes and text positions are unchanged. As a side effect the edges survive forced-colors mode.
 
 `npm run check:css` now fails on an inset-shadow edge over a strong fill, so the pattern cannot return.
+
+`ESelect`: an open trigger now shows its focused look (focus ring colour and outline). Focus moves into the list when it opens, so the field only looked focused after a choice was made.

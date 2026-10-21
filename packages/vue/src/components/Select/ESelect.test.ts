@@ -28,6 +28,19 @@ describe("ESelect", () => {
     expect(container.querySelector(".e-sel-placeholder")).not.toBeNull();
   });
 
+  test("an open trigger shows its focus outline even though focus has moved into the list", async () => {
+    const { container } = await render(ESelect, { props: { label: "Pay with", options: OPTIONS } });
+    container.classList.add("e-root");
+    const button = buttonOf(container);
+    expect(getComputedStyle(button).outlineStyle).toBe("none");
+    await userEvent.click(button);
+    await opened(button);
+    expect(getComputedStyle(button).outlineStyle).toBe("solid");
+    expect(parseFloat(getComputedStyle(button).outlineWidth)).toBeGreaterThan(0);
+    await userEvent.keyboard("{Escape}");
+    await closed(button);
+  });
+
   test("keyboard: ArrowDown opens, arrows move, Enter chooses and closes, name is submitted", async () => {
     const got: string[] = [];
     const { container } = await render(ESelect, {
