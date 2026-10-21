@@ -1,4 +1,4 @@
-# Eos
+# EOS
 
 Accessible Vue 3 components with a token-based theme system. High contrast and consistent by default, rebrandable with a few lines.
 

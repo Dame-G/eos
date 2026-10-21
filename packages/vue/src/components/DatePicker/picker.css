@@ -18,4 +18,10 @@
     box-shadow: var(--e-float);
     font-family: var(--e-font-sans);
   }
+
+  /* The popper wrapper takes its stacking from the panel, so without this the calendar opens beneath any positioned field or sticky bar. */
+  [data-reka-popper-content-wrapper] > .e-calpanel {
+    position: relative;
+    z-index: var(--e-z-popover);
+  }
 }

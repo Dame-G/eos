@@ -1037,6 +1037,11 @@ watch([sort, page, search, filters], () => {
       background: transparent;
     }
 
+    /* The cards have no frame to close, so the toolbar's underline would sit on the first card's rounded top corners. */
+    .e-grid--cards .e-grid-bar {
+      border-bottom: 0;
+    }
+
     .e-grid--cards .e-grid-frame::after {
       content: none;
     }
