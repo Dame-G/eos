@@ -1,5 +1,15 @@
 # @eos-ui/vue
 
+## 0.5.1
+
+### Patch Changes
+
+- 22dce5a: `ETabs`: the vertical, framed and fill looks now apply only to the tabs they are set on. Tabs placed inside the panel of a vertical or framed `ETabs` had picked them up and stacked into a column.
+
+  `EPageHeader`: the status stamp is centred on the title, not nudged down towards its baseline.
+
+- @eos-ui/tokens@0.5.1
+
 ## 0.5.0
 
 ### Minor Changes
