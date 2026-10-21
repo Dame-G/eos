@@ -394,18 +394,18 @@ watch(flat, watchRow);
     border-start-end-radius: 0;
   }
 
-  /* The chosen tab is a little heavier all round: its band is the thickest edge, and the two edges either side of it are half as thick again as an ordinary tab's. */
+  /* The chosen tab is heavier all round: the edges either side of its band are as thick as the band itself. */
   .e-tabs:not(.e-tabs--vertical) > .e-tablist > .e-tab[aria-selected="true"] {
-    border-inline-width: calc(var(--e-stroke-edge) + var(--e-lift) / 2);
+    border-inline-width: calc(var(--e-stroke-edge) + var(--e-lift));
   }
 
   /* Equal-width tabs stay equal: the chosen tab's thicker sides come out of its own padding. */
   .e-tabs--fill:not(.e-tabs--vertical) > .e-tablist > .e-tab[aria-selected="true"] {
-    padding-inline: max(0px, calc(var(--e-space-1) - var(--e-stroke-edge) - var(--e-lift) / 2));
+    padding-inline: max(0px, calc(var(--e-space-1) - var(--e-stroke-edge) - var(--e-lift)));
   }
 
   .e-tabs--vertical.e-tabs > .e-tablist > .e-tab[aria-selected="true"] {
-    border-block-width: calc(var(--e-stroke-edge) + var(--e-lift) / 2);
+    border-block-width: calc(var(--e-stroke-edge) + var(--e-lift));
   }
 
   .e-tab-count {
