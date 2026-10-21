@@ -11,7 +11,7 @@ export interface SegmentedOption {
 </script>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EFieldMessage from "../Field/EFieldMessage.vue";
 import { useMessages } from "../../config.js";
@@ -49,6 +49,23 @@ const options = computed<SegmentedOption[]>(() =>
 );
 const current = computed(() => model.value ?? options.value[0]?.value);
 const attrs = useFieldAttrs();
+
+const track = ref<HTMLElement | null>(null);
+
+/** In a space too narrow for every option the track scrolls; keep the chosen one in view. */
+async function reveal(smooth: boolean) {
+  await nextTick();
+  const el = track.value;
+  const opt = el?.querySelector<HTMLElement>(".e-seg-input:checked")?.parentElement;
+  if (!el || !opt || el.scrollWidth <= el.clientWidth) return;
+  const calm = typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const a = opt.getBoundingClientRect();
+  const b = el.getBoundingClientRect();
+  el.scrollBy({ left: a.left + a.width / 2 - (b.left + b.width / 2), behavior: smooth && !calm ? "smooth" : "auto" });
+}
+
+onMounted(() => reveal(false));
+watch(current, () => reveal(true));
 const groupAttrs = () => ({
   role: "radiogroup",
   "aria-label": props.optional ? `${props.label}, ${t("optional")}` : props.label,
@@ -59,7 +76,7 @@ const groupAttrs = () => ({
 
 <template>
   <div v-if="hint || error" class="e-seg-field" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
-    <div class="e-seg" v-bind="groupAttrs()">
+    <div ref="track" class="e-seg" v-bind="groupAttrs()">
       <label v-for="o in options" :key="o.value" class="e-seg-opt">
         <input
           type="radio"
@@ -75,7 +92,7 @@ const groupAttrs = () => ({
     </div>
     <EFieldMessage :id="hintId" :error="error" :hint="hint" />
   </div>
-  <div v-else class="e-seg" :class="attrs.wrapper().class" :style="attrs.wrapper().style" v-bind="groupAttrs()">
+  <div v-else ref="track" class="e-seg" :class="attrs.wrapper().class" :style="attrs.wrapper().style" v-bind="groupAttrs()">
     <label v-for="o in options" :key="o.value" class="e-seg-opt">
       <input
         type="radio"
@@ -93,7 +110,7 @@ const groupAttrs = () => ({
 
 <style>
 @layer e.controls {
-  /* A pressed-in track. The chosen option fills its cell edge to edge in the primary colour, covering the track's outline there so the outline turns primary where it is chosen, and the track clips it, so only the pieces at either end take the track's rounded corners: a value you set, not a place you go (that is Tabs). */
+  /* A pressed-in track. The chosen option fills its cell edge to edge in the primary colour, covering the track's outline there so the outline turns primary where it is chosen, and the track clips it, so only the pieces at either end take the track's rounded corners: a value you set, not a place you go (that is Tabs). With too many options for the space the track scrolls sideways, with no bar, while its outline stays put. */
   .e-seg {
     display: inline-flex;
     box-sizing: border-box;
@@ -104,14 +121,23 @@ const groupAttrs = () => ({
     box-shadow:
       inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong),
       var(--e-well);
-    overflow: hidden;
+    /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- the two axes are set apart: sideways scrolls, the rest is clipped */
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
     max-width: 100%;
     width: fit-content;
+  }
+
+  .e-seg::-webkit-scrollbar {
+    display: none;
   }
 
   .e-seg-opt {
     position: relative;
     display: inline-flex;
+    flex: none;
     cursor: pointer;
   }
 
@@ -178,6 +204,7 @@ const groupAttrs = () => ({
 
   .e-seg-field {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--e-space-2);
   }
 

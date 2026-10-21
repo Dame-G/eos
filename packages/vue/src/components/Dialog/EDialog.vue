@@ -60,6 +60,7 @@ const open = defineModel<boolean>("open");
     margin: auto;
     border-radius: var(--e-radius-md);
     overflow: auto;
+    overscroll-behavior: contain;
   }
 
   .e-dialog--inline {

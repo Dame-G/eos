@@ -172,6 +172,17 @@ describe("ENumberField", () => {
     expect(document.activeElement).toBe(input);
   });
 
+  test("in a narrow column a suffixed value is still fully visible", async () => {
+    const { container } = await render(ENumberField, {
+      props: { label: "Spacing", suffix: "%", modelValue: 100 },
+    });
+    container.classList.add("e-root");
+    container.style.width = "9rem";
+    const input = container.querySelector<HTMLInputElement>(".e-numinput")!;
+    await nextTick();
+    expect(input.scrollWidth).toBeLessThanOrEqual(input.clientWidth);
+  });
+
   test("the wrap is 48px tall and the buttons are square", async () => {
     const { container } = await render(ENumberField, { props: { label: "Visits" } });
     container.classList.add("e-root");

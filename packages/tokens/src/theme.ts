@@ -258,9 +258,13 @@ function deriveGround(input: ThemeInput, out: Record<string, string>, dark: bool
   }
 }
 
+function isDark(input: ThemeInput): boolean {
+  return input.surface !== undefined && luminance(input.surface) < DARK_BELOW;
+}
+
 function derive(input: ThemeInput): Record<string, string> {
   const out: Record<string, string> = { ...defaults };
-  const dark = input.surface !== undefined && luminance(input.surface) < DARK_BELOW;
+  const dark = isDark(input);
   if (dark) {
     for (const t of ["on-primary", "on-secondary", "on-danger"]) out[t] = BLACK;
     out["warning-strong"] = input.warning ?? DARK_WARNING;
@@ -365,6 +369,8 @@ const WASHES = [
 export function defineTheme(input: ThemeInput = {}): Theme {
   const name = input.name ?? "custom";
   const tokens = derive(input);
+  // Tells the browser which way the page leans, so its own controls (scrollbars, colour picker, autofill) match.
+  const scheme = isDark(input) ? "dark" : "light";
   const issues = checkContrast(tokens);
   if (input.strict && issues.length) {
     throw new Error(
@@ -381,12 +387,13 @@ export function defineTheme(input: ThemeInput = {}): Theme {
         .map(([k, v]) => `  --e-${k}: ${v};`)
         .join("\n");
       const derived = `${selector}, [data-e-theme] {\n${WASHES.map((w) => "  " + w).join("\n")}\n}`;
-      const rules = `${selector} {\n${decls}\n}\n${derived}\n`;
+      const rules = `${selector} {\n  color-scheme: ${scheme};\n${decls}\n}\n${derived}\n`;
       const body = layer ? `@layer e.tokens {\n${rules}}\n` : rules;
       return (header ? `/* Generated from tokens.json. Theme: ${name}. */\n@layer ${LAYER_ORDER};\n` : "") + body;
     },
     apply(el = document.documentElement) {
       for (const [k, v] of Object.entries(tokens)) el.style.setProperty(`--e-${k}`, v);
+      el.style.colorScheme = scheme;
       el.setAttribute("data-e-theme", name);
     },
   };

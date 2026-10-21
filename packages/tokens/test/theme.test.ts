@@ -21,12 +21,18 @@ describe("the default theme", () => {
     expect(css).toMatch(/@layer e.reset, e.tokens/);
     for (const k of Object.keys(defaults)) expect(css).toContain(`--e-${k}:`);
   });
+  test("says the page is light, so native controls are too", () => {
+    expect(defineTheme({ name: "light" }).css()).toMatch(/color-scheme: light;/);
+  });
   test("white on primary is AAA", () => {
     expect(contrast(defaults["primary"], defaults["on-primary"])).toBeGreaterThanOrEqual(7);
   });
 });
 
 describe("defineTheme", () => {
+  test("a dark surface sets color-scheme: dark", () => {
+    expect(defineTheme({ surface: "#10151a" }).css()).toMatch(/color-scheme: dark;/);
+  });
   test("derives a deep action colour from a brand colour so white text reaches 7:1", () => {
     for (const brand of ["#2c95b4", "#f59e0b", "#8bc34a", "#e91e63", "#3f51b5", "#ffd600"]) {
       const t = defineTheme({ brand });

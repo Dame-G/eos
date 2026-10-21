@@ -10,7 +10,7 @@ export interface TabItem {
 </script>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from "reka-ui";
 import { useConfig } from "../../config.js";
 import "../../styles/base.css";
@@ -56,14 +56,39 @@ async function reveal(smooth: boolean) {
   el.scrollBy({ left: a.left + a.width / 2 - (b.left + b.width / 2), behavior: smooth && !calm ? "smooth" : "auto" });
 }
 
-onMounted(() => reveal(false));
+/** Whether the row is wider than its space, so it scrolls and no longer ends in a rounded corner. A framed panel squares its own corner to meet it. */
+const scrolls = ref(false);
+let watcher: ResizeObserver | undefined;
+
+function measure() {
+  const el = list.value?.$el;
+  scrolls.value = !!el && props.orientation !== "vertical" && el.scrollWidth > el.clientWidth + 1;
+}
+
+async function watchRow() {
+  await nextTick();
+  const el = list.value?.$el;
+  if (!el || typeof ResizeObserver === "undefined") return;
+  watcher ??= new ResizeObserver(measure);
+  watcher.disconnect();
+  watcher.observe(el);
+  for (const tab of el.children) watcher.observe(tab);
+  measure();
+}
+
+onMounted(() => {
+  reveal(false);
+  watchRow();
+});
+onBeforeUnmount(() => watcher?.disconnect());
 watch(current, () => reveal(true));
+watch(flat, watchRow);
 </script>
 
 <template>
   <TabsRoot
     class="e-tabs"
-    :class="{ 'e-tabs--fill': fill, 'e-tabs--vertical': orientation === 'vertical', 'e-tabs--framed': framed }"
+    :class="{ 'e-tabs--fill': fill, 'e-tabs--vertical': orientation === 'vertical', 'e-tabs--framed': framed, 'e-tabs--scrolls': scrolls }"
     :orientation="orientation ?? 'horizontal'"
     :model-value="current"
     :dir="dir"
@@ -285,7 +310,8 @@ watch(current, () => reveal(true));
     background-clip: padding-box;
   }
 
-  .e-tabs--framed.e-tabs--fill > .e-tabpanel {
+  .e-tabs--framed.e-tabs--fill > .e-tabpanel,
+  .e-tabs--framed.e-tabs--scrolls > .e-tabpanel {
     border-start-end-radius: 0;
   }
 

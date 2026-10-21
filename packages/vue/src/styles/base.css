@@ -48,44 +48,43 @@
     width: 1px;
     height: 1px;
     overflow: hidden;
-    /* stylelint-disable-next-line property-no-deprecated -- kept beside clip-path for older engines */
-    clip: rect(0 0 0 0);
     clip-path: inset(50%);
     white-space: nowrap;
   }
 
-  .e-root *::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+  .e-root * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--e-border-strong) transparent;
   }
 
-  .e-root *::-webkit-scrollbar-thumb {
-    border: 3px solid transparent;
-    border-radius: var(--e-radius-pill);
-    background: var(--e-border-strong);
-    background-clip: padding-box;
-  }
+  /* Where the standard properties are missing, draw the bar by hand. */
+  @supports not (scrollbar-color: auto) {
+    .e-root *::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
 
-  .e-root *::-webkit-scrollbar-track {
-    background: transparent;
-  }
+    .e-root *::-webkit-scrollbar-thumb {
+      border: 3px solid transparent;
+      border-radius: var(--e-radius-pill);
+      background: var(--e-border-strong);
+      background-clip: padding-box;
+    }
 
-  .e-root *::-webkit-scrollbar-track:vertical {
-    margin-block: var(--e-radius-md);
-  }
+    .e-root *::-webkit-scrollbar-track {
+      background: transparent;
+    }
 
-  .e-root *::-webkit-scrollbar-track:horizontal {
-    margin-inline: var(--e-radius-md);
-  }
+    .e-root *::-webkit-scrollbar-track:vertical {
+      margin-block: var(--e-radius-md);
+    }
 
-  .e-root *::-webkit-scrollbar-corner {
-    background: transparent;
-  }
+    .e-root *::-webkit-scrollbar-track:horizontal {
+      margin-inline: var(--e-radius-md);
+    }
 
-  @supports (-moz-appearance: none) {
-    .e-root * {
-      scrollbar-width: thin;
-      scrollbar-color: var(--e-border-strong) transparent;
+    .e-root *::-webkit-scrollbar-corner {
+      background: transparent;
     }
   }
 

@@ -253,7 +253,7 @@ defineExpose({
       display: none;
     }
 
-    .e-numfield .e-numinput {
+    .e-numfield:not(.e-numfield--affix) .e-numinput {
       text-align: start;
       padding-inline: var(--e-space-3);
     }
