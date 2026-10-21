@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, readdirSync } from "node:fs";
+import { appendFileSync, mkdtempSync, readFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -31,5 +31,9 @@ for (const pkg of packages) {
   const tarball = readdirSync(packs).find((f) => f.startsWith(pkg.name.replace("@", "").replace("/", "-") + "-" + pkg.version));
   if (!tarball) throw new Error(`No tarball for ${pkg.name}@${pkg.version}`);
   run("npm", ["publish", join(packs, tarball), "--access", "public", "--provenance"]);
-  console.log(`New tag: ${pkg.name}@${pkg.version}`);
+  const tag = `${pkg.name}@${pkg.version}`;
+  console.log(`New tag: ${tag}`);
+  // The Changesets action creates the GitHub release and pushes the tag only for tags it finds in this file, so each published package is tagged here and reported.
+  run("git", ["tag", tag]);
+  if (process.env.CHANGESETS_OUTPUT) appendFileSync(process.env.CHANGESETS_OUTPUT, JSON.stringify({ type: "git-tag", tag, packageName: pkg.name }) + "\n");
 }
