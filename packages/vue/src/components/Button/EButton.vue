@@ -197,7 +197,7 @@ function blockWhenDisabled(event: Event) {
     animation: e-btn-spin 0.9s linear infinite;
   }
 
-  /* Busy reads as unavailable and in progress: a soft tint of the button's colour with a dashed edge like a disabled button, and stripes that move. The face grows over its slab, so the button stays one control height tall. The edge is a pseudo-element, so a page's focus reset cannot remove it. */
+  /* Busy reads as unavailable and in progress: a soft tint of the button's colour with a dashed edge like a disabled button, and stripes that move. The edge is a pseudo-element, so a page's focus reset cannot remove it. */
   .e-btn--loading {
     --e-lift: 0px;
     --e-tint: var(--e-fill);

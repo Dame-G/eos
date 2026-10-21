@@ -182,7 +182,7 @@ watch(current, () => reveal(true));
     padding-inline: max(0px, calc(var(--e-space-1) - var(--e-stroke-edge)));
   }
 
-  /* Vertical: the tabs stack beside the panel, flush and sharing edges. The selected tab rises towards the panel, so its slab is a band down the inline-start side, away from the panel, instead of along the bottom, and only the top and bottom ends of the column are rounded. */
+  /* Vertical: the tabs stack beside the panel, flush and sharing edges. The selected tab's slab is a band down the inline-start side, and only the column's ends are rounded. */
   .e-tabs--vertical {
     display: flex;
     align-items: flex-start;
@@ -233,7 +233,7 @@ watch(current, () => reveal(true));
     padding-top: 0;
   }
 
-  /* Framed: tabs and panel are one outlined card. The tab row sits over the panel's edge by one stroke, so a tab's lower edge and the panel's upper edge are the same line; the chosen tab has no edge on that side and its fill covers the panel's, opening into it. Tabs sit flush with their neighbours, square where they meet; only the card's outer corner at the first tab is rounded, and the panel's own corner beside it is square. The row always leaves a corner's width of open edge past the last tab, so the panel's curve never lands against a tab's straight edge. */
+  /* Framed: tabs and panel are one outlined card. The tab row sits over the panel's edge by one stroke, so a tab's lower edge and the panel's upper edge are the same line; the chosen tab has no edge on that side and its fill covers the panel's, opening into it. Only the card's outer corner at the first tab is rounded. The row leaves a corner's width of open edge past the last tab, so the panel's curve never meets a tab's straight edge. */
   .e-tabs--framed > .e-tablist {
     position: relative;
     z-index: var(--e-z-raised);

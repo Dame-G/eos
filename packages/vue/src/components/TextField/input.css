@@ -25,14 +25,18 @@
     color: var(--e-muted);
   }
 
-  .e-input:hover {
-    background-color: var(--e-surface-hover);
+  /* The hover fill is laid over the well, so it runs unbroken to the top edge. */
+  .e-input:hover,
+  .e-input-wrap:hover,
+  .e-search:hover {
+    box-shadow: inset 0 0 0 100vmax var(--e-over, var(--e-surface-hover));
   }
 
   .e-input:focus {
     --e-ring: var(--e-focus-field);
 
     background-color: var(--e-surface);
+    box-shadow: var(--e-well);
   }
 
   /* A field's focus outline lies over its border and then reaches at least as far outside it again, so the field looks thicker on every stroke preset. */
@@ -48,12 +52,14 @@
     background-color: var(--e-surface);
   }
 
-  .e-input[aria-invalid="true"]:hover {
-    background-color: var(--e-danger-soft);
+  .e-input[aria-invalid="true"]:hover,
+  .e-input-wrap[data-invalid]:hover {
+    --e-over: var(--e-danger-soft);
   }
 
   .e-input[aria-invalid="true"]:focus {
     background-color: var(--e-surface);
+    box-shadow: var(--e-well);
   }
 
   .e-input[aria-invalid="true"]:focus-visible {
@@ -72,6 +78,7 @@
 
   .e-input[readonly]:not(:disabled) {
     background-color: var(--e-surface-tint);
+    box-shadow: none;
   }
 
   .e-input-wrap {
@@ -92,14 +99,11 @@
       background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  .e-input-wrap:hover {
-    background: var(--e-surface-hover);
-  }
-
   .e-input-wrap:focus-within {
     --e-ring: var(--e-focus-field);
 
     background: var(--e-surface);
+    box-shadow: var(--e-well);
     outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
     outline-offset: var(--e-focus-gap-field);
   }
@@ -110,12 +114,9 @@
     background: var(--e-surface);
   }
 
-  .e-input-wrap[data-invalid]:hover {
-    background: var(--e-danger-soft);
-  }
-
   .e-input-wrap[data-invalid]:focus-within {
     background: var(--e-surface);
+    box-shadow: var(--e-well);
     outline-color: var(--e-danger);
   }
 
@@ -142,6 +143,7 @@
   .e-input-wrap .e-input:hover,
   .e-input-wrap .e-input:focus {
     background: transparent;
+    box-shadow: none;
   }
 
   .e-input-wrap .e-input:focus-visible {

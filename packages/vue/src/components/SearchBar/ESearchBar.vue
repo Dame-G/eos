@@ -105,10 +105,6 @@ defineExpose({
     transition: border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  .e-search:hover {
-    background: var(--e-surface-hover);
-  }
-
   .e-search .e-btn {
     position: relative;
     height: calc(var(--e-control-height) - 6px);
@@ -183,6 +179,7 @@ defineExpose({
   .e-search .e-input:focus {
     border: 0;
     background: transparent;
+    box-shadow: none;
   }
 
   .e-search .e-input:focus-visible {
