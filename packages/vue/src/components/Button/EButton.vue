@@ -214,6 +214,7 @@ function blockWhenDisabled(event: Event) {
     background-color: color-mix(in srgb, var(--e-tint) 14%, var(--e-surface));
     background-image: repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in srgb, var(--e-tint) 20%, transparent) 8px 16px);
     background-size: 22.63px 22.63px;
+    background-clip: padding-box;
     border-color: transparent;
     color: var(--e-busy);
     transform: none;
@@ -224,7 +225,7 @@ function blockWhenDisabled(event: Event) {
   .e-btn--loading::before {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: calc(-1 * var(--e-stroke-edge));
     border: var(--e-stroke-edge) dashed var(--e-busy);
     border-radius: inherit;
     pointer-events: none;
