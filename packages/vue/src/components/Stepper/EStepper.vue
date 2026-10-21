@@ -97,7 +97,7 @@ const t = useMessages();
     height: var(--e-dot);
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid transparent;
-    border-radius: 50%;
+    border-radius: var(--e-radius-md);
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     background: var(--e-surface);
@@ -117,7 +117,7 @@ const t = useMessages();
     outline: 0;
     border: var(--e-stroke-focus) solid var(--e-primary);
     color: var(--e-primary);
-    background: var(--e-surface);
+    background-color: color-mix(in srgb, var(--e-primary) 16%, var(--e-surface));
     background-clip: padding-box;
   }
 

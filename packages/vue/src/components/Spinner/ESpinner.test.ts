@@ -26,7 +26,8 @@ describe("ESpinner", () => {
     const { container } = await render(ESpinner);
     const ring = container.querySelector("svg")!;
     expect(ring.getAttribute("aria-hidden")).toBe("true");
-    expect(getComputedStyle(ring).animationName).toBe("e-spin");
+    expect(getComputedStyle(ring.querySelector(".e-ring-arc")!).animationName).toBe("e-spin");
+    expect(getComputedStyle(ring.querySelector(".e-ring-track")!).animationName).toBe("none");
   });
 
   test("block centres it in a panel", async () => {

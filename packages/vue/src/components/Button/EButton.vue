@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import EIcon from "../Icon/EIcon.vue";
+import SpinnerRing from "../Spinner/SpinnerRing.vue";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
@@ -19,7 +20,7 @@ const props = withDefaults(
     href?: string;
     /** With `href`: opens in a new tab. */
     external?: boolean;
-    /** Swaps the icon for a spinner, flattens the face, dashes its edge and animates stripes across it, and ignores clicks while an action runs. The button keeps its width and stays focusable, and is announced as busy. */
+    /** Swaps the icon for a spinner, flattens the face, and dashes its edge, and ignores clicks while an action runs. The button keeps its width and stays focusable, and is announced as busy. */
     loading?: boolean;
   }>(),
   { variant: "primary", type: "button" },
@@ -51,7 +52,7 @@ function blockWhenDisabled(event: Event) {
     @click.capture="blockWhenDisabled"
     @auxclick.capture="blockWhenDisabled"
   >
-    <svg v-if="loading" class="e-btn-spinner" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /></svg>
+    <SpinnerRing v-if="loading" class="e-btn-spinner" />
     <EIcon v-else-if="icon" :name="icon" />
     <slot />
   </a>
@@ -64,7 +65,7 @@ function blockWhenDisabled(event: Event) {
     :aria-busy="loading ? 'true' : undefined"
     @click.capture="blockWhenDisabled"
   >
-    <svg v-if="loading" class="e-btn-spinner" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /></svg>
+    <SpinnerRing v-if="loading" class="e-btn-spinner" />
     <EIcon v-else-if="icon" :name="icon" />
     <slot />
   </button>
@@ -185,19 +186,12 @@ function blockWhenDisabled(event: Event) {
     margin-inline-start: calc(-0.5 * var(--e-space-1));
   }
 
-  .e-btn-spinner {
-    flex: none;
+  .e-btn .e-btn-spinner {
     width: 1.125em;
     height: 1.125em;
-    fill: none;
-    stroke: currentcolor;
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-dasharray: 36 56;
-    animation: e-btn-spin 0.9s linear infinite;
   }
 
-  /* Busy reads as unavailable and in progress: a soft tint of the button's colour with a dashed edge like a disabled button, and stripes that move. The edge is a pseudo-element, so a page's focus reset cannot remove it. */
+  /* Busy reads as unavailable and in progress: a soft tint of the button's colour with a dashed edge like a disabled button, and the spinner. The edge is a pseudo-element, so a page's focus reset cannot remove it. */
   .e-btn--loading {
     --e-lift: 0px;
     --e-tint: var(--e-fill);
@@ -212,14 +206,11 @@ function blockWhenDisabled(event: Event) {
   .e-btn--loading:hover,
   .e-btn--loading:active {
     background-color: color-mix(in srgb, var(--e-tint) 14%, var(--e-surface));
-    background-image: repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in srgb, var(--e-tint) 20%, transparent) 8px 16px);
-    background-size: 22.63px 22.63px;
     background-clip: padding-box;
     border-color: transparent;
     color: var(--e-busy);
     transform: none;
     cursor: not-allowed;
-    animation: e-btn-stripes 0.8s linear infinite;
   }
 
   .e-btn--loading::before {
@@ -229,18 +220,6 @@ function blockWhenDisabled(event: Event) {
     border: var(--e-stroke-edge) dashed var(--e-busy);
     border-radius: inherit;
     pointer-events: none;
-  }
-
-  @keyframes e-btn-stripes {
-    to {
-      background-position-x: 22.63px;
-    }
-  }
-
-  @keyframes e-btn-spin {
-    to {
-      transform: rotate(360deg);
-    }
   }
 
   .e-btn--block {
@@ -274,14 +253,6 @@ function blockWhenDisabled(event: Event) {
   @media (prefers-reduced-motion: reduce) {
     .e-btn {
       transition: none;
-    }
-
-    .e-btn-spinner {
-      animation-duration: 3s;
-    }
-
-    .e-btn--loading {
-      animation: none;
     }
   }
 

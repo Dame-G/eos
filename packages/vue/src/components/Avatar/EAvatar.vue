@@ -73,10 +73,16 @@ const initials = computed(() => {
     transition: border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
+  /* One you can press has the button's slab under it, which sinks away when pressed. */
   .e-avatar--button {
     position: relative;
     padding: 0;
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
     cursor: pointer;
+  }
+
+  .e-avatar--button:active {
+    border-bottom-width: var(--e-stroke-edge);
   }
 
   .e-avatar--button:hover {

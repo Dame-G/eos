@@ -36,7 +36,6 @@
 
     --e-ring: var(--e-border-strong);
 
-
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--e-ring);
     background: var(--e-surface);
@@ -56,31 +55,44 @@
     border-radius: 50%;
   }
 
-  .e-check:hover,
-  .e-radio:hover {
+  /* Pointing at the label counts as pointing at the box: the outline darkens and the face takes a tint of the primary colour. */
+  .e-choice:hover .e-check:not(:checked, :disabled),
+  .e-choice:hover .e-radio:not(:checked, :disabled) {
     --e-ring: var(--e-ink);
 
-    background-color: var(--e-surface-hover);
+    background-color: color-mix(in srgb, var(--e-primary) 16%, var(--e-surface));
   }
 
+  /* Checked, it is a small button face: the primary colour with a slab under it, which sinks away when pressed. */
   .e-check:checked,
+  .e-check:indeterminate,
   .e-radio:checked {
-    border-color: var(--e-primary);
+    --e-slab: color-mix(in srgb, var(--e-primary), var(--e-shade-slab));
+
+    border-color: var(--e-slab);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
     background-color: var(--e-primary);
     background-clip: border-box;
     box-shadow: none;
   }
 
-  .e-check:checked::after {
+  .e-check:checked::after,
+  .e-check:indeterminate::after {
     content: "";
     display: block;
     width: 100%;
     height: 100%;
     background: var(--e-on-primary);
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M232.49,80.49l-128,128a12,12,0,0,1-17,0l-56-56a12,12,0,1,1,17-17L96,183,215.51,63.51a12,12,0,0,1,17,17Z'/%3E%3C/svg%3E") center / 16px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M232.49,80.49l-128,128a12,12,0,0,1-17,0l-56-56a12,12,0,1,1,17-17L96,183,215.51,63.51a12,12,0,0,1,17,17Z'/%3E%3C/svg%3E")
+      center / 16px no-repeat;
   }
 
-  .e-check:checked:disabled::after {
+  .e-check:indeterminate::after {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Crect x='48' y='108' width='160' height='40' rx='20'/%3E%3C/svg%3E");
+  }
+
+  .e-check:checked:disabled::after,
+  .e-check:indeterminate:disabled::after {
     background: var(--e-muted);
   }
 
@@ -88,9 +100,16 @@
     background-image: radial-gradient(circle, var(--e-on-primary) 0 4px, transparent 5px);
   }
 
-  .e-check:checked:hover,
-  .e-radio:checked:hover {
-    background-color: color-mix(in srgb, var(--e-primary), var(--e-shade-hover));
+  .e-choice:hover .e-check:is(:checked, :indeterminate):not(:disabled),
+  .e-choice:hover .e-radio:checked:not(:disabled) {
+    --e-slab: color-mix(in srgb, color-mix(in srgb, var(--e-primary), var(--e-shade-press)), var(--e-shade-slab));
+
+    background-color: color-mix(in srgb, var(--e-primary), var(--e-shade-press));
+  }
+
+  .e-check:is(:checked, :indeterminate):active,
+  .e-radio:checked:active {
+    border-bottom-width: var(--e-stroke-edge);
   }
 
   .e-check:focus-visible,
@@ -109,10 +128,11 @@
     box-shadow: none;
   }
 
-  .e-check:checked:disabled,
+  .e-check:is(:checked, :indeterminate):disabled,
   .e-radio:checked:disabled {
     outline: 0;
     border-color: var(--e-border-strong);
+    border-bottom-width: var(--e-stroke-edge);
     background-color: var(--e-surface-tint);
     box-shadow: none;
   }
@@ -126,13 +146,15 @@
 
   @media (forced-colors: active) {
     .e-check:checked,
+    .e-check:indeterminate,
     .e-radio:checked {
       forced-color-adjust: none;
       background-color: Highlight;
       border-color: Highlight;
     }
 
-    .e-check:checked::after {
+    .e-check:checked::after,
+    .e-check:indeterminate::after {
       background: HighlightText;
     }
   }

@@ -79,6 +79,10 @@ describe("ECheckbox", () => {
   test("indeterminate is the mixed state of the input", async () => {
     const { container } = await render(ECheckbox, { props: { label: "All rows", indeterminate: true } });
     expect(container.querySelector("input")!.indeterminate).toBe(true);
+    // It reads as on, with a dash in place of the tick: a filled face and a mask on ::after.
+    const box = container.querySelector("input")!;
+    expect(getComputedStyle(box).backgroundColor).not.toBe(getComputedStyle(document.body).backgroundColor);
+    expect(getComputedStyle(box, "::after").maskImage).toContain("rect");
   });
 
   test("bare hides the label visually and keeps it for screen readers", async () => {

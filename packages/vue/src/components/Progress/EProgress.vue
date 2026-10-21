@@ -24,7 +24,10 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
 </script>
 
 <template>
-  <div class="e-progress" :class="indeterminate && 'e-progress--indeterminate'">
+  <div
+    class="e-progress"
+    :class="[indeterminate && 'e-progress--indeterminate', !indeterminate && percent === 0 && 'e-progress--empty']"
+  >
     <div v-if="showHead" class="e-progress-head">
       <span class="e-progress-label">{{ label || t("loading") }}</span>
       <span class="e-progress-value">{{ valueText || (indeterminate ? "" : Math.round(percent) + "%") }}</span>
@@ -67,40 +70,51 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     color: var(--e-muted);
   }
 
+  /* No container: the bar is a button face, the primary colour with the button's corner radius, flat. What is left of the track is the same shape in a faint tint of that colour, to read as empty. */
   .e-progress-track {
     position: relative;
-    height: 10px;
+    height: 12px;
     box-sizing: border-box;
-    padding: calc(var(--e-stroke-card) / 2);
-    border-radius: var(--e-radius-pill);
-    background: var(--e-surface-tint);
-    background-clip: content-box;
+    border-radius: var(--e-radius-md);
+    background-color: color-mix(in srgb, var(--e-primary) 30%, var(--e-surface));
+
+    /* The stripes of a busy button run across what is still to do. */
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 8px,
+      color-mix(in srgb, var(--e-primary) 22%, transparent) 8px 16px
+    );
+    background-size: 22.63px 22.63px;
+    animation: e-progress-stripes 0.8s linear infinite;
     overflow: hidden;
   }
 
-  /* The outline lies over the track and bar, which stop half a stroke inside its outer edge: nothing shows outside the curve or in a gap inside it. */
-  .e-progress-track::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border: var(--e-stroke-card) solid var(--e-border-strong);
-    border-radius: inherit;
-    pointer-events: none;
-  }
-
   .e-progress-fill {
+    box-sizing: border-box;
     height: 100%;
-    border-radius: var(--e-radius-pill);
+    border-radius: var(--e-radius-md);
     background: var(--e-primary);
     transition: width var(--e-duration-move) var(--e-easing-out);
   }
 
+  .e-progress--empty .e-progress-fill {
+    visibility: hidden;
+  }
+
+  /* Waiting on an unknown length: the bar slides back and forth over the moving stripes. */
   .e-progress--indeterminate .e-progress-fill {
     position: absolute;
-    inset: calc(var(--e-stroke-card) / 2) auto calc(var(--e-stroke-card) / 2) calc(var(--e-stroke-card) / 2);
+    inset: 0 auto 0 0;
+    height: auto;
     width: 40%;
     transition: none;
     animation: e-progress-slide 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  @keyframes e-progress-stripes {
+    to {
+      background-position-x: 22.63px;
+    }
   }
 
   @keyframes e-progress-slide {
@@ -114,6 +128,10 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .e-progress-track {
+      animation: none;
+    }
+
     .e-progress-fill {
       transition: none;
     }
@@ -121,6 +139,7 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     .e-progress--indeterminate .e-progress-fill {
       width: 100%;
       animation: none;
+      border-radius: 0;
       background: repeating-linear-gradient(
         135deg,
         var(--e-primary) 0 var(--e-space-2),
@@ -130,8 +149,8 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   }
 
   @media (forced-colors: active) {
-    .e-progress-track::after {
-      border-color: CanvasText;
+    .e-progress-track {
+      border: var(--e-stroke-edge) solid CanvasText;
     }
 
     .e-progress-fill {

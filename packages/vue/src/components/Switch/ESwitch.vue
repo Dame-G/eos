@@ -74,7 +74,7 @@ defineExpose({
 
   .e-switch-track {
     --e-switch-w: 44px;
-    --e-thumb: 14px;
+    --e-thumb: 16px;
     --e-thumb-inset: var(--e-space-1);
     --e-thumb-travel: calc(var(--e-switch-w) - var(--e-thumb) - 2 * var(--e-thumb-inset));
     --e-ring: var(--e-border-strong);
@@ -85,7 +85,7 @@ defineExpose({
     height: 24px;
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--e-ring);
-    border-radius: var(--e-radius-pill);
+    border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
     background-clip: padding-box;
     transition:
@@ -101,13 +101,20 @@ defineExpose({
     width: var(--e-thumb);
     height: var(--e-thumb);
     margin-top: calc(var(--e-thumb) / -2);
-    border-radius: 50%;
+    box-sizing: border-box;
+
+    /* The thumb is a small button face with a slab under it. */
+    border: var(--e-stroke-edge) solid color-mix(in srgb, var(--e-ink), var(--e-shade-slab));
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
+    border-radius: var(--e-radius-sm);
     background: var(--e-ink);
     transition: transform var(--e-duration-move, 160ms) var(--e-easing-out);
   }
 
-  .e-switch:hover .e-switch-track {
+  .e-switch:hover .e-switch-input:not(:checked, :disabled) + .e-switch-track {
     --e-ring: var(--e-ink);
+
+    background-color: color-mix(in srgb, var(--e-primary) 16%, var(--e-surface));
   }
 
   .e-switch-input:checked + .e-switch-track {
@@ -117,7 +124,14 @@ defineExpose({
     background-clip: border-box;
   }
 
+  .e-switch:hover .e-switch-input:checked:not(:disabled) + .e-switch-track {
+    --e-ring: color-mix(in srgb, var(--e-primary), var(--e-shade-press));
+
+    background-color: color-mix(in srgb, var(--e-primary), var(--e-shade-press));
+  }
+
   .e-switch-input:checked + .e-switch-track::after {
+    border-color: color-mix(in srgb, var(--e-on-primary), var(--e-shade-slab));
     background: var(--e-on-primary);
     transform: translateX(var(--e-thumb-travel));
   }
@@ -130,6 +144,8 @@ defineExpose({
   }
 
   .e-switch-input:disabled + .e-switch-track::after {
+    border-color: var(--e-muted);
+    border-bottom-width: var(--e-stroke-edge);
     background: var(--e-muted);
   }
 

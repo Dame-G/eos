@@ -28,22 +28,37 @@ const size = computed(() => ({
 
 <style>
 @layer e.primitives {
+  /* No container or outline: the stripes of a busy button run across a faint neutral tint. */
   .e-skeleton {
     display: block;
     width: 100%;
     border-radius: var(--e-radius-md);
-    background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
-    animation: e-pulse 1.4s ease-in-out infinite;
+    background-color: color-mix(in srgb, var(--e-ink) 6%, var(--e-surface));
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 8px,
+      color-mix(in srgb, var(--e-ink) 10%, transparent) 8px 16px
+    );
+    background-size: 22.63px 22.63px;
+    animation:
+      e-skeleton-stripes 0.8s linear infinite,
+      e-pulse 1.4s ease-in-out infinite;
   }
 
   .e-skel {
     display: block;
     height: 14px;
     border-radius: var(--e-radius-sm);
-    background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
-    animation: e-pulse 1.4s ease-in-out infinite;
+    background-color: color-mix(in srgb, var(--e-ink) 6%, var(--e-surface));
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 8px,
+      color-mix(in srgb, var(--e-ink) 10%, transparent) 8px 16px
+    );
+    background-size: 22.63px 22.63px;
+    animation:
+      e-skeleton-stripes 0.8s linear infinite,
+      e-pulse 1.4s ease-in-out infinite;
   }
 
   .e-skeleton--circle {
@@ -58,6 +73,12 @@ const size = computed(() => ({
     }
   }
 
+  @keyframes e-skeleton-stripes {
+    to {
+      background-position-x: 22.63px;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .e-skel,
     .e-skeleton {
@@ -68,7 +89,8 @@ const size = computed(() => ({
   @media (forced-colors: active) {
     .e-skel,
     .e-skeleton {
-      outline-color: GrayText;
+      forced-color-adjust: none;
+      background: GrayText;
     }
   }
 }

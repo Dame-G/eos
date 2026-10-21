@@ -92,7 +92,14 @@ const groupAttrs = () => ({
     </div>
     <EFieldMessage :id="hintId" :error="error" :hint="hint" />
   </div>
-  <div v-else ref="track" class="e-seg" :class="attrs.wrapper().class" :style="attrs.wrapper().style" v-bind="groupAttrs()">
+  <div
+    v-else
+    ref="track"
+    class="e-seg"
+    :class="attrs.wrapper().class"
+    :style="attrs.wrapper().style"
+    v-bind="groupAttrs()"
+  >
     <label v-for="o in options" :key="o.value" class="e-seg-opt">
       <input
         type="radio"
@@ -173,7 +180,11 @@ const groupAttrs = () => ({
     background-color: var(--e-primary);
 
     /* The darker band along the bottom is the slab, drawn inside the piece and the track clips it to the corners. */
-    background-image: linear-gradient(to top, color-mix(in srgb, var(--e-primary), var(--e-shade-slab)) var(--e-depth), transparent var(--e-depth));
+    background-image: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--e-primary), var(--e-shade-slab)) calc(1.5 * var(--e-depth)),
+      transparent calc(1.5 * var(--e-depth))
+    );
     color: var(--e-on-primary);
     font-weight: 600;
   }
