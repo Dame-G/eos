@@ -14,11 +14,12 @@ describe("EHighlight", () => {
     expect(getComputedStyle(el).fontFamily).toContain("mono");
   });
 
-  test("is a marker over the accent, not the browser's yellow mark", async () => {
+  test("changes only the text colour, with no background and not the browser's yellow mark", async () => {
     const { container } = await render(EHighlight, { slots: { default: "due" } });
     const cs = getComputedStyle(container.querySelector("mark")!);
-    expect(cs.backgroundImage).toContain("linear-gradient");
+    expect(cs.backgroundImage).toBe("none");
     expect(cs.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(cs.color).not.toBe(getComputedStyle(container).color);
   });
 
   test("attributes fall through to the element", async () => {
@@ -36,9 +37,28 @@ describe("EHighlight", () => {
     const { container } = await render(
       defineComponent({
         render: () =>
-          h("p", ["Set ", h(EHighlight, { code: true }, () => "brand"), " and pay ", h(EHighlight, null, () => "by Oct 22"), "."]),
+          h("p", [
+            "Set ",
+            h(EHighlight, { code: true }, () => "brand"),
+            " and pay ",
+            h(EHighlight, null, () => "by Oct 22"),
+            ".",
+          ]),
       }),
     );
     await expectNoViolations(container);
+  });
+
+  test("swatch draws a hidden square of the colour after the text, and nothing without it", async () => {
+    const withSwatch = await render(EHighlight, {
+      props: { code: true, swatch: "#2c95b4" },
+      slots: { default: "#2c95b4" },
+    });
+    const square = withSwatch.container.querySelector<HTMLElement>(".e-highlight-swatch")!;
+    expect(square.getAttribute("aria-hidden")).toBe("true");
+    expect(getComputedStyle(square).backgroundColor).toBe("rgb(44, 149, 180)");
+    expect(withSwatch.container.querySelector("code")!.textContent).toBe("#2c95b4");
+    const without = await render(EHighlight, { props: { code: true }, slots: { default: "brand" } });
+    expect(without.container.querySelector(".e-highlight-swatch")).toBeNull();
   });
 });

@@ -19,13 +19,14 @@ Tabs for switching between views of the same record or list. It switches panels 
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `modelValue` | `string` | `first tab` | `v-model`: the `id` of the selected tab. Keeps its own state when unbound. |
-| `items` | `TabItem[]` | — | The tabs, in order: `{ id, label, count? }`. Two to five across, with short labels; a vertical list can be longer. `id` names the slot and is the `v-model` value. |
-| `fill` | `boolean` | `false` | Share the width equally between the tabs instead of letting each take its own. For a narrow container where the tabs must all fit; labels truncate. |
-| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | `vertical` stacks the tabs in a column beside their panel, for a long list of sections. Use it when there are more tabs than fit across; `fill` has no effect. |
-| `framed` | `boolean` | `false` | Joins the tabs to their panel so the two read as one card: the panel is outlined, the row of tabs sits on its edge like folder tabs, and the chosen tab opens into the panel with no line between. The edge stays open where there are no tabs. |
+| Prop          | Type                         | Default        | Notes                                                                                                                                                                                                                                           |
+| ------------- | ---------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`  | `string`                     | `first tab`    | `v-model`: the `id` of the selected tab. Keeps its own state when unbound.                                                                                                                                                                      |
+| `items`       | `TabItem[]`                  | —              | The tabs, in order: `{ id, label, count? }`. Two to five across, with short labels; a vertical list can be longer. `id` names the slot and is the `v-model` value.                                                                              |
+| `fill`        | `boolean`                    | `false`        | Share the width equally between the tabs instead of letting each take its own. For a narrow container where the tabs must all fit; labels truncate.                                                                                             |
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | `vertical` stacks the tabs in a column beside their panel, for a long list of sections. Use it when there are more tabs than fit across; `fill` has no effect.                                                                                  |
+| `side`        | `"start" \| "end"`           | `"start"`      | Which side of the panel a `vertical` list sits on: `start` is the left in a left-to-right page, `end` the right. It has no effect on a horizontal row.                                                                                          |
+| `framed`      | `boolean`                    | `false`        | Joins the tabs to their panel so the two read as one card: the panel is outlined, the row of tabs sits on its edge like folder tabs, and the chosen tab opens into the panel with no line between. The edge stays open where there are no tabs. |
 
 <!-- props:end -->
 

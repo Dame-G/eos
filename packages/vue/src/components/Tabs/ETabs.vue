@@ -22,6 +22,8 @@ const props = defineProps<{
   fill?: boolean;
   /** `vertical` stacks the tabs in a column beside their panel, for a long list of sections. Use it when there are more tabs than fit across; `fill` has no effect. @default "horizontal" */
   orientation?: "horizontal" | "vertical";
+  /** Which side of the panel a `vertical` list sits on: `start` is the left in a left-to-right page, `end` the right. It has no effect on a horizontal row. @default "start" */
+  side?: "start" | "end";
   /** Joins the tabs to their panel so the two read as one card: the panel is outlined, the row of tabs sits on its edge like folder tabs, and the chosen tab opens into the panel with no line between. The edge stays open where there are no tabs. @default false */
   framed?: boolean;
 }>();
@@ -88,7 +90,13 @@ watch(flat, watchRow);
 <template>
   <TabsRoot
     class="e-tabs"
-    :class="{ 'e-tabs--fill': fill, 'e-tabs--vertical': orientation === 'vertical', 'e-tabs--framed': framed, 'e-tabs--scrolls': scrolls }"
+    :class="{
+      'e-tabs--fill': fill,
+      'e-tabs--vertical': orientation === 'vertical',
+      'e-tabs--end': orientation === 'vertical' && side === 'end',
+      'e-tabs--framed': framed,
+      'e-tabs--scrolls': scrolls,
+    }"
     :orientation="orientation ?? 'horizontal'"
     :model-value="current"
     :dir="dir"
@@ -352,6 +360,52 @@ watch(flat, watchRow);
 
   .e-tabs--framed.e-tabs--vertical > .e-tabpanel {
     padding: calc(var(--e-space-4) - var(--e-stroke-edge));
+  }
+
+  /* The list on the inline-end side: the same column, mirrored. The selected tab's slab is a band down the outer edge, and it opens into the panel on the side that faces it. */
+  .e-tabs--vertical.e-tabs--end {
+    flex-direction: row-reverse;
+  }
+
+  .e-tabs--vertical.e-tabs--end > .e-tablist > .e-tab[aria-selected="true"] {
+    border-inline-start-width: var(--e-stroke-edge);
+    border-inline-start-color: var(--e-bc);
+    border-inline-end-width: calc(var(--e-stroke-edge) + var(--e-lift));
+    border-inline-end-color: var(--e-slab);
+  }
+
+  .e-tabs--framed.e-tabs--vertical.e-tabs--end > .e-tablist {
+    margin-inline: calc(-1 * var(--e-stroke-edge)) 0;
+  }
+
+  .e-tabs--framed.e-tabs--vertical.e-tabs--end > .e-tablist > .e-tab:first-child {
+    border-start-start-radius: 0;
+    border-start-end-radius: var(--e-radius-md);
+  }
+
+  .e-tabs--framed.e-tabs--vertical.e-tabs--end > .e-tablist > .e-tab[aria-selected="true"] {
+    border-inline-start-width: 0;
+    border-inline-end-width: calc(var(--e-stroke-edge) + var(--e-lift));
+    border-inline-end-color: var(--e-slab);
+  }
+
+  .e-tabs--framed.e-tabs--vertical.e-tabs--end > .e-tabpanel {
+    border-start-start-radius: var(--e-radius-md);
+    border-start-end-radius: 0;
+  }
+
+  /* The chosen tab is a little heavier all round: its band is the thickest edge, and the two edges either side of it are half as thick again as an ordinary tab's. */
+  .e-tabs:not(.e-tabs--vertical) > .e-tablist > .e-tab[aria-selected="true"] {
+    border-inline-width: calc(var(--e-stroke-edge) + var(--e-lift) / 2);
+  }
+
+  /* Equal-width tabs stay equal: the chosen tab's thicker sides come out of its own padding. */
+  .e-tabs--fill:not(.e-tabs--vertical) > .e-tablist > .e-tab[aria-selected="true"] {
+    padding-inline: max(0px, calc(var(--e-space-1) - var(--e-stroke-edge) - var(--e-lift) / 2));
+  }
+
+  .e-tabs--vertical.e-tabs > .e-tablist > .e-tab[aria-selected="true"] {
+    border-block-width: calc(var(--e-stroke-edge) + var(--e-lift) / 2);
   }
 
   .e-tab-count {

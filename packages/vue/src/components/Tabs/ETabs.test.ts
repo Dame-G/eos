@@ -32,7 +32,9 @@ describe("ETabs", () => {
   test("fill shares the width equally between the tabs", async () => {
     const { container } = await render(ETabs, { props: { items, fill: true }, slots });
     expect(container.querySelector(".e-tabs")!.classList.contains("e-tabs--fill")).toBe(true);
-    const widths = [...container.querySelectorAll<HTMLElement>("[role=tab]")].map((t) => Math.round(t.getBoundingClientRect().width));
+    const widths = [...container.querySelectorAll<HTMLElement>("[role=tab]")].map((t) =>
+      Math.round(t.getBoundingClientRect().width),
+    );
     expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
   });
 
@@ -51,9 +53,35 @@ describe("ETabs", () => {
     await expect.element(page.getByRole("tab", { name: "Two 3" })).toHaveFocus();
   });
 
+  test("side=end puts a vertical list on the far side of its panel, and does nothing to a horizontal row", async () => {
+    const { container } = await render(ETabs, {
+      props: { items, orientation: "vertical", side: "end", framed: true },
+      slots,
+    });
+    const tab = container.querySelector("[role=tab]")!.getBoundingClientRect();
+    const panel = container.querySelector("[role=tabpanel]")!.getBoundingClientRect();
+    expect(container.querySelector(".e-tabs")!.classList.contains("e-tabs--end")).toBe(true);
+    expect(tab.left).toBeGreaterThanOrEqual(panel.right - 2);
+    const row = await render(ETabs, { props: { items, side: "end" }, slots });
+    expect(row.container.querySelector(".e-tabs")!.classList.contains("e-tabs--end")).toBe(false);
+  });
+
   test("tabs inside a vertical, framed panel keep their own plain horizontal look", async () => {
-    const inner = () => h(ETabs, { items: [{ id: "x", label: "Inner one" }, { id: "y", label: "Inner two" }] }, { x: () => "X", y: () => "Y" });
-    const { container } = await render(ETabs, { props: { items: [{ id: "a", label: "Outer" }], orientation: "vertical", framed: true }, slots: { a: inner } });
+    const inner = () =>
+      h(
+        ETabs,
+        {
+          items: [
+            { id: "x", label: "Inner one" },
+            { id: "y", label: "Inner two" },
+          ],
+        },
+        { x: () => "X", y: () => "Y" },
+      );
+    const { container } = await render(ETabs, {
+      props: { items: [{ id: "a", label: "Outer" }], orientation: "vertical", framed: true },
+      slots: { a: inner },
+    });
     const lists = container.querySelectorAll<HTMLElement>(".e-tablist");
     expect(getComputedStyle(lists[0]!).flexDirection).toBe("column");
     expect(getComputedStyle(lists[1]!).flexDirection).toBe("row");
@@ -152,7 +180,9 @@ describe("ETabs", () => {
     expect(getComputedStyle(first).fontWeight).toBe("600");
     expect(getComputedStyle(second).fontWeight).toBe("500");
     // The slab is the selected tab's bottom border made thicker; the others have an even edge. No tab uses a shadow.
-    expect(parseFloat(getComputedStyle(first).borderBottomWidth)).toBeGreaterThan(parseFloat(getComputedStyle(first).borderTopWidth));
+    expect(parseFloat(getComputedStyle(first).borderBottomWidth)).toBeGreaterThan(
+      parseFloat(getComputedStyle(first).borderTopWidth),
+    );
     expect(getComputedStyle(second).borderBottomWidth).toBe(getComputedStyle(second).borderTopWidth);
     expect(getComputedStyle(first).boxShadow).toBe("none");
   });
@@ -188,7 +218,9 @@ describe("ETabs", () => {
     expect(getComputedStyle(container.querySelector(".e-tabpanel")!).borderStartEndRadius).toBe("0px");
     root.style.width = "100rem";
     await expect.poll(() => root.classList.contains("e-tabs--scrolls")).toBe(false);
-    expect(parseFloat(getComputedStyle(container.querySelector(".e-tabpanel")!).borderStartEndRadius)).toBeGreaterThan(0);
+    expect(parseFloat(getComputedStyle(container.querySelector(".e-tabpanel")!).borderStartEndRadius)).toBeGreaterThan(
+      0,
+    );
   });
 
   test("axe finds nothing, with the first and another tab selected", async () => {

@@ -64,7 +64,7 @@ const sections = [
 const tagline = intro(read(join(pkg, "README.md")));
 
 const index = [
-  `# Eos (@eos-ui/vue ${version})`,
+  `# EOS (@eos-ui/vue ${version})`,
   "",
   `> ${tagline}`,
   "",
@@ -85,7 +85,7 @@ const index = [
 ].join("\n");
 
 const full = [
-  `# Eos (@eos-ui/vue ${version}): complete documentation`,
+  `# EOS (@eos-ui/vue ${version}): complete documentation`,
   "",
   `> ${tagline}`,
   "",
