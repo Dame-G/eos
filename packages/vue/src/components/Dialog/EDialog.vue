@@ -7,6 +7,10 @@ withDefaults(
   defineProps<{
     /** The question or task, as the dialog's heading and accessible name; make it a real question. */
     title: string;
+    /** A sentence under the title that says what the dialog is for. It is shown, and read out as the description. */
+    description?: string;
+    /** `alertdialog` for a confirmation that needs an answer, such as a delete. Leave it as `dialog` for everything else. */
+    role?: "dialog" | "alertdialog";
     /** The level of the title's heading element, 1 to 6. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     /** Also closes when the backdrop is pressed. Leave it off for a form, where a stray press would throw the work away. */
@@ -14,7 +18,7 @@ withDefaults(
     /** Shows the dialog in the page, without the backdrop or the focus trap. Only for a preview. */
     inline?: boolean;
   }>(),
-  { headingLevel: 2 },
+  { role: "dialog", headingLevel: 2 },
 );
 
 const emit = defineEmits<{
@@ -39,6 +43,8 @@ const open = defineModel<boolean>("open");
     v-model:open="open"
     :title="title"
     :heading-level="headingLevel"
+    :description="description"
+    :role="role"
     :inline="inline"
     :dismissible="dismissible"
     :content-class="['e-dialog', inline && 'e-dialog--inline']"

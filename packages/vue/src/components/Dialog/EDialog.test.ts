@@ -225,6 +225,50 @@ describe("EDialog", () => {
     expect(document.querySelector(".e-dialog")!.parentElement!.parentElement).toBe(document.body);
   });
 
+  test("description is shown under the title and wired through aria-describedby", async () => {
+    const { Host, open } = host({ attrs: { description: "You can book again at any time." } });
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("dialog", { name: "Cancel this appointment?" })).toBeVisible();
+    const dialog = document.querySelector<HTMLElement>(".e-dialog")!;
+    const desc = dialog.querySelector<HTMLElement>(".e-dialog-description")!;
+    expect(desc.textContent).toBe("You can book again at any time.");
+    expect(dialog.getAttribute("aria-describedby")).toBe(desc.id);
+    await expectNoViolations(dialog);
+  });
+
+  test("without a description there is no aria-describedby, so nothing dangles", async () => {
+    const { Host, open } = host();
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    expect(document.querySelector(".e-dialog")!.hasAttribute("aria-describedby")).toBe(false);
+  });
+
+  test("an aria-describedby from the consumer is kept", async () => {
+    const { Host, open } = host({ attrs: { "aria-describedby": "mine" } });
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    expect(document.querySelector(".e-dialog")!.getAttribute("aria-describedby")).toBe("mine");
+  });
+
+  test("role alertdialog sets the role, keeps focus in and Escape working, and passes axe", async () => {
+    const { Host, open, closed } = host({ attrs: { role: "alertdialog", description: "This cannot be undone." } });
+    await render(Host);
+    const trigger = document.getElementById("trigger") as HTMLButtonElement;
+    trigger.focus();
+    open.value = true;
+    await expect.element(page.getByRole("alertdialog", { name: "Cancel this appointment?" })).toBeVisible();
+    const dialog = document.querySelector<HTMLElement>(".e-dialog")!;
+    await expect.poll(() => dialog.contains(document.activeElement)).toBe(true);
+    await expectNoViolations(dialog);
+    await userEvent.keyboard("{Escape}");
+    await expect.poll(() => document.querySelector(".e-dialog")).toBeNull();
+    expect(closed.value).toBe(1);
+    await expect.poll(() => document.activeElement).toBe(trigger);
+  });
+
   test("axe finds nothing in the open dialog, with and without actions", async () => {
     const a = host();
     await render(a.Host);

@@ -133,6 +133,31 @@ describe("EDrawer", () => {
     expect(document.querySelector(".e-dialog-overlay")).toBeNull();
   });
 
+  test("description and role reach the drawer", async () => {
+    const { Host, open } = host({ description: "Billing period 1 to 31 October.", role: "alertdialog" });
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("alertdialog", { name: "October statement" })).toBeVisible();
+    const el = drawer();
+    const desc = el.querySelector<HTMLElement>(".e-dialog-description")!;
+    expect(desc.textContent).toBe("Billing period 1 to 31 October.");
+    expect(el.getAttribute("aria-describedby")).toBe(desc.id);
+    await expectNoViolations(el);
+  });
+
+  test("the slide animation takes its length from the move duration token", async () => {
+    const { Host, open } = host();
+    await render(Host);
+    document.documentElement.style.setProperty("--e-duration-move", "777ms");
+    try {
+      open.value = true;
+      await expect.element(page.getByRole("dialog")).toBeVisible();
+      expect(getComputedStyle(drawer()).animationDuration).toBe("0.777s");
+    } finally {
+      document.documentElement.style.removeProperty("--e-duration-move");
+    }
+  });
+
   test("axe finds nothing in the open drawer", async () => {
     const { Host, open } = host();
     await render(Host);

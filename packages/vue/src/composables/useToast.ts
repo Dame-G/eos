@@ -47,8 +47,9 @@ export const TOAST_KEY: InjectionKey<ToastStore> = Symbol("eos.toasts");
 const DEFAULT_DURATION = 5000;
 
 /**
- * Creates a toast store. `EToastProvider` makes one when none is provided. An app that wants `useToast()` in code outside
- * the component tree (a router guard, a store) makes one itself and provides it: `app.provide(TOAST_KEY, createToasts())`.
+ * Creates a toast store. `createEos().install` provides one for the whole app, so `useToast()` works anywhere in it.
+ * Without the plugin, an `EToastProvider` makes one for the components inside it. An app that wants `useToast()`
+ * elsewhere without the plugin (a router guard, a store) provides one itself: `app.provide(TOAST_KEY, createToasts())`.
  * Either way the toasts are shown by an `EToastProvider`, once, near the root of the app.
  */
 export function createToasts(): ToastStore {
@@ -112,7 +113,7 @@ export function createToasts(): ToastStore {
 }
 
 /**
- * Show toasts from anywhere inside an `EToastProvider` (or an app that provided `TOAST_KEY`):
+ * Show toasts from anywhere in an app that installed `createEos()` or provided `TOAST_KEY`, or from inside an `EToastProvider`. It throws anywhere else:
  * `const toast = useToast(); toast.show({ title: "Saved", tone: "success" })`.
  */
 export function useToast(): ToastApi {
