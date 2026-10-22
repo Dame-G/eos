@@ -13,7 +13,7 @@ export interface AdapterOptions {
 }
 
 /** `credit-card` to `CreditCard`, `menu-2` to `Menu2`. A name that is already PascalCase is kept. */
-export function pascalCase(name: string): string {
+function pascalCase(name: string): string {
   return name
     .split("-")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))

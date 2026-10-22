@@ -17,7 +17,7 @@ export interface LinkSection<T extends LinkItem = LinkItem> {
   items: T[];
 }
 
-export const linkAttrs = (item: LinkItem) => ({
+const linkAttrs = (item: LinkItem) => ({
   ...(item.to !== undefined ? { to: item.to } : { href: item.href ?? "#" }),
   ...(item.current && { "aria-current": "page" }),
 });
