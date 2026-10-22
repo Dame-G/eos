@@ -25,11 +25,12 @@ A labelled single-line text input with hint, error and optional unit.
 | `required`    | `boolean` | `false`      | The `required` attribute and a word beside the label.                                             |
 | `optional`    | `boolean` | `false`      | A word beside the label. Flag whichever is rarer.                                                 |
 | `disabled`    | `boolean` | `false`      | Disables the field.                                                                               |
+| `readonly`    | `boolean` | `false`      | Shows the value but blocks editing. The input stays focusable and selectable.                     |
 | `id`          | `string`  | `generated`  | The id of the input; the label points at it.                                                      |
 
 <!-- props:end -->
 
-`class` and `style` land on the wrapper `div`; other attributes and listeners (`name`, `autocomplete`, `inputmode`, `maxlength`, `readonly`, `aria-*`, `@blur`) land on the `input` element. Exposes `input` and `focus()`.
+`class` and `style` land on the wrapper `div`; other attributes and listeners (`name`, `autocomplete`, `inputmode`, `maxlength`, `aria-*`, `@blur`) land on the `input` element. Exposes `input` and `focus()`.
 
 ## Accessibility
 

@@ -3,9 +3,10 @@ import { defineComponent, h, nextTick, ref, type Component } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ENumberField from "./ENumberField.vue";
+import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
-async function bound(props: Record<string, unknown>, initial: number | null) {
+async function bound(props: Record<string, unknown>, initial: number | null, global = {}) {
   const model = ref<number | null>(initial);
   const got: (number | null)[] = [];
   const result = await render(
@@ -20,6 +21,7 @@ async function bound(props: Record<string, unknown>, initial: number | null) {
           },
         }),
     }),
+    { global },
   );
   return { model, got, ...result };
 }
@@ -243,9 +245,84 @@ describe("ENumberField", () => {
             h(ENumberField, { label: "Disabled", disabled: true, optional: true }),
             h(ENumberField, { label: "Affixed", prefix: "$", suffix: "USD", modelValue: 5, step: 0.01 }),
             h(ENumberField, { label: "Named", name: "n", hideLabel: true }),
+            h(ENumberField, { label: "Readonly", readonly: true, modelValue: 3 }),
           ]),
       }),
     );
     await expectNoViolations(container);
+  });
+
+  describe("locale", () => {
+    const eos = (locale: string) => ({ plugins: [createEos({ themeTarget: null, locale })] });
+
+    test("fr-FR shows a decimal comma and reads one back", async () => {
+      const { got } = await bound({ label: "Poids", step: 0.1 }, 1.5, eos("fr-FR"));
+      const box = page.getByRole("spinbutton", { name: "Poids" });
+      await expect.element(box).toHaveValue("1,5");
+      await box.fill("12,34");
+      await userEvent.keyboard("{Enter}");
+      expect(got.at(-1)).toBe(12.34);
+      await box.fill("2.5");
+      await userEvent.keyboard("{Enter}");
+      expect(got.at(-1)).toBe(2.5);
+    });
+
+    test("de-DE reads a comma as the decimal and a dot as grouping", async () => {
+      const { got } = await bound({ label: "Gewicht", step: 0.1 }, null, eos("de-DE"));
+      const box = page.getByRole("spinbutton", { name: "Gewicht" });
+      await box.fill("1,5");
+      await userEvent.keyboard("{Enter}");
+      expect(got.at(-1)).toBe(1.5);
+      await expect.element(box).toHaveValue("1,5");
+      await box.fill("1.234,5");
+      await userEvent.keyboard("{Enter}");
+      expect(got.at(-1)).toBe(1234.5);
+    });
+
+    test("en-US still drops a typed group comma", async () => {
+      const { got } = await bound({ label: "Visits" }, null);
+      await page.getByRole("spinbutton", { name: "Visits" }).fill("1,200");
+      await userEvent.keyboard("{Enter}");
+      expect(got.at(-1)).toBe(1200);
+    });
+
+    test("the hidden input submits a plain number", async () => {
+      const { container } = await bound({ label: "Poids", step: 0.1, name: "w" }, 1.5, eos("fr-FR"));
+      expect(container.querySelector<HTMLInputElement>("input[name=w]")!.value).toBe("1.5");
+    });
+  });
+
+  test("Home and End go to min and max, PageUp and PageDown step by ten", async () => {
+    const { got } = await bound({ label: "Visits", min: 0, max: 100 }, 50);
+    await page.getByRole("spinbutton", { name: "Visits" }).click();
+    await userEvent.keyboard("{PageUp}");
+    expect(got.at(-1)).toBe(60);
+    await userEvent.keyboard("{PageDown}{PageDown}");
+    expect(got.at(-1)).toBe(40);
+    await userEvent.keyboard("{Home}");
+    expect(got.at(-1)).toBe(0);
+    await userEvent.keyboard("{End}");
+    expect(got.at(-1)).toBe(100);
+  });
+
+  test("Home and End do nothing without min and max", async () => {
+    const { got } = await bound({ label: "Visits" }, 5);
+    await page.getByRole("spinbutton", { name: "Visits" }).click();
+    await userEvent.keyboard("{Home}{End}");
+    expect(got).toEqual([]);
+  });
+
+  test("readonly blocks the buttons and keys but stays focusable", async () => {
+    const { got, container } = await bound({ label: "Visits", min: 0, max: 10, readonly: true }, 5);
+    const box = page.getByRole("spinbutton", { name: "Visits" });
+    expect(container.querySelector(".e-input-wrap")!.hasAttribute("data-readonly")).toBe(true);
+    expect(container.querySelector<HTMLInputElement>(".e-numinput")!.readOnly).toBe(true);
+    await expect.element(page.getByRole("button", { name: "Increase" })).toBeDisabled();
+    await expect.element(page.getByRole("button", { name: "Decrease" })).toBeDisabled();
+    await box.click();
+    expect(document.activeElement).toBe(container.querySelector(".e-numinput"));
+    await userEvent.keyboard("{ArrowUp}{PageUp}{Home}{End}7{Enter}");
+    expect(got).toEqual([]);
+    await expect.element(box).toHaveValue("5");
   });
 });

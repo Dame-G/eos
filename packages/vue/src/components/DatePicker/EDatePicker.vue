@@ -31,6 +31,8 @@ const props = defineProps<{
   optional?: boolean;
   /** Disables the field and its calendar button. */
   disabled?: boolean;
+  /** Shows the date but blocks editing. The input stays focusable and selectable. The calendar button is disabled and the calendar does not open. */
+  readonly?: boolean;
   /** The earliest date that can be chosen or typed. */
   min?: Date;
   /** The latest date that can be chosen or typed. */
@@ -54,7 +56,7 @@ const input = ref<HTMLInputElement | null>(null);
 const calendar = ref<InstanceType<typeof ECalendar> | null>(null);
 /** Whether the calendar is open. Setting it moves no focus; a disabled field never opens. */
 const open = defineModel<boolean>("open", { default: false });
-const shown = computed(() => open.value && !props.disabled);
+const shown = computed(() => open.value && !props.disabled && !props.readonly);
 const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel, .e-combo"));
 const trigger = { onClick: quiet.intent, onKeydown: quiet.intent };
 
@@ -78,6 +80,7 @@ function set(d: Date | null) {
 }
 
 function commit() {
+  if (props.readonly) return;
   const raw = text.value.trim();
   if (!raw) {
     typedError.value = "";
@@ -98,7 +101,7 @@ function commit() {
 
 function onKey(e: KeyboardEvent) {
   if (e.key === "Enter") commit();
-  else if (e.key === "ArrowDown" && e.altKey && !props.disabled) {
+  else if (e.key === "ArrowDown" && e.altKey && !props.disabled && !props.readonly) {
     e.preventDefault();
     quiet.intent();
     open.value = true;
@@ -139,6 +142,7 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
     placeholder: loc.dateFormatLabel(),
     value: text.value,
     disabled: props.disabled,
+    readonly: props.readonly,
     required: props.required,
     "aria-invalid": field.ariaInvalid,
     ...attrs.input(field.ariaDescribedby),
@@ -169,6 +173,7 @@ defineExpose({
             class="e-input-wrap e-combo"
             :data-invalid="shownError ? '' : undefined"
             :data-disabled="disabled ? '' : undefined"
+            :data-readonly="readonly ? '' : undefined"
           >
             <input
               ref="input"
@@ -182,7 +187,7 @@ defineExpose({
             />
             <input v-if="name" type="hidden" :name="name" :value="isoDate(model)" />
             <PopoverTrigger as-child v-bind="trigger">
-              <button type="button" class="e-combo-btn" :aria-label="t('chooseDate')" :disabled="disabled">
+              <button type="button" class="e-combo-btn" :aria-label="t('chooseDate')" :disabled="disabled || readonly">
                 <EIcon name="calendar" />
               </button>
             </PopoverTrigger>

@@ -35,6 +35,8 @@ const props = defineProps<{
   optional?: boolean;
   /** Disables the field and its buttons. */
   disabled?: boolean;
+  /** Shows the value but blocks editing. The input stays focusable and selectable. Both buttons and the keys that change the value do nothing. */
+  readonly?: boolean;
   /** The id of the input; the label points at it. @default generated */
   id?: string;
 }>();
@@ -86,6 +88,7 @@ defineExpose({
     :required="required"
     :optional="optional"
     :disabled="disabled"
+    :readonly="readonly"
   />
 </template>
 

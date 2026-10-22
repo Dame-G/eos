@@ -3,6 +3,7 @@ import { computed, ref, watch } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EField from "../Field/EField.vue";
 import { useMessages } from "../../config.js";
+import { useLocale } from "../../composables/useLocale.js";
 import { focusInside } from "../../composables/focusInside.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import "../../styles/base.css";
@@ -37,6 +38,8 @@ const props = defineProps<{
   optional?: boolean;
   /** Disables the input and both buttons. */
   disabled?: boolean;
+  /** Shows the value but blocks editing. The input stays focusable and selectable. Both buttons and the keys that change the value do nothing. */
+  readonly?: boolean;
   /** The id of the input; the label points at it. @default generated */
   id?: string;
 }>();
@@ -46,13 +49,39 @@ const model = defineModel<number | null>({ default: null });
 
 const t = useMessages();
 const attrs = useFieldAttrs();
+const loc = useLocale();
 const input = ref<HTMLInputElement | null>(null);
 
 const stepBy = computed(() => props.step || 1);
 const decimals = computed(() => (String(stepBy.value).split(".")[1] || "").length);
-const format = (n: number | null | undefined) => (n == null ? "" : Number(n).toFixed(decimals.value));
+
+/** The decimal and group separators of the configured locale. */
+const separators = computed(() => {
+  try {
+    const parts = new Intl.NumberFormat(loc.locale.value).formatToParts(1234567.5);
+    return {
+      decimal: parts.find((p) => p.type === "decimal")?.value ?? ".",
+      group: parts.find((p) => p.type === "group")?.value ?? ",",
+    };
+  } catch {
+    return { decimal: ".", group: "," };
+  }
+});
+const format = (n: number | null | undefined) =>
+  n == null ? "" : Number(n).toFixed(decimals.value).replace(".", separators.value.decimal);
+/**
+ * Reads typed text with the locale's separators. Spaces and the group separator are dropped. A `.` reads as the
+ * decimal point unless the locale uses it for grouping (German, Spanish), where `1.5` means 15.
+ */
+function parse(raw: string): number {
+  const { decimal, group } = separators.value;
+  let s = raw.replace(/\s/g, "").replace(/−/g, "-");
+  if (group.trim()) s = s.split(group).join("");
+  if (decimal !== ".") s = s.replace(decimal, ".");
+  return /^-?(\d+\.?\d*|\.\d+)$/.test(s) ? parseFloat(s) : NaN;
+}
 const text = ref(format(model.value));
-watch(model, (v) => (text.value = format(v)));
+watch([model, separators], () => (text.value = format(model.value)));
 
 const num = computed(() => (model.value == null ? undefined : Number(model.value)));
 
@@ -64,26 +93,41 @@ function clamp(n: number): number {
 function set(n: number) {
   n = clamp(n);
   model.value = n;
-  text.value = n.toFixed(decimals.value);
+  text.value = format(n);
 }
 function bump(dir: 1 | -1, mult = 1) {
+  if (props.readonly) return;
   const base = num.value == null ? (props.min != null ? props.min - stepBy.value * (dir > 0 ? 1 : 0) : 0) : num.value;
   set(Math.round((base + dir * stepBy.value * mult) * 1e6) / 1e6);
 }
 function commit() {
-  const n = parseFloat(text.value.replace(/,/g, ""));
+  if (props.readonly) return;
+  const n = parse(text.value);
   if (isNaN(n)) {
     if (text.value === "") model.value = null;
     else text.value = format(model.value);
   } else set(n);
 }
 function onKeydown(e: KeyboardEvent) {
+  if (props.readonly) return;
   if (e.key === "ArrowUp") {
     e.preventDefault();
     bump(1, e.shiftKey ? 10 : 1);
   } else if (e.key === "ArrowDown") {
     e.preventDefault();
     bump(-1, e.shiftKey ? 10 : 1);
+  } else if (e.key === "PageUp") {
+    e.preventDefault();
+    bump(1, 10);
+  } else if (e.key === "PageDown") {
+    e.preventDefault();
+    bump(-1, 10);
+  } else if (e.key === "Home" && props.min != null) {
+    e.preventDefault();
+    set(props.min);
+  } else if (e.key === "End" && props.max != null) {
+    e.preventDefault();
+    set(props.max);
   } else if (e.key === "Enter") commit();
 }
 
@@ -98,6 +142,7 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
     autocomplete: "off",
     value: text.value,
     disabled: props.disabled,
+    readonly: props.readonly,
     required: props.required,
     "aria-valuenow": num.value,
     "aria-valuemin": props.min,
@@ -131,13 +176,14 @@ defineExpose({
         :class="{ 'e-numfield--affix': prefix || suffix }"
         :data-invalid="error ? '' : undefined"
         :data-disabled="disabled ? '' : undefined"
+        :data-readonly="readonly ? '' : undefined"
         @click="focusInside"
       >
         <button
           type="button"
           class="e-numbtn"
           :aria-label="t('decrease')"
-          :disabled="disabled || (min != null && num != null && num <= min)"
+          :disabled="disabled || readonly || (min != null && num != null && num <= min)"
           @click="bump(-1)"
         >
           <EIcon name="minus" bold />
@@ -155,7 +201,7 @@ defineExpose({
           type="button"
           class="e-numbtn"
           :aria-label="t('increase')"
-          :disabled="disabled || (max != null && num != null && num >= max)"
+          :disabled="disabled || readonly || (max != null && num != null && num >= max)"
           @click="bump(1)"
         >
           <EIcon name="plus" bold />

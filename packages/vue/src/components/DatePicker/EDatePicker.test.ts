@@ -40,6 +40,19 @@ async function bound(props: Record<string, unknown>, initial: Date | null, globa
 }
 
 describe("EDatePicker", () => {
+  test("readonly keeps the date, disables the calendar button and never opens", async () => {
+    const { model, container } = await bound({ label: "Date", readonly: true, open: true }, d(2026, 10, 22));
+    const input = container.querySelector("input")!;
+    expect(input.readOnly).toBe(true);
+    expect(container.querySelector(".e-input-wrap")!.hasAttribute("data-readonly")).toBe(true);
+    await expect.element(page.getByRole("button", { name: "Choose date" })).toBeDisabled();
+    input.focus();
+    await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
+    await sleep(80);
+    expect(panel()).toBeNull();
+    expect(model.value).toEqual(d(2026, 10, 22));
+  });
+
   test("is a text box named by its label, with the format as the placeholder and a calendar button", async () => {
     const { container } = await render(EDatePicker, { props: { label: "Date of birth" } });
     const input = page.getByRole("textbox", { name: "Date of birth" });

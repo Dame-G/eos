@@ -26,6 +26,7 @@ const rules = [{ label: "At least 10 characters", test: (v: string) => v.length 
 | `required`   | `boolean`            | `false`      | The `required` attribute and a word beside the label.                                                                                                              |
 | `optional`   | `boolean`            | `false`      | A word beside the label. Flag whichever is rarer.                                                                                                                  |
 | `disabled`   | `boolean`            | `false`      | Disables the input and the toggle.                                                                                                                                 |
+| `readonly`   | `boolean`            | `false`      | Shows the value but blocks editing. The input stays focusable and selectable. The show toggle still works.                                                         |
 | `id`         | `string`             | `generated`  | The id of the input; the label points at it.                                                                                                                       |
 
 <!-- props:end -->
