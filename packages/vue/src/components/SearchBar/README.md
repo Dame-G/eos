@@ -13,17 +13,17 @@ The single search box for a page: an outlined field with a submit button inside.
 | Prop          | Type      | Default    | Notes                                                                                       |
 | ------------- | --------- | ---------- | ------------------------------------------------------------------------------------------- |
 | `modelValue`  | `string`  | `""`       | `v-model`: the text.                                                                        |
-| `label`       | `string`  | `"Search"` | Names the box and the search landmark; there is no visible label.                           |
-| `placeholder` | `string`  | `"Search"` | Say what can be searched, briefly.                                                          |
+| `label`       | `string`  | `"Search"` | Names the box and the search landmark. It is not shown on the page.                         |
+| `placeholder` | `string`  | `"Search"` | Hint text in the empty box that says what can be searched.                                  |
 | `action`      | `string`  | `"Search"` | The text on the button.                                                                     |
 | `hideAction`  | `boolean` | `false`    | Leaves out the button, for a box that filters or searches as you type. Enter still submits. |
 | `clearable`   | `boolean` | `true`     | The clear button, shown when there is text.                                                 |
 | `name`        | `string`  | `"q"`      | The name submitted with a form.                                                             |
-| `disabled`    | `boolean` | `false`    | Disables the box and button. Say why in an `ENotice`.                                       |
+| `disabled`    | `boolean` | `false`    | Disables the box and button. Pair it with an `ENotice` that says why.                       |
 
 <!-- props:end -->
 
-`class` and `style` land on the `form` element; other attributes and listeners land on the `input` element. Exposes `input` and `focus()`. Hidden in print.
+`class` and `style` land on the `form` element. Other attributes and listeners land on the `input` element. Exposes `input` and `focus()`. Hidden in print.
 
 ## Events
 
@@ -33,4 +33,4 @@ The single search box for a page: an outlined field with a submit button inside.
 
 ## Accessibility
 
-- The form is a `search` landmark named by `label`; give each search on a page a distinct label.
+- The form is a `search` landmark named by `label`. Give each search on a page a distinct label.

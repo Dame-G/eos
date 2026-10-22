@@ -27,4 +27,4 @@ Text that is read out but not shown, for context sighted people get from layout,
 ## Accessibility
 
 - Never hide text a sighted person also needs, or repeat visible text.
-- Keep a space where it joins visible words (" (done)").
+- Leave a space where it joins visible words (" (done)").

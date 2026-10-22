@@ -18,20 +18,20 @@ A joined set of two to five options where exactly one is active. Use it to chang
 
 <!-- props:start -->
 
-| Prop         | Type                            | Default        | Notes                                                                                                     |
-| ------------ | ------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------- |
-| `modelValue` | `string`                        | `first option` | `v-model`: the active value.                                                                              |
-| `label`      | `string`                        | **Required**   | Read by screen readers as the name of the group.                                                          |
-| `options`    | `(string \| SegmentedOption)[]` | **Required**   | Two to five. A string is both value and label. `SegmentedOption` is `{ value, label, icon?, disabled? }`. |
-| `hint`       | `string`                        | —              | Help under the control, linked with `aria-describedby`.                                                   |
-| `error`      | `string`                        | —              | What to fix. Replaces the hint and is announced.                                                          |
-| `optional`   | `boolean`                       | `false`        | Adds the word "Optional" to the group's accessible name; nothing is shown. Flag whichever is rarer.       |
-| `disabled`   | `boolean`                       | `false`        | Disables every option.                                                                                    |
-| `name`       | `string`                        | `generated`    | The name the radios share, submitted with a form.                                                         |
+| Prop         | Type                            | Default        | Notes                                                                                                                        |
+| ------------ | ------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue` | `string`                        | `first option` | `v-model`: the active value.                                                                                                 |
+| `label`      | `string`                        | **Required**   | Read by screen readers as the name of the group.                                                                             |
+| `options`    | `(string \| SegmentedOption)[]` | **Required**   | Two to five. A string is both value and label. `SegmentedOption` is `{ value, label, icon?, disabled? }`.                    |
+| `hint`       | `string`                        | —              | Help under the control, linked with `aria-describedby`.                                                                      |
+| `error`      | `string`                        | —              | What to fix. Replaces the hint and is announced.                                                                             |
+| `optional`   | `boolean`                       | `false`        | Adds the word "Optional" to the group's accessible name and shows nothing. Use it when most fields in the form are required. |
+| `disabled`   | `boolean`                       | `false`        | Disables every option.                                                                                                       |
+| `name`       | `string`                        | `generated`    | The name the radios share, submitted with a form.                                                                            |
 
 <!-- props:end -->
 
-`class` and `style` land on the outer element; other attributes land on the `radiogroup` element. Exposes `input` (the chosen radio, else the first) and `focus()`. With an `error` the track's edge turns red.
+`class` and `style` land on the outer element. Other attributes land on the `radiogroup` element. Exposes `input` (the chosen radio, else the first) and `focus()`.
 
 ## Accessibility
 

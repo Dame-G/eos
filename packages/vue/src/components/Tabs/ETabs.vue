@@ -16,17 +16,17 @@ import { useConfig } from "../../config.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
-  /** The tabs, in order: `{ id, label, count? }`. Two to five across, with short labels; a vertical list can be longer. `id` names the slot and is the `v-model` value. */
+  /** The tabs, in order: `{ id, label, count? }`. Two to five across, with short labels. A vertical list can be longer. `id` names the slot and is the `v-model` value. */
   items?: TabItem[];
-  /** Share the width equally between the tabs instead of letting each take its own. For a narrow container where the tabs must all fit; labels truncate. @default false */
+  /** Gives every tab an equal share of the width instead of its own. Use it in a narrow container where all tabs must fit. Labels truncate. @default false */
   fill?: boolean;
-  /** `vertical` stacks the tabs in a column beside their panel, for a long list of sections. Use it when there are more tabs than fit across; `fill` has no effect. @default "horizontal" */
+  /** `vertical` stacks the tabs in a column beside their panel, for a long list of sections or more tabs than fit across. `fill` has no effect. @default "horizontal" */
   orientation?: "horizontal" | "vertical";
   /** Which side of the panel a `vertical` list sits on: `start` is the left in a left-to-right page, `end` the right. It has no effect on a horizontal row. @default "start" */
   side?: "start" | "end";
-  /** Joins the tabs to their panel so the two read as one card: the panel is outlined, the row of tabs sits on its edge like folder tabs, and the chosen tab opens into the panel with no line between. The edge stays open where there are no tabs. @default false */
+  /** Joins the tabs to their panel as one outlined card, with the chosen tab opening into the panel. @default false */
   framed?: boolean;
-  /** Names the row of tabs for screen readers. Set it when a page has more than one set of tabs. */
+  /** Names the row of tabs for screen readers. Needed when a page has more than one set of tabs. */
   label?: string;
 }>();
 

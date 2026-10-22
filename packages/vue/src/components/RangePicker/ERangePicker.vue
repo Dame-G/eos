@@ -26,17 +26,17 @@ export interface RangePreset {
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  /** The visible label, a mono kicker above the field. It also names the group. */
+  /** The visible label above the field. It also names the group. */
   label: string;
-  /** Keep the label for screen readers and remove it from the page. */
+  /** Keeps the label for screen readers and hides it from the page. */
   hideLabel?: boolean;
   /** Help that stays under the field. */
   hint?: string;
   /** What to fix. Replaces the hint and marks both boxes invalid. A typed span that cannot be used shows its own error. */
   error?: string;
-  /** The `required` attribute and a word beside the label. */
+  /** Sets the `required` attribute and adds a word beside the label. */
   required?: boolean;
-  /** A word beside the label. Flag whichever is rarer. */
+  /** Adds a word beside the label. Use it when most fields in the form are required. */
   optional?: boolean;
   /** Disables both boxes and the button. */
   disabled?: boolean;
@@ -48,9 +48,9 @@ const props = defineProps<{
   startName?: string;
   /** Submits the last date as `YYYY-MM-DD` with a form, through a hidden input. */
   endName?: string;
-  /** Buttons under the calendar; one sets the span and closes. @default Last 7 days, Last 30 days, This month */
+  /** Buttons under the calendar. Each sets the span and closes the calendar. @default Last 7 days, Last 30 days, This month */
   presets?: RangePreset[];
-  /** The id of the start box; the label points at it. @default generated */
+  /** The id of the start box, which the label points at. @default generated */
   id?: string;
 }>();
 

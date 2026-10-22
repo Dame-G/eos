@@ -19,7 +19,7 @@ const props = withDefaults(
   { height: 160 },
 );
 
-/** A PNG data URL (black on transparent); empty while clear. Set `""` to clear. */
+/** A PNG data URL (black on transparent). Empty while clear. Setting `""` clears the pad. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();

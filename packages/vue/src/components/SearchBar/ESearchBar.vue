@@ -11,9 +11,9 @@ defineOptions({ inheritAttrs: false });
 
 withDefaults(
   defineProps<{
-    /** Names the box and the search landmark; there is no visible label. @default "Search" */
+    /** Names the box and the search landmark. It is not shown on the page. @default "Search" */
     label?: string;
-    /** Say what can be searched, briefly. @default "Search" */
+    /** Hint text in the empty box that says what can be searched. @default "Search" */
     placeholder?: string;
     /** The text on the button. @default "Search" */
     action?: string;
@@ -23,7 +23,7 @@ withDefaults(
     clearable?: boolean;
     /** The name submitted with a form. @default "q" */
     name?: string;
-    /** Disables the box and button. Say why in an `ENotice`. */
+    /** Disables the box and button. Pair it with an `ENotice` that says why. */
     disabled?: boolean;
   }>(),
   { clearable: true },

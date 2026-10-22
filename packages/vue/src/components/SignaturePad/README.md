@@ -10,12 +10,12 @@ A signature drawn with a finger, stylus or mouse. Most forms should use [`ESigna
 
 <!-- props:start -->
 
-| Prop         | Type      | Default     | Notes                                                                                   |
-| ------------ | --------- | ----------- | --------------------------------------------------------------------------------------- |
-| `modelValue` | `string`  | `""`        | `v-model`: A PNG data URL (black on transparent); empty while clear. Set `""` to clear. |
-| `height`     | `number`  | `160`       | The height of the drawing area in pixels.                                               |
-| `disabled`   | `boolean` | `false`     | Ignores drawing and disables Clear.                                                     |
-| `id`         | `string`  | `generated` | The id of the canvas.                                                                   |
+| Prop         | Type      | Default     | Notes                                                                                             |
+| ------------ | --------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| `modelValue` | `string`  | `""`        | `v-model`: A PNG data URL (black on transparent). Empty while clear. Setting `""` clears the pad. |
+| `height`     | `number`  | `160`       | The height of the drawing area in pixels.                                                         |
+| `disabled`   | `boolean` | `false`     | Ignores drawing and disables Clear.                                                               |
+| `id`         | `string`  | `generated` | The id of the canvas.                                                                             |
 
 <!-- props:end -->
 
@@ -23,5 +23,5 @@ A signature drawn with a finger, stylus or mouse. Most forms should use [`ESigna
 
 ## Accessibility
 
-- The canvas is labelled "Draw your signature"; the Clear button is keyboard operable.
-- Drawing cannot be done from a keyboard: always offer a typed signature too.
+- The canvas is labelled "Draw your signature" and the Clear button works from a keyboard.
+- Drawing cannot be done from a keyboard, so always offer a typed signature too.

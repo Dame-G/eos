@@ -5,9 +5,9 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** The element to render. Use `article`, `section` or `aside` for a real block. */
+    /** The element to render, such as `article`, `section` or `aside` for a real block. */
     as?: string;
-    /** Padding: `sm`, `md` or `lg`. None by default. */
+    /** Padding inside the card: `sm`, `md` or `lg`. */
     pad?: "sm" | "md" | "lg";
     /** The lifted shadow of something floating above the page, such as a Toast. */
     raised?: boolean;

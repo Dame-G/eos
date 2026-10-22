@@ -11,7 +11,7 @@ export interface Step {
 }
 
 defineProps<{
-  /** The steps in order: `{ label, state }`; `state` is `done`, `current` or `upcoming` (`todo` is an alias). Exactly one is normally `current`. Keep labels to one or two words. */
+  /** The steps in order: `{ label, state }`. `state` is `done`, `current` or `upcoming` (`todo` is an alias). Mark one step `current`. Labels of one or two words fit best. */
   steps: Step[];
   /** The list's accessible name. @default "Progress" */
   label?: string;

@@ -17,10 +17,10 @@ Shows where a person is in a multi-step flow such as registration. It displays p
 
 <!-- props:start -->
 
-| Prop    | Type     | Default      | Notes                                                                                                                                                                        |
-| ------- | -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `steps` | `Step[]` | **Required** | The steps in order: `{ label, state }`; `state` is `done`, `current` or `upcoming` (`todo` is an alias). Exactly one is normally `current`. Keep labels to one or two words. |
-| `label` | `string` | `"Progress"` | The list's accessible name.                                                                                                                                                  |
+| Prop    | Type     | Default      | Notes                                                                                                                                                                  |
+| ------- | -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `steps` | `Step[]` | **Required** | The steps in order: `{ label, state }`. `state` is `done`, `current` or `upcoming` (`todo` is an alias). Mark one step `current`. Labels of one or two words fit best. |
+| `label` | `string` | `"Progress"` | The list's accessible name.                                                                                                                                            |
 
 <!-- props:end -->
 
@@ -28,4 +28,4 @@ Shows where a person is in a multi-step flow such as registration. It displays p
 
 ## Accessibility
 
-- An ordered list; the current step has `aria-current="step"`, and done steps are read as "(done)".
+- An ordered list. The current step has `aria-current="step"` and done steps are read as "(done)".

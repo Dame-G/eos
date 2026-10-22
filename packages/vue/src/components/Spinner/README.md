@@ -1,6 +1,6 @@
 # ESpinner
 
-A ring that shows a single action is loading. Say what is being waited for.
+A ring that shows a single action is in progress. Say what is being waited for.
 
 ```vue
 <ESpinner label="Processing your payment" />

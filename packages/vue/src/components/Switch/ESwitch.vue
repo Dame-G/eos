@@ -18,7 +18,7 @@ const props = defineProps<{
   name?: string;
   /** The value submitted with a form when on. */
   value?: string;
-  /** The id of the input; the label points at it. @default generated */
+  /** The id of the input, which the label points at. @default generated */
   id?: string;
 }>();
 

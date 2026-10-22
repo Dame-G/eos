@@ -7,7 +7,7 @@ const props = withDefaults(
   defineProps<{
     /** What is progressing. Also the bar's accessible name. @default "Loading" */
     label?: string;
-    /** How far along, from 0 to `max`; the fill is clamped. Leave it out while the length is unknown: the bar slides back and forth instead (indeterminate). */
+    /** How far along, from 0 to `max`. Values outside that range are clamped. Without it the bar is indeterminate and slides back and forth while the length is unknown. */
     value?: number;
     /** The value that means finished. */
     max?: number;

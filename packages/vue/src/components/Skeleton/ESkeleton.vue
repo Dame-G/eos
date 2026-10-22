@@ -4,11 +4,11 @@ import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
-  /** A number is px; a string is any CSS length. @default 96 */
+  /** A number is in px and a string is any CSS length. @default 96 */
   height?: number | string;
   /** Same units as `height`. @default full width */
   width?: number | string;
-  /** A round block, for a photo; set `height` and the width follows. */
+  /** A round block, for a photo. The width follows `height`. */
   circle?: boolean;
 }>();
 

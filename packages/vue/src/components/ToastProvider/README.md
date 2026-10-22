@@ -14,7 +14,7 @@ toast.dismiss(id);
 toast.clear();
 ```
 
-`EToastProvider` has no props. `toast.show(options)` returns the toast's id; `toast.dismiss(id)` removes one and `toast.clear()` removes all. With `createEos()` installed, the app already has a toast store, so `useToast()` works anywhere in the app, including code outside the component tree, and toasts appear once an `EToastProvider` is mounted. Without the plugin, `EToastProvider` makes its own store for the components inside it and `useToast()` throws anywhere else. To use `useToast()` elsewhere without the plugin, provide a store with `app.provide(TOAST_KEY, createToasts())`.
+`EToastProvider` has no props. `toast.show(options)` returns the toast's id. `toast.dismiss(id)` removes one and `toast.clear()` removes all. With `createEos()` installed, the app already has a toast store, so `useToast()` works anywhere in the app, including code outside the component tree, and toasts appear once an `EToastProvider` is mounted. Without the plugin, `EToastProvider` makes its own store for the components inside it and `useToast()` throws anywhere else. To use `useToast()` elsewhere without the plugin, provide a store with `app.provide(TOAST_KEY, createToasts())`.
 
 ## Options
 
@@ -26,17 +26,17 @@ The options of `toast.show`.
 | `message`  | `string`                                       |         | One sentence of detail.                                                           |
 | `tone`     | `"info" \| "success" \| "warning" \| "danger"` | `info`  | `danger` is announced at once.                                                    |
 | `action`   | vnode or function returning one                |         | A button, such as `() => h(EButton, { variant: "outline" }, () => "Undo")`.       |
-| `duration` | `number` (ms)                                  | `5000`  | `0` stays until dismissed; that is the default for `danger` and with an `action`. |
+| `duration` | `number` (ms)                                  | `5000`  | `0` stays until dismissed. That is the default for `danger` and with an `action`. |
 
 ## Slots
 
-| Slot      | Use                                            |
-| --------- | ---------------------------------------------- |
-| `default` | The app. Call `useToast()` anywhere inside it. |
+| Slot      | Use                                             |
+| --------- | ----------------------------------------------- |
+| `default` | The app. `useToast()` works anywhere inside it. |
 
 ## Accessibility
 
-- The region is a labelled `region` (the `toastRegion` message); each toast is announced when it appears (`alert` for danger, `status` otherwise).
+- The region is a labelled `region` (the `toastRegion` message). Each toast is announced when it appears (`alert` for danger, `status` otherwise).
 - The region is exempt from the `aria-hidden` that a modal `EDialog` puts on the rest of the page, and takes clicks while the dialog is open, so a toast raised from a dialog is announced and can be dismissed.
 - Timers pause while the pointer or focus is on a toast (WCAG 2.2.1).
 - A message that must stay until dealt with is an `ENotice`, not a toast.

@@ -12,9 +12,9 @@ import "../../styles/base.css";
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  /** The visible label, a mono kicker above the dropzone. */
+  /** The visible label above the dropzone. */
   label: string;
-  /** Keep the label for screen readers and remove it from the page. */
+  /** Keeps the label for screen readers and hides it from the page. */
   hideLabel?: boolean;
   /** Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt as "PDF, JPG" and also applied to dropped files. */
   accept?: string;
@@ -22,17 +22,17 @@ const props = defineProps<{
   multiple?: boolean;
   /** The name submitted with a form. */
   name?: string;
-  /** Say what is accepted and how large before the person tries. */
+  /** Help that says which files are accepted and how large, shown before the person tries. */
   hint?: string;
   /** What to fix. Replaces the hint, marks the input invalid and is announced. */
   error?: string;
-  /** The `required` attribute and a word beside the label. */
+  /** Sets the `required` attribute and adds a word beside the label. */
   required?: boolean;
-  /** A word beside the label. Flag whichever is rarer. */
+  /** Adds a word beside the label. Use it when most fields in the form are required. */
   optional?: boolean;
-  /** Ignores drops and clicks and dims the edge. */
+  /** Disables the control, so it ignores drops and clicks. */
   disabled?: boolean;
-  /** The id of the file input; the label points at it. @default generated */
+  /** The id of the file input, which the label points at. @default generated */
   id?: string;
 }>();
 
