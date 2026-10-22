@@ -8,7 +8,7 @@ defineProps<{
   href: string;
   /** Opens in a new tab (`target="_blank"`, `rel="noreferrer"`). */
   external?: boolean;
-  /** An icon before the text: a built-in name, a name from your icon set, or an icon component. It is hidden from screen readers; the text names the link. */
+  /** An icon before the text: a built-in name, a name from your icon set, or an icon component. It is hidden from screen readers, so the text names the link. */
   icon?: IconProp;
 }>();
 

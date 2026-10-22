@@ -8,9 +8,9 @@ const props = withDefaults(
     as?: string;
     /** A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string. */
     gap?: number | string;
-    /** Main-axis placement: `between` or `end`; start by default. */
+    /** Main-axis placement. `between` spreads the children apart and `end` packs them at the end. Left out, they sit at the start. */
     justify?: "between" | "end";
-    /** Cross-axis alignment: `start` or `baseline`; centred by default. */
+    /** Cross-axis alignment. `start` aligns the top edges and `baseline` aligns the text baselines. Left out, the children are centred. */
     align?: "start" | "baseline";
     /** Keeps the children on one line instead of wrapping. */
     nowrap?: boolean;

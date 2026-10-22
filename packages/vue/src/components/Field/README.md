@@ -12,15 +12,15 @@ The label, hint and error wrapper for a control the system does not wrap itself.
 
 <!-- props:start -->
 
-| Prop        | Type      | Default      | Notes                                                                       |
-| ----------- | --------- | ------------ | --------------------------------------------------------------------------- |
-| `label`     | `string`  | **Required** | The visible label, a small mono kicker above the control.                   |
-| `hideLabel` | `boolean` | `false`      | Keep the label for screen readers and remove it from the page.              |
-| `hint`      | `string`  | —            | Help that stays under the control.                                          |
-| `error`     | `string`  | —            | What to fix. Replaces the hint, turns the control invalid and is announced. |
-| `required`  | `boolean` | `false`      | A word beside the label.                                                    |
-| `optional`  | `boolean` | `false`      | A word beside the label. Flag whichever is rarer.                           |
-| `id`        | `string`  | `generated`  | The id of the control; the label points at it.                              |
+| Prop        | Type      | Default      | Notes                                                                                    |
+| ----------- | --------- | ------------ | ---------------------------------------------------------------------------------------- |
+| `label`     | `string`  | **Required** | The visible label above the control.                                                     |
+| `hideLabel` | `boolean` | `false`      | Hides the label from the page and keeps it for screen readers.                           |
+| `hint`      | `string`  | —            | Help that stays under the control.                                                       |
+| `error`     | `string`  | —            | What to fix. Replaces the hint, turns the control invalid and is announced.              |
+| `required`  | `boolean` | `false`      | Shows "Required" beside the label.                                                       |
+| `optional`  | `boolean` | `false`      | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag. |
+| `id`        | `string`  | `generated`  | The id of the control. The label points at it.                                           |
 
 <!-- props:end -->
 
@@ -28,9 +28,9 @@ The label, hint and error wrapper for a control the system does not wrap itself.
 
 ## Slots
 
-| Slot      | Use                                                                                                                                                                                  |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `default` | The control. Scope `{ id, ariaInvalid, ariaDescribedby }`: put all three on it. `ariaInvalid` is `"true"` or `undefined`; `ariaDescribedby` is the hint or error id, or `undefined`. |
+| Slot      | Use                                                                                                                                                                                                         |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `default` | The control. The scope is `{ id, ariaInvalid, ariaDescribedby }` and the control must carry all three. `ariaInvalid` is `"true"` or `undefined`. `ariaDescribedby` is the hint or error id, or `undefined`. |
 
 ## Accessibility
 

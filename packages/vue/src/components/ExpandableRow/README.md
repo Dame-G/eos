@@ -22,7 +22,7 @@ A one-line row that opens to more: a leading item, a title with a subtitle, and 
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `details` element: `open` starts it open, and a shared `name` makes rows in a group open one at a time.
+`class`, `style` and attributes land on the `details` element. `open` starts it open, and rows that share a `name` open one at a time.
 
 Rows in a list line their leading items up when the lead column has a fixed width: set `--e-xrow-lead` (for example `8.75rem`) on the rows or their parent.
 
@@ -31,11 +31,11 @@ Rows in a list line their leading items up when the lead column has a fixed widt
 | Slot       | Use                                                           |
 | ---------- | ------------------------------------------------------------- |
 | `leading`  | Before the title, such as an `EStamp`.                        |
-| `trailing` | The value at the end, in tabular mono.                        |
+| `trailing` | The value at the end, such as an amount.                      |
 | `default`  | What the row opens to.                                        |
 | `actions`  | Buttons for the foot of the opened row, in an `EActions` bar. |
 
 ## Accessibility
 
-- A native `details` with a `summary`: Tab focuses the summary, Enter or Space toggles it.
+- A native `details` with a `summary`. Tab focuses the summary, and Enter or Space toggles it.
 - The summary holds only the title, subtitle, leading and trailing content. Put interactive controls in the body.

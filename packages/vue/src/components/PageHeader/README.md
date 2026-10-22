@@ -17,11 +17,11 @@ The top of a page: title, optional breadcrumb, description, status and main acti
 
 <!-- props:start -->
 
-| Prop           | Type                         | Default      | Notes                                                                                                                            |
-| -------------- | ---------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `title`        | `string`                     | **Required** | The page's title: where the person is, in their words ("Visit on Oct 2").                                                        |
-| `description`  | `string`                     | —            | A short line under the title.                                                                                                    |
-| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `1`          | The heading level of the title, 1 by default. A page has exactly one h1; change it only when the header is not the page's title. |
+| Prop           | Type                         | Default      | Notes                                                                                                                          |
+| -------------- | ---------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `title`        | `string`                     | **Required** | The page's title: where the person is, in their words ("Visit on Oct 2").                                                      |
+| `description`  | `string`                     | —            | A short line under the title.                                                                                                  |
+| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `1`          | The heading level of the title. A page has exactly one `h1`, so change the level only when the header is not the page's title. |
 
 <!-- props:end -->
 
@@ -29,12 +29,12 @@ The top of a page: title, optional breadcrumb, description, status and main acti
 
 ## Slots
 
-| Slot         | Use                                                                      |
-| ------------ | ------------------------------------------------------------------------ |
-| `breadcrumb` | An `EBreadcrumb`, above the title.                                       |
-| `status`     | An `EStamp`, beside the title.                                           |
-| `actions`    | `EButton`s, main one first (one primary, rest outline); hidden in print. |
+| Slot         | Use                                                   |
+| ------------ | ----------------------------------------------------- |
+| `breadcrumb` | An `EBreadcrumb` above the title.                     |
+| `status`     | An `EStamp`, beside the title.                        |
+| `actions`    | `EButton`s, with the main one first. Hidden in print. |
 
 ## Accessibility
 
-- The title is a heading (`h1` by default); keep one `h1` per page.
+- The title is a heading. Keep one `h1` per page.

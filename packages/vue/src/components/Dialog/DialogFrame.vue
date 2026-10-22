@@ -44,7 +44,7 @@ const open = defineModel<boolean>("open");
 const t = useMessages();
 const target = usePortalTarget();
 
-/** An inline preview is just part of the page, so it leaves focus alone: it does not take it when it opens, and does not send it back to wherever it was when it closes. Sending it back could land on a tab or link and activate it. */
+/** An inline preview is part of the page, so it leaves focus alone: it does not take it when it opens, and does not send it back to wherever it was when it closes. Sending it back could land on a tab or link and activate it. */
 function keepFocus(event: Event) {
   if (props.inline) event.preventDefault();
 }

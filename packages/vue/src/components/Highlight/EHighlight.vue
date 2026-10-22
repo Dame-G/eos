@@ -4,7 +4,7 @@ import "../../styles/base.css";
 const props = defineProps<{
   /** Renders a `code` element in the mono font, for a name, value or snippet inside a sentence. Without it the element is a `mark`, for a word worth noticing. */
   code?: boolean;
-  /** A CSS colour to show as a small square to the right of the text, for a colour value such as `#2c95b4`. The square is decoration: put the value itself in the text. */
+  /** A CSS colour drawn as a square after the text, for a colour value such as `#2c95b4`. The square is decoration, so put the value itself in the text. */
   swatch?: string;
 }>();
 

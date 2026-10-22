@@ -12,7 +12,7 @@ defineProps<{
 defineSlots<{
   /** Before the title, such as an `EStamp`, an icon or a date tile. */
   leading?(): unknown;
-  /** The value at the end of the summary. Set in tabular mono. */
+  /** The value at the end of the summary, such as an amount. */
   trailing?(): unknown;
   /** What the row opens to. */
   default?(): unknown;
@@ -88,7 +88,7 @@ defineSlots<{
     cursor: pointer;
   }
 
-  /* The lead column is auto; a pattern sets --e-xrow-lead to a fixed width so rows in a list line up. */
+  /* The lead column is auto. A pattern sets --e-xrow-lead to a fixed width so rows in a list line up. */
   .e-xrow > .e-xrow-summary--lead {
     grid-template-columns: var(--e-xrow-lead, auto) minmax(0, 1fr) auto;
   }

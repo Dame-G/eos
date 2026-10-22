@@ -8,23 +8,23 @@ import "../../styles/base.css";
 const props = defineProps<{
   /** The question the controls answer. Names the group for screen readers. */
   legend?: string;
-  /** No box: the legend becomes a small mono label above the controls (RadioGroup). */
+  /** Removes the box and shows the legend as a plain label above the controls, as `ERadioGroup` does. */
   bare?: boolean;
   /** Help that is announced with the group. */
   hint?: string;
   /** What to fix. Replaces the hint and is announced with the group. */
   error?: string;
-  /** "Required" at the end of the legend: at the right end of the line where the box's outline runs through the title. */
+  /** Shows "Required" at the end of the legend. */
   required?: boolean;
-  /** A word at the end of the legend, placed like `required`. Flag whichever is rarer. */
+  /** Shows "Optional" at the end of the legend. Only the rarer of required and optional needs a flag. */
   optional?: boolean;
-  /** A titled form section: no box, a larger legend ruled off from what comes before, and the hint under the legend. Replaces `EFormSection`. */
+  /** Makes a titled form section without a box, with the hint under the legend. */
   section?: boolean;
   /** Disables every control inside. */
   disabled?: boolean;
-  /** Extra classes for the legend. */
+  /** Classes added to the legend. */
   legendClass?: string;
-  /** Keep the legend for screen readers and remove it from the page. */
+  /** Hides the legend from the page and keeps it for screen readers. */
   hideLegend?: boolean;
   /** The id the hint and error ids are built from. @default generated */
   id?: string;

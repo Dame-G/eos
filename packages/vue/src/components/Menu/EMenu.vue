@@ -18,15 +18,15 @@ import "../Select/panel.css";
 
 /** An action in the menu. */
 export interface EMenuAction {
-  /** What the row says: a verb. */
+  /** The row's text, a verb. */
   label: string;
   /** An icon before the label. */
   icon?: IconProp;
   /** Called when the row is chosen, after the menu closes. */
   onClick?: () => void;
-  /** Red text for a destructive action. Put it last, after a divider. */
+  /** Marks a destructive action. It goes last, after a divider. */
   danger?: boolean;
-  /** Not choosable. Stays visible, muted. */
+  /** Makes the action unchoosable. It stays visible. */
   disabled?: boolean;
   divider?: undefined;
 }
@@ -40,15 +40,15 @@ defineOptions({ inheritAttrs: false });
 
 withDefaults(
   defineProps<{
-    /** The button's text. With a `trigger` slot it is not shown; name your own trigger. */
+    /** The button's text. With a `trigger` slot it is not shown, so name your own trigger. */
     label: string;
-    /** The actions, in order. Action: `{ label, icon?, onClick?, danger?, disabled? }`; `{ divider: true }` draws a rule. Put destructive last. */
+    /** The actions, in order, as `{ label, icon?, onClick?, danger?, disabled? }`. `{ divider: true }` draws a rule. The destructive action goes last. */
     items: readonly EMenuItem[];
-    /** The look of the button. */
+    /** The button's variant. */
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
     /** An icon before the label. */
     icon?: IconProp;
-    /** Which edge of the trigger the menu lines up with. Use `end` for a trigger at the end of a bar. */
+    /** Which edge of the trigger the menu lines up with. `end` suits a trigger at the end of a bar. */
     align?: "start" | "end";
   }>(),
   { variant: "outline", align: "start" },
@@ -60,7 +60,7 @@ const emit = defineEmits<{
 }>();
 
 defineSlots<{
-  /** Your own trigger, one element that takes a click, such as a `button` around an avatar. It replaces the button; give it an accessible name. */
+  /** Your own trigger, one element that takes a click, such as a `button` around an avatar. It replaces the button and needs an accessible name. */
   trigger?(): unknown;
 }>();
 

@@ -12,29 +12,29 @@ const props = withDefaults(
   defineProps<{
     /** The field's label. @default "Verification code" */
     label?: string;
-    /** Keep the label for screen readers and remove it from the page. */
+    /** Hides the label from the page and keeps it for screen readers. */
     hideLabel?: boolean;
     /** How many characters: the number of boxes. */
     length?: number;
-    /** `numeric` opens the number pad; `text` takes letters and digits, upper-cased. */
+    /** `numeric` opens the number pad and `text` takes letters and digits, upper-cased. */
     inputmode?: "numeric" | "text";
-    /** A gap between groups: 6 with 3 reads 123 456. */
+    /** The number of boxes in each group, with a gap between groups. A `length` of 6 with 3 reads 123 456. */
     groupSize?: number;
     /** The name submitted with a form (the whole code), through a hidden input. */
     name?: string;
-    /** Start in the first empty box. */
+    /** Focuses the first empty box when the field mounts. */
     autoFocus?: boolean;
     /** Help under the boxes, read with each box. */
     hint?: string;
     /** What to fix. Replaces the hint, marks every box invalid and is announced. */
     error?: string;
-    /** A word beside the label, and the `required` attribute on every box. */
+    /** Sets the `required` attribute on every box and shows "Required" beside the label. */
     required?: boolean;
-    /** A word beside the label. Flag whichever is rarer. */
+    /** Shows "Optional" beside the label. Only the rarer of required and optional needs a flag. */
     optional?: boolean;
     /** Disables every box. */
     disabled?: boolean;
-    /** The id of the first box; the label and hint ids are built from it. @default generated */
+    /** The id of the first box. The label and hint ids are built from it. @default generated */
     id?: string;
   }>(),
   { length: 6, inputmode: "numeric", groupSize: 0 },

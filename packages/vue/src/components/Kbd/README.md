@@ -11,9 +11,9 @@ A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to 
 
 <!-- props:start -->
 
-| Prop    | Type      | Default | Notes                                                   |
-| ------- | --------- | ------- | ------------------------------------------------------- |
-| `small` | `boolean` | `false` | The smaller size, for a hint inside running small text. |
+| Prop    | Type      | Default | Notes                                                |
+| ------- | --------- | ------- | ---------------------------------------------------- |
+| `small` | `boolean` | `false` | Makes the key smaller, for a hint inside small text. |
 
 <!-- props:end -->
 

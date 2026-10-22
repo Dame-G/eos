@@ -7,9 +7,9 @@ import "../../styles/base.css";
 const props = defineProps<{
   /** The field's label. @default "Phone number" */
   label?: string;
-  /** Keep the label for screen readers and remove it from the page. */
+  /** Hides the label from the page and keeps it for screen readers. */
   hideLabel?: boolean;
-  /** `us` gives (555) 123-4567, drops a leading 1 and keeps ten digits. No validation. @default us for the en-US locale, else none */
+  /** `us` formats as (555) 123-4567, drops a leading 1 and keeps ten digits. It does not validate. @default us for the en-US locale, else none */
   format?: "us" | "none";
   /** Help that stays under the input. */
   hint?: string;
@@ -17,15 +17,15 @@ const props = defineProps<{
   error?: string;
   /** An example, never the label. */
   placeholder?: string;
-  /** The `required` attribute and a word beside the label. */
+  /** Sets the `required` attribute and shows "Required" beside the label. */
   required?: boolean;
-  /** A word beside the label. Flag whichever is rarer. */
+  /** Shows "Optional" beside the label. Only the rarer of required and optional needs a flag. */
   optional?: boolean;
   /** Disables the field. */
   disabled?: boolean;
   /** The name submitted with a form. */
   name?: string;
-  /** The id of the input; the label points at it. @default generated */
+  /** The id of the input. The label points at it. @default generated */
   id?: string;
 }>();
 
