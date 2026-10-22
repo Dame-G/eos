@@ -119,6 +119,20 @@ describe("EAvatar", () => {
     await expect.element(page.getByRole("menuitem", { name: "Sign out" })).toBeVisible();
   });
 
+  test("an avatar that is the trigger of an EMenu fills on hover too, open or closed", async () => {
+    const { container } = await render(EMenu, {
+      props: { label: "Account", items: [{ label: "Sign out" }] },
+      slots: { trigger: () => h(EAvatar, { name: "Ada Lovelace", as: "button" }) },
+    });
+    container.classList.add("e-root");
+    const trigger = container.querySelector<HTMLButtonElement>("button.e-avatar")!;
+    const rest = getComputedStyle(trigger).backgroundColor;
+    await userEvent.hover(trigger);
+    await expect.poll(() => getComputedStyle(trigger).backgroundColor).not.toBe(rest);
+    await userEvent.unhover(trigger);
+    await expect.poll(() => getComputedStyle(trigger).backgroundColor).toBe(rest);
+  });
+
   test("attributes fall through to the root", async () => {
     const { container } = await render(EAvatar, { props: { name: "Ada Lovelace" }, attrs: { "data-testid": "a" } });
     expect(container.querySelector(".e-avatar")!.getAttribute("data-testid")).toBe("a");
