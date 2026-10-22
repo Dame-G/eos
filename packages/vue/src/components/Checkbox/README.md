@@ -26,7 +26,7 @@ A single yes/no choice. Use [`ESwitch`](../Switch/README.md) for a setting that 
 
 <!-- props:end -->
 
-`class` and `style` land on the row (the `label`, or the wrapper `div` when there is an error); other attributes and listeners land on the `input` element. Exposes `input` and `focus()`.
+`class` and `style` land on the row (the `label`, or the wrapper `div` when there is an error); other attributes and listeners land on the `input` element. Exposes `input` and `focus()`. With an `error` the box takes a red edge, and a checked box a red ring.
 
 ## Accessibility
 

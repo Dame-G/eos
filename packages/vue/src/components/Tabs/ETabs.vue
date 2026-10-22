@@ -26,6 +26,8 @@ const props = defineProps<{
   side?: "start" | "end";
   /** Joins the tabs to their panel so the two read as one card: the panel is outlined, the row of tabs sits on its edge like folder tabs, and the chosen tab opens into the panel with no line between. The edge stays open where there are no tabs. @default false */
   framed?: boolean;
+  /** Names the row of tabs for screen readers. Set it when a page has more than one set of tabs. */
+  label?: string;
 }>();
 
 defineSlots<{
@@ -102,7 +104,7 @@ watch(flat, watchRow);
     :dir="dir"
     @update:model-value="model = String($event)"
   >
-    <TabsList ref="list" class="e-tablist">
+    <TabsList ref="list" class="e-tablist" :aria-label="label">
       <TabsTrigger v-for="item in flat" :key="item.id" :value="item.id" class="e-tab">
         {{ item.label }}
         <span v-if="item.count != null" class="e-tab-count">{{ item.count }}</span>

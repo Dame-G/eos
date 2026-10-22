@@ -146,4 +146,32 @@ describe("ESearchBar", () => {
     await render(ESearchBar);
     await expect.element(page.getByRole("search", { name: "Search", exact: true }).first()).toBeVisible();
   });
+  test("disabled gives the box the dashed disabled look and no hover change", async () => {
+    const off = await render(ESearchBar, { props: { disabled: true } });
+    off.container.classList.add("e-root");
+    const form = off.container.querySelector("form")!;
+    expect(form.hasAttribute("data-disabled")).toBe(true);
+    const idle = getComputedStyle(form);
+    expect(idle.outlineStyle).toBe("dashed");
+    const { backgroundColor, boxShadow } = idle;
+    const on = await render(ESearchBar);
+    on.container.classList.add("e-root");
+    expect(getComputedStyle(on.container.querySelector("form")!).backgroundColor).not.toBe(backgroundColor);
+    expect(on.container.querySelector("form")!.hasAttribute("data-disabled")).toBe(false);
+    await userEvent.hover(form);
+    await new Promise((r) => setTimeout(r, 250));
+    const hovered = getComputedStyle(form);
+    expect(hovered.backgroundColor).toBe(backgroundColor);
+    expect(hovered.boxShadow).toBe(boxShadow);
+  });
+
+  test("exposes the input and focus()", async () => {
+    let api: { input: HTMLInputElement | null; focus: () => void } | null = null;
+    const { container } = await render(
+      defineComponent({ render: () => h(ESearchBar, { ref: (r: unknown) => (api = r as typeof api) }) }),
+    );
+    api!.focus();
+    expect(document.activeElement).toBe(container.querySelector("input"));
+    expect(api!.input).toBe(container.querySelector("input"));
+  });
 });

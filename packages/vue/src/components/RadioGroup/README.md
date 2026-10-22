@@ -36,7 +36,7 @@ Exactly one of five or fewer options. Use [`ESelect`](../Select/README.md) for m
 
 <!-- props:end -->
 
-`class`, `style`, attributes and listeners land on the `fieldset` element.
+`class`, `style`, attributes and listeners land on the `fieldset` element. Exposes `input` (the chosen radio, else the first) and `focus()`. With an `error` every radio takes a red edge.
 
 ## Slots
 

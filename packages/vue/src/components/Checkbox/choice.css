@@ -119,6 +119,26 @@
     outline-offset: var(--e-focus-gap);
   }
 
+  /* Invalid: the edge turns danger and pointing at it tints the face danger-soft. A chosen box keeps its primary fill, so the danger shows as a ring just outside it. Disabled comes after and stays neutral. */
+  .e-check[aria-invalid="true"],
+  .e-radio[aria-invalid="true"] {
+    --e-ring: var(--e-danger);
+  }
+
+  .e-choice:hover .e-check[aria-invalid="true"]:not(:checked, :indeterminate, :disabled),
+  .e-choice:hover .e-radio[aria-invalid="true"]:not(:checked, :disabled) {
+    --e-ring: var(--e-danger);
+
+    background-color: var(--e-danger-soft);
+  }
+
+  .e-check[aria-invalid="true"]:is(:checked, :indeterminate),
+  .e-radio[aria-invalid="true"]:checked {
+    box-shadow:
+      0 0 0 var(--e-stroke-edge) var(--e-surface),
+      0 0 0 calc(2 * var(--e-stroke-edge)) var(--e-danger);
+  }
+
   .e-check:disabled,
   .e-radio:disabled {
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);

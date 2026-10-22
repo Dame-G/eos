@@ -107,6 +107,7 @@
 
     .e-input:disabled,
     .e-input-wrap[data-disabled],
+    .e-search[data-disabled],
     .e-check:disabled,
     .e-radio:disabled {
       border-color: GrayText;

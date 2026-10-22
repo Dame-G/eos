@@ -66,6 +66,19 @@ async function reveal(smooth: boolean) {
 
 onMounted(() => reveal(false));
 watch(current, () => reveal(true));
+const pick = () =>
+  track.value?.querySelector<HTMLInputElement>(".e-seg-input:checked") ??
+  track.value?.querySelector<HTMLInputElement>(".e-seg-input") ??
+  null;
+
+defineExpose({
+  /** The chosen radio, or the first one. */
+  get input() {
+    return pick();
+  },
+  focus: () => pick()?.focus(),
+});
+
 const groupAttrs = () => ({
   role: "radiogroup",
   "aria-label": props.optional ? `${props.label}, ${t("optional")}` : props.label,
@@ -211,6 +224,17 @@ const groupAttrs = () => ({
     outline: var(--e-stroke-edge) solid var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     color: var(--e-ink);
+  }
+
+  /* Invalid: the track's edge turns danger and an option under the pointer tints danger-soft. The chosen cell still covers the edge in primary. A fully disabled track stays neutral. */
+  .e-seg[aria-invalid="true"]:has(.e-seg-input:enabled) {
+    box-shadow:
+      inset 0 0 0 var(--e-stroke-edge) var(--e-danger),
+      var(--e-well);
+  }
+
+  .e-seg[aria-invalid="true"] .e-seg-opt:hover .e-seg-input:not(:checked, :disabled) + .e-seg-text {
+    background: var(--e-danger-soft);
   }
 
   .e-seg-field {

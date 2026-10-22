@@ -257,4 +257,14 @@ describe("EOtpField", () => {
     );
     await expectNoViolations(container);
   });
+  test("exposes focus() and the first box as input", async () => {
+    let api: { input: HTMLInputElement | null; focus: () => void } | null = null;
+    const { container } = await render(
+      defineComponent({ render: () => h(EOtpField, { ref: (r: unknown) => (api = r as typeof api) }) }),
+    );
+    const boxes = container.querySelectorAll<HTMLInputElement>("input.e-otp-box");
+    expect(api!.input).toBe(boxes[0]);
+    api!.focus();
+    expect(document.activeElement).toBe(boxes[0]);
+  });
 });

@@ -9,7 +9,7 @@ export interface RadioOption {
 </script>
 
 <script setup lang="ts">
-import { Comment, Fragment, useSlots, type FunctionalComponent, type VNode } from "vue";
+import { Comment, Fragment, ref, useSlots, type FunctionalComponent, type VNode } from "vue";
 import EFieldset from "../Fieldset/EFieldset.vue";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
@@ -63,6 +63,20 @@ function rows() {
   });
 }
 
+const root = ref<{ $el: HTMLElement } | null>(null);
+const firstRadio = () =>
+  root.value?.$el.querySelector<HTMLInputElement>(".e-radio:checked") ??
+  root.value?.$el.querySelector<HTMLInputElement>(".e-radio") ??
+  null;
+
+defineExpose({
+  /** The chosen radio, or the first one. */
+  get input() {
+    return firstRadio();
+  },
+  focus: () => firstRadio()?.focus(),
+});
+
 const Nodes: FunctionalComponent<{ nodes: VNode[] }> = (p) => p.nodes;
 Nodes.props = ["nodes"];
 </script>
@@ -70,6 +84,7 @@ Nodes.props = ["nodes"];
 <template>
   <EFieldset
     :id="`${name}-fs`"
+    ref="root"
     class="e-radiogroup"
     legend-class="e-radiogroup-legend"
     bare
@@ -90,6 +105,7 @@ Nodes.props = ["nodes"];
           :value="row.option.value"
           :required="required"
           :checked="row.chosen"
+          :aria-invalid="error ? 'true' : undefined"
           :disabled="row.option.disabled"
           @change="model = row.option.value"
         />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import {
   SelectContent,
   SelectGroup,
@@ -34,6 +34,7 @@ const props = defineProps<{
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
+const trigger = ref<{ $el: HTMLElement } | null>(null);
 const portal = usePortalTarget();
 
 const sections = computed(() => sectionOptions(props.options));
@@ -74,12 +75,16 @@ function typeahead(e: KeyboardEvent) {
     }
   }
 }
+defineExpose({
+  trigger: computed(() => trigger.value?.$el ?? null),
+});
 </script>
 
 <template>
   <div class="e-sel">
     <SelectRoot v-model="model" :open="isOpen" :disabled="disabled" :required="required" @update:open="open = $event">
       <SelectTrigger
+        ref="trigger"
         class="e-input e-sel-trigger"
         :tabindex="isOpen ? -1 : undefined"
         v-bind="triggerAttrs"

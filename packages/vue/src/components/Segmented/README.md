@@ -31,7 +31,7 @@ A joined set of two to five options where exactly one is active. Use it to chang
 
 <!-- props:end -->
 
-`class` and `style` land on the outer element; other attributes land on the `radiogroup` element.
+`class` and `style` land on the outer element; other attributes land on the `radiogroup` element. Exposes `input` (the chosen radio, else the first) and `focus()`. With an `error` the track's edge turns red.
 
 ## Accessibility
 

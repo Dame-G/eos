@@ -52,7 +52,7 @@ An input that filters a list as you type and only accepts an option from it. `fr
 
 <!-- props:end -->
 
-`class` and `style` land on the wrapper `div`; other attributes and listeners land on the `input` element. Exposes `input()` and `focus()`.
+`class` and `style` land on the wrapper `div`; other attributes and listeners land on the `input` element. Exposes `input` and `focus()`.
 
 ## Events
 

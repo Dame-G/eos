@@ -233,4 +233,21 @@ describe("ETabs", () => {
     await expect.element(page.getByRole("tabpanel")).toHaveTextContent("Panel C");
     await expectNoViolations(container);
   });
+  test("label names the tablist", async () => {
+    await render(ETabs, {
+      props: {
+        label: "Statements",
+        items: [
+          { id: "a", label: "Open" },
+          { id: "b", label: "Paid" },
+        ],
+      },
+    });
+    await expect.element(page.getByRole("tablist", { name: "Statements" })).toBeVisible();
+  });
+
+  test("without a label the tablist has no name attribute", async () => {
+    const { container } = await render(ETabs, { props: { items: [{ id: "a", label: "Open" }] } });
+    expect(container.querySelector("[role=tablist]")!.hasAttribute("aria-label")).toBe(false);
+  });
 });

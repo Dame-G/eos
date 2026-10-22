@@ -148,6 +148,10 @@ onMounted(() => {
 });
 
 defineExpose({
+  /** The first box. */
+  get input() {
+    return refs[0] ?? null;
+  },
   focus: () => focusAt(live.length),
 });
 </script>

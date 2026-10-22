@@ -6,6 +6,15 @@ import ERadioGroup from "./ERadioGroup.vue";
 import ETextField from "../TextField/ETextField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
+function colourOf(host: Element, token: string) {
+  const probe = document.createElement("span");
+  probe.style.color = `var(${token})`;
+  host.append(probe);
+  const colour = getComputedStyle(probe).color;
+  probe.remove();
+  return colour;
+}
+
 describe("ERadioGroup", () => {
   test("is a group named by its legend, with a radio per option", async () => {
     const { container } = await render(ERadioGroup, { props: { label: "Reminder", options: ["Text", "Email"] } });
@@ -207,5 +216,41 @@ describe("ERadioGroup", () => {
       }),
     );
     await expectNoViolations(container);
+  });
+  test("an error turns the radio edges danger and tints a hovered one", async () => {
+    const ok = await render(ERadioGroup, { props: { label: "Plan", options: ["A", "B"] } });
+    ok.container.classList.add("e-root");
+    const plain = getComputedStyle(ok.container.querySelector("input")!).borderTopColor;
+    const { container } = await render(ERadioGroup, {
+      props: { label: "Plan", options: ["A", "B"], error: "Pick one" },
+    });
+    container.classList.add("e-root");
+    const radio = container.querySelector("input")!;
+    expect(radio.getAttribute("aria-invalid")).toBe("true");
+    await new Promise((r) => setTimeout(r, 250));
+    expect(getComputedStyle(radio).borderTopColor).not.toBe(plain);
+    expect(getComputedStyle(radio).borderTopColor).toBe(colourOf(container, "--e-danger"));
+    await userEvent.hover(radio);
+    await new Promise((r) => setTimeout(r, 250));
+    expect(getComputedStyle(radio).backgroundColor).toBe(colourOf(container, "--e-danger-soft"));
+  });
+
+  test("exposes focus() and the chosen radio as input", async () => {
+    let api: { input: HTMLInputElement | null; focus: () => void } | null = null;
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(ERadioGroup, {
+            label: "Plan",
+            options: ["A", "B"],
+            modelValue: "B",
+            ref: (r: unknown) => (api = r as typeof api),
+          }),
+      }),
+    );
+    const radios = container.querySelectorAll("input");
+    expect(api!.input).toBe(radios[1]);
+    api!.focus();
+    expect(document.activeElement).toBe(radios[1]);
   });
 });
