@@ -30,19 +30,19 @@ defineSlots<{
   .e-text {
     margin: 0;
     max-width: var(--e-measure);
-    font: 400 var(--e-text-md) / 24px var(--e-font-sans);
+    font: 400 var(--e-text-md) / 1.5 var(--e-font-sans);
     color: var(--e-ink);
     text-wrap: pretty;
   }
 
   .e-text--large {
     font-size: var(--e-text-lg);
-    line-height: 26px;
+    line-height: calc(26 / 18);
   }
 
   .e-text--small {
     font-size: var(--e-text-sm);
-    line-height: 20px;
+    line-height: calc(20 / 14);
   }
 
   .e-text--muted {

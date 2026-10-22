@@ -18,7 +18,7 @@
     display: grid;
     gap: calc(var(--e-space-1) / 2);
     min-width: 0;
-    font: 400 var(--e-text-md)/24px var(--e-font-sans);
+    font: 400 var(--e-text-md)/1.5 var(--e-font-sans);
   }
 
   .e-choice-desc {

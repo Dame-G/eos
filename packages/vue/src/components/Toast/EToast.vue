@@ -90,7 +90,7 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
 
   .e-toast-title {
     margin: 0;
-    font: 500 var(--e-text-lg) / 24px var(--e-font-sans);
+    font: 500 var(--e-text-lg) / calc(4 / 3) var(--e-font-sans);
   }
 
   .e-toast-text {
