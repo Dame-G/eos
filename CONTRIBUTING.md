@@ -140,6 +140,8 @@ A README says what the consumer provides, what the component does and the rules.
 3. README (following Documentation above), `index.ts` and exported prop types exist.
 4. The component works without the plugin installed and with a custom theme applied.
 
+A pull request that changes `packages/**` also runs the `Site check` workflow, which builds the docs site (`Dame-G/eos-site`, `main`) against your branch. It is not a required check, but a failure means the change breaks the site. If the site needs a matching change, open the site pull request first or at the same time, link the two, and re-run the job once the site change is merged.
+
 ## Releases
 
 Run `pnpm changeset` for each user-facing change. Merging to `main` opens a version PR. Merging that PR publishes both packages to npm at one shared version.
