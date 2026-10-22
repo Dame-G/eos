@@ -346,10 +346,13 @@ const help = computed(() => {
   if (!range.value || view.value !== "days") return "";
   if (!start.value) return t("rangeStart");
   if (!end.value) return t("rangeEnd", { start: shortDate(start.value) });
+  const days = Math.round(compareDays(end.value, start.value) / 864e5) + 1;
+  // `days` stays for overrides written before the message became a plural.
   return t("rangeDone", {
     start: shortDate(start.value),
     end: shortDate(end.value),
-    days: Math.round(compareDays(end.value, start.value) / 864e5) + 1,
+    n: days,
+    days,
   });
 });
 
