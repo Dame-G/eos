@@ -141,7 +141,7 @@ A README says what the consumer provides, what the component does and the rules.
 3. README (following Documentation above), `index.ts` and exported prop types exist.
 4. The component works without the plugin installed and with a custom theme applied.
 
-A pull request that changes `packages/**` also runs the `Site check` workflow, which builds the docs site (`Dame-G/eos-site`, `main`) against your branch. It is not a required check, but a failure means the change breaks the site. If the site needs a matching change, open the site pull request first or at the same time, link the two, and re-run the job once the site change is merged.
+A pull request that changes `packages/**` also runs the `Site check` workflow, which builds the docs site (`Dame-G/eos-site`, `main`) against your branch. It is not a required check, but a failure means the change breaks the site. If the site needs a matching change, open the site pull request first or at the same time, link the two, and re-run the job once the site change is merged. The site repo is private, so the job needs a `SITE_REPO_TOKEN` secret (a fine-grained token with read access to the contents of `Dame-G/eos-site`). Without it, and on pull requests from forks, the job skips.
 
 ## Releases
 
