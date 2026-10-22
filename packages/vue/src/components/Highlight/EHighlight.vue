@@ -33,15 +33,17 @@ defineSlots<{
 
 <style>
 @layer e.primitives {
-  /* Only the colour changes: the accent text colour, a little heavier, on whatever the text sits on. */
+  /* The accent text colour, a little heavier, on a faint tint of the same colour. The tint is only paint behind the letters: no padding, border or margin, so the text takes the same room as plain text. */
   .e-highlight {
-    background: transparent;
+    background: color-mix(in srgb, var(--e-secondary) 12%, transparent);
+    box-decoration-break: clone;
     color: var(--e-secondary);
     font-weight: 600;
   }
 
-  /* Inside a link the highlight gives way to the link: its colour, an underline. */
+  /* Inside a link the highlight gives way to the link: its colour, an underline, no tint. */
   a:any-link > .e-highlight {
+    background: transparent;
     color: inherit;
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
@@ -71,6 +73,7 @@ defineSlots<{
   @media (forced-colors: active) {
     .e-highlight {
       forced-color-adjust: none;
+      background: transparent;
       color: Highlight;
     }
 

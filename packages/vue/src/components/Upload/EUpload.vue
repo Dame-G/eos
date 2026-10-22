@@ -162,6 +162,17 @@ defineExpose({
     text-underline-offset: 3px;
   }
 
+  .e-drop--disabled {
+    background: var(--e-surface-tint);
+    outline-color: var(--e-border-strong);
+    color: var(--e-muted);
+    cursor: not-allowed;
+  }
+
+  .e-drop--disabled .e-drop-pick {
+    color: inherit;
+  }
+
   .e-drop-hint {
     font: 500 var(--e-text-xs)/1.2 var(--e-font-mono);
     letter-spacing: 0.06em;

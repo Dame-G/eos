@@ -20,7 +20,7 @@ A short run of text set off by the accent colour: a name, a value or a word wort
 
 Pass `swatch` a CSS colour to draw a small square of it to the right of the text, for a colour value: `<EHighlight code swatch="#2c95b4">#2c95b4</EHighlight>`. The square is hidden from assistive technology, so keep the value itself in the text.
 
-`class`, `style` and attributes land on the `code` or `mark` element. Only the text colour changes; there is no background. The colour is the `secondary` token, so the theme's `accent` input sets it.
+`class`, `style` and attributes land on the `code` or `mark` element. The text colour changes and a faint tint of the same colour sits behind it; the tint is paint only, with no padding, border or margin, so the text takes the room plain text would. The colour is the `secondary` token, so the theme's `accent` input sets it.
 
 ## Slots
 

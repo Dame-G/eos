@@ -14,12 +14,24 @@ describe("EHighlight", () => {
     expect(getComputedStyle(el).fontFamily).toContain("mono");
   });
 
-  test("changes only the text colour, with no background and not the browser's yellow mark", async () => {
+  test("is a faint tint behind coloured text, takes no extra room and is not the browser's yellow mark", async () => {
     const { container } = await render(EHighlight, { slots: { default: "due" } });
     const cs = getComputedStyle(container.querySelector("mark")!);
     expect(cs.backgroundImage).toBe("none");
-    expect(cs.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    const alpha = Number(/\/ ([\d.]+)\)$/.exec(cs.backgroundColor)?.[1] ?? 1);
+    expect(alpha).toBeGreaterThan(0);
+    expect(alpha).toBeLessThan(0.25);
+    expect([cs.paddingLeft, cs.marginLeft, cs.borderLeftWidth]).toEqual(["0px", "0px", "0px"]);
     expect(cs.color).not.toBe(getComputedStyle(container).color);
+  });
+
+  test("inside a link it has no tint and takes the link colour", async () => {
+    const { container } = await render(
+      defineComponent({ render: () => h("a", { href: "#x" }, [h(EHighlight, null, () => "due")]) }),
+    );
+    const cs = getComputedStyle(container.querySelector("mark")!);
+    expect(cs.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(cs.textDecorationLine).toBe("underline");
   });
 
   test("attributes fall through to the element", async () => {

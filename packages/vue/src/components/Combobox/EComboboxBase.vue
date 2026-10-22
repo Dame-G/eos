@@ -272,7 +272,7 @@ defineExpose({
               <EIcon name="x" />
             </button>
             <ComboboxTrigger
-              v-if="!free"
+              v-if="!free && !disabled"
               class="e-combo-btn"
               :aria-label="t('showOptions')"
               :disabled="disabled"
@@ -377,6 +377,12 @@ defineExpose({
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-primary);
     color: var(--e-ink);
     font: 500 var(--e-text-sm)/1 var(--e-font-sans);
+  }
+
+  /* A disabled field's chips are plain, not primary. */
+  .e-input-wrap[data-disabled] .e-tag {
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
+    color: var(--e-muted);
   }
 
   .e-tag-x::after {
