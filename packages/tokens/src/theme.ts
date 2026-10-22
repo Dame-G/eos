@@ -468,6 +468,12 @@ function resolve(tokens: Record<string, string>, name: string, seen = new Set<st
   return resolve(tokens, m[1]!, seen);
 }
 
+// Body text asks for 7:1 (AAA). On a mid-grey ground, between about #5c and #95, neither black nor white gets there, so the target is the best that either can give. That is always above the 4.5:1 of AA.
+function reachable(fg: string, min: number, ground: string): number {
+  if (fg !== "ink" || min < 7) return min;
+  return Math.min(min, Math.max(contrast("#000000", ground), contrast("#ffffff", ground)));
+}
+
 export function checkContrast(tokens: Record<string, string>): ContrastIssue[] {
   const issues: ContrastIssue[] = [];
   for (const { fg, bg, min, role } of PAIRS) {
@@ -475,7 +481,9 @@ export function checkContrast(tokens: Record<string, string>): ContrastIssue[] {
     const b = resolve(tokens, bg);
     if (!a.startsWith("#") || !b.startsWith("#")) continue;
     const ratio = contrast(a, b);
-    if (ratio < min) issues.push({ pair: [fg, bg], ratio: Math.round(ratio * 100) / 100, min, role });
+    const needs = reachable(fg, min, b);
+    if (ratio < needs)
+      issues.push({ pair: [fg, bg], ratio: Math.round(ratio * 100) / 100, min: Math.round(needs * 100) / 100, role });
   }
   return issues;
 }
