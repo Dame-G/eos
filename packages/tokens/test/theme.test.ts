@@ -61,6 +61,88 @@ describe("defineTheme", () => {
   test("follows references when checking", () => {
     expect(checkContrast({ ...defaults, "focus-ring": "var(--e-ink)" })).toEqual([]);
   });
+  test("an aliased token is checked, not skipped", () => {
+    const t = defineTheme().tokens;
+    const issues = checkContrast({ ...t, ink: "var(--e-surface)" });
+    expect(issues.some((i) => i.pair[0] === "ink" && i.pair[1] === "surface")).toBe(true);
+  });
+  test("follows a chain of references", () => {
+    const t = defineTheme().tokens;
+    const issues = checkContrast({ ...t, ink: "var(--e-muted)", muted: "var(--e-surface)" });
+    expect(issues.some((i) => i.pair[0] === "ink" && i.pair[1] === "surface")).toBe(true);
+  });
+  test("checks the focus ring and field outline on every ground", () => {
+    const t = defineTheme().tokens;
+    for (const token of ["focus-ring", "focus-field"]) {
+      const pairs = checkContrast({ ...t, [token]: "#eeeeee" }).map((i) => i.pair.join(">"));
+      expect(pairs, token).toEqual(
+        expect.arrayContaining([`${token}>surface`, `${token}>surface-tint`, `${token}>background`]),
+      );
+    }
+  });
+  test("checks secondary text and outlines on the tinted ground", () => {
+    const t = defineTheme().tokens;
+    const pairs = checkContrast({ ...t, muted: "#cccccc", border: "#e0e0e0" }).map((i) => i.pair.join(">"));
+    expect(pairs).toEqual(expect.arrayContaining(["muted>surface-tint", "border>surface-tint"]));
+  });
+  test("the outline holds 3:1 on the tinted ground in the default theme", () => {
+    const t = defineTheme().tokens;
+    expect(contrast(t["border"]!, t["surface-tint"]!)).toBeGreaterThanOrEqual(3);
+  });
+});
+
+describe("mid-tone surfaces", () => {
+  const grey = (v: number) => `#${v.toString(16).padStart(2, "0").repeat(3)}`;
+  const surfaces = [0xf0, 0xe0, 0xd0, 0xc0, 0xb0, 0xa0, 0x90, 0x80, 0x70, 0x60, 0x50, 0x40, 0x30, 0x20].map(grey);
+  const brands = [undefined, "#e91e63", "#ffd600", "#3f51b5", "#00bcd4", "#8bc34a"];
+  // Body text needs 7:1. Between about #5c and #95 neither black nor white gets there, so those pairs cannot pass.
+  const textHasNoRoom = (surface: string) => Math.max(contrast("#000000", surface), contrast("#ffffff", surface)) < 7;
+
+  for (const contrastPreset of ["standard", "high"] as const) {
+    for (const brand of brands) {
+      test(`every action colour holds on greys from #f0f0f0 to #202020 (${contrastPreset}, brand ${brand ?? "default"})`, () => {
+        for (const surface of surfaces) {
+          const t = defineTheme({
+            surface,
+            contrast: contrastPreset,
+            ...(brand ? { brand, accent: "#2e7d32", danger: "#c62828", warning: "#f59e0b" } : {}),
+          });
+          const left = textHasNoRoom(surface)
+            ? t.issues.filter((i) => !(i.pair[0] === "ink" && ["surface", "background"].includes(i.pair[1])))
+            : t.issues;
+          expect(left, `${surface} ${brand}`).toEqual([]);
+        }
+      });
+    }
+  }
+  test("only body text on the surface is left failing where no ink can reach 7:1, and it is the best available", () => {
+    for (const surface of surfaces.filter(textHasNoRoom)) {
+      const t = defineTheme({ surface });
+      expect(
+        t.issues.map((i) => i.pair[0]),
+        surface,
+      ).toEqual(expect.not.arrayContaining(["primary", "danger"]));
+      const best = Math.max(contrast("#000000", surface), contrast("#ffffff", surface));
+      expect(contrast(t.tokens["ink"]!, surface), surface).toBeCloseTo(best, 5);
+    }
+  });
+  test("the reported cases: #9e9e9e, #808080 and #606060", () => {
+    for (const surface of ["#9e9e9e", "#808080", "#606060"]) {
+      const t = defineTheme({ surface });
+      const { primary, secondary, danger } = t.tokens;
+      const on = t.tokens["on-primary"]!;
+      expect(contrast(primary!, on), surface).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(primary!, surface), surface).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(secondary!, t.tokens["on-secondary"]!), surface).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(danger!, t.tokens["on-danger"]!), surface).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+  test("a surface that already worked keeps its action colours", () => {
+    const fixed = (surface: string) => defineTheme({ surface }).tokens;
+    expect(fixed("#e0e0e0")["primary"]).toBe("#17586d");
+    expect(fixed("#20202a")["primary"]).toBe("#3ca1c1");
+    expect(fixed("#20202a")["on-primary"]).toBe("#000000");
+  });
 });
 
 describe("ground inputs", () => {
@@ -232,7 +314,7 @@ describe("derived inputs", () => {
     expect(t["stroke-focus"]).toBe("4px");
     expect(t["focus-gap"]).toBe("4px");
     expect(t["focus-gap-field"]).toBe("calc(-1 * var(--e-stroke-edge))");
-    expect(t["edge"]).toBe("0 0 0 2px #7f8f96");
+    expect(t["edge"]).toBe("0 0 0 2px #7c8c93");
     expect(changed({ strokes: { focus: 3 } }).sort()).toEqual(["focus-gap", "stroke-focus"]);
   });
 
@@ -278,14 +360,14 @@ describe("derived inputs", () => {
   test("elevation presets set the shadows from the border and ink", () => {
     const lifted = defineTheme({ elevation: "lifted" }).tokens;
     expect(lifted["edge"]).toBe(
-      "0 0 0 1px #7f8f96, 0 1px 2px 0px rgba(36, 36, 36, 0.12), 0 4px 8px -2px rgba(36, 36, 36, 0.08)",
+      "0 0 0 1px #7c8c93, 0 1px 2px 0px rgba(36, 36, 36, 0.12), 0 4px 8px -2px rgba(36, 36, 36, 0.08)",
     );
     expect(lifted["float"]!.split("rgba(").length - 1).toBe(4);
     expect(lifted["well"]).toBe(base["well"]);
     expect(changed({ elevation: "lifted" }).sort()).toEqual(["edge", "float"]);
     const bold = defineTheme({ elevation: "bold" }).tokens;
     expect(bold["float"]).toBe(
-      "0 0 0 2px #7f8f96, 4px 4px 0 0 rgba(36, 36, 36, 0.32), 0 14px 28px -10px rgba(36, 36, 36, 0.22)",
+      "0 0 0 2px #7c8c93, 4px 4px 0 0 rgba(36, 36, 36, 0.32), 0 14px 28px -10px rgba(36, 36, 36, 0.22)",
     );
     expect(changed({ elevation: "bold" }).sort()).toEqual(["edge", "float", "stroke-card", "well"]);
     expect(bold["stroke-card"]).toBe("2px");
