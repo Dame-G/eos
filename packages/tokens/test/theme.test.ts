@@ -95,7 +95,7 @@ describe("mid-tone surfaces", () => {
   const grey = (v: number) => `#${v.toString(16).padStart(2, "0").repeat(3)}`;
   const surfaces = [0xf0, 0xe0, 0xd0, 0xc0, 0xb0, 0xa0, 0x90, 0x80, 0x70, 0x60, 0x50, 0x40, 0x30, 0x20].map(grey);
   const brands = [undefined, "#e91e63", "#ffd600", "#3f51b5", "#00bcd4", "#8bc34a"];
-  // Body text needs 7:1. Between about #5c and #95 neither black nor white gets there, so those pairs cannot pass.
+  // Body text asks for 7:1. Between about #5c and #95 neither black nor white gets there, so there the target is the best of the two.
   const textHasNoRoom = (surface: string) => Math.max(contrast("#000000", surface), contrast("#ffffff", surface)) < 7;
 
   for (const contrastPreset of ["standard", "high"] as const) {
@@ -107,24 +107,24 @@ describe("mid-tone surfaces", () => {
             contrast: contrastPreset,
             ...(brand ? { brand, accent: "#2e7d32", danger: "#c62828", warning: "#f59e0b" } : {}),
           });
-          const left = textHasNoRoom(surface)
-            ? t.issues.filter((i) => !(i.pair[0] === "ink" && ["surface", "background"].includes(i.pair[1])))
-            : t.issues;
-          expect(left, `${surface} ${brand}`).toEqual([]);
+          expect(t.issues, `${surface} ${brand}`).toEqual([]);
         }
       });
     }
   }
-  test("only body text on the surface is left failing where no ink can reach 7:1, and it is the best available", () => {
+  test("where no ink can reach 7:1, the ink is the best available, it stays above 4.5:1 and nothing is reported", () => {
     for (const surface of surfaces.filter(textHasNoRoom)) {
       const t = defineTheme({ surface });
-      expect(
-        t.issues.map((i) => i.pair[0]),
-        surface,
-      ).toEqual(expect.not.arrayContaining(["primary", "danger"]));
+      expect(t.issues, surface).toEqual([]);
+      expect(contrast(t.tokens["ink"]!, surface), surface).toBeGreaterThan(4.5);
       const best = Math.max(contrast("#000000", surface), contrast("#ffffff", surface));
       expect(contrast(t.tokens["ink"]!, surface), surface).toBeCloseTo(best, 5);
     }
+  });
+  test("a checked ink that is worse than the best available is still reported", () => {
+    const t = defineTheme({ surface: "#808080" });
+    const bad = checkContrast({ ...t.tokens, ink: "#6a6a6a" });
+    expect(bad.some((i) => i.pair[0] === "ink" && i.pair[1] === "surface")).toBe(true);
   });
   test("the reported cases: #9e9e9e, #808080 and #606060", () => {
     for (const surface of ["#9e9e9e", "#808080", "#606060"]) {
