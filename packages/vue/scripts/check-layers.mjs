@@ -79,7 +79,8 @@ for (const file of walk(join(pkgRoot, "src"))) {
         const key = lm[1] + " " + selector;
         const rel = relative(pkgRoot, file).replaceAll("\\", "/");
         const prior = seen.get(key);
-        if (prior && prior !== rel) problems.push(`${selector} in @layer ${lm[1]} is defined in both ${prior} and ${rel}; share one stylesheet`);
+        if (prior && prior !== rel)
+          problems.push(`${selector} in @layer ${lm[1]} is defined in both ${prior} and ${rel}; share one stylesheet`);
         else if (!prior) seen.set(key, rel);
       }
     }

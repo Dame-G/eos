@@ -15,8 +15,8 @@ A colour input as `#rrggbb`: a swatch that opens the native picker plus a text b
 | `modelValue` | `string`  | `""`         | `v-model`: `#rrggbb`, lower case. Only complete, valid colours are written. `#abc` expands to `#aabbcc`.                                             |
 | `label`      | `string`  | **Required** | The visible label.                                                                                                                                   |
 | `hideLabel`  | `boolean` | `false`      | Keeps the label for screen readers and hides it from the page.                                                                                       |
-| `hint`       | `string`  | —            | Shows help text under the input.                                                                                                                     |
-| `error`      | `string`  | —            | Shows what to fix in place of the hint, marks the input invalid and is announced. Invalid typed text shows "Enter a colour like #2c95b4" after blur. |
+| `hint`       | `string`  | None         | Shows help text under the input.                                                                                                                     |
+| `error`      | `string`  | None         | Shows what to fix in place of the hint, marks the input invalid and is announced. Invalid typed text shows "Enter a colour like #2c95b4" after blur. |
 | `required`   | `boolean` | `false`      | Sets the `required` attribute and shows a word beside the label.                                                                                     |
 | `optional`   | `boolean` | `false`      | Shows a word beside the label. Use it on whichever of required and optional is rarer.                                                                |
 | `disabled`   | `boolean` | `false`      | Disables the field.                                                                                                                                  |

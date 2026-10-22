@@ -29,6 +29,13 @@ describe("plural messages", () => {
     expect(t("rows", { n: 0 })).toBe("0 rows");
     expect(t("rowsAnnounce", { n: 1 })).toBe("1 row.");
     expect(t("rowsAnnounce", { n: 12 })).toBe("12 rows.");
+    expect(t("rangeDone", { start: "Jun 3", end: "Jun 3", n: 1 })).toBe("Jun 3 to Jun 3 (1 day)");
+    expect(t("rangeDone", { start: "Jun 3", end: "Jun 5", n: 3 })).toBe("Jun 3 to Jun 5 (3 days)");
+  });
+
+  test("a rangeDone override written with {days} still works", () => {
+    const t = translator({ messages: { rangeDone: "{start}-{end}: {days}d" } });
+    expect(t("rangeDone", { start: "A", end: "B", n: 2, days: 2 })).toBe("A-B: 2d");
   });
 
   test("a plain string override is used for every count", () => {

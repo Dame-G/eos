@@ -5,7 +5,7 @@ export type ShortcutMap = Record<string, (event: KeyboardEvent) => void>;
 export interface ShortcutOptions {
   /** Where to listen. The document by default. */
   target?: MaybeRefOrGetter<EventTarget | null | undefined>;
-  /** Turn every shortcut off while this is false. */
+  /** Turns every shortcut off while this is false. */
   enabled?: MaybeRefOrGetter<boolean>;
   /** Also run key-only shortcuts while a text field has focus. Shortcuts with Ctrl, Cmd or Alt, and Escape, always run. */
   allowInInputs?: boolean;

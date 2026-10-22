@@ -14,14 +14,14 @@ A single yes/no choice. Use [`ESwitch`](../Switch/README.md) for a setting that 
 | --------------- | --------- | ------------ | -------------------------------------------------------------------------------------------------------- |
 | `modelValue`    | `boolean` | `false`      | `v-model`: whether it is checked.                                                                        |
 | `label`         | `string`  | **Required** | What the person agrees to or turns on.                                                                   |
-| `description`   | `string`  | —            | A line of detail under the label.                                                                        |
+| `description`   | `string`  | None         | A line of detail under the label.                                                                        |
 | `indeterminate` | `boolean` | `false`      | A mixed state, such as select-all with some rows chosen.                                                 |
 | `bare`          | `boolean` | `false`      | Hides the label from the page and keeps it for screen readers, for a table cell. It shows no error text. |
 | `disabled`      | `boolean` | `false`      | Disables the checkbox. It cannot take focus and is not submitted.                                        |
 | `required`      | `boolean` | `false`      | Sets the `required` attribute.                                                                           |
-| `error`         | `string`  | —            | Shows what to fix under the row and sets `aria-invalid`.                                                 |
-| `name`          | `string`  | —            | The name submitted with a form.                                                                          |
-| `value`         | `string`  | —            | The value submitted with a form when checked.                                                            |
+| `error`         | `string`  | None         | Shows what to fix under the row and sets `aria-invalid`.                                                 |
+| `name`          | `string`  | None         | The name submitted with a form.                                                                          |
+| `value`         | `string`  | None         | The value submitted with a form when checked.                                                            |
 | `id`            | `string`  | `generated`  | The `id` of the input, which the label points at.                                                        |
 
 <!-- props:end -->

@@ -94,7 +94,7 @@ createEos({
 });
 ```
 
-`resultsCount`, `rows` and `rowsAnnounce` are plural messages.
+`resultsCount`, `rows`, `rowsAnnounce` and `rangeDone` are plural messages.
 
 ## Bring your own icons
 

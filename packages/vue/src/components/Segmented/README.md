@@ -23,8 +23,8 @@ A joined set of two to five options where exactly one is active. Use it to chang
 | `modelValue` | `string`                        | `first option` | `v-model`: the active value.                                                                                                 |
 | `label`      | `string`                        | **Required**   | Read by screen readers as the name of the group.                                                                             |
 | `options`    | `(string \| SegmentedOption)[]` | **Required**   | Two to five. A string is both value and label. `SegmentedOption` is `{ value, label, icon?, disabled? }`.                    |
-| `hint`       | `string`                        | —              | Help under the control, linked with `aria-describedby`.                                                                      |
-| `error`      | `string`                        | —              | What to fix. Replaces the hint and is announced.                                                                             |
+| `hint`       | `string`                        | None           | Help under the control, linked with `aria-describedby`.                                                                      |
+| `error`      | `string`                        | None           | What to fix. Replaces the hint and is announced.                                                                             |
 | `optional`   | `boolean`                       | `false`        | Adds the word "Optional" to the group's accessible name and shows nothing. Use it when most fields in the form are required. |
 | `disabled`   | `boolean`                       | `false`        | Disables every option.                                                                                                       |
 | `name`       | `string`                        | `generated`    | The name the radios share, submitted with a form.                                                                            |

@@ -12,7 +12,7 @@ A ring that shows a single action is in progress. Say what is being waited for.
 
 | Prop    | Type      | Default | Notes                                                                 |
 | ------- | --------- | ------- | --------------------------------------------------------------------- |
-| `label` | `string`  | —       | Shown beside the ring. Without it the ring is announced as "Loading". |
+| `label` | `string`  | None    | Shown beside the ring. Without it the ring is announced as "Loading". |
 | `block` | `boolean` | `false` | Centre it in a panel.                                                 |
 
 <!-- props:end -->

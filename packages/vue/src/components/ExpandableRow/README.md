@@ -18,7 +18,7 @@ A one-line row that opens to more: a leading item, a title with a subtitle, and 
 | Prop       | Type     | Default      | Notes                                          |
 | ---------- | -------- | ------------ | ---------------------------------------------- |
 | `title`    | `string` | **Required** | The row's name, always visible in the summary. |
-| `subtitle` | `string` | —            | A muted line under the title.                  |
+| `subtitle` | `string` | None         | A muted line under the title.                  |
 
 <!-- props:end -->
 

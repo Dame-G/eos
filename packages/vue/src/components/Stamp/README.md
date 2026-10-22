@@ -14,11 +14,11 @@ A small non-interactive mark with a word that says where something stands, such 
 
 | Prop     | Type          | Default                      | Notes                                                                                                                                           |
 | -------- | ------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `status` | `StampStatus` | —                            | A preset: sets the tone and the word (message `status.<name>`).                                                                                 |
-| `tone`   | `StampTone`   | —                            | Overrides the preset's tone. Without a `status` the stamp is `neutral`, the same as `ink`. `success`, `info`, `warning` and `danger` colour it. |
+| `status` | `StampStatus` | None                         | A preset: sets the tone and the word (message `status.<name>`).                                                                                 |
+| `tone`   | `StampTone`   | None                         | Overrides the preset's tone. Without a `status` the stamp is `neutral`, the same as `ink`. `success`, `info`, `warning` and `danger` colour it. |
 | `label`  | `string`      | `preset's word, else Status` | The word. It overrides the preset's, and the default slot overrides both.                                                                       |
-| `icon`   | `IconProp`    | —                            | A glyph before the word.                                                                                                                        |
-| `detail` | `string`      | —                            | A date or day count, set after the word.                                                                                                        |
+| `icon`   | `IconProp`    | None                         | A glyph before the word.                                                                                                                        |
+| `detail` | `string`      | None                         | A date or day count, set after the word.                                                                                                        |
 | `small`  | `boolean`     | `false`                      | Shorter, for rows and tables.                                                                                                                   |
 
 <!-- props:end -->

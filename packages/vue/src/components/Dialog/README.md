@@ -21,7 +21,7 @@ A modal dialog for a short decision. Use [`EDrawer`](../Drawer/README.md) to rea
 | -------------- | ---------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------- |
 | `open`         | `boolean`                    | `false`      | `v-model:open`: whether it is open. Without a binding it keeps its own state.                                                   |
 | `title`        | `string`                     | **Required** | The question or task, shown as the heading and used as the accessible name. It reads best as a question.                        |
-| `description`  | `string`                     | —            | A sentence under the title that says what the dialog is for. It is shown, and read out as the description.                      |
+| `description`  | `string`                     | None         | A sentence under the title that says what the dialog is for. It is shown, and read out as the description.                      |
 | `role`         | `"dialog" \| "alertdialog"`  | `"dialog"`   | `alertdialog` for a confirmation that needs an answer, such as a delete. Every other dialog uses `dialog`.                      |
 | `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `2`          | The level of the title's heading element, 1 to 6.                                                                               |
 | `dismissible`  | `boolean`                    | `false`      | Closes the dialog when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. |

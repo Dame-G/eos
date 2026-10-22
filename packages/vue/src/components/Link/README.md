@@ -21,7 +21,7 @@ An icon before the text:
 | ---------- | ---------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `href`     | `string`   | **Required** | Where the link goes.                                                                                                                                     |
 | `external` | `boolean`  | `false`      | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`).                                                                                              |
-| `icon`     | `IconProp` | —            | An icon before the text: a built-in name, a name from your icon set, or an icon component. It is hidden from screen readers, so the text names the link. |
+| `icon`     | `IconProp` | None         | An icon before the text: a built-in name, a name from your icon set, or an icon component. It is hidden from screen readers, so the text names the link. |
 
 <!-- props:end -->
 

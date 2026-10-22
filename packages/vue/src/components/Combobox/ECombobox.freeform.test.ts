@@ -23,7 +23,9 @@ describe("ECombobox freeform", () => {
   });
 
   test("bare: just the input, named by ariaLabel", async () => {
-    const { container } = await render(ECombobox, { props: { freeform: true, bare: true, ariaLabel: "Street", options: STREETS } });
+    const { container } = await render(ECombobox, {
+      props: { freeform: true, bare: true, ariaLabel: "Street", options: STREETS },
+    });
     expect(container.querySelector("label")).toBeNull();
     expect(container.querySelector(".e-field")).toBeNull();
     await expect.element(box("Street")).toBeVisible();
@@ -32,7 +34,12 @@ describe("ECombobox freeform", () => {
   test("suggestions appear as people type, and anything typed is accepted", async () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
-      props: { freeform: true, label: "Street", options: STREETS, "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string) },
+      props: {
+        freeform: true,
+        label: "Street",
+        options: STREETS,
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
+      },
     });
     await box("Street").fill("elm");
     await expect.poll(() => optionEls().map((o) => o.textContent?.trim())).toEqual(["12 Elm Street", "14 Elm Street"]);
@@ -49,7 +56,12 @@ describe("ECombobox freeform", () => {
   test("choosing a suggestion puts its text in the field and the model; the next ArrowDown reopens the list", async () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
-      props: { freeform: true, label: "Street", options: STREETS, "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string) },
+      props: {
+        freeform: true,
+        label: "Street",
+        options: STREETS,
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
+      },
     });
     await box("Street").fill("elm");
     await expect.poll(() => optionEls().length).toBe(2);
@@ -82,7 +94,12 @@ describe("ECombobox freeform", () => {
   test("Escape closes the list, then clears the text", async () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
-      props: { freeform: true, label: "Street", options: STREETS, "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string) },
+      props: {
+        freeform: true,
+        label: "Street",
+        options: STREETS,
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
+      },
     });
     await box("Street").fill("elm");
     await expanded(inputOf(container), "true");
@@ -97,7 +114,13 @@ describe("ECombobox freeform", () => {
   test("inputChange tells the page what was typed, so it can fetch suggestions; loading shows Searching", async () => {
     const heard: string[] = [];
     await render(ECombobox, {
-      props: { freeform: true, label: "Street", options: [], loading: true, onInputChange: (t: string) => heard.push(t) },
+      props: {
+        freeform: true,
+        label: "Street",
+        options: [],
+        loading: true,
+        onInputChange: (t: string) => heard.push(t),
+      },
     });
     await box("Street").fill("el");
     expect(heard).toEqual(["el"]);
@@ -174,7 +197,9 @@ describe("ECombobox freeform", () => {
   });
 
   test("axe: closed, open, loading, invalid, disabled", async () => {
-    const a = await render(ECombobox, { props: { freeform: true, label: "Street", options: STREETS, hint: "Start typing" } });
+    const a = await render(ECombobox, {
+      props: { freeform: true, label: "Street", options: STREETS, hint: "Start typing" },
+    });
     await expectNoViolations(a.container);
     await box("Street").fill("elm");
     await expect.poll(() => optionEls().length).toBe(2);
@@ -185,7 +210,9 @@ describe("ECombobox freeform", () => {
     await expect.poll(() => document.querySelector(".e-opt-status")).not.toBeNull();
     await expectNoViolations(document.body);
     b.unmount();
-    const c = await render(ECombobox, { props: { freeform: true, label: "Street", options: STREETS, error: "Enter an address" } });
+    const c = await render(ECombobox, {
+      props: { freeform: true, label: "Street", options: STREETS, error: "Enter an address" },
+    });
     await expectNoViolations(c.container);
     c.unmount();
     const d = await render(ECombobox, { props: { freeform: true, label: "Street", options: STREETS, disabled: true } });

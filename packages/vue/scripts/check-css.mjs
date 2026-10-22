@@ -24,9 +24,12 @@ for (const { file, css } of sourceStyles()) {
   root.walkRules((rule) => {
     const decls = [];
     rule.each((n) => n.type === "decl" && decls.push(n));
-    const subtle = /^(transparent|none|inherit|initial|unset|currentcolor)\b|--e-(surface-tint|surface-hover|wash-)|color-mix\(|var\(--e-border/i;
+    const subtle =
+      /^(transparent|none|inherit|initial|unset|currentcolor)\b|--e-(surface-tint|surface-hover|wash-)|color-mix\(|var\(--e-border/i;
     const strongFill = decls.find((d) => /^background(-color)?$/.test(d.prop) && !subtle.test(d.value.trim()));
-    const ring = decls.find((d) => d.prop === "box-shadow" && /(^|,)\s*inset\s+0\s+0\s+0\s+(?!0\b)\S+\s+\S/.test(d.value));
+    const ring = decls.find(
+      (d) => d.prop === "box-shadow" && /(^|,)\s*inset\s+0\s+0\s+0\s+(?!0\b)\S+\s+\S/.test(d.value),
+    );
     if (strongFill && ring)
       problems.push(
         `${file}:${ring.source?.start?.line}: ${rule.selector.replace(/\s+/g, " ")} draws its edge as an inset shadow over a fill; use a border with background-clip: padding-box`,

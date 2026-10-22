@@ -48,7 +48,11 @@ describe("ECombobox", () => {
   test("typing filters the list, marks the match, and Enter picks the first match", async () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string) },
+      props: {
+        label: "Practitioner",
+        options: PEOPLE,
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
+      },
     });
     await box("Practitioner").fill("ma");
     await expect.poll(() => optionEls().length).toBe(2);
@@ -83,7 +87,11 @@ describe("ECombobox", () => {
   test("arrows open and move; the highlighted option is the active descendant; Enter chooses", async () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string) },
+      props: {
+        label: "Practitioner",
+        options: PEOPLE,
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
+      },
     });
     const input = inputOf(container);
     input.focus();
@@ -103,7 +111,11 @@ describe("ECombobox", () => {
   test("a mouse click on an option chooses it and keeps the focus in the input", async () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string) },
+      props: {
+        label: "Practitioner",
+        options: PEOPLE,
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
+      },
     });
     await page.getByRole("button", { name: "Show options" }).click();
     await expanded(inputOf(container), "true");

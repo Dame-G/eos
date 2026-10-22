@@ -17,7 +17,7 @@ A side panel that slides in from an edge, for reading something beside the list,
 | -------------- | ------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------- |
 | `open`         | `boolean`                       | `false`      | `v-model:open`: whether it is open. Without a binding it keeps its own state.                                                   |
 | `title`        | `string`                        | **Required** | The panel's heading and accessible name, such as the statement being read.                                                      |
-| `description`  | `string`                        | —            | A sentence under the title that says what the drawer is for. It is shown, and read out as the description.                      |
+| `description`  | `string`                        | None         | A sentence under the title that says what the drawer is for. It is shown, and read out as the description.                      |
 | `role`         | `"dialog" \| "alertdialog"`     | `"dialog"`   | `alertdialog` for a confirmation that needs an answer, such as a delete. Every other drawer uses `dialog`.                      |
 | `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6`    | `2`          | The level of the title's heading element, 1 to 6.                                                                               |
 | `side`         | `"right" \| "left" \| "bottom"` | `"right"`    | The edge it slides in from. `bottom` gives a sheet that suits phones.                                                           |

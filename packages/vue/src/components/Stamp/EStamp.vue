@@ -52,7 +52,9 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
 <template>
   <span class="e-stamp" :class="[toneClass, small && 'e-stamp--sm']">
     <EIcon v-if="icon" :name="icon" bold />
-    <span class="e-stamp-word"><slot>{{ text }}</slot></span>
+    <span class="e-stamp-word"
+      ><slot>{{ text }}</slot></span
+    >
     <span v-if="detail" class="e-stamp-detail">{{ detail }}</span>
   </span>
 </template>

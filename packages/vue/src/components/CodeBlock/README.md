@@ -20,8 +20,8 @@ For your own highlighting, put the markup in the slot. The button copies the tex
 
 | Prop        | Type     | Default       | Notes                                                                                                    |
 | ----------- | -------- | ------------- | -------------------------------------------------------------------------------------------------------- |
-| `code`      | `string` | —             | The text to show, as plain text. Leave it out to use the slot and put your own highlighted markup there. |
-| `lang`      | `string` | —             | The language, named for screen readers (the code's accessible name).                                     |
+| `code`      | `string` | None          | The text to show, as plain text. Leave it out to use the slot and put your own highlighted markup there. |
+| `lang`      | `string` | None          | The language, named for screen readers (the code's accessible name).                                     |
 | `copyLabel` | `string` | `"Copy code"` | The copy button's name. Say what is copied when a page has several.                                      |
 
 <!-- props:end -->

@@ -90,7 +90,12 @@ describe("EActions", () => {
   test("has no accessibility violations inline or as a bar", async () => {
     const { container } = await render(
       defineComponent({
-        render: () => h("div", [h(EActions, null, buttons), h(EActions, { bar: true, as: "footer" }, buttons), h(EActions, { label: "Tools" }, buttons)]),
+        render: () =>
+          h("div", [
+            h(EActions, null, buttons),
+            h(EActions, { bar: true, as: "footer" }, buttons),
+            h(EActions, { label: "Tools" }, buttons),
+          ]),
       }),
     );
     await expectNoViolations(container);

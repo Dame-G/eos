@@ -40,7 +40,7 @@ const email = ref("");
 - One stylesheet (about 24 kB gzipped), imported once. The JavaScript has no CSS imports, so server rendering needs no bundler setup.
 - Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights.
 - Plugin options: `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget`, `portalTarget` and `warnOnContrast`.
-- A message can be a plural object (`{ one, other }` and the locale's other categories) when it takes a count `n`. `resultsCount`, `rows` and `rowsAnnounce` do.
+- A message can be a plural object (`{ one, other }` and the locale's other categories) when it takes a count `n`. `resultsCount`, `rows`, `rowsAnnounce` and `rangeDone` do.
 - `defineTheme()` (re-exported from [`@eos-ui/tokens`](../tokens)) builds a theme from `brand`, `accent` and other inputs and checks its contrast.
 - Icons: a built-in Phosphor set, or Lucide, Tabler, Heroicons, Phosphor (Vue), Iconify or your own set (`@eos-ui/vue/icons`, see [Bring your own icons](src/icons/README.md)).
 - `EosResolver` from `@eos-ui/vue/resolver` auto-imports components for `unplugin-vue-components`.

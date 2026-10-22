@@ -13,7 +13,7 @@ A hairline between sections of a form or list, optionally with a centred label.
 
 | Prop    | Type     | Default | Notes                                                                     |
 | ------- | -------- | ------- | ------------------------------------------------------------------------- |
-| `label` | `string` | —       | Text shown between two rules. Without it the divider is a plain hairline. |
+| `label` | `string` | None    | Text shown between two rules. Without it the divider is a plain hairline. |
 
 <!-- props:end -->
 

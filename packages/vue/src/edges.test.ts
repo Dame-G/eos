@@ -38,7 +38,11 @@ describe("edges", () => {
     ["a text field", () => render(ETextField, { props: { label: "Email" } }), ".e-input"],
     ["a switch", () => render(ESwitch, { props: { label: "Reminders" } }), ".e-switch-track"],
     ["a checkbox", () => render(ECheckbox, { props: { label: "Agree" } }), ".e-check"],
-    ["a notice", () => render(ENotice, { props: { title: "Heads up" }, slots: { default: () => "Body" } }), ".e-notice"],
+    [
+      "a notice",
+      () => render(ENotice, { props: { title: "Heads up" }, slots: { default: () => "Body" } }),
+      ".e-notice",
+    ],
   ])("%s draws its edge as a border with the fill stopped inside it", async (_name, mount, selector) => {
     const { container } = await mount();
     expectBorderEdge(container.querySelector(selector)!);
@@ -46,7 +50,13 @@ describe("edges", () => {
 
   test("a framed tab panel and tab share the same border construction", async () => {
     const { container } = await render(ETabs, {
-      props: { items: [{ id: "a", label: "One" }, { id: "b", label: "Two" }], framed: true },
+      props: {
+        items: [
+          { id: "a", label: "One" },
+          { id: "b", label: "Two" },
+        ],
+        framed: true,
+      },
       slots: { a: () => "A", b: () => "B" },
     });
     expectBorderEdge(container.querySelector(".e-tabpanel")!);

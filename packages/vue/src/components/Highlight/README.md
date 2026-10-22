@@ -15,7 +15,7 @@ A short run of text set off by the accent colour: a name, a value or a word wort
 | Prop     | Type      | Default | Notes                                                                                                                                                     |
 | -------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `code`   | `boolean` | `false` | Renders a `code` element in the mono font, for a name, value or snippet inside a sentence. Without it the element is a `mark`, for a word worth noticing. |
-| `swatch` | `string`  | —       | A CSS colour drawn as a square after the text, for a colour value such as `#2c95b4`. The square is decoration, so put the value itself in the text.       |
+| `swatch` | `string`  | None    | A CSS colour drawn as a square after the text, for a colour value such as `#2c95b4`. The square is decoration, so put the value itself in the text.       |
 
 <!-- props:end -->
 

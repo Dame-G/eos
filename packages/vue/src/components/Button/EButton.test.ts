@@ -152,7 +152,7 @@ describe("EButton", () => {
     await expect.element(page.getByRole("button", { name: "Pay now", exact: true })).toBeVisible();
   });
 
-  test("aria-pressed=\"true\" marks a toggle: a filled tint and primary edge, not colour alone", async () => {
+  test('aria-pressed="true" marks a toggle: a filled tint and primary edge, not colour alone', async () => {
     const { container } = await render(EButton, {
       props: { variant: "outline" },
       attrs: { "aria-pressed": "true" },
@@ -161,7 +161,11 @@ describe("EButton", () => {
     const el = container.querySelector("button")!;
     await expect.element(page.getByRole("button", { name: "Unpaid only" })).toHaveAttribute("aria-pressed", "true");
     const pressed = getComputedStyle(el);
-    const off = await render(EButton, { props: { variant: "outline" }, attrs: { "aria-pressed": "false" }, slots: { default: "Off" } });
+    const off = await render(EButton, {
+      props: { variant: "outline" },
+      attrs: { "aria-pressed": "false" },
+      slots: { default: "Off" },
+    });
     const idle = getComputedStyle(off.container.querySelector("button")!);
     expect(pressed.backgroundColor).not.toBe(idle.backgroundColor);
     expect(pressed.borderTopColor).not.toBe(idle.borderTopColor);

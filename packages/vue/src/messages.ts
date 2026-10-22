@@ -90,7 +90,7 @@ export const defaultMessages = {
   todaySuffix: "today",
   rangeStart: "Choose a start date",
   rangeEnd: "Starts {start}. Now choose an end date",
-  rangeDone: "{start} to {end} ({days} days)",
+  rangeDone: { one: "{start} to {end} ({n} day)", other: "{start} to {end} ({n} days)" },
   searchAll: "Search all columns",
   clearFilters: "Clear filters",
   columns: "Columns",

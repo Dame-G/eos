@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import "../../styles/base.css";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     /** Smaller text, for captions and fine print. `textScale` rescales it. */
     small?: boolean;
@@ -19,10 +20,16 @@ defineSlots<{
   /** The text. */
   default(): unknown;
 }>();
+
+const sizes = computed(() => [
+  props.small && "e-text--small",
+  props.large && "e-text--large",
+  props.muted && "e-text--muted",
+]);
 </script>
 
 <template>
-  <component :is="as" class="e-text" :class="[small && 'e-text--small', large && 'e-text--large', muted && 'e-text--muted']"><slot /></component>
+  <component :is="as" class="e-text" :class="sizes"><slot /></component>
 </template>
 
 <style>

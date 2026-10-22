@@ -356,7 +356,8 @@ defineExpose({
   }
 
   .e-combo--multi {
-    padding: calc(3px - var(--e-stroke-edge)) calc(var(--e-space-1) - var(--e-stroke-edge)) calc(3px - var(--e-stroke-edge)) calc(var(--e-space-2) - var(--e-stroke-edge));
+    padding: calc(3px - var(--e-stroke-edge)) calc(var(--e-space-1) - var(--e-stroke-edge))
+      calc(3px - var(--e-stroke-edge)) calc(var(--e-space-2) - var(--e-stroke-edge));
     gap: var(--e-space-1);
   }
 

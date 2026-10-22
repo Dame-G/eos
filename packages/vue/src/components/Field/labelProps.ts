@@ -1,14 +1,14 @@
 /** The label API shared by ESelect, ECombobox: a `label`, or `bare` with an accessible name. */
 export type ELabelProps = {
-  /** Keep the label for screen readers and remove it from the page. */
+  /** Hides the label from the page and keeps it for screen readers. */
   hideLabel?: boolean;
   /** The accessible name when `bare`. */
   ariaLabel?: string;
 } & (
   | {
-      /** The visible label, a mono kicker above the control. It also names the list. Required unless `bare` with an `ariaLabel`. */
+      /** The visible label above the control. It also names the list. Required unless `bare` with an `ariaLabel`. */
       label: string;
-      /** Only the control, no label, hint or error. Give it `label` or `ariaLabel`. For dense places such as table filters. */
+      /** Renders only the control, with no label, hint or error. Needs `label` or `ariaLabel`. For dense places such as table filters. */
       bare?: boolean;
     }
   | {

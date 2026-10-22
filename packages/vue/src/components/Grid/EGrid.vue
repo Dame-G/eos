@@ -25,7 +25,11 @@ const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-
 </script>
 
 <template>
-  <component :is="as" :class="['e-grid-layout', { 'e-grid-layout--masonry': masonry }]" :style="{ '--e-gap': gapValue, '--e-min': min }">
+  <component
+    :is="as"
+    :class="['e-grid-layout', { 'e-grid-layout--masonry': masonry }]"
+    :style="{ '--e-gap': gapValue, '--e-min': min }"
+  >
     <slot />
   </component>
 </template>

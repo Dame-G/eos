@@ -15,7 +15,7 @@ The panel shown when a list, search or table has no content. Never leave a list 
 
 | Prop           | Type                         | Default      | Notes                                                                             |
 | -------------- | ---------------------------- | ------------ | --------------------------------------------------------------------------------- |
-| `icon`         | `IconProp`                   | —            | An icon above the title.                                                          |
+| `icon`         | `IconProp`                   | None         | An icon above the title.                                                          |
 | `title`        | `string`                     | **Required** | What is missing, in the person's words.                                           |
 | `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `3`          | The level of the title's heading element, 1 to 6, chosen to fit the page outline. |
 | `bare`         | `boolean`                    | `false`      | Removes the outline, for use inside a table or panel.                             |

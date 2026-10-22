@@ -27,7 +27,10 @@ describe("ETable", () => {
   });
 
   test("hideCaption keeps the caption for screen readers only", async () => {
-    const { container } = await render(ETable, { props: { caption: "Plans", hideCaption: true }, slots: { default: rows } });
+    const { container } = await render(ETable, {
+      props: { caption: "Plans", hideCaption: true },
+      slots: { default: rows },
+    });
     container.classList.add("e-root");
     const caption = container.querySelector("caption")!;
     expect(caption.className).toBe("e-sr");
@@ -40,7 +43,9 @@ describe("ETable", () => {
       slots: { default: rows },
     });
     container.classList.add("e-root");
-    expect(container.querySelector(".e-table-wrap")!.className).toBe("e-table-wrap e-table-wrap--striped e-table-wrap--dense");
+    expect(container.querySelector(".e-table-wrap")!.className).toBe(
+      "e-table-wrap e-table-wrap--striped e-table-wrap--dense",
+    );
     const cells = [...container.querySelectorAll<HTMLElement>("tbody tr > td")];
     expect(getComputedStyle(cells[0]!).backgroundColor).not.toBe(getComputedStyle(cells[1]!).backgroundColor);
   });
@@ -48,9 +53,15 @@ describe("ETable", () => {
   test("maxHeight scrolls inside the frame and keeps the heading row stuck", async () => {
     const many = [
       h("thead", [h("tr", [h("th", { scope: "col" }, "n")])]),
-      h("tbody", Array.from({ length: 40 }, (_, i) => h("tr", [h("td", String(i))]))),
+      h(
+        "tbody",
+        Array.from({ length: 40 }, (_, i) => h("tr", [h("td", String(i))])),
+      ),
     ];
-    const { container } = await render(ETable, { props: { caption: "Long", maxHeight: "200px" }, slots: { default: () => many } });
+    const { container } = await render(ETable, {
+      props: { caption: "Long", maxHeight: "200px" },
+      slots: { default: () => many },
+    });
     container.classList.add("e-root");
     const region = container.querySelector<HTMLElement>(".e-table-scroll")!;
     expect(region.getBoundingClientRect().height).toBeLessThanOrEqual(200);
@@ -67,7 +78,10 @@ describe("ETable", () => {
   });
 
   test("has no accessibility violations", async () => {
-    const { container } = await render(ETable, { props: { caption: "Plans", striped: true }, slots: { default: rows } });
+    const { container } = await render(ETable, {
+      props: { caption: "Plans", striped: true },
+      slots: { default: rows },
+    });
     await expectNoViolations(container);
   });
 });
