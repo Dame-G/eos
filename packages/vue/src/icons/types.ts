@@ -28,7 +28,7 @@ export interface IconsConfig {
   aliases?: Record<string, string>;
   /** Looks a name up in your icon set. Return `undefined` to fall through to the built-in icon. */
   resolve?: (name: string, context: IconContext) => IconSource | undefined;
-  /** Use the built-in Phosphor icons for any name your set does not provide. Default true. */
+  /** Falls back to the built-in Phosphor icons for any name the set does not provide. @default true */
   builtin?: boolean;
 }
 
