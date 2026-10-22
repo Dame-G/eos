@@ -3,9 +3,9 @@ import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
-    /** 14px, for captions and fine print. */
+    /** Smaller text, for captions and fine print. `textScale` rescales it. */
     small?: boolean;
-    /** 18px, for the one-sentence reading of a statement. */
+    /** Larger text, for the one-sentence reading of a statement. `textScale` rescales it. */
     large?: boolean;
     /** Secondary copy, in the muted colour. */
     muted?: boolean;

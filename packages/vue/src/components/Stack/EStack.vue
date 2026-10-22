@@ -6,7 +6,7 @@ const props = withDefaults(
   defineProps<{
     /** The element to render, such as `ul` (with `li` children). */
     as?: string;
-    /** A space token number (1, 2, 3, 4, 6, 8) becomes `var(--e-space-N)`; a string is used as given, so any CSS length works. */
+    /** A space token number (1, 2, 3, 4, 6, 8) becomes `var(--e-space-N)`. A string is used as given, so any CSS length works. */
     gap?: number | string;
     /** Aligns the children across the column: `center` or `end`. Stretched by default. */
     align?: "center" | "end";

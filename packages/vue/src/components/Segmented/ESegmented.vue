@@ -30,7 +30,7 @@ const props = defineProps<{
   hint?: string;
   /** What to fix. Replaces the hint and is announced. */
   error?: string;
-  /** Adds the word "Optional" to the group's accessible name; nothing is shown. Flag whichever is rarer. */
+  /** Adds the word "Optional" to the group's accessible name and shows nothing. Use it when most fields in the form are required. */
   optional?: boolean;
   /** Disables every option. */
   disabled?: boolean;
@@ -52,7 +52,7 @@ const attrs = useFieldAttrs();
 
 const track = ref<HTMLElement | null>(null);
 
-/** In a space too narrow for every option the track scrolls; keep the chosen one in view. */
+/** In a space too narrow for every option the track scrolls, and the chosen option is brought into view. */
 async function reveal(smooth: boolean) {
   await nextTick();
   const el = track.value;

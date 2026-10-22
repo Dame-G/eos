@@ -25,24 +25,24 @@ Exactly one of five or fewer options. Use [`ESelect`](../Select/README.md) for m
 | ------------ | --------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
 | `modelValue` | `string`                    | —            | `v-model`: the chosen value.                                                                                 |
 | `label`      | `string`                    | **Required** | The question, as the group's legend.                                                                         |
-| `hideLabel`  | `boolean`                   | `false`      | Keep the legend for screen readers and remove it from the page.                                              |
+| `hideLabel`  | `boolean`                   | `false`      | Keeps the legend for screen readers and hides it from the page.                                              |
 | `options`    | `(string \| RadioOption)[]` | **Required** | Five or fewer. A string is both value and label. `RadioOption`: `{ value, label, description?, disabled? }`. |
 | `hint`       | `string`                    | —            | Help that is announced with the group.                                                                       |
 | `error`      | `string`                    | —            | What to fix. Replaces the hint and is announced with the group.                                              |
-| `required`   | `boolean`                   | `false`      | A word beside the legend, and `required` on the radios.                                                      |
-| `optional`   | `boolean`                   | `false`      | A word beside the legend. Flag whichever is rarer.                                                           |
+| `required`   | `boolean`                   | `false`      | Sets `required` on the radios and adds a word beside the legend.                                             |
+| `optional`   | `boolean`                   | `false`      | Adds a word beside the legend. Use it when most fields in the form are required.                             |
 | `disabled`   | `boolean`                   | `false`      | Disables every option.                                                                                       |
 | `name`       | `string`                    | `generated`  | Shared by the radios, submitted with a form.                                                                 |
 
 <!-- props:end -->
 
-`class`, `style`, attributes and listeners land on the `fieldset` element. Exposes `input` (the chosen radio, else the first) and `focus()`. With an `error` every radio takes a red edge.
+`class`, `style`, attributes and listeners land on the `fieldset` element. Exposes `input` (the chosen radio, else the first) and `focus()`.
 
 ## Slots
 
-| Slot     | Use                                                                                                     |
-| -------- | ------------------------------------------------------------------------------------------------------- |
-| `reveal` | Receives `{ option }`; a control shown under the chosen option. Render nothing for options without one. |
+| Slot     | Use                                                                                                                    |
+| -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `reveal` | Receives `{ option }`. A control shown under the chosen option. An option with no content here shows no extra control. |
 
 ## Accessibility
 

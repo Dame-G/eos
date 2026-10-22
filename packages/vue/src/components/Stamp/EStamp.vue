@@ -12,11 +12,11 @@ export type StampStatus =
 const props = defineProps<{
   /** A preset: sets the tone and the word (message `status.<name>`). */
   status?: StampStatus;
-  /** Overrides the preset's tone. Without a status it is `neutral` (ink; `ink` is the same). `success`: paid, confirmed. `info`: due, scheduled. `warning`: needs attention. `danger`: overdue, failed. @default "ink" */
+  /** Overrides the preset's tone. Without a `status` the stamp is `neutral`, the same as `ink`. `success`, `info`, `warning` and `danger` colour it. */
   tone?: StampTone;
-  /** The word. Overrides the preset's; the default slot overrides both. @default preset's word, else Status */
+  /** The word. It overrides the preset's, and the default slot overrides both. @default preset's word, else Status */
   label?: string;
-  /** A glyph before the word. None by default. */
+  /** A glyph before the word. */
   icon?: IconProp;
   /** A date or day count, set after the word. */
   detail?: string;
@@ -25,7 +25,7 @@ const props = defineProps<{
 }>();
 
 defineSlots<{
-  /** The word, instead of `label` or the preset's. Write sentence case; the stamp sets it in capitals. */
+  /** The word, instead of `label` or the preset's. Write it in sentence case. The stamp sets it in capitals. */
   default?(): unknown;
 }>();
 

@@ -24,9 +24,9 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** Names the group and heads it. Say what the form is. @default "Signature" */
+    /** The group's heading and accessible name, such as the form being signed. @default "Signature" */
     label?: string;
-    /** `type` the default, `draw`, or `both` which adds a Type and Draw switch. A drawn signature cannot be made from a keyboard, so `both` is the usual choice. */
+    /** How the person signs: `type`, `draw` or `both`, which adds a Type and Draw switch. A drawn signature cannot be made from a keyboard, so `both` lets keyboard users type instead. */
     mode?: "type" | "draw" | "both";
     /** The sentence the person agrees to. @default "I agree and want to sign this form." */
     agreement?: string;

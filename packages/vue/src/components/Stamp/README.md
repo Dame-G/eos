@@ -12,18 +12,18 @@ A small non-interactive mark with a word that says where something stands, such 
 
 <!-- props:start -->
 
-| Prop     | Type          | Default                      | Notes                                                                                                                                                                                              |
-| -------- | ------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `status` | `StampStatus` | —                            | A preset: sets the tone and the word (message `status.<name>`).                                                                                                                                    |
-| `tone`   | `StampTone`   | `"ink"`                      | Overrides the preset's tone. Without a status it is `neutral` (ink; `ink` is the same). `success`: paid, confirmed. `info`: due, scheduled. `warning`: needs attention. `danger`: overdue, failed. |
-| `label`  | `string`      | `preset's word, else Status` | The word. Overrides the preset's; the default slot overrides both.                                                                                                                                 |
-| `icon`   | `IconProp`    | —                            | A glyph before the word. None by default.                                                                                                                                                          |
-| `detail` | `string`      | —                            | A date or day count, set after the word.                                                                                                                                                           |
-| `small`  | `boolean`     | `false`                      | Shorter, for rows and tables.                                                                                                                                                                      |
+| Prop     | Type          | Default                      | Notes                                                                                                                                           |
+| -------- | ------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `status` | `StampStatus` | —                            | A preset: sets the tone and the word (message `status.<name>`).                                                                                 |
+| `tone`   | `StampTone`   | —                            | Overrides the preset's tone. Without a `status` the stamp is `neutral`, the same as `ink`. `success`, `info`, `warning` and `danger` colour it. |
+| `label`  | `string`      | `preset's word, else Status` | The word. It overrides the preset's, and the default slot overrides both.                                                                       |
+| `icon`   | `IconProp`    | —                            | A glyph before the word.                                                                                                                        |
+| `detail` | `string`      | —                            | A date or day count, set after the word.                                                                                                        |
+| `small`  | `boolean`     | `false`                      | Shorter, for rows and tables.                                                                                                                   |
 
 <!-- props:end -->
 
-Presets: `paid`, `confirmed`, `signed` and `complete` are success; `due`, `scheduled` and `pending` are info; `action` is warning; `overdue` and `cancelled` are danger. `class`, `style` and attributes land on the `span` element. Write the word in sentence case; the stamp sets it in capitals.
+Presets: `paid`, `confirmed`, `signed` and `complete` are success. `due`, `scheduled` and `pending` are info. `action` is warning. `overdue` and `cancelled` are danger. `class`, `style` and attributes land on the `span` element. Write the word in sentence case. The stamp sets it in capitals.
 
 ## Slots
 

@@ -18,7 +18,7 @@ import "../Checkbox/choice.css";
 const props = defineProps<{
   /** The question, as the group's legend. */
   label: string;
-  /** Keep the legend for screen readers and remove it from the page. */
+  /** Keeps the legend for screen readers and hides it from the page. */
   hideLabel?: boolean;
   /** Five or fewer. A string is both value and label. `RadioOption`: `{ value, label, description?, disabled? }`. */
   options: (string | RadioOption)[];
@@ -26,9 +26,9 @@ const props = defineProps<{
   hint?: string;
   /** What to fix. Replaces the hint and is announced with the group. */
   error?: string;
-  /** A word beside the legend, and `required` on the radios. */
+  /** Sets `required` on the radios and adds a word beside the legend. */
   required?: boolean;
-  /** A word beside the legend. Flag whichever is rarer. */
+  /** Adds a word beside the legend. Use it when most fields in the form are required. */
   optional?: boolean;
   /** Disables every option. */
   disabled?: boolean;
@@ -37,7 +37,7 @@ const props = defineProps<{
 }>();
 
 defineSlots<{
-  /** A control shown under its option while that option is chosen, such as an amount field under "Another amount". Render nothing for an option that has none. */
+  /** A control shown under its option while that option is chosen, such as an amount field under "Another amount". An option with no content here shows no extra control. */
   reveal(props: { option: RadioOption }): unknown;
 }>();
 

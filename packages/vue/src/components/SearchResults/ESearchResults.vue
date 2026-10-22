@@ -21,20 +21,20 @@ const props = withDefaults(
     items: SearchResultItem[];
     /** The accessible name of the list, such as "Search results". */
     label: string;
-    /** Shown when there are no results, such as `Nothing found for "tax"`. Leave it out to show nothing at all, for example before anyone has typed. */
+    /** Shown when there are no results, such as `Nothing found for "tax"`. Without it nothing shows, for example before anyone has typed. */
     emptyText?: string;
     /** The text that was searched for: its first match in each title and description is marked, as in `ECombobox` options. */
     query?: string;
-    /** What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). Give items `to`; it receives `to` or `href` and the class `e-opt`. */
+    /** What renders each link: `"a"`, `RouterLink` or any component that takes `href` or `to` and a default slot. It receives `to` or `href` and the class `e-opt`. Give items `to` for `RouterLink`. */
     linkComponent?: string | Component;
   }>(),
   { linkComponent: "a" },
 );
 
 const emit = defineEmits<{
-  /** The person opened a result, by click or Enter. Call `event.preventDefault()` to handle the navigation yourself. */
+  /** The person opened a result, by click or Enter. Calling `event.preventDefault()` lets the app handle the navigation itself. */
   select: [item: SearchResultItem, event: MouseEvent];
-  /** ArrowUp was pressed on the first result: move focus back to your search box. */
+  /** ArrowUp was pressed on the first result. Use it to move focus back to the search box. */
   edge: [];
 }>();
 

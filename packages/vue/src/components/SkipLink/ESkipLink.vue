@@ -5,14 +5,14 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** The in-page target, `#main` by default. It must match the `id` of the main content. */
+    /** The in-page target. It must match the `id` of the main content. */
     href?: string;
   }>(),
   { href: "#main" },
 );
 
 defineSlots<{
-  /** The text. Defaults to "Skip to main content". */
+  /** The link text. */
   default?(): unknown;
 }>();
 

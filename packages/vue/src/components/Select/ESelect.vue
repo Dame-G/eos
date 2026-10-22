@@ -8,7 +8,7 @@ import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import "../../styles/base.css";
 
 interface ESelectFields {
-  /** Strings, or `{ value, label, description?, icon?, group?, disabled? }`. A string is both value and label; `value` is never an empty string. A new `group` heading starts where `group` changes, so keep groups together. */
+  /** Strings, or `{ value, label, description?, icon?, group?, disabled? }`. A string is both value and label. `value` is never an empty string. A new `group` heading starts where `group` changes, so options of one group belong together. */
   options: readonly EOptionInput[];
   /** What the button says while nothing is chosen. @default "Select" */
   placeholder?: string;
@@ -16,15 +16,15 @@ interface ESelectFields {
   hint?: string;
   /** What to fix. Replaces the hint, marks the control invalid and is announced. */
   error?: string;
-  /** The `required` attribute and a word beside the label. */
+  /** Sets the `required` attribute and adds a word beside the label. */
   required?: boolean;
-  /** A word beside the label. Flag whichever is rarer. */
+  /** Adds a word beside the label. Use it when most fields in the form are required. */
   optional?: boolean;
-  /** Never opens. */
+  /** Disables the control, so it never opens. */
   disabled?: boolean;
   /** Submits the chosen value with a form (a hidden input carries it). */
   name?: string;
-  /** The id of the button; the label points at it. @default generated */
+  /** The id of the button, which the label points at. @default generated */
   id?: string;
 }
 
@@ -32,7 +32,7 @@ defineOptions({ inheritAttrs: false });
 
 const props = defineProps<ELabelProps & ESelectFields>();
 
-/** The chosen option's `value`; empty is nothing chosen. */
+/** The chosen option's `value`. Empty means nothing is chosen. */
 const model = defineModel<string>({ default: "" });
 
 /** Whether the list is open. A disabled field never opens. */

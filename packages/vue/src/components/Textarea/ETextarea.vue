@@ -9,11 +9,11 @@ defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
   defineProps<{
-    /** The visible label, a mono kicker above the text well. */
+    /** The visible label above the textarea. */
     label: string;
-    /** Keep the label for screen readers and remove it from the page. */
+    /** Keeps the label for screen readers and hides it from the page. */
     hideLabel?: boolean;
-    /** Help that stays under the text well. */
+    /** Help that stays under the textarea. */
     hint?: string;
     /** What to fix. Replaces the hint, marks the textarea invalid and is announced. */
     error?: string;
@@ -21,15 +21,15 @@ const props = withDefaults(
     placeholder?: string;
     /** Visible lines. */
     rows?: number;
-    /** The `required` attribute and a word beside the label. */
+    /** Sets the `required` attribute and adds a word beside the label. */
     required?: boolean;
-    /** A word beside the label. Flag whichever is rarer. */
+    /** Adds a word beside the label. Use it when most fields in the form are required. */
     optional?: boolean;
     /** Disables the field. */
     disabled?: boolean;
     /** Shows the text but blocks editing. The textarea stays focusable and selectable. */
     readonly?: boolean;
-    /** The id of the textarea; the label points at it. @default generated */
+    /** The id of the textarea, which the label points at. @default generated */
     id?: string;
   }>(),
   { rows: 4 },

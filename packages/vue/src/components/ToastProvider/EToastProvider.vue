@@ -7,7 +7,7 @@ import { createToasts, TOAST_KEY } from "../../composables/useToast.js";
 import "../../styles/base.css";
 
 defineSlots<{
-  /** The app. Call `useToast()` anywhere inside it. */
+  /** The app. `useToast()` works anywhere inside it. */
   default?(): unknown;
 }>();
 

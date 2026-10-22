@@ -1,6 +1,6 @@
 # EToast
 
-A floating message that confirms or reports something just done. Show toasts through `useToast()` and [`EToastProvider`](../ToastProvider/README.md); use this component directly only to build something else.
+A floating message that confirms or reports something just done. Show toasts through `useToast()` and [`EToastProvider`](../ToastProvider/README.md). Use this component directly only to build something else.
 
 ```vue
 <EToast tone="success" title="Payment received" @close="hide">A receipt was sent to your email.</EToast>
@@ -13,7 +13,7 @@ A floating message that confirms or reports something just done. Show toasts thr
 | Prop       | Type                                           | Default      | Notes                                                                                         |
 | ---------- | ---------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------- |
 | `title`    | `string`                                       | **Required** | What happened, in a few words.                                                                |
-| `tone`     | `"info" \| "success" \| "warning" \| "danger"` | `"info"`     | `info` is the default. `danger` is announced at once.                                         |
+| `tone`     | `"info" \| "success" \| "warning" \| "danger"` | `"info"`     | `danger` is announced at once and the other tones politely.                                   |
 | `icon`     | `IconProp`                                     | —            | Replaces the icon of the tone.                                                                |
 | `closable` | `boolean`                                      | —            | Forces the dismiss button on or off. Left out, it shows when a `@close` listener is attached. |
 
@@ -23,16 +23,16 @@ A floating message that confirms or reports something just done. Show toasts thr
 
 ## Slots
 
-| Slot      | Use                                                                              |
-| --------- | -------------------------------------------------------------------------------- |
-| `default` | One sentence of detail.                                                          |
-| `action`  | A button; at the end of the row at 36rem wide or more, below the text otherwise. |
+| Slot      | Use                                                                                                             |
+| --------- | --------------------------------------------------------------------------------------------------------------- |
+| `default` | One sentence of detail.                                                                                         |
+| `action`  | A button. It sits at the end of the row when the toast is 36rem wide or more, and below the text when narrower. |
 
 ## Events
 
-| Event   | Payload | Notes                                                                      |
-| ------- | ------- | -------------------------------------------------------------------------- |
-| `close` |         | The dismiss button was pressed; it shows only when a listener is attached. |
+| Event   | Payload | Notes                                                                              |
+| ------- | ------- | ---------------------------------------------------------------------------------- |
+| `close` |         | The dismiss button was pressed. The button shows only when a listener is attached. |
 
 ## Accessibility
 

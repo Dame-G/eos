@@ -13,7 +13,7 @@ const props = withDefaults(
   defineProps<{
     /** What happened, in a few words. */
     title: string;
-    /** `info` is the default. `danger` is announced at once. */
+    /** `danger` is announced at once and the other tones politely. */
     tone?: "info" | "success" | "warning" | "danger";
     /** Replaces the icon of the tone. */
     icon?: IconProp;
