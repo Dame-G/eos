@@ -1,5 +1,39 @@
 # @eos-ui/vue
 
+## 0.9.0
+
+### Minor Changes
+
+- 28e41d2: EDialog and EDrawer take a `description` prop, shown under the title and wired through `aria-describedby`, and a `role` prop that can be `alertdialog` for confirmations. A consumer's own `aria-describedby` is no longer overridden. Toasts raised while a modal dialog is open are no longer hidden from assistive technology and can be clicked. EDrawer's slide uses `--e-duration-move`, so the motion presets apply. The toast docs now say that `createEos()` already provides `useToast()` everywhere.
+- 5d6bbe1: `ETabs` takes a `label` that names the tab list. A disabled `ESearchBar` now has the dashed disabled look and no hover fill. `ECheckbox`, `ERadioGroup` and `ESegmented` show an error with a red edge. `ESelect`, `ESegmented`, `ERadioGroup` and `EOtpField` expose `input` and `focus()`, and `ECombobox` exposes `input` as an element rather than a function.
+- 865c379: ENumberField and ECurrencyField read and write numbers with the configured locale, so a decimal comma works in French and German instead of being dropped (`1,5` no longer becomes 15). The number spinbutton also answers Home and End (min and max) and PageUp and PageDown (steps of ten).
+
+  ETextField, EPasswordField, ETextarea, ENumberField, ECurrencyField and EDatePicker have a `readonly` prop. The input is readonly, the number buttons and keys and the date calendar do nothing, and the prefix and suffix wrap gets the same tinted look as a bare readonly input.
+
+- ee9f749: A message can now be a plural object (`{ one, other }` and the other `Intl.PluralRules` categories). `t()` picks the form from `n` using the configured locale, and a plain string still works. `resultsCount`, `rows` and `rowsAnnounce` use it, so the command palette and data grid no longer read "1 results" or "1 rows". `messages` in `createEos()` accepts either form. The unused `you`, `team`, `automatic` and `activity` messages are removed, and the month and year button label now reads "Change month or year, currently {month} {year}". Docs: "EOS" spelling, accurate bundle size and plugin option lists, no semicolons in prose.
+
+### Patch Changes
+
+- 5e89142: The hidden screen-reader region no longer adds a pixel of scroll height. A page exactly one screen tall showed a scrollbar after the first "Copied" or other announcement.
+- fe12618: A button avatar fills with a darker tint on hover, as well as darkening its edge.
+- a7bf4d0: The label notes on ESelect and ECombobox read in the same voice as the other prop notes and no longer describe the label as a kicker.
+- 16ef3a2: EHighlight has a faint tint of its accent colour behind the text. It is paint only, so the text takes the same room as before.
+- 02ea38e: Body text on a mid-grey surface no longer reports a contrast issue when neither black nor white can reach 7:1. The target there is the best of the two, which is always above 4.5:1.
+- 88f0f59: `defineTheme` now gives readable action colours on mid-tone surfaces such as `#9e9e9e` and `#808080`. Before, the primary, secondary, danger and warning colours came out near white next to a white label. Each now tries both darker and lighter, and flips the label between black and white when that is the only way to hold the contrast. Themes that already passed keep their colours. The default `border` is a shade darker (`#7c8c93`) and derived borders are adjusted so the outline holds 3:1 on `surface-tint` as documented. `checkContrast` now follows `var(--e-name)` references, which it skipped before, and also checks `focus-ring`, `focus-field`, `muted` on `surface-tint` and `border` on `surface-tint`. Body text between about `#5c5c5c` and `#959595` cannot reach 7:1 in black or white, so a theme on those surfaces still reports `ink` on `surface` and `background`.
+- 16ef3a2: Disabled Select and Combobox fields no longer show the chevron, and a disabled field's chips and Upload's "choose one" link are neutral instead of primary.
+- a7bf4d0: The props tables in the component READMEs show None in the Default column for a prop with no default, instead of a dash.
+- a7bf4d0: The range summary in ECalendar reads "(1 day)" for a one-day range instead of "(1 days)". `rangeDone` is now a plural message and takes `n`. An override that uses `{days}` keeps working.
+- 5a23c12: The switch thumb has a softer slab under it.
+- 301f236: Line heights follow the text scale. EText, ENotice, EToast, EStamp, ETabs, ENavList, EBreadcrumb and the checkbox and radio labels set their line height as a ratio of the font size, so a theme with a `textScale` of 1.5 or more no longer packs lines on top of each other. Rendering at the default scale is unchanged.
+- da438e1: Upload applies `accept` and `multiple` to dropped files, announces added, rejected and removed files, lets each file be removed, shows sizes in the locale and shows the danger edge when invalid. Combobox returns focus to the input and announces a removed chip. Progress clamps `aria-valuenow` and sets `aria-valuetext` from `valueText`.
+- e0dd5e3: Tidy the wording of the docs for A to D components.
+- e450528: Tidy the wording of the docs for P to V components.
+- 6d1bd7b: Tidy the wording of the docs for D to P components.
+- Updated dependencies [02ea38e]
+- Updated dependencies [88f0f59]
+- Updated dependencies [301f236]
+  - @eos-ui/tokens@0.9.0
+
 ## 0.8.1
 
 ### Patch Changes
