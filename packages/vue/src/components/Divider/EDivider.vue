@@ -2,7 +2,7 @@
 import "../../styles/base.css";
 
 defineProps<{
-  /** Text set in a mono kicker between two rules. Without it the divider is a plain hairline. */
+  /** Text shown between two rules. Without it the divider is a plain hairline. */
   label?: string;
 }>();
 </script>

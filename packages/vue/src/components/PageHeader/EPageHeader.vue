@@ -8,18 +8,18 @@ withDefaults(
     title: string;
     /** A short line under the title. */
     description?: string;
-    /** The heading level of the title, 1 by default. A page has exactly one h1; change it only when the header is not the page's title. */
+    /** The heading level of the title. A page has exactly one `h1`, so change the level only when the header is not the page's title. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   }>(),
   { headingLevel: 1 },
 );
 
 defineSlots<{
-  /** An EBreadcrumb above the title. */
+  /** An `EBreadcrumb` above the title. */
   breadcrumb?(): unknown;
-  /** An EStamp beside the title. */
+  /** An `EStamp` beside the title. */
   status?(): unknown;
-  /** The page's Buttons, the main one first. */
+  /** The page's buttons, with the main one first. */
   actions?(): unknown;
 }>();
 </script>

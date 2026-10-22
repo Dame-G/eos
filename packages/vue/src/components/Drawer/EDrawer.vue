@@ -10,29 +10,29 @@ withDefaults(
     title: string;
     /** A sentence under the title that says what the drawer is for. It is shown, and read out as the description. */
     description?: string;
-    /** `alertdialog` for a confirmation that needs an answer, such as a delete. Leave it as `dialog` for everything else. */
+    /** `alertdialog` for a confirmation that needs an answer, such as a delete. Every other drawer uses `dialog`. */
     role?: "dialog" | "alertdialog";
     /** The level of the title's heading element, 1 to 6. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
-    /** The edge it slides in from; `bottom` is a sheet for phones. */
+    /** The edge it slides in from. `bottom` gives a sheet that suits phones. */
     side?: "right" | "left" | "bottom";
-    /** Also closes when the backdrop is pressed. Leave it off for a form, where a stray press would throw the work away. */
+    /** Closes the drawer when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. */
     dismissible?: boolean;
-    /** Shows the drawer in the page, without the backdrop or the focus trap. Only for a preview. */
+    /** Shows the drawer in the page, without the backdrop or the focus trap, for a preview. */
     inline?: boolean;
   }>(),
   { role: "dialog", headingLevel: 2, side: "right" },
 );
 
 const emit = defineEmits<{
-  /** The person closed it: the Close button, Escape, or the backdrop when `dismissible`. `open` is already false. */
+  /** Fires when the person closes it with the Close button, Escape, or the backdrop when `dismissible`. `open` is already false. */
   close: [];
 }>();
 
 defineSlots<{
   /** The content, such as a statement or receipt. It scrolls inside the drawer. */
   default?(): unknown;
-  /** Buttons for the foot bar, the main action first. */
+  /** Buttons for the foot bar, with the main action first. */
   actions?(): unknown;
 }>();
 

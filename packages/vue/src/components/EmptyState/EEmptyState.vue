@@ -5,13 +5,13 @@ import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
-    /** A glyph in the primary colour above the title. */
+    /** An icon above the title. */
     icon?: IconProp;
     /** What is missing, in the person's words. */
     title: string;
-    /** The level of the title's heading element, 1 to 6; fit the page outline. */
+    /** The level of the title's heading element, 1 to 6, chosen to fit the page outline. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
-    /** Removes the dashed outline, for use inside a table or panel. */
+    /** Removes the outline, for use inside a table or panel. */
     bare?: boolean;
   }>(),
   { headingLevel: 3 },
@@ -20,7 +20,7 @@ withDefaults(
 defineSlots<{
   /** One or two sentences: why it is empty and what to do. */
   default?(): unknown;
-  /** The next step, a Button. */
+  /** The next step, an `EButton`. */
   action?(): unknown;
 }>();
 </script>

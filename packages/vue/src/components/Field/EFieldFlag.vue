@@ -2,9 +2,9 @@
 import { useMessages } from "../../config.js";
 
 defineProps<{
-  /** Show the word "Required". */
+  /** Shows the word "Required". */
   required?: boolean;
-  /** Show the word "Optional". Flag whichever is rarer. */
+  /** Shows the word "Optional". Only the rarer of required and optional needs a flag. */
   optional?: boolean;
 }>();
 

@@ -2,7 +2,7 @@
 import "../../styles/base.css";
 
 defineProps<{
-  /** The smaller size, for a hint inside running small text. */
+  /** Makes the key smaller, for a hint inside small text. */
   small?: boolean;
 }>();
 

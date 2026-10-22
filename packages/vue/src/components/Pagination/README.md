@@ -17,9 +17,9 @@ Previous, Next and page-number buttons for paging through a long list.
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `nav` element. It shows first, last and neighbouring pages with ellipses; under 32rem only Previous and Next remain. Hidden in print.
+`class`, `style` and attributes land on the `nav` element. It shows first, last and neighbouring pages with ellipses. Under 32rem only Previous and Next remain. Hidden in print.
 
 ## Accessibility
 
-- A `nav` named "Pagination"; pass `aria-label` to tell two pagers apart.
-- The current page has `aria-current="page"`; each number is named "Page N".
+- A `nav` named "Pagination". Pass `aria-label` to tell two pagers apart.
+- The current page has `aria-current="page"`, and each number is named "Page N".

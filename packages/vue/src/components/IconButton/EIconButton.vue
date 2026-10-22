@@ -6,7 +6,7 @@ import "../../styles/base.css";
 defineProps<{
   /** The glyph. */
   icon: IconProp;
-  /** The accessible name. Write it as an action, such as "Download receipt". */
+  /** The accessible name, phrased as an action such as "Download receipt". */
   label: string;
   /** Disables the button. */
   disabled?: boolean;

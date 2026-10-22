@@ -16,15 +16,15 @@ export type NavSection = LinkSection<NavItem>;
 
 const props = withDefaults(
   defineProps<{
-    /** The destinations, in order: `{ label, href?, to?, icon?, count?, current? }`. With no `href` or `to` a link goes to `#`. Set `current` yourself. */
+    /** The destinations, in order: `{ label, href?, to?, icon?, count?, current? }`. With no `href` or `to` a link goes to `#`. `current` marks the current page and is never set for you. */
     items?: NavItem[];
-    /** Destinations in labelled groups, instead of `items`: `{ label?, items }`. Give a label only when there is more than one section. */
+    /** Destinations in labelled groups, instead of `items`: `{ label?, items }`. A label is needed only when there is more than one section. */
     sections?: NavSection[];
-    /** `vertical` stacks the links, for a sidebar or a menu. `horizontal` lays them in a row, for a header, with a hairline between each. Items look the same as in the vertical list: a tint on hover, and a primary outline with a heavier bottom edge on the current page. */
+    /** `vertical` stacks the links, for a sidebar or a menu. `horizontal` lays them in a row, for a header. */
     orientation?: "vertical" | "horizontal";
-    /** The landmark's name; give each navigation on a page its own. @default "Main" */
+    /** The landmark's name. Each navigation on a page needs its own. @default "Main" */
     label?: string;
-    /** What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). Give items `to`; it receives `to` or `href`, the class `e-nav-item` and `aria-current`. */
+    /** What renders each link: `RouterLink` or any component that takes `href` or `to` and a default slot. It receives `to` or `href`, the class `e-nav-item` and `aria-current`. Items then use `to`. */
     linkComponent?: string | Component;
   }>(),
   { orientation: "vertical", linkComponent: "a" },
@@ -83,7 +83,7 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
 
     --e-lift: 0px;
 
-    /* The current page is outlined with a border and its fill stops inside it, so the corner carries the edge colour alone; the other items have no edge and fill to the box. */
+    /* The current page is outlined with a border and its fill stops inside it, so the corner carries the edge colour alone. The other items have no edge and fill to the box. */
     border: var(--e-stroke-edge) solid transparent;
     border-bottom-width: calc(var(--e-stroke-edge) + var(--e-lift));
     border-radius: var(--e-radius-md);

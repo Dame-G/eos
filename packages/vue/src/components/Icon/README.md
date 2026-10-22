@@ -21,7 +21,7 @@ One 20px icon in the colour of the surrounding text, for putting a glyph beside 
 
 <!-- props:end -->
 
-`class` and attributes land on the icon element. A name resolves through `createEos({ icons })`, then the set's resolver and aliases, then the built-in set; an unknown name draws nothing and logs once in development. Names ending in `-left` or `-right` mirror in right-to-left text. See [Bring your own icons](../../icons/README.md).
+`class` and attributes land on the icon element. A name resolves through `createEos({ icons })`, then the set's resolver and aliases, then the built-in set. An unknown name draws nothing and logs once in development. Names ending in `-left` or `-right` mirror in right-to-left text. See [Bring your own icons](../../icons/README.md).
 
 ## Accessibility
 

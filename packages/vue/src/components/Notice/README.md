@@ -1,6 +1,6 @@
 # ENotice
 
-An inline message on a soft tint that stays until it is dealt with. Use [`EToast`](../Toast/README.md) for a message that follows an action and then goes.
+An inline message that stays until it is dealt with. Use [`EToast`](../Toast/README.md) for a message that follows an action and then goes.
 
 ```vue
 <ENotice tone="warning" title="Form due" :heading-level="2">
@@ -15,9 +15,9 @@ An inline message on a soft tint that stays until it is dealt with. Use [`EToast
 
 | Prop           | Type                         | Default      | Notes                                                                                                                            |
 | -------------- | ---------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `tone`         | `NoticeTone`                 | `"info"`     | `info` is the default; `success` confirms; `warning` needs attention; `danger` is an error and is announced at once.             |
+| `tone`         | `NoticeTone`                 | `"info"`     | `info` informs, `success` confirms, `warning` needs attention and `danger` is an error announced at once.                        |
 | `title`        | `string`                     | **Required** | What happened, in one short line.                                                                                                |
-| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | —            | Renders the title as a heading of this level (1 to 6) so the notice is findable by heading; without it the title is a paragraph. |
+| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | —            | Renders the title as a heading of this level (1 to 6) so the notice is findable by heading. Without it the title is a paragraph. |
 | `titleId`      | `string`                     | —            | The id of the title element, for a parent that labels itself by it.                                                              |
 | `role`         | `string \| false`            | —            | The ARIA role. `danger` uses `alert`, the others `status`. `false` removes it, for a parent that announces the notice.           |
 | `icon`         | `IconProp`                   | —            | Replaces the icon of the tone.                                                                                                   |
@@ -29,18 +29,18 @@ An inline message on a soft tint that stays until it is dealt with. Use [`EToast
 
 ## Slots
 
-| Slot      | Use                                                                                           |
-| --------- | --------------------------------------------------------------------------------------------- |
-| `default` | One sentence of detail.                                                                       |
-| `actions` | Buttons (`outline` or `quiet`); at the row end from 36rem wide, under the text when narrower. |
+| Slot      | Use                                                                                                                                                             |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `default` | One sentence of detail under the title.                                                                                                                         |
+| `actions` | Buttons for the next step, best as `outline` or `quiet`. They sit at the end of the row when the notice is 36rem wide or more and under the text when narrower. |
 
 ## Events
 
-| Event   | Payload | Notes                         |
-| ------- | ------- | ----------------------------- |
-| `close` |         | The close button was pressed. |
+| Event   | Payload | Notes                                                                            |
+| ------- | ------- | -------------------------------------------------------------------------------- |
+| `close` |         | The close button was pressed. The button only shows when a listener is attached. |
 
 ## Accessibility
 
-- A live region: `role="alert"` for `danger`, `role="status"` otherwise. Set `role` to `false` when a parent already announces it.
+- A live region, with `role="alert"` for `danger` and `role="status"` otherwise. Set `role` to `false` when a parent already announces it.
 - The close button is named "Dismiss".

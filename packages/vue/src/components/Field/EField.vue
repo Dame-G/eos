@@ -6,24 +6,24 @@ import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
-  /** The visible label, a small mono kicker above the control. */
+  /** The visible label above the control. */
   label: string;
-  /** Keep the label for screen readers and remove it from the page. */
+  /** Hides the label from the page and keeps it for screen readers. */
   hideLabel?: boolean;
   /** Help that stays under the control. */
   hint?: string;
   /** What to fix. Replaces the hint, turns the control invalid and is announced. */
   error?: string;
-  /** A word beside the label. */
+  /** Shows "Required" beside the label. */
   required?: boolean;
-  /** A word beside the label. Flag whichever is rarer. */
+  /** Shows "Optional" beside the label. Only the rarer of required and optional needs a flag. */
   optional?: boolean;
-  /** The id of the control; the label points at it. @default generated */
+  /** The id of the control. The label points at it. @default generated */
   id?: string;
 }>();
 
 defineSlots<{
-  /** The control. Put `id`, `aria-invalid` and `aria-describedby` on it. */
+  /** The control. It must carry `id`, `aria-invalid` and `aria-describedby` from the slot scope. */
   default(props: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }): unknown;
 }>();
 

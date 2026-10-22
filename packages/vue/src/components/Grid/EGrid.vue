@@ -10,7 +10,7 @@ const props = withDefaults(
     min?: string;
     /** A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string. */
     gap?: number | string;
-    /** Pack cards of uneven height into columns with no gaps under the short ones. Items flow top to bottom within each column. */
+    /** Packs cards of uneven height into columns with no gaps under the short ones. Items flow top to bottom within each column. */
     masonry?: boolean;
   }>(),
   { as: "div", min: "16rem", gap: 4, masonry: false },
@@ -49,7 +49,7 @@ const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-
     column-gap: var(--e-gap, var(--e-space-4));
   }
 
-  /* Each item carries the row gap below it; a column drops the margin after its last item. */
+  /* Each item carries the row gap below it, and a column drops the margin after its last item. */
   .e-grid-layout--masonry > * {
     break-inside: avoid;
     margin-block-end: var(--e-gap, var(--e-space-4));

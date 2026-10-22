@@ -21,27 +21,27 @@ import "../Combobox/combo.css";
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  /** The visible label, a mono kicker above the field. @default "Password" */
+  /** The visible label above the field. @default "Password" */
   label?: string;
-  /** Keep the label for screen readers and remove it from the page. */
+  /** Hides the label from the page and keeps it for screen readers. */
   hideLabel?: boolean;
   /** `current` for signing in, `new` for choosing one. Sets `autocomplete` (`current-password` or `new-password`) so a password manager can fill or suggest. */
   mode?: "current" | "new";
-  /** `{ label, test(value) }`. A checklist under the field that updates as the person types. Each rule shows a tick or an empty circle and says "met" or "not met yet". */
+  /** The rules, as `{ label, test(value) }`. They form a checklist under the field that updates as the person types. Each rule is announced as "met" or "not met yet". */
   rules?: PasswordRule[];
   /** Help that stays under the field. */
   hint?: string;
   /** What to fix. Replaces the hint, marks the input invalid and is announced. */
   error?: string;
-  /** The `required` attribute and a word beside the label. */
+  /** Sets the `required` attribute and shows "Required" beside the label. */
   required?: boolean;
-  /** A word beside the label. Flag whichever is rarer. */
+  /** Shows "Optional" beside the label. Only the rarer of required and optional needs a flag. */
   optional?: boolean;
   /** Disables the input and the toggle. */
   disabled?: boolean;
   /** Shows the value but blocks editing. The input stays focusable and selectable. The show toggle still works. */
   readonly?: boolean;
-  /** The id of the input; the label points at it. @default generated */
+  /** The id of the input. The label points at it. @default generated */
   id?: string;
 }>();
 

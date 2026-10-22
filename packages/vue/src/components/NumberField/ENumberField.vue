@@ -12,9 +12,9 @@ import "../TextField/input.css";
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  /** The visible label, a mono kicker above the field. */
+  /** The visible label above the field. */
   label: string;
-  /** Keep the label for screen readers and remove it from the page. */
+  /** Hides the label from the page and keeps it for screen readers. */
   hideLabel?: boolean;
   /** The lowest value. The value clamps to it and the decrease button disables there. */
   min?: number;
@@ -32,19 +32,19 @@ const props = defineProps<{
   hint?: string;
   /** What to fix. Replaces the hint, marks the field invalid and is announced. */
   error?: string;
-  /** The `required` attribute and a word beside the label. */
+  /** Sets the `required` attribute and shows "Required" beside the label. */
   required?: boolean;
-  /** A word beside the label. Flag whichever is rarer. */
+  /** Shows "Optional" beside the label. Only the rarer of required and optional needs a flag. */
   optional?: boolean;
   /** Disables the input and both buttons. */
   disabled?: boolean;
   /** Shows the value but blocks editing. The input stays focusable and selectable. Both buttons and the keys that change the value do nothing. */
   readonly?: boolean;
-  /** The id of the input; the label points at it. @default generated */
+  /** The id of the input. The label points at it. @default generated */
   id?: string;
 }>();
 
-/** The number; `null` when empty. */
+/** The number, or `null` when empty. */
 const model = defineModel<number | null>({ default: null });
 
 const t = useMessages();

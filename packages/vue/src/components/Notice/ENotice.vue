@@ -14,11 +14,11 @@ import "./notice.css";
 
 const props = withDefaults(
   defineProps<{
-    /** `info` is the default; `success` confirms; `warning` needs attention; `danger` is an error and is announced at once. */
+    /** `info` informs, `success` confirms, `warning` needs attention and `danger` is an error announced at once. */
     tone?: NoticeTone;
     /** What happened, in one short line. */
     title: string;
-    /** Renders the title as a heading of this level (1 to 6) so the notice is findable by heading; without it the title is a paragraph. */
+    /** Renders the title as a heading of this level (1 to 6) so the notice is findable by heading. Without it the title is a paragraph. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     /** The id of the title element, for a parent that labels itself by it. */
     titleId?: string;
@@ -40,7 +40,7 @@ const emit = defineEmits<{
 defineSlots<{
   /** One sentence of detail under the title. */
   default?(): unknown;
-  /** Buttons for the next step; `outline` and `quiet` suit best. At the end of the row when the notice is 36rem wide or more, under the text when narrower. */
+  /** Buttons for the next step, best as `outline` or `quiet`. They sit at the end of the row when the notice is 36rem wide or more and under the text when narrower. */
   actions?(): unknown;
 }>();
 

@@ -7,21 +7,21 @@ An inline anchor for going somewhere. Things that change something are buttons.
 <ELink href="https://example.com/help" external>Help centre</ELink>
 ```
 
-An icon before the text, for a link such as the project's repository:
+An icon before the text:
 
 ```vue
-<ELink href="https://github.com/Dame-G/eos" external :icon="GithubMark">GitHub</ELink>
+<ELink href="/statements/latest" icon="file">Latest statement</ELink>
 ```
 
 ## Props
 
 <!-- props:start -->
 
-| Prop       | Type       | Default      | Notes                                                                                                                                                 |
-| ---------- | ---------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `href`     | `string`   | **Required** | Where the link goes.                                                                                                                                  |
-| `external` | `boolean`  | `false`      | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`).                                                                                           |
-| `icon`     | `IconProp` | —            | An icon before the text: a built-in name, a name from your icon set, or an icon component. It is hidden from screen readers; the text names the link. |
+| Prop       | Type       | Default      | Notes                                                                                                                                                    |
+| ---------- | ---------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `href`     | `string`   | **Required** | Where the link goes.                                                                                                                                     |
+| `external` | `boolean`  | `false`      | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`).                                                                                              |
+| `icon`     | `IconProp` | —            | An icon before the text: a built-in name, a name from your icon set, or an icon component. It is hidden from screen readers, so the text names the link. |
 
 <!-- props:end -->
 
@@ -29,10 +29,10 @@ An icon before the text, for a link such as the project's repository:
 
 ## Slots
 
-| Slot      | Use                               |
-| --------- | --------------------------------- |
-| `default` | The link text: say where it goes. |
+| Slot      | Use                                      |
+| --------- | ---------------------------------------- |
+| `default` | The link text, which says where it goes. |
 
 ## Accessibility
 
-- An `a` with `href`: say in the text when an external link opens a new tab and that would surprise people.
+- An `a` with `href`. For an external link, say in the text that it opens a new tab.

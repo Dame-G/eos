@@ -2,9 +2,9 @@
 import "../../styles/base.css";
 
 defineProps<{
-    /** The summary line you press to open and close. Use the `title` slot for rich content. */
+    /** The summary line that opens and closes it. The `title` slot takes rich content. */
     title?: string;
-    /** Rows that share a group open one at a time (the native `name` of `details`). */
+    /** Disclosures that share a `group` open one at a time (the native `name` of `details`). */
     group?: string;
 }>();
 

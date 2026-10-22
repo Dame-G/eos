@@ -2,7 +2,7 @@
 export interface LinkItem {
   /** The words for this destination. */
   label: string;
-  /** Where it goes. Defaults to `#`. */
+  /** Where it goes. Without it the link goes to `#`. */
   href?: string;
   /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). */
   to?: unknown;

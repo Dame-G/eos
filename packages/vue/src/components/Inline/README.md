@@ -13,13 +13,13 @@ Children in a row that wraps when it runs out of room, for a title with a status
 
 <!-- props:start -->
 
-| Prop      | Type                    | Default | Notes                                                                   |
-| --------- | ----------------------- | ------- | ----------------------------------------------------------------------- |
-| `as`      | `string`                | `"div"` | The element to render, for example `ul`.                                |
-| `gap`     | `number \| string`      | `2`     | A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string. |
-| `justify` | `"between" \| "end"`    | —       | Main-axis placement: `between` or `end`; start by default.              |
-| `align`   | `"start" \| "baseline"` | —       | Cross-axis alignment: `start` or `baseline`; centred by default.        |
-| `nowrap`  | `boolean`               | `false` | Keeps the children on one line instead of wrapping.                     |
+| Prop      | Type                    | Default | Notes                                                                                                                            |
+| --------- | ----------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `as`      | `string`                | `"div"` | The element to render, for example `ul`.                                                                                         |
+| `gap`     | `number \| string`      | `2`     | A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string.                                                          |
+| `justify` | `"between" \| "end"`    | —       | Main-axis placement. `between` spreads the children apart and `end` packs them at the end. Left out, they sit at the start.      |
+| `align`   | `"start" \| "baseline"` | —       | Cross-axis alignment. `start` aligns the top edges and `baseline` aligns the text baselines. Left out, the children are centred. |
+| `nowrap`  | `boolean`               | `false` | Keeps the children on one line instead of wrapping.                                                                              |
 
 <!-- props:end -->
 
@@ -33,4 +33,4 @@ Children in a row that wraps when it runs out of room, for a title with a status
 
 ## Accessibility
 
-- Visual order follows source order; keep the source in reading order.
+- Visual order follows source order, so keep the source in reading order.

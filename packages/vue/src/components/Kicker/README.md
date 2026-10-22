@@ -1,6 +1,6 @@
 # EKicker
 
-The small uppercase mono label above a value or a section, in the muted colour. It is a label, not a heading: use [`EHeading`](../Heading/README.md) for the title that follows.
+A small label above a value or a section. It is a label, not a heading: use [`EHeading`](../Heading/README.md) for the title that follows.
 
 ```vue
 <EKicker>Balance</EKicker>
@@ -16,7 +16,7 @@ The small uppercase mono label above a value or a section, in the muted colour. 
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the rendered element. Write sentence case; the style sets capitals.
+`class`, `style` and attributes land on the rendered element. Write sentence case, since the style sets capitals.
 
 ## Slots
 

@@ -5,31 +5,31 @@ defineOptions({ inheritAttrs: false });
 
 withDefaults(
   defineProps<{
-    /** The question or task, as the dialog's heading and accessible name; make it a real question. */
+    /** The question or task, shown as the heading and used as the accessible name. It reads best as a question. */
     title: string;
     /** A sentence under the title that says what the dialog is for. It is shown, and read out as the description. */
     description?: string;
-    /** `alertdialog` for a confirmation that needs an answer, such as a delete. Leave it as `dialog` for everything else. */
+    /** `alertdialog` for a confirmation that needs an answer, such as a delete. Every other dialog uses `dialog`. */
     role?: "dialog" | "alertdialog";
     /** The level of the title's heading element, 1 to 6. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
-    /** Also closes when the backdrop is pressed. Leave it off for a form, where a stray press would throw the work away. */
+    /** Closes the dialog when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. */
     dismissible?: boolean;
-    /** Shows the dialog in the page, without the backdrop or the focus trap. Only for a preview. */
+    /** Shows the dialog in the page, without the backdrop or the focus trap, for a preview. */
     inline?: boolean;
   }>(),
   { role: "dialog", headingLevel: 2 },
 );
 
 const emit = defineEmits<{
-  /** The person closed it: the Close button, Escape, or the backdrop when `dismissible`. `open` is already false. */
+  /** Fires when the person closes it with the Close button, Escape, or the backdrop when `dismissible`. `open` is already false. */
   close: [];
 }>();
 
 defineSlots<{
   /** The content: a sentence or two, or a short form. */
   default?(): unknown;
-  /** Buttons for the foot bar, the main action first. Name the danger button for what it does. */
+  /** Buttons for the foot bar, with the main action first. The danger button is named for what it does. */
   actions?(): unknown;
 }>();
 

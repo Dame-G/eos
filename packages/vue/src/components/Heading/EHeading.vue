@@ -4,9 +4,9 @@ import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
-    /** 1 to 6: sets both the element (`h1` to `h6`) and the size (36, 24, 20, 18, 16 and 14px). One level 1 per page; do not skip levels. */
+    /** 1 to 6. Sets both the element (`h1` to `h6`) and the size. The default sizes are 36, 24, 20, 18, 16 and 14px, and `textScale` rescales them. Use one level 1 per page and do not skip levels. */
     level?: 1 | 2 | 3 | 4 | 5 | 6;
-    /** A small mono label above the heading; renders an `EKicker`, which is not itself a heading. */
+    /** A label above the heading. It renders an `EKicker`, which is not itself a heading. */
     kicker?: string;
   }>(),
   { level: 2 },
