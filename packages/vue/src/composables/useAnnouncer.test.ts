@@ -18,6 +18,18 @@ describe("useAnnouncer", () => {
     expect(el.getBoundingClientRect().width).toBeLessThanOrEqual(1);
   });
 
+  test("the region does not make a one-screen page scroll", async () => {
+    document.querySelectorAll("[data-e-announcer]").forEach((el) => el.remove());
+    const page = document.createElement("div");
+    page.style.height = "100vh";
+    document.body.append(page);
+    const before = document.documentElement.scrollHeight;
+    useAnnouncer().announce("Copied");
+    await expect.poll(() => polite()?.textContent).toBe("Copied");
+    expect(document.documentElement.scrollHeight).toBe(before);
+    page.remove();
+  });
+
   test("assertive messages go to an alert region", async () => {
     useAnnouncer().announce("Payment failed", { assertive: true });
     await expect.poll(() => assertive()?.textContent).toBe("Payment failed");
