@@ -44,6 +44,22 @@ describe("EProgress", () => {
     expect((under.container.querySelector(".e-progress-fill") as HTMLElement).style.width).toBe("0%");
   });
 
+  test("aria-valuenow is clamped to the range", async () => {
+    const over = await render(EProgress, { props: { label: "A", value: 150 } });
+    expect(over.container.querySelector("[role=progressbar]")!.getAttribute("aria-valuenow")).toBe("100");
+    const under = await render(EProgress, { props: { label: "B", value: -10 } });
+    expect(under.container.querySelector("[role=progressbar]")!.getAttribute("aria-valuenow")).toBe("0");
+    const scaled = await render(EProgress, { props: { label: "C", value: 9, max: 4 } });
+    expect(scaled.container.querySelector("[role=progressbar]")!.getAttribute("aria-valuenow")).toBe("4");
+  });
+
+  test("valueText becomes aria-valuetext, and is absent without it", async () => {
+    const withText = await render(EProgress, { props: { label: "Steps", value: 2, max: 4, valueText: "2 of 4" } });
+    expect(withText.container.querySelector("[role=progressbar]")!.getAttribute("aria-valuetext")).toBe("2 of 4");
+    const without = await render(EProgress, { props: { label: "Steps", value: 2, max: 4 } });
+    expect(without.container.querySelector("[role=progressbar]")!.hasAttribute("aria-valuetext")).toBe(false);
+  });
+
   test("the track is 12px tall", async () => {
     const { container } = await render(EProgress, { props: { label: "Upload", value: 40 } });
     expect(container.querySelector(".e-progress-track")!.getBoundingClientRect().height).toBe(12);

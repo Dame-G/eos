@@ -17,6 +17,7 @@ import { normalizeOptions, sectionOptions } from "../Select/options.js";
 import type { EComboboxProps } from "./types.js";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
@@ -37,6 +38,7 @@ const emit = defineEmits<{
 const model = defineModel<string | string[]>();
 
 const t = useMessages();
+const { announce: say } = useAnnouncer();
 const portal = usePortalTarget();
 const attrs = useFieldAttrs();
 const groupId = useUid();
@@ -149,6 +151,8 @@ function onInput(e: Event) {
 
 function remove(v: string) {
   model.value = values.value.filter((x) => x !== v);
+  say(t("removedItem", { label: labelOf(v) }));
+  focusInput();
 }
 
 function clear() {

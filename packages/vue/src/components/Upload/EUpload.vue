@@ -2,8 +2,11 @@
 import { computed, ref } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EField from "../Field/EField.vue";
+import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages } from "../../config.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import { useAnnouncer } from "../../composables/useAnnouncer.js";
+import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
 
 defineOptions({ inheritAttrs: false });
@@ -13,9 +16,9 @@ const props = defineProps<{
   label: string;
   /** Keep the label for screen readers and remove it from the page. */
   hideLabel?: boolean;
-  /** Accepted extensions, such as `.pdf,.jpg`. Passed to the input and shown under the prompt as "PDF, JPG". */
+  /** Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt as "PDF, JPG" and also applied to dropped files. */
   accept?: string;
-  /** Allows choosing more than one file. */
+  /** Allows choosing more than one file. Without it only the first file of a choice or drop is kept. */
   multiple?: boolean;
   /** The name submitted with a form. */
   name?: string;
@@ -47,10 +50,83 @@ const over = ref(false);
 const input = ref<HTMLInputElement | null>(null);
 const acceptHint = computed(() => props.accept?.replace(/\./g, "").replace(/,/g, ", ").toUpperCase());
 
+const { announce } = useAnnouncer();
+const { locale } = useLocale();
+
+function accepts(file: File): boolean {
+  const rules = (props.accept ?? "")
+    .split(",")
+    .map((r) => r.trim().toLowerCase())
+    .filter(Boolean);
+  if (!rules.length) return true;
+  const name = file.name.toLowerCase();
+  const type = file.type.toLowerCase();
+  return rules.some((r) =>
+    r.startsWith(".") ? name.endsWith(r) : r.endsWith("/*") ? type.startsWith(r.slice(0, -1)) : type === r,
+  );
+}
+
+/** Keeps the input's own file list in step with the model, so a form posts what the list shows. */
+function syncInput(files: File[]) {
+  if (!input.value) return;
+  try {
+    const data = new DataTransfer();
+    files.forEach((f) => data.items.add(f));
+    input.value.files = data.files;
+  } catch {
+    // A browser that cannot set the list keeps the model correct.
+  }
+}
+
 function take(list: FileList | null | undefined) {
-  const files = Array.from(list ?? []);
+  const given = Array.from(list ?? []);
+  if (!given.length) return;
+  const fits = given.filter(accepts);
+  const files = props.multiple ? fits : fits.slice(0, 1);
+  const rejected = given.length - files.length;
   model.value = files;
+  syncInput(files);
   emit("files", files);
+  const said = [
+    files.length ? t(files.length === 1 ? "filesAddedOne" : "filesAddedOther", { n: files.length }) : "",
+    rejected ? t(rejected === 1 ? "filesRejectedOne" : "filesRejectedOther", { n: rejected }) : "",
+  ].filter(Boolean);
+  announce(said.join(". "), { assertive: rejected > 0 });
+}
+
+function removeAt(index: number) {
+  const gone = model.value[index];
+  if (!gone) return;
+  const files = model.value.filter((_, i) => i !== index);
+  model.value = files;
+  syncInput(files);
+  emit("files", files);
+  announce(t("removedItem", { label: gone.name }));
+  input.value?.focus();
+}
+
+const sizeFormats = new Map<string, Intl.NumberFormat>();
+/** Bytes, kilobytes or megabytes, whichever reads shortest, in the library's locale. */
+function formatSize(bytes: number): string {
+  const unit = bytes < 1024 ? "byte" : bytes < 1024 * 1024 ? "kilobyte" : "megabyte";
+  const divisor = unit === "byte" ? 1 : unit === "kilobyte" ? 1024 : 1024 * 1024;
+  const key = `${locale.value}|${unit}`;
+  let format = sizeFormats.get(key);
+  if (!format) {
+    const options: Intl.NumberFormatOptions = {
+      style: "unit",
+      unit,
+      unitDisplay: "short",
+      maximumFractionDigits: unit === "megabyte" ? 1 : 0,
+    };
+    try {
+      format = new Intl.NumberFormat(locale.value, options);
+    } catch {
+      format = new Intl.NumberFormat("en", options);
+    }
+    sizeFormats.set(key, format);
+  }
+  return format.format(bytes / divisor);
 }
 function onDragOver(e: DragEvent) {
   e.preventDefault();
@@ -86,6 +162,7 @@ defineExpose({
           :for="field.id"
           class="e-drop"
           :class="{ 'e-drop--over': over, 'e-drop--disabled': disabled }"
+          :data-invalid="field.ariaInvalid ? '' : undefined"
           @dragover="onDragOver"
           @dragleave="over = false"
           @drop="onDrop"
@@ -112,10 +189,16 @@ defineExpose({
           @change="take(($event.target as HTMLInputElement).files)"
         />
         <ul v-if="model.length" class="e-files">
-          <li v-for="f in model" :key="f.name">
+          <li v-for="(f, i) in model" :key="i + f.name">
             <EIcon name="file" />
             <span class="e-file-name">{{ f.name }}</span>
-            <span class="e-file-size">{{ Math.max(1, Math.round(f.size / 1024)) }} KB</span>
+            <span class="e-file-size">{{ formatSize(f.size) }}</span>
+            <EIconButton
+              icon="x"
+              :label="t('removeItem', { label: f.name })"
+              :disabled="disabled"
+              @click="removeAt(i)"
+            />
           </li>
         </ul>
       </div>
@@ -171,6 +254,14 @@ defineExpose({
 
   .e-drop--disabled .e-drop-pick {
     color: inherit;
+  }
+
+  .e-drop[data-invalid]:not(.e-drop--disabled, .e-drop--over) {
+    outline-color: var(--e-danger);
+  }
+
+  .e-drop[data-invalid]:not(.e-drop--disabled, .e-drop--over):hover {
+    background: var(--e-danger-soft);
   }
 
   .e-drop-hint {
