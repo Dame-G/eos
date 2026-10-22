@@ -1,0 +1,58 @@
+name: Site check
+
+# Builds the docs site (Dame-G/eos-site) against this PR, so a token or API
+# rename that would break the site shows up here. Not a required check.
+on:
+  pull_request:
+    paths:
+      - "packages/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: eos
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          repository: Dame-G/eos-site
+          ref: main
+          path: eos-site
+          persist-credentials: false
+      - run: corepack enable
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: |
+            eos-site/pnpm-lock.yaml
+            eos/pnpm-lock.yaml
+
+      - name: Install and build the library
+        working-directory: eos
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm -r --workspace-concurrency=1 build
+
+      - name: Install the site
+        working-directory: eos-site
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the docs
+        working-directory: eos-site
+        run: pnpm docs:build
+
+      - name: Check server rendering
+        working-directory: eos-site
+        run: pnpm ssr:check
