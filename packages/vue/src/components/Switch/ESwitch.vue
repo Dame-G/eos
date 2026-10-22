@@ -105,7 +105,7 @@ defineExpose({
 
     /* The thumb is a small button face with a slab under it. */
     border: var(--e-stroke-edge) solid color-mix(in srgb, var(--e-ink), var(--e-shade-slab));
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
+    border-bottom-width: calc(var(--e-stroke-edge) + 0.6 * var(--e-depth));
     border-radius: var(--e-radius-sm);
     background: var(--e-ink);
     transition: transform var(--e-duration-move, 160ms) var(--e-easing-out);
