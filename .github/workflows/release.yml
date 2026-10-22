@@ -8,9 +8,14 @@ permissions:
   pull-requests: write
   id-token: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       # A step's own env is not visible to its `if`, so the secret's presence is read here.
       HAS_SITE_TOKEN: ${{ secrets.SITE_DEPLOY_TOKEN != '' }}

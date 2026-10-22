@@ -15,6 +15,7 @@ pnpm install
 pnpm build                # builds tokens, then the Vue package
 pnpm test                 # real-browser tests (Chromium in CI, Edge locally)
 pnpm lint                 # eslint and stylelint
+pnpm knip                 # unused files, exports and dependencies
 pnpm typecheck
 pnpm check:package        # package exports and types (needs a build)
 pnpm check:size           # stylesheet and JavaScript size budgets (needs a build)
@@ -27,7 +28,7 @@ While working on one component, run from `packages/vue` (these need `pnpm build`
 
 | Command                                 | Use                                                                      |
 | --------------------------------------- | ------------------------------------------------------------------------ |
-| `npx vitest run src/components/Chip`    | that component's tests                                                   |
+| `npx vitest run src/components/Stamp`   | that component's tests                                                   |
 | `node scripts/check-css.mjs`            | every rule is inside `@layer e.*`, no `!important`, no raw z-index       |
 | `node scripts/check-layers.mjs`         | a component only uses components of its own layer or an earlier one      |
 | `npx vue-tsc --noEmit -p tsconfig.json` | types, including `.vue` files                                            |
@@ -41,17 +42,17 @@ While working on one component, run from `packages/vue` (these need `pnpm build`
 `src/components/<Name>/` holds:
 
 ```
-EChip.vue        script setup, template and the component's own <style>
-EChip.test.ts    Vitest browser tests
+EStamp.vue       script setup, template and the component's own <style>
+EStamp.test.ts   Vitest browser tests
 README.md        what the consumer provides, what it does, the rules
-index.ts         export { default as EChip } from "./EChip.vue";   (plus exported types)
+index.ts         export { default as EStamp } from "./EStamp.vue";   (plus exported types)
 ```
 
 `EButton` is the model.
 
 ### Naming
 
-- Components are `E` + a name: `EChip`. One word where it reads well. `*Field` is a labelled input built on `EField`, `*Picker` chooses from a popup, `*Group` is a fieldset of choices, `*Row` is a compact line, `*Card` is a bordered summary, `*List` repeats items. The folder is the name without the prefix.
+- Components are `E` + a name: `EStamp`. One word where it reads well. `*Field` is a labelled input built on `EField`, `*Picker` chooses from a popup, `*Group` is a fieldset of choices, `*Row` is a compact line, `*Card` is a bordered summary, `*List` repeats items. The folder is the name without the prefix.
 - Classes are `e-<block>`, `e-<block>-<part>`, `e-<block>--<modifier>`. Custom properties are `--e-*`. Layers are `e.*`.
 - Composables are `src/composables/useThing.ts`, one per file.
 
@@ -68,23 +69,23 @@ index.ts         export { default as EChip } from "./EChip.vue";   (plus exporte
 
 One name means one thing across the library. A component may have props of its own where it needs them; these are the shared ones.
 
-| Prop                                                | Means                                                                                                                                                                                                | Where                                                         |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `variant`                                           | Emphasis: how loudly an action speaks (`primary`, `secondary`, `outline`, `danger`, `quiet`). Nothing else uses it.                                                                                  | `EButton`, `EMenu`                                            |
-| `tone`                                              | Meaning in a colour: `success`, `info`, `warning`, `danger`. Never a look.                                                                                                                           | `EChip`, `EStamp`, `ENotice`, `EToast`                        |
-| `status`                                            | A `StampStatus` preset (`paid`, `due`, `overdue`...). It sets the tone and the word.                                                                                                                 | `EStamp`, and composites that show one                        |
-| `status*`, `badge*`                                 | On a composite, the props that feed its inner stamp or chip get the prefix: `statusTone`, `statusLabel`, `statusDetail`, `badge`, `badgeTone`. A bare `tone` or `label` on a composite is ambiguous. | `EItemRow`, `EDetailRow`                                      |
-| `small`, `large`                                    | Size, as booleans. There is no `size` enum and no `dense`. Medium is the default and has no prop.                                                                                                    | `EIcon`, `EAvatar`, `EKbd`, `EStamp`, `EText`                 |
-| `bare`                                              | Drops the component's own chrome (box, label, toolbar) so the parent supplies it.                                                                                                                    | fields, `EFieldset`, `EEmptyState`, `EDataGrid`, `ECheckbox`  |
-| `raised`                                            | The lifted shadow of something floating above the page.                                                                                                                                              | `ESurface`                                                    |
-| `label`                                             | The name of the thing itself: the visible label of a field, or the accessible name of a control with no visible text.                                                                                | fields, `EProgress`, `ESpinner`, `ETooltip`...                |
-| `hideLabel`, `hideLegend`, `hideAction`             | Keep the text for screen readers and hide it. Always `hide` plus the part.                                                                                                                           | fields, `EFieldset`, `ESearchBar`                             |
-| `headingLevel`                                      | The level of the heading a component renders inside itself. `EHeading` is the heading, so its prop is `level`.                                                                                       | cards, panels, dialogs, drawers                               |
-| `mode`                                              | A change in what the component does (`single` or `range`, `current` or `new`). Keyboard hints are `inputmode`, never `type`.                                                                         | `ECalendar`, `EPasswordField`, `ESignatureField`, `EOtpField` |
-| `required`, `optional`, `disabled`, `error`, `hint` | Field state and help. `error` is one message; a list of them is `errors`.                                                                                                                            | every field                                                   |
-| `as`, `gap`, `align`, `justify`, `side`             | The element; spacing from the space scale; cross-axis and main-axis alignment; which edge.                                                                                                           | layout components                                             |
+| Prop                                                | Means                                                                                                                                              | Where                                                        |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `variant`                                           | Emphasis: how loudly an action speaks (`primary`, `secondary`, `outline`, `danger`, `quiet`). Nothing else uses it.                                | `EButton`, `EMenu`                                           |
+| `tone`                                              | Meaning in a colour: `success`, `info`, `warning`, `danger`. Never a look.                                                                         | `EStamp`, `ENotice`, `EToast`                                |
+| `status`                                            | A `StampStatus` preset (`paid`, `due`, `overdue`...). It sets the tone and the word.                                                               | `EStamp`                                                     |
+| `badge*`                                            | On a composite, the props that feed its inner stamp get the prefix: `badge` and `badgeTone`. A bare `tone` or `label` on a composite is ambiguous. | `EDescriptionList`                                           |
+| `small`, `large`                                    | Size, as booleans. There is no `size` enum. Medium is the default and has no prop.                                                                 | `EIcon`, `EAvatar`, `EKbd`, `EStamp`, `EText`                |
+| `bare`                                              | Drops the component's own chrome (box, label, toolbar) so the parent supplies it.                                                                  | fields, `EFieldset`, `EEmptyState`, `EDataGrid`, `ECheckbox` |
+| `raised`                                            | The lifted shadow of something floating above the page.                                                                                            | `ESurface`                                                   |
+| `label`                                             | The name of the thing itself: the visible label of a field, or the accessible name of a control with no visible text.                              | fields, `EProgress`, `ESpinner`, `ETooltip`...               |
+| `hideLabel`, `hideLegend`, `hideAction`             | Keep the text for screen readers and hide it. Always `hide` plus the part.                                                                         | fields, `EFieldset`, `ESearchBar`                            |
+| `headingLevel`                                      | The level of the heading a component renders inside itself. `EHeading` is the heading, so its prop is `level`.                                     | cards, panels, dialogs, drawers                              |
+| `mode`                                              | A change in what the component does (`single` or `range`, `current` or `new`). Keyboard hints are `inputmode` (as on `EOtpField`), never `type`.   | `ECalendar`, `EPasswordField`, `ESignatureField`             |
+| `required`, `optional`, `disabled`, `error`, `hint` | Field state and help. `error` is one message.                                                                                                      | every field                                                  |
+| `as`, `gap`, `align`, `justify`, `side`             | The element; spacing from the space scale; cross-axis and main-axis alignment; which edge.                                                         | layout components                                            |
 
-There are no look variants. A component has one good default; if two looks are both needed they are two components. Do not add `dense`, `compact`, `plain`, `card`, `outlined` or similar switches.
+There are no look variants. A component has one good default; if two looks are both needed they are two components. Do not add `compact`, `plain`, `card`, `outlined` or similar switches. `ETable` has `dense` for row height and is the only one.
 
 ### Accessibility
 
@@ -135,7 +136,7 @@ A README says what the consumer provides, what the component does and the rules.
 ### Definition of done
 
 1. Tests pass, including keyboard and axe.
-2. `check-css`, `check-layers`, `vue-tsc`, `eslint` and `stylelint` are clean.
+2. `pnpm lint`, `pnpm typecheck`, `pnpm knip`, `pnpm check:package`, `pnpm check:size` and the four `@eos-ui/vue` checks (`check:css`, `check:layers`, `check:props`, `check:docs`) pass. CI runs all of them.
 3. README (following Documentation above), `index.ts` and exported prop types exist.
 4. The component works without the plugin installed and with a custom theme applied.
 
