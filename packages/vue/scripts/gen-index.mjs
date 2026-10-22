@@ -21,7 +21,7 @@ const lines = [
   'export { createEos, themeCss } from "./plugin.js";',
   'export type { Eos, EosOptions } from "./plugin.js";',
   'export { useConfig, useMessages, useIconResolver, usePortalTarget, CONFIG_KEY } from "./config.js";',
-  'export type { EosConfig, Translate } from "./config.js";',
+  'export type { EosConfig, MessageValue, PluralMessage, Translate } from "./config.js";',
   'export { defaultMessages } from "./messages.js";',
   'export type { MessageKey } from "./messages.js";',
   'export { phosphor } from "./icons/phosphor.js";',

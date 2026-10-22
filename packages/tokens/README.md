@@ -1,6 +1,6 @@
 # @eos-ui/tokens
 
-The design tokens behind Eos (colour, spacing, radius, shadow, type, size, motion, layering) as CSS custom properties, typed values, and `defineTheme()`, which builds a theme from a brand colour and checks every promised contrast pair.
+The design tokens behind EOS (colour, spacing, radius, shadow, type, size, motion, layering) as CSS custom properties, typed values, and `defineTheme()`, which builds a theme from a brand colour and checks every promised contrast pair.
 
 ```bash
 npm install @eos-ui/tokens
@@ -30,18 +30,18 @@ All variables are prefixed `--e-` (`--e-primary`, `--e-space-4`). [Documentation
 
 `defineTheme()` takes 16 inputs and emits every token. Any token can also be set by name in `tokens`, which wins over everything derived. `name` labels the theme (`data-e-theme`), and `strict` throws on a contrast failure instead of listing it in `issues`.
 
-| Input                                                  | Derives                                                                                            |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| `brand`, `accent`                                      | `primary`, `secondary`, their tints and `surface-tint`                                             |
-| `danger`, `warning`                                    | `danger`, `on-danger`, `danger-soft`; `warning-strong`, `warning-soft`                             |
-| `background`, `surface`, `foreground`                  | the grounds, `ink`, `muted`, `border`, `border-strong`; a dark surface lifts the action colours    |
-| `fonts`, `radius`                                      | `font-sans`, `font-mono`; `radius-sm` to `radius-lg`                                               |
-| `textScale`, `spaceScale`                              | `text-xs` to `text-4xl`; `space-1` to `space-8` (1 is the default)                                 |
-| `strokes` `{ hair, focus, edge, card }`                | `stroke-hair`, `stroke-card`, `stroke-edge`, `stroke-focus`, `focus-gap`, `focus-gap-field`        |
-| `contrast` `"standard" \| "high"`                      | `high`: `border`, `border-strong` = `ink`; `muted` at 15:1; neutral `surface-tint`; darker `scrim` |
-| `motion` `"default" \| "snappy" \| "gentle" \| "none"` | `duration-tap`, `duration-move`, `easing-out`                                                      |
-| `elevation` `"outline" \| "lifted" \| "bold"`          | `edge`, `well`, `float`; shadow tint follows `background`                                          |
-| `controlHeight`                                        | `control-height`, `chip-height`                                                                    |
+| Input                                                  | Derives                                                                                                           |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `brand`, `accent`                                      | `primary`, `secondary`, their tints and `surface-tint`                                                            |
+| `danger`, `warning`                                    | `danger`, `on-danger`, `danger-soft`, `warning-strong`, `warning-soft`                                            |
+| `background`, `surface`, `foreground`                  | the grounds, `ink`, `muted`, `border`, `border-strong`. A dark surface lifts the action colours                   |
+| `fonts`, `radius`                                      | `font-sans`, `font-mono`, `radius-sm` to `radius-lg`                                                              |
+| `textScale`, `spaceScale`                              | `text-xs` to `text-4xl`, `space-1` to `space-8` (1 is the default)                                                |
+| `strokes` `{ hair, focus, edge, card }`                | `stroke-hair`, `stroke-card`, `stroke-edge`, `stroke-focus`, `focus-gap`, `focus-gap-field`                       |
+| `contrast` `"standard" \| "high"`                      | `high` sets `border` and `border-strong` to `ink`, `muted` at 15:1, a neutral `surface-tint` and a darker `scrim` |
+| `motion` `"default" \| "snappy" \| "gentle" \| "none"` | `duration-tap`, `duration-move`, `easing-out`                                                                     |
+| `elevation` `"outline" \| "lifted" \| "bold"`          | `edge`, `well`, `float`. The shadow tint follows `background`                                                     |
+| `controlHeight`                                        | `control-height`, `chip-height`                                                                                   |
 
 `derivedFrom`, `constants` and `inputTokens` say which input drives each token and which tokens are fixed. Fixed tokens include `depth`, the thickness of a raised or pressed edge.
 
@@ -49,6 +49,6 @@ All variables are prefixed `--e-` (`--e-primary`, `--e-space-4`). [Documentation
 
 `theme.dtcg()` returns the theme as [W3C Design Tokens](https://www.designtokens.org) JSON, grouped by kind (`color`, `spacing`, `radius`, `shadow`, `fontSize`, `size`, `stroke`, `duration`, `easing`, `zIndex`, `font`). The default theme is also published as `@eos-ui/tokens/tokens.dtcg.json`, ready to import into Tokens Studio for Figma or to feed Style Dictionary.
 
-- A token that is just another token becomes an alias: `"focus-ring": { "$value": "{color.ink}" }`.
+- A token that references another token becomes an alias: `"focus-ring": { "$value": "{color.ink}" }`.
 - Colours, dimensions, durations, cubic-bezier easings, z-indexes and font stacks carry a `$type`. A value no DTCG type can hold, such as a stacked shadow or a `color-mix()`, keeps its CSS string and has no `$type`.
 - Each token's usage note is its `$description`.

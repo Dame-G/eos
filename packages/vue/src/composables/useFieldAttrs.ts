@@ -1,7 +1,7 @@
 import { useAttrs } from "vue";
 
 /**
- * Splits a form control's fallthrough attributes. `class` and `style` stay on the wrapper; everything else
+ * Splits a form control's fallthrough attributes. `class` and `style` stay on the wrapper. Everything else
  * (name, autocomplete, maxlength, aria-*, data-*, listeners such as onBlur and onKeydown) goes to the real input.
  * Use it with `defineOptions({ inheritAttrs: false })`.
  */

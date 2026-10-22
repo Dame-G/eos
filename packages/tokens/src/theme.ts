@@ -31,7 +31,7 @@ export interface ThemeInput {
   background?: string;
   /** Anything that sits on the page: cards, fields, popovers, panels. Sets `surface` and derives `surface-tint` (the second ground) and the soft tone backdrops from its lightness. A dark surface also switches the action colours and their `on-*` text to light variants. */
   surface?: string;
-  /** Text and lines. Sets `ink` and derives `muted` (softened until it just holds 7:1 on the surface), `border` (3.4:1) and `border-strong` (4.5:1). Without it, a given `surface` picks black or white. */
+  /** Text and lines. Sets `ink` and derives `muted` (softened until it barely holds 7:1 on the surface), `border` (3.4:1) and `border-strong` (4.5:1). Without it, a given `surface` picks black or white. */
   foreground?: string;
   /** The destructive action colour. Derives `danger` (deepened until `on-danger` text reaches 7:1, and 4.5:1 on the surface and on `danger-soft`), `on-danger` and `danger-soft`. */
   danger?: string;
@@ -41,11 +41,11 @@ export interface ThemeInput {
   fonts?: { sans?: string; mono?: string };
   /** Corner style: a preset or explicit values. */
   radius?: "sharp" | "default" | "round" | { sm?: string; md?: string; lg?: string };
-  /** Multiplier for the type scale, `text-xs` to `text-4xl`. 1 is the default scale; non-finite or non-positive values are ignored. */
+  /** Multiplier for the type scale, `text-xs` to `text-4xl`. 1 is the default scale. Non-finite or non-positive values are ignored. */
   textScale?: number;
-  /** Multiplier for the spacing scale, `space-1` to `space-8`. 1 is the default scale; non-finite or non-positive values are ignored. */
+  /** Multiplier for the spacing scale, `space-1` to `space-8`. 1 is the default scale. Non-finite or non-positive values are ignored. */
   spaceScale?: number;
-  /** Line weights in px. `hair` sets `stroke-hair`, `stroke-card` and `stroke-edge` (1.5 times it, rounded down to whole pixels); `focus` sets `stroke-focus` and `focus-gap` (the same). `edge` and `card` set `stroke-edge` (controls) and `stroke-card` (containers, chips) outright and win over what `hair` and a bold `elevation` give. `focus-gap-field` always follows `stroke-edge` in CSS (minus the border width), so a field's focus outline sits exactly over its border. */
+  /** Line weights in px. `hair` sets `stroke-hair`, `stroke-card` and `stroke-edge` (1.5 times it, rounded down to whole pixels). `focus` sets `stroke-focus` and `focus-gap` (the same). `edge` and `card` set `stroke-edge` (controls) and `stroke-card` (containers, chips) outright and win over what `hair` and a bold `elevation` give. `focus-gap-field` always follows `stroke-edge` in CSS (minus the border width), so a field's focus outline sits exactly over its border. */
   strokes?: { hair?: number; focus?: number; edge?: number; card?: number };
   /** `"high"` draws every line and secondary text at full strength: `border` and `border-strong` become the foreground colour, `muted` is softened only until it holds 15:1, `surface-tint` is a neutral grey (no brand tint) and `scrim` is darker. Pair it with heavier `strokes`. Default `"standard"`. */
   contrast?: ContrastPreset;
