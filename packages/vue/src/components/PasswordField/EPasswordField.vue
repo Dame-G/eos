@@ -39,6 +39,8 @@ const props = defineProps<{
   optional?: boolean;
   /** Disables the input and the toggle. */
   disabled?: boolean;
+  /** Shows the value but blocks editing. The input stays focusable and selectable. The show toggle still works. */
+  readonly?: boolean;
   /** The id of the input; the label points at it. @default generated */
   id?: string;
 }>();
@@ -61,6 +63,7 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
     type: shown.value ? "text" : "password",
     value: model.value,
     disabled: props.disabled,
+    readonly: props.readonly,
     required: props.required,
     autocomplete: props.mode === "new" ? "new-password" : "current-password",
     autocapitalize: "none",
@@ -93,6 +96,7 @@ defineExpose({
         class="e-input-wrap"
         :data-invalid="error ? '' : undefined"
         :data-disabled="disabled ? '' : undefined"
+        :data-readonly="readonly ? '' : undefined"
         @click="focusInside"
       >
         <input ref="input" v-bind="inputBind(field)" @input="model = ($event.target as HTMLInputElement).value" />

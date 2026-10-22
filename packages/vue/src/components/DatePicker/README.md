@@ -21,6 +21,7 @@ A date field with a text box in the locale's order and a button that opens an [`
 | `required`   | `boolean`      | `false`      | The `required` attribute and a word beside the label.                                                                                          |
 | `optional`   | `boolean`      | `false`      | A word beside the label. Flag whichever is rarer.                                                                                              |
 | `disabled`   | `boolean`      | `false`      | Disables the field and its calendar button.                                                                                                    |
+| `readonly`   | `boolean`      | `false`      | Shows the date but blocks editing. The input stays focusable and selectable. The calendar button is disabled and the calendar does not open.   |
 | `min`        | `Date`         | —            | The earliest date that can be chosen or typed.                                                                                                 |
 | `max`        | `Date`         | —            | The latest date that can be chosen or typed.                                                                                                   |
 | `name`       | `string`       | —            | Submits the date as `YYYY-MM-DD` with a form, through a hidden input.                                                                          |

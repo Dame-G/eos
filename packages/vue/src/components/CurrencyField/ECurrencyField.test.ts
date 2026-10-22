@@ -129,9 +129,50 @@ describe("ECurrencyField", () => {
             h(ECurrencyField, { label: "Hinted", hint: "Per visit" }),
             h(ECurrencyField, { label: "Invalid", error: "Enter an amount" }),
             h(ECurrencyField, { label: "Disabled", disabled: true }),
+            h(ECurrencyField, { label: "Readonly", readonly: true, modelValue: 4 }),
           ]),
       }),
     );
     await expectNoViolations(container);
+  });
+
+  test("fr-FR shows a decimal comma and reads one back", async () => {
+    const model = ref<number | null>(1234.5);
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(ECurrencyField, {
+            label: "Montant",
+            modelValue: model.value,
+            "onUpdate:modelValue": (v: number | null) => (model.value = v),
+          }),
+      }),
+      { global: { plugins: [createEos({ themeTarget: null, locale: "fr-FR", currency: "EUR" })] } },
+    );
+    const box = page.getByRole("spinbutton", { name: "Montant" });
+    await expect.element(box).toHaveValue("1234,50");
+    expect(container.querySelector(".e-affix--pre")!.textContent).toBe("€");
+    await box.fill("19,99");
+    await userEvent.keyboard("{Enter}");
+    expect(model.value).toBe(19.99);
+  });
+
+  test("readonly blocks the buttons and keys", async () => {
+    const model = ref<number | null>(5);
+    await render(
+      defineComponent({
+        render: () =>
+          h(ECurrencyField, {
+            label: "Amount",
+            readonly: true,
+            modelValue: model.value,
+            "onUpdate:modelValue": (v: number | null) => (model.value = v),
+          }),
+      }),
+    );
+    await expect.element(page.getByRole("button", { name: "Increase" })).toBeDisabled();
+    await page.getByRole("spinbutton", { name: "Amount" }).click();
+    await userEvent.keyboard("{ArrowUp}{PageUp}");
+    expect(model.value).toBe(5);
   });
 });

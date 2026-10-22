@@ -31,6 +31,8 @@ const props = defineProps<{
   optional?: boolean;
   /** Disables the field. */
   disabled?: boolean;
+  /** Shows the value but blocks editing. The input stays focusable and selectable. */
+  readonly?: boolean;
   /** The id of the input; the label points at it. @default generated */
   id?: string;
 }>();
@@ -48,6 +50,7 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
     placeholder: props.placeholder,
     value: model.value,
     disabled: props.disabled,
+    readonly: props.readonly,
     required: props.required,
     "aria-invalid": field.ariaInvalid,
     ...attrs.input(field.ariaDescribedby),
@@ -77,6 +80,7 @@ defineExpose({
         class="e-input-wrap"
         :data-invalid="error ? '' : undefined"
         :data-disabled="disabled ? '' : undefined"
+        :data-readonly="readonly ? '' : undefined"
         @click="focusInside"
       >
         <span v-if="prefix" class="e-affix e-affix--pre" aria-hidden="true">{{ prefix }}</span>

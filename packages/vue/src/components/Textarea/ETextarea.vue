@@ -27,6 +27,8 @@ const props = withDefaults(
     optional?: boolean;
     /** Disables the field. */
     disabled?: boolean;
+    /** Shows the text but blocks editing. The textarea stays focusable and selectable. */
+    readonly?: boolean;
     /** The id of the textarea; the label points at it. @default generated */
     id?: string;
   }>(),
@@ -46,6 +48,7 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
     placeholder: props.placeholder,
     value: model.value,
     disabled: props.disabled,
+    readonly: props.readonly,
     required: props.required,
     "aria-invalid": field.ariaInvalid,
     ...attrs.input(field.ariaDescribedby),

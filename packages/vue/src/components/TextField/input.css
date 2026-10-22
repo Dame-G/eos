@@ -130,6 +130,14 @@
     color: var(--e-muted);
   }
 
+  /* A readonly wrap matches a bare readonly input: tinted, no well, still focusable. It stays solid, unlike disabled. */
+  .e-input-wrap[data-readonly]:not([data-disabled]),
+  .e-input-wrap[data-readonly]:not([data-disabled]):hover,
+  .e-input-wrap[data-readonly]:not([data-disabled]):focus-within {
+    background: var(--e-surface-tint);
+    box-shadow: none;
+  }
+
   .e-input-wrap .e-input {
     flex: 1;
     outline: 0;

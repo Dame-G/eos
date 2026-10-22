@@ -237,9 +237,24 @@ describe("ETextField", () => {
             h(ETextField, { label: "Amount", prefix: "$", suffix: "USD", hint: "Hint" }),
             h(ETextField, { label: "Boxed invalid", prefix: "$", error: "Bad" }),
             h(ETextField, { label: "Hidden label", hideLabel: true }),
+            h(ETextField, { label: "Readonly", readonly: true, modelValue: "x" }),
+            h(ETextField, { label: "Readonly boxed", readonly: true, prefix: "$", modelValue: "x" }),
           ]),
       }),
     );
     await expectNoViolations(container);
+  });
+
+  test("readonly sets the attribute, marks the wrap and keeps the text", async () => {
+    const { container } = await render(ETextField, {
+      props: { label: "Code", prefix: "#", modelValue: "abc", readonly: true },
+    });
+    const input = container.querySelector("input")!;
+    expect(input.readOnly).toBe(true);
+    expect(container.querySelector(".e-input-wrap")!.hasAttribute("data-readonly")).toBe(true);
+    input.focus();
+    expect(document.activeElement).toBe(input);
+    await userEvent.keyboard("zzz");
+    expect(input.value).toBe("abc");
   });
 });
