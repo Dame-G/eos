@@ -6,7 +6,7 @@
       "ignore": ["src/generated/**"]
     },
     "packages/vue": {
-      "entry": ["scripts/*.mjs"],
+      "entry": ["src/index.ts", "src/resolver.ts", "src/icons/index.ts", "src/icons/iconify.ts", "scripts/*.mjs"],
       "ignoreDependencies": ["@iconify/vue"]
     }
   }
