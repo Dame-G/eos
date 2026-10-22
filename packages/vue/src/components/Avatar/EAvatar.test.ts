@@ -85,6 +85,18 @@ describe("EAvatar", () => {
     expect(style.outlineOffset).not.toBe("0px");
   });
 
+  test("hovering a button avatar fills it as well as darkening its edge", async () => {
+    const { container } = await render(
+      defineComponent({ render: () => h("div", { class: "e-root" }, [h(EAvatar, { name: "A B", as: "button" })]) }),
+    );
+    const el = container.querySelector<HTMLButtonElement>("button.e-avatar")!;
+    const rest = getComputedStyle(el).backgroundColor;
+    await userEvent.hover(el);
+    await expect.poll(() => getComputedStyle(el).backgroundColor).not.toBe(rest);
+    await userEvent.unhover(el);
+    await expect.poll(() => getComputedStyle(el).backgroundColor).toBe(rest);
+  });
+
   test("a span avatar is not interactive", async () => {
     const { container } = await render(EAvatar, { props: { name: "Ada Lovelace" } });
     const el = container.querySelector(".e-avatar")!;
