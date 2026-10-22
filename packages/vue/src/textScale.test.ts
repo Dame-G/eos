@@ -21,9 +21,29 @@ interface Case {
 
 const CASES: Case[] = [
   { name: "EText", component: EText, props: {}, slots: { default: "Body" }, selector: ".e-text", lineHeight: 24 },
-  { name: "EText large", component: EText, props: { large: true }, slots: { default: "Body" }, selector: ".e-text", lineHeight: 26 },
-  { name: "EText small", component: EText, props: { small: true }, slots: { default: "Body" }, selector: ".e-text", lineHeight: 20 },
-  { name: "ENotice title", component: ENotice, props: { title: "Form due" }, selector: ".e-notice-title", lineHeight: 24 },
+  {
+    name: "EText large",
+    component: EText,
+    props: { large: true },
+    slots: { default: "Body" },
+    selector: ".e-text",
+    lineHeight: 26,
+  },
+  {
+    name: "EText small",
+    component: EText,
+    props: { small: true },
+    slots: { default: "Body" },
+    selector: ".e-text",
+    lineHeight: 20,
+  },
+  {
+    name: "ENotice title",
+    component: ENotice,
+    props: { title: "Form due" },
+    selector: ".e-notice-title",
+    lineHeight: 24,
+  },
   { name: "EStamp word", component: EStamp, props: { status: "success" }, selector: ".e-stamp-word", lineHeight: 16 },
   {
     name: "ETabs count",
@@ -39,7 +59,13 @@ const CASES: Case[] = [
     selector: ".e-crumbs li",
     lineHeight: 20,
   },
-  { name: "ECheckbox label", component: ECheckbox, props: { label: "Agree" }, selector: ".e-choice-text", lineHeight: 24 },
+  {
+    name: "ECheckbox label",
+    component: ECheckbox,
+    props: { label: "Agree" },
+    selector: ".e-choice-text",
+    lineHeight: 24,
+  },
 ];
 
 async function measure(c: Case, textScale?: number) {

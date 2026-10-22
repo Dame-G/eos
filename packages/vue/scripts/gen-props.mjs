@@ -11,12 +11,12 @@
 //   - withDefaults(..., { ... }): the default. A boolean without a default is `false`.
 //   - defineModel<T>(...) / defineModel<T>("name", ...): the v-model props (`modelValue` when unnamed),
 //     described by the JSDoc above the `const x = defineModel` statement.
-// To change a row, edit the JSDoc or the default in the .vue file, never the table.
+// The READMEs are written through Prettier. To change a row, edit the JSDoc or the default in the .vue file, never the table.
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const require = createRequire(import.meta.url);
 const ts = require("typescript");
@@ -27,6 +27,13 @@ const jsonOut = process.argv.find((a) => a.startsWith("--json="))?.slice(7); // 
 const dump = [];
 const START = "<!-- props:start -->";
 const END = "<!-- props:end -->";
+
+// Prettier belongs to the repo root, so it is looked up from there. The READMEs are written through it,
+// so the tables are already formatted and `prettier --check` passes right after a run.
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+const prettier = check
+  ? null
+  : await import(pathToFileURL(createRequire(join(repoRoot, "package.json")).resolve("prettier")).href);
 
 const warnings = [];
 const warn = (m) => warnings.push(m);
@@ -41,7 +48,10 @@ function load(file) {
   let text = readFileSync(file, "utf8");
   if (file.endsWith(".vue")) {
     // Keep only the <script> contents, blanking the rest so offsets stay those of the file.
-    const keep = [...text.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map((m) => [m.index + m[0].indexOf(">") + 1, m[1].length]);
+    const keep = [...text.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map((m) => [
+      m.index + m[0].indexOf(">") + 1,
+      m[1].length,
+    ]);
     text = text.replace(/[^\r\n]/g, (c, i) => (keep.some(([a, n]) => i >= a && i < a + n) ? c : " "));
   }
   const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
@@ -66,7 +76,12 @@ const squash = (s) => s.replace(/\s+/g, " ").trim();
 /** Where a node and its JSDoc sit in its file (used by --json). */
 function locate(node, src) {
   const docs = node.jsDoc ?? [];
-  return { file: src.file, start: node.getStart(src.sf), docStart: docs.length ? docs[0].getStart(src.sf) : null, docEnd: docs.length ? docs[docs.length - 1].end : null };
+  return {
+    file: src.file,
+    start: node.getStart(src.sf),
+    docStart: docs.length ? docs[0].getStart(src.sf) : null,
+    docEnd: docs.length ? docs[docs.length - 1].end : null,
+  };
 }
 
 /** The last JSDoc comment before a node, as one line of text. */
@@ -98,7 +113,9 @@ function alternatives(node, src, seen = new Set()) {
   if (ts.isParenthesizedTypeNode(node)) return alternatives(node.type, src, seen);
   if (ts.isTypeLiteralNode(node)) return [membersOf(node.members, src)];
   if (ts.isIntersectionTypeNode(node)) {
-    return node.types.map((t) => alternatives(t, src, seen)).reduce((acc, alts) => acc.flatMap((a) => alts.map((b) => [...a, ...b])), [[]]);
+    return node.types
+      .map((t) => alternatives(t, src, seen))
+      .reduce((acc, alts) => acc.flatMap((a) => alts.map((b) => [...a, ...b])), [[]]);
   }
   if (ts.isUnionTypeNode(node)) return node.types.flatMap((t) => alternatives(t, src, seen));
   if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName)) return fromName(node.typeName.text, src, seen);
@@ -129,7 +146,9 @@ function fromName(name, src, seen) {
   for (const st of src.sf.statements) {
     if (ts.isInterfaceDeclaration(st) && st.name.text === name) {
       const own = membersOf(st.members, src);
-      const parents = (st.heritageClauses ?? []).flatMap((h) => h.types).map((t) => fromName(t.expression.text, src, seen));
+      const parents = (st.heritageClauses ?? [])
+        .flatMap((h) => h.types)
+        .map((t) => fromName(t.expression.text, src, seen));
       const base = parents.reduce((acc, alts) => acc.flatMap((a) => alts.map((b) => [...a, ...b])), [[]]);
       return base.map((b) => [...b, ...own]);
     }
@@ -174,7 +193,8 @@ function defaultText(init, src) {
   if ((ts.isArrowFunction(t) || ts.isFunctionExpression(t)) && t.parameters.length === 0) {
     let body = t.body;
     if (ts.isBlock(body)) {
-      const ret = body.statements.length === 1 && ts.isReturnStatement(body.statements[0]) ? body.statements[0].expression : null;
+      const ret =
+        body.statements.length === 1 && ts.isReturnStatement(body.statements[0]) ? body.statements[0].expression : null;
       if (!ret) return squash(t.getText(src.sf));
       body = ret;
     }
@@ -269,7 +289,8 @@ function row(p, defaults) {
   else if (p.model && p.def != null) def = code(p.def);
   else if (!p.model && defaults.get(p.name)) def = code(defaults.get(p.name));
   else if (tagDefault) def = code(tagDefault);
-  else if (!p.model && defaults.has(p.name)) def = "None"; // declared as `undefined`: no default, even for a boolean
+  else if (!p.model && defaults.has(p.name))
+    def = "None"; // declared as `undefined`: no default, even for a boolean
   else if (p.type === "boolean") def = "`false`";
   else def = "None";
 
@@ -285,7 +306,11 @@ function row(p, defaults) {
 
 function table(info) {
   const rows = [...info.models, ...info.props];
-  const lines = ["| Prop | Type | Default | Notes |", "| --- | --- | --- | --- |", ...rows.map((p) => row(p, info.defaults))];
+  const lines = [
+    "| Prop | Type | Default | Notes |",
+    "| --- | --- | --- | --- |",
+    ...rows.map((p) => row(p, info.defaults)),
+  ];
   return { text: lines.join("\n"), count: rows.length };
 }
 
@@ -315,7 +340,9 @@ let components = 0;
 let propCount = 0;
 const skipped = [];
 
-for (const d of readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory()).sort((a, b) => a.name.localeCompare(b.name))) {
+for (const d of readdirSync(root, { withFileTypes: true })
+  .filter((d) => d.isDirectory())
+  .sort((a, b) => a.name.localeCompare(b.name))) {
   const dir = join(root, d.name);
   const sfc = join(dir, `E${d.name}.vue`);
   const readmePath = join(dir, "README.md");
@@ -342,7 +369,8 @@ for (const d of readdirSync(root, { withFileTypes: true }).filter((d) => d.isDir
     continue;
   }
   const { text, count } = table(info);
-  for (const p of [...info.models, ...info.props]) dump.push({ component: d.name, name: p.name, model: !!p.model, at: p.at });
+  for (const p of [...info.models, ...info.props])
+    dump.push({ component: d.name, name: p.name, model: !!p.model, at: p.at });
   const next = rewrite(readme, text);
   if (next === null) {
     console.error(`${d.name}: README has no "## Props" table or markers to fill`);
@@ -355,7 +383,11 @@ for (const d of readdirSync(root, { withFileTypes: true }).filter((d) => d.isDir
   const squashTable = (s) => s.replace(/[ \t]+/g, " ").replace(/-{3,}/g, "---");
   if (squashTable(next) !== squashTable(readme)) {
     stale.push(d.name);
-    if (!check) writeFileSync(readmePath, crlf ? next.replace(/\n/g, "\r\n") : next);
+    if (!check) {
+      const options = (await prettier.resolveConfig(readmePath)) ?? {};
+      const formatted = await prettier.format(next, { ...options, filepath: readmePath });
+      writeFileSync(readmePath, crlf ? formatted.replace(/\n/g, "\r\n") : formatted);
+    }
   }
 }
 
@@ -364,9 +396,14 @@ for (const w of warnings) console.warn(`warning: ${w}`);
 
 if (check) {
   if (stale.length) {
-    console.error(`Props tables out of date for: ${stale.join(", ")}.\nRun \`node scripts/gen-props.mjs\` (edit the JSDoc or defaults in the .vue file, not the table).`);
+    console.error(
+      `Props tables out of date for: ${stale.join(", ")}.\nRun \`node scripts/gen-props.mjs\` (edit the JSDoc or defaults in the .vue file, not the table).`,
+    );
     process.exitCode = 1;
-  } else if (!process.exitCode) console.log(`Props tables are up to date (${components} components, ${propCount} props).`);
+  } else if (!process.exitCode)
+    console.log(`Props tables are up to date (${components} components, ${propCount} props).`);
 } else {
-  console.log(`gen-props: ${components} components, ${propCount} props; ${stale.length} README(s) changed${skipped.length ? `; skipped: ${skipped.join(", ")}` : ""}.`);
+  console.log(
+    `gen-props: ${components} components, ${propCount} props; ${stale.length} README(s) changed${skipped.length ? `; skipped: ${skipped.join(", ")}` : ""}.`,
+  );
 }

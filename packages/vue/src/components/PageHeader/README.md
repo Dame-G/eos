@@ -17,11 +17,11 @@ The top of a page: title, optional breadcrumb, description, status and main acti
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `title` | `string` | **Required** | The page's title: where the person is, in their words ("Visit on Oct 2"). |
-| `description` | `string` | None | A short line under the title. |
-| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `1` | The heading level of the title. A page has exactly one `h1`, so change the level only when the header is not the page's title. |
+| Prop           | Type                         | Default      | Notes                                                                                                                          |
+| -------------- | ---------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `title`        | `string`                     | **Required** | The page's title: where the person is, in their words ("Visit on Oct 2").                                                      |
+| `description`  | `string`                     | None         | A short line under the title.                                                                                                  |
+| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `1`          | The heading level of the title. A page has exactly one `h1`, so change the level only when the header is not the page's title. |
 
 <!-- props:end -->
 

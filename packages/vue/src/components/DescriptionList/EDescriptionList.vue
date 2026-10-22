@@ -62,9 +62,7 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
   </ul>
   <dl v-else class="e-facts">
     <div v-for="(item, i) in shown" :key="i" class="e-fact">
-      <dt class="e-kicker">
-        <EIcon v-if="item.icon" :name="item.icon" />{{ item.label }}
-      </dt>
+      <dt class="e-kicker"><EIcon v-if="item.icon" :name="item.icon" />{{ item.label }}</dt>
       <dd class="e-fact-text">
         <span class="e-fact-value"><Render :value="item.text" /></span>
         <EStamp v-if="item.badge" :tone="item.badgeTone" small>{{ item.badge }}</EStamp>

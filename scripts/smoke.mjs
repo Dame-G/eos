@@ -31,7 +31,9 @@ const checks = [
 ];
 for (const [tgz, entrypoints] of checks) {
   run(`corepack pnpm --filter @eos-ui/vue exec publint "${join(packs, tgz)}" --strict`);
-  run(`corepack pnpm --filter @eos-ui/vue exec attw --pack "${join(packs, tgz)}" --profile esm-only --entrypoints ${entrypoints}`);
+  run(
+    `corepack pnpm --filter @eos-ui/vue exec attw --pack "${join(packs, tgz)}" --profile esm-only --entrypoints ${entrypoints}`,
+  );
 }
 
 step("create a fresh app");

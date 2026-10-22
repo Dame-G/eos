@@ -15,6 +15,7 @@ pnpm install
 pnpm build                # builds tokens, then the Vue package
 pnpm test                 # real-browser tests (Chromium in CI, Edge locally)
 pnpm lint                 # eslint and stylelint
+pnpm format:check         # prettier (run `pnpm format` to fix)
 pnpm knip                 # unused files, exports and dependencies
 pnpm typecheck
 pnpm check:package        # package exports and types (needs a build)
@@ -59,7 +60,7 @@ index.ts         export { default as EStamp } from "./EStamp.vue";   (plus expor
 ### Props, events and slots
 
 - Props use `defineProps<{ ... }>()` with a one-line doc comment each (it becomes the editor tooltip).
-- The README's props table (between `<!-- props:start -->` and `<!-- props:end -->`) is generated from the source: edit the doc comment, the `withDefaults` value or the `defineModel` comment in the `.vue` file, never the table, then run `node scripts/gen-props.mjs` in `packages/vue`. A prop that has no default and is not required shows None. A flag is `false` unless it has a default. Write a default that the code applies elsewhere (a generated id, an i18n string) as `@default value` at the end of the doc comment. Do not start a doc comment with "Required." The table shows it.
+- The README's props table (between `<!-- props:start -->` and `<!-- props:end -->`) is generated from the source: edit the doc comment, the `withDefaults` value or the `defineModel` comment in the `.vue` file, never the table, then run `node scripts/gen-props.mjs` in `packages/vue`, which also formats the README with Prettier. A prop that has no default and is not required shows None. A flag is `false` unless it has a default. Write a default that the code applies elsewhere (a generated id, an i18n string) as `@default value` at the end of the doc comment. Do not start a doc comment with "Required." The table shows it.
 - The main value is `defineModel()` (`v-model`). Two values use named models (`v-model:start`, `v-model:end`). Leaving `v-model` off gives local state, so there is no `defaultValue` prop.
 - Other signals are emits declared with `defineEmits`, value first.
 - Content goes in slots, declared with `defineSlots`. A render-prop is a scoped slot.
@@ -136,7 +137,7 @@ A README says what the consumer provides, what the component does and the rules.
 ### Definition of done
 
 1. Tests pass, including keyboard and axe.
-2. `pnpm lint`, `pnpm typecheck`, `pnpm knip`, `pnpm check:package`, `pnpm check:size` and the four `@eos-ui/vue` checks (`check:css`, `check:layers`, `check:props`, `check:docs`) pass. CI runs all of them.
+2. `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm knip`, `pnpm check:package`, `pnpm check:size` and the four `@eos-ui/vue` checks (`check:css`, `check:layers`, `check:props`, `check:docs`) pass. CI runs all of them.
 3. README (following Documentation above), `index.ts` and exported prop types exist.
 4. The component works without the plugin installed and with a custom theme applied.
 

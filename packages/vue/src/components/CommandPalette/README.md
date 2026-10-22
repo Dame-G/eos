@@ -20,14 +20,14 @@ const commands = [
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `open` | `boolean` | `false` | `v-model:open`: whether it is open. Without a binding it keeps its own state. |
-| `items` | `CommandItem[]` | **Required** | The commands, in the order to list them when nothing is typed. |
-| `label` | `string` | **Required** | The palette's accessible name, such as "Command palette". |
-| `placeholder` | `string` | `"Type a command or search"` | Placeholder in the search box. |
-| `shortcut` | `string \| false` | `"mod+k"` | The shortcut that opens and closes it from anywhere on the page, or `false` for none. Read once when the component is created. |
-| `filter` | `(item: CommandItem, query: string) => number` | None | Your own match: return a score above 0 to include the item (higher lists first), or 0 to leave it out. It replaces the built-in matching. |
+| Prop          | Type                                           | Default                      | Notes                                                                                                                                     |
+| ------------- | ---------------------------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `open`        | `boolean`                                      | `false`                      | `v-model:open`: whether it is open. Without a binding it keeps its own state.                                                             |
+| `items`       | `CommandItem[]`                                | **Required**                 | The commands, in the order to list them when nothing is typed.                                                                            |
+| `label`       | `string`                                       | **Required**                 | The palette's accessible name, such as "Command palette".                                                                                 |
+| `placeholder` | `string`                                       | `"Type a command or search"` | Placeholder in the search box.                                                                                                            |
+| `shortcut`    | `string \| false`                              | `"mod+k"`                    | The shortcut that opens and closes it from anywhere on the page, or `false` for none. Read once when the component is created.            |
+| `filter`      | `(item: CommandItem, query: string) => number` | None                         | Your own match: return a score above 0 to include the item (higher lists first), or 0 to leave it out. It replaces the built-in matching. |
 
 <!-- props:end -->
 

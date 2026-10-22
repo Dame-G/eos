@@ -6,7 +6,8 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const run = (cmd, args, cwd = root) => execFileSync(cmd, args, { cwd, stdio: "inherit" });
-const read = (cmd, args) => execFileSync(cmd, args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+const read = (cmd, args) =>
+  execFileSync(cmd, args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
 
 const packages = ["tokens", "vue"].map((dir) => {
   const manifest = JSON.parse(readFileSync(join(root, "packages", dir, "package.json"), "utf8"));
@@ -28,12 +29,18 @@ for (const pkg of packages) {
     continue;
   }
   run("corepack", ["pnpm", "--filter", pkg.name, "pack", "--pack-destination", packs]);
-  const tarball = readdirSync(packs).find((f) => f.startsWith(pkg.name.replace("@", "").replace("/", "-") + "-" + pkg.version));
+  const tarball = readdirSync(packs).find((f) =>
+    f.startsWith(pkg.name.replace("@", "").replace("/", "-") + "-" + pkg.version),
+  );
   if (!tarball) throw new Error(`No tarball for ${pkg.name}@${pkg.version}`);
   run("npm", ["publish", join(packs, tarball), "--access", "public", "--provenance"]);
   const tag = `${pkg.name}@${pkg.version}`;
   console.log(`New tag: ${tag}`);
   // The Changesets action creates the GitHub release and pushes the tag only for tags it finds in this file, so each published package is tagged here and reported.
   run("git", ["tag", tag]);
-  if (process.env.CHANGESETS_OUTPUT) appendFileSync(process.env.CHANGESETS_OUTPUT, JSON.stringify({ type: "git-tag", tag, packageName: pkg.name }) + "\n");
+  if (process.env.CHANGESETS_OUTPUT)
+    appendFileSync(
+      process.env.CHANGESETS_OUTPUT,
+      JSON.stringify({ type: "git-tag", tag, packageName: pkg.name }) + "\n",
+    );
 }

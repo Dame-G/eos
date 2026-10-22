@@ -11,20 +11,20 @@ A dropzone for attaching files, clickable and droppable, listing the chosen file
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `modelValue` | `File[]` | `[]` | `v-model`: the chosen files. |
-| `label` | `string` | **Required** | The visible label above the dropzone. |
-| `hideLabel` | `boolean` | `false` | Keeps the label for screen readers and hides it from the page. |
-| `accept` | `string` | None | Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt as "PDF, JPG" and also applied to dropped files. |
-| `multiple` | `boolean` | `false` | Allows choosing more than one file. Without it only the first file of a choice or drop is kept. |
-| `name` | `string` | None | The name submitted with a form. |
-| `hint` | `string` | None | Help that says which files are accepted and how large, shown before the person tries. |
-| `error` | `string` | None | What to fix. Replaces the hint, marks the input invalid and is announced. |
-| `required` | `boolean` | `false` | Sets the `required` attribute and adds a word beside the label. |
-| `optional` | `boolean` | `false` | Adds a word beside the label. Use it when most fields in the form are required. |
-| `disabled` | `boolean` | `false` | Disables the control, so it ignores drops and clicks. |
-| `id` | `string` | `generated` | The id of the file input, which the label points at. |
+| Prop         | Type      | Default      | Notes                                                                                                                                                                                                                        |
+| ------------ | --------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue` | `File[]`  | `[]`         | `v-model`: the chosen files.                                                                                                                                                                                                 |
+| `label`      | `string`  | **Required** | The visible label above the dropzone.                                                                                                                                                                                        |
+| `hideLabel`  | `boolean` | `false`      | Keeps the label for screen readers and hides it from the page.                                                                                                                                                               |
+| `accept`     | `string`  | None         | Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt as "PDF, JPG" and also applied to dropped files. |
+| `multiple`   | `boolean` | `false`      | Allows choosing more than one file. Without it only the first file of a choice or drop is kept.                                                                                                                              |
+| `name`       | `string`  | None         | The name submitted with a form.                                                                                                                                                                                              |
+| `hint`       | `string`  | None         | Help that says which files are accepted and how large, shown before the person tries.                                                                                                                                        |
+| `error`      | `string`  | None         | What to fix. Replaces the hint, marks the input invalid and is announced.                                                                                                                                                    |
+| `required`   | `boolean` | `false`      | Sets the `required` attribute and adds a word beside the label.                                                                                                                                                              |
+| `optional`   | `boolean` | `false`      | Adds a word beside the label. Use it when most fields in the form are required.                                                                                                                                              |
+| `disabled`   | `boolean` | `false`      | Disables the control, so it ignores drops and clicks.                                                                                                                                                                        |
+| `id`         | `string`  | `generated`  | The id of the file input, which the label points at.                                                                                                                                                                         |
 
 <!-- props:end -->
 

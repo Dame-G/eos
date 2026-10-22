@@ -50,7 +50,9 @@ describe("EDescriptionList", () => {
     const seen: string[] = [];
     const { container } = await render(EDescriptionList, {
       props: {
-        items: [{ label: "Email", text: "a@b.co", icon: "mail", badge: "Verified", badgeTone: "success", editable: true }],
+        items: [
+          { label: "Email", text: "a@b.co", icon: "mail", badge: "Verified", badgeTone: "success", editable: true },
+        ],
         onEdit: (item: { label?: string }) => seen.push(item.label ?? ""),
       },
     });
@@ -63,7 +65,9 @@ describe("EDescriptionList", () => {
   test("the action slot renders at the end of every row", async () => {
     const { container } = await render(EDescriptionList, {
       props: { items },
-      slots: { action: ({ item }: { item: { label?: string } }) => h("button", { type: "button" }, `Go ${item.label}`) },
+      slots: {
+        action: ({ item }: { item: { label?: string } }) => h("button", { type: "button" }, `Go ${item.label}`),
+      },
     });
     expect(container.querySelectorAll("dd button").length).toBe(2);
   });

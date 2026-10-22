@@ -20,13 +20,13 @@ Use [`EDataGrid`](../DataGrid/README.md) when people need to sort, filter, selec
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `caption` | `string` | **Required** | Names the table for screen readers, and its scrolling region. It is also shown above the table unless `hideCaption` is set. |
-| `hideCaption` | `boolean` | `false` | Keeps the caption for screen readers and removes it from the page, for a table that a nearby heading already names. |
-| `striped` | `boolean` | `false` | Tints every other row. |
-| `dense` | `boolean` | `false` | Smaller text and tighter cells, for reference tables with many rows. |
-| `maxHeight` | `string` | None | Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header row. |
+| Prop          | Type      | Default      | Notes                                                                                                                       |
+| ------------- | --------- | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `caption`     | `string`  | **Required** | Names the table for screen readers, and its scrolling region. It is also shown above the table unless `hideCaption` is set. |
+| `hideCaption` | `boolean` | `false`      | Keeps the caption for screen readers and removes it from the page, for a table that a nearby heading already names.         |
+| `striped`     | `boolean` | `false`      | Tints every other row.                                                                                                      |
+| `dense`       | `boolean` | `false`      | Smaller text and tighter cells, for reference tables with many rows.                                                        |
+| `maxHeight`   | `string`  | None         | Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header row.                  |
 
 <!-- props:end -->
 

@@ -17,11 +17,11 @@ An icon before the text:
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `href` | `string` | **Required** | Where the link goes. |
-| `external` | `boolean` | `false` | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`). |
-| `icon` | `IconProp` | None | An icon before the text: a built-in name, a name from your icon set, or an icon component. It is hidden from screen readers, so the text names the link. |
+| Prop       | Type       | Default      | Notes                                                                                                                                                    |
+| ---------- | ---------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `href`     | `string`   | **Required** | Where the link goes.                                                                                                                                     |
+| `external` | `boolean`  | `false`      | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`).                                                                                              |
+| `icon`     | `IconProp` | None         | An icon before the text: a built-in name, a name from your icon set, or an icon component. It is hidden from screen readers, so the text names the link. |
 
 <!-- props:end -->
 

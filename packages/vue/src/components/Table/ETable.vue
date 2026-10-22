@@ -28,7 +28,11 @@ const style = computed(() => (props.maxHeight ? { "--e-table-max-h": props.maxHe
   <div class="e-table-wrap" :class="[striped && 'e-table-wrap--striped', dense && 'e-table-wrap--dense']">
     <div class="e-table-scroll" tabindex="0" role="region" :aria-label="caption" :style="style">
       <table class="e-table">
-        <caption :class="hideCaption ? 'e-sr' : 'e-table-caption'">{{ caption }}</caption>
+        <caption :class="hideCaption ? 'e-sr' : 'e-table-caption'">
+          {{
+            caption
+          }}
+        </caption>
         <slot />
       </table>
     </div>

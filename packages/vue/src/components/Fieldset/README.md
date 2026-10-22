@@ -13,19 +13,19 @@ Related controls in a bordered box. Use it, not a bare label, whenever two or mo
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `legend` | `string` | None | The question the controls answer. Names the group for screen readers. |
-| `bare` | `boolean` | `false` | Removes the box and shows the legend as a plain label above the controls, as `ERadioGroup` does. |
-| `hint` | `string` | None | Help that is announced with the group. |
-| `error` | `string` | None | What to fix. Replaces the hint and is announced with the group. |
-| `required` | `boolean` | `false` | Shows "Required" at the end of the legend. |
-| `optional` | `boolean` | `false` | Shows "Optional" at the end of the legend. Only the rarer of required and optional needs a flag. |
-| `section` | `boolean` | `false` | Makes a titled form section without a box, with the hint under the legend. |
-| `disabled` | `boolean` | `false` | Disables every control inside. |
-| `legendClass` | `string` | None | Classes added to the legend. |
-| `hideLegend` | `boolean` | `false` | Hides the legend from the page and keeps it for screen readers. |
-| `id` | `string` | `generated` | The id the hint and error ids are built from. |
+| Prop          | Type      | Default     | Notes                                                                                            |
+| ------------- | --------- | ----------- | ------------------------------------------------------------------------------------------------ |
+| `legend`      | `string`  | None        | The question the controls answer. Names the group for screen readers.                            |
+| `bare`        | `boolean` | `false`     | Removes the box and shows the legend as a plain label above the controls, as `ERadioGroup` does. |
+| `hint`        | `string`  | None        | Help that is announced with the group.                                                           |
+| `error`       | `string`  | None        | What to fix. Replaces the hint and is announced with the group.                                  |
+| `required`    | `boolean` | `false`     | Shows "Required" at the end of the legend.                                                       |
+| `optional`    | `boolean` | `false`     | Shows "Optional" at the end of the legend. Only the rarer of required and optional needs a flag. |
+| `section`     | `boolean` | `false`     | Makes a titled form section without a box, with the hint under the legend.                       |
+| `disabled`    | `boolean` | `false`     | Disables every control inside.                                                                   |
+| `legendClass` | `string`  | None        | Classes added to the legend.                                                                     |
+| `hideLegend`  | `boolean` | `false`     | Hides the legend from the page and keeps it for screen readers.                                  |
+| `id`          | `string`  | `generated` | The id the hint and error ids are built from.                                                    |
 
 <!-- props:end -->
 

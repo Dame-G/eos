@@ -14,13 +14,13 @@ A person, as a photo or as their initials on a rounded tile.
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `name` | `string` | **Required** | The person's name. Screen readers read it, and the initials are the first letters of its first and last word. |
-| `src` | `string` | None | A photo URL. The initials show if it fails to load. |
-| `small` | `boolean` | `false` | Makes the avatar smaller, for rows and bars. |
-| `large` | `boolean` | `false` | Makes the avatar larger, for a profile or a practitioner on an appointment card. |
-| `as` | `"span" \| "button"` | `"span"` | `button` renders a `button` with `type="button"`, named by `name`, for use as the `trigger` of an `EMenu`, for example. |
+| Prop    | Type                 | Default      | Notes                                                                                                                   |
+| ------- | -------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| `name`  | `string`             | **Required** | The person's name. Screen readers read it, and the initials are the first letters of its first and last word.           |
+| `src`   | `string`             | None         | A photo URL. The initials show if it fails to load.                                                                     |
+| `small` | `boolean`            | `false`      | Makes the avatar smaller, for rows and bars.                                                                            |
+| `large` | `boolean`            | `false`      | Makes the avatar larger, for a profile or a practitioner on an appointment card.                                        |
+| `as`    | `"span" \| "button"` | `"span"`     | `button` renders a `button` with `type="button"`, named by `name`, for use as the `trigger` of an `EMenu`, for example. |
 
 <!-- props:end -->
 

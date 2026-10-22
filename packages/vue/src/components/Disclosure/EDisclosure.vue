@@ -2,10 +2,10 @@
 import "../../styles/base.css";
 
 defineProps<{
-    /** The summary line that opens and closes it. The `title` slot takes rich content. */
-    title?: string;
-    /** Disclosures that share a `group` open one at a time (the native `name` of `details`). */
-    group?: string;
+  /** The summary line that opens and closes it. The `title` slot takes rich content. */
+  title?: string;
+  /** Disclosures that share a `group` open one at a time (the native `name` of `details`). */
+  group?: string;
 }>();
 
 defineSlots<{
@@ -24,13 +24,10 @@ function onToggle(e: Event) {
 </script>
 
 <template>
-  <details
-    class="e-disclosure e-details"
-    :name="group"
-    :open="open || undefined"
-    @toggle="onToggle"
-  >
-    <summary><slot name="title">{{ title }}</slot></summary>
+  <details class="e-disclosure e-details" :name="group" :open="open || undefined" @toggle="onToggle">
+    <summary>
+      <slot name="title">{{ title }}</slot>
+    </summary>
     <div class="e-details-body"><slot /></div>
   </details>
 </template>

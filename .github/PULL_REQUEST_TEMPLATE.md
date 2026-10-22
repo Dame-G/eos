@@ -2,7 +2,7 @@
 
 ## Checklist
 
-- [ ] `pnpm lint`, `pnpm typecheck` and `pnpm test` pass
+- [ ] `pnpm lint`, `pnpm format:check`, `pnpm typecheck` and `pnpm test` pass
 - [ ] `pnpm knip` passes
 - [ ] `pnpm check:package` passes (needs a build)
 - [ ] `pnpm --filter @eos-ui/vue check:css` passes

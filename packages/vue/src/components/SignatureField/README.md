@@ -14,18 +14,18 @@ const signed = ref<SignatureValue>({ method: "type", name: "", image: "", agreed
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `modelValue` | `SignatureValue` | `{ method: "type", name: "", image: "", agreed: false }` | `v-model`: `image` is a PNG data URL, empty unless `method` is `draw`. |
-| `label` | `string` | `"Signature"` | The group's heading and accessible name, such as the form being signed. |
-| `mode` | `"type" \| "draw" \| "both"` | `"type"` | How the person signs: `type`, `draw` or `both`, which adds a Type and Draw switch. A drawn signature cannot be made from a keyboard, so `both` lets keyboard users type instead. |
-| `agreement` | `string` | `"I agree and want to sign this form."` | The sentence the person agrees to. |
-| `date` | `Date` | `today` | The date shown with the signature, in the configured locale. |
-| `hint` | `string` | None | Help that is announced with the group. |
-| `error` | `string` | None | What to fix. Replaces the hint, marks the group invalid and is announced with the group. |
-| `disabled` | `boolean` | `false` | Disables the fields and the agreement. |
-| `name` | `string` | None | The name submitted with a form: the typed name, or the drawn image as a data URL. |
-| `id` | `string` | `generated` | The id of the typed-name input. |
+| Prop         | Type                         | Default                                                  | Notes                                                                                                                                                                            |
+| ------------ | ---------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue` | `SignatureValue`             | `{ method: "type", name: "", image: "", agreed: false }` | `v-model`: `image` is a PNG data URL, empty unless `method` is `draw`.                                                                                                           |
+| `label`      | `string`                     | `"Signature"`                                            | The group's heading and accessible name, such as the form being signed.                                                                                                          |
+| `mode`       | `"type" \| "draw" \| "both"` | `"type"`                                                 | How the person signs: `type`, `draw` or `both`, which adds a Type and Draw switch. A drawn signature cannot be made from a keyboard, so `both` lets keyboard users type instead. |
+| `agreement`  | `string`                     | `"I agree and want to sign this form."`                  | The sentence the person agrees to.                                                                                                                                               |
+| `date`       | `Date`                       | `today`                                                  | The date shown with the signature, in the configured locale.                                                                                                                     |
+| `hint`       | `string`                     | None                                                     | Help that is announced with the group.                                                                                                                                           |
+| `error`      | `string`                     | None                                                     | What to fix. Replaces the hint, marks the group invalid and is announced with the group.                                                                                         |
+| `disabled`   | `boolean`                    | `false`                                                  | Disables the fields and the agreement.                                                                                                                                           |
+| `name`       | `string`                     | None                                                     | The name submitted with a form: the typed name, or the drawn image as a data URL.                                                                                                |
+| `id`         | `string`                     | `generated`                                              | The id of the typed-name input.                                                                                                                                                  |
 
 <!-- props:end -->
 

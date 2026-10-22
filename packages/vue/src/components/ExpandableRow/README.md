@@ -15,10 +15,10 @@ A one-line row that opens to more: a leading item, a title with a subtitle, and 
 
 <!-- props:start -->
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `title` | `string` | **Required** | The row's name, always visible in the summary. |
-| `subtitle` | `string` | None | A muted line under the title. |
+| Prop       | Type     | Default      | Notes                                          |
+| ---------- | -------- | ------------ | ---------------------------------------------- |
+| `title`    | `string` | **Required** | The row's name, always visible in the summary. |
+| `subtitle` | `string` | None         | A muted line under the title.                  |
 
 <!-- props:end -->
 
