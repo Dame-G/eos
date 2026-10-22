@@ -62,7 +62,7 @@ Render.props = ["content"];
 <template>
   <slot />
   <Teleport :to="target">
-    <div ref="region" class="e-root e-toast-region" role="region" :aria-label="t('toastRegion')">
+    <div ref="region" class="e-root e-toast-region" role="region" aria-live="off" :aria-label="t('toastRegion')">
       <EToast
         v-for="item in store.items"
         :key="item.id"
@@ -85,6 +85,9 @@ Render.props = ["content"];
     inset-inline-end: max(var(--e-space-4), env(safe-area-inset-right, 0px));
     bottom: max(var(--e-space-4), env(safe-area-inset-bottom, 0px));
     z-index: var(--e-z-toast);
+
+    /* An open modal dialog sets pointer-events: none on the body. The toasts must stay clickable. */
+    pointer-events: auto;
     display: grid;
     gap: var(--e-space-2);
   }

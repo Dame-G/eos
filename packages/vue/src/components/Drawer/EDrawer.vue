@@ -8,6 +8,10 @@ withDefaults(
   defineProps<{
     /** The panel's heading and accessible name, such as the statement being read. */
     title: string;
+    /** A sentence under the title that says what the drawer is for. It is shown, and read out as the description. */
+    description?: string;
+    /** `alertdialog` for a confirmation that needs an answer, such as a delete. Leave it as `dialog` for everything else. */
+    role?: "dialog" | "alertdialog";
     /** The level of the title's heading element, 1 to 6. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     /** The edge it slides in from; `bottom` is a sheet for phones. */
@@ -17,7 +21,7 @@ withDefaults(
     /** Shows the drawer in the page, without the backdrop or the focus trap. Only for a preview. */
     inline?: boolean;
   }>(),
-  { headingLevel: 2, side: "right" },
+  { role: "dialog", headingLevel: 2, side: "right" },
 );
 
 const emit = defineEmits<{
@@ -42,6 +46,8 @@ const open = defineModel<boolean>("open");
     v-model:open="open"
     :title="title"
     :heading-level="headingLevel"
+    :description="description"
+    :role="role"
     :inline="inline"
     :dismissible="dismissible"
     :content-class="['e-drawer', side !== 'right' && `e-drawer--${side}`, inline && 'e-drawer--inline']"
@@ -80,11 +86,11 @@ const open = defineModel<boolean>("open");
   }
 
   .e-drawer[data-state="open"] {
-    animation: e-drawer-in 220ms var(--e-easing-out);
+    animation: e-drawer-in var(--e-duration-move) var(--e-easing-out);
   }
 
   .e-drawer[data-state="closed"] {
-    animation: e-drawer-out 220ms var(--e-easing-out) forwards;
+    animation: e-drawer-out var(--e-duration-move) var(--e-easing-out) forwards;
   }
 
   .e-drawer--left[data-state="open"] {

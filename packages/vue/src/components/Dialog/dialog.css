@@ -37,6 +37,13 @@
     text-wrap: balance;
   }
 
+  .e-dialog-description {
+    margin: 0;
+    padding: var(--e-space-2) var(--e-space-6) 0;
+    color: var(--e-muted);
+    font: 400 var(--e-text-md) / 1.5 var(--e-font-sans);
+  }
+
   .e-dialog-foot {
     gap: var(--e-space-3);
     padding: var(--e-space-4) var(--e-space-6);

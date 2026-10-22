@@ -48,7 +48,7 @@ await copy("npm install @eos-ui/vue"); // true if it reached the clipboard
 
 ## `useToast()`
 
-Shows a toast from anywhere inside an [`EToastProvider`](../components/ToastProvider/README.md).
+Shows a toast from anywhere in an app that installed `createEos()`, or from inside an [`EToastProvider`](../components/ToastProvider/README.md) without the plugin. The toast appears once an `EToastProvider` is mounted.
 
 ```ts
 const toast = useToast();

@@ -14,7 +14,7 @@ toast.dismiss(id);
 toast.clear();
 ```
 
-`EToastProvider` has no props. `toast.show(options)` returns the toast's id; `toast.dismiss(id)` removes one and `toast.clear()` removes all. `useToast()` throws outside a provider. To show toasts from code outside components, provide a store with `provide(TOAST_KEY, createToasts())` and call `show` on it.
+`EToastProvider` has no props. `toast.show(options)` returns the toast's id; `toast.dismiss(id)` removes one and `toast.clear()` removes all. With `createEos()` installed, the app already has a toast store, so `useToast()` works anywhere in the app, including code outside the component tree, and toasts appear once an `EToastProvider` is mounted. Without the plugin, `EToastProvider` makes its own store for the components inside it and `useToast()` throws anywhere else. To use `useToast()` elsewhere without the plugin, provide a store with `app.provide(TOAST_KEY, createToasts())`.
 
 ## Options
 
@@ -37,5 +37,6 @@ The options of `toast.show`.
 ## Accessibility
 
 - The region is a labelled `region` (the `toastRegion` message); each toast is announced when it appears (`alert` for danger, `status` otherwise).
+- The region is exempt from the `aria-hidden` that a modal `EDialog` puts on the rest of the page, and takes clicks while the dialog is open, so a toast raised from a dialog is announced and can be dismissed.
 - Timers pause while the pointer or focus is on a toast (WCAG 2.2.1).
 - A message that must stay until dealt with is an `ENotice`, not a toast.
