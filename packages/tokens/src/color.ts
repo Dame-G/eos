@@ -84,6 +84,37 @@ export function reachContrast(hex: string, against: string, target: number): str
   return best;
 }
 
+/** A colour to hold a contrast ratio against. */
+export type ContrastCheck = readonly [against: string, min: number];
+
+/** The colour nearest `hex` in OKLCH lightness (same hue and chroma) that holds every check. Tries darker and lighter and keeps the closer hit. Near white and black the sRGB gamut cannot carry the full chroma, so when nothing holds, it tries again with less chroma. When still nothing holds, returns the closest and `ok: false`. */
+export function reachAll(hex: string, checks: readonly ContrastCheck[]): { color: string; ok: boolean } {
+  const start = toOklch(hex);
+  const worst = (c: string) => Math.min(...checks.map(([against, min]) => contrast(c, against) / min));
+  const first = worst(hex);
+  if (first >= 1) return { color: hex, ok: true };
+  let best = { color: hex, score: first };
+  for (const keep of [1, 0.6, 0.3, 0]) {
+    let hit: { color: string; distance: number } | undefined;
+    for (const dir of [-1, 1]) {
+      for (let step = 1; step <= 101; step++) {
+        const distance = step * 0.01;
+        const l = Math.min(1, Math.max(0, start.l + dir * distance));
+        const color = fromOklch({ ...start, c: start.c * keep, l });
+        const score = worst(color);
+        if (score >= 1) {
+          if (!hit || distance < hit.distance) hit = { color, distance };
+          break;
+        }
+        if (score > best.score) best = { color, score };
+        if (l === 0 || l === 1) break;
+      }
+    }
+    if (hit) return { color: hit.color, ok: true };
+  }
+  return { color: best.color, ok: false };
+}
+
 /** A very light tint of `hex`'s hue, for soft backgrounds. */
 export function tint(hex: string, lightness = 0.955, chroma = 0.025): string {
   const { h } = toOklch(hex);

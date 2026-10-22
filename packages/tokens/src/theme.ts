@@ -1,10 +1,12 @@
 import { defaults, groups, type TokenName } from "./generated/defaults.js";
 import { toDtcg, type DtcgTokens } from "./dtcg.js";
 import {
+  type ContrastCheck,
   contrast,
   fromOklch,
   luminance,
   parseHex,
+  reachAll,
   reachContrast,
   settleContrast,
   tint,
@@ -103,6 +105,7 @@ const PAIRS: { fg: TokenName; bg: TokenName; min: number; role: string }[] = [
   { fg: "ink", bg: "surface", min: 7, role: "Body text" },
   { fg: "ink", bg: "surface-tint", min: 7, role: "Text on the tinted ground" },
   { fg: "muted", bg: "surface", min: 4.5, role: "Secondary text" },
+  { fg: "muted", bg: "surface-tint", min: 4.5, role: "Secondary text on the tinted ground" },
   { fg: "on-primary", bg: "primary", min: 4.5, role: "Primary button label" },
   { fg: "primary", bg: "surface", min: 4.5, role: "Links and small primary text" },
   { fg: "on-secondary", bg: "secondary", min: 4.5, role: "Secondary button label" },
@@ -112,7 +115,14 @@ const PAIRS: { fg: TokenName; bg: TokenName; min: number; role: string }[] = [
   { fg: "warning-strong", bg: "warning-soft", min: 4.5, role: "Warning notice text" },
   { fg: "secondary", bg: "secondary-soft", min: 4.5, role: "Success notice text" },
   { fg: "border", bg: "surface", min: 3, role: "Card outline (non-text)" },
+  { fg: "border", bg: "surface-tint", min: 3, role: "Outline on the tinted ground (non-text)" },
   { fg: "border-strong", bg: "surface", min: 3, role: "Control edge (non-text)" },
+  { fg: "focus-ring", bg: "surface", min: 3, role: "Focus ring (non-text)" },
+  { fg: "focus-ring", bg: "surface-tint", min: 3, role: "Focus ring on the tinted ground (non-text)" },
+  { fg: "focus-ring", bg: "background", min: 3, role: "Focus ring on the page (non-text)" },
+  { fg: "focus-field", bg: "surface", min: 3, role: "Field focus outline (non-text)" },
+  { fg: "focus-field", bg: "surface-tint", min: 3, role: "Field focus outline on the tinted ground (non-text)" },
+  { fg: "focus-field", bg: "background", min: 3, role: "Field focus outline on the page (non-text)" },
   { fg: "ink", bg: "background", min: 7, role: "Text on the page" },
   { fg: "muted", bg: "background", min: 4.5, role: "Secondary text on the page" },
   { fg: "primary", bg: "background", min: 4.5, role: "Links on the page" },
@@ -228,9 +238,89 @@ function deriveElevation(
   }
 }
 
-function ensure(out: Record<string, string>, token: string, against: string, min: number) {
-  const value = out[token]!;
-  if (contrast(value, against) < min) out[token] = reachContrast(value, against, min);
+const holds = (value: string, checks: readonly ContrastCheck[]) =>
+  checks.every(([against, min]) => contrast(value, against) >= min);
+
+/** The value pushed away from each colour it falls short of, in order. Right whenever the colours sit clearly on one side of it, which covers every light and dark surface that is not a mid-tone. */
+function pushed(value: string, checks: readonly ContrastCheck[]): string {
+  let out = value;
+  for (const [against, min] of checks) if (contrast(out, against) < min) out = reachContrast(out, against, min);
+  return out;
+}
+
+/** Keeps `token` when it already holds every check. Otherwise pushes it away from what it falls short of, and if that is not enough moves `base` to the nearest lightness that does, darker or lighter. */
+function fit(out: Record<string, string>, token: string, base: string, checks: readonly ContrastCheck[]) {
+  const push = pushed(out[token]!, checks);
+  out[token] = holds(push, checks) ? push : reachAll(base, checks).color;
+}
+
+/**
+ * Like `fit` for an action fill that carries label text in `onToken`. The fill has to hold its checks and 7:1 with the label (4.5:1 when 7:1 is out of reach). It keeps the current label colour when it can, then tries the other of black and white.
+ * On a mid-tone surface the fill cannot be lightened toward white without losing its white label, so it goes darker instead, or the label turns black.
+ * Returns false and leaves the fill alone when no lightness holds everything.
+ */
+function fitFill(
+  out: Record<string, string>,
+  token: string,
+  onToken: string | undefined,
+  base: string,
+  checks: readonly ContrastCheck[],
+): boolean {
+  const label = onToken ? out[onToken]! : undefined;
+  const push = pushed(out[token]!, checks);
+  if (holds(push, label ? [[label, 4.5], ...checks] : checks)) {
+    out[token] = push;
+    return true;
+  }
+  const other = label === BLACK ? WHITE : BLACK;
+  const tries: (readonly [string | undefined, number])[] = label
+    ? [
+        [label, 7],
+        [label, 4.5],
+        [other, 7],
+        [other, 4.5],
+      ]
+    : [[undefined, 0]];
+  for (const [on, min] of tries) {
+    const found = reachAll(base, on ? [[on, min], ...checks] : checks);
+    if (found.ok) {
+      out[token] = found.color;
+      if (onToken && on) out[onToken] = on;
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Settles an action colour against the surface and its soft backdrop. When that is impossible, which happens on a mid-tone surface where the backdrop sits between the surface and the only colours the action can take, the action settles against the surface alone and the backdrop moves away from it.
+ */
+function fitTone(
+  out: Record<string, string>,
+  token: string,
+  onToken: string | undefined,
+  soft: string,
+  base: string,
+  surface: string,
+) {
+  const both: ContrastCheck[] = [
+    [surface, 4.5],
+    [out[soft]!, 4.5],
+  ];
+  if (fitFill(out, token, onToken, base, both)) return;
+  if (!fitFill(out, token, onToken, base, [[surface, 4.5]])) {
+    const label = onToken ? out[onToken]! : undefined;
+    out[token] = reachAll(
+      base,
+      label
+        ? [
+            [label, 4.5],
+            [surface, 4.5],
+          ]
+        : [[surface, 4.5]],
+    ).color;
+  }
+  out[soft] = reachAll(out[soft]!, [[out[token]!, 4.5]]).color;
 }
 
 function deriveGround(input: ThemeInput, out: Record<string, string>, dark: boolean) {
@@ -270,6 +360,13 @@ function deriveGround(input: ThemeInput, out: Record<string, string>, dark: bool
     const l = toOklch(surface).l;
     out["surface-tint"] = fromOklch({ l: Math.min(1, Math.max(0, dark ? l + 0.06 : l - 0.04)), c: 0, h: 0 });
     out["scrim"] = "rgb(0 0 0 / 0.75)";
+  }
+  // The tint steps away from the surface by a fixed amount, which can cost the text on it more contrast than it can spare.
+  if (foreground) {
+    fit(out, "surface-tint", out["surface-tint"]!, [
+      [out["ink"]!, 7],
+      [out["muted"]!, 4.5],
+    ]);
   }
 }
 
@@ -311,18 +408,26 @@ function derive(input: ThemeInput): Record<string, string> {
   if (input.warning && !dark) out["warning-strong"] = reachContrast(input.warning, out["surface"]!, 7);
   const surface = out["surface"]!;
   if (input.surface) {
-    ensure(out, "primary", surface, 4.5);
-    ensure(out, "secondary", surface, 4.5);
-    ensure(out, "secondary", out["secondary-soft"]!, 4.5);
+    if (!fitFill(out, "primary", "on-primary", out["brand-blue"]!, [[surface, 4.5]])) {
+      out["primary"] = reachAll(out["brand-blue"]!, [
+        [out["on-primary"]!, 4.5],
+        [surface, 4.5],
+      ]).color;
+    }
+    fitTone(out, "secondary", "on-secondary", "secondary-soft", out["brand-green"]!, surface);
   }
   if (input.surface || input.danger) {
-    ensure(out, "danger", surface, 4.5);
-    ensure(out, "danger", out["danger-soft"]!, 4.5);
+    fitTone(out, "danger", "on-danger", "danger-soft", dangerBase ?? defaults["danger"], surface);
   }
   if (input.surface || input.warning) {
-    ensure(out, "warning-strong", surface, 4.5);
-    ensure(out, "warning-strong", out["warning-soft"]!, 4.5);
+    const base = input.warning ?? (dark ? DARK_WARNING : defaults["warning-strong"]);
+    fitTone(out, "warning-strong", undefined, "warning-soft", base, surface);
   }
+  // The outline has to show on the tinted ground as well as on the surface, and the tint moves with the brand.
+  fit(out, "border", out["border"]!, [
+    [surface, 3],
+    [out["surface-tint"]!, 3],
+  ]);
   if (input.fonts?.sans) out["font-sans"] = input.fonts.sans;
   if (input.fonts?.mono) out["font-mono"] = input.fonts.mono;
   if (input.radius) {
@@ -357,7 +462,7 @@ function derive(input: ThemeInput): Record<string, string> {
 
 function resolve(tokens: Record<string, string>, name: string, seen = new Set<string>()): string {
   const v = tokens[name] ?? "";
-  const m = /^var\(--([a-z-]+)\)$/.exec(v);
+  const m = /^var\(--e-([a-z0-9-]+)\)$/.exec(v);
   if (!m || seen.has(name)) return v;
   seen.add(name);
   return resolve(tokens, m[1]!, seen);
