@@ -20,8 +20,11 @@ function region(kind: Politeness): HTMLElement | null {
     el.setAttribute("aria-live", kind);
     el.setAttribute("aria-atomic", "true");
     // Set through the style object, not an attribute, so a strict style-src policy does not block it.
+    // Fixed, so it cannot add scrollable height below a page that is exactly one screen tall.
     Object.assign(el.style, {
-      position: "absolute",
+      position: "fixed",
+      insetBlockStart: "0",
+      insetInlineStart: "0",
       width: "1px",
       height: "1px",
       overflow: "hidden",
