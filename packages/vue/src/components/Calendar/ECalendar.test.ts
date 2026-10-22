@@ -59,7 +59,8 @@ describe("ECalendar", () => {
     expect(day.getBoundingClientRect().height).toBe(44);
     expect(day.classList.contains("e-day--sel")).toBe(true);
     expect(day.closest("td")!.getAttribute("aria-selected")).toBe("true");
-    expect(day.getAttribute("aria-label")).toBe("Thursday, October 22, 2026");
+    // The label gains ", today" when the real date is the chosen one.
+    expect(day.getAttribute("aria-label")).toMatch(/^Thursday, October 22, 2026(, today)?$/);
     expect(day.tabIndex).toBe(0);
     expect(dayButton(container, /October 21/).tabIndex).toBe(-1);
   });
