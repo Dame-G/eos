@@ -14,13 +14,13 @@ A person, as a photo or as their initials on a rounded tile.
 
 <!-- props:start -->
 
-| Prop    | Type                 | Default      | Notes                                                                                                                                      |
-| ------- | -------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `name`  | `string`             | **Required** | The person's name. Screen readers read it; the initials are the first letters of its first and last word.                                  |
-| `src`   | `string`             | —            | A photo URL. If it fails to load, the initials appear.                                                                                     |
-| `small` | `boolean`            | `false`      | 32px, for rows and bars.                                                                                                                   |
-| `large` | `boolean`            | `false`      | 64px, for a profile or practitioner on an appointment card. The default is 44px.                                                           |
-| `as`    | `"span" \| "button"` | `"span"`     | `button` renders a `button` with `type="button"`, a pointer cursor and a focus ring, named by `name`, such as the `trigger` of an `EMenu`. |
+| Prop    | Type                 | Default      | Notes                                                                                                                   |
+| ------- | -------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| `name`  | `string`             | **Required** | The person's name. Screen readers read it, and the initials are the first letters of its first and last word.           |
+| `src`   | `string`             | —            | A photo URL. The initials show if it fails to load.                                                                     |
+| `small` | `boolean`            | `false`      | Makes the avatar smaller, for rows and bars.                                                                            |
+| `large` | `boolean`            | `false`      | Makes the avatar larger, for a profile or a practitioner on an appointment card.                                        |
+| `as`    | `"span" \| "button"` | `"span"`     | `button` renders a `button` with `type="button"`, named by `name`, for use as the `trigger` of an `EMenu`, for example. |
 
 <!-- props:end -->
 
@@ -28,5 +28,5 @@ A person, as a photo or as their initials on a rounded tile.
 
 ## Accessibility
 
-- The `span` root is `role="img"` with `aria-label` set to `name`; the photo has no alt text of its own.
-- As a `button` the root has no role and is named by hidden text set to `name`; the initials are hidden from screen readers.
+- The `span` root is `role="img"` with `aria-label` set to `name`. The photo has no alt text of its own.
+- As a `button` the root has no role and is named by hidden text set to `name`. The initials are hidden from screen readers.

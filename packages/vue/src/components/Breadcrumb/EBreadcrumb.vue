@@ -17,7 +17,7 @@ withDefaults(
   defineProps<{
     /** The path as `{ label, href?, to? }`, top level first. The last item is the current page and is not a link. */
     items: BreadcrumbItem[];
-    /** What renders each link: `"a"` by default, or `RouterLink` (or any component that takes `href` or `to` and a default slot). With `RouterLink`, give items a `to` (items can mix `href` and `to`); it receives only the attributes the item has. */
+    /** What renders each link: `"a"`, `RouterLink`, or any component that takes `href` or `to` and a default slot. With `RouterLink`, give items a `to`. Items can mix `href` and `to`, and the component receives only the attributes the item has. */
     linkComponent?: string | Component;
   }>(),
   { linkComponent: "a" },

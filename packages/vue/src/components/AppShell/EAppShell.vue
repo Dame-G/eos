@@ -5,7 +5,7 @@ import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
-    /** The `id` of the `main` element, which the skip link targets. Keep it unique. */
+    /** The `id` of the `main` element, which the skip link targets. It must be unique on the page. */
     mainId?: string;
     /** The name of the sidebar landmark. @default "Main" */
     sidebarLabel?: string;
@@ -16,7 +16,7 @@ withDefaults(
 defineSlots<{
   /** An EAppHeader. */
   header?(): unknown;
-  /** The side navigation, usually an ENavList. Two columns from 48rem wide; above the content below that. */
+  /** The side navigation, such as an `ENavList`. It sits beside the content from 48rem wide and above the content below that. */
   sidebar?(): unknown;
   /** An EAppFooter. */
   footer?(): unknown;

@@ -1,6 +1,6 @@
 # ECommandPalette
 
-A search box over a list of commands, opened from anywhere with a shortcut. For choosing a value in a form use [`ECombobox`](../Combobox/README.md); for results that navigate use [`ESearchResults`](../SearchResults/README.md).
+A search box over a list of commands, opened from anywhere with a shortcut. For choosing a value in a form use [`ECombobox`](../Combobox/README.md), and for results that navigate use [`ESearchResults`](../SearchResults/README.md).
 
 ```vue
 <script setup lang="ts">
@@ -31,9 +31,9 @@ const commands = [
 
 <!-- props:end -->
 
-The `CommandItem` type (`id`, `label`, `description`, `group`, `icon`, `shortcut`, `keywords`, `disabled`) is exported. Matching needs every typed word to appear in a command's label, description, group or keywords; label-start matches list first. Pass `filter` for your own (fuzzy matching, say).
+The `CommandItem` type (`id`, `label`, `description`, `group`, `icon`, `shortcut`, `keywords`, `disabled`) is exported. Matching needs every typed word to appear in a command's label, description, group or keywords. Label-start matches list first. Pass `filter` for your own (fuzzy matching, say).
 
-`shortcut` is read once. `item.shortcut` only displays keycaps (`formatShortcut`); bind the keys yourself with `useShortcuts`.
+`shortcut` is read once. `item.shortcut` only displays keycaps (`formatShortcut`). Bind the keys yourself with `useShortcuts`.
 
 ## Slots
 
@@ -49,6 +49,6 @@ The `CommandItem` type (`id`, `label`, `description`, `group`, `icon`, `shortcut
 
 ## Accessibility
 
-- A modal dialog named by `label`, with focus on a `combobox` input that controls a `listbox`. The active option is `aria-activedescendant`; focus stays in the input.
+- A modal dialog named by `label`, with focus on a `combobox` input that controls a `listbox`. The active option is `aria-activedescendant`, and focus stays in the input.
 - Arrow Up and Down move (wrapping, skipping disabled commands), Home and End jump, Enter chooses, Escape closes. Focus returns to what had it.
 - The number of results, or "No results", is announced politely as the person types. Messages `resultsCount`, `noResults` and `commandPlaceholder` are configurable.

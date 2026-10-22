@@ -3,11 +3,11 @@ import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
-    /** The element to render. Use `footer` for a bar at the end of a card. */
+    /** Sets the element to render. `footer` suits a bar at the end of a card. */
     as?: string;
-    /** Puts the group on a tinted footer bar with a rule above, for actions that end a card or an overlay. Buttons stack full width up to 32rem. Leave it off for the next step on a page. */
+    /** Makes the group a footer bar for actions that end a card or an overlay. Buttons stack full width when the bar is narrow. Leave it off for the next step on a page. */
     bar?: boolean;
-    /** Names the group for screen readers (for example "Record actions"): renders `role="group"` with `aria-label`. Use it for buttons that belong together, such as a filter row. */
+    /** Names the group for screen readers, for example "Record actions", and renders `role="group"` with `aria-label`. Use it for buttons that belong together, such as a filter row. */
     label?: string;
   }>(),
   { as: "div" },

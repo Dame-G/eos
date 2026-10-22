@@ -3,7 +3,7 @@ import "../../styles/base.css";
 import "../AppHeader/shell.css";
 
 defineSlots<{
-  /** Small print, privacy and terms links, contact. */
+  /** Small print, privacy and terms links, contact. The first item stays at the start of the row and the rest sit at the end. */
   default(): unknown;
 }>();
 </script>

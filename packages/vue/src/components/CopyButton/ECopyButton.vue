@@ -8,7 +8,7 @@ import "../../styles/base.css";
 const props = defineProps<{
   /** What to copy: the text, or a function that returns it when the button is pressed. */
   text: string | (() => string);
-  /** The accessible name; say what is copied when a page has several. @default "Copy" */
+  /** The accessible name. Say what is copied when a page has several. @default "Copy" */
   label?: string;
   /** Milliseconds the check mark shows after copying. @default 2000 */
   timeout?: number;

@@ -17,17 +17,17 @@ import "./picker.css";
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  /** The visible label, a mono kicker above the field. */
+  /** The visible label. */
   label: string;
-  /** Keep the label for screen readers and remove it from the page. */
+  /** Keeps the label for screen readers and hides it from the page. */
   hideLabel?: boolean;
-  /** Help that stays under the field. */
+  /** Shows help text under the field. */
   hint?: string;
-  /** What to fix. Replaces the hint and marks the field invalid. A typed date that cannot be used shows its own error (`dateError`, `dateBetween`). */
+  /** Shows what to fix in place of the hint and marks the field invalid. A typed date that cannot be used shows its own error (`dateError`, `dateBetween`). */
   error?: string;
-  /** The `required` attribute and a word beside the label. */
+  /** Sets the `required` attribute and shows a word beside the label. */
   required?: boolean;
-  /** A word beside the label. Flag whichever is rarer. */
+  /** Shows a word beside the label. Use it on whichever of required and optional is rarer. */
   optional?: boolean;
   /** Disables the field and its calendar button. */
   disabled?: boolean;
@@ -39,7 +39,7 @@ const props = defineProps<{
   max?: Date;
   /** Submits the date as `YYYY-MM-DD` with a form, through a hidden input. */
   name?: string;
-  /** The id of the text box; the label points at it. @default generated */
+  /** The `id` of the text box, which the label points at. @default generated */
   id?: string;
 }>();
 
@@ -54,7 +54,7 @@ const attrs = useFieldAttrs();
 
 const input = ref<HTMLInputElement | null>(null);
 const calendar = ref<InstanceType<typeof ECalendar> | null>(null);
-/** Whether the calendar is open. Setting it moves no focus; a disabled field never opens. */
+/** Whether the calendar is open. Setting it moves no focus, and a disabled field never opens. */
 const open = defineModel<boolean>("open", { default: false });
 const shown = computed(() => open.value && !props.disabled && !props.readonly);
 const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel, .e-combo"));

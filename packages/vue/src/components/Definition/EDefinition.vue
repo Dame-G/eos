@@ -24,11 +24,11 @@ withDefaults(
 );
 
 defineSlots<{
-  /** The term, shown with a dotted underline and an info glyph. */
+  /** The term that opens the panel. */
   trigger(): unknown;
-  /** The explanation. Keep it short; use a Dialog when the reader must decide something. */
+  /** The explanation. Keep it short, and use a Dialog when the reader must decide something. */
   default(): unknown;
-  /** Buttons in a tinted footer, left-aligned, the main action first. They stack full width on a phone. */
+  /** Buttons in the footer, main action first. They stack full width on a narrow screen. */
   actions?(): unknown;
 }>();
 

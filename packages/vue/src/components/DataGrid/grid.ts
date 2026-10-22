@@ -15,7 +15,7 @@ export function compareValues(a: unknown, b: unknown): number {
   return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: "base" });
 }
 
-/** A width in pixels from a number or a "120px" string; nothing for any other unit. */
+/** A width in pixels from a number or a "120px" string, or nothing for any other unit. */
 export function parsePx(w: number | string | undefined): number | null {
   if (typeof w === "number") return w;
   if (typeof w === "string" && /px$/.test(w)) return parseFloat(w);

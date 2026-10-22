@@ -9,22 +9,22 @@ import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 
 export interface DescriptionItem {
-  /** The label, shown as a small uppercase kicker. Leave it out on every row for a plain list of facts. */
+  /** The label for the row. Leave it out on every row for a plain list of facts. */
   label?: string;
   /** The text beside it. A string, or a rendered VNode for rich text. */
   text: string | VNodeChild;
-  /** A decorative icon before the label (or before the text in a plain list). */
+  /** A decorative icon before the label, or before the text in a plain list. */
   icon?: IconProp;
-  /** A word in a stamp after the text, such as "Verified". */
+  /** A short word in a stamp after the text, such as "Verified". */
   badge?: string;
   /** The badge's tone. */
   badgeTone?: StampTone;
-  /** Shows an Edit button at the end of the row. Pressing it emits `edit`. */
+  /** Shows an Edit button at the end of the row that emits `edit`. A plain list has no Edit button and ignores it. */
   editable?: boolean;
 }
 
 const props = defineProps<{
-  /** Label and text rows, ruled apart: `{ label: string, text: string | VNode }`. Labels are keys, so keep them unique. `null` items are skipped. */
+  /** The rows, as `{ label?, text, icon?, badge?, badgeTone?, editable? }`. `null` and `undefined` items are skipped. */
   items: (DescriptionItem | null | undefined)[];
 }>();
 
@@ -34,7 +34,7 @@ const emit = defineEmits<{
 }>();
 
 defineSlots<{
-  /** Replaces the end of a row (after the text and badge), such as a Button or IconButton. */
+  /** Adds content after a row's text and badge, such as a Button or IconButton. */
   action?(props: { item: DescriptionItem; index: number }): unknown;
 }>();
 

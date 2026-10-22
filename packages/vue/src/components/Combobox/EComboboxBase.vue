@@ -62,7 +62,7 @@ const frame = computed(() =>
 const listName = computed(() => (props.bare ? (props.ariaLabel ?? props.label) : props.label));
 
 const multiple = computed(() => props.multiple);
-// Free text is for one value; with `multiple` it is ignored.
+// Free text is for one value, so `multiple` ignores it.
 const free = computed(() => props.freeform && !props.multiple);
 const all = computed(() => normalizeOptions(props.options));
 const values = computed<string[]>(() => (multiple.value && Array.isArray(model.value) ? model.value : []));

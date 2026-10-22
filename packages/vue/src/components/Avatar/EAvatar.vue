@@ -4,15 +4,15 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** The person's name. Screen readers read it; the initials are the first letters of its first and last word. */
+    /** The person's name. Screen readers read it, and the initials are the first letters of its first and last word. */
     name: string;
-    /** A photo URL. If it fails to load, the initials appear. */
+    /** A photo URL. The initials show if it fails to load. */
     src?: string;
-    /** 32px, for rows and bars. */
+    /** Makes the avatar smaller, for rows and bars. */
     small?: boolean;
-    /** 64px, for a profile or practitioner on an appointment card. The default is 44px. */
+    /** Makes the avatar larger, for a profile or a practitioner on an appointment card. */
     large?: boolean;
-    /** `button` renders a `button` with `type="button"`, a pointer cursor and a focus ring, named by `name`, such as the `trigger` of an `EMenu`. */
+    /** `button` renders a `button` with `type="button"`, named by `name`, for use as the `trigger` of an `EMenu`, for example. */
     as?: "span" | "button";
   }>(),
   { as: "span" },

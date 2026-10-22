@@ -9,21 +9,21 @@ import "../TextField/input.css";
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  /** The visible label, a mono kicker above the input. */
+  /** The visible label. */
   label: string;
-  /** Keep the label for screen readers and remove it from the page. */
+  /** Keeps the label for screen readers and hides it from the page. */
   hideLabel?: boolean;
-  /** Help that stays under the input. */
+  /** Shows help text under the input. */
   hint?: string;
-  /** What to fix. Replaces the hint, marks the input invalid and is announced. Invalid typed text shows "Enter a colour like #2c95b4" after blur. */
+  /** Shows what to fix in place of the hint, marks the input invalid and is announced. Invalid typed text shows "Enter a colour like #2c95b4" after blur. */
   error?: string;
-  /** The `required` attribute and a word beside the label. */
+  /** Sets the `required` attribute and shows a word beside the label. */
   required?: boolean;
-  /** A word beside the label. Flag whichever is rarer. */
+  /** Shows a word beside the label. Use it on whichever of required and optional is rarer. */
   optional?: boolean;
   /** Disables the field. */
   disabled?: boolean;
-  /** The id of the text input; the label points at it. @default generated */
+  /** The `id` of the text input, which the label points at. @default generated */
   id?: string;
 }>();
 
