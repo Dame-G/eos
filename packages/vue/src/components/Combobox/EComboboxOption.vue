@@ -9,9 +9,9 @@ defineProps<{
   option: EOption;
   /** What the item carries as its value. */
   value: string;
-  /** Whether it is chosen: bold, with a check. */
+  /** Whether it is chosen. */
   selected: boolean;
-  /** The lower-case text people typed; the first match in the label and description is marked. */
+  /** The lower-case text people typed. The first match in the label and description is marked. */
   query: string;
 }>();
 </script>

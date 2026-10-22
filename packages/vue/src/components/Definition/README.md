@@ -29,14 +29,14 @@ A term that opens a small floating panel with a definition or short explanation.
 
 ## Slots
 
-| Slot      | Use                                                                    |
-| --------- | ---------------------------------------------------------------------- |
-| `trigger` | The term, with a dotted underline and info icon.                       |
-| `default` | The explanation; keep it short.                                        |
-| `actions` | Buttons in a footer, main action first; stacked full width on a phone. |
+| Slot      | Use                                                                               |
+| --------- | --------------------------------------------------------------------------------- |
+| `trigger` | The term that opens the panel.                                                    |
+| `default` | The explanation. Keep it short.                                                   |
+| `actions` | Buttons in a footer, main action first. They stack full width on a narrow screen. |
 
 ## Accessibility
 
-- The term is a button with `aria-haspopup="dialog"`; its name is the visible term followed by `label`.
+- The term is a button with `aria-haspopup="dialog"`, and its name is the visible term followed by `label`.
 - The panel is a non-modal `role="dialog"` named by its title, or by `label` without one.
-- Enter or Space opens it and moves focus in; Escape, an outside press or Close closes it and returns focus to the term.
+- Enter or Space opens it and moves focus in. Escape, an outside press or Close closes it and returns focus to the term.

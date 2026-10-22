@@ -52,7 +52,7 @@ const props = withDefaults(
   defineProps<{
     /** The columns, in order. See `DataGridColumn` below. */
     columns: DataGridColumn<Row>[];
-    /** The rows. Each needs a unique `id`; selection is by id. */
+    /** The rows. Each needs a unique `id`, and selection is by id. */
     rows: Row[];
     /** Names the table for screen readers, and its scrolling region. */
     caption: string;
@@ -60,17 +60,17 @@ const props = withDefaults(
     searchable?: boolean;
     /** The search box's placeholder. @default "Search all columns" */
     searchPlaceholder?: string;
-    /** A filter row under the headings, for columns that define a `filter`. */
+    /** Shows a filter row under the headings, for columns that define a `filter`. */
     filterable?: boolean;
-    /** Column edges can be dragged, or moved with the arrow keys. */
+    /** Lets people drag column edges, or move them with the arrow keys. */
     resizable?: boolean;
     /** Keeps the first column in view while scrolling sideways. */
     stickyFirst?: boolean;
-    /** A Columns menu to show and hide columns. */
+    /** Shows a Columns menu to show and hide columns. */
     columnToggle?: boolean;
-    /** A checkbox on each row and a select-all in the heading. */
+    /** Shows a checkbox on each row and a select-all in the heading. */
     selectable?: boolean;
-    /** Rows per page; 0 turns paging off. */
+    /** Rows per page. 0 turns paging off. */
     pageSize?: number;
     /** Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header. */
     maxHeight?: string;
@@ -78,7 +78,7 @@ const props = withDefaults(
     virtual?: boolean | DataGridVirtual;
     /** Turns rows into cards below 40rem of the grid's own width. `virtual` and `resizable` grids keep the table. */
     cards?: boolean;
-    /** Data lives on a server: show the rows given, in the order given, and report every change through `queryChange`. */
+    /** Marks the data as living on a server. The grid shows the rows given, in the order given, and reports every change through `queryChange`. */
     manual?: boolean;
     /** With `manual`, how many rows there are in all. */
     total?: number;
@@ -90,7 +90,7 @@ const props = withDefaults(
     emptyText?: string;
     /** The icon above the empty title. @default "search" */
     emptyIcon?: IconProp;
-    /** No chrome: a bare table for a short static list, with no toolbar, filters, paging or footer. */
+    /** Renders a bare table for a short static list, with no toolbar, filters, paging or footer. */
     bare?: boolean;
   }>(),
   { pageSize: 10, cards: true },

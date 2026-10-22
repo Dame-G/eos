@@ -17,7 +17,7 @@ export interface CalendarRange {
 
 const props = withDefaults(
   defineProps<{
-    /** `single` chooses one day (`v-model`); `range` chooses a span (`v-model:start` and `v-model:end`): the first click sets the start, the second the end, and a click before the start restarts. */
+    /** `single` chooses one day (`v-model`). `range` chooses a span (`v-model:start` and `v-model:end`): the first click sets the start, the second the end, and a click before the start restarts. */
     mode?: "single" | "range";
     /** Days that cannot be chosen or focused, such as days with nothing to book. Arrow keys skip them. */
     disabledDate?: (date: Date) => boolean;
@@ -25,13 +25,13 @@ const props = withDefaults(
     marked?: Date[] | ((date: Date) => boolean);
     /** What screen readers hear on a marked day. @default "times available" */
     markLabel?: string;
-    /** The earliest day that can be chosen. Earlier days cannot be focused or chosen; navigation stops there. */
+    /** The earliest day that can be chosen. Earlier days cannot be focused or chosen, and navigation stops there. */
     min?: Date;
-    /** The latest day that can be chosen. Later days cannot be focused or chosen; navigation stops there. */
+    /** The latest day that can be chosen. Later days cannot be focused or chosen, and navigation stops there. */
     max?: Date;
     /** The month to open on, when nothing is chosen. Changing it moves the view. */
     month?: Date;
-    /** `false` hides the Today and Clear buttons. */
+    /** Shows the Today button and, with `clearable` or a `@clear` listener, the Clear button. `false` hides both. */
     footer?: boolean;
     /** Forces the Clear button on or off. Left out, it shows when a `@clear` listener is attached. */
     clearable?: boolean;
@@ -42,7 +42,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   /** In range mode, after every click that changes the span. */
   rangeChange: [range: CalendarRange];
-  /** The Clear button. It is only shown when a `@clear` listener is attached. */
+  /** The Clear button was pressed. */
   clear: [];
 }>();
 

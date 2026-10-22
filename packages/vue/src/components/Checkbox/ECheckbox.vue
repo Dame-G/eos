@@ -15,19 +15,19 @@ const props = defineProps<{
   description?: string;
   /** A mixed state, such as select-all with some rows chosen. */
   indeterminate?: boolean;
-  /** Hide the label visually but keep it for screen readers, for a table cell. No error text. */
+  /** Hides the label from the page and keeps it for screen readers, for a table cell. It shows no error text. */
   bare?: boolean;
-  /** Not focusable and not submitted. */
+  /** Disables the checkbox. It cannot take focus and is not submitted. */
   disabled?: boolean;
-  /** The `required` attribute. */
+  /** Sets the `required` attribute. */
   required?: boolean;
-  /** What to fix. Shown under the row; sets `aria-invalid`. */
+  /** Shows what to fix under the row and sets `aria-invalid`. */
   error?: string;
   /** The name submitted with a form. */
   name?: string;
   /** The value submitted with a form when checked. */
   value?: string;
-  /** The id of the input; the label points at it. @default generated */
+  /** The `id` of the input, which the label points at. @default generated */
   id?: string;
 }>();
 

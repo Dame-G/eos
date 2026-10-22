@@ -6,7 +6,7 @@ A block of code with a copy button. For a short word inside a sentence use plain
 <ECodeBlock lang="ts" code="npm install @eos-ui/vue" />
 ```
 
-For your own highlighting, put the markup in the slot; the button copies the text of the first `<pre>`:
+For your own highlighting, put the markup in the slot. The button copies the text of the first `<pre>`:
 
 ```vue
 <ECodeBlock lang="vue">
@@ -22,7 +22,7 @@ For your own highlighting, put the markup in the slot; the button copies the tex
 | ----------- | -------- | ------------- | -------------------------------------------------------------------------------------------------------- |
 | `code`      | `string` | —             | The text to show, as plain text. Leave it out to use the slot and put your own highlighted markup there. |
 | `lang`      | `string` | —             | The language, named for screen readers (the code's accessible name).                                     |
-| `copyLabel` | `string` | `"Copy code"` | The copy button's name; say what is copied when a page has several.                                      |
+| `copyLabel` | `string` | `"Copy code"` | The copy button's name. Say what is copied when a page has several.                                      |
 
 <!-- props:end -->
 
@@ -36,6 +36,6 @@ For your own highlighting, put the markup in the slot; the button copies the tex
 
 ## Accessibility
 
-- The `<pre>` is focusable so it scrolls by keyboard; `lang` names it.
+- The `<pre>` is focusable so it scrolls by keyboard, and `lang` names it.
 - "Copied" is announced politely through the page's shared announcer (see `useAnnouncer`). If the clipboard is blocked nothing is copied and "Couldn't copy" is announced.
-- Nothing is highlighted for you; your colours must meet contrast.
+- Nothing is highlighted for you, so your colours must meet contrast.

@@ -6,21 +6,21 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** `primary` is the one main action on a screen; `secondary` confirms; `outline` is for the other actions beside it; `danger` cancels or removes; `quiet` is an underlined text action. */
+    /** `primary` is the one main action on a screen. `secondary` confirms. `outline` is for the other actions beside it. `danger` cancels or removes. `quiet` is an underlined text action. */
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
-    /** An icon before the label: a name such as `download`, or a component. */
+    /** Shows an icon before the label, as a name such as `download` or as a component. */
     icon?: IconProp;
-    /** Full width. */
+    /** Makes the button fill the width of its container. */
     block?: boolean;
-    /** Dashed and unfilled; not focusable, ignores clicks. With `href` the link gets `aria-disabled="true"` and `tabindex="-1"` and does not navigate. */
+    /** Stops the button taking focus and ignores clicks. With `href` the link gets `aria-disabled="true"` and `tabindex="-1"` and does not navigate. */
     disabled?: boolean;
-    /** Set `submit` on the one that submits a form. */
+    /** `submit` submits a form. Use it on the one button that submits. */
     type?: "button" | "submit" | "reset";
-    /** Renders a link that looks like the button, for a destination rather than an action (a call to action that goes to a page). Space does not follow it. */
+    /** Renders a link that looks like the button, for a destination rather than an action (a call to action that goes to a page). A link does not activate on Space, like a native link. */
     href?: string;
-    /** With `href`: opens in a new tab. */
+    /** Opens the link in a new tab. Needs `href`. */
     external?: boolean;
-    /** Swaps the icon for a spinner, flattens the face, and dashes its edge, and ignores clicks while an action runs. The button keeps its width and stays focusable, and is announced as busy. */
+    /** Shows a spinner in place of the icon and ignores clicks while an action runs. The button stays focusable and is announced as busy. */
     loading?: boolean;
   }>(),
   { variant: "primary", type: "button" },
@@ -80,7 +80,7 @@ function blockWhenDisabled(event: Event) {
     --e-hover: color-mix(in srgb, var(--e-fill), var(--e-shade-hover));
     --e-press: color-mix(in srgb, var(--e-fill), var(--e-shade-press));
 
-    /* One border, one control height tall. The slab is the bottom edge made thicker by the lift; the radius tapers it up the corners. Pressing sinks the face over it. */
+    /* One border, one control height tall. The slab is the bottom edge made thicker by the lift, and the radius tapers it up the corners. Pressing sinks the face over it. */
     --e-lift: var(--e-depth);
     --e-ring: var(--e-slab);
 

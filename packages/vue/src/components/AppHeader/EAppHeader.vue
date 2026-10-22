@@ -8,11 +8,11 @@ defineProps<{
 }>();
 
 defineSlots<{
-  /** The logo or the name, usually a link to the home page. */
+  /** The logo or the name. Link it to the home page. */
   logo?(): unknown;
   /** The person's menu or a sign-in Button, at the end of the bar. */
   actions?(): unknown;
-  /** The navigation, usually an ENavList. It sits on its own row and scrolls sideways when it does not fit. */
+  /** The navigation, such as an `ENavList`. It sits on its own row and scrolls sideways when it does not fit. */
   default?(): unknown;
 }>();
 </script>

@@ -5,15 +5,15 @@ import { useConfig } from "../../config.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
-  /** The visible label, a mono kicker above the field. The symbol is decoration, so say what the amount is for. */
+  /** The visible label. The symbol is decoration, so say what the amount is for. */
   label: string;
-  /** Keep the label for screen readers and remove it from the page. */
+  /** Keeps the label for screen readers and hides it from the page. */
   hideLabel?: boolean;
   /** ISO 4217 code. An unknown code falls back to the configured currency's symbol. @default configured currency */
   currency?: string;
   /** BCP 47 tag used for the symbol. @default configured locale */
   locale?: string;
-  /** The lowest value, so no negatives by default. @default 0 */
+  /** The lowest value. Use a negative number to allow negative amounts. @default 0 */
   min?: number;
   /** The highest value. */
   max?: number;
@@ -25,23 +25,23 @@ const props = defineProps<{
   suffix?: string;
   /** The name submitted with a form (the number, or empty). */
   name?: string;
-  /** Help that stays under the field. */
+  /** Shows help text under the field. */
   hint?: string;
-  /** What to fix. Replaces the hint, marks the field invalid and is announced. */
+  /** Shows what to fix in place of the hint, marks the field invalid and is announced. */
   error?: string;
-  /** The `required` attribute and a word beside the label. */
+  /** Sets the `required` attribute and shows a word beside the label. */
   required?: boolean;
-  /** A word beside the label. Flag whichever is rarer. */
+  /** Shows a word beside the label. Use it on whichever of required and optional is rarer. */
   optional?: boolean;
   /** Disables the field and its buttons. */
   disabled?: boolean;
   /** Shows the value but blocks editing. The input stays focusable and selectable. Both buttons and the keys that change the value do nothing. */
   readonly?: boolean;
-  /** The id of the input; the label points at it. @default generated */
+  /** The `id` of the input, which the label points at. @default generated */
   id?: string;
 }>();
 
-/** The amount; round to the cent in code. */
+/** The amount. Round to the cent in code. */
 const model = defineModel<number | null>({ default: null });
 
 const config = useConfig();

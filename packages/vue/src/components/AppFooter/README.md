@@ -15,7 +15,7 @@ The bottom of the page: small print, privacy and terms links, contact.
 
 | Slot      | Use                                                                                                                                                                                |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `default` | The content, held to the page's 72rem column. The first item stays at the start; everything after it is grouped at the end of the row. Put links in a `nav` to keep them together. |
+| `default` | The content, held to the page's 72rem column. The first item stays at the start. Everything after it is grouped at the end of the row. Put links in a `nav` to keep them together. |
 
 ## Accessibility
 

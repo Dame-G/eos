@@ -10,10 +10,10 @@ defineEmits<{
   inputChange: [text: string];
 }>();
 
-/** The `value` of the chosen option, empty for nothing; with `multiple` the chosen values in the order chosen (replaced, not mutated); with `freeform` the typed text, updated on every key. @default "" or [] */
+/** The `value` of the chosen option, empty for nothing. With `multiple` it holds the chosen values in the order chosen (replaced, not mutated). With `freeform` it is the typed text, updated on every key. @default "" or [] */
 const model = defineModel<string | string[]>();
 
-/** Whether the list is open. Setting it moves no focus; a disabled field never opens. */
+/** Whether the list is open. Setting it moves no focus, and a disabled field never opens. */
 const open = defineModel<boolean>("open", { default: false });
 
 const base = ref<InstanceType<typeof EComboboxBase> | null>(null);

@@ -9,12 +9,12 @@ const props = defineProps<{
   code?: string;
   /** The language, named for screen readers (the code's accessible name). */
   lang?: string;
-  /** The copy button's name; say what is copied when a page has several. @default "Copy code" */
+  /** The copy button's name. Say what is copied when a page has several. @default "Copy code" */
   copyLabel?: string;
 }>();
 
 defineSlots<{
-  /** Your own markup, usually a highlighted `<pre><code>`. The copy button copies the text of the first `<pre>`. */
+  /** Your own markup, such as a highlighted `<pre><code>`. The copy button copies the text of the first `<pre>`. */
   default?(): unknown;
 }>();
 

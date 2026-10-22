@@ -18,17 +18,17 @@ export interface CommandItem {
   id: string;
   /** The command, written as an action: "Create invoice". */
   label: string;
-  /** A muted line under the label. */
+  /** A line of detail under the label. */
   description?: string;
   /** The heading it is listed under. Commands with no group come first, unlabelled. */
   group?: string;
-  /** A glyph before the label. */
+  /** An icon before the label. */
   icon?: IconProp;
-  /** The command's own keyboard shortcut, shown as keycaps (`"mod+n"`). It only displays; bind it yourself with `useShortcuts`. */
+  /** The command's own keyboard shortcut, shown as keycaps (`"mod+n"`). It only displays, so bind it yourself with `useShortcuts`. */
   shortcut?: string;
   /** Extra words that find it without being shown: `["bill", "charge"]`. */
   keywords?: string[];
-  /** Shown but not choosable. */
+  /** Shows the command but blocks choosing it. */
   disabled?: boolean;
 }
 
@@ -54,7 +54,7 @@ const emit = defineEmits<{
 }>();
 
 defineSlots<{
-  /** Replaces a command's row. Keep the text short; the palette adds the highlight and the `option` role around it. */
+  /** Replaces a command's row. Keep the text short, because the palette adds the highlight and the `option` role around it. */
   item?(props: { item: CommandItem; active: boolean; query: string }): unknown;
 }>();
 

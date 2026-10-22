@@ -26,9 +26,9 @@ The bar across the top of the page, with logo, actions and a navigation row that
 
 | Slot      | Use                                                                             |
 | --------- | ------------------------------------------------------------------------------- |
-| `logo`    | The logo or name, usually a link home. Render your own `RouterLink`.            |
+| `logo`    | The logo or name. Link it to the home page. Render your own `RouterLink`.       |
 | `actions` | The person's menu or sign-in button, at the end of the bar. Keep to one or two. |
-| `default` | The navigation, usually an `ENavList`, on its own row. Omit for no second row.  |
+| `default` | The navigation, such as an `ENavList`, on its own row. Omit for no second row.  |
 
 ## Accessibility
 
