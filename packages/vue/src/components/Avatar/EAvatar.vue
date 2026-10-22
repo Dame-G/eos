@@ -70,7 +70,9 @@ const initials = computed(() => {
     color: var(--e-primary);
     font: 600 var(--e-text-sm) / 1 var(--e-font-mono);
     letter-spacing: 0.02em;
-    transition: border-color var(--e-duration-tap) var(--e-easing-out);
+    transition:
+      border-color var(--e-duration-tap) var(--e-easing-out),
+      background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   /* One you can press has the button's slab under it, which sinks away when pressed. */
@@ -87,6 +89,8 @@ const initials = computed(() => {
 
   .e-avatar--button:hover {
     --e-ring: var(--e-ink);
+
+    background-color: color-mix(in srgb, var(--e-surface-tint), var(--e-shade-hover));
   }
 
   .e-avatar--button:focus-visible {
