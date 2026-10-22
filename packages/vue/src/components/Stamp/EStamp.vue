@@ -107,7 +107,7 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
   }
 
   .e-stamp-word {
-    font: 600 var(--e-text-xs) / 16px var(--e-font-mono);
+    font: 600 var(--e-text-xs) / calc(4 / 3) var(--e-font-mono);
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
@@ -137,7 +137,7 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
 
   .e-stamp--sm .e-stamp-word {
     font-size: var(--e-text-xs);
-    line-height: 14px;
+    line-height: calc(14 / 12);
     letter-spacing: 0.06em;
   }
 

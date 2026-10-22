@@ -163,7 +163,7 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     border-radius: var(--e-radius-pill);
     background: color-mix(in srgb, var(--e-primary) 12%, var(--e-surface));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-primary);
-    font: 600 var(--e-text-xs) / 20px var(--e-font-mono);
+    font: 600 var(--e-text-xs) / calc(5 / 3) var(--e-font-mono);
     text-align: center;
   }
 
