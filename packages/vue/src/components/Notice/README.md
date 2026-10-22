@@ -13,15 +13,15 @@ An inline message that stays until it is dealt with. Use [`EToast`](../Toast/REA
 
 <!-- props:start -->
 
-| Prop           | Type                         | Default      | Notes                                                                                                                            |
-| -------------- | ---------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `tone`         | `NoticeTone`                 | `"info"`     | `info` informs, `success` confirms, `warning` needs attention and `danger` is an error announced at once.                        |
-| `title`        | `string`                     | **Required** | What happened, in one short line.                                                                                                |
-| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | —            | Renders the title as a heading of this level (1 to 6) so the notice is findable by heading. Without it the title is a paragraph. |
-| `titleId`      | `string`                     | —            | The id of the title element, for a parent that labels itself by it.                                                              |
-| `role`         | `string \| false`            | —            | The ARIA role. `danger` uses `alert`, the others `status`. `false` removes it, for a parent that announces the notice.           |
-| `icon`         | `IconProp`                   | —            | Replaces the icon of the tone.                                                                                                   |
-| `closable`     | `boolean`                    | —            | Forces the close button on or off. Left out, it shows when a `@close` listener is attached.                                      |
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `tone` | `NoticeTone` | `"info"` | `info` informs, `success` confirms, `warning` needs attention and `danger` is an error announced at once. |
+| `title` | `string` | **Required** | What happened, in one short line. |
+| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | None | Renders the title as a heading of this level (1 to 6) so the notice is findable by heading. Without it the title is a paragraph. |
+| `titleId` | `string` | None | The id of the title element, for a parent that labels itself by it. |
+| `role` | `string \| false` | None | The ARIA role. `danger` uses `alert`, the others `status`. `false` removes it, for a parent that announces the notice. |
+| `icon` | `IconProp` | None | Replaces the icon of the tone. |
+| `closable` | `boolean` | None | Forces the close button on or off. Left out, it shows when a `@close` listener is attached. |
 
 <!-- props:end -->
 

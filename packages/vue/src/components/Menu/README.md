@@ -19,14 +19,14 @@ A button that opens a short list of actions. Use it when there are three or more
 
 <!-- props:start -->
 
-| Prop      | Type                                                           | Default      | Notes                                                                                                                                           |
-| --------- | -------------------------------------------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `open`    | `boolean`                                                      | `false`      | `v-model:open`: the open state. Opening it from outside moves no focus.                                                                         |
-| `label`   | `string`                                                       | **Required** | The button's text. With a `trigger` slot it is not shown, so name your own trigger.                                                             |
-| `items`   | `readonly EMenuItem[]`                                         | **Required** | The actions, in order, as `{ label, icon?, onClick?, danger?, disabled? }`. `{ divider: true }` draws a rule. The destructive action goes last. |
-| `variant` | `"primary" \| "secondary" \| "outline" \| "danger" \| "quiet"` | `"outline"`  | The button's variant.                                                                                                                           |
-| `icon`    | `IconProp`                                                     | —            | An icon before the label.                                                                                                                       |
-| `align`   | `"start" \| "end"`                                             | `"start"`    | Which edge of the trigger the menu lines up with. `end` suits a trigger at the end of a bar.                                                    |
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` | `boolean` | `false` | `v-model:open`: the open state. Opening it from outside moves no focus. |
+| `label` | `string` | **Required** | The button's text. With a `trigger` slot it is not shown, so name your own trigger. |
+| `items` | `readonly EMenuItem[]` | **Required** | The actions, in order, as `{ label, icon?, onClick?, danger?, disabled? }`. `{ divider: true }` draws a rule. The destructive action goes last. |
+| `variant` | `"primary" \| "secondary" \| "outline" \| "danger" \| "quiet"` | `"outline"` | The button's variant. |
+| `icon` | `IconProp` | None | An icon before the label. |
+| `align` | `"start" \| "end"` | `"start"` | Which edge of the trigger the menu lines up with. `end` suits a trigger at the end of a bar. |
 
 <!-- props:end -->
 

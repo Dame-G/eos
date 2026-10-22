@@ -17,13 +17,13 @@ All link navigation: the sidebar list for an app, or the navigation row of an [`
 
 <!-- props:start -->
 
-| Prop            | Type                         | Default      | Notes                                                                                                                                                                                           |
-| --------------- | ---------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `items`         | `NavItem[]`                  | —            | The destinations, in order: `{ label, href?, to?, icon?, count?, current? }`. With no `href` or `to` a link goes to `#`. `current` marks the current page and is never set for you.             |
-| `sections`      | `NavSection[]`               | —            | Destinations in labelled groups, instead of `items`: `{ label?, items }`. A label is needed only when there is more than one section.                                                           |
-| `orientation`   | `"vertical" \| "horizontal"` | `"vertical"` | `vertical` stacks the links, for a sidebar or a menu. `horizontal` lays them in a row, for a header.                                                                                            |
-| `label`         | `string`                     | `"Main"`     | The landmark's name. Each navigation on a page needs its own.                                                                                                                                   |
-| `linkComponent` | `string \| Component`        | `"a"`        | What renders each link: `RouterLink` or any component that takes `href` or `to` and a default slot. It receives `to` or `href`, the class `e-nav-item` and `aria-current`. Items then use `to`. |
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `items` | `NavItem[]` | None | The destinations, in order: `{ label, href?, to?, icon?, count?, current? }`. With no `href` or `to` a link goes to `#`. `current` marks the current page and is never set for you. |
+| `sections` | `NavSection[]` | None | Destinations in labelled groups, instead of `items`: `{ label?, items }`. A label is needed only when there is more than one section. |
+| `orientation` | `"vertical" \| "horizontal"` | `"vertical"` | `vertical` stacks the links, for a sidebar or a menu. `horizontal` lays them in a row, for a header. |
+| `label` | `string` | `"Main"` | The landmark's name. Each navigation on a page needs its own. |
+| `linkComponent` | `string \| Component` | `"a"` | What renders each link: `RouterLink` or any component that takes `href` or `to` and a default slot. It receives `to` or `href`, the class `e-nav-item` and `aria-current`. Items then use `to`. |
 
 <!-- props:end -->
 

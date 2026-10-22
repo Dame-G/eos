@@ -269,9 +269,9 @@ function row(p, defaults) {
   else if (p.model && p.def != null) def = code(p.def);
   else if (!p.model && defaults.get(p.name)) def = code(defaults.get(p.name));
   else if (tagDefault) def = code(tagDefault);
-  else if (!p.model && defaults.has(p.name)) def = "—"; // declared as `undefined`: no default, even for a boolean
+  else if (!p.model && defaults.has(p.name)) def = "None"; // declared as `undefined`: no default, even for a boolean
   else if (p.type === "boolean") def = "`false`";
-  else def = "—";
+  else def = "None";
 
   let note = doc.replace(/^Required\.\s*/i, "");
   if (p.model) {

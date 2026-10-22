@@ -59,7 +59,7 @@ index.ts         export { default as EStamp } from "./EStamp.vue";   (plus expor
 ### Props, events and slots
 
 - Props use `defineProps<{ ... }>()` with a one-line doc comment each (it becomes the editor tooltip).
-- The README's props table (between `<!-- props:start -->` and `<!-- props:end -->`) is generated from the source: edit the doc comment, the `withDefaults` value or the `defineModel` comment in the `.vue` file, never the table, then run `node scripts/gen-props.mjs` in `packages/vue`. A prop that has no default and is not required shows `—`. A flag is `false` unless it has a default. Write a default that the code applies elsewhere (a generated id, an i18n string) as `@default value` at the end of the doc comment. Do not start a doc comment with "Required." The table shows it.
+- The README's props table (between `<!-- props:start -->` and `<!-- props:end -->`) is generated from the source: edit the doc comment, the `withDefaults` value or the `defineModel` comment in the `.vue` file, never the table, then run `node scripts/gen-props.mjs` in `packages/vue`. A prop that has no default and is not required shows None. A flag is `false` unless it has a default. Write a default that the code applies elsewhere (a generated id, an i18n string) as `@default value` at the end of the doc comment. Do not start a doc comment with "Required." The table shows it.
 - The main value is `defineModel()` (`v-model`). Two values use named models (`v-model:start`, `v-model:end`). Leaving `v-model` off gives local state, so there is no `defaultValue` prop.
 - Other signals are emits declared with `defineEmits`, value first.
 - Content goes in slots, declared with `defineSlots`. A render-prop is a scoped slot.

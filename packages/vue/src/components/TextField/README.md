@@ -11,22 +11,22 @@ A labelled single-line text input with hint, error and optional unit.
 
 <!-- props:start -->
 
-| Prop          | Type      | Default      | Notes                                                                           |
-| ------------- | --------- | ------------ | ------------------------------------------------------------------------------- |
-| `modelValue`  | `string`  | `""`         | `v-model`: the text.                                                            |
-| `label`       | `string`  | **Required** | The visible label above the input. A placeholder never replaces it.             |
-| `hideLabel`   | `boolean` | `false`      | Keeps the label for screen readers and hides it from the page.                  |
-| `hint`        | `string`  | —            | Help that stays under the input.                                                |
-| `error`       | `string`  | —            | What to fix. Replaces the hint, marks the input invalid and is announced.       |
-| `placeholder` | `string`  | —            | An example, never the label.                                                    |
-| `type`        | `string`  | `"text"`     | The input type.                                                                 |
-| `prefix`      | `string`  | —            | A unit before the value, such as `$`. Hidden from screen readers.               |
-| `suffix`      | `string`  | —            | A unit after the value, such as `USD`. Hidden from screen readers.              |
-| `required`    | `boolean` | `false`      | Sets the `required` attribute and adds a word beside the label.                 |
-| `optional`    | `boolean` | `false`      | Adds a word beside the label. Use it when most fields in the form are required. |
-| `disabled`    | `boolean` | `false`      | Disables the field.                                                             |
-| `readonly`    | `boolean` | `false`      | Shows the value but blocks editing. The input stays focusable and selectable.   |
-| `id`          | `string`  | `generated`  | The id of the input, which the label points at.                                 |
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `modelValue` | `string` | `""` | `v-model`: the text. |
+| `label` | `string` | **Required** | The visible label above the input. A placeholder never replaces it. |
+| `hideLabel` | `boolean` | `false` | Keeps the label for screen readers and hides it from the page. |
+| `hint` | `string` | None | Help that stays under the input. |
+| `error` | `string` | None | What to fix. Replaces the hint, marks the input invalid and is announced. |
+| `placeholder` | `string` | None | An example, never the label. |
+| `type` | `string` | `"text"` | The input type. |
+| `prefix` | `string` | None | A unit before the value, such as `$`. Hidden from screen readers. |
+| `suffix` | `string` | None | A unit after the value, such as `USD`. Hidden from screen readers. |
+| `required` | `boolean` | `false` | Sets the `required` attribute and adds a word beside the label. |
+| `optional` | `boolean` | `false` | Adds a word beside the label. Use it when most fields in the form are required. |
+| `disabled` | `boolean` | `false` | Disables the field. |
+| `readonly` | `boolean` | `false` | Shows the value but blocks editing. The input stays focusable and selectable. |
+| `id` | `string` | `generated` | The id of the input, which the label points at. |
 
 <!-- props:end -->
 

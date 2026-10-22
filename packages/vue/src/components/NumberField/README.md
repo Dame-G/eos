@@ -11,24 +11,24 @@ A number input with decrease and increase buttons, for quantities. Use [`ECurren
 
 <!-- props:start -->
 
-| Prop         | Type             | Default      | Notes                                                                                                                                     |
-| ------------ | ---------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `modelValue` | `number \| null` | `null`       | `v-model`: the number, or `null` when empty.                                                                                              |
-| `label`      | `string`         | **Required** | The visible label above the field.                                                                                                        |
-| `hideLabel`  | `boolean`        | `false`      | Hides the label from the page and keeps it for screen readers.                                                                            |
-| `min`        | `number`         | —            | The lowest value. The value clamps to it and the decrease button disables there.                                                          |
-| `max`        | `number`         | —            | The highest value. The value clamps to it and the increase button disables there.                                                         |
-| `step`       | `number`         | `1`          | The amount one step of the buttons and arrow keys changes the value. Decimals shown follow the step (`0.25` shows two).                   |
-| `prefix`     | `string`         | —            | A unit before the value.                                                                                                                  |
-| `suffix`     | `string`         | —            | A unit after the value, such as visits.                                                                                                   |
-| `name`       | `string`         | —            | The name submitted with a form (the number, or empty).                                                                                    |
-| `hint`       | `string`         | —            | Help that stays under the field.                                                                                                          |
-| `error`      | `string`         | —            | What to fix. Replaces the hint, marks the field invalid and is announced.                                                                 |
-| `required`   | `boolean`        | `false`      | Sets the `required` attribute and shows "Required" beside the label.                                                                      |
-| `optional`   | `boolean`        | `false`      | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.                                                  |
-| `disabled`   | `boolean`        | `false`      | Disables the input and both buttons.                                                                                                      |
-| `readonly`   | `boolean`        | `false`      | Shows the value but blocks editing. The input stays focusable and selectable. Both buttons and the keys that change the value do nothing. |
-| `id`         | `string`         | `generated`  | The id of the input. The label points at it.                                                                                              |
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `modelValue` | `number \| null` | `null` | `v-model`: the number, or `null` when empty. |
+| `label` | `string` | **Required** | The visible label above the field. |
+| `hideLabel` | `boolean` | `false` | Hides the label from the page and keeps it for screen readers. |
+| `min` | `number` | None | The lowest value. The value clamps to it and the decrease button disables there. |
+| `max` | `number` | None | The highest value. The value clamps to it and the increase button disables there. |
+| `step` | `number` | `1` | The amount one step of the buttons and arrow keys changes the value. Decimals shown follow the step (`0.25` shows two). |
+| `prefix` | `string` | None | A unit before the value. |
+| `suffix` | `string` | None | A unit after the value, such as visits. |
+| `name` | `string` | None | The name submitted with a form (the number, or empty). |
+| `hint` | `string` | None | Help that stays under the field. |
+| `error` | `string` | None | What to fix. Replaces the hint, marks the field invalid and is announced. |
+| `required` | `boolean` | `false` | Sets the `required` attribute and shows "Required" beside the label. |
+| `optional` | `boolean` | `false` | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag. |
+| `disabled` | `boolean` | `false` | Disables the input and both buttons. |
+| `readonly` | `boolean` | `false` | Shows the value but blocks editing. The input stays focusable and selectable. Both buttons and the keys that change the value do nothing. |
+| `id` | `string` | `generated` | The id of the input. The label points at it. |
 
 <!-- props:end -->
 

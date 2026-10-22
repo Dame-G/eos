@@ -12,11 +12,11 @@ A section that opens and closes, for secondary detail. Give several the same `gr
 
 <!-- props:start -->
 
-| Prop    | Type      | Default | Notes                                                                                 |
-| ------- | --------- | ------- | ------------------------------------------------------------------------------------- |
-| `open`  | `boolean` | `false` | `v-model:open`: whether it is open. Without a binding it keeps its own state.         |
-| `title` | `string`  | —       | The summary line that opens and closes it. The `title` slot takes rich content.       |
-| `group` | `string`  | —       | Disclosures that share a `group` open one at a time (the native `name` of `details`). |
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `open` | `boolean` | `false` | `v-model:open`: whether it is open. Without a binding it keeps its own state. |
+| `title` | `string` | None | The summary line that opens and closes it. The `title` slot takes rich content. |
+| `group` | `string` | None | Disclosures that share a `group` open one at a time (the native `name` of `details`). |
 
 <!-- props:end -->
 

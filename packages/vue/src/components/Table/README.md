@@ -26,7 +26,7 @@ Use [`EDataGrid`](../DataGrid/README.md) when people need to sort, filter, selec
 | `hideCaption` | `boolean` | `false` | Keeps the caption for screen readers and removes it from the page, for a table that a nearby heading already names. |
 | `striped` | `boolean` | `false` | Tints every other row. |
 | `dense` | `boolean` | `false` | Smaller text and tighter cells, for reference tables with many rows. |
-| `maxHeight` | `string` | — | Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header row. |
+| `maxHeight` | `string` | None | Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header row. |
 
 <!-- props:end -->
 

@@ -10,12 +10,12 @@ A floating message that confirms or reports something just done. Show toasts thr
 
 <!-- props:start -->
 
-| Prop       | Type                                           | Default      | Notes                                                                                         |
-| ---------- | ---------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------- |
-| `title`    | `string`                                       | **Required** | What happened, in a few words.                                                                |
-| `tone`     | `"info" \| "success" \| "warning" \| "danger"` | `"info"`     | `danger` is announced at once and the other tones politely.                                   |
-| `icon`     | `IconProp`                                     | —            | Replaces the icon of the tone.                                                                |
-| `closable` | `boolean`                                      | —            | Forces the dismiss button on or off. Left out, it shows when a `@close` listener is attached. |
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `title` | `string` | **Required** | What happened, in a few words. |
+| `tone` | `"info" \| "success" \| "warning" \| "danger"` | `"info"` | `danger` is announced at once and the other tones politely. |
+| `icon` | `IconProp` | None | Replaces the icon of the tone. |
+| `closable` | `boolean` | None | Forces the dismiss button on or off. Left out, it shows when a `@close` listener is attached. |
 
 <!-- props:end -->
 

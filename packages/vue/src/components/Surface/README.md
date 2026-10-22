@@ -13,12 +13,12 @@ The flat, outlined card that content blocks are built from. Use it for any stand
 
 <!-- props:start -->
 
-| Prop     | Type                   | Default | Notes                                                                              |
-| -------- | ---------------------- | ------- | ---------------------------------------------------------------------------------- |
-| `as`     | `string`               | `"div"` | The element to render, such as `article`, `section` or `aside` for a real block.   |
-| `pad`    | `"sm" \| "md" \| "lg"` | —       | Padding inside the card: `sm`, `md` or `lg`.                                       |
-| `raised` | `boolean`              | `false` | The lifted shadow of something floating above the page, such as a Toast.           |
-| `clip`   | `boolean`              | `false` | Hides what overflows the rounded corners. Ignored when there is an `actions` slot. |
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `as` | `string` | `"div"` | The element to render, such as `article`, `section` or `aside` for a real block. |
+| `pad` | `"sm" \| "md" \| "lg"` | None | Padding inside the card: `sm`, `md` or `lg`. |
+| `raised` | `boolean` | `false` | The lifted shadow of something floating above the page, such as a Toast. |
+| `clip` | `boolean` | `false` | Hides what overflows the rounded corners. Ignored when there is an `actions` slot. |
 
 <!-- props:end -->
 
