@@ -19,6 +19,8 @@ const props = withDefaults(
 
 const t = useMessages();
 const indeterminate = computed(() => props.value === undefined);
+const limit = computed(() => props.max || 100);
+const clamped = computed(() => Math.max(0, Math.min(limit.value, props.value ?? 0)));
 const percent = computed(() => Math.max(0, Math.min(100, ((props.value ?? 0) / (props.max || 100)) * 100)));
 const showHead = computed(() => !!props.label || !indeterminate.value || !!props.valueText);
 </script>
@@ -37,8 +39,9 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
       role="progressbar"
       :aria-label="label || t('loading')"
       aria-valuemin="0"
-      :aria-valuemax="indeterminate ? undefined : max || 100"
-      :aria-valuenow="indeterminate ? undefined : value"
+      :aria-valuemax="indeterminate ? undefined : limit"
+      :aria-valuenow="indeterminate ? undefined : clamped"
+      :aria-valuetext="valueText || undefined"
       :aria-busy="indeterminate ? 'true' : undefined"
     >
       <div class="e-progress-fill" :style="indeterminate ? undefined : { width: percent + '%' }"></div>

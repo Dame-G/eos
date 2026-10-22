@@ -65,6 +65,6 @@ An input that filters a list as you type and only accepts an option from it. `fr
 - Focus stays in the input; ArrowDown and ArrowUp open the list and move the highlighted row (`aria-activedescendant`), Enter chooses it.
 - Escape closes the list; a second Escape clears the field. Home and End move the text cursor.
 - When focus leaves, the text snaps back to the chosen option.
-- With `multiple` the listbox is `aria-multiselectable`, each tag has a Remove button ("Remove Text") and Backspace in an empty field removes the last tag.
+- With `multiple` the listbox is `aria-multiselectable`, each tag has a Remove button ("Remove Text") and Backspace in an empty field removes the last tag. Removing a tag announces "Removed Text" and puts focus in the input.
 - With `freeform`, typed text stays when focus leaves and ArrowDown reopens the suggestions.
 - An empty or loading list is announced through a status region.

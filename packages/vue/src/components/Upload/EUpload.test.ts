@@ -65,7 +65,102 @@ describe("EUpload", () => {
     expect(model.value.length).toBe(2);
     const rows = [...container.querySelectorAll(".e-files li")];
     expect(rows.map((r) => r.querySelector(".e-file-name")!.textContent)).toEqual(["front.pdf", "back.pdf"]);
-    expect(rows.map((r) => r.querySelector(".e-file-size")!.textContent)).toEqual(["2 KB", "1 KB"]);
+    expect(rows.map((r) => r.querySelector(".e-file-size")!.textContent)).toEqual(["2 kB", "100 byte"]);
+  });
+
+  test("sizes use bytes, kilobytes or megabytes", async () => {
+    const { container } = await render(EUpload, { props: { label: "Card", multiple: true } });
+    choose(container.querySelector("input")!, file("a.pdf", 5 * 1024 * 1024 + 512 * 1024), file("b.pdf", 0));
+    await new Promise((r) => setTimeout(r, 0));
+    const sizes = [...container.querySelectorAll(".e-file-size")].map((s) => s.textContent);
+    expect(sizes).toEqual(["5.5 MB", "0 byte"]);
+  });
+
+  test("without multiple, a drop of three files keeps the first", async () => {
+    const { container } = await render(EUpload, { props: { label: "Card" } });
+    drop(container.querySelector(".e-drop")!, file("1.pdf"), file("2.pdf"), file("3.pdf"));
+    await new Promise((r) => setTimeout(r, 0));
+    expect([...container.querySelectorAll(".e-file-name")].map((n) => n.textContent)).toEqual(["1.pdf"]);
+    expect(container.querySelector("input")!.files!.length).toBe(1);
+  });
+
+  test("accept filters dropped and chosen files by extension, MIME type and wildcard, ignoring case", async () => {
+    const { container } = await render(EUpload, {
+      props: { label: "Card", multiple: true, accept: ".pdf, image/png,audio/*" },
+    });
+    const names = () => [...container.querySelectorAll(".e-file-name")].map((n) => n.textContent);
+    drop(
+      container.querySelector(".e-drop")!,
+      file("a.PDF", 10, ""),
+      file("virus.exe", 10, "application/x-msdownload"),
+      file("pic", 10, "image/png"),
+      file("pic2", 10, "image/jpeg"),
+      file("song", 10, "audio/mpeg"),
+    );
+    await new Promise((r) => setTimeout(r, 0));
+    expect(names()).toEqual(["a.PDF", "pic", "song"]);
+    choose(container.querySelector("input")!, file("b.exe", 10, "application/x-msdownload"));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(names()).toEqual([]);
+  });
+
+  test("announces how many files were added and how many were not accepted", async () => {
+    const { container } = await render(EUpload, { props: { label: "Card", multiple: true, accept: ".pdf" } });
+    const said = (kind: string) =>
+      document.querySelector(`[data-e-announcer=${kind}]`)?.textContent?.replace(/\u00a0/g, "");
+    drop(container.querySelector(".e-drop")!, file("a.pdf"), file("b.pdf"));
+    await expect.poll(() => said("polite")).toBe("2 files added");
+    drop(container.querySelector(".e-drop")!, file("c.pdf"), file("d.exe", 10, "x/y"));
+    await expect.poll(() => said("assertive")).toBe("1 file added. 1 file was not accepted");
+    drop(container.querySelector(".e-drop")!, file("e.exe", 10, "x/y"), file("f.exe", 10, "x/y"));
+    await expect.poll(() => said("assertive")).toMatch(/^2 files were not accepted/);
+  });
+
+  test("files with the same name are all listed, and each can be removed with a labelled button", async () => {
+    const model = ref<File[]>([]);
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(EUpload, {
+            label: "Card",
+            multiple: true,
+            modelValue: model.value,
+            "onUpdate:modelValue": (v: File[]) => (model.value = v),
+          }),
+      }),
+    );
+    choose(container.querySelector("input")!, file("scan.pdf", 100), file("scan.pdf", 200), file("other.pdf"));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(container.querySelectorAll(".e-files li").length).toBe(3);
+    const buttons = container.querySelectorAll<HTMLButtonElement>(".e-files button");
+    expect(buttons[0]!.getAttribute("aria-label")).toBe("Remove scan.pdf");
+    buttons[1]!.click();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(model.value.map((f) => f.size)).toEqual([100, 2048]);
+    expect(container.querySelectorAll(".e-files li").length).toBe(2);
+    expect(container.querySelector("input")!.files!.length).toBe(2);
+    expect(document.activeElement).toBe(container.querySelector("input"));
+    await expect
+      .poll(() => document.querySelector("[data-e-announcer=polite]")?.textContent?.replace(/\u00a0/g, ""))
+      .toBe("Removed scan.pdf");
+  });
+
+  test("an invalid zone gets a danger edge, a disabled one keeps the disabled look", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { class: "e-root" }, [
+            h(EUpload, { label: "Bad", error: "Too large" }),
+            h(EUpload, { label: "Off", error: "Too large", disabled: true }),
+            h(EUpload, { label: "Fine" }),
+          ]),
+      }),
+    );
+    const [bad, off, fine] = [...container.querySelectorAll<HTMLElement>(".e-drop")];
+    expect(bad!.hasAttribute("data-invalid")).toBe(true);
+    const danger = (el: Element) => getComputedStyle(el).outlineColor;
+    expect(danger(bad!)).not.toBe(danger(fine!));
+    expect(danger(off!)).toBe(danger(fine!));
   });
 
   test("without v-model it still lists the chosen files", async () => {

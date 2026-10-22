@@ -11,6 +11,7 @@ const WAYS = ["Text", "Email", "Call"];
 const optionEls = () => Array.from(document.querySelectorAll<HTMLElement>("[role=option]"));
 const inputOf = (c: Element) => c.querySelector<HTMLInputElement>("input.e-combo-input")!;
 const tags = (c: Element) => Array.from(c.querySelectorAll(".e-tag")).map((t) => t.textContent?.trim());
+const spoken = () => document.querySelector("[data-e-announcer=polite]")?.textContent?.replace(/\u00a0/g, "");
 const box = (name: string) => page.getByRole("combobox", { name });
 const expanded = (el: Element, v: "true" | "false") => expect.poll(() => el.getAttribute("aria-expanded")).toBe(v);
 
@@ -59,7 +60,12 @@ describe("ECombobox multiple", () => {
   test("picking toggles an option, keeps the list open, shows a check, and the model is the array in order chosen", async () => {
     const got: string[][] = [];
     const { container } = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string[]) },
+      props: {
+        multiple: true,
+        label: "Remind me by",
+        options: WAYS,
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string[]),
+      },
     });
     await page.getByRole("button", { name: "Show options" }).click();
     await expanded(inputOf(container), "true");
@@ -80,7 +86,12 @@ describe("ECombobox multiple", () => {
   test("keyboard: arrows move, Enter picks and the list stays open, Escape closes", async () => {
     const got: string[][] = [];
     const { container } = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string[]) },
+      props: {
+        multiple: true,
+        label: "Remind me by",
+        options: WAYS,
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string[]),
+      },
     });
     const input = inputOf(container);
     input.focus();
@@ -101,7 +112,12 @@ describe("ECombobox multiple", () => {
   test("typing filters; choosing clears the text", async () => {
     const got: string[][] = [];
     const { container } = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string[]) },
+      props: {
+        multiple: true,
+        label: "Remind me by",
+        options: WAYS,
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string[]),
+      },
     });
     await box("Remind me by").fill("ma");
     await expect.poll(() => optionEls().map((o) => o.textContent?.trim())).toEqual(["Email"]);
@@ -249,6 +265,32 @@ describe("ECombobox multiple", () => {
     await expect.poll(() => inputOf(container).getAttribute("aria-invalid")).toBe("true");
   });
 
+  test("removing a tag with its button moves focus to the input and announces it", async () => {
+    const got: string[][] = [];
+    const { container } = await render(ECombobox, {
+      props: {
+        multiple: true,
+        label: "Remind me by",
+        options: WAYS,
+        modelValue: ["Text", "Email"],
+        "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string[]),
+      },
+    });
+    await page.getByRole("button", { name: "Remove Text" }).click();
+    expect(got).toEqual([["Email"]]);
+    expect(document.activeElement).toBe(inputOf(container));
+    await expect.poll(() => spoken()).toBe("Removed Text");
+  });
+
+  test("removing the last tag with Backspace announces it", async () => {
+    const { container } = await render(ECombobox, {
+      props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Email", "Call"] },
+    });
+    inputOf(container).focus();
+    await userEvent.keyboard("{Backspace}");
+    await expect.poll(() => spoken()).toBe("Removed Call");
+  });
+
   test("disabled: tags cannot be removed and the field never opens", async () => {
     const { container } = await render(ECombobox, {
       props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text"], disabled: true },
@@ -273,7 +315,9 @@ describe("ECombobox multiple", () => {
   });
 
   test("axe: empty, with tags, open, invalid, disabled", async () => {
-    const a = await render(ECombobox, { props: { multiple: true, label: "Remind me by", options: WAYS, hint: "Pick any" } });
+    const a = await render(ECombobox, {
+      props: { multiple: true, label: "Remind me by", options: WAYS, hint: "Pick any" },
+    });
     await expectNoViolations(a.container);
     a.unmount();
     const b = await render(ECombobox, {
@@ -284,7 +328,9 @@ describe("ECombobox multiple", () => {
     await expanded(inputOf(b.container), "true");
     await expectNoViolations(document.body);
     b.unmount();
-    const c = await render(ECombobox, { props: { multiple: true, label: "Remind me by", options: WAYS, error: "Pick one" } });
+    const c = await render(ECombobox, {
+      props: { multiple: true, label: "Remind me by", options: WAYS, error: "Pick one" },
+    });
     await expectNoViolations(c.container);
     c.unmount();
     const d = await render(ECombobox, {
