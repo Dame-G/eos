@@ -362,7 +362,7 @@ export const fluentAliases = {
   home: "home-24-regular",
 } satisfies AliasTable;
 
-/** Alias tables for the Iconify prefixes Eos knows. Other prefixes work too; they just use the name as given. */
+/** Alias tables for the Iconify prefixes EOS knows. Other prefixes work too and use the name as given. */
 export const iconifyAliases: Record<string, AliasTable> = {
   lucide: lucideAliases,
   tabler: tablerAliases,

@@ -168,7 +168,7 @@ describe("ECalendar", () => {
       props: { modelValue: d(2026, 10, 22), month: d(2026, 10, 22), footer: false },
     });
     expect(container.querySelector(".e-cal-pick")!.getAttribute("aria-label")).toBe(
-      "Choose year and month, now October 2026",
+      "Change month or year, currently October 2026",
     );
     container.querySelector<HTMLElement>(".e-cal-pick")!.click();
     await sleep(30);

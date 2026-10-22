@@ -11,14 +11,14 @@ export interface ToastOptions {
   tone?: ToastTone;
   /** A Button, as a vnode or a function that returns one. A toast with an action stays until dismissed. */
   action?: VNodeChild | (() => VNodeChild);
-  /** Milliseconds before it goes. 5000 for success and info; `0` for none, which is the default for danger and for a toast with an action. */
+  /** Milliseconds before it goes. 5000 for success and info. `0` for none, the default for danger and for a toast with an action. */
   duration?: number;
 }
 
 export interface ToastItem extends Omit<ToastOptions, "tone" | "duration"> {
   id: string;
   tone: ToastTone;
-  /** Milliseconds; 0 stays until dismissed. */
+  /** Milliseconds. 0 stays until dismissed. */
   duration: number;
 }
 

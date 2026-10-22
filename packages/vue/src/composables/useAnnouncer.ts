@@ -36,7 +36,7 @@ function region(kind: Politeness): HTMLElement | null {
 
 /**
  * Says something to screen reader users without showing it: `useAnnouncer().announce("3 rows selected")`.
- * One hidden live region per politeness is shared by the whole page and created on first use; on the server it does nothing.
+ * One hidden live region per politeness is shared by the whole page and created on first use. On the server it does nothing.
  * Announce the result of an action the user cannot otherwise see, not something that is already on screen in a live region.
  */
 export function useAnnouncer(): { announce(message: string, options?: AnnounceOptions): void } {

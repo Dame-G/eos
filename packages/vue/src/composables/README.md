@@ -4,7 +4,7 @@ Functions to call inside `setup()`. Each is exported from `@eos-ui/vue`.
 
 ## `useAnnouncer()`
 
-Says something to screen reader users without showing it. One hidden live region per politeness is shared by the whole page and created on first use; on the server it does nothing.
+Says something to screen reader users without showing it. One hidden live region per politeness is shared by the whole page and created on first use. On the server it does nothing.
 
 ```ts
 const { announce } = useAnnouncer();
@@ -27,11 +27,11 @@ useShortcuts({
 });
 ```
 
-Combine `mod`, `ctrl`, `cmd` (or `meta`), `alt` and `shift` with `+`. Key names are `event.key` in lower case, with `esc`, `space`, `up`, `down`, `left` and `right` as short forms. Modifiers must match exactly; Shift is ignored for symbols such as `?`.
+Combine `mod`, `ctrl`, `cmd` (or `meta`), `alt` and `shift` with `+`. Key names are `event.key` in lower case, with `esc`, `space`, `up`, `down`, `left` and `right` as short forms. Modifiers must match exactly. Shift is ignored for symbols such as `?`.
 
 - Key-only shortcuts (no Ctrl, Cmd or Alt) are skipped while a text field has focus, so typing "g" in a search box does not fire `g`. Shortcuts with a modifier, and Escape, still run. Set `allowInInputs` to change that.
 - A held key does not repeat, and text being composed (an IME) is left alone.
-- Options: `target` (an element or ref; the document by default), `enabled` (a ref or getter), `allowInInputs`, `preventDefault` (on by default).
+- Options: `target` (an element or ref, the document by default), `enabled` (a ref or getter), `allowInInputs`, `preventDefault` (on by default).
 
 `formatShortcut("mod+k")` gives the keycaps to show in [`EKbd`](../components/Kbd/README.md): `["⌘", "K"]` on a Mac, `["Ctrl", "K"]` elsewhere.
 
@@ -44,7 +44,7 @@ const { copied, failed, copy } = useCopy({ timeout: 2000 });
 await copy("npm install @eos-ui/vue"); // true if it reached the clipboard
 ```
 
-`copied` and `failed` go back to false after `timeout` (2000 ms). "Copied" is announced politely and "Couldn't copy" assertively through `useAnnouncer`; pass `announce: false` to stay silent. Where the async clipboard is missing (an insecure page) it falls back to selecting hidden text.
+`copied` and `failed` go back to false after `timeout` (2000 ms). "Copied" is announced politely and "Couldn't copy" assertively through `useAnnouncer`. Pass `announce: false` to stay silent. Where the async clipboard is missing (an insecure page) it falls back to selecting hidden text.
 
 ## `useToast()`
 

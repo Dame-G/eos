@@ -2,7 +2,7 @@ import { componentNames } from "./component-names.js";
 
 /**
  * Auto-import for `unplugin-vue-components`: `<EButton>` in a template imports itself, so no `components:` registration is needed.
- * Only Eos's own component names are claimed, so your own `EHeader` or `EventCard` is left alone.
+ * Only EOS's own component names are claimed, so your own `EHeader` or `EventCard` is left alone.
  *
  * ```ts
  * Components({ resolvers: [EosResolver()] })

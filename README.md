@@ -44,7 +44,9 @@ const email = ref("");
 </template>
 ```
 
-The stylesheet is one file (about 19 kB gzipped). The JavaScript has no CSS imports, so server rendering works in plain Node without bundler setup. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. Components also work without the plugin, in English and US dollars.
+The stylesheet is one file (about 24 kB gzipped). The JavaScript has no CSS imports, so server rendering works in plain Node without bundler setup. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. Components also work without the plugin, in English and US dollars.
+
+`createEos()` takes `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget` (theme one element instead of `<html>`), `portalTarget` (where menus, dialogs and toasts render) and `warnOnContrast`.
 
 For template auto-import, use the resolver:
 
@@ -55,7 +57,7 @@ Components({ resolvers: [EosResolver()] }); // unplugin-vue-components
 
 ## Theming
 
-A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes 16 inputs: `brand`, `accent`, `danger`, `warning`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `contrast`, `textScale`, `spaceScale`, `controlHeight` and `motion`.
+A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes 16 design inputs: `brand`, `accent`, `danger`, `warning`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `contrast`, `textScale`, `spaceScale`, `controlHeight` and `motion`.
 
 ```ts
 import { defineTheme } from "@eos-ui/vue";
@@ -83,9 +85,20 @@ Every string a component writes can be replaced, and money, dates and numbers fo
 createEos({ locale: "fr-CA", currency: "CAD", messages: { required: "Obligatoire" } });
 ```
 
+A message that takes a count has one form per plural category, picked with the locale's plural rules. A plain string works too and is used for every count. `other` is required.
+
+```ts
+createEos({
+  locale: "pl",
+  messages: { rows: { one: "{n} wiersz", few: "{n} wiersze", many: "{n} wierszy", other: "{n} wiersza" } },
+});
+```
+
+`resultsCount`, `rows` and `rowsAnnounce` are plural messages.
+
 ## Bring your own icons
 
-Eos draws its built-in Phosphor icons until you give it your own. Adapters take the icon library you already use, so Eos adds no dependency:
+EOS draws its built-in Phosphor icons until you give it your own. Adapters take the icon library you already use, so EOS adds no dependency:
 
 ```ts
 import { createEos } from "@eos-ui/vue";
@@ -110,8 +123,8 @@ phosphorVue(ph);
 iconify("lucide");
 ```
 
-`<EButton icon="credit-card">` then finds the icon in your set. The names Eos uses itself (`card`, `alert`, `home`) map to your set's names. Anything your set lacks falls back to the built-in icon; `builtin: false` turns that off. An `icon` prop also takes a component (`:icon="CreditCard"`). All 41 names, the options and the custom resolver are in [packages/vue/src/icons/README.md](packages/vue/src/icons/README.md).
+`<EButton icon="credit-card">` then finds the icon in your set. The names EOS uses itself (`card`, `alert`, `home`) map to your set's names. Anything your set lacks falls back to the built-in icon. `builtin: false` turns that off. An `icon` prop also takes a component (`:icon="CreditCard"`). All 41 names, the options and the custom resolver are in [packages/vue/src/icons/README.md](packages/vue/src/icons/README.md).
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Licensed under MIT; icons are [Phosphor](https://phosphoricons.com) (MIT).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Licensed under MIT. Icons are [Phosphor](https://phosphoricons.com) (MIT).

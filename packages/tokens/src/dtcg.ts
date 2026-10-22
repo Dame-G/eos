@@ -18,7 +18,7 @@ const BEZIER = /^cubic-bezier\(\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\
 const REFERENCE = /^var\(--e-([a-z0-9-]+)\)$/;
 
 /**
- * Turns resolved token values (`theme.tokens`) into W3C Design Tokens JSON. A value that is just another token
+ * Turns resolved token values (`theme.tokens`) into W3C Design Tokens JSON. A value that is only another token
  * (`var(--e-primary)`) becomes an alias (`{color.primary}`), and each token carries its usage note as `$description`.
  * Dimensions and durations stay strings with their unit (`"8px"`, `"220ms"`), which Tokens Studio and Style Dictionary accept.
  */

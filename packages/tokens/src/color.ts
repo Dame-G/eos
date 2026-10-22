@@ -1,4 +1,4 @@
-/** Colour maths for contrast checks and brand derivation. Hex in, hex out; sRGB with WCAG 2.x relative luminance and OKLCH for lightness steps. */
+/** Colour maths for contrast checks and brand derivation. Hex in, hex out. Uses sRGB with WCAG 2.x relative luminance, and OKLCH for lightness steps. */
 
 export type RGB = [number, number, number];
 
@@ -121,7 +121,7 @@ export function tint(hex: string, lightness = 0.955, chroma = 0.025): string {
   return fromOklch({ l: lightness, c: chroma, h });
 }
 
-/** The colour nearest `hex` (same hue and chroma, lightness stepped toward `against`) that still holds a contrast of `target` with `against`. Softens as far as the target allows; returns `hex` unchanged when it is already under the target. */
+/** The colour nearest `hex` (same hue and chroma, lightness stepped toward `against`) that still holds a contrast of `target` with `against`. Softens as far as the target allows. Returns `hex` unchanged when it is already under the target. */
 export function settleContrast(hex: string, against: string, target: number): string {
   const start = toOklch(hex);
   const goal = toOklch(against).l;

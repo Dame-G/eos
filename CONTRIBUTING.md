@@ -59,7 +59,7 @@ index.ts         export { default as EStamp } from "./EStamp.vue";   (plus expor
 ### Props, events and slots
 
 - Props use `defineProps<{ ... }>()` with a one-line doc comment each (it becomes the editor tooltip).
-- The README's props table (between `<!-- props:start -->` and `<!-- props:end -->`) is generated from the source: edit the doc comment, the `withDefaults` value or the `defineModel` comment in the `.vue` file, never the table, then run `node scripts/gen-props.mjs` in `packages/vue`. A prop that has no default and is not required shows `—`; a flag is `false` unless it has a default. Write a default that the code applies elsewhere (a generated id, an i18n string) as `@default value` at the end of the doc comment. Do not start a doc comment with "Required."; the table shows it.
+- The README's props table (between `<!-- props:start -->` and `<!-- props:end -->`) is generated from the source: edit the doc comment, the `withDefaults` value or the `defineModel` comment in the `.vue` file, never the table, then run `node scripts/gen-props.mjs` in `packages/vue`. A prop that has no default and is not required shows `—`. A flag is `false` unless it has a default. Write a default that the code applies elsewhere (a generated id, an i18n string) as `@default value` at the end of the doc comment. Do not start a doc comment with "Required." The table shows it.
 - The main value is `defineModel()` (`v-model`). Two values use named models (`v-model:start`, `v-model:end`). Leaving `v-model` off gives local state, so there is no `defaultValue` prop.
 - Other signals are emits declared with `defineEmits`, value first.
 - Content goes in slots, declared with `defineSlots`. A render-prop is a scoped slot.
@@ -67,7 +67,7 @@ index.ts         export { default as EStamp } from "./EStamp.vue";   (plus expor
 
 ### Prop conventions
 
-One name means one thing across the library. A component may have props of its own where it needs them; these are the shared ones.
+One name means one thing across the library. A component may have props of its own where it needs them. These are the shared ones.
 
 | Prop                                                | Means                                                                                                                                              | Where                                                        |
 | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
@@ -83,9 +83,9 @@ One name means one thing across the library. A component may have props of its o
 | `headingLevel`                                      | The level of the heading a component renders inside itself. `EHeading` is the heading, so its prop is `level`.                                     | cards, panels, dialogs, drawers                              |
 | `mode`                                              | A change in what the component does (`single` or `range`, `current` or `new`). Keyboard hints are `inputmode` (as on `EOtpField`), never `type`.   | `ECalendar`, `EPasswordField`, `ESignatureField`             |
 | `required`, `optional`, `disabled`, `error`, `hint` | Field state and help. `error` is one message.                                                                                                      | every field                                                  |
-| `as`, `gap`, `align`, `justify`, `side`             | The element; spacing from the space scale; cross-axis and main-axis alignment; which edge.                                                         | layout components                                            |
+| `as`, `gap`, `align`, `justify`, `side`             | The element, spacing from the space scale, cross-axis and main-axis alignment, and which edge.                                                     | layout components                                            |
 
-There are no look variants. A component has one good default; if two looks are both needed they are two components. Do not add `compact`, `plain`, `card`, `outlined` or similar switches. `ETable` has `dense` for row height and is the only one.
+There are no look variants. A component has one good default. If two looks are both needed they are two components. Do not add `compact`, `plain`, `card`, `outlined` or similar switches. `ETable` has `dense` for row height and is the only one.
 
 ### Accessibility
 
@@ -116,7 +116,7 @@ There are no look variants. A component has one good default; if two looks are b
 
 - `import "../../styles/base.css";` at the top of the script.
 - Draw a stroke once. A `border`, or a `box-shadow` ring (`var(--e-edge)`, `var(--e-float)`, `inset 0 0 0 <width> <colour>`), is the whole stroke: do not lay an identical `outline` over it, because the antialiased pixels on the curve are then painted twice and every rounded corner looks heavier than its straight edges. Keep `--e-stroke-edge` a whole pixel so border and ring agree in every browser. Depth (a raised slab) is an offset `box-shadow: 0 var(--e-depth) 0 0 <colour>` under a face that is shorter by the same amount, never a thicker border on one side, which tapers round the corner.
-- Values come from tokens (`var(--e-space-4)`); a raw colour, size or duration means a missing token, which is added to `packages/tokens/src/tokens.json` with a usage note. Logical properties only (`margin-inline-start`).
+- Values come from tokens (`var(--e-space-4)`). A raw colour, size or duration means a missing token, which you add to `packages/tokens/src/tokens.json` with a usage note. Logical properties only (`margin-inline-start`).
 - Space belongs to the parent: a component sets no outer margin. Layout that depends on the component's own width uses container queries, not viewport media queries.
 
 ### Documentation
@@ -126,10 +126,10 @@ A README says what the consumer provides, what the component does and the rules.
 - **Terse.** One sentence per fact, no history ("replaces the old...") and no restating a default: the table has a Default column, so a note never says "on by default". An accessibility bullet states a behaviour the consumer must know or act on, not one the prop note already gives or an implementation detail (percentages, colour washes).
 - **Section order:** intro, example, Props, the line on where `class`, `style` and attributes land, Slots, Events, Accessibility. Drop a section that has nothing in it.
 - **The intro** says what the component is for in one sentence, then names the sibling to use instead ("Use `EDrawer` to read a statement"). Link the first mention of each sibling: ``[`EDrawer`](../Drawer/README.md)``. Later mentions stay plain code.
-- **Links.** Relative links between repo files; named links for sites (`[Documentation](https://eos.dame.gg)`), never a bare URL. A package README may link other packages by path. Do not link a heading to itself.
+- **Links.** Relative links between repo files. Named links for sites (`[Documentation](https://eos.dame.gg)`), never a bare URL. A package README may link other packages by path. Do not link a heading to itself.
 - **Highlighting.** Code font for anything the reader types or the code names: components, props, events, slots, CSS properties, message keys, attribute values and key names in code (`aria-pressed`, `Escape` as `event.key`). Quotes for words a user sees or hears ("Copied", "Page 2"). Plain text for key names in a keyboard list (Arrow Left, Enter). Bold only for the **Required** marker the generator writes.
 - **Examples** use only values that work: icon names from the built-in set (`iconNames`), real props, no `size` enum.
-- **Tables.** Escape `|` inside a cell as `\|`. Props tables are generated; edit the source comment (see above).
+- **Tables.** Escape `|` inside a cell as `\|`. Props tables are generated, so edit the source comment (see above).
 
 `pnpm --filter @eos-ui/vue check:docs` checks links, bare URLs, table pipes, sibling links in the intro and icon names in examples. CI runs it.
 

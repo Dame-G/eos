@@ -23,7 +23,7 @@ async function write(text: string): Promise<boolean> {
     await navigator.clipboard.writeText(text);
     return true;
   } catch {
-    // An insecure page has no async clipboard; a hidden textarea and the old command still work there.
+    // An insecure page has no async clipboard, so a hidden textarea and the old command do the job.
     try {
       const area = document.createElement("textarea");
       area.value = text;
