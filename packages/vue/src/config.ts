@@ -23,7 +23,7 @@ export interface EosConfig {
 export const CONFIG_KEY: InjectionKey<EosConfig> = Symbol("eos.config");
 
 /** Used when a component is rendered without the plugin, so every component works on its own. */
-export const fallbackConfig: EosConfig = reactive({
+const fallbackConfig: EosConfig = reactive({
   locale: "en-US",
   currency: "USD",
   dir: null,

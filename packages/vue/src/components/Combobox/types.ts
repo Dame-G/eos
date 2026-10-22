@@ -4,6 +4,7 @@ import type { ELabelProps } from "../Field/labelProps.js";
 /** What ECombobox takes besides its `v-model`. */
 export type EComboboxProps = ELabelProps & EComboboxFields;
 
+/** @public Exported so the generated declarations can name it. */
 export interface EComboboxFields {
   /** Choose several: `v-model` is a `string[]`, shown as removable tags. The list stays open while choosing, `placeholder` shows only while nothing is chosen, and `name` submits one hidden input per value. */
   multiple?: boolean;

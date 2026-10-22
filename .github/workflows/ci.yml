@@ -23,6 +23,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @eos-ui/vue exec playwright install --with-deps chromium
       - run: pnpm lint
+      - run: pnpm knip
       - run: pnpm build
       - run: pnpm check:package
       - run: pnpm check:size
