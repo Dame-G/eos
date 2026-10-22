@@ -449,4 +449,18 @@ describe("ESelect", () => {
     const plain = container.querySelector<HTMLElement>("input.e-input")!;
     expect(getComputedStyle(trigger).backgroundColor).toBe(getComputedStyle(plain).backgroundColor);
   });
+  test("exposes focus() and the trigger as input", async () => {
+    let api: { input: HTMLElement | null; focus: () => void } | null = null;
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(ESelect, { label: "Card", options: ["Visa", "Mastercard"], ref: (r: unknown) => (api = r as typeof api) }),
+      }),
+    );
+    const trigger = container.querySelector("button.e-sel-trigger");
+    expect(trigger).not.toBeNull();
+    expect(api!.input).toBe(trigger);
+    api!.focus();
+    expect(document.activeElement).toBe(trigger);
+  });
 });

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import EField from "../Field/EField.vue";
 import type { ELabelProps } from "../Field/labelProps.js";
 import ESelectControl from "./ESelectControl.vue";
@@ -39,6 +39,7 @@ const model = defineModel<string>({ default: "" });
 const open = defineModel<boolean>("open", { default: false });
 
 const attrs = useFieldAttrs();
+const control = ref<InstanceType<typeof ESelectControl> | null>(null);
 const options = computed(() => normalizeOptions(props.options));
 
 type FieldSlot = { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined };
@@ -50,11 +51,16 @@ function triggerAttrs(field?: FieldSlot) {
     ...attrs.input(field?.ariaDescribedby),
   };
 }
+defineExpose({
+  input: computed(() => control.value?.trigger ?? null),
+  focus: () => control.value?.trigger?.focus(),
+});
 </script>
 
 <template>
   <div v-if="bare" v-bind="attrs.wrapper()">
     <ESelectControl
+      ref="control"
       v-model="model"
       v-model:open="open"
       :options="options"
@@ -79,6 +85,7 @@ function triggerAttrs(field?: FieldSlot) {
   >
     <template #default="field">
       <ESelectControl
+        ref="control"
         v-model="model"
         v-model:open="open"
         :options="options"

@@ -5,6 +5,15 @@ import { render } from "vitest-browser-vue";
 import ECheckbox from "./ECheckbox.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
+function colourOf(host: Element, token: string) {
+  const probe = document.createElement("span");
+  probe.style.color = `var(${token})`;
+  host.append(probe);
+  const colour = getComputedStyle(probe).color;
+  probe.remove();
+  return colour;
+}
+
 describe("ECheckbox", () => {
   test("is a checkbox named by its label, in a 48px row", async () => {
     const { container } = await render(ECheckbox, { props: { label: "Agree" } });
@@ -133,5 +142,47 @@ describe("ECheckbox", () => {
       }),
     );
     await expectNoViolations(container);
+  });
+  test("an error turns the box edge danger, and pointing at it tints the face", async () => {
+    const ok = await render(ECheckbox, { props: { label: "Agree" } });
+    ok.container.classList.add("e-root");
+    const plain = getComputedStyle(ok.container.querySelector("input")!).borderTopColor;
+    const { container } = await render(ECheckbox, { props: { label: "Agree", error: "Required" } });
+    container.classList.add("e-root");
+    const box = container.querySelector("input")!;
+    await new Promise((r) => setTimeout(r, 250));
+    expect(getComputedStyle(box).borderTopColor).not.toBe(plain);
+    expect(getComputedStyle(box).borderTopColor).toBe(colourOf(container, "--e-danger"));
+    await userEvent.hover(box);
+    await new Promise((r) => setTimeout(r, 250));
+    expect(getComputedStyle(box).backgroundColor).toBe(colourOf(container, "--e-danger-soft"));
+  });
+
+  test("a checked box with an error keeps its primary fill and gains a danger ring", async () => {
+    const { container } = await render(ECheckbox, { props: { label: "Agree", error: "Required", modelValue: true } });
+    container.classList.add("e-root");
+    const box = container.querySelector("input")!;
+    await new Promise((r) => setTimeout(r, 250));
+    const style = getComputedStyle(box);
+    expect(style.backgroundColor).toBe(colourOf(container, "--e-primary"));
+    expect(style.boxShadow).toContain(colourOf(container, "--e-danger"));
+  });
+
+  test("a disabled box with an error stays neutral", async () => {
+    const { container } = await render(ECheckbox, { props: { label: "Agree", error: "Required", disabled: true } });
+    container.classList.add("e-root");
+    const style = getComputedStyle(container.querySelector("input")!);
+    expect(style.outlineStyle).toBe("dashed");
+    expect(style.boxShadow).toBe("none");
+  });
+
+  test("focus() through a component ref focuses the box", async () => {
+    let api: { input: HTMLInputElement | null; focus: () => void } | null = null;
+    const { container } = await render(
+      defineComponent({ render: () => h(ECheckbox, { label: "Agree", ref: (r: unknown) => (api = r as typeof api) }) }),
+    );
+    api!.focus();
+    expect(document.activeElement).toBe(container.querySelector("input"));
+    expect(api!.input).toBe(container.querySelector("input"));
   });
 });

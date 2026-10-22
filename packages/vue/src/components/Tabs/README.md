@@ -27,10 +27,11 @@ Tabs for switching between views of the same record or list. It switches panels 
 | `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | `vertical` stacks the tabs in a column beside their panel, for a long list of sections. Use it when there are more tabs than fit across; `fill` has no effect.                                                                                  |
 | `side`        | `"start" \| "end"`           | `"start"`      | Which side of the panel a `vertical` list sits on: `start` is the left in a left-to-right page, `end` the right. It has no effect on a horizontal row.                                                                                          |
 | `framed`      | `boolean`                    | `false`        | Joins the tabs to their panel so the two read as one card: the panel is outlined, the row of tabs sits on its edge like folder tabs, and the chosen tab opens into the panel with no line between. The edge stays open where there are no tabs. |
+| `label`       | `string`                     | —              | Names the row of tabs for screen readers. Set it when a page has more than one set of tabs.                                                                                                                                                     |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the root `div` element. Tabs are ringed and sit flush edge to edge, rounded only at the ends of the row; the selected one is outlined in the primary colour. If the tabs are wider than the space, the row scrolls sideways with no scrollbar; keep the labels short.
+`class`, `style` and attributes land on the root `div` element. Tabs are ringed and sit flush edge to edge, rounded only at the ends of the row; the selected one is outlined in the primary colour. If the tabs are wider than the space, the row scrolls sideways with no scrollbar; keep the labels short. When a page has more than one set of tabs, give each a `label` so screen reader users can tell the tab lists apart.
 
 ## Slots
 

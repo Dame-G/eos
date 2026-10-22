@@ -30,7 +30,7 @@ A one-time code entered one character per box, with paste and SMS autofill suppo
 
 <!-- props:end -->
 
-`class` and `style` land on the wrapper `div`; other attributes and listeners land on the `role="group"` element. Exposes `focus()` (first empty box).
+`class` and `style` land on the wrapper `div`; other attributes and listeners land on the `role="group"` element. Exposes `input` (the first box) and `focus()` (first empty box).
 
 ## Events
 

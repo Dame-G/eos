@@ -429,14 +429,14 @@ describe("ECombobox", () => {
   });
 
   test("exposes the input and focus()", async () => {
-    let api: { input: () => HTMLInputElement | null; focus: () => void } | null = null;
+    let api: { input: HTMLInputElement | null; focus: () => void } | null = null;
     const { container } = await render(
       defineComponent({
         render: () =>
           h(ECombobox, { label: "Practitioner", options: PEOPLE, ref: (r: unknown) => (api = r as typeof api) }),
       }),
     );
-    expect(api!.input()).toBe(inputOf(container));
+    expect(api!.input).toBe(inputOf(container));
     api!.focus();
     expect(document.activeElement).toBe(inputOf(container));
   });

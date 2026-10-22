@@ -57,6 +57,7 @@ defineExpose({
     class="e-search"
     v-bind="attrs.wrapper()"
     role="search"
+    :data-disabled="disabled ? '' : undefined"
     :aria-label="label || t('search')"
     @submit.prevent="emit('submit', model)"
   >

@@ -39,7 +39,7 @@ A dropdown for choosing one option from a list, when options need more than a li
 
 <!-- props:end -->
 
-`class` and `style` land on the wrapper `div`; other attributes and listeners land on the `button` element.
+`class` and `style` land on the wrapper `div`; other attributes and listeners land on the `button` element. Exposes `input` (the button) and `focus()`.
 
 ## Accessibility
 
