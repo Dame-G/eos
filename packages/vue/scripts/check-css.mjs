@@ -53,7 +53,8 @@ for (const { file, css } of sourceStyles()) {
   });
   root.walkDecls((d) => {
     for (const [, name] of d.value.matchAll(/var\(--e-([a-z0-9-]+)/g))
-      if (deprecated[name]) problems.push(`${file}:${d.source?.start?.line}: --e-${name} is deprecated. ${deprecated[name]}`);
+      if (deprecated[name])
+        problems.push(`${file}:${d.source?.start?.line}: --e-${name} is deprecated. ${deprecated[name]}`);
     if (d.important) problems.push(`${file}:${d.source?.start?.line}: !important on ${d.prop}`);
     if (d.prop === "z-index" && /^\d+$/.test(d.value.trim()) && d.value.trim() !== "0")
       problems.push(`${file}:${d.source?.start?.line}: raw z-index ${d.value}; use an --e-z-* token`);

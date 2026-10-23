@@ -539,7 +539,9 @@ describe("scheme, contrast and density", () => {
   });
   test("the paper shadow is the frame ring and the well", () => {
     for (const elevation of ["outline", "lifted", "bold"] as const)
-      expect(defineTheme({ elevation }).tokens["paper"], elevation).toBe("0 0 0 var(--e-stroke-card) var(--e-border), var(--e-well)");
+      expect(defineTheme({ elevation }).tokens["paper"], elevation).toBe(
+        "0 0 0 var(--e-stroke-card) var(--e-border), var(--e-well)",
+      );
   });
   test("the frame, float and paper rings follow border and stroke-card, so an override in CSS reaches them", () => {
     const ring = "0 0 0 var(--e-stroke-card) var(--e-border)";

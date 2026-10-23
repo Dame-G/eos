@@ -253,10 +253,10 @@ One recipe for anything that can be pressed. The recipe comment and `.e-interact
 
 There are two voices, and a component uses one.
 
-| Voice     | Means           | Look                                                                                   | Used by                                                                               |
-| --------- | --------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| **Value** | a value you set | filled `--e-primary` with `--e-on-primary`, `primary-slab` edge                       | toggle button, checkbox, radio, switch, segmented control, current page, selected day |
-| **Place** | where you are   | `wash-hover` face, `primary` text and a `primary` edge                                 | tab, nav item                                                                         |
+| Voice     | Means           | Look                                                            | Used by                                                                               |
+| --------- | --------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| **Value** | a value you set | filled `--e-primary` with `--e-on-primary`, `primary-slab` edge | toggle button, checkbox, radio, switch, segmented control, current page, selected day |
+| **Place** | where you are   | `wash-hover` face, `primary` text and a `primary` edge          | tab, nav item                                                                         |
 
 Place is drawn two ways on purpose. A tab sits in a bordered strip next to its neighbours, so the selected one thickens all four of its edges evenly and the bottom one is primary; a nav item stands alone and takes a real slab, its bottom border thicker by `--e-depth`.
 
