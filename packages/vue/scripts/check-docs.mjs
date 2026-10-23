@@ -58,7 +58,8 @@ function checkKeyboard(file, component, source) {
   if (!NOT_FOCUSABLE.test(a11y) && keyboard === null)
     fail(file, 1, `no "## Keyboard" section: add one, or "Not focusable." under Accessibility`);
   for (const m of source.matchAll(/^\| Key\s*\|\s*([^|]+?)\s*\|$/gm)) {
-    if (m[1] !== "Action") fail(file, lineOf(source, m.index), `keyboard table header "${m[1]}": write "| Key | Action |"`);
+    if (m[1] !== "Action")
+      fail(file, lineOf(source, m.index), `keyboard table header "${m[1]}": write "| Key | Action |"`);
   }
 }
 
@@ -74,42 +75,41 @@ for (const file of files) {
     checkKeyboard(file, component, source);
   }
   let fenced = false;
-  lines
-    .forEach((text, i) => {
-      const line = i + 1;
-      if (text.startsWith("```")) {
-        fenced = !fenced;
-        return;
-      }
-      if (fenced) {
-        if (component) {
-          for (const m of text.matchAll(/(?<!:)\bicon(?:=|: )["']([^"':]+)["']/g)) {
-            if (!builtin.has(m[1])) fail(file, line, `icon "${m[1]}" is not a built-in name`);
-          }
-        }
-        return;
-      }
-      const prose = text.replace(/`[^`]*`/g, "");
-
-      for (const m of text.replace(/``.+?``/g, "").matchAll(/\]\((?!https?:|#|mailto:)([^)\s]+)\)/g)) {
-        const target = resolve(dirname(file), m[1].split("#")[0]);
-        if (!existsSync(target)) fail(file, line, `broken link ${m[1]}`);
-      }
-      if (/(?<![(<[])https?:\/\/\S+/.test(prose.replace(/\]\([^)]*\)/g, "")))
-        fail(file, line, "bare URL: use [text](url)");
-
-      if (text.startsWith("|")) {
-        for (const m of text.matchAll(/`([^`]*)`/g)) {
-          if (/(?<!\\)\|/.test(m[1])) fail(file, line, "unescaped | in a table cell: write \\|");
+  lines.forEach((text, i) => {
+    const line = i + 1;
+    if (text.startsWith("```")) {
+      fenced = !fenced;
+      return;
+    }
+    if (fenced) {
+      if (component) {
+        for (const m of text.matchAll(/(?<!:)\bicon(?:=|: )["']([^"':]+)["']/g)) {
+          if (!builtin.has(m[1])) fail(file, line, `icon "${m[1]}" is not a built-in name`);
         }
       }
+      return;
+    }
+    const prose = text.replace(/`[^`]*`/g, "");
 
-      if (component && line === 3) {
-        for (const m of text.matchAll(/(?<!\[)`E([A-Z][A-Za-z]+)`(?!\])/g)) {
-          if (m[1] !== component && names.includes(m[1])) fail(file, line, `link \`E${m[1]}\` to ../${m[1]}/README.md`);
-        }
+    for (const m of text.replace(/``.+?``/g, "").matchAll(/\]\((?!https?:|#|mailto:)([^)\s]+)\)/g)) {
+      const target = resolve(dirname(file), m[1].split("#")[0]);
+      if (!existsSync(target)) fail(file, line, `broken link ${m[1]}`);
+    }
+    if (/(?<![(<[])https?:\/\/\S+/.test(prose.replace(/\]\([^)]*\)/g, "")))
+      fail(file, line, "bare URL: use [text](url)");
+
+    if (text.startsWith("|")) {
+      for (const m of text.matchAll(/`([^`]*)`/g)) {
+        if (/(?<!\\)\|/.test(m[1])) fail(file, line, "unescaped | in a table cell: write \\|");
       }
-    });
+    }
+
+    if (component && line === 3) {
+      for (const m of text.matchAll(/(?<!\[)`E([A-Z][A-Za-z]+)`(?!\])/g)) {
+        if (m[1] !== component && names.includes(m[1])) fail(file, line, `link \`E${m[1]}\` to ../${m[1]}/README.md`);
+      }
+    }
+  });
 }
 
 if (problems.length) {

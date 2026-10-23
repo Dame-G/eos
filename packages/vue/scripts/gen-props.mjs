@@ -278,7 +278,8 @@ function parts(node, scope, depth = 0) {
       const keep = new Set(again(args[1]));
       return again(args[0]).filter((p) => keep.has(p) === (name === "Extract"));
     }
-    if (name === "NonNullable" && args.length === 1) return again(args[0]).filter((p) => p !== "null" && p !== "undefined");
+    if (name === "NonNullable" && args.length === 1)
+      return again(args[0]).filter((p) => p !== "null" && p !== "undefined");
     if (generics.has(name) && !args.length) {
       // A parameter that only narrows a flag or a few literals (`M extends boolean`, `F extends "date" | "iso"`)
       // reads best as those values. A wider one (`T extends string`) keeps its name and gets a line under the table.
@@ -309,7 +310,9 @@ function genericNotes(rows) {
   const lines = [];
   for (const [name, g] of generics) {
     if (!rows.some((r) => new RegExp(`\\b${name}\\b`).test(r.type))) continue;
-    const bound = g.constraint ? ` It extends \`${g.constraint}\`${g.default ? ` (default \`${g.default}\`)` : ""}.` : "";
+    const bound = g.constraint
+      ? ` It extends \`${g.constraint}\`${g.default ? ` (default \`${g.default}\`)` : ""}.`
+      : "";
     lines.push(`\`${name}\` is a type parameter, inferred from the props you pass.${bound}`);
   }
   return lines;
