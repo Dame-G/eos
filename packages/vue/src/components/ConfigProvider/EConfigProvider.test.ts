@@ -138,8 +138,7 @@ describe("EConfigProvider", () => {
     const theme = defineTheme({ name: "scoped", brand: "#b00020" });
     const { container } = await render(
       defineComponent({
-        render: () =>
-          h(EConfigProvider, { theme }, () => h(EMenu, { label: "Open", items: [{ id: "a", label: "Edit" }] })),
+        render: () => h(EConfigProvider, { theme }, () => h(EMenu, { label: "Open", items: [{ label: "Edit" }] })),
       }),
       { global: { plugins: [createEos()] } },
     );
@@ -154,7 +153,7 @@ describe("EConfigProvider", () => {
       defineComponent({
         render: () =>
           h(EConfigProvider, { portal: false, theme: { brand: "#2c95b4" } }, () =>
-            h(EMenu, { label: "More", items: [{ id: "a", label: "Edit" }] }),
+            h(EMenu, { label: "More", items: [{ label: "Edit" }] }),
           ),
       }),
     );
