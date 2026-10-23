@@ -200,7 +200,13 @@ describe("ESegmented", () => {
       defineComponent({
         render: () =>
           h("div", [
-            h(ESegmented, { label: "View", options, modelValue: "Day", onFocus: () => seen.push("focus"), onBlur: () => seen.push("blur") }),
+            h(ESegmented, {
+              label: "View",
+              options,
+              modelValue: "Day",
+              onFocus: () => seen.push("focus"),
+              onBlur: () => seen.push("blur"),
+            }),
             h("button", { class: "after" }, "After"),
           ]),
       }),

@@ -1,5 +1,5 @@
 <script lang="ts">
-let warnedClearable = false;
+const warned = { clearable: false };
 </script>
 
 <script setup lang="ts" generic="M extends boolean = false">
@@ -57,8 +57,8 @@ const { announce: say } = useAnnouncer();
 
 /** The clear button is opt-in, as in every field. Left out, it still shows until the next minor, with a warning. */
 const showClear = () => props.clearable ?? true;
-if (props.clearable === undefined && !warnedClearable && !isProduction()) {
-  warnedClearable = true;
+if (props.clearable === undefined && !warned.clearable && !isProduction()) {
+  warned.clearable = true;
   console.warn(
     '[eos] ECombobox will not show its clear button by default from the next minor. Pass `clearable` to keep it, or `:clearable="false"`.',
   );

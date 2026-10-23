@@ -284,7 +284,12 @@ describe("EOtpField", () => {
       defineComponent({
         render: () =>
           h("div", [
-            h(EOtpField, { label: "Code", modelValue: "12", onFocus: () => seen.push("focus"), onBlur: () => seen.push("blur") }),
+            h(EOtpField, {
+              label: "Code",
+              modelValue: "12",
+              onFocus: () => seen.push("focus"),
+              onBlur: () => seen.push("blur"),
+            }),
             h("button", { class: "after" }, "After"),
           ]),
       }),

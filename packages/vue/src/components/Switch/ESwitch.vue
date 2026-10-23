@@ -31,8 +31,10 @@ defineExpose(choice.exposed);
 
 <template>
   <EChoiceRow v-bind="choice.row()" row-class="e-switch">
+    <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -- EChoiceRow's label wraps this slot and points at the id -->
     <input
       ref="input"
+      type="checkbox"
       role="switch"
       class="e-switch-input"
       :checked="model"

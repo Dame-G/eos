@@ -7,7 +7,8 @@ describe("ESearchBar clearable default", () => {
   test("left out, the clear button still shows and a warning says once that the default becomes false", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     try {
-      const said = () => warn.mock.calls.filter(([m]) => String(m).includes("ESearchBar will not show its clear button"));
+      const said = () =>
+        warn.mock.calls.filter(([m]) => String(m).includes("ESearchBar will not show its clear button"));
       const first = await render(ESearchBar, { props: { modelValue: "shoes" } });
       expect(first.container.querySelector(".e-input-btn, button[aria-label='Clear']")).not.toBeNull();
       await render(ESearchBar, { props: { modelValue: "hats" } });

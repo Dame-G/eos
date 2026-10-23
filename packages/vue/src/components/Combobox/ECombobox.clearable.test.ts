@@ -10,7 +10,8 @@ describe("ECombobox clearable default and clear event", () => {
   test("left out, the clear button still shows and a warning says once that the default becomes false", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     try {
-      const said = () => warn.mock.calls.filter(([m]) => String(m).includes("ECombobox will not show its clear button"));
+      const said = () =>
+        warn.mock.calls.filter(([m]) => String(m).includes("ECombobox will not show its clear button"));
       const first = await render(ECombobox, { props: { label: "City", options: ["Lyon"], modelValue: "Lyon" } });
       expect(clearButton(first.container)).not.toBeNull();
       await render(ECombobox, { props: { label: "Town", options: ["Nice"], modelValue: "Nice" } });

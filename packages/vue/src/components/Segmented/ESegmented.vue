@@ -58,7 +58,13 @@ const calm = useReducedMotion();
 const optionId = (i: number) => `${uid.value}-${i}`;
 // The summary of an EForm links to the chosen option.
 useFormField({
-  id: () => optionId(Math.max(0, options.value.findIndex((o) => o.value === current.value))),
+  id: () =>
+    optionId(
+      Math.max(
+        0,
+        options.value.findIndex((o) => o.value === current.value),
+      ),
+    ),
   label: () => props.label,
   error: () => props.error,
 });
