@@ -82,6 +82,7 @@
     "gen:props": "node scripts/gen-props.mjs",
     "check:props": "node scripts/gen-props.mjs --check",
     "check:docs": "node scripts/check-docs.mjs",
+    "check:icon-aliases": "node scripts/validate-icon-aliases.mjs",
     "check:dist": "node scripts/check-dist.mjs",
     "check:package": "publint --pack npm --strict && attw --pack . --profile esm-only --entrypoints . ./resolver ./globals ./plugin ./components/EButton ./icons ./icons/builtin ./icons/iconify"
   },
