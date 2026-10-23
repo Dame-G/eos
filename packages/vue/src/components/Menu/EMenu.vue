@@ -193,8 +193,8 @@ function returnFocus(event: Event) {
   .e-menu {
     width: max-content;
     min-width: 12rem;
-    max-width: min(20rem, calc(100vw - 2 * var(--e-space-4)));
-    padding: var(--e-pad-inset);
+    max-width: min(20rem, calc(100vw - 2 * var(--e-gap-loose)));
+    padding: var(--e-gap-tight);
   }
 
   .e-menu-item {
@@ -211,7 +211,7 @@ function returnFocus(event: Event) {
     border-radius: max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)));
     background: transparent;
     color: var(--e-ink);
-    font: var(--e-weight-regular) var(--e-text-md) / 1 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-none) var(--e-font-sans);
     text-align: start;
     text-decoration: none;
     cursor: pointer;

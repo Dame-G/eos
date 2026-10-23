@@ -230,7 +230,7 @@ A rounded thing inside a rounded, bordered thing has a smaller radius, so the tw
 }
 ```
 
-Write the sum where the child is styled, with the container's real border and padding: a custom property built from `var(--e-radius-md)` is resolved where it is declared, so a scoped theme that sets `--e-radius-md` on a container would not reach it. A component that needs the sum twice keeps the inset in a private `--_inset` and computes `max(0px, calc(var(--e-radius-md) - var(--_inset)))` on the element itself. The maths follows every `radius` setting (`sharp`, `default`, `round`). A circle or pill (`radius-round`, `radius-pill`) is left alone.
+Write the sum where the child is styled, with the container's real border and padding: a custom property built from `var(--e-radius-md)` is resolved where it is declared, so a scoped theme that sets `--e-radius-md` on a container would not reach it. A component that needs the sum twice keeps the inset in a private `--_inset` and computes `max(0px, calc(var(--e-radius-md) - var(--_inset)))` on the element itself. A child that sits a full `gap-tight` inside its container would round a lot less than the container (4px against 8px) and look sharp beside it. So rows of a list panel and swatches in a field use `--e-pad-inset` (2px, half of `gap-tight`) in the sum while keeping their real padding: `max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))`. Use the real inset for a child that fills its container, such as a segment or the picture in an avatar ring. The maths follows every `radius` setting (`sharp`, `default`, `round`). A circle or pill (`radius-round`, `radius-pill`) is left alone.
 
 ### Hover, press and focus
 

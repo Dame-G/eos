@@ -176,6 +176,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     border: var(--e-stroke-edge) solid var(--e-border-strong);
     border-radius: var(--e-radius-sm);
     background: var(--e-surface-tint);
+    background-clip: padding-box;
     box-shadow: var(--e-well);
   }
 
@@ -215,6 +216,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-radius: var(--e-radius-sm);
     background: var(--e-ink);
+    background-clip: padding-box;
     cursor: grab;
     transition: var(--e-transition-state);
   }

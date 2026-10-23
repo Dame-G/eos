@@ -202,6 +202,12 @@ describe("ECheckbox", () => {
     expect(style.boxShadow).toContain(colourOf(container, "--e-danger"));
   });
 
+  test("an unchecked box and radio have no well: no inset shadow on the fill", async () => {
+    const { container } = await render(ECheckbox, { props: { label: "Agree" } });
+    container.classList.add("e-root");
+    expect(getComputedStyle(container.querySelector("input")!).boxShadow).toBe("none");
+  });
+
   test("a disabled box with an error stays neutral", async () => {
     const { container } = await render(ECheckbox, { props: { label: "Agree", error: "Required", disabled: true } });
     container.classList.add("e-root");

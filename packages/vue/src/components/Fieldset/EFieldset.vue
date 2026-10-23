@@ -106,8 +106,8 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
     padding-block: 0 var(--e-pad-card);
     padding-inline: var(--e-pad-card);
     border: 0;
-    outline: var(--e-stroke-hair) solid var(--e-border);
-    outline-offset: calc(-1 * var(--e-stroke-hair));
+    outline: var(--e-stroke-card) solid var(--e-border);
+    outline-offset: calc(-1 * var(--e-stroke-card));
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
   }

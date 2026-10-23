@@ -95,7 +95,7 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-radius: var(--e-radius-md);
     color: var(--e-ink);
-    font: var(--e-weight-regular) var(--e-text-md) / 1 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-none) var(--e-font-sans);
     text-decoration: none;
     transition: var(--e-transition-state);
   }
@@ -206,7 +206,7 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     padding-inline: var(--e-gap-snug);
     border-radius: var(--e-radius-pill);
     background: var(--e-primary-soft);
-    border: var(--e-stroke-hair) solid var(--e-primary);
+    border: var(--e-stroke-edge) solid var(--e-primary);
     background-clip: padding-box;
     font: var(--e-weight-strong) var(--e-text-xs) / calc(5 / 3) var(--e-font-mono);
     text-align: center;

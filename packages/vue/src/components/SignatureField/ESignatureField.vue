@@ -152,7 +152,7 @@ function update(patch: Partial<SignatureValue>) {
     align-items: flex-end;
     justify-content: space-between;
     gap: var(--e-gap-base);
-    min-height: calc(var(--e-control-height) + var(--e-space-1));
+    min-height: calc(var(--e-control-height) + var(--e-gap-tight));
     padding: var(--e-space-2) var(--e-space-4);
     border-bottom: var(--e-stroke-edge) solid var(--e-success);
     background: var(--e-success-soft);

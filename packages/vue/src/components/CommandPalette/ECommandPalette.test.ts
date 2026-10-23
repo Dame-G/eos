@@ -192,7 +192,9 @@ describe("ECommandPalette corners", () => {
     const dialog = document.querySelector<HTMLElement>(".e-cmd")!;
     if (md) dialog.style.setProperty("--e-radius-md", md);
     const outer = parseFloat(getComputedStyle(dialog).borderTopLeftRadius);
-    const inset = parseFloat(getComputedStyle(dialog.querySelector(".e-cmd-list")!).paddingTop);
+    const inset =
+      parseFloat(getComputedStyle(dialog.querySelector(".e-cmd-list")!).paddingTop) /
+      2; /* pad-inset is half the padding */
     const inner = parseFloat(getComputedStyle(options()[0]!).borderTopLeftRadius);
     expect(Math.abs(inner - Math.max(0, outer - inset))).toBeLessThan(0.5);
   });

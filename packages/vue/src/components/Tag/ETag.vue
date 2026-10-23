@@ -69,12 +69,13 @@ const t = useMessages();
     gap: var(--e-gap-tight);
     max-inline-size: 100%;
     min-block-size: calc(var(--e-chip-height) + var(--e-gap-tight));
-    padding-inline: calc(var(--e-pad-chip) - var(--e-stroke-hair));
+    padding-inline: calc(var(--e-pad-chip) - var(--e-stroke-edge));
     padding-block-start: var(--_lift);
-    border: var(--e-stroke-hair) solid var(--_edge);
-    border-bottom-width: calc(var(--e-stroke-hair) + var(--_lift));
+    border: var(--e-stroke-edge) solid var(--_edge);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-radius: var(--e-radius-sm);
     background: var(--_bg);
+    background-clip: padding-box;
     color: var(--_ink);
     font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-tight) var(--e-font-sans);
   }

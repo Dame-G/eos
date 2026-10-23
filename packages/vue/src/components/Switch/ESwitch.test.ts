@@ -6,6 +6,36 @@ import ESwitch from "./ESwitch.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESwitch", () => {
+  test("the thumb is plain: no border at all, on or off", async () => {
+    for (const modelValue of [false, true]) {
+      const { container } = await render(ESwitch, { props: { label: "Autopay", modelValue } });
+      container.classList.add("e-root");
+      const thumb = getComputedStyle(container.querySelector(".e-switch-track")!, "::after");
+      for (const side of ["Top", "Right", "Bottom", "Left"])
+        expect(parseFloat(thumb.getPropertyValue(`border-${side.toLowerCase()}-width`))).toBe(0);
+    }
+  });
+
+  test("on, the track is a raised face with a slab under it, as a checked box is; off, it has none", async () => {
+    const off = await render(ESwitch, { props: { label: "Autopay", modelValue: false } });
+    off.container.classList.add("e-root");
+    const on = await render(ESwitch, { props: { label: "Autopay", modelValue: true } });
+    on.container.classList.add("e-root");
+    await new Promise((r) => setTimeout(r, 250));
+    const edges = (host: Element) => {
+      const css = getComputedStyle(host.querySelector(".e-switch-track")!);
+      return [parseFloat(css.borderTopWidth), parseFloat(css.borderBottomWidth)];
+    };
+    const [offTop, offBottom] = edges(off.container);
+    const [onTop, onBottom] = edges(on.container);
+    expect(offBottom).toBe(offTop);
+    expect(onBottom).toBeGreaterThan(onTop!);
+    // The box is the same height either way: the slab comes out of the face.
+    expect(on.container.querySelector(".e-switch-track")!.getBoundingClientRect().height).toBe(
+      off.container.querySelector(".e-switch-track")!.getBoundingClientRect().height,
+    );
+  });
+
   test("the track is pressed in while off and flat while on, as a checkbox is", async () => {
     const { container } = await render(ESwitch, { props: { label: "Reminders" } });
     container.classList.add("e-root");

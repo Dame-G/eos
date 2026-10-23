@@ -117,9 +117,9 @@ defineExpose(control.exposed);
 
 <style>
 @layer e.composites {
-  /* The swatch nearly fills the field, so it sits `pad-inset` inside the edge, and its corners are the field's radius less that and the edge: the same curve, not a sharper one. */
+  /* The swatch nearly fills the field and sits `gap-tight` inside its edge. Its corner uses `pad-inset`, the smaller distance the corner maths assumes, so it rounds almost as much as the field: the same curve, not a sharper one. */
   .e-colorfield {
-    --_inset: var(--e-pad-inset);
+    --_inset: var(--e-gap-tight);
 
     align-items: center;
     gap: var(--e-gap-snug);
@@ -137,7 +137,7 @@ defineExpose(control.exposed);
 
   /* No colour yet: a neutral struck-through chip over the picker's black, which still opens on click. */
   .e-color-empty {
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--_inset)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-pad-inset)));
     background:
       linear-gradient(
         to top right,
@@ -156,7 +156,7 @@ defineExpose(control.exposed);
     height: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--_inset)));
     padding: 0;
     border: 0;
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--_inset)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-pad-inset)));
     background: none;
     cursor: pointer;
   }
@@ -167,13 +167,13 @@ defineExpose(control.exposed);
 
   .e-color-swatch::-webkit-color-swatch {
     border: 0;
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--_inset)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-pad-inset)));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 
   .e-color-swatch::-moz-color-swatch {
     border: 0;
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--_inset)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-pad-inset)));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 
@@ -183,8 +183,8 @@ defineExpose(control.exposed);
 
   .e-colorfield:not([data-readonly]) .e-color-swatch:disabled {
     cursor: not-allowed;
-    outline: var(--e-stroke-hair) dashed var(--e-muted);
-    outline-offset: calc(-1 * var(--e-stroke-hair));
+    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
   }
 
   .e-colorfield .e-input {

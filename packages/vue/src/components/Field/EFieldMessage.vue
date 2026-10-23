@@ -30,7 +30,7 @@ defineProps<{
   .e-field-error {
     display: flex;
     align-items: flex-start;
-    gap: var(--e-space-1);
+    gap: var(--e-gap-tight);
     font: var(--e-weight-medium) var(--e-text-sm)/1.4 var(--e-font-sans);
     color: var(--e-danger);
     margin: 0;

@@ -136,6 +136,28 @@ describe("EStamp", () => {
     }
   });
 
+  test("the capitals sit in the middle of the stamp, not above it", async () => {
+    const canvas = document.createElement("canvas").getContext("2d")!;
+    for (const size of ["md", "sm"] as const) {
+      const { container } = await render(EStamp, { props: { status: "due", detail: "Oct 22", size } });
+      container.classList.add("e-root");
+      const stamp = container.querySelector(".e-stamp")!.getBoundingClientRect();
+      for (const sel of [".e-stamp-word", ".e-stamp-detail"]) {
+        const el = container.querySelector(sel)! as HTMLElement;
+        const probe = document.createElement("span");
+        probe.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline";
+        el.append(probe);
+        const baseline = probe.getBoundingClientRect().bottom;
+        probe.remove();
+        const css = getComputedStyle(el);
+        canvas.font = css.font;
+        const m = canvas.measureText("DUE");
+        const middle = baseline - (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;
+        expect(Math.abs(middle - (stamp.top + stamp.bottom) / 2), `${size} ${sel}`).toBeLessThanOrEqual(0.5);
+      }
+    }
+  });
+
   test("size sm is shorter", async () => {
     const { container } = await render(
       defineComponent({

@@ -173,7 +173,7 @@ function choose(index: number, step: Step) {
     background: var(--e-surface);
     background-clip: padding-box;
     color: var(--e-muted);
-    font: var(--e-weight-strong) var(--e-text-xs) / 1 var(--e-font-mono);
+    font: var(--e-weight-strong) var(--e-text-xs) / var(--e-leading-none) var(--e-font-mono);
   }
 
   .e-step[data-state="done"] .e-step-dot {
@@ -200,7 +200,7 @@ function choose(index: number, step: Step) {
   }
 
   .e-step-label {
-    font: var(--e-weight-regular) var(--e-text-sm) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-sm) / var(--e-leading-snug) var(--e-font-sans);
     color: var(--e-muted);
     overflow-wrap: anywhere;
   }

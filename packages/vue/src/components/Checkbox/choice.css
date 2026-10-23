@@ -16,9 +16,9 @@
 
   .e-choice-text {
     display: grid;
-    gap: calc(var(--e-gap-tight) / 2);
+    gap: var(--e-pad-inset);
     min-width: 0;
-    font: var(--e-weight-regular) var(--e-text-md)/1.5 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-normal) var(--e-font-sans);
   }
 
   .e-choice-label {
@@ -49,7 +49,6 @@
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     background: var(--e-surface);
     background-clip: padding-box;
-    box-shadow: var(--e-well);
     cursor: inherit;
     transition: var(--e-transition-state);
   }

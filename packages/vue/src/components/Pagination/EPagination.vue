@@ -147,7 +147,7 @@ const items = computed<(number | "gap")[]>(() => {
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
-    font: var(--e-weight-medium) var(--e-text-sm) / 1 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-none) var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     text-decoration: none;
     cursor: pointer;

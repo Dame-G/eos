@@ -136,4 +136,10 @@ describe("ETag", () => {
     );
     await expectNoViolations(container);
   });
+
+  test("the fill stops inside the edge, so it does not show through the antialiased corner", async () => {
+    const { container } = await render(ETag, { props: { label: "Cardiology" } });
+    container.classList.add("e-root");
+    expect(getComputedStyle(container.querySelector(".e-tag")!).backgroundClip).toBe("padding-box");
+  });
 });

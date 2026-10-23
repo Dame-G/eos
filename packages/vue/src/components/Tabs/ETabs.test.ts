@@ -180,13 +180,15 @@ describe("ETabs", () => {
     const [first, second] = [...container.querySelectorAll<HTMLElement>("[role=tab]")] as [HTMLElement, HTMLElement];
     expect(getComputedStyle(first).fontWeight).toBe("600");
     expect(getComputedStyle(second).fontWeight).toBe("500");
-    // The selected tab's edges are all as thick as its slab, and thicker than the even edge of the others. No tab uses a shadow.
+    // The selected tab's edges are all all one thickness, and thicker than the even edge of the others. No tab uses a shadow.
     const chosen = getComputedStyle(first);
     const other = getComputedStyle(second);
     expect(parseFloat(chosen.borderTopWidth)).toBeGreaterThan(parseFloat(other.borderTopWidth));
     expect(chosen.borderTopWidth).toBe(chosen.borderBottomWidth);
     expect(chosen.borderTopWidth).toBe(chosen.borderLeftWidth);
     expect(chosen.borderTopWidth).toBe(chosen.borderRightWidth);
+    // As thick as the outline of a focused field (2px by default), not a slab.
+    expect(chosen.borderTopWidth).toBe("2px");
     expect(other.borderBottomWidth).toBe(other.borderTopWidth);
     expect(getComputedStyle(first).boxShadow).toBe("none");
   });
@@ -304,5 +306,26 @@ describe("ETabs", () => {
   test("without a label the tablist has no name attribute", async () => {
     const { container } = await render(ETabs, { props: { items: [{ id: "a", label: "Open" }] } });
     expect(container.querySelector("[role=tablist]")!.hasAttribute("aria-label")).toBe(false);
+  });
+
+  test("a scrolling tab row leaves room for a focused tab's outline, so its clip never cuts the outline's edge or corners", async () => {
+    const { container } = await render(ETabs, { props: { items }, slots });
+    container.classList.add("e-root");
+    const list = container.querySelector<HTMLElement>("[role=tablist]")!;
+    const tab = container.querySelector<HTMLElement>("[role=tab]")!;
+    const before = tab.getBoundingClientRect();
+    tab.focus({ focusVisible: true } as FocusOptions);
+    const tabStyle = getComputedStyle(tab);
+    const reach = parseFloat(tabStyle.outlineOffset) + parseFloat(tabStyle.outlineWidth);
+    expect(reach).toBeGreaterThan(0);
+    const style = getComputedStyle(list);
+    expect(["overflow-x", "overflow-y"].some((p) => style.getPropertyValue(p) !== "visible")).toBe(true);
+    const box = list.getBoundingClientRect();
+    const pad = (side: string) => parseFloat(style.getPropertyValue(`padding-${side}`));
+    // Measure from the tab to the edge of the clipping box on the sides the tab touches.
+    expect(before.left - box.left - parseFloat(style.borderLeftWidth)).toBeGreaterThanOrEqual(reach);
+    expect(before.top - box.top - parseFloat(style.borderTopWidth)).toBeGreaterThanOrEqual(reach);
+    expect(box.bottom - before.bottom - parseFloat(style.borderBottomWidth)).toBeGreaterThanOrEqual(reach);
+    expect(pad("left")).toBeGreaterThanOrEqual(reach);
   });
 });

@@ -216,7 +216,7 @@ describe("ESearchResults corners", () => {
     if (md) container.style.setProperty("--e-radius-md", md);
     const css = getComputedStyle(box);
     const outer = parseFloat(css.borderTopLeftRadius);
-    const inset = parseFloat(css.paddingTop) + parseFloat(css.borderTopWidth);
+    const inset = parseFloat(css.paddingTop) / 2 + parseFloat(css.borderTopWidth); /* pad-inset is half the padding */
     const inner = parseFloat(getComputedStyle(box.querySelector(".e-opt")!).borderTopLeftRadius);
     expect(Math.abs(inner - Math.max(0, outer - inset))).toBeLessThan(0.5);
   });

@@ -123,14 +123,16 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-stamp-ink);
   }
 
-  /* The word and the detail share the kicker line height (`leading-tight`), so their baselines meet and the text sits on one line whichever way the row is centred. */
+  /* The word and the detail share the kicker line height (`leading-tight`), so their baselines meet and the text sits on one line whichever way the row is centred. Capitals have no descenders, so a line box centres them high; a little space above the text moves the capitals to the middle of the stamp. */
   .e-stamp-word {
+    padding-block-start: 0.15em;
     font: var(--e-type-kicker);
     letter-spacing: var(--e-tracking-label);
     text-transform: uppercase;
   }
 
   .e-stamp-detail {
+    padding-block-start: 0.15em;
     font: var(--e-weight-medium) var(--e-text-xs) / var(--e-leading-tight) var(--e-font-mono);
     letter-spacing: var(--e-tracking-wide);
     padding-inline-start: var(--e-gap-snug);

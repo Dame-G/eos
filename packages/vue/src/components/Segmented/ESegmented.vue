@@ -12,6 +12,7 @@ import type { SegmentedOption } from "../RadioGroup/options.js";
 import { keepIfReadonly, useChoiceMessage } from "../Checkbox/useChoiceMessage.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useUid } from "../../composables/useUid.js";
+import { useOverflow } from "../../composables/useOverflow.js";
 import "../../styles/base.css";
 
 defineOptions({ inheritAttrs: false });
@@ -52,6 +53,8 @@ const current = computed(() => model.value ?? fallback.value?.value);
 const attrs = useFieldAttrs();
 
 const track = ref<HTMLElement | null>(null);
+/** Whether the options are wider than the track. Only then does the track clip: a clip along the rounded corners would draw them twice. */
+const scrolls = useOverflow(track);
 
 /** In a space too narrow for every option the track scrolls, and the chosen option is brought into view. */
 async function reveal(smooth: boolean) {
@@ -126,7 +129,12 @@ const groupAttrs = () => ({
 
 <template>
   <div v-if="hint || error" class="e-seg-field" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
-    <div ref="track" class="e-seg" :class="{ 'e-seg--disabled': disabled }" v-bind="groupAttrs()">
+    <div
+      ref="track"
+      class="e-seg"
+      :class="{ 'e-seg--disabled': disabled, 'e-seg--scroll': scrolls }"
+      v-bind="groupAttrs()"
+    >
       <Choices
         :options="options"
         :name="name"
@@ -143,7 +151,7 @@ const groupAttrs = () => ({
     v-else
     ref="track"
     class="e-seg"
-    :class="[{ 'e-seg--disabled': disabled }, attrs.wrapper().class]"
+    :class="[{ 'e-seg--disabled': disabled, 'e-seg--scroll': scrolls }, attrs.wrapper().class]"
     :style="attrs.wrapper().style"
     v-bind="groupAttrs()"
   >
@@ -161,7 +169,7 @@ const groupAttrs = () => ({
 
 <style>
 @layer e.controls {
-  /* A pressed-in track. The chosen option fills its cell edge to edge in the primary colour, covering the track's outline there so the outline turns primary where it is chosen, and the track clips it, so only the pieces at either end take the track's rounded corners: a value you set, not a place you go (that is Tabs). With too many options for the space the track scrolls sideways, with no bar, while its outline stays put. */
+  /* A pressed-in track. Each option draws its own edge, and neighbours share one, so every stroke is drawn once, including round the corners the end options take from the track. The chosen option fills its cell edge to edge in the primary colour: a value you set, not a place you go (that is Tabs). With too many options for the space the track scrolls sideways, with no bar. */
   .e-seg {
     display: inline-flex;
     box-sizing: border-box;
@@ -169,16 +177,17 @@ const groupAttrs = () => ({
     position: relative;
     border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
-    box-shadow:
-      inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong),
-      var(--e-well);
+    box-shadow: var(--e-well);
+    max-width: 100%;
+    width: fit-content;
+  }
+
+  .e-seg--scroll {
     /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- the two axes are set apart: sideways scrolls, the rest is clipped */
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    max-width: 100%;
-    width: fit-content;
   }
 
   .e-seg::-webkit-scrollbar {
@@ -192,6 +201,19 @@ const groupAttrs = () => ({
     cursor: pointer;
   }
 
+  /* Neighbours share one edge, and the one under the pointer or the chosen one is drawn on top of it. */
+  .e-seg-opt + .e-seg-opt {
+    margin-inline-start: calc(-1 * var(--e-stroke-edge));
+  }
+
+  .e-seg-opt:hover {
+    z-index: var(--e-z-raised);
+  }
+
+  .e-seg-opt:has(.e-seg-input:checked) {
+    z-index: var(--e-z-sticky);
+  }
+
   .e-seg-input {
     position: absolute;
     inset: 0;
@@ -200,9 +222,9 @@ const groupAttrs = () => ({
     cursor: pointer;
   }
 
-  /* The piece carries the slab contract: a transparent border that the chosen piece paints, with the edge at the bottom. */
+  /* The piece carries the slab contract: the edge of the control in its own colour, which the chosen piece paints primary, with the thicker edge at the bottom. */
   .e-seg-text {
-    --_slab: transparent;
+    --_slab: var(--e-border-strong);
     --_lift: 0px;
 
     display: inline-flex;
@@ -216,9 +238,20 @@ const groupAttrs = () => ({
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     background: transparent;
     color: var(--e-ink);
-    font: var(--e-weight-medium) var(--e-text-md) / 1 var(--e-font-sans);
+    font: var(--e-weight-medium) var(--e-text-md) / var(--e-leading-none) var(--e-font-sans);
     white-space: nowrap;
     transition: var(--e-transition-state);
+  }
+
+  /* The end pieces have the track's corners themselves. A piece fills the track edge to edge, so its border is the track's edge there; left square, the track's clip would cut off the corner of a ring, a focus outline or a slab at an end. */
+  .e-seg-opt:first-child .e-seg-text {
+    border-start-start-radius: var(--e-radius-md);
+    border-end-start-radius: var(--e-radius-md);
+  }
+
+  .e-seg-opt:last-child .e-seg-text {
+    border-start-end-radius: var(--e-radius-md);
+    border-end-end-radius: var(--e-radius-md);
   }
 
   /* The hover and press ring is the piece's own border, not an inset shadow: a shadow draws inside the border, which leaves a strip of bare wash between the ring and the next piece. */
@@ -264,6 +297,10 @@ const groupAttrs = () => ({
     cursor: not-allowed;
   }
 
+  .e-seg--disabled .e-seg-text {
+    --_slab: transparent;
+  }
+
   .e-seg--disabled {
     background: var(--e-disabled-fill);
     box-shadow: none;
@@ -280,11 +317,9 @@ const groupAttrs = () => ({
     color: var(--e-ink);
   }
 
-  /* Invalid: the track's edge turns danger and an option under the pointer tints danger-soft. The chosen cell still covers the edge in primary. A fully disabled track stays neutral. */
-  .e-seg[aria-invalid="true"]:has(.e-seg-input:enabled) {
-    box-shadow:
-      inset 0 0 0 var(--e-stroke-edge) var(--e-danger),
-      var(--e-well);
+  /* Invalid: the edge of every option that is not chosen turns danger, and an option under the pointer tints danger-soft. The chosen option is still primary. A fully disabled track stays neutral. */
+  .e-seg[aria-invalid="true"]:has(.e-seg-input:enabled) .e-seg-input:not(:checked) + .e-seg-text {
+    --_slab: var(--e-danger);
   }
 
   .e-seg[aria-invalid="true"] .e-seg-opt:hover .e-seg-input:enabled:not(:checked) + .e-seg-text {

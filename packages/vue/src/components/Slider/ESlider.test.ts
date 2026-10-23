@@ -190,4 +190,11 @@ describe("ESlider", () => {
       expect(parseFloat(getComputedStyle(range).borderTopLeftRadius)).toBeCloseTo(Math.max(0, outer - edge), 0);
     }
   });
+
+  test("the groove and the thumb fill stop inside their edge", async () => {
+    const { container } = await render(ESlider, { props: { label: "Volume", modelValue: 30 } });
+    container.classList.add("e-root");
+    expect(getComputedStyle(container.querySelector(".e-slider-track")!).backgroundClip).toBe("padding-box");
+    expect(getComputedStyle(container.querySelector(".e-slider-thumb")!).backgroundClip).toBe("padding-box");
+  });
 });

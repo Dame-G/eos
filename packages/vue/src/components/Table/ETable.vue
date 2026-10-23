@@ -131,10 +131,10 @@ const scrollable = computed(() => overflows.value || !!props.maxHeight);
   }
 
   .e-table-caption {
-    padding: var(--e-space-3) var(--e-space-4);
+    padding: var(--e-pad-cell);
     border-bottom: var(--e-stroke-hair) solid var(--e-border);
     text-align: start;
-    font: var(--e-weight-strong) var(--e-text-md) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-strong) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
     color: var(--e-ink);
   }
 

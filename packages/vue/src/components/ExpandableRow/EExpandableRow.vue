@@ -147,7 +147,7 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 
   .e-xrow-title {
     display: block;
-    font: var(--e-weight-medium) var(--e-text-md) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-medium) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
     overflow-wrap: anywhere;
     text-wrap: balance;
   }
@@ -161,7 +161,7 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 
   .e-xrow-trail {
     min-width: 5.5rem;
-    font: var(--e-weight-medium) var(--e-text-md) / 1.3 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-md) / var(--e-leading-snug) var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     text-align: end;

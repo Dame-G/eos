@@ -384,7 +384,7 @@ defineExpose({
   .e-combo--multi .e-input {
     height: calc(var(--e-control-height) - 9px);
     align-self: center;
-    padding-inline: var(--e-space-2);
+    padding-inline: var(--e-gap-snug);
   }
 
   /* A tag sits a tight gap inside the wrap's edge, edge included, on a wrapped row. */

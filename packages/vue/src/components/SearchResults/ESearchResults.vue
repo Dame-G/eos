@@ -136,7 +136,7 @@ defineExpose({ focus, focusFirst });
     min-height: var(--e-tap);
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: var(--e-pad-inset);
+    padding: var(--e-gap-tight);
     border-radius: var(--e-radius-md);
     box-shadow: var(--e-frame);
     color: var(--e-ink);

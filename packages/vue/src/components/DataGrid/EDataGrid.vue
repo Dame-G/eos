@@ -714,9 +714,9 @@ onMounted(() => {
     pointer-events: none;
   }
 
+  /* The frame does not clip: its bar and foot paint no background, and the scroller takes the frame's corners itself, so the edge is painted once on each curve. */
   .e-grid-frame {
     position: relative;
-    overflow: hidden;
     border-radius: inherit;
     background: var(--e-surface);
   }
@@ -737,7 +737,7 @@ onMounted(() => {
   }
 
   .e-grid-search .e-input {
-    padding-inline-start: var(--e-space-2);
+    padding-inline-start: var(--e-gap-snug);
   }
 
   .e-grid-picked,
@@ -760,6 +760,17 @@ onMounted(() => {
   .e-grid-scroll {
     overflow: auto;
     max-height: var(--_max-h, none);
+  }
+
+  /* The scroller sits flush in the frame, which has no border of its own (its outline is drawn over it). Where it meets a frame edge it takes that corner, so the frame's clip does not cut off its focus ring. */
+  .e-grid-scroll:first-child {
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+  }
+
+  .e-grid-scroll:not(:has(+ .e-grid-foot)) {
+    border-end-start-radius: inherit;
+    border-end-end-radius: inherit;
   }
 
   .e-grid-scroll:focus-visible {
@@ -797,9 +808,9 @@ onMounted(() => {
   .e-sortbtn {
     display: inline-flex;
     align-items: center;
-    gap: var(--e-space-1);
+    gap: var(--e-gap-tight);
     min-height: var(--e-control-height);
-    padding: var(--e-space-1) 0;
+    padding: var(--e-gap-tight) 0;
     border: 0;
     background: transparent;
     color: inherit;
@@ -873,12 +884,12 @@ onMounted(() => {
   .e-filterrow .e-input {
     height: var(--e-control-height);
     font-size: var(--e-text-md);
-    padding-inline: calc(var(--e-space-3) - var(--e-stroke-edge));
+    padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
   }
 
   .e-filterrow .e-sel-trigger {
     height: var(--e-control-height);
-    padding-inline-end: calc(var(--e-space-2) - var(--e-stroke-edge));
+    padding-inline-end: calc(var(--e-gap-snug) - var(--e-stroke-edge));
   }
 
   .e-filter-range {
@@ -1034,7 +1045,6 @@ onMounted(() => {
 
     /* The cards have no frame to close, so the bars sit flush with them and draw no rule. */
     .e-grid--cards .e-grid-frame {
-      overflow: visible;
       background: transparent;
     }
 

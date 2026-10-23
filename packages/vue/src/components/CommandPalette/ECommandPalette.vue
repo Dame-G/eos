@@ -326,7 +326,7 @@ defineExpose({
     outline: 0;
     background: transparent;
     color: var(--e-ink);
-    font: var(--e-weight-regular) var(--e-text-md) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
   }
 
   .e-cmd-input::placeholder {
@@ -336,7 +336,7 @@ defineExpose({
   .e-cmd-list {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: var(--e-pad-inset);
+    padding: var(--e-gap-tight);
   }
 
   .e-cmd-keys {

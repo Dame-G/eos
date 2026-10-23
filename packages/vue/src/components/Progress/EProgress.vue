@@ -95,6 +95,10 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     );
     background-size: var(--_period) var(--_period);
     animation: e-progress-stripes var(--e-duration-spin) var(--e-easing-linear) infinite;
+  }
+
+  /* Only the sliding bar leaves the track, so only it needs the track's clip; a bar that stays inside is not clipped on the track's curve. */
+  .e-progress--indeterminate .e-progress-track {
     overflow: hidden;
   }
 

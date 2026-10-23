@@ -1128,4 +1128,39 @@ describe("EDataGrid", () => {
       ).toBeLessThan(2);
     });
   });
+
+  test("the scroller carries the frame's corners where it meets them, so the frame's clip cannot cut its focus ring", async () => {
+    const corner = (el: Element, which: string) =>
+      parseFloat(getComputedStyle(el).getPropertyValue(`border-${which}-radius`));
+    const { container } = await grid({
+      props: { columns: COLS, rows: ROWS, caption: "Invoices", bare: true, maxHeight: "3rem" },
+    });
+    container.classList.add("e-root");
+    const frame = container.querySelector(".e-grid-frame")!;
+    const scroll = container.querySelector(".e-grid-scroll")!;
+    for (const md of ["2px", "8px", "14px"]) {
+      (container as HTMLElement).style.setProperty("--e-radius-md", md);
+      for (const which of ["top-left", "top-right", "bottom-left", "bottom-right"]) {
+        expect(corner(frame, which)).toBe(parseFloat(md));
+        expect(corner(scroll, which)).toBe(parseFloat(md));
+      }
+    }
+    // With the toolbar above and the pager below, the scroller is square.
+    const full = await grid({
+      props: { columns: COLS, rows: ROWS, caption: "Invoices", searchable: true },
+    });
+    expect(corner(full.container.querySelector(".e-grid-scroll")!, "top-left")).toBe(0);
+    expect(corner(full.container.querySelector(".e-grid-scroll")!, "bottom-left")).toBe(0);
+  });
+
+  test("the frame does not clip: its outline is drawn once and the scroller owns the overflow and the corners", async () => {
+    const { container } = await grid({
+      props: { rows: bigRows(3), columns: [{ key: "n", label: "Name" }], caption: "x" },
+    });
+    container.classList.add("e-root");
+    const frame = getComputedStyle(container.querySelector(".e-grid-frame")!);
+    expect(frame.overflowX).toBe("visible");
+    expect(frame.overflowY).toBe("visible");
+    expect(getComputedStyle(container.querySelector(".e-grid-scroll")!).overflowX).toBe("auto");
+  });
 });

@@ -250,6 +250,25 @@ describe("ESegmented", () => {
     expect(hovered.borderLeftColor).toBe(colourOf(container, "--e-wash-ring"));
   });
 
+  test("the end pieces carry the track's corners, so a ring, an outline or a slab is never cut by the track's clip", async () => {
+    const { container } = await render(ESegmented, { props: { label: "View", options, modelValue: "Day" } });
+    container.classList.add("e-root");
+    const corner = (el: Element, which: string) =>
+      parseFloat(getComputedStyle(el).getPropertyValue(`border-${which}-radius`));
+    const track = container.querySelector(".e-seg")!;
+    const pieces = container.querySelectorAll(".e-seg-text");
+    for (const md of [null, "14px", "2px"]) {
+      if (md) (container as HTMLElement).style.setProperty("--e-radius-md", md);
+      const want = corner(track, "top-left");
+      expect(corner(pieces[0]!, "top-left")).toBe(want);
+      expect(corner(pieces[0]!, "bottom-left")).toBe(want);
+      expect(corner(pieces.item(pieces.length - 1), "top-right")).toBe(want);
+      expect(corner(pieces.item(pieces.length - 1), "bottom-right")).toBe(want);
+      // The pieces between them stay square.
+      expect(corner(pieces[1]!, "top-left")).toBe(0);
+    }
+  });
+
   test("a chosen option that is disabled is a flat tint with no edge of its own, inside the dashed track", async () => {
     const { container } = await render(ESegmented, {
       props: { label: "Currency", options: ["USD", "CAD"], modelValue: "USD", disabled: true },
@@ -279,16 +298,15 @@ describe("ESegmented", () => {
     await page.getByRole("radio", { name: "Option number 5" }).click({ force: true });
     await expect.poll(inView).toBe(true);
   });
-  test("an error turns the track edge danger and tints a hovered option", async () => {
+  test("an error turns the edge of the options that are not chosen danger and tints a hovered option", async () => {
     const { container } = await render(ESegmented, { props: { label: "View", options, error: "Pick a view" } });
     container.classList.add("e-root");
-    const track = container.querySelector(".e-seg")!;
-    expect(getComputedStyle(track).boxShadow).toContain(colourOf(container, "--e-danger"));
+    const edge = (host: Element, n: number) =>
+      getComputedStyle(host.querySelectorAll(".e-seg-text")[n]!).borderTopColor;
+    expect(edge(container, 1)).toBe(colourOf(container, "--e-danger"));
     const ok = await render(ESegmented, { props: { label: "View", options } });
     ok.container.classList.add("e-root");
-    expect(getComputedStyle(ok.container.querySelector(".e-seg")!).boxShadow).not.toContain(
-      colourOf(container, "--e-danger"),
-    );
+    expect(edge(ok.container, 1)).not.toBe(colourOf(container, "--e-danger"));
     await userEvent.hover(container.querySelectorAll("input")[1]!);
     await new Promise((r) => setTimeout(r, 250));
     expect(getComputedStyle(container.querySelectorAll(".e-seg-text")[1]!).backgroundColor).toBe(
