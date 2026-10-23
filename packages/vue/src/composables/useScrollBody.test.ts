@@ -24,7 +24,7 @@ async function paddingWhileOpen() {
       render: () =>
         h(
           EDialog,
-          { open: open.value, title: "Sure?", "onUpdate:open": (v: boolean) => (open.value = v) },
+          { open: open.value, title: "Sure?", "onUpdate:open": (v?: boolean) => (open.value = !!v) },
           () => "Body",
         ),
     }),

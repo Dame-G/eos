@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from "vitest";
-import { h, nextTick, reactive, ref, type Component } from "vue";
+import { h, nextTick, reactive, type Component } from "vue";
 import { render } from "vitest-browser-vue";
 import EAvatar from "../components/Avatar/EAvatar.vue";
-import EDescriptionList from "../components/DescriptionList/EDescriptionList.vue";
+import EDescriptionList, { type DescriptionItem } from "../components/DescriptionList/EDescriptionList.vue";
 import EInline from "../components/Inline/EInline.vue";
 import EKbd from "../components/Kbd/EKbd.vue";
 import ESpinner from "../components/Spinner/ESpinner.vue";
@@ -129,8 +129,10 @@ describe("the new vocabulary", () => {
   });
 
   test("EDescriptionList takes stamp and stampTone, and badge still works with one warning", async () => {
-    const items = ref([{ label: "Email", text: "ada@example.com", stamp: "Verified", stampTone: "success" as const }]);
-    const { container, rerender } = await render(EDescriptionList, { props: { items: items.value } });
+    const items: DescriptionItem[] = [
+      { label: "Email", text: "ada@example.com", stamp: "Verified", stampTone: "success" },
+    ];
+    const { container, rerender } = await render(EDescriptionList, { props: { items } });
     expect(container.querySelector(".e-stamp--success")?.textContent).toContain("Verified");
     expect(messages()).toEqual([]);
     await rerender({ items: [{ label: "Email", text: "ada@example.com", badge: "Old", badgeTone: "danger" }] });
