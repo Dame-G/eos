@@ -82,6 +82,7 @@
   }
 
   .e-input[readonly]:not(:disabled),
+  .e-input[aria-readonly="true"]:not(:disabled),
   .e-input-wrap[data-readonly]:not([data-disabled]),
   .e-input-wrap[data-readonly]:not([data-disabled]):hover,
   .e-input-wrap[data-readonly]:not([data-disabled]):focus-within {

@@ -140,7 +140,8 @@ defineExpose({
           </span>
           <span v-else class="e-sel-placeholder">{{ placeholder || t("select") }}</span>
           <ESpinner v-if="loading" :label="t('loading')" />
-          <EIcon v-else-if="!disabled" name="chevron-down" bold />
+          <!-- A list that cannot open shows no arrow, as in ECombobox. -->
+          <EIcon v-else-if="!disabled && !readonly" name="chevron-down" bold />
         </SelectTrigger>
         <SelectPortal :to="portal">
           <SelectContent

@@ -3,6 +3,7 @@ import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ESelect from "./ESelect.vue";
+import ETextField from "../TextField/ETextField.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
@@ -478,6 +479,25 @@ describe("ESelect", () => {
     document.body.append(form);
     expect(new FormData(form).getAll("m")).toEqual([]);
     form.remove();
+  });
+
+  test("readonly looks read-only: the tinted face of a read-only text field, and no arrow", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { class: "e-root" }, [
+            h(ESelect, { label: "Plan", options: ["Basic", "Pro"], modelValue: "Pro", readonly: true }),
+            h(ESelect, { label: "Plan 2", options: ["Basic", "Pro"], modelValue: "Pro" }),
+            h(ETextField, { label: "Name", modelValue: "Ada", readonly: true }),
+          ]),
+      }),
+    );
+    const [ro, plain] = [...container.querySelectorAll(".e-sel-trigger")];
+    const text = container.querySelector("input.e-input")!;
+    expect(getComputedStyle(ro!).backgroundColor).toBe(getComputedStyle(text).backgroundColor);
+    expect(getComputedStyle(ro!).backgroundColor).not.toBe(getComputedStyle(plain!).backgroundColor);
+    expect(ro!.querySelector(".e-icon")).toBeNull();
+    expect(plain!.querySelector(".e-icon")).not.toBeNull();
   });
 
   test("readonly keeps focus and the value but never opens or picks", async () => {
