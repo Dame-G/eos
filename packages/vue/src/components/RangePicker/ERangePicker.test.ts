@@ -54,6 +54,9 @@ describe("ERangePicker", () => {
     expect(button.element().getAttribute("aria-haspopup")).toBe("dialog");
     expect(container.querySelector(".e-range-sep")!.textContent).toBe("to");
     expect(container.querySelector(".e-input-wrap")!.className).toBe("e-input-wrap e-combo e-rangefield");
+    // The boxes are named by aria-label, so the placeholder can show the format, as in EDatePicker.
+    const boxes = [...container.querySelectorAll<HTMLInputElement>(".e-combo-input")];
+    expect(boxes.map((b) => b.placeholder)).toEqual(["MM/DD/YYYY", "MM/DD/YYYY"]);
     expect(container.querySelector("label")!.getAttribute("for")).toBe(container.querySelector("input")!.id);
   });
 

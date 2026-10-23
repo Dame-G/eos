@@ -41,7 +41,7 @@ With `valueFormat="iso"`, `start` and `end` are `YYYY-MM-DD` strings. An empty d
 
 ## Accessibility
 
-- The boxes are named "Start date" and "End date" and grouped under the label.
+- The boxes are named "Start date" and "End date" and grouped under the label. Their placeholder is the date format, as in `EDatePicker`.
 - The "Choose dates" button opens a dialog. Alt + Down in either box also opens it.
 - Escape closes the popup (from the months or years it goes back to the days first).
 
