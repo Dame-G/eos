@@ -47,7 +47,6 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     padding-block: var(--e-pad-control-sm) 0;
     padding-inline: var(--e-gap-snug);
     border-block-start: var(--e-stroke-hair) solid var(--e-border);
-    border-radius: var(--e-radius-sm);
     font: var(--e-type-kicker);
     letter-spacing: var(--e-tracking-label);
     text-transform: uppercase;

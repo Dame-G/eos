@@ -15,6 +15,17 @@ describe("EDisclosure", () => {
     expect(details.querySelector(".e-details-body")!.textContent).toBe("Body");
   });
 
+  test("its only border is a straight line along the top, with square ends", async () => {
+    const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
+    container.classList.add("e-root");
+    const style = getComputedStyle(container.querySelector("summary")!);
+    expect(style.borderTopWidth).not.toBe("0px");
+    expect(style.borderBottomWidth).toBe("0px");
+    expect(style.borderLeftWidth).toBe("0px");
+    expect(parseFloat(style.borderTopLeftRadius)).toBe(0);
+    expect(parseFloat(style.borderTopRightRadius)).toBe(0);
+  });
+
   test("clicking the summary opens and closes it", async () => {
     const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
     const details = container.querySelector("details")!;
