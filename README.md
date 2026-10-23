@@ -69,7 +69,7 @@ The resolver imports components only, not the stylesheet. Pass `EosResolver({ cs
 
 ## Theming
 
-A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes 18 design inputs: `brand`, `accent`, `danger`, `warning`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `contrast`, `textScale`, `spaceScale`, `controlHeight`, `motion`, `density` and `scheme` (with its `dark` variant).
+A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes these design inputs: `brand`, `accent`, `danger`, `warning`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `contrast`, `textScale`, `spaceScale`, `controlHeight`, `motion`, `density`, `preset` and `scheme` (with its `dark` variant).
 
 ```ts
 import { defineTheme } from "@eos-ui/vue";
