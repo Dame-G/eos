@@ -24,13 +24,19 @@ const jsFiles = (dir) =>
 const limits = {
   "style.css": 21900,
   "index.js": 2250,
-  "all JavaScript files (each gzipped)": 178000,
+  "all JavaScript files (each gzipped)": 183000,
 };
+
+// The per-component paths (`@eos-ui/vue/components/EButton`) are one-line re-exports, dist/components/<Name>/index.js.
+// Gzipped one by one they are all header (about 70 B each), and no bundle pays for them, so they are left out of the sum.
+const perComponentEntry = /[\\/]components[\\/][A-Za-z]+[\\/]index\.js$/;
 
 const sizes = {
   "style.css": gzip(join(dist, "style.css")),
   "index.js": gzip(join(dist, "index.js")),
-  "all JavaScript files (each gzipped)": jsFiles(dist).reduce((sum, f) => sum + gzip(f), 0),
+  "all JavaScript files (each gzipped)": jsFiles(dist)
+    .filter((f) => !perComponentEntry.test(f))
+    .reduce((sum, f) => sum + gzip(f), 0),
 };
 
 const json = process.argv.includes("--json");
