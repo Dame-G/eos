@@ -206,6 +206,7 @@ function returnFocus(event: Event) {
     padding-block: 0;
     padding-inline: var(--e-pad-control-sm);
     border: 0;
+
     /* Concentric with the md panel it sits one gap-tight inside; the panel has no border. */
     border-radius: max(0px, calc(var(--e-radius-md) - var(--e-gap-tight)));
     background: transparent;

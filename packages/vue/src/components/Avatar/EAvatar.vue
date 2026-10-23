@@ -124,6 +124,7 @@ const label = computed(() =>
     height: var(--e-avatar-size-sm);
     font-size: var(--e-text-xs);
     border-radius: var(--_r);
+
     --_r: var(--e-radius-sm);
   }
 
