@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, getCurrentInstance, ref } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EField from "../Field/EField.vue";
+import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import EIconButton from "../IconButton/EIconButton.vue";
-import { useMessages } from "../../config.js";
+import { useConfig, useMessages } from "../../config.js";
+import { isProduction } from "../../env.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useLocale } from "../../composables/useLocale.js";
@@ -11,39 +13,28 @@ import "../../styles/base.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<{
-  /** The visible label above the dropzone. */
-  label: string;
-  /** Keeps the label for screen readers and hides it from the page. */
-  hideLabel?: boolean;
-  /** Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt as "PDF, JPG" and also applied to dropped files. */
-  accept?: string;
-  /** Allows choosing more than one file. New files are added to the list, and a file already in it (same name, size and date) is not added twice. Without it, a choice replaces the file, and the others of several are rejected with reason `count`. */
-  multiple?: boolean;
-  /** The largest file allowed, in bytes. A larger one is left out and announced as "1 file is larger than 5 MB". */
-  maxSize?: number;
-  /** The most files the list can hold with `multiple`. Further files are left out and announced. */
-  maxFiles?: number;
-  /** The name submitted with a form. */
-  name?: string;
-  /** Help that says which files are accepted and how large, shown before the person tries. */
-  hint?: string;
-  /** What to fix. Replaces the hint, marks the input invalid and is announced. */
-  error?: string;
-  /** Sets the `required` attribute and adds a word beside the label. */
-  required?: boolean;
-  /** Adds a word beside the label. Use it when most fields in the form are required. */
-  optional?: boolean;
-  /** Disables the control, so it ignores drops and clicks. A disabled control is not submitted. */
-  disabled?: boolean;
-  /** Shows the files but blocks changes: drops and clicks do nothing and the remove buttons are disabled. The input stays focusable and the files are still submitted. */
-  readonly?: boolean;
-  /** The id of the file input, which the label points at. @default generated */
-  id?: string;
-}>();
+const props = defineProps<
+  EFieldCommonProps & {
+    /** The visible label above the dropzone. */
+    label: string;
+    /** Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt as "PDF, JPG" and also applied to dropped files. */
+    accept?: string;
+    /** Allows choosing more than one file. New files are added to the list, and a file already in it (same name, size and date) is not added twice. Without it, a choice replaces the file, and the others of several are rejected with reason `count`. */
+    multiple?: boolean;
+    /** The largest file allowed, in bytes. A larger one is left out and announced as "1 file is larger than 5 MB". */
+    maxSize?: number;
+    /** The most files the list can hold with `multiple`. Further files are left out and announced. */
+    maxFiles?: number;
+    /** The name submitted with a form. */
+    name?: string;
+  }
+>();
 
 const emit = defineEmits<{
-  /** The chosen or dropped files, the same list as the model. */
+  /**
+   * The chosen or dropped files, the same list as the model.
+   * @deprecated Use `v-model` (or `@update:model-value`), which carries the same list.
+   */
   files: [files: File[]];
   /** Files left out, each with why: `type` (not in `accept`), `size` (over `maxSize`) or `count` (over `maxFiles`). A choice that is entirely rejected leaves the list as it was. */
   reject: [rejected: { file: File; reason: "type" | "size" | "count" }[]];
@@ -53,7 +44,20 @@ const emit = defineEmits<{
 const model = defineModel<File[]>({ default: () => [] });
 
 const t = useMessages();
+const config = useConfig();
 const attrs = useFieldAttrs();
+
+if (getCurrentInstance()?.vnode.props?.onFiles && !isProduction()) {
+  console.warn("[eos] EUpload @files is deprecated. Use v-model or @update:model-value, which carry the same list.");
+}
+
+/** The prompt as one sentence, with the "choose one" words where the translation puts them. */
+const prompt = computed(() => {
+  // A translation made for the old two pieces keeps working until it gives `dropFile`.
+  if (config.messages.dragHere && !config.messages.dropFile) return [t("dragHere") + " ", ""];
+  const [before = "", after = ""] = t("dropFile").split("{choose}");
+  return [before, after];
+});
 const over = ref(false);
 const input = ref<HTMLInputElement | null>(null);
 const acceptHint = computed(() => props.accept?.replace(/\./g, "").replace(/,/g, ", ").toUpperCase());
@@ -221,8 +225,7 @@ defineExpose({
           :disabled="disabled"
           :required="required"
           :aria-invalid="field.ariaInvalid"
-          :aria-readonly="readonly || undefined"
-          v-bind="attrs.input(field.ariaDescribedby)"
+          v-bind="attrs.input([field.ariaDescribedby, readonly && `${field.id}-ro`])"
           @click="onPick"
           @change="take(($event.target as HTMLInputElement).files)"
         />
@@ -238,12 +241,14 @@ defineExpose({
           @drop="onDrop"
         >
           <EIcon name="upload" />
-          <span class="e-drop-main">
-            {{ t("dragHere") }}
-            <span class="e-drop-pick">{{ t("chooseOne") }}</span>
-          </span>
+          <span class="e-drop-main"
+            >{{ prompt[0] }}<span class="e-drop-pick">{{ t("chooseOne") }}</span
+            >{{ prompt[1] }}</span
+          >
           <span v-if="acceptHint" class="e-drop-hint">{{ acceptHint }}</span>
         </label>
+        <!-- A file input has no readonly of its own, and aria-readonly is not allowed on it: the state is described. -->
+        <span v-if="readonly" :id="`${field.id}-ro`" class="e-sr">{{ t("readOnly") }}</span>
         <ul v-if="model.length" class="e-files">
           <li v-for="(f, i) in model" :key="keyOf(f) + i">
             <EIcon name="file" />

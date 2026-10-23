@@ -33,7 +33,7 @@ A joined set of two to five options where exactly one is active. Use it to chang
 
 <!-- props:end -->
 
-`class` and `style` land on the outer element. Other attributes land on the `radiogroup` element. Exposes `input` (the chosen radio, else the first) and `focus()`.
+`class` and `style` land on the outer element, which also holds the hint or error. Other attributes land on the `radiogroup` element; `@focus` and `@blur` fire as focus enters and leaves it. Exposes `input` (the chosen radio, else the first) and `focus()`.
 
 ## Accessibility
 

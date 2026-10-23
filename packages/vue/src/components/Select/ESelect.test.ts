@@ -3,6 +3,10 @@ import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ESelect from "./ESelect.vue";
+import ETextField from "../TextField/ETextField.vue";
+import ECombobox from "../Combobox/ECombobox.vue";
+import EDatePicker from "../DatePicker/EDatePicker.vue";
+import ERangePicker from "../RangePicker/ERangePicker.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
@@ -478,6 +482,58 @@ describe("ESelect", () => {
     document.body.append(form);
     expect(new FormData(form).getAll("m")).toEqual([]);
     form.remove();
+  });
+
+  test("readonly looks read-only: the tinted face of a read-only text field, and no arrow", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { class: "e-root" }, [
+            h(ESelect, { label: "Plan", options: ["Basic", "Pro"], modelValue: "Pro", readonly: true }),
+            h(ESelect, { label: "Plan 2", options: ["Basic", "Pro"], modelValue: "Pro" }),
+            h(ETextField, { label: "Name", modelValue: "Ada", readonly: true }),
+          ]),
+      }),
+    );
+    const [ro, plain] = [...container.querySelectorAll(".e-sel-trigger")];
+    const text = container.querySelector("input.e-input")!;
+    expect(getComputedStyle(ro!).backgroundColor).toBe(getComputedStyle(text).backgroundColor);
+    expect(getComputedStyle(ro!).backgroundColor).not.toBe(getComputedStyle(plain!).backgroundColor);
+    expect(ro!.querySelector(".e-icon")).toBeNull();
+    expect(plain!.querySelector(".e-icon")).not.toBeNull();
+  });
+
+  test("size gives a row of fields one height: Select, Combobox, DatePicker and RangePicker follow a text field", async () => {
+    for (const size of ["sm", "md", "lg"] as const) {
+      const { container, unmount } = await render(
+        defineComponent({
+          render: () =>
+            h("div", { class: "e-root" }, [
+              h(ETextField, { label: "Name", size }),
+              h(ESelect, { label: "Plan", options: ["Basic"], size }),
+              h(ECombobox, { label: "City", options: ["Lyon"], size }),
+              h(EDatePicker, { label: "Date", size }),
+              h(ERangePicker, { label: "Stay", size }),
+            ]),
+        }),
+      );
+      const boxes = [
+        ".e-input:not(.e-sel-trigger, .e-combo-input)",
+        ".e-sel-trigger",
+        ".e-combo:not(.e-rangefield)",
+        ".e-rangefield",
+      ];
+      const heights = boxes.map((q) =>
+        [...container.querySelectorAll(q)].map((el) => el.getBoundingClientRect().height),
+      );
+      const text = heights[0]![0]!;
+      expect(text, size).toBe(size === "sm" ? 40 : size === "lg" ? 56 : 48);
+      expect(
+        heights.flat().every((h) => h === text),
+        `${size}: ${JSON.stringify(heights)}`,
+      ).toBe(true);
+      unmount();
+    }
   });
 
   test("readonly keeps focus and the value but never opens or picks", async () => {

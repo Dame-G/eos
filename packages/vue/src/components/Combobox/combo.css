@@ -3,7 +3,7 @@
     position: relative;
     flex-wrap: nowrap;
     align-items: center;
-    min-height: var(--e-control-height);
+    min-height: var(--_h, var(--e-control-height));
     padding-inline-end: calc(var(--e-gap-tight) - var(--e-stroke-edge));
   }
 
@@ -20,8 +20,8 @@
     place-items: center;
     position: relative;
     flex: none;
-    width: calc(var(--e-control-height) - var(--e-gap-snug) - var(--e-stroke-edge));
-    height: calc(var(--e-control-height) - var(--e-gap-snug) - var(--e-stroke-edge));
+    width: calc(var(--_h, var(--e-control-height)) - var(--e-gap-snug) - var(--e-stroke-edge));
+    height: calc(var(--_h, var(--e-control-height)) - var(--e-gap-snug) - var(--e-stroke-edge));
     padding: 0;
     border: 0;
 

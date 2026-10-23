@@ -32,7 +32,7 @@ A one-time code entered one character per box, with paste and SMS autofill suppo
 
 <!-- props:end -->
 
-`class` and `style` land on the wrapper `div`. Other attributes and listeners land on the `role="group"` element. Exposes `input` (the first box) and `focus()` (the first empty box). `name` posts the whole code through a hidden input; a disabled field posts nothing, and `form` joins a form the field is not inside. `readonly` keeps the code and ignores typing and paste. `size` is as on [`ETextField`](../TextField/README.md).
+`class` and `style` land on the wrapper `div`. Other attributes and listeners land on the `role="group"` element; `@focus` and `@blur` fire as focus enters and leaves it. Exposes `input` (the first box) and `focus()` (the first empty box). `name` posts the whole code through a hidden input; a disabled field posts nothing, and `form` joins a form the field is not inside. `readonly` keeps the code and ignores typing and paste. `size` is as on [`ETextField`](../TextField/README.md).
 
 ## Events
 

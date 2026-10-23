@@ -172,6 +172,15 @@ describe("ENumberField", () => {
     expect(container.querySelector<HTMLInputElement>(".e-numinput")!.value).toBe("1,234.5");
   });
 
+  test("locale overrides the configured one for writing and reading the number", async () => {
+    const { container, got } = await bound({ label: "Menge", locale: "de-DE", step: 0.5 }, 1234.5);
+    const input = container.querySelector<HTMLInputElement>(".e-numinput")!;
+    expect(input.value).toBe("1.234,5");
+    await userEvent.clear(input);
+    await userEvent.type(input, "2,5");
+    expect(got.at(-1)).toBe(2.5);
+  });
+
   test("the buttons are reachable by keyboard", async () => {
     const { got } = await bound({ label: "Visits" }, 1);
     await userEvent.tab();

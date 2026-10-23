@@ -25,6 +25,7 @@ A labelled multi-line text input that resizes vertically. It takes the props of 
 | `label`        | `string`  | **Required** | The visible label above the textarea.                                                                      |
 | `placeholder`  | `string`  | None         | An example, never the label.                                                                               |
 | `rows`         | `number`  | `4`          | Visible lines. The height follows it, down to one. With `autoGrow` it is the least height.                 |
+| `name`         | `string`  | None         | The name submitted with a form.                                                                            |
 | `autocomplete` | `string`  | None         | What the browser may fill in.                                                                              |
 | `maxlength`    | `number`  | None         | The most characters the textarea takes.                                                                    |
 | `counter`      | `boolean` | `false`      | Shows how many characters there are, out of `maxlength` when it is set.                                    |
@@ -32,7 +33,7 @@ A labelled multi-line text input that resizes vertically. It takes the props of 
 
 <!-- props:end -->
 
-`class` and `style` land on the wrapper `div`. Other attributes and listeners (`name`, `aria-*`, `@blur`) land on the `textarea` element. Exposes `input` and `focus()`.
+`class` and `style` land on the wrapper `div`. Other attributes and listeners (`aria-*`, `@blur`) land on the `textarea` element. Exposes `input` and `focus()`.
 
 ## Accessibility
 

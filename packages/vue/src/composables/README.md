@@ -103,6 +103,15 @@ The provider reaches teleported content, because provide and inject follow the c
 
 `useLogicalSide(() => props.side)` turns a side that follows the reading direction (`start`, `end`) into the physical one a Reka popper takes (`left`, `right`), flipped in a right-to-left page. `top`, `bottom`, `left` and `right` pass through.
 
+## `useReducedMotion()`
+
+Returns a function that says whether the person asked for less motion (`prefers-reduced-motion: reduce`). Call it when the motion starts, so a change of the setting is followed. `ETabs` and `ESegmented` use it to scroll the chosen item into view without a smooth scroll.
+
+```ts
+const calm = useReducedMotion();
+el.scrollBy({ left, behavior: calm() ? "auto" : "smooth" });
+```
+
 ## `useLocale()`
 
 Everything date and money components need from the configured locale: month and weekday names, the first day of the week, date order and separator, and formatting and parsing of dates and money.
@@ -113,7 +122,7 @@ A click handler for a boxed input: a click on the padding or an icon puts the cu
 
 ## `useFieldAttrs()`
 
-For a form control built on `EField`: keeps `class` and `style` on the wrapper and sends every other attribute to the real input. Use it with `defineOptions({ inheritAttrs: false })`.
+For a form control built on `EField`: keeps `class` and `style` on the wrapper and sends every other attribute to the real input. Use it with `defineOptions({ inheritAttrs: false })`. A control made of several inputs puts `group()` on the element around them: the consumer's `@focus` and `@blur` then fire when focus enters or leaves the group.
 
 ## `useQuietFocus(open, inside)`
 

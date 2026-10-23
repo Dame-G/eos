@@ -42,6 +42,28 @@ describe("useFieldAttrs", () => {
     expect(onBlur).toHaveBeenCalledTimes(1);
   });
 
+  test("group() fires focus and blur as focus enters and leaves the group, not between its inputs", async () => {
+    const Group = defineComponent({
+      inheritAttrs: false,
+      setup() {
+        const attrs = useFieldAttrs();
+        return () => h("div", [h("div", { role: "group", ...attrs.group() }, [h("input"), h("input")]), h("button")]);
+      },
+    });
+    const onFocus = vi.fn();
+    const onBlur = vi.fn();
+    const onFocusin = vi.fn();
+    const { container } = await render(Group, { attrs: { onFocus, onBlur, onFocusin } });
+    const [a, b] = container.querySelectorAll("input");
+    a!.focus();
+    b!.focus();
+    expect(onFocus).toHaveBeenCalledTimes(1);
+    expect(onBlur).toHaveBeenCalledTimes(0);
+    expect(onFocusin).toHaveBeenCalledTimes(2);
+    container.querySelector("button")!.focus();
+    expect(onBlur).toHaveBeenCalledTimes(1);
+  });
+
   test("aria-describedby joins the component's ids with the consumer's", async () => {
     const { container } = await render(Field, {
       props: { describedby: "hint" },

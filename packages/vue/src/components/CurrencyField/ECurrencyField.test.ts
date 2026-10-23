@@ -14,6 +14,24 @@ describe("ECurrencyField", () => {
     expect(container.querySelector("input")!.value).toBe("162.40");
   });
 
+  test("locale also sets the separators the amount is written and read with", async () => {
+    const got: (number | null)[] = [];
+    const { container } = await render(ECurrencyField, {
+      props: {
+        label: "Betrag",
+        currency: "EUR",
+        locale: "de-DE",
+        modelValue: 1234.5,
+        "onUpdate:modelValue": (v: number | null) => got.push(v),
+      },
+    });
+    const input = container.querySelector<HTMLInputElement>(".e-numinput")!;
+    expect(input.value).toBe("1.234,50");
+    await userEvent.clear(input);
+    await userEvent.type(input, "12,5");
+    expect(got.at(-1)).toBe(12.5);
+  });
+
   test("is a spinbutton named by its label; the symbol is hidden from screen readers", async () => {
     const { container } = await render(ECurrencyField, { props: { label: "Amount" } });
     await expect.element(page.getByRole("spinbutton", { name: "Amount" })).toBeVisible();

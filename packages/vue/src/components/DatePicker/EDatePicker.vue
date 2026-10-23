@@ -3,11 +3,12 @@ import { computed, nextTick, ref, watch } from "vue";
 import { ConfigProvider, PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import ECalendar from "../Calendar/ECalendar.vue";
 import EField from "../Field/EField.vue";
+import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 import EIcon from "../Icon/EIcon.vue";
 import { boundsMessage, compareDays, isoDate, parseIso, sameDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
-import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
@@ -18,40 +19,27 @@ import "./picker.css";
 defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
-  defineProps<{
-    /** The visible label. */
-    label: string;
-    /** Keeps the label for screen readers and hides it from the page. */
-    hideLabel?: boolean;
-    /** Shows help text under the field. */
-    hint?: string;
-    /** Shows what to fix in place of the hint and marks the field invalid. A typed date that cannot be used shows its own error (`dateError`, `dateBetween`). */
-    error?: string;
-    /** Sets the `required` attribute and shows a word beside the label. */
-    required?: boolean;
-    /** Shows a word beside the label. Use it on whichever of required and optional is rarer. */
-    optional?: boolean;
-    /** Disables the field and its calendar button. */
-    disabled?: boolean;
-    /** Shows the date but blocks editing. The input stays focusable and selectable. The calendar button is disabled and the calendar does not open. */
-    readonly?: boolean;
-    /** The earliest date that can be chosen or typed. */
-    min?: Date;
-    /** The latest date that can be chosen or typed. */
-    max?: Date;
-    /** Days that cannot be chosen, in the calendar or by typing, such as days with nothing to book. */
-    disabledDate?: (date: Date) => boolean;
-    /** Days that get a dot in the calendar: a list of dates or a function. */
-    marked?: Date[] | ((date: Date) => boolean);
-    /** Shows the calendar's Today and Clear buttons. */
-    footer?: boolean;
-    /** What `v-model` holds. `date` is a `Date` (a local day at noon). `iso` is a `YYYY-MM-DD` string, or `null` for no date, which has no time zone to shift. @default "date" */
-    valueFormat?: F;
-    /** Submits the date as `YYYY-MM-DD` with a form, through a hidden input. A disabled field is not submitted. */
-    name?: string;
-    /** The `id` of the text box, which the label points at. @default generated */
-    id?: string;
-  }>(),
+  defineProps<
+    EFieldCommonProps &
+      Pick<EFieldBoxProps, "size"> & {
+        /** The visible label. */
+        label: string;
+        /** The earliest date that can be chosen or typed. */
+        min?: Date;
+        /** The latest date that can be chosen or typed. */
+        max?: Date;
+        /** Days that cannot be chosen, in the calendar or by typing, such as days with nothing to book. */
+        disabledDate?: (date: Date) => boolean;
+        /** Days that get a dot in the calendar: a list of dates or a function. */
+        marked?: Date[] | ((date: Date) => boolean);
+        /** Shows the calendar's Today and Clear buttons. */
+        footer?: boolean;
+        /** What `v-model` holds. `date` is a `Date` (a local day at noon). `iso` is a `YYYY-MM-DD` string, or `null` for no date, which has no time zone to shift. @default "date" */
+        valueFormat?: F;
+        /** Submits the date as `YYYY-MM-DD` with a form, through a hidden input. A disabled field is not submitted. */
+        name?: string;
+      }
+  >(),
   { footer: true },
 );
 
@@ -63,9 +51,11 @@ const config = useConfig();
 const dir = useDir();
 const loc = useLocale();
 const portal = usePortalTarget();
-const attrs = useFieldAttrs();
+const control = useFieldControl(props);
+const attrs = control.attrs;
 
-const input = ref<HTMLInputElement | null>(null);
+const input = control.input;
+const hidden = ref<HTMLInputElement | null>(null);
 const calendar = ref<InstanceType<typeof ECalendar> | null>(null);
 /** Whether the calendar is open. Setting it moves no focus, and a disabled field never opens. */
 const open = defineModel<boolean>("open", { default: false });
@@ -84,12 +74,20 @@ function write(d: Date | null) {
 
 const text = ref(loc.formatDate(current.value));
 const typedError = ref("");
+/** The typed text could not be used. The field then posts nothing rather than the date it had before. */
+const unusable = ref(false);
+const posted = computed(() => (unusable.value ? "" : isoDate(current.value)));
+/** Enter submits the form before Vue renders, so the posted value is written at once as well. */
+function post() {
+  if (hidden.value) hidden.value.value = posted.value;
+}
 let clickedOutside = false;
 
 // A change from outside (the calendar, the parent) replaces whatever was typed, and so its error.
 watch([() => current.value?.getTime(), () => config.locale], () => {
   text.value = loc.formatDate(current.value);
   typedError.value = "";
+  unusable.value = false;
 });
 watch(open, (isOpen) => {
   if (isOpen) clickedOutside = false;
@@ -101,14 +99,17 @@ function set(d: Date | null) {
   write(d);
   text.value = loc.formatDate(d);
   typedError.value = "";
+  unusable.value = false;
 }
 
 function commit() {
   if (props.readonly) return;
   const raw = text.value.trim();
+  unusable.value = false;
   if (!raw) {
     typedError.value = "";
     if (current.value) write(null);
+    if (hidden.value) hidden.value.value = "";
     return;
   }
   const d = loc.parseDate(raw);
@@ -120,11 +121,14 @@ function commit() {
       : outOfRange
         ? boundsMessage(t, loc.formatDate, props.min, props.max)
         : t("dateUnavailable");
+    unusable.value = true;
+    post();
     return;
   }
   typedError.value = "";
   text.value = loc.formatDate(d);
   if (!sameDay(d, current.value)) write(d);
+  if (hidden.value) hidden.value.value = isoDate(d);
 }
 
 function onKey(e: KeyboardEvent) {
@@ -160,7 +164,7 @@ function onEscape(e: KeyboardEvent) {
   if (calendar.value && calendar.value.view !== "days") e.preventDefault();
 }
 
-function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }) {
+function inputBind(field: FieldSlot) {
   return {
     id: field.id,
     class: "e-input e-combo-input",
@@ -202,6 +206,7 @@ defineExpose({
               :data-invalid="shownError ? '' : undefined"
               :data-disabled="disabled ? '' : undefined"
               :data-readonly="readonly ? '' : undefined"
+              :data-size="size && size !== 'md' ? size : undefined"
             >
               <input
                 ref="input"
@@ -213,7 +218,7 @@ defineExpose({
                 @blur="commit"
                 @keydown="onKey"
               />
-              <input v-if="name" type="hidden" :name="name" :disabled="disabled" :value="isoDate(current)" />
+              <input v-if="name" ref="hidden" type="hidden" v-bind="control.hidden(name, posted)" />
               <PopoverTrigger as-child v-bind="trigger">
                 <button
                   type="button"

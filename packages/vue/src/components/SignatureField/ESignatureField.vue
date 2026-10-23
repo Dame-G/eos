@@ -14,39 +14,31 @@ export interface SignatureValue {
 <script setup lang="ts">
 import { computed } from "vue";
 import EFieldset from "../Fieldset/EFieldset.vue";
+import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import ESegmented from "../Segmented/ESegmented.vue";
 import ETextField from "../TextField/ETextField.vue";
 import ECheckbox from "../Checkbox/ECheckbox.vue";
 import ESignaturePad from "../SignaturePad/ESignaturePad.vue";
 import { useConfig, useMessages } from "../../config.js";
 import { useUid } from "../../composables/useUid.js";
+import { useFieldControl } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
-  defineProps<{
-    /** The group's heading and accessible name, such as the form being signed. @default "Signature" */
-    label?: string;
-    /** How the person signs: `type`, `draw` or `both`, which adds a Type and Draw switch. A drawn signature cannot be made from a keyboard, so `both` lets keyboard users type instead. */
-    mode?: "type" | "draw" | "both";
-    /** The sentence the person agrees to. @default "I agree and want to sign this form." */
-    agreement?: string;
-    /** The date shown with the signature, in the configured locale. @default today */
-    date?: Date;
-    /** Help that is announced with the group. */
-    hint?: string;
-    /** What to fix. Replaces the hint, is announced and marks the typed-name input or the pad invalid. */
-    error?: string;
-    /** Sets the `required` attribute on the typed-name input and shows a word beside the label. */
-    required?: boolean;
-    /** Disables the fields and the agreement. A disabled field is not submitted. */
-    disabled?: boolean;
-    /** Shows the signature but blocks changes: the name, the pad, the switch and the agreement. It is still submitted. */
-    readonly?: boolean;
-    /** The name submitted with a form: the typed name, or the drawn image as a data URL. */
-    name?: string;
-    /** The id of the typed-name input. @default generated */
-    id?: string;
-  }>(),
+  defineProps<
+    Omit<EFieldCommonProps, "hideLabel"> & {
+      /** The group's heading and accessible name, such as the form being signed. @default "Signature" */
+      label?: string;
+      /** How the person signs: `type`, `draw` or `both`, which adds a Type and Draw switch. A drawn signature cannot be made from a keyboard, so `both` lets keyboard users type instead. */
+      mode?: "type" | "draw" | "both";
+      /** The sentence the person agrees to. @default "I agree and want to sign this form." */
+      agreement?: string;
+      /** The date shown with the signature, in the configured locale. @default today */
+      date?: Date;
+      /** The name submitted with a form: the typed name, or the drawn image as a data URL. */
+      name?: string;
+    }
+  >(),
   { mode: "type" },
 );
 
@@ -58,6 +50,7 @@ const model = defineModel<SignatureValue>({
 const t = useMessages();
 const config = useConfig();
 const id = useUid(() => props.id);
+const control = useFieldControl(props);
 
 const method = computed<"type" | "draw">(() => (props.mode === "both" ? model.value.method : props.mode));
 const dateText = computed(() =>
@@ -80,13 +73,14 @@ function update(patch: Partial<SignatureValue>) {
     :legend="label || t('signature')"
     :hint="error ? undefined : hint"
     :required="required && method === 'draw'"
+    :optional="optional"
     :disabled="disabled"
   >
     <ESegmented
       v-if="mode === 'both'"
       :label="t('signature')"
       :model-value="method"
-      :disabled="readonly"
+      :readonly="readonly"
       :options="[
         { value: 'type', label: t('signType'), icon: 'edit' },
         { value: 'draw', label: t('signDraw'), icon: 'signature' },
@@ -130,13 +124,7 @@ function update(patch: Partial<SignatureValue>) {
       :readonly="readonly"
       @update:model-value="update({ agreed: $event })"
     />
-    <input
-      v-if="name"
-      type="hidden"
-      :name="name"
-      :disabled="disabled"
-      :value="method === 'draw' ? model.image : model.name"
-    />
+    <input v-if="name" type="hidden" v-bind="control.hidden(name, method === 'draw' ? model.image : model.name)" />
   </EFieldset>
 </template>
 

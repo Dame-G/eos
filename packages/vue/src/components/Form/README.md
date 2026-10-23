@@ -24,7 +24,7 @@ A form that checks its fields before it submits and, when some are invalid, list
 
 `class`, `style` and attributes land on the `form` element, which has `novalidate` so the browser's own bubbles stay off. The fields lay out in one column, `gap-loose` apart.
 
-The checks are the fields' `error` props and the browser's constraint validation (`required`, `pattern`, `min`, `max`, `type="email"`), so a field needs no extra code to take part. `@submit` fires once they pass, with the event; call `preventDefault()` (`@submit.prevent`) to send the data yourself. A submit button with `formnovalidate` skips the checks.
+The checks are the fields' `error` props and the browser's constraint validation (`required`, `pattern`, `min`, `max`, `type="email"`), so a field needs no extra code to take part. Every control that takes an `error` registers it, including `ECheckbox`, `ESwitch`, `ESegmented`, the groups, `EFieldset` and `ESignaturePad`. Controls the browser cannot check check themselves: an empty required `ESelect` (it posts through hidden inputs) and an empty required `ESignaturePad` stop the submit with the browser's own message. A group of radios is listed once, by its label, and its link focuses the chosen radio or the first. A custom control joins with `useFormField({ id, label, error, check })`. `@submit` fires once they pass, with the event; call `preventDefault()` (`@submit.prevent`) to send the data yourself. A submit button with `formnovalidate` skips the checks.
 
 ## Slots
 

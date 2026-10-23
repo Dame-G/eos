@@ -80,9 +80,32 @@ describe("ECheckboxGroup", () => {
         "onUpdate:modelValue": (v: string[]) => got.push(v),
       },
     });
-    expect(container.querySelector("fieldset")!.getAttribute("aria-readonly")).toBe("true");
+    // A plain group does not take aria-readonly: each box carries it.
+    expect(container.querySelector("fieldset")!.hasAttribute("aria-readonly")).toBe(false);
+    for (const box of container.querySelectorAll("input")) expect(box.getAttribute("aria-readonly")).toBe("true");
     await container.querySelectorAll<HTMLInputElement>("input")[1]!.click();
     expect(got).toEqual([]);
+  });
+
+  test("a disabled group's rows look disabled, not only the boxes", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { class: "e-root" }, [
+            h(ECheckboxGroup, { label: "Off", options, disabled: true }),
+            h(ECheckboxGroup, { label: "On", options }),
+          ]),
+      }),
+    );
+    const [off, on] = [...container.querySelectorAll("fieldset")].map((f) => f.querySelector(".e-choice")!);
+    expect(getComputedStyle(off!).cursor).toBe("not-allowed");
+    expect(getComputedStyle(off!).color).not.toBe(getComputedStyle(on!).color);
+  });
+
+  test("id names the fieldset, and the boxes are numbered from it", async () => {
+    const { container } = await render(ECheckboxGroup, { props: { label: "Reach me by", options, id: "reach" } });
+    expect(container.querySelector("fieldset")!.id).toBe("reach");
+    expect([...container.querySelectorAll("input")].map((i) => i.id)).toEqual(["reach-1", "reach-2", "reach-3"]);
   });
 
   test("name is shared, so a form submits one entry per checked box", async () => {

@@ -60,21 +60,33 @@ type Control = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 const checkable = (el: Element | null): el is Control & HTMLElement =>
   !!el && "validity" in el && (el as Control).willValidate && !(el as Control).validity.valid;
 
-/** The registered fields with an `error` or a failed native check, then any other control that fails one, in page order. */
+/**
+ * The registered fields with an `error`, a failed check of their own or a failed native check, then any other control
+ * that fails a native check, in page order. A group of radios is listed once.
+ */
 function collect(): Found[] {
   const root = form.value;
   if (!root) return [];
   const found = new Map<string, Found>();
+  const radios = new Set<string>();
+  // A group listed once: its radios, which fail the same required check, are not listed again.
+  const add = (entry: Found) => {
+    found.set(entry.id, entry);
+    const own = entry.el.matches("input[type=radio]") ? [entry.el] : entry.el.querySelectorAll("input[type=radio]");
+    for (const r of own) if ((r as HTMLInputElement).name) radios.add((r as HTMLInputElement).name);
+  };
   for (const f of fields) {
     const id = f.id();
+    if (!id || found.has(id)) continue;
     const el = root.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
-    const message = f.error() || (checkable(el) ? el.validationMessage : undefined);
-    if (el && message) found.set(id, { id, label: f.label(), message, el });
+    const message = f.error() || f.check?.() || (checkable(el) ? el.validationMessage : undefined);
+    if (el && message) add({ id, label: f.label(), message, el });
   }
   for (const el of root.elements) {
     if (!checkable(el) || !el.id || found.has(el.id)) continue;
+    if (el instanceof HTMLInputElement && el.type === "radio" && radios.has(el.name)) continue;
     const label = el.labels?.[0]?.textContent?.trim() || el.getAttribute("aria-label") || el.name;
-    found.set(el.id, { id: el.id, label, message: el.validationMessage, el });
+    add({ id: el.id, label, message: el.validationMessage, el });
   }
   return [...found.values()].sort((a, b) =>
     a.el.compareDocumentPosition(b.el) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1,
@@ -86,7 +98,8 @@ const strip = ({ id, label, message }: Found): FormIssue => ({ id, label, messag
 function refresh() {
   if (issues.value.length) issues.value = collect().map(strip);
 }
-watch(() => [...fields].map((f) => f.error()).join("\n"), refresh);
+// A Select or a group changes no native input the form hears, so the list also follows the fields' own checks.
+watch(() => [...fields].map((f) => [f.error(), f.check?.()].join("\t")).join("\n"), refresh);
 // A server's answer: the form stops submitting and the fields now carry errors.
 watch(
   () => props.submitting,
@@ -96,14 +109,29 @@ watch(
   { flush: "post" },
 );
 
+/**
+ * Focuses a field. A group (a fieldset) passes focus to its chosen option or its first control. One that cannot take
+ * focus (a signature pad) is brought into view.
+ */
+function focusEl(el: HTMLElement) {
+  const target =
+    el instanceof HTMLFieldSetElement
+      ? (el.querySelector<HTMLElement>("input:checked:not(:disabled)") ??
+        el.querySelector<HTMLElement>("input:not([type=hidden], :disabled), select, textarea, button:not(:disabled)") ??
+        el)
+      : el;
+  target.focus();
+  if (document.activeElement !== target) target.scrollIntoView({ block: "center" });
+}
 function focusField(id: string) {
-  form.value?.querySelector<HTMLElement>(`#${CSS.escape(id)}`)?.focus();
+  const el = form.value?.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
+  if (el) focusEl(el);
 }
 async function show(found: Found[]) {
   issues.value = found.map(strip);
   if (!found.length) return;
   await nextTick();
-  if (props.focusTarget === "field" || !props.summary) found[0]!.el.focus();
+  if (props.focusTarget === "field" || !props.summary) focusEl(found[0]!.el);
   else notice.value?.$el.focus();
 }
 
@@ -133,7 +161,7 @@ defineExpose({
   /** Moves focus to the first invalid field. */
   focusFirstInvalid: () => {
     const el = collect()[0]?.el;
-    if (el instanceof HTMLElement) el.focus();
+    if (el) focusEl(el);
   },
   /** The problems listed in the summary. */
   issues,

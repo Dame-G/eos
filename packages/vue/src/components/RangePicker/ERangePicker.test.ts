@@ -54,6 +54,9 @@ describe("ERangePicker", () => {
     expect(button.element().getAttribute("aria-haspopup")).toBe("dialog");
     expect(container.querySelector(".e-range-sep")!.textContent).toBe("to");
     expect(container.querySelector(".e-input-wrap")!.className).toBe("e-input-wrap e-combo e-rangefield");
+    // The boxes are named by aria-label, so the placeholder can show the format, as in EDatePicker.
+    const boxes = [...container.querySelectorAll<HTMLInputElement>(".e-combo-input")];
+    expect(boxes.map((b) => b.placeholder)).toEqual(["MM/DD/YYYY", "MM/DD/YYYY"]);
     expect(container.querySelector("label")!.getAttribute("for")).toBe(container.querySelector("input")!.id);
   });
 
@@ -167,6 +170,45 @@ describe("ERangePicker", () => {
       ["from", "2026-10-04"],
       ["to", "2026-10-18"],
     ]);
+  });
+
+  test("the hidden fields keep the consumer's form attribute", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h("form", { id: "range-form" }),
+            h(ERangePicker as Component, {
+              label: "Dates",
+              startName: "from",
+              endName: "to",
+              start: d(2026, 10, 4),
+              end: d(2026, 10, 18),
+              form: "range-form",
+            }),
+          ]),
+      }),
+    );
+    const form = container.querySelector("form")!;
+    expect([...new FormData(form).entries()]).toEqual([
+      ["from", "2026-10-04"],
+      ["to", "2026-10-18"],
+    ]);
+  });
+
+  test("while the typed span cannot be used it posts nothing, not the dates it had before", async () => {
+    const { container } = await bound(
+      { label: "Dates", startName: "from", endName: "to" },
+      { start: d(2026, 10, 4), end: d(2026, 10, 18) },
+    );
+    const [, b] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
+    const hidden = () => [...container.querySelectorAll<HTMLInputElement>("input[type=hidden]")].map((i) => i.value);
+    await setText(b!, "10/01/2026");
+    await userEvent.keyboard("{Enter}");
+    expect(hidden()).toEqual(["", ""]);
+    await setText(b!, "10/20/2026");
+    await userEvent.keyboard("{Enter}");
+    expect(hidden()).toEqual(["2026-10-04", "2026-10-20"]);
   });
 
   test("a bad date or an end before the start shows an error and leaves the value alone", async () => {
@@ -346,6 +388,25 @@ describe("ERangePicker", () => {
     expect(inputs[0]!.value).toBe("04.10.2026");
     const wrap = he.container.querySelector(".e-input-wrap")!;
     expect(wrap.querySelector(".e-range-sep")).not.toBeNull();
+  });
+
+  test("@focus and @blur fire as focus enters and leaves the field, not between its inputs", async () => {
+    const seen: string[] = [];
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(ERangePicker, { label: "Stay", onFocus: () => seen.push("focus"), onBlur: () => seen.push("blur") }),
+            h("button", { class: "after" }, "After"),
+          ]),
+      }),
+    );
+    const inputs = [...container.querySelectorAll<HTMLInputElement>("input.e-combo-input")];
+    inputs[0]!.focus();
+    inputs[1]!.focus();
+    expect(seen).toEqual(["focus"]);
+    container.querySelector<HTMLElement>(".after")!.focus();
+    expect(seen).toEqual(["focus", "blur"]);
   });
 
   test("has no accessibility violations: closed, invalid, disabled, open", async () => {
