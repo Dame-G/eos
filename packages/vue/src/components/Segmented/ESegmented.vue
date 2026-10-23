@@ -14,6 +14,7 @@ import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useUid } from "../../composables/useUid.js";
 import { useOverflow } from "../../composables/useOverflow.js";
 import { useReducedMotion } from "../../composables/useReducedMotion.js";
+import { useFormField } from "../../composables/useFormContext.js";
 import "../../styles/base.css";
 
 defineOptions({ inheritAttrs: false });
@@ -54,6 +55,13 @@ const fallback = computed(() => options.value.find((o) => !o.disabled && !props.
 const current = computed(() => model.value ?? fallback.value?.value);
 const attrs = useFieldAttrs();
 const calm = useReducedMotion();
+const optionId = (i: number) => `${uid.value}-${i}`;
+// The summary of an EForm links to the chosen option.
+useFormField({
+  id: () => optionId(Math.max(0, options.value.findIndex((o) => o.value === current.value))),
+  label: () => props.label,
+  error: () => props.error,
+});
 
 const track = ref<HTMLElement | null>(null);
 /** Whether the options are wider than the track. Only then does the track clip: a clip along the rounded corners would draw them twice. */
@@ -107,8 +115,9 @@ const groupAttrs = () => ({
       :class="{ 'e-seg--disabled': disabled, 'e-seg--scroll': scrolls }"
       v-bind="groupAttrs()"
     >
-      <label v-for="o in options" :key="o.value" class="e-seg-opt">
+      <label v-for="(o, i) in options" :key="o.value" class="e-seg-opt">
         <input
+          :id="optionId(i)"
           type="radio"
           class="e-seg-input"
           :name="name"

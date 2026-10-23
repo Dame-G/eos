@@ -8,6 +8,10 @@ import { normalizeOptions } from "./options.js";
 import type { ESelectFields } from "./selectProps.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import type { FieldSlot } from "../../composables/useFieldControl.js";
+import { useFormField } from "../../composables/useFormContext.js";
+import { useUid } from "../../composables/useUid.js";
+import { useMessages } from "../../config.js";
+import { missingMessage } from "../Form/missing.js";
 import "../../styles/base.css";
 
 defineOptions({ inheritAttrs: false });
@@ -21,6 +25,8 @@ const model = defineModel<M extends true ? T[] : T | "">();
 const open = defineModel<boolean>("open", { default: false });
 
 const attrs = useFieldAttrs();
+const t = useMessages();
+const bareId = useUid(() => props.id);
 const control = ref<InstanceType<typeof ESelectControl> | null>(null);
 const options = computed(() => normalizeOptions<T>(props.options));
 const current = computed<string | string[]>(() => {
@@ -28,9 +34,20 @@ const current = computed<string | string[]>(() => {
   return props.multiple ? (Array.isArray(v) ? v : []) : typeof v === "string" ? v : "";
 });
 
+// The value posts through hidden inputs, which the browser never checks, so an empty required Select checks itself.
+useFormField({
+  id: () => control.value?.trigger?.id ?? "",
+  label: () => (props.bare ? (props.ariaLabel ?? props.label ?? "") : (props.label ?? "")),
+  error: () => (props.bare ? undefined : props.error),
+  check: () =>
+    props.required && !props.disabled && !props.readonly && !current.value.length
+      ? missingMessage("select", t("required"))
+      : undefined,
+});
+
 function triggerAttrs(field?: FieldSlot) {
   return {
-    id: field?.id ?? props.id,
+    id: field?.id ?? bareId.value,
     "aria-invalid": field?.ariaInvalid,
     "aria-label": props.bare ? (props.ariaLabel ?? props.label) : undefined,
     ...attrs.input(field?.ariaDescribedby),

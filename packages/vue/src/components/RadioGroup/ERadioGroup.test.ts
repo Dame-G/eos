@@ -123,6 +123,23 @@ describe("ERadioGroup", () => {
     expect(getComputedStyle(off!).color).not.toBe(getComputedStyle(on!).color);
   });
 
+  test("id names the fieldset, and the radios are numbered from it", async () => {
+    const { container } = await render(ERadioGroup, {
+      props: { label: "Reminder", options: ["Text", "Email"], id: "rem" },
+    });
+    expect(container.querySelector("fieldset")!.id).toBe("rem");
+    expect([...container.querySelectorAll("input")].map((i) => i.id)).toEqual(["rem-1", "rem-2"]);
+  });
+
+  test("orientation horizontal lays the options out in a row", async () => {
+    const { container } = await render(ERadioGroup, {
+      props: { label: "Size", options: ["S", "M", "L"], orientation: "horizontal" },
+    });
+    const [a, b] = [...container.querySelectorAll(".e-choice")].map((el) => el.getBoundingClientRect());
+    expect(b!.top).toBe(a!.top);
+    expect(b!.left).toBeGreaterThan(a!.right);
+  });
+
   test("the legend, hint and error describe the group", async () => {
     const { container } = await render(ERadioGroup, {
       props: { label: "Reminder", hint: "Pick one", options: ["Text", "Email"] },

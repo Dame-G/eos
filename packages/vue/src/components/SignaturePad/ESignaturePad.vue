@@ -6,6 +6,8 @@ import EButton from "../Button/EButton.vue";
 import EFieldMessage from "../Field/EFieldMessage.vue";
 import { useMessages } from "../../config.js";
 import { useUid } from "../../composables/useUid.js";
+import { useFormField } from "../../composables/useFormContext.js";
+import { missingMessage } from "../Form/missing.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
@@ -16,7 +18,7 @@ const props = withDefaults(
     hint?: string;
     /** What to fix. Replaces the hint, gives the pad a danger edge, is announced and describes the pad. An image has no `aria-invalid`. */
     error?: string;
-    /** Adds "Required" to what screen readers hear with the pad. Nothing stops an empty pad from being submitted: check the value. */
+    /** Adds "Required" to what screen readers hear with the pad. An `EForm` around it stops the submit while the pad is empty; a plain form does not, so check the value. */
     required?: boolean;
     /** Ignores drawing and disables Clear. */
     disabled?: boolean;
@@ -35,6 +37,16 @@ const t = useMessages();
 const id = useUid(() => props.id);
 const canvas = ref<HTMLCanvasElement | null>(null);
 const empty = ref(!model.value);
+// A canvas is no form control: the pad tells the EForm around it about its error, and that it is required and empty.
+useFormField({
+  id: () => id.value,
+  label: () => t("drawSignature"),
+  error: () => props.error,
+  check: () =>
+    props.required && !props.disabled && !props.readonly && !model.value
+      ? missingMessage("text", t("required"))
+      : undefined,
+});
 
 /** A point on the pad as a share of its width and height, so the strokes scale when the pad is resized. */
 interface Point {

@@ -2,6 +2,7 @@ import { computed, ref, toValue, type MaybeRefOrGetter, type Ref } from "vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useUid } from "../../composables/useUid.js";
+import { useFormField } from "../../composables/useFormContext.js";
 
 /** What ECheckbox and ESwitch share. */
 export interface ChoiceProps extends Omit<EFieldCommonProps, "hideLabel"> {
@@ -26,6 +27,7 @@ export function useChoice(props: ChoiceProps) {
   );
   const attrs = useFieldAttrs();
   const input = ref<HTMLInputElement | null>(null);
+  useFormField({ id: () => id.value, label: () => props.label, error: () => (props.bare ? undefined : props.error) });
   return {
     id,
     input,

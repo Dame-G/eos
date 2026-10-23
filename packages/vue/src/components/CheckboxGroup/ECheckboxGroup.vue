@@ -11,40 +11,35 @@ export type CheckboxOption<T extends string = string> = Pick<EOption, "label" | 
 import { computed, ref } from "vue";
 import ECheckbox from "../Checkbox/ECheckbox.vue";
 import EFieldset from "../Fieldset/EFieldset.vue";
+import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { normalizeChoices } from "../RadioGroup/options.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
 import "../Checkbox/choice.css";
 
-const props = defineProps<{
-  /** The question, as the group's legend. */
-  label: string;
-  /** Keeps the legend for screen readers and hides it from the page. */
-  hideLabel?: boolean;
-  /** A string is both value and label. `CheckboxOption`: `{ value, label, description?, disabled? }`. */
-  options: (T | CheckboxOption<T>)[];
-  /** Help that is announced with the group. */
-  hint?: string;
-  /** What to fix. Replaces the hint, marks every box invalid and is announced with the group. */
-  error?: string;
-  /** Adds the word "Required" beside the legend. The group does not validate itself: the form decides how many boxes are enough. */
-  required?: boolean;
-  /** Adds the word "Optional" beside the legend. Use it when most fields in the form are required. */
-  optional?: boolean;
-  /** Disables every box. */
-  disabled?: boolean;
-  /** Shows the choices but blocks changing them. The boxes stay focusable and the values are still submitted. */
-  readonly?: boolean;
-  /** Lays the boxes out in a row that wraps, or one under another. @default "vertical" */
-  orientation?: "vertical" | "horizontal";
-  /** Shared by the boxes, submitted with a form: one entry per checked box. */
-  name?: string;
-}>();
+const props = defineProps<
+  Omit<EFieldCommonProps, "id" | "required" | "error"> & {
+    /** The question, as the group's legend. */
+    label: string;
+    /** A string is both value and label. `CheckboxOption`: `{ value, label, description?, disabled? }`. */
+    options: (T | CheckboxOption<T>)[];
+    /** What to fix. Replaces the hint, marks every box invalid and is announced with the group. */
+    error?: string;
+    /** Adds the word "Required" beside the legend. The group does not validate itself: the form decides how many boxes are enough. */
+    required?: boolean;
+    /** Shared by the boxes, submitted with a form: one entry per checked box. */
+    name?: string;
+    /** The id of the group's `fieldset`, which an `EForm` summary links to. The boxes are `{id}-1`, `{id}-2` and so on. @default generated */
+    id?: string;
+    /** Lays the options out in a row that wraps, or one under another. @default "vertical" */
+    orientation?: "vertical" | "horizontal";
+  }
+>();
 
 /** The values that are checked, in the order they were chosen. */
 const model = defineModel<T[]>({ default: () => [] });
 
-const id = useUid();
+const id = useUid(() => props.id);
 const items = computed(() => normalizeChoices<CheckboxOption<T>>(props.options));
 const root = ref<{ $el: HTMLElement } | null>(null);
 const first = () => root.value?.$el.querySelector<HTMLInputElement>(".e-check") ?? null;
@@ -65,7 +60,7 @@ defineExpose({
 
 <template>
   <EFieldset
-    :id="`${id}-fs`"
+    :id="id"
     ref="root"
     class="e-checkgroup"
     legend-class="e-checkgroup-legend"
@@ -80,7 +75,8 @@ defineExpose({
   >
     <div class="e-checkgroup-items" :class="{ 'e-checkgroup-items--row': orientation === 'horizontal' }">
       <ECheckbox
-        v-for="item in items"
+        v-for="(item, i) in items"
+        :id="`${id}-${i + 1}`"
         :key="item.value"
         :label="item.label"
         :description="item.description"

@@ -102,6 +102,12 @@ describe("ECheckboxGroup", () => {
     expect(getComputedStyle(off!).color).not.toBe(getComputedStyle(on!).color);
   });
 
+  test("id names the fieldset, and the boxes are numbered from it", async () => {
+    const { container } = await render(ECheckboxGroup, { props: { label: "Reach me by", options, id: "reach" } });
+    expect(container.querySelector("fieldset")!.id).toBe("reach");
+    expect([...container.querySelectorAll("input")].map((i) => i.id)).toEqual(["reach-1", "reach-2", "reach-3"]);
+  });
+
   test("name is shared, so a form submits one entry per checked box", async () => {
     const { container } = await render(ECheckboxGroup, {
       props: { label: "Reach me by", options, name: "channels", modelValue: ["Email", "post"] },
