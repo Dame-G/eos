@@ -209,6 +209,9 @@ describe("ESignatureField", () => {
     expect(input.readOnly).toBe(true);
     expect(input.disabled).toBe(false);
     await page.getByRole("checkbox", { name: /I agree/ }).click({ force: true });
+    // The Type and Draw switch is read-only, not disabled: it stays focusable and readable.
+    await expect.element(page.getByRole("radio", { name: "Draw" })).toBeEnabled();
+    expect(container.querySelector(".e-seg")!.getAttribute("aria-readonly")).toBe("true");
     await page.getByRole("radio", { name: "Draw" }).click({ force: true });
     expect(got).toEqual([]);
     expect(container.querySelector<HTMLInputElement>("input[type=hidden]")!.disabled).toBe(false);

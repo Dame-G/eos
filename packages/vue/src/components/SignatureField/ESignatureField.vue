@@ -88,7 +88,7 @@ function update(patch: Partial<SignatureValue>) {
       v-if="mode === 'both'"
       :label="t('signature')"
       :model-value="method"
-      :disabled="readonly"
+      :readonly="readonly"
       :options="[
         { value: 'type', label: t('signType'), icon: 'edit' },
         { value: 'draw', label: t('signDraw'), icon: 'signature' },
