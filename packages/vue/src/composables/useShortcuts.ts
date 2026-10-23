@@ -35,8 +35,8 @@ interface Parsed {
   mod: boolean;
 }
 
-/** Whether this is an Apple device, where `mod` means Cmd. @internal */
-export const isApple = (): boolean =>
+/** Whether this is an Apple device, where `mod` means Cmd. */
+const isApple = (): boolean =>
   typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
 
 function parse(combo: string): Parsed {
