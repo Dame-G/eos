@@ -44,7 +44,7 @@ const props = {
   ECodeBlock: { code: "pnpm add @eos-ui/vue", lang: "sh" },
   EColorField: { label: "Brand" },
   ECombobox: { label: "Country", options },
-  ECommandPalette: { items: [{ id: "a", label: "Open" }] },
+  ECommandPalette: { label: "Commands", items: [{ id: "a", label: "Open" }] },
   ECopyButton: { text: "copied" },
   ECurrencyField: { label: "Amount" },
   EDataGrid: { caption: "Rows", columns: [{ key: "n", label: "Name" }], rows: [{ id: 1, n: "one" }] },
@@ -54,7 +54,7 @@ const props = {
   EDialog: { title: "Confirm", open: true },
   EDrawer: { title: "Details", open: true },
   EDisclosure: { summary: "More" },
-  EExpandableRow: { summary: "Row" },
+  EExpandableRow: { title: "Row" },
   EField: { label: "Name" },
   EFieldset: { legend: "Address" },
   EHeading: { level: 2 },
@@ -68,7 +68,7 @@ const props = {
   ENumberField: { label: "Count" },
   EOtpField: { label: "Code" },
   EPageHeader: { title: "Bills" },
-  EPagination: { total: 50 },
+  EPagination: { pageCount: 5 },
   EPasswordField: { label: "Password" },
   EPhoneField: { label: "Phone" },
   EProgress: { label: "Upload", value: 40 },
@@ -90,7 +90,7 @@ const props = {
   },
   ELinkCard: { title: "EButton", href: "#button" },
   ESwitch: { label: "Wi-Fi" },
-  ETable: { caption: "Rows", columns: [{ key: "n", label: "Name" }], rows: [{ id: 1, n: "one" }] },
+  ETable: { caption: "Rows" },
   ETabs: {
     items: [
       { id: "a", label: "A" },
@@ -102,12 +102,17 @@ const props = {
   ETextField: { label: "Email", error: "Enter an email" },
   ETextarea: { label: "Notes" },
   EToast: { tone: "info", title: "Saved" },
-  ETooltip: { text: "More" },
+  ETooltip: { label: "More" },
   EUpload: { label: "Files" },
   ELink: { href: "#x" },
   ESkipLink: { href: "#main" },
   EAppHeader: { brand: "EOS", brandHref: "/" },
   EConfigProvider: { locale: "ar", theme: { brand: "#8a2be2" } },
+  EEmptyState: { title: "Nothing here" },
+};
+// Components whose default slot must be markup rather than text.
+const slots = {
+  ETable: () => h("tbody", [h("tr", [h("td", "one")])]),
 };
 // A modal draws nothing on the server: it opens in the browser, after hydration.
 const empty = new Set(["EDialog", "EDrawer", "ECommandPalette", "EToastProvider"]);
@@ -129,7 +134,8 @@ note(
 );
 
 for (const [name, component] of components) {
-  const vnode = () => h(component, props[name] ?? {}, { default: () => "Text", trigger: () => h("button", "Open") });
+  const vnode = () =>
+    h(component, props[name] ?? {}, { default: slots[name] ?? (() => "Text"), trigger: () => h("button", "Open") });
   const before = warnings.length;
   try {
     const a = await render(vnode, true);
