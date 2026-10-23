@@ -14,6 +14,7 @@ import EActions from "../Actions/EActions.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
+import { useScrollBody } from "../../composables/useScrollBody.js";
 import "../../styles/base.css";
 import "../Heading/scale.css";
 import "./dialog.css";
@@ -51,6 +52,7 @@ const open = defineModel<boolean>("open");
 const t = useMessages();
 const target = usePortalTarget();
 const dir = useDir();
+const scrollBody = useScrollBody();
 
 /** An inline preview is part of the page, so it leaves focus alone: it does not take it when it opens, and does not send it back to wherever it was when it closes. Sending it back could land on a tab or link and activate it. */
 function keepFocus(event: Event) {
@@ -90,7 +92,7 @@ function setOpen(value: boolean) {
 </script>
 
 <template>
-  <ConfigProvider :dir="dir">
+  <ConfigProvider :dir="dir" :scroll-body="scrollBody">
     <DialogRoot :open="!!open" :modal="!inline" :dir="dir" @update:open="setOpen">
       <DialogPortal :to="target" :disabled="inline">
         <div class="e-root">

@@ -16,6 +16,7 @@ import ESelectOption from "./ESelectOption.vue";
 import { sectionOptions, type EOption } from "./options.js";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
+import { useScrollBody } from "../../composables/useScrollBody.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
@@ -46,6 +47,7 @@ const model = defineModel<string | string[]>({ default: "" });
 
 const t = useMessages();
 const dir = useDir();
+const scrollBody = useScrollBody();
 const trigger = ref<{ $el: HTMLElement } | null>(null);
 const portal = usePortalTarget();
 
@@ -109,7 +111,7 @@ defineExpose({
 
 <template>
   <div class="e-sel" :class="{ 'e-sel--clear': canClear }">
-    <ConfigProvider :dir="dir">
+    <ConfigProvider :dir="dir" :scroll-body="scrollBody">
       <SelectRoot
         :model-value="model"
         :multiple="multiple"
