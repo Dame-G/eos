@@ -2,7 +2,7 @@
 import { computed, watchEffect } from "vue";
 import { isProduction } from "../../env.js";
 import DialogFrame from "../Dialog/DialogFrame.vue";
-import EDrawerBody from "./EDrawerBody.vue";
+import DialogBody from "../Dialog/DialogBody.vue";
 
 defineOptions({ inheritAttrs: false });
 
@@ -72,7 +72,7 @@ const edge = computed(() => (props.side === "left" ? "start" : props.side === "r
     ]"
     @close="emit('close')"
   >
-    <EDrawerBody><slot /></EDrawerBody>
+    <DialogBody class="e-drawer-body"><slot /></DialogBody>
     <template v-if="$slots.actions" #actions><slot name="actions" /></template>
   </DialogFrame>
 </template>

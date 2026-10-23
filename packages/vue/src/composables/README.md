@@ -68,7 +68,7 @@ const toast = useToast();
 toast.show({ title: "Saved", tone: "success" });
 ```
 
-## `useOverflow(scroller, watch?)`
+## `useOverflow(scroller, watch?, options?)`
 
 Returns a ref that is `true` while the element scrolls (wider or taller than its box). Use it to make a scrolling region a tab stop and a named `region` only when there is something to scroll. It is `false` until mounted, so the server and the first render agree, and it follows resizes of the scroller and of the elements in `watch` (the table inside it).
 
@@ -76,6 +76,8 @@ Returns a ref that is `true` while the element scrolls (wider or taller than its
 const scroller = ref<HTMLElement | null>(null);
 const overflows = useOverflow(scroller, [table]);
 ```
+
+Pass `{ children: true }` for a scroller its container holds at one size, such as a dialog body: it then watches the scroller's children too, as they come and go.
 
 ## `useUid(given?)`
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DialogFrame from "./DialogFrame.vue";
-import EDrawerBody from "../Drawer/EDrawerBody.vue";
+import DialogBody from "./DialogBody.vue";
 
 defineOptions({ inheritAttrs: false });
 
@@ -56,7 +56,7 @@ const open = defineModel<boolean>("open");
     :content-class="['e-dialog', `e-dialog--${props.size}`, inline && 'e-dialog--inline']"
     @close="emit('close')"
   >
-    <EDrawerBody class="e-dialog-body"><slot /></EDrawerBody>
+    <DialogBody class="e-dialog-body"><slot /></DialogBody>
     <template v-if="$slots.actions" #actions><slot name="actions" /></template>
   </DialogFrame>
 </template>
