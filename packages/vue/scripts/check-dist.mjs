@@ -3,6 +3,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import postcss from "postcss";
+import { build } from "vite";
 import { LAYER_ORDER } from "@eos-ui/tokens";
 import { pkgRoot } from "./css-lib.mjs";
 
@@ -67,6 +68,27 @@ const envFile = join(pkgRoot, "dist", "env.js");
 if (!existsSync(envFile)) problems.push("dist/env.js is missing");
 else if (!readFileSync(envFile, "utf8").includes("process.env.NODE_ENV"))
   problems.push("dist/env.js no longer reads process.env.NODE_ENV");
+// Bundle it as a consumer's app would, once per NODE_ENV, and run the result: production must say true, development false.
+// Nothing in the bundle may still read `process`, which a browser does not have.
+if (existsSync(envFile)) {
+  for (const mode of ["production", "development"]) {
+    const out = await build({
+      configFile: false,
+      logLevel: "silent",
+      define: { "process.env.NODE_ENV": JSON.stringify(mode) },
+      build: {
+        write: false,
+        minify: false,
+        lib: { entry: envFile, formats: ["es"], fileName: "env" },
+      },
+    });
+    const code = (Array.isArray(out) ? out[0] : out).output[0].code;
+    if (/\bprocess\b/.test(code)) problems.push(`dist/env.js bundled for ${mode} still reads process: ${code.trim()}`);
+    const { isProduction } = await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`);
+    if (isProduction() !== (mode === "production"))
+      problems.push(`dist/env.js bundled with NODE_ENV=${mode} gives isProduction() === ${isProduction()}`);
+  }
+}
 for (const name of ["plugin.js", "config.js", "env.js"]) {
   const path = join(pkgRoot, "dist", name);
   if (existsSync(path) && readFileSync(path, "utf8").includes("import.meta.env"))
