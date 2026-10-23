@@ -77,7 +77,7 @@ const target = computed(() => (props.to !== undefined ? { to: props.to } : { hre
 
   .e-surface.e-linkcard:hover {
     border-color: var(--e-wash-ring);
-    background-color: var(--e-surface-hover);
+    background-image: linear-gradient(var(--e-wash-hover) 0 0); /* the wash over the card's own surface */
   }
 
   .e-surface.e-linkcard:has(.e-linkcard-link:active) {
