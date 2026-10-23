@@ -70,12 +70,13 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
 
     position: relative;
     container-type: inline-size;
-    width: min(24rem, 100%);
+    width: min(var(--e-size-panel-sm), 100%);
     padding: var(--e-gap-base) var(--e-pad-card);
     border-inline-start: calc(var(--e-stroke-edge) + var(--e-slab-bold)) solid var(--e-tone);
   }
 
   .e-toast--actions {
+    /* Wider than the notice's 36rem container step plus padding, so the action sits at the end of the row. */
     width: min(40rem, 100%);
   }
 

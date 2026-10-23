@@ -307,7 +307,7 @@ defineExpose({
     color: var(--e-primary);
     font-weight: var(--e-weight-medium);
     text-decoration: underline;
-    text-underline-offset: 0.2em;
+    text-underline-offset: var(--e-underline-offset);
   }
 
   .e-drop--disabled {

@@ -106,7 +106,7 @@
 
     padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
     text-decoration: underline;
-    text-underline-offset: 5px;
+    text-underline-offset: var(--e-underline-offset);
     text-decoration-thickness: var(--e-stroke-edge);
     text-decoration-color: var(--e-border-strong);
   }

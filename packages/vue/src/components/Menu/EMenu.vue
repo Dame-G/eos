@@ -193,7 +193,7 @@ function returnFocus(event: Event) {
   .e-menu {
     width: max-content;
     min-width: 12rem;
-    max-width: min(20rem, calc(100vw - 2 * var(--e-gap-loose)));
+    max-width: min(var(--e-size-panel-sm), calc(100vw - 2 * var(--e-gap-loose)));
     padding: var(--e-gap-tight);
   }
 

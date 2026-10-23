@@ -40,9 +40,9 @@ describe("EToast", () => {
     }
   });
 
-  test("is 24rem wide, and up to 40rem with an action", async () => {
+  test("is size-panel-sm wide, and up to 40rem with an action", async () => {
     const plain = await inBox(900, { title: "Saved" }, {});
-    expect(Math.round(plain.querySelector(".e-toast")!.getBoundingClientRect().width)).toBe(384);
+    expect(Math.round(plain.querySelector(".e-toast")!.getBoundingClientRect().width)).toBe(448);
     const withAction = await inBox(900, { title: "Saved" }, { action });
     expect(withAction.querySelector(".e-toast")!.classList.contains("e-toast--actions")).toBe(true);
     expect(Math.round(withAction.querySelector(".e-toast")!.getBoundingClientRect().width)).toBe(640);

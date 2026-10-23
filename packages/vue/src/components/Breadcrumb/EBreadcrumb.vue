@@ -130,7 +130,7 @@ const linkAttrs = (item: BreadcrumbItem) => ({
     color: var(--e-text-link);
     text-decoration: underline;
     text-decoration-color: var(--e-text-link);
-    text-underline-offset: 3px;
+    text-underline-offset: var(--e-underline-offset);
     border-radius: var(--e-radius-sm);
     transition: var(--e-transition-state);
   }

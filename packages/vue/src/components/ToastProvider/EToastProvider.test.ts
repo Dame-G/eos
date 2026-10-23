@@ -169,12 +169,12 @@ describe("EToastProvider", () => {
     expect(getComputedStyle(region).position).toBe("fixed");
   });
 
-  test("toasts keep their 24rem width in the region, and 40rem with an action", async () => {
+  test("toasts keep their size-panel-sm width in the region, and 40rem with an action", async () => {
     await mountApp();
     api.show({ title: "Saved", tone: "danger" });
     api.show({ title: "Deleted", action: () => h(EButton, null, () => "Undo") });
     await expect.poll(() => toasts().length).toBe(2);
-    expect(Math.round(toasts()[0]!.getBoundingClientRect().width)).toBe(384);
+    expect(Math.round(toasts()[0]!.getBoundingClientRect().width)).toBe(448);
     expect(Math.round(toasts()[1]!.getBoundingClientRect().width)).toBe(608);
   });
 

@@ -99,7 +99,7 @@ watch(
     font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-snug) var(--e-font-sans);
     text-decoration: underline dotted;
     text-decoration-color: currentcolor;
-    text-underline-offset: var(--e-gap-tight);
+    text-underline-offset: var(--e-underline-offset);
     text-decoration-thickness: var(--e-stroke-edge);
     cursor: help;
   }
