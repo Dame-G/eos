@@ -6,6 +6,13 @@ import ESlider from "./ESlider.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESlider", () => {
+  test("the filled range stops at a disabled thumb instead of showing through it", async () => {
+    const { container } = await render(ESlider, { props: { label: "Volume", modelValue: 60, disabled: true } });
+    container.classList.add("e-root");
+    const thumb = getComputedStyle(container.querySelector(".e-slider-thumb")!);
+    expect(thumb.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+  });
+
   test("read-only is flat and shows no sign of being operable; editable is raised", async () => {
     const look = async (readonly: boolean) => {
       const { container, unmount } = await render(ESlider, { props: { label: "Volume", modelValue: 30, readonly } });

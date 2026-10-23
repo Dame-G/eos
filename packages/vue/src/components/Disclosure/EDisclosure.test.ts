@@ -26,7 +26,7 @@ describe("EDisclosure", () => {
     expect(parseFloat(style.borderTopRightRadius)).toBe(0);
   });
 
-  test("the title sits in the middle of its summary, closed and open, so a hover fill is even", async () => {
+  test("the title sits in the middle of its summary, closed and open, so its focus ring is even", async () => {
     const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
     container.classList.add("e-root");
     const details = container.querySelector("details")!;
@@ -161,12 +161,18 @@ describe("EDisclosure", () => {
     expect(details.open).toBe(false);
   });
 
-  test("hover washes the summary", async () => {
+  test("hover lights up the title like a link: its colour and an underline, no fill or ring", async () => {
     const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
     container.classList.add("e-root");
     const summary = container.querySelector("summary")!;
-    const rest = getComputedStyle(summary).backgroundColor;
+    const rest = getComputedStyle(summary);
+    const restColour = rest.color;
+    const restFill = rest.backgroundColor;
     await userEvent.hover(summary);
-    await expect.poll(() => getComputedStyle(summary).backgroundColor).not.toBe(rest);
+    await expect.poll(() => getComputedStyle(summary).color).not.toBe(restColour);
+    const hovered = getComputedStyle(summary);
+    expect(hovered.textDecorationLine).toBe("underline");
+    expect(hovered.backgroundColor).toBe(restFill);
+    expect(hovered.boxShadow).toBe("none");
   });
 });

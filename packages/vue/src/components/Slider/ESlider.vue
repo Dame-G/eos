@@ -258,7 +258,10 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     border-color: transparent;
-    background: var(--e-disabled-fill);
+
+    /* The disabled fill is clear, so the thumb needs a face of its own or the range would show through it. */
+    background-color: var(--e-surface);
+    background-image: linear-gradient(var(--e-disabled-fill), var(--e-disabled-fill));
     cursor: not-allowed;
   }
 
