@@ -2,6 +2,7 @@
 import { computed, getCurrentInstance, ref } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EField from "../Field/EField.vue";
+import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useConfig, useMessages } from "../../config.js";
 import { isProduction } from "../../env.js";
@@ -12,36 +13,22 @@ import "../../styles/base.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<{
-  /** The visible label above the dropzone. */
-  label: string;
-  /** Keeps the label for screen readers and hides it from the page. */
-  hideLabel?: boolean;
-  /** Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt as "PDF, JPG" and also applied to dropped files. */
-  accept?: string;
-  /** Allows choosing more than one file. New files are added to the list, and a file already in it (same name, size and date) is not added twice. Without it, a choice replaces the file, and the others of several are rejected with reason `count`. */
-  multiple?: boolean;
-  /** The largest file allowed, in bytes. A larger one is left out and announced as "1 file is larger than 5 MB". */
-  maxSize?: number;
-  /** The most files the list can hold with `multiple`. Further files are left out and announced. */
-  maxFiles?: number;
-  /** The name submitted with a form. */
-  name?: string;
-  /** Help that says which files are accepted and how large, shown before the person tries. */
-  hint?: string;
-  /** What to fix. Replaces the hint, marks the input invalid and is announced. */
-  error?: string;
-  /** Sets the `required` attribute and adds a word beside the label. */
-  required?: boolean;
-  /** Adds a word beside the label. Use it when most fields in the form are required. */
-  optional?: boolean;
-  /** Disables the control, so it ignores drops and clicks. A disabled control is not submitted. */
-  disabled?: boolean;
-  /** Shows the files but blocks changes: drops and clicks do nothing and the remove buttons are disabled. The input stays focusable and the files are still submitted. */
-  readonly?: boolean;
-  /** The id of the file input, which the label points at. @default generated */
-  id?: string;
-}>();
+const props = defineProps<
+  EFieldCommonProps & {
+    /** The visible label above the dropzone. */
+    label: string;
+    /** Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt as "PDF, JPG" and also applied to dropped files. */
+    accept?: string;
+    /** Allows choosing more than one file. New files are added to the list, and a file already in it (same name, size and date) is not added twice. Without it, a choice replaces the file, and the others of several are rejected with reason `count`. */
+    multiple?: boolean;
+    /** The largest file allowed, in bytes. A larger one is left out and announced as "1 file is larger than 5 MB". */
+    maxSize?: number;
+    /** The most files the list can hold with `multiple`. Further files are left out and announced. */
+    maxFiles?: number;
+    /** The name submitted with a form. */
+    name?: string;
+  }
+>();
 
 const emit = defineEmits<{
   /**

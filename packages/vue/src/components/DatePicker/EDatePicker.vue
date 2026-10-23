@@ -3,6 +3,7 @@ import { computed, nextTick, ref, watch } from "vue";
 import { ConfigProvider, PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import ECalendar from "../Calendar/ECalendar.vue";
 import EField from "../Field/EField.vue";
+import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import EIcon from "../Icon/EIcon.vue";
 import { boundsMessage, compareDays, isoDate, parseIso, sameDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
@@ -18,40 +19,26 @@ import "./picker.css";
 defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
-  defineProps<{
-    /** The visible label. */
-    label: string;
-    /** Keeps the label for screen readers and hides it from the page. */
-    hideLabel?: boolean;
-    /** Shows help text under the field. */
-    hint?: string;
-    /** Shows what to fix in place of the hint and marks the field invalid. A typed date that cannot be used shows its own error (`dateError`, `dateBetween`). */
-    error?: string;
-    /** Sets the `required` attribute and shows a word beside the label. */
-    required?: boolean;
-    /** Shows a word beside the label. Use it on whichever of required and optional is rarer. */
-    optional?: boolean;
-    /** Disables the field and its calendar button. */
-    disabled?: boolean;
-    /** Shows the date but blocks editing. The input stays focusable and selectable. The calendar button is disabled and the calendar does not open. */
-    readonly?: boolean;
-    /** The earliest date that can be chosen or typed. */
-    min?: Date;
-    /** The latest date that can be chosen or typed. */
-    max?: Date;
-    /** Days that cannot be chosen, in the calendar or by typing, such as days with nothing to book. */
-    disabledDate?: (date: Date) => boolean;
-    /** Days that get a dot in the calendar: a list of dates or a function. */
-    marked?: Date[] | ((date: Date) => boolean);
-    /** Shows the calendar's Today and Clear buttons. */
-    footer?: boolean;
-    /** What `v-model` holds. `date` is a `Date` (a local day at noon). `iso` is a `YYYY-MM-DD` string, or `null` for no date, which has no time zone to shift. @default "date" */
-    valueFormat?: F;
-    /** Submits the date as `YYYY-MM-DD` with a form, through a hidden input. A disabled field is not submitted. */
-    name?: string;
-    /** The `id` of the text box, which the label points at. @default generated */
-    id?: string;
-  }>(),
+  defineProps<
+    EFieldCommonProps & {
+      /** The visible label. */
+      label: string;
+      /** The earliest date that can be chosen or typed. */
+      min?: Date;
+      /** The latest date that can be chosen or typed. */
+      max?: Date;
+      /** Days that cannot be chosen, in the calendar or by typing, such as days with nothing to book. */
+      disabledDate?: (date: Date) => boolean;
+      /** Days that get a dot in the calendar: a list of dates or a function. */
+      marked?: Date[] | ((date: Date) => boolean);
+      /** Shows the calendar's Today and Clear buttons. */
+      footer?: boolean;
+      /** What `v-model` holds. `date` is a `Date` (a local day at noon). `iso` is a `YYYY-MM-DD` string, or `null` for no date, which has no time zone to shift. @default "date" */
+      valueFormat?: F;
+      /** Submits the date as `YYYY-MM-DD` with a form, through a hidden input. A disabled field is not submitted. */
+      name?: string;
+    }
+  >(),
   { footer: true },
 );
 
