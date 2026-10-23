@@ -183,8 +183,8 @@ watch(current, () => reveal(true));
     font-weight: var(--e-weight-strong);
   }
 
-  /* The slab answers the pointer too: it darkens under the cursor, in step with the face. */
-  .e-tab[aria-selected="true"]:hover {
+  /* In a vertical list the slab down the outer edge answers the pointer: it darkens under the cursor. In a horizontal list the slab faces the panel, so it holds its colour. */
+  .e-tabs--vertical > .e-tablist > .e-tab[aria-selected="true"]:hover {
     --_slab: var(--e-primary-slab);
   }
 
@@ -222,7 +222,7 @@ watch(current, () => reveal(true));
     padding-inline: max(0px, calc(var(--e-space-1) - var(--e-stroke-edge) - var(--_lift)));
   }
 
-  /* Vertical: the tabs stack beside the panel, flush and sharing edges. The selected tab's slab is a band down the inline-start side, and only the column's ends are rounded. */
+  /* Vertical: the tabs stack beside the panel, flush and sharing edges. The selected tab keeps the same thickness on all four sides, with the slab colour down the inline-start side, and only the column's ends are rounded. */
   .e-tabs--vertical {
     display: flex;
     align-items: flex-start;
@@ -256,7 +256,6 @@ watch(current, () => reveal(true));
   }
 
   .e-tabs--vertical > .e-tablist > .e-tab[aria-selected="true"] {
-    border-inline-end-width: var(--e-stroke-edge);
     border-bottom-color: var(--_bc);
     border-inline-start-color: var(--_slab);
   }
@@ -273,8 +272,6 @@ watch(current, () => reveal(true));
   }
 
   .e-tabs--vertical.e-tabs--end > .e-tablist > .e-tab[aria-selected="true"] {
-    border-inline-start-width: var(--e-stroke-edge);
-    border-inline-end-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-inline-start-color: var(--_bc);
     border-inline-end-color: var(--_slab);
   }
