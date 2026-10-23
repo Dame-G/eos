@@ -105,6 +105,7 @@ useMessages
 useOverflow
 usePortalTarget
 useQuietFocus
+useReducedMotion
 useShortcuts
 useSize
 useToast

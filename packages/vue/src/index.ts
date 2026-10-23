@@ -25,6 +25,7 @@ export * from "./composables/useFormContext.js";
 export * from "./composables/useLocale.js";
 export * from "./composables/useOverflow.js";
 export * from "./composables/useQuietFocus.js";
+export * from "./composables/useReducedMotion.js";
 export * from "./composables/useShortcuts.js";
 export * from "./composables/useSize.js";
 export * from "./composables/useToast.js";

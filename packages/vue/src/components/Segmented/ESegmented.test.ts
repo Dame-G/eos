@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -22,7 +22,8 @@ describe("ESegmented", () => {
     const { container } = await render(ESegmented, { props: { label: "View", options } });
     await expect.element(page.getByRole("radiogroup", { name: "View" })).toBeVisible();
     expect(container.querySelectorAll("input.e-seg-input").length).toBe(3);
-    expect(container.firstElementChild!.className).toBe("e-seg");
+    expect(container.firstElementChild!.className).toBe("e-seg-field");
+    expect(container.querySelectorAll(".e-seg").length).toBe(1);
     await expect.element(page.getByRole("radio", { name: "Week" })).toBeVisible();
   });
 
@@ -200,7 +201,8 @@ describe("ESegmented", () => {
     });
     const seg = container.querySelector(".e-seg") as HTMLElement;
     expect(seg.dataset["x"]).toBe("1");
-    expect(seg.className).toBe("e-seg mine");
+    expect(seg.className).toBe("e-seg");
+    expect(container.firstElementChild!.className).toBe("e-seg-field mine");
   });
 
   test("has no accessibility violations in any state", async () => {
@@ -322,6 +324,46 @@ describe("ESegmented", () => {
     };
     await page.getByRole("radio", { name: "Option number 5" }).click({ force: true });
     await expect.poll(inView).toBe(true);
+  });
+
+  test("with reduced motion the chosen option jumps into view instead of a smooth scroll", async () => {
+    const real = window.matchMedia.bind(window);
+    vi.stubGlobal("matchMedia", (q: string) =>
+      q.includes("prefers-reduced-motion") ? ({ matches: true } as MediaQueryList) : real(q),
+    );
+    const behaviours: (string | undefined)[] = [];
+    const spy = vi.spyOn(HTMLElement.prototype, "scrollBy").mockImplementation(function (o?: unknown) {
+      behaviours.push((o as ScrollToOptions | undefined)?.behavior);
+    });
+    try {
+      const options = Array.from({ length: 6 }, (_, i) => `Option number ${i}`);
+      const { container } = await render(ESegmented, { props: { label: "Pick", options } });
+      container.classList.add("e-root");
+      container.style.width = "16rem";
+      const track = container.querySelector<HTMLElement>(".e-seg")!;
+      await expect.poll(() => track.scrollWidth).toBeGreaterThan(track.clientWidth);
+      await page.getByRole("radio", { name: "Option number 5" }).click({ force: true });
+      await expect.poll(() => behaviours.length).toBeGreaterThan(0);
+      expect(behaviours).not.toContain("smooth");
+    } finally {
+      spy.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  test("the hint id does not come from the name, so two groups sharing a name keep their own hints", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(ESegmented, { label: "A", options, name: "view", hint: "First" }),
+            h(ESegmented, { label: "B", options, name: "view", hint: "Second" }),
+          ]),
+      }),
+    );
+    const ids = [...container.querySelectorAll(".e-field-hint")].map((el) => el.id);
+    expect(new Set(ids).size).toBe(2);
+    await expect.element(page.getByRole("radiogroup", { name: "B" })).toHaveAccessibleDescription("Second");
   });
   test("an error turns the edge of the options that are not chosen danger and tints a hovered option", async () => {
     const { container } = await render(ESegmented, { props: { label: "View", options, error: "Pick a view" } });

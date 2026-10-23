@@ -99,6 +99,15 @@ const dir = useDir();
 
 The provider reaches teleported content, because provide and inject follow the component tree. Text and layout inherit `dir` from the element it is on, so `createEos` sets `lang` and `dir` on the theme target when you give it a `locale` (see `portalTarget`).
 
+## `useReducedMotion()`
+
+Returns a function that says whether the person asked for less motion (`prefers-reduced-motion: reduce`). Call it when the motion starts, so a change of the setting is followed. `ETabs` and `ESegmented` use it to scroll the chosen item into view without a smooth scroll.
+
+```ts
+const calm = useReducedMotion();
+el.scrollBy({ left, behavior: calm() ? "auto" : "smooth" });
+```
+
 ## `useLocale()`
 
 Everything date and money components need from the configured locale: month and weekday names, the first day of the week, date order and separator, and formatting and parsing of dates and money.
