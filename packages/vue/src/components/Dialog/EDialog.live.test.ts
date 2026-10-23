@@ -27,7 +27,10 @@ async function openDialog(extra: Record<string, unknown> = {}) {
     defineComponent({
       render: () =>
         h(EToastProvider, null, {
-          default: () => [h(Grab), h(EDialog, { open: true, title: "Cancel it?", ...extra }, { default: () => "Body" })],
+          default: () => [
+            h(Grab),
+            h(EDialog, { open: true, title: "Cancel it?", ...extra }, { default: () => "Body" }),
+          ],
         }),
     }),
   );

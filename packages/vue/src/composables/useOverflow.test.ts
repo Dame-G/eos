@@ -52,12 +52,12 @@ describe("useOverflow", () => {
     document.body.append(host);
     const shown = ref(false);
     const tall = ref(10);
-    let overflows = ref(false);
+    const state = { overflows: ref(false) };
     const app = createApp(
       defineComponent({
         setup() {
           const scroller = ref<HTMLElement | null>(null);
-          overflows = useOverflow(scroller, [], { children: true });
+          state.overflows = useOverflow(scroller, [], { children: true });
           return () =>
             h("div", { ref: scroller, style: "height: 100px; overflow: auto" }, [
               h("p", "first"),
@@ -68,13 +68,13 @@ describe("useOverflow", () => {
     );
     app.mount(host);
     await nextTick();
-    expect(overflows.value).toBe(false);
+    expect(state.overflows.value).toBe(false);
     shown.value = true;
     await nextTick();
     tall.value = 400;
-    await expect.poll(() => overflows.value).toBe(true);
+    await expect.poll(() => state.overflows.value).toBe(true);
     tall.value = 10;
-    await expect.poll(() => overflows.value).toBe(false);
+    await expect.poll(() => state.overflows.value).toBe(false);
     app.unmount();
     host.remove();
   });

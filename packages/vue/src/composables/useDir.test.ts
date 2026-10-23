@@ -57,7 +57,21 @@ describe("useDir", () => {
         .mount(document.createElement("div"));
       sides.push(out);
     }
-    expect(sides[0]).toEqual({ start: "left", end: "right", top: "top", bottom: "bottom", left: "left", right: "right" });
-    expect(sides[1]).toEqual({ start: "right", end: "left", top: "top", bottom: "bottom", left: "left", right: "right" });
+    expect(sides[0]).toEqual({
+      start: "left",
+      end: "right",
+      top: "top",
+      bottom: "bottom",
+      left: "left",
+      right: "right",
+    });
+    expect(sides[1]).toEqual({
+      start: "right",
+      end: "left",
+      top: "top",
+      bottom: "bottom",
+      left: "left",
+      right: "right",
+    });
   });
 });

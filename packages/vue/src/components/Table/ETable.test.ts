@@ -140,7 +140,10 @@ describe("ETable", () => {
   });
 
   test("loading shows five placeholder lines by default, as EDataGrid shows five rows", async () => {
-    const { container } = await render(ETable, { props: { caption: "Plans", loading: true }, slots: { default: rows } });
+    const { container } = await render(ETable, {
+      props: { caption: "Plans", loading: true },
+      slots: { default: rows },
+    });
     expect(container.querySelectorAll(".e-table-loading .e-skel").length).toBe(5);
   });
 

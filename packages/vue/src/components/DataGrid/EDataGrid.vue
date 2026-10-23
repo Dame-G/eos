@@ -516,12 +516,7 @@ onMounted(() => {
                     : undefined
                 "
               >
-                <button
-                  v-if="c.sortable"
-                  type="button"
-                  class="e-sortbtn"
-                  @click="toggleSort(c)"
-                >
+                <button v-if="c.sortable" type="button" class="e-sortbtn" @click="toggleSort(c)">
                   <slot :name="`header-${c.key}`" :column="c">{{ c.label }}</slot>
                   <EIcon
                     :name="sort?.key === c.key ? (sort.dir === 'asc' ? 'arrow-up' : 'arrow-down') : 'sort'"

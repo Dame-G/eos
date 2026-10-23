@@ -70,6 +70,7 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
 @layer e.primitives {
   .e-progress {
     --_period: calc(var(--e-space-4) * 1.4142);
+
     /* Which way the sliding bar travels: from the start edge to the end, so it flips in a right-to-left page. */
     --_dir: 1;
 

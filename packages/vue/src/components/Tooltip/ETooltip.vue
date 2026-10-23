@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, watch } from "vue";
 import { TooltipContent, TooltipPortal, TooltipProvider, TooltipRoot, TooltipTrigger } from "reka-ui";
 import { usePortalTarget } from "../../config.js";
-import { useDir, useLogicalSide } from "../../composables/useDir.js";
+import { useLogicalSide } from "../../composables/useDir.js";
 import { useTooltipGroup } from "./group.js";
 import "../../styles/base.css";
 
@@ -31,7 +31,6 @@ defineSlots<{
 }>();
 
 const portal = usePortalTarget();
-const dir = useDir();
 const group = useTooltipGroup();
 /** Whether the bubble shows. Hover, focus and Escape update it. */
 const open = defineModel<boolean>("open", { default: false });
