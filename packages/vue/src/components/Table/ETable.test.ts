@@ -127,7 +127,7 @@ describe("ETable", () => {
   });
 
   test("the loading status region is in the page before loading starts, so only its text changes", async () => {
-    const view = await render(ETable, { props: { caption: "Plans" }, slots: { default: rows } });
+    const view = await render(ETable, { props: { caption: "Plans", loading: false }, slots: { default: rows } });
     const status = view.container.querySelector("[role=status]");
     expect(status).not.toBeNull();
     expect(status!.textContent).toBe("");

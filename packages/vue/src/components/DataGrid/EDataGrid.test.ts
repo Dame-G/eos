@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- the grid is generic over the row, which the tests leave open */
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -657,6 +657,14 @@ describe("EDataGrid", () => {
     expect(container.querySelector(".e-filterrow")).toBeNull();
     expect(container.querySelector(".e-grid-foot")).toBeNull();
     expect(bodyRows(container).length).toBe(30);
+  });
+
+  test("bare is deprecated: it warns once in development, pointing to ETable", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await grid({ props: { caption: "T", columns: COLS, rows: ROWS, bare: true } });
+    expect(warn.mock.calls.filter(([m]) => String(m).includes("bare"))).toHaveLength(1);
+    expect(String(warn.mock.calls[0]![0])).toContain("ETable");
+    warn.mockRestore();
   });
 
   test("toolbar slot and attribute fall-through", async () => {

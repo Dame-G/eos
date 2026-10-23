@@ -1,24 +1,5 @@
 <script setup lang="ts" generic="Row extends DataGridRow">
 import { computed, onBeforeUnmount, onMounted, ref, watch, type CSSProperties } from "vue";
-import {
-  columnFilteringFeature,
-  columnSizingFeature,
-  columnVisibilityFeature,
-  createFilteredRowModel,
-  createPaginatedRowModel,
-  createSortedRowModel,
-  functionalUpdate,
-  globalFilteringFeature,
-  rowPaginationFeature,
-  rowSelectionFeature,
-  rowSortingFeature,
-  tableFeatures,
-  useTable,
-  type ColumnDef,
-  type FilterFn,
-  type RowSelectionState,
-  type SortFn,
-} from "@tanstack/vue-table";
 import { useVirtualizer } from "@tanstack/vue-virtual";
 import EButton from "../Button/EButton.vue";
 import ECheckbox from "../Checkbox/ECheckbox.vue";
@@ -33,6 +14,7 @@ import "../Definition/EDefinition.vue";
 import type { EOption } from "../Select/options.js";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
+import { isProduction } from "../../env.js";
 import { useLocale } from "../../composables/useLocale.js";
 import { useOverflow } from "../../composables/useOverflow.js";
 import { cellValue, compareValues, filterActive, foldText, parsePx, passesFilter } from "./grid.js";
@@ -97,7 +79,10 @@ const props = withDefaults(
     error?: boolean | string;
     /** The name of a row for its checkbox ("Select Annual check-up"), when the first column's text is not a good one. */
     rowLabel?: (row: Row) => string;
-    /** Renders a bare table for a short static list, with no toolbar, filters, paging or footer. */
+    /**
+     * Renders a bare table for a short static list, with no toolbar, filters, paging or footer.
+     * @deprecated Use `ETable` for a short static list. `bare` still works, and warns in development.
+     */
     bare?: boolean;
   }>(),
   { pageSize: 10, cards: true, searchDebounce: 0, skeletonRows: 5 },
@@ -137,31 +122,13 @@ const loc = useLocale();
 
 const NONE = "__e-none__";
 
-const features = tableFeatures({
-  rowSortingFeature,
-  sortedRowModel: createSortedRowModel(),
-  columnFilteringFeature,
-  globalFilteringFeature,
-  filteredRowModel: createFilteredRowModel(),
-  rowPaginationFeature,
-  paginatedRowModel: createPaginatedRowModel(),
-  rowSelectionFeature,
-  columnVisibilityFeature,
-  columnSizingFeature,
-});
+if (props.bare && !isProduction())
+  console.warn("[eos] EDataGrid `bare` is deprecated. Use ETable for a short static list.");
 
+/** Columns hidden from the Columns menu, by key. A column is shown unless it is `false` here. */
 const columnVisibility = ref<Record<string, boolean>>({});
+/** Widths people dragged or keyed, in pixels, by key. */
 const columnSizing = ref<Record<string, number>>({});
-
-const sortFn: SortFn<typeof features, Row> = (a, b, id) =>
-  compareValues(a.getValue(id), b.getValue(id), loc.locale.value);
-type GlobalFilter = { q: string; cols: string[] };
-const globalFilterFn: FilterFn<typeof features, Row> = (row, id, f: GlobalFilter) => {
-  if (!f.cols.includes(id)) return false;
-  const v = row.getValue(id);
-  const col = colByKey.value.get(id);
-  return v != null && (foldText(v).includes(f.q) || (!!col && foldText(show(row.original, col)).includes(f.q)));
-};
 
 const colByKey = computed(() => new Map(props.columns.map((c) => [c.key, c])));
 
@@ -189,23 +156,6 @@ function fmtDate(v: Date | string): string {
   const d = v instanceof Date ? v : new Date(v);
   return Number.isNaN(d.getTime()) ? String(v) : loc.formatDate(d);
 }
-const columnDefs = computed<ColumnDef<typeof features, Row>[]>(() =>
-  props.columns.map((c) => ({
-    id: c.key,
-    accessorFn: (row: Row) => cellValue(row, c),
-    header: c.label,
-    enableSorting: !!c.sortable,
-    sortDescFirst: false,
-    sortFn,
-    enableColumnFilter: !!c.filter,
-    filterFn: ((row, id, f) => passesFilter(c, row.getValue(id), f, show(row.original, c))) as FilterFn<
-      typeof features,
-      Row
-    >,
-    enableResizing: c.resizable !== false,
-  })),
-);
-
 const vopt = computed(() =>
   props.virtual ? { rowHeight: 48, height: 440, overscan: 8, ...(props.virtual === true ? {} : props.virtual) } : null,
 );
@@ -216,80 +166,58 @@ const cards = computed(() => props.cards !== false && !vopt.value && !resizable.
 const q = computed(() => foldText(search.value.trim()));
 const anyFilter = computed(() => Object.values(filters.value).some(filterActive));
 
-// TanStack keys selection by string. The model holds the ids as the rows have them.
-const idByKey = computed(() => new Map(props.rows.map((r) => [String(r.id), r.id as Row["id"]])));
-const selectionKeys = computed<RowSelectionState>(() =>
-  Object.fromEntries(selected.value.map((id) => [String(id), true])),
-);
-const toId = (key: string): Row["id"] =>
-  idByKey.value.get(key) ?? selected.value.find((id) => String(id) === key) ?? key;
+/** The shown columns, in order. */
+const cols = computed(() => props.columns.filter((c) => columnVisibility.value[c.key] !== false));
 
-const table = useTable({
-  features,
-  columns: columnDefs,
-  data: computed(() => props.rows),
-  getRowId: (row: Row) => String(row.id),
-  enableMultiSort: false,
-  enableSubRowSelection: false,
-  // The default asks only columns whose first value is a string or a number; a date cell is searched too.
-  getColumnCanGlobalFilter: () => true,
-  autoResetPageIndex: false,
-  manualSorting: computed(() => !!props.manual),
-  manualFiltering: computed(() => !!props.manual),
-  manualPagination: computed(() => !paging.value),
-  rowCount: computed(() => (props.manual ? (props.total ?? props.rows.length) : undefined)),
-  globalFilterFn,
-  state: computed(() => ({
-    sorting: sort.value ? [{ id: sort.value.key, desc: sort.value.dir === "desc" }] : [],
-    columnFilters: Object.entries(filters.value)
-      .filter(([key, value]) => colByKey.value.has(key) && filterActive(value))
-      .map(([id, value]) => ({ id, value })),
-    globalFilter: q.value
-      ? ({
-          q: q.value,
-          cols: props.columns.filter((c) => columnVisibility.value[c.key] !== false).map((c) => c.key),
-        } satisfies GlobalFilter)
-      : undefined,
-    rowSelection: selectionKeys.value,
-    columnVisibility: columnVisibility.value,
-    columnSizing: columnSizing.value,
-    pagination: { pageIndex: Math.max(0, page.value - 1), pageSize: pageSize.value || 1 },
-  })),
-  onSortingChange: (updater) => {
-    const next = functionalUpdate(updater, sort.value ? [{ id: sort.value.key, desc: sort.value.dir === "desc" }] : []);
-    const first = next[0];
-    sort.value = first ? { key: first.id, dir: first.desc ? "desc" : "asc" } : null;
-    page.value = 1;
-  },
-  onRowSelectionChange: (updater) => {
-    const next = functionalUpdate(updater, selectionKeys.value);
-    selected.value = Object.keys(next)
-      .filter((k) => next[k])
-      .map(toId);
-  },
-  onColumnVisibilityChange: (updater) => {
-    columnVisibility.value = functionalUpdate(updater, columnVisibility.value);
-  },
-  onColumnSizingChange: (updater) => {
-    columnSizing.value = functionalUpdate(updater, columnSizing.value);
-  },
+/*
+ * The rows go through three steps, each a computed over the one before: filter (the column filters, then the search
+ * over the shown columns), sort, then the page. A `manual` grid does none of it: the server sent the answer.
+ */
+const filteredRows = computed<Row[]>(() => {
+  if (props.manual) return props.rows;
+  const active = Object.entries(filters.value).flatMap(([key, f]) => {
+    const c = colByKey.value.get(key);
+    return c && filterActive(f) ? [{ c, f }] : [];
+  });
+  const needle = q.value;
+  if (!active.length && !needle) return props.rows;
+  const searched = cols.value;
+  return props.rows.filter(
+    (row) =>
+      active.every(({ c, f }) => passesFilter(c, cellValue(row, c), f, show(row, c))) &&
+      (!needle ||
+        searched.some((c) => {
+          const v = cellValue(row, c);
+          return v != null && (foldText(v).includes(needle) || foldText(show(row, c)).includes(needle));
+        })),
+  );
 });
 
-const view = computed(() => table.getRowModel().rows);
-const total = computed(() =>
-  props.manual ? (props.total ?? props.rows.length) : table.getPrePaginatedRowModel().rows.length,
-);
+const sortedRows = computed<Row[]>(() => {
+  const s = sort.value;
+  const c = s ? colByKey.value.get(s.key) : undefined;
+  if (props.manual || !s || !c?.sortable) return filteredRows.value;
+  const sign = s.dir === "desc" ? -1 : 1;
+  const locale = loc.locale.value;
+  // Equal values keep the order they were given in.
+  return filteredRows.value
+    .map((row, i) => ({ row, i, v: cellValue(row, c) }))
+    .sort((a, b) => sign * compareValues(a.v, b.v, locale) || a.i - b.i)
+    .map((x) => x.row);
+});
+
+/** The rows on the current page, or every row when the grid does not page. */
+const view = computed<Row[]>(() => {
+  if (!paging.value) return sortedRows.value;
+  const start = Math.max(0, page.value - 1) * pageSize.value;
+  return sortedRows.value.slice(start, start + pageSize.value);
+});
+const total = computed(() => (props.manual ? (props.total ?? props.rows.length) : sortedRows.value.length));
 const pages = computed(() => (pageSize.value > 0 ? Math.max(1, Math.ceil(total.value / pageSize.value)) : 1));
 const cur = computed(() => Math.min(page.value, pages.value));
 watch(pages, (n) => {
   if (page.value > n) page.value = n;
 });
-const cols = computed(() =>
-  table
-    .getVisibleLeafColumns()
-    .map((c) => colByKey.value.get(c.id))
-    .filter((c): c is DataGridColumn<Row> => !!c),
-);
 const hasFilterRow = computed(() => !!props.filterable && !props.bare && cols.value.some((c) => c.filter));
 const colCount = computed(() => cols.value.length + (props.selectable ? 1 : 0));
 const from = computed(() =>
@@ -297,9 +225,31 @@ const from = computed(() =>
 );
 const to = computed(() => (pageSize.value > 0 ? Math.min(total.value, cur.value * pageSize.value) : total.value));
 const sortedCol = computed(() => (sort.value ? colByKey.value.get(sort.value.key) : undefined));
+
+/*
+ * Selection is by id, matched as text so "7" and 7 are one row. The model keeps the ids as the rows have them, and
+ * keeps ids that are not among the rows (another page, a server).
+ */
+const pickedKeys = computed(() => new Set(selected.value.map(String)));
+const isPicked = (row: Row) => pickedKeys.value.has(String(row.id));
+function pick(rows: Row[], on: boolean) {
+  const keys = new Set(rows.map((r) => String(r.id)));
+  const kept = selected.value.filter((id) => !keys.has(String(id)));
+  selected.value = on ? [...kept, ...rows.map((r) => r.id as Row["id"])] : kept;
+}
 const nPicked = computed(() => selected.value.length);
-const allOn = computed(() => view.value.length > 0 && view.value.every((r) => r.getIsSelected()));
-const someOn = computed(() => view.value.some((r) => r.getIsSelected()));
+const allOn = computed(() => view.value.length > 0 && view.value.every(isPicked));
+const someOn = computed(() => view.value.some(isPicked));
+
+/** A heading cycles ascending, descending, off. Another column starts ascending. */
+function toggleSort(c: DataGridColumn<Row>) {
+  const s = sort.value;
+  sort.value = s?.key !== c.key ? { key: c.key, dir: "asc" } : s.dir === "asc" ? { key: c.key, dir: "desc" } : null;
+  page.value = 1;
+}
+function toggleColumn(key: string, visible: boolean) {
+  columnVisibility.value = { ...columnVisibility.value, [key]: visible };
+}
 
 const scrollEl = ref<HTMLElement | null>(null);
 const tableEl = ref<HTMLElement | null>(null);
@@ -326,10 +276,7 @@ const rowsToRender = computed(() =>
     : view.value.map((row, index) => ({ row, index })),
 );
 
-const cellProps = (row: (typeof view.value)[number], c: DataGridColumn<Row>) => ({
-  row: row.original,
-  value: row.getValue(c.key),
-});
+const cellProps = (row: Row, c: DataGridColumn<Row>) => ({ row, value: cellValue(row, c) });
 
 const fixedLayout = computed(() => resizable.value || !!vopt.value || cols.value.some((c) => c.width));
 const widthOf = (c: DataGridColumn<Row>) => columnSizing.value[c.key] || parsePx(c.width) || undefined;
@@ -441,14 +388,12 @@ function chooseSort(v: string) {
   page.value = 1;
 }
 function setWidth(key: string, px: number) {
-  table.setColumnSizing((old) => ({ ...old, [key]: px }));
+  columnSizing.value = { ...columnSizing.value, [key]: px };
 }
 function resetWidth(key: string) {
-  table.setColumnSizing((old) => {
-    const next = { ...old };
-    delete next[key];
-    return next;
-  });
+  const next = { ...columnSizing.value };
+  delete next[key];
+  columnSizing.value = next;
 }
 let queryTimer: ReturnType<typeof setTimeout> | undefined;
 let reportedSearch = search.value;
@@ -489,16 +434,14 @@ onMounted(() => {
         :filtered="anyFilter || !!q"
         :columns="
           columnToggle
-            ? table
-                .getAllLeafColumns()
-                .map((c) => ({ id: c.id, label: colByKey.get(c.id)?.label ?? c.id, visible: c.getIsVisible() }))
+            ? columns.map((c) => ({ id: c.key, label: c.label, visible: columnVisibility[c.key] !== false }))
             : undefined
         "
         :sort-only="!barOther"
         @update:search="onSearch"
         @sort="chooseSort"
         @clear="clearFilters"
-        @toggle-column="(id, visible) => table.getColumn(id)?.toggleVisibility(visible)"
+        @toggle-column="toggleColumn"
       >
         <template #bulk-actions><slot name="bulk-actions" /></template>
         <template v-if="hasToolbar" #toolbar><slot name="toolbar" /></template>
@@ -537,7 +480,7 @@ onMounted(() => {
                   :label="vopt ? t('selectAll') : t('selectAllPage')"
                   :model-value="allOn"
                   :indeterminate="someOn && !allOn"
-                  @update:model-value="table.toggleAllPageRowsSelected(!allOn)"
+                  @update:model-value="pick(view, !allOn)"
                 />
               </th>
               <th
@@ -561,7 +504,7 @@ onMounted(() => {
                   v-if="c.sortable"
                   type="button"
                   class="e-sortbtn"
-                  @click="table.getColumn(c.key)?.toggleSorting()"
+                  @click="toggleSort(c)"
                 >
                   <slot :name="`header-${c.key}`" :column="c">{{ c.label }}</slot>
                   <EIcon
@@ -629,15 +572,15 @@ onMounted(() => {
                 v-for="{ row, index } in rowsToRender"
                 :key="row.id"
                 :role="role('row')"
-                :data-selected="row.getIsSelected() ? '' : undefined"
+                :data-selected="isPicked(row) ? '' : undefined"
                 :aria-rowindex="vopt ? index + 2 + (hasFilterRow ? 1 : 0) : undefined"
               >
                 <td v-if="selectable" class="e-cell-check" :role="role('cell')">
                   <ECheckbox
                     bare
-                    :label="t('selectRowNamed', { label: labelOf(row.original) })"
-                    :model-value="row.getIsSelected()"
-                    @update:model-value="row.toggleSelected($event)"
+                    :label="t('selectRowNamed', { label: labelOf(row) })"
+                    :model-value="isPicked(row)"
+                    @update:model-value="pick([row], $event)"
                   />
                 </td>
                 <td
@@ -648,7 +591,7 @@ onMounted(() => {
                   :class="{ 'e-num': c.numeric, 'e-center': c.align === 'center', 'e-sticky': stick(i) }"
                   :style="stickStyle(i)"
                 >
-                  <slot :name="`cell-${c.key}`" v-bind="cellProps(row, c)">{{ show(row.original, c) }}</slot>
+                  <slot :name="`cell-${c.key}`" v-bind="cellProps(row, c)">{{ show(row, c) }}</slot>
                 </td>
               </tr>
               <tr

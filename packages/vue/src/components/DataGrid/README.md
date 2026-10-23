@@ -61,11 +61,13 @@ The models work without a binding.
 | `emptyIcon`         | `IconProp`                            | `"search"`             | The icon above the empty title.                                                                                                                                                                          |
 | `error`             | `boolean \| string`                   | None                   | Shows a failed load in place of the rows. `true` says the default sentence; a string says your own. A "Try again" button emits `retry`.                                                                  |
 | `rowLabel`          | `(row: Row) => string`                | None                   | The name of a row for its checkbox ("Select Annual check-up"), when the first column's text is not a good one.                                                                                           |
-| `bare`              | `boolean`                             | `false`                | Renders a bare table for a short static list, with no toolbar, filters, paging or footer.                                                                                                                |
+| `bare`              | `boolean`                             | `false`                | Renders a bare table for a short static list, with no toolbar, filters, paging or footer. @deprecated Use `ETable` for a short static list. `bare` still works, and warns in development.                |
 
 <!-- props:end -->
 
 `class`, `style` and attributes land on the `div` element. `selected` holds ids as the rows have them (a numeric `id` stays a number). Text sorts in the configured locale, and search and text filters ignore case and accents. The search also matches the text a cell shows, such as a formatted date. A number filter skips cells that hold no number.
+
+`bare` is deprecated: for a short static list with no toolbar, filters or paging, use [`ETable`](../Table/README.md). A `bare` grid still renders, and warns once in development.
 
 A `DataGridColumn` has:
 
