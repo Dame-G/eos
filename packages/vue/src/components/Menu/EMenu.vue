@@ -194,7 +194,7 @@ function returnFocus(event: Event) {
     width: max-content;
     min-width: 12rem;
     max-width: min(20rem, calc(100vw - 2 * var(--e-space-4)));
-    padding: var(--e-gap-tight);
+    padding: var(--e-pad-inset);
   }
 
   .e-menu-item {
@@ -208,7 +208,7 @@ function returnFocus(event: Event) {
     border: 0;
 
     /* Concentric with the md panel it sits one gap-tight inside; the panel has no border. */
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-gap-tight)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)));
     background: transparent;
     color: var(--e-ink);
     font: var(--e-weight-regular) var(--e-text-md) / 1 var(--e-font-sans);

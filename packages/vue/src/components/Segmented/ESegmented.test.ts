@@ -239,6 +239,28 @@ describe("ESegmented", () => {
     expect(getComputedStyle(text).color).toBe(ink);
   });
 
+  test("the hover ring is the piece's own border, so no strip of bare wash lies between it and the next piece", async () => {
+    const { container } = await render(ESegmented, { props: { label: "View", options, modelValue: "Day" } });
+    container.classList.add("e-root");
+    await userEvent.hover(container.querySelectorAll("input")[1]!);
+    await new Promise((r) => setTimeout(r, 250));
+    const hovered = getComputedStyle(container.querySelectorAll(".e-seg-text")[1]!);
+    expect(hovered.boxShadow).toBe("none");
+    expect(hovered.borderTopColor).toBe(colourOf(container, "--e-wash-ring"));
+    expect(hovered.borderLeftColor).toBe(colourOf(container, "--e-wash-ring"));
+  });
+
+  test("a chosen option that is disabled is a flat tint with no edge of its own, inside the dashed track", async () => {
+    const { container } = await render(ESegmented, {
+      props: { label: "Currency", options: ["USD", "CAD"], modelValue: "USD", disabled: true },
+    });
+    container.classList.add("e-root");
+    const chosen = getComputedStyle(container.querySelector(".e-seg-input:checked + .e-seg-text")!);
+    expect(chosen.outlineStyle).toBe("none");
+    expect(chosen.boxShadow).toBe("none");
+    expect(getComputedStyle(container.querySelector(".e-seg")!).outlineStyle).toBe("dashed");
+  });
+
   test("in a narrow space the options scroll, and the chosen one is brought into view", async () => {
     const options = Array.from({ length: 6 }, (_, i) => `Option number ${i}`);
     const { container } = await render(ESegmented, { props: { label: "Pick", options } });

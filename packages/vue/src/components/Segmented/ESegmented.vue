@@ -221,14 +221,17 @@ const groupAttrs = () => ({
     transition: var(--e-transition-state);
   }
 
+  /* The hover and press ring is the piece's own border, not an inset shadow: a shadow draws inside the border, which leaves a strip of bare wash between the ring and the next piece. */
   .e-seg-opt:hover .e-seg-input:enabled:not(:checked) + .e-seg-text {
+    --_slab: var(--e-wash-ring);
+
     background: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
   }
 
   .e-seg-opt:active .e-seg-input:enabled:not(:checked) + .e-seg-text {
+    --_slab: var(--e-ink);
+
     background: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
   }
 
   .e-seg-input:checked + .e-seg-text {
@@ -268,14 +271,12 @@ const groupAttrs = () => ({
     outline-offset: calc(-1 * var(--e-stroke-edge));
   }
 
-  /* Chosen but unavailable: a flat piece with ink text, so it stays readable. */
+  /* Chosen but unavailable: a flat, tinted piece with ink text, so it stays readable. It has no edge of its own, only the track's dashed one, so its corners follow the track's. */
   .e-seg-input:disabled:checked + .e-seg-text {
     --_slab: transparent;
     --_lift: 0px;
 
-    background-color: var(--e-surface);
-    outline: var(--e-stroke-edge) solid var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
+    background-color: var(--e-wash-press);
     color: var(--e-ink);
   }
 

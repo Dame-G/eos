@@ -336,7 +336,7 @@ defineExpose({
   .e-cmd-list {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: var(--e-gap-tight);
+    padding: var(--e-pad-inset);
   }
 
   .e-cmd-keys {

@@ -117,9 +117,9 @@ defineExpose(control.exposed);
 
 <style>
 @layer e.composites {
-  /* The swatch nearly fills the field, so it sits half a tight gap inside the edge, and its corners are the field's radius less that and the edge: the same curve, not a sharper one. */
+  /* The swatch nearly fills the field, so it sits `pad-inset` inside the edge, and its corners are the field's radius less that and the edge: the same curve, not a sharper one. */
   .e-colorfield {
-    --_inset: calc(var(--e-gap-tight) / 2);
+    --_inset: var(--e-pad-inset);
 
     align-items: center;
     gap: var(--e-gap-snug);
