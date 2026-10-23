@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, watch } from "vue";
 import { TooltipContent, TooltipPortal, TooltipProvider, TooltipRoot, TooltipTrigger } from "reka-ui";
 import { usePortalTarget } from "../../config.js";
-import { useDir } from "../../composables/useDir.js";
+import { useDir, useLogicalSide } from "../../composables/useDir.js";
 import { useTooltipGroup } from "./group.js";
 import "../../styles/base.css";
 
@@ -36,12 +36,7 @@ const group = useTooltipGroup();
 /** Whether the bubble shows. Hover, focus and Escape update it. */
 const open = defineModel<boolean>("open", { default: false });
 
-const placement = computed(() => {
-  const rtl = dir.value === "rtl";
-  if (props.side === "start") return rtl ? "right" : "left";
-  if (props.side === "end") return rtl ? "left" : "right";
-  return props.side;
-});
+const placement = useLogicalSide(() => props.side);
 const delayNow = computed(() => (group.skipping.value ? 0 : props.delay));
 
 watch(open, (now) => {

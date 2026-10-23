@@ -15,3 +15,21 @@ export function useDir(): ComputedRef<"ltr" | "rtl"> {
   const config = useConfig();
   return computed(() => config.dir ?? localeDirection(config.locale));
 }
+
+/** A side that follows the reading direction (`start`, `end`), or a physical one. */
+export type LogicalSide = "top" | "bottom" | "start" | "end" | "left" | "right";
+
+/**
+ * The physical side for a floating part (Reka's `side`): `start` and `end` become `left` and `right` in a left-to-right
+ * page, and the other way round in a right-to-left one. `top`, `bottom`, `left` and `right` are kept as they are.
+ */
+export function useLogicalSide(side: () => LogicalSide): ComputedRef<"top" | "bottom" | "left" | "right"> {
+  const dir = useDir();
+  return computed(() => {
+    const s = side();
+    const rtl = dir.value === "rtl";
+    if (s === "start") return rtl ? "right" : "left";
+    if (s === "end") return rtl ? "left" : "right";
+    return s;
+  });
+}

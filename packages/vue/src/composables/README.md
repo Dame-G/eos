@@ -83,7 +83,7 @@ Pass `{ children: true }` for a scroller its container holds at one size, such a
 
 A stable id for wiring a label, hint and error to a control. It matches between server and client. Pass the component's own `id` prop to let the consumer choose: `useUid(() => props.id)`.
 
-## `useDir()`
+## `useDir()`, `useLogicalSide(side)`
 
 The direction to use: `createEos({ dir })` when set, otherwise the one the locale is written in (`ar`, `he`, `fa`, `ur` give `rtl`). Reka UI assumes left to right unless told, so every Reka root that takes `dir` (Select, Menu, Popover, Tabs, Calendar...) needs it, and so does anything teleported out of the tree. One place for all of a component's Reka parts is Reka's `ConfigProvider`:
 
@@ -100,6 +100,8 @@ const dir = useDir();
 ```
 
 The provider reaches teleported content, because provide and inject follow the component tree. Text and layout inherit `dir` from the element it is on, so `createEos` sets `lang` and `dir` on the theme target when you give it a `locale` (see `portalTarget`).
+
+`useLogicalSide(() => props.side)` turns a side that follows the reading direction (`start`, `end`) into the physical one a Reka popper takes (`left`, `right`), flipped in a right-to-left page. `top`, `bottom`, `left` and `right` pass through.
 
 ## `useLocale()`
 
