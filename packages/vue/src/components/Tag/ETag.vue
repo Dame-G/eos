@@ -12,7 +12,7 @@ withDefaults(
   defineProps<{
     /** The text of the tag. It also names the Remove button, as "Remove Cardiology". */
     label: string;
-    /** `neutral` has no colour. The others tint the tag with the tone of a Notice. */
+    /** `neutral` has no colour. The others colour the text, and leave the tag on the neutral surface: a tag names a category, and `EStamp` is the status mark. */
     tone?: TagTone;
     /** `sm` is shorter, for a dense list. */
     size?: "sm" | "md";
@@ -62,16 +62,20 @@ const t = useMessages();
     --_ink: var(--e-ink);
     --_edge: var(--e-border-strong);
     --_bg: var(--e-surface-tint);
+    --_lift: var(--e-slab-thin);
 
     display: inline-flex;
     align-items: center;
     gap: var(--e-gap-tight);
     max-inline-size: 100%;
     min-block-size: calc(var(--e-chip-height) + var(--e-gap-tight));
-    padding-inline: calc(var(--e-pad-chip) - var(--e-stroke-hair));
-    border: var(--e-stroke-hair) solid var(--_edge);
-    border-radius: var(--e-radius-pill);
+    padding-inline: calc(var(--e-pad-chip) - var(--e-stroke-edge));
+    padding-block-start: var(--_lift);
+    border: var(--e-stroke-edge) solid var(--_edge);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
+    border-radius: var(--e-radius-sm);
     background: var(--_bg);
+    background-clip: padding-box;
     color: var(--_ink);
     font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-tight) var(--e-font-sans);
   }
@@ -80,28 +84,21 @@ const t = useMessages();
     min-block-size: var(--e-chip-height);
   }
 
+  /* A tag is a category, not a status, so a tone is quiet: it colours the text, and the tag keeps the neutral surface and edge. A Stamp is the loud mark. */
   .e-tag--info {
     --_ink: var(--e-info);
-    --_edge: var(--e-info);
-    --_bg: var(--e-primary-soft);
   }
 
   .e-tag--success {
     --_ink: var(--e-success);
-    --_edge: var(--e-success);
-    --_bg: var(--e-success-soft);
   }
 
   .e-tag--warning {
     --_ink: var(--e-warning);
-    --_edge: var(--e-warning);
-    --_bg: var(--e-warning-soft);
   }
 
   .e-tag--danger {
     --_ink: var(--e-danger);
-    --_edge: var(--e-danger);
-    --_bg: var(--e-danger-soft);
   }
 
   .e-tag-text {

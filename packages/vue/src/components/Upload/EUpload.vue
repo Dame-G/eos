@@ -361,7 +361,7 @@ defineExpose({
     gap: var(--e-gap-snug);
     padding: var(--e-gap-snug) 0;
     border-top: var(--e-stroke-hair) solid var(--e-border);
-    font: var(--e-weight-regular) var(--e-text-md) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
   }
 
   .e-file-name {
@@ -371,7 +371,7 @@ defineExpose({
   }
 
   .e-file-size {
-    font: var(--e-weight-medium) var(--e-text-xs) / 1 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-xs) / var(--e-leading-none) var(--e-font-mono);
     color: var(--e-muted);
   }
 

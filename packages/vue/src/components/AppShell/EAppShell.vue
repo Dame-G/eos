@@ -90,10 +90,12 @@ function closeOnLink(event: MouseEvent) {
     display: grid;
     grid-template-rows: auto 1fr auto;
     min-height: 100%;
-    background: var(--e-background);
+    background: var(--e-surface-tint);
   }
 
+  /* The column is the page; the screen beside it, when the column does not fill it, is the tinted ground. */
   .e-shell-body {
+    background: var(--e-background);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     position: relative;

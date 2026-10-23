@@ -353,4 +353,33 @@ describe("EDialog", () => {
     await expect.element(page.getByRole("dialog")).toBeVisible();
     await expectNoViolations(document.querySelector(".e-dialog")!);
   });
+
+  test("with no foot bar the body carries the panel's end corners, so the panel's clip cannot cut its focus ring", async () => {
+    const corner = (el: Element, which: string) =>
+      parseFloat(getComputedStyle(el).getPropertyValue(`border-${which}-radius`));
+    for (const actions of [false, true]) {
+      const { container, unmount } = await render(
+        defineComponent({
+          render: () =>
+            h(
+              EDialog,
+              { title: "T", open: true, inline: true },
+              { default: () => "Body", ...(actions ? { actions: () => h(EButton, null, () => "Go") } : {}) },
+            ),
+        }),
+      );
+      container.classList.add("e-root");
+      for (const md of ["2px", "8px", "14px"]) {
+        (container as HTMLElement).style.setProperty("--e-radius-md", md);
+        const dialog = container.querySelector(".e-dialog")!;
+        const body = container.querySelector(".e-dialog-body")!;
+        for (const which of ["bottom-left", "bottom-right"]) {
+          expect(corner(dialog, which)).toBe(parseFloat(md));
+          expect(corner(body, which)).toBe(actions ? 0 : parseFloat(md));
+        }
+        expect(corner(body, "top-left")).toBe(0);
+      }
+      unmount();
+    }
+  });
 });

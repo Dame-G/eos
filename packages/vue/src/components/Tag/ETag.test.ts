@@ -8,26 +8,31 @@ import "../Combobox/ECombobox.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ETag", () => {
-  test("shows its label in a pill and has no button by default", async () => {
+  test("shows its label on a paper tag, and has no button by default", async () => {
     const { container } = await render(ETag, { props: { label: "Cardiology" } });
     container.classList.add("e-root");
     const tag = container.querySelector(".e-tag")!;
     expect(tag.textContent!.trim()).toBe("Cardiology");
     expect(container.querySelector("button")).toBeNull();
-    // A pill, not an ellipse: the radius is the pill token, far larger than half the height.
-    expect(parseFloat(getComputedStyle(tag).borderTopLeftRadius)).toBeGreaterThan(100);
+    // A tag, not a pill: a small corner radius, with a thin slab edge under it.
+    expect(parseFloat(getComputedStyle(tag).borderTopLeftRadius)).toBeLessThan(10);
   });
 
-  test("is drawn by its own rules only: one border, even padding, text centred", async () => {
+  test("is drawn by its own rules only: a slab edge, the text centred", async () => {
     const { container } = await render(ETag, { props: { label: "Cardiology" } });
     container.classList.add("e-root");
     const tag = container.querySelector(".e-tag")! as HTMLElement;
     const style = getComputedStyle(tag);
     expect(style.boxShadow).toBe("none");
-    expect(style.paddingLeft).toBe(style.paddingRight);
+    expect(parseFloat(style.borderBottomWidth)).toBeGreaterThan(parseFloat(style.borderTopWidth));
     const text = tag.querySelector(".e-tag-text")!.getBoundingClientRect();
     const box = tag.getBoundingClientRect();
     expect(Math.abs(text.top - box.top - (box.bottom - text.bottom))).toBeLessThanOrEqual(1);
+  });
+
+  test("an icon is shown before the text", async () => {
+    const { container } = await render(ETag, { props: { label: "Overdue", icon: "alert" } });
+    expect(container.querySelector(".e-tag svg")).not.toBeNull();
   });
 
   test("the default slot replaces the label", async () => {
@@ -38,19 +43,27 @@ describe("ETag", () => {
     expect(container.querySelector(".e-tag-text")!.textContent).toBe("Heart");
   });
 
-  test("tone adds its modifier and changes the colours; neutral adds none", async () => {
-    const colour = async (tone: "neutral" | "info" | "success" | "warning" | "danger") => {
+  test("tone adds its modifier and colours only the text; the tag stays on the neutral surface", async () => {
+    const look = async (tone: "neutral" | "info" | "success" | "warning" | "danger") => {
       const { container } = await render(ETag, { props: { label: "x", tone } });
       container.classList.add("e-root");
       const tag = container.querySelector(".e-tag")!;
-      return [tag.className, getComputedStyle(tag).backgroundColor];
+      const style = getComputedStyle(tag);
+      return {
+        cls: tag.className,
+        text: style.color,
+        bg: style.backgroundColor,
+        edge: style.borderTopColor,
+      };
     };
-    const neutral = await colour("neutral");
-    expect(neutral[0]).toBe("e-tag");
+    const neutral = await look("neutral");
+    expect(neutral.cls).toBe("e-tag");
     for (const tone of ["info", "success", "warning", "danger"] as const) {
-      const [cls, bg] = await colour(tone);
-      expect(cls).toBe(`e-tag e-tag--${tone}`);
-      expect(bg).not.toBe(neutral[1]);
+      const toned = await look(tone);
+      expect(toned.cls).toBe(`e-tag e-tag--${tone}`);
+      expect(toned.text, tone).not.toBe(neutral.text);
+      expect(toned.bg, tone).toBe(neutral.bg);
+      expect(toned.edge, tone).toBe(neutral.edge);
     }
   });
 
@@ -122,5 +135,11 @@ describe("ETag", () => {
       }),
     );
     await expectNoViolations(container);
+  });
+
+  test("the fill stops inside the edge, so it does not show through the antialiased corner", async () => {
+    const { container } = await render(ETag, { props: { label: "Cardiology" } });
+    container.classList.add("e-root");
+    expect(getComputedStyle(container.querySelector(".e-tag")!).backgroundClip).toBe("padding-box");
   });
 });

@@ -195,4 +195,35 @@ describe("EAvatar", () => {
     );
     await expectNoViolations(container);
   });
+
+  test("the picture's corners are concentric with the ring, under any radius", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(EAvatar, { name: "Ada", src: PIXEL }),
+            h(EAvatar, { name: "Bo", src: PIXEL, size: "sm" }),
+            h(EAvatar, { name: "Cy", src: PIXEL, as: "button" }),
+          ]),
+      }),
+    );
+    container.classList.add("e-root");
+    const px = (el: Element, p: string) => parseFloat(getComputedStyle(el).getPropertyValue(p));
+    for (const md of ["8px", "14px", "2px"]) {
+      container.style.setProperty("--e-radius-md", md);
+      for (const ring of container.querySelectorAll(".e-avatar")) {
+        const img = ring.querySelector(".e-avatar-img")!;
+        const edge = px(ring, "border-top-width");
+        const lift = px(ring, "border-bottom-width");
+        expect(px(img, "border-top-left-radius")).toBeCloseTo(
+          Math.max(0, px(ring, "border-top-left-radius") - edge),
+          1,
+        );
+        expect(px(img, "border-bottom-left-radius")).toBeCloseTo(
+          Math.max(0, px(ring, "border-bottom-left-radius") - lift),
+          1,
+        );
+      }
+    }
+  });
 });

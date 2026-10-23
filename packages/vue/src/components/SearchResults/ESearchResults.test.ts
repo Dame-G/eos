@@ -207,3 +207,17 @@ describe("ESearchResults", () => {
     await expectNoViolations(empty.container);
   });
 });
+
+describe("ESearchResults corners", () => {
+  test.each(["", "2px", "14px"])("a result's corner is the panel's less its padding (md %s)", async (md) => {
+    const { container } = await render(ESearchResults, { props: { items, label: "Results" } });
+    container.classList.add("e-root");
+    const box = container.querySelector<HTMLElement>(".e-results")!;
+    if (md) container.style.setProperty("--e-radius-md", md);
+    const css = getComputedStyle(box);
+    const outer = parseFloat(css.borderTopLeftRadius);
+    const inset = parseFloat(css.paddingTop) / 2 + parseFloat(css.borderTopWidth); /* pad-inset is half the padding */
+    const inner = parseFloat(getComputedStyle(box.querySelector(".e-opt")!).borderTopLeftRadius);
+    expect(Math.abs(inner - Math.max(0, outer - inset))).toBeLessThan(0.5);
+  });
+});

@@ -68,9 +68,11 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
 
 <style>
 @layer e.primitives {
+  /* A tinted chip with an edge in its tone, and a thick side on the inline-start edge, as a Notice has. The side flips in a right-to-left page. */
   .e-stamp {
-    --_fill: var(--e-ink);
-    --_on: var(--e-surface);
+    --_tone: var(--e-muted);
+    --_bg: var(--e-surface-tint);
+    --_ink: var(--e-ink);
 
     display: inline-flex;
     flex-wrap: nowrap;
@@ -78,47 +80,60 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
     align-items: center;
     gap: var(--e-gap-snug);
     min-height: calc(var(--e-chip-height) + var(--e-gap-tight));
-    padding: 0 var(--e-pad-chip);
+    padding-block: 0;
+    padding-inline: calc(var(--e-pad-chip) - var(--e-slab-bold)) calc(var(--e-pad-chip) - var(--e-stroke-edge));
+    border: var(--e-stroke-edge) solid var(--_tone);
+    border-inline-start-width: var(--e-slab-bold);
     border-radius: var(--e-radius-sm);
-    background: var(--_fill);
-    color: var(--_on);
+    background-color: var(--_bg);
+    background-clip: padding-box;
+    color: var(--_ink);
   }
 
   .e-stamp--success {
-    --_fill: var(--e-success);
-    --_on: var(--e-on-success);
+    --_tone: var(--e-success);
+    --_bg: var(--e-success-soft);
+    --_ink: var(--e-success);
   }
 
   .e-stamp--info {
-    --_fill: var(--e-info);
-    --_on: var(--e-on-info);
+    --_tone: var(--e-info);
+    --_bg: var(--e-info-soft);
+    --_ink: var(--e-info);
   }
 
   .e-stamp--danger {
-    --_fill: var(--e-danger);
-    --_on: var(--e-on-danger);
+    --_tone: var(--e-danger);
+    --_bg: var(--e-danger-soft);
+    --_ink: var(--e-danger);
   }
 
   .e-stamp--warning {
-    --_fill: var(--e-warning);
-    --_on: var(--e-on-warning);
+    --_tone: var(--e-warning);
+    --_bg: var(--e-warning-soft);
+    --_ink: var(--e-warning);
   }
 
-  /* The ink is a ring, not a fill, so it reads as pressed onto the page. */
+  /* The ink is a ring, not a tint, so it reads as pressed onto the page. */
   .e-stamp--final {
+    padding-inline: var(--e-pad-chip);
+    border: 0;
     background: transparent;
     color: var(--e-stamp-ink);
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-stamp-ink);
   }
 
+  /* The word and the detail share the kicker line height (`leading-tight`), so their baselines meet and the text sits on one line whichever way the row is centred. Capitals have no descenders, so a line box centres them high; a little space above the text moves the capitals to the middle of the stamp. */
   .e-stamp-word {
+    padding-block-start: 0.15em;
     font: var(--e-type-kicker);
     letter-spacing: var(--e-tracking-label);
     text-transform: uppercase;
   }
 
   .e-stamp-detail {
-    font: var(--e-weight-medium) var(--e-text-xs) / var(--e-leading-none) var(--e-font-mono);
+    padding-block-start: 0.15em;
+    font: var(--e-weight-medium) var(--e-text-xs) / var(--e-leading-tight) var(--e-font-mono);
     letter-spacing: var(--e-tracking-wide);
     padding-inline-start: var(--e-gap-snug);
     border-inline-start: var(--e-stroke-hair) solid color-mix(in srgb, currentcolor 55%, transparent);

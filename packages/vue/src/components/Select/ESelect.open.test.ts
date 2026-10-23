@@ -100,3 +100,18 @@ describe("ESelect open", () => {
     await expectNoViolations(document.body);
   });
 });
+
+describe("ESelect corners", () => {
+  test.each(["", "2px", "14px"])("an option's corner is the panel's less its padding (md %s)", async (md) => {
+    const { container } = await render(ESelect, { props: { label: "Pay with", options: ["Visa", "Bank", "Cash"] } });
+    await openIt(container);
+    await expect.poll(() => panel()).not.toBeNull();
+    const p = panel()!;
+    if (md) p.style.setProperty("--e-radius-md", md);
+    const css = getComputedStyle(p);
+    const outer = parseFloat(css.borderTopLeftRadius);
+    const inset = parseFloat(css.paddingTop) / 2 + parseFloat(css.borderTopWidth); /* pad-inset is half the padding */
+    const inner = parseFloat(getComputedStyle(p.querySelector(".e-opt")!).borderTopLeftRadius);
+    expect(Math.abs(inner - Math.max(0, outer - inset))).toBeLessThan(0.5);
+  });
+});

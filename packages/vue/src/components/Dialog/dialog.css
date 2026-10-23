@@ -89,7 +89,14 @@
     overflow: auto;
     overscroll-behavior: contain;
     padding-inline: var(--e-pad-panel);
-    font: var(--e-weight-regular) var(--e-text-md) / 1.5 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-normal) var(--e-font-sans);
+  }
+
+  /* With no foot bar the body ends at the panel's edge, so it takes the panel's corners: the panel clips to them and would cut off the focus ring. The panel has no border. */
+  .e-dialog-body:last-child,
+  .e-drawer-body:last-child {
+    border-end-start-radius: inherit;
+    border-end-end-radius: inherit;
   }
 
   .e-dialog-body:focus-visible,
@@ -114,7 +121,7 @@
     margin: 0;
     padding-inline: var(--e-pad-panel);
     color: var(--e-muted);
-    font: var(--e-weight-regular) var(--e-text-md) / 1.5 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-normal) var(--e-font-sans);
   }
 
   .e-dialog-foot {

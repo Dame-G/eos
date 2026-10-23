@@ -1,6 +1,6 @@
 # ETag
 
-A small pill that labels or categorises something, and can be removed. Use [`EStamp`](../Stamp/README.md) for the status of a record and [`EButton`](../Button/README.md) for an action.
+A small paper tag that labels or categorises something, and can be removed. Use [`EStamp`](../Stamp/README.md) for the status of a record and [`EButton`](../Button/README.md) for an action.
 
 ```vue
 <ETag label="Cardiology" />
@@ -12,13 +12,13 @@ A small pill that labels or categorises something, and can be removed. Use [`ESt
 
 <!-- props:start -->
 
-| Prop        | Type           | Default      | Notes                                                                         |
-| ----------- | -------------- | ------------ | ----------------------------------------------------------------------------- |
-| `label`     | `string`       | **Required** | The text of the tag. It also names the Remove button, as "Remove Cardiology". |
-| `tone`      | `TagTone`      | `"neutral"`  | `neutral` has no colour. The others tint the tag with the tone of a Notice.   |
-| `size`      | `"sm" \| "md"` | `"md"`       | `sm` is shorter, for a dense list.                                            |
-| `icon`      | `IconProp`     | None         | A decorative icon before the text.                                            |
-| `removable` | `boolean`      | `false`      | Adds a Remove button that emits `remove`. The tag does not remove itself.     |
+| Prop        | Type           | Default      | Notes                                                                                                                                                   |
+| ----------- | -------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `label`     | `string`       | **Required** | The text of the tag. It also names the Remove button, as "Remove Cardiology".                                                                           |
+| `tone`      | `TagTone`      | `"neutral"`  | `neutral` has no colour. The others colour the text, and leave the tag on the neutral surface: a tag names a category, and `EStamp` is the status mark. |
+| `size`      | `"sm" \| "md"` | `"md"`       | `sm` is shorter, for a dense list.                                                                                                                      |
+| `icon`      | `IconProp`     | None         | A decorative icon before the text.                                                                                                                      |
+| `removable` | `boolean`      | `false`      | Adds a Remove button that emits `remove`. The tag does not remove itself.                                                                               |
 
 <!-- props:end -->
 

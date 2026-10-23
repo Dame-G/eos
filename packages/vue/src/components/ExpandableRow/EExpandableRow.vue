@@ -58,6 +58,9 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     --_ring: var(--_slab);
     --_lift: var(--e-slab);
 
+    /* How far a child sits inside the row's rounded edge; each child works its own radius from it. */
+    --_inset: var(--e-stroke-edge);
+
     container-type: inline-size;
     border: var(--e-stroke-edge) solid var(--_ring);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
@@ -96,8 +99,12 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     cursor: not-allowed;
   }
 
+  /* The summary and body sit inside the row's border (edge wide, the bottom edge plus the lift while closed), so their corners are the row's less that. */
   .e-xrow > summary {
-    border-radius: var(--e-radius-md);
+    border-start-start-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
+    border-start-end-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
+    border-end-start-radius: max(0px, calc(var(--e-radius-md) - var(--_inset) - var(--_lift)));
+    border-end-end-radius: max(0px, calc(var(--e-radius-md) - var(--_inset) - var(--_lift)));
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
@@ -140,7 +147,7 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 
   .e-xrow-title {
     display: block;
-    font: var(--e-weight-medium) var(--e-text-md) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-medium) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
     overflow-wrap: anywhere;
     text-wrap: balance;
   }
@@ -154,7 +161,7 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 
   .e-xrow-trail {
     min-width: 5.5rem;
-    font: var(--e-weight-medium) var(--e-text-md) / 1.3 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-md) / var(--e-leading-snug) var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     text-align: end;
@@ -168,8 +175,8 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 
   .e-xrow-body {
     container-type: inline-size;
-    border-end-start-radius: var(--e-radius-md);
-    border-end-end-radius: var(--e-radius-md);
+    border-end-start-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
+    border-end-end-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
   }
 
   .e-xrow-content {
@@ -179,8 +186,8 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
   }
 
   .e-xrow-body > .e-actions--bar:last-child {
-    border-end-start-radius: var(--e-radius-md);
-    border-end-end-radius: var(--e-radius-md);
+    border-end-start-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
+    border-end-end-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
   }
 
   @container (max-width: 26rem) {

@@ -135,4 +135,29 @@ describe("ECodeBlock", () => {
     const { container } = await render(ECodeBlock, { props: { code: "const a = 1;", lang: "ts" } });
     await expectNoViolations(container);
   });
+
+  test("the body carries the block's start corners, so the block's clip cannot cut its focus ring", async () => {
+    const corner = (el: Element, which: string) =>
+      parseFloat(getComputedStyle(el).getPropertyValue(`border-${which}-radius`));
+    const { container } = await render(ECodeBlock, { props: { code: "const a = 1;" } });
+    container.classList.add("e-root");
+    const block = container.querySelector(".e-code")!;
+    const body = container.querySelector(".e-code-body")!;
+    for (const md of ["2px", "8px", "14px"]) {
+      (container as HTMLElement).style.setProperty("--e-radius-md", md);
+      for (const which of ["top-left", "bottom-left"]) {
+        expect(corner(block, which)).toBe(parseFloat(md));
+        expect(corner(body, which)).toBe(parseFloat(md));
+      }
+    }
+  });
+
+  test("the block does not clip: its ring is painted once, and the scroller inside owns the overflow", async () => {
+    const { container } = await render(ECodeBlock, { props: { code: "x".repeat(400) } });
+    container.classList.add("e-root");
+    const block = getComputedStyle(container.querySelector(".e-code")!);
+    expect(block.overflowX).toBe("visible");
+    expect(block.overflowY).toBe("visible");
+    expect(getComputedStyle(container.querySelector(".e-code-body")!).overflowX).toBe("auto");
+  });
 });

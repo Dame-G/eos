@@ -61,7 +61,6 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     display: flex;
     align-items: stretch;
     min-width: 0;
-    overflow: hidden;
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     box-shadow: var(--e-frame);
@@ -84,6 +83,10 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     align-content: center;
     min-width: 0;
     overflow-x: auto;
+
+    /* Flush against the block's start edge, so the block's corners (its own, which differ where blocks are stacked): the body scrolls itself and the block does not clip, so the ring around the block is painted once on a curve nothing else clips; the body takes the corner so its focus ring follows it. The block has no border of its own, so inheriting fills it exactly. */
+    border-start-start-radius: inherit;
+    border-end-start-radius: inherit;
   }
 
   .e-code pre {
@@ -97,7 +100,6 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
   .e-code-body:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: calc(-1 * var(--e-stroke-focus));
-    border-radius: var(--e-radius-md);
   }
 
   .e-code code {
@@ -136,7 +138,7 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
   .e-code-side {
     flex: none;
     align-self: flex-start;
-    padding: var(--e-space-1);
+    padding: var(--e-gap-tight);
   }
 
   @media print {

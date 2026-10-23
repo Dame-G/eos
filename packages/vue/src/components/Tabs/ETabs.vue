@@ -111,13 +111,17 @@ watch(current, () => reveal(true));
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
+
+    /* The row scrolls, so it clips: a focused tab's outline lies outside the tab and would be cut off at the row's edge. The row pads itself by the outline's reach and takes the same back in margin, so the tabs do not move. */
+    padding: calc(2 * var(--e-stroke-focus));
+    margin: calc(-2 * var(--e-stroke-focus));
   }
 
   .e-tablist::-webkit-scrollbar {
     display: none;
   }
 
-  /* Tabs are button-like: every tab is ringed and neighbours sit flush and share an edge, so only the outer ends of the row are rounded. The selected tab rises: its edges thicken to the slab depth and the one along the bottom is the slab, in the primary colour. Every tab is one control height tall either way. */
+  /* Tabs are button-like: every tab is ringed and neighbours sit flush and share an edge, so only the outer ends of the row are rounded. The selected tab rises: its edges thicken to the width of a focused field's outline and the one along the bottom is in the primary colour. Every tab is one control height tall either way. */
   .e-tab {
     --_bc: var(--e-border-strong);
     --_lift: 0px;
@@ -155,21 +159,24 @@ watch(current, () => reveal(true));
     margin-inline-start: calc(-1 * var(--e-stroke-edge));
   }
 
+  /* An inactive tab answers the pointer with ink text, a wash and a darker edge of the same width: no ring is added, so the edge never gets thicker. */
   .e-tab:not([aria-selected="true"], :disabled):hover {
+    --_bc: var(--e-wash-ring);
+
     z-index: var(--e-z-raised);
     color: var(--e-ink);
     background-color: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
   }
 
   .e-tab:not([aria-selected="true"], :disabled):active {
+    --_bc: var(--e-ink);
+
     background-color: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
   }
 
   .e-tab[aria-selected="true"] {
     --_bc: var(--e-primary);
-    --_lift: var(--e-depth);
+    --_lift: max(calc(var(--e-stroke-focus) - var(--e-stroke-edge)), var(--e-stroke-edge));
 
     z-index: var(--e-z-sticky);
     border-width: calc(var(--e-stroke-edge) + var(--_lift));
@@ -223,6 +230,8 @@ watch(current, () => reveal(true));
   .e-tabs--vertical > .e-tablist {
     flex-direction: column;
     flex: none;
+    padding: 0;
+    margin: 0;
     overflow: visible;
   }
 
@@ -271,7 +280,7 @@ watch(current, () => reveal(true));
     min-width: var(--e-gap-section);
     padding: 0 var(--e-gap-snug);
     border-radius: var(--e-radius-pill);
-    border: var(--e-stroke-hair) solid var(--e-primary);
+    border: var(--e-stroke-edge) solid var(--e-primary);
     background: var(--e-primary-soft);
     background-clip: padding-box;
     font: var(--e-weight-strong) var(--e-text-xs) / calc(5 / 3) var(--e-font-mono);

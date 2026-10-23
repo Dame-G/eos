@@ -69,6 +69,43 @@ describe("EStamp", () => {
     expect(getComputedStyle(el).boxShadow).not.toBe("none");
   });
 
+  test("a tinted chip with an edge in its tone and a thick side on the inline-start edge, as a notice has", async () => {
+    for (const props of [
+      {},
+      { status: "paid" },
+      { status: "overdue" },
+      { tone: "warning" },
+      { status: "paid", size: "sm" },
+    ] as Record<string, unknown>[]) {
+      const { container } = await render(EStamp, { props });
+      container.classList.add("e-root");
+      const style = getComputedStyle(container.querySelector(".e-stamp")!);
+      expect(parseFloat(style.borderInlineStartWidth), JSON.stringify(props)).toBeGreaterThan(
+        parseFloat(style.borderTopWidth),
+      );
+      expect(parseFloat(style.borderTopWidth)).toBeGreaterThan(0);
+      expect(style.borderInlineStartColor, JSON.stringify(props)).toBe(style.borderTopColor);
+      // Tinted, not filled: the edge is a stronger colour than the background behind the word.
+      expect(style.borderTopColor, JSON.stringify(props)).not.toBe(style.backgroundColor);
+    }
+  });
+
+  test("the side takes no room from the text: the word starts where it did", async () => {
+    const { container } = await render(EStamp, { props: { status: "paid" } });
+    container.classList.add("e-root");
+    const el = container.querySelector(".e-stamp")!;
+    const style = getComputedStyle(el);
+    const start = parseFloat(style.borderInlineStartWidth) + parseFloat(style.paddingInlineStart);
+    const end = parseFloat(style.borderInlineEndWidth) + parseFloat(style.paddingInlineEnd);
+    expect(Math.abs(start - end)).toBeLessThanOrEqual(0.5);
+  });
+
+  test("a final stamp is a ring and has no side", async () => {
+    const { container } = await render(EStamp, { props: { status: "paid", final: true } });
+    container.classList.add("e-root");
+    expect(getComputedStyle(container.querySelector(".e-stamp")!).borderInlineStartWidth).toBe("0px");
+  });
+
   test("capitals come from CSS, so the text stays sentence case", async () => {
     const { container } = await render(EStamp, { slots: { default: "Paid in full" } });
     expect(container.querySelector(".e-stamp-word")!.textContent).toBe("Paid in full");
@@ -79,6 +116,46 @@ describe("EStamp", () => {
     const { container } = await render(EStamp, { props: { status: "due", detail: "in 3 days" } });
     expect(container.querySelector(".e-stamp-detail")!.textContent).toBe("in 3 days");
     expect(container.querySelector(".e-stamp")!.textContent).toContain("in 3 days");
+  });
+
+  test("the word, the detail and the icon are centred on one line", async () => {
+    for (const size of ["md", "sm"] as const) {
+      const { container } = await render(EStamp, { props: { status: "due", detail: "Oct 22", icon: "pin", size } });
+      container.classList.add("e-root");
+      const mid = (sel: string) => {
+        const r = container.querySelector(sel)!.getBoundingClientRect();
+        return (r.top + r.bottom) / 2;
+      };
+      const box = mid(".e-stamp");
+      for (const sel of [".e-stamp-word", ".e-stamp-detail", "svg"])
+        expect(Math.abs(mid(sel) - box), sel).toBeLessThanOrEqual(0.5);
+      // The word and the detail share a line height, so their text sits at the same height.
+      expect(container.querySelector(".e-stamp-word")!.getBoundingClientRect().height).toBe(
+        container.querySelector(".e-stamp-detail")!.getBoundingClientRect().height,
+      );
+    }
+  });
+
+  test("the capitals sit in the middle of the stamp, not above it", async () => {
+    const canvas = document.createElement("canvas").getContext("2d")!;
+    for (const size of ["md", "sm"] as const) {
+      const { container } = await render(EStamp, { props: { status: "due", detail: "Oct 22", size } });
+      container.classList.add("e-root");
+      const stamp = container.querySelector(".e-stamp")!.getBoundingClientRect();
+      for (const sel of [".e-stamp-word", ".e-stamp-detail"]) {
+        const el = container.querySelector(sel)! as HTMLElement;
+        const probe = document.createElement("span");
+        probe.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline";
+        el.append(probe);
+        const baseline = probe.getBoundingClientRect().bottom;
+        probe.remove();
+        const css = getComputedStyle(el);
+        canvas.font = css.font;
+        const m = canvas.measureText("DUE");
+        const middle = baseline - (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;
+        expect(Math.abs(middle - (stamp.top + stamp.bottom) / 2), `${size} ${sel}`).toBeLessThanOrEqual(0.5);
+      }
+    }
   });
 
   test("size sm is shorter", async () => {
@@ -105,10 +182,10 @@ describe("EStamp", () => {
     expect(getComputedStyle(a!).justifySelf).toBe("auto");
   });
 
-  test("a warning stamp reads its text in the on-warning colour", async () => {
+  test("a warning stamp reads its text in the warning colour, on its tint", async () => {
     const { container } = await render(EStamp, { props: { tone: "warning", label: "Review" } });
     const probe = document.createElement("span");
-    probe.style.color = "var(--e-on-warning)";
+    probe.style.color = "var(--e-warning)";
     container.append(probe);
     expect(getComputedStyle(container.querySelector(".e-stamp")!).color).toBe(getComputedStyle(probe).color);
   });

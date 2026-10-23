@@ -125,13 +125,14 @@ describe("ELink", () => {
     await expectNoViolations(container);
   });
 
-  test("hover and press wash the link and the colour change is eased", async () => {
+  test("hover changes the colour, eased, and adds no background", async () => {
     const { container } = await render(ELink, { props: { href: "/x" }, slots: { default: "Statements" } });
     container.classList.add("e-root");
     const a = container.querySelector("a")!;
     expect(getComputedStyle(a).transitionProperty).toContain("color");
-    const rest = getComputedStyle(a).backgroundColor;
+    const rest = getComputedStyle(a).color;
     await userEvent.hover(a);
-    await expect.poll(() => getComputedStyle(a).backgroundColor).not.toBe(rest);
+    await expect.poll(() => getComputedStyle(a).color).not.toBe(rest);
+    expect(getComputedStyle(a).backgroundColor).toBe("rgba(0, 0, 0, 0)");
   });
 });

@@ -23,8 +23,10 @@ const t = useMessages();
 <style>
 @layer e.controls {
   .e-field-count {
+    flex: none;
     margin: 0;
     margin-inline-start: auto;
+    white-space: nowrap;
     font: var(--e-type-small);
     font-variant-numeric: tabular-nums;
     color: var(--e-muted);

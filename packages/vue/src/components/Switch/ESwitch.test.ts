@@ -6,6 +6,30 @@ import ESwitch from "./ESwitch.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESwitch", () => {
+  test("the thumb is plain: no border at all, on or off", async () => {
+    for (const modelValue of [false, true]) {
+      const { container } = await render(ESwitch, { props: { label: "Autopay", modelValue } });
+      container.classList.add("e-root");
+      const thumb = getComputedStyle(container.querySelector(".e-switch-track")!, "::after");
+      for (const side of ["Top", "Right", "Bottom", "Left"])
+        expect(parseFloat(thumb.getPropertyValue(`border-${side.toLowerCase()}-width`))).toBe(0);
+    }
+  });
+
+  test("on or off the track is flat and the thumb sits at the same height", async () => {
+    const heights = async (modelValue: boolean) => {
+      const { container } = await render(ESwitch, { props: { label: "Autopay", modelValue } });
+      container.classList.add("e-root");
+      await new Promise((r) => setTimeout(r, 250));
+      const track = container.querySelector(".e-switch-track")!;
+      const css = getComputedStyle(track);
+      expect(css.borderBottomWidth).toBe(css.borderTopWidth);
+      const thumb = getComputedStyle(track, "::after");
+      return [track.getBoundingClientRect().height, parseFloat(thumb.top), parseFloat(thumb.height)];
+    };
+    expect(await heights(true)).toEqual(await heights(false));
+  });
+
   test("the track is pressed in while off and flat while on, as a checkbox is", async () => {
     const { container } = await render(ESwitch, { props: { label: "Reminders" } });
     container.classList.add("e-root");
@@ -131,5 +155,16 @@ describe("ESwitch", () => {
     await input.click();
     expect(got).toEqual([]);
     expect(input.checked).toBe(false);
+  });
+
+  test("the thumb's corners are concentric with the track's, 4px in, under any radius", async () => {
+    const { container } = await render(ESwitch, { props: { label: "Reminders" } });
+    container.classList.add("e-root");
+    const track = container.querySelector(".e-switch-track") as HTMLElement;
+    const corner = (el: Element, pseudo?: string) => parseFloat(getComputedStyle(el, pseudo).borderTopLeftRadius);
+    for (const sm of ["0px", "4px", "8px"]) {
+      container.style.setProperty("--e-radius-sm", sm);
+      expect(corner(track, "::after")).toBeCloseTo(Math.max(0, corner(track) - 4), 0);
+    }
   });
 });

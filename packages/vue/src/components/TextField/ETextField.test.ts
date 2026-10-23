@@ -6,6 +6,9 @@ import ETextField from "./ETextField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 import { expectPostingContract } from "../../../test/formPosting.js";
 
+/** The top-left corner radius in px. */
+const corner = (el: Element) => parseFloat(getComputedStyle(el).borderTopLeftRadius);
+
 describe("ETextField", () => {
   test("is a labelled text input: the label names it", async () => {
     const { container } = await render(ETextField, { props: { label: "Name" } });
@@ -346,5 +349,21 @@ describe("ETextField", () => {
 
   test("a disabled text field posts nothing, and a named one joins a form it is outside of", async () => {
     await expectPostingContract(ETextField, { label: "Name", modelValue: "Ana" });
+  });
+
+  test("corners are concentric: the bare input and the clear button follow the wrap's radius at any theme", async () => {
+    const { container } = await render(ETextField, { props: { label: "A", clearable: true, modelValue: "x" } });
+    const root = container as HTMLElement;
+    root.classList.add("e-root");
+    const wrap = root.querySelector(".e-input-wrap")!;
+    const input = wrap.querySelector(".e-input")!;
+    const btn = wrap.querySelector(".e-input-btn")!;
+
+    for (const md of [null, "14px", "2px"]) {
+      if (md) root.style.setProperty("--e-radius-md", md);
+      const outer = corner(wrap);
+      expect(corner(input)).toBeCloseTo(Math.max(0, outer - 1), 0); // flush: the edge
+      expect(corner(btn)).toBeCloseTo(Math.max(0, outer - 5), 0); // the edge and a tight gap
+    }
   });
 });

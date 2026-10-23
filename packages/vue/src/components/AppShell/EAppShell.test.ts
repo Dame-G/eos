@@ -175,6 +175,14 @@ describe("EAppShell", () => {
     expect(page.getByLabelText("Main", { exact: true }).elements().length).toBe(0);
   });
 
+  test("the ground beside the column is tinted, and the footer matches the header", async () => {
+    const { container } = await render(EAppShell, { slots: noSide });
+    container.classList.add("e-root");
+    const bg = (sel: string) => getComputedStyle(container.querySelector(sel)!).backgroundColor;
+    expect(bg(".e-shell")).not.toBe(bg(".e-shell-body"));
+    expect(bg(".e-appfooter")).toBe(bg(".e-appheader"));
+  });
+
   test("the content is capped at 72rem and centred", async () => {
     await page.viewport(1600, 900);
     try {

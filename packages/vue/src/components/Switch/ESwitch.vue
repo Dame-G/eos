@@ -95,7 +95,7 @@ defineExpose({
     height: 1px;
   }
 
-  /* A pressed-in track with a small button face for the thumb. The sizes follow the checkbox, so they grow with the text scale. */
+  /* A pressed-in track with a plain thumb. The sizes follow the checkbox, so they grow with the text scale. */
   .e-switch-track {
     --_w: calc(2 * var(--e-check-size) - var(--e-gap-tight));
     --_thumb: calc(var(--e-check-size) - 2 * var(--e-gap-tight));
@@ -117,7 +117,7 @@ defineExpose({
   }
 
   .e-switch-track::after {
-    --_lift: var(--e-slab-thin);
+    --_face: var(--e-ink);
 
     content: "";
     position: absolute;
@@ -128,14 +128,10 @@ defineExpose({
     margin-block-start: calc(var(--_thumb) / -2);
     box-sizing: border-box;
 
-    /* The thumb is a small button face with a slab under it. */
-    border: var(--e-stroke-edge) solid var(--e-slab-ink);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-sm);
-    background: var(--e-ink);
-    transition:
-      transform var(--e-duration-move) var(--e-easing-out),
-      border-bottom-width var(--e-duration-tap) var(--e-easing-out);
+    /* Concentric with the track: the thumb's edge is `--_inset` inside the track's outer edge, border included. */
+    border-radius: max(0px, calc(var(--e-radius-sm) - var(--_inset)));
+    background: var(--_face);
+    transition: transform var(--e-duration-move) var(--e-easing-out);
   }
 
   .e-switch:hover .e-switch-input:not(:checked, :disabled) + .e-switch-track {
@@ -148,7 +144,7 @@ defineExpose({
     --_ring: var(--e-ink);
   }
 
-  /* Off, the track is pressed in. On, it is a raised primary face, as a checked box or radio is, so the well goes. */
+  /* Off, the track is pressed in. On, it is a flat primary face, so the well goes. The thumb is the same height either way. */
   .e-switch-input:checked + .e-switch-track {
     --_ring: var(--e-primary-slab);
 
@@ -165,13 +161,9 @@ defineExpose({
     background-color: var(--e-primary-press);
   }
 
-  .e-switch:active .e-switch-input:not(:disabled) + .e-switch-track::after {
-    --_lift: 0px;
-  }
-
   .e-switch-input:checked + .e-switch-track::after {
-    border-color: var(--e-primary-slab);
-    background: var(--e-on-primary);
+    --_face: var(--e-on-primary);
+
     transform: translateX(var(--_travel));
   }
 
@@ -184,10 +176,7 @@ defineExpose({
   }
 
   .e-switch-input:disabled + .e-switch-track::after {
-    --_lift: 0px;
-
-    border-color: var(--e-disabled-ink);
-    background: var(--e-disabled-ink);
+    --_face: var(--e-disabled-ink);
   }
 
   .e-switch-input[aria-invalid="true"]:not(:disabled) + .e-switch-track {

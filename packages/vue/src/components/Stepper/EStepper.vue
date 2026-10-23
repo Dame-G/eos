@@ -165,13 +165,15 @@ function choose(index: number, step: Step) {
     height: var(--_dot);
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid transparent;
-    border-radius: var(--e-radius-md);
+
+    /* The dot sits `--_inset` inside the step's rounded hover face. */
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     background: var(--e-surface);
     background-clip: padding-box;
     color: var(--e-muted);
-    font: var(--e-weight-strong) var(--e-text-xs) / 1 var(--e-font-mono);
+    font: var(--e-weight-strong) var(--e-text-xs) / var(--e-leading-none) var(--e-font-mono);
   }
 
   .e-step[data-state="done"] .e-step-dot {
@@ -198,7 +200,7 @@ function choose(index: number, step: Step) {
   }
 
   .e-step-label {
-    font: var(--e-weight-regular) var(--e-text-sm) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-sm) / var(--e-leading-snug) var(--e-font-sans);
     color: var(--e-muted);
     overflow-wrap: anywhere;
   }

@@ -357,3 +357,17 @@ describe("EMenu", () => {
     await expect.poll(() => emitted().close).toHaveLength(1);
   });
 });
+
+describe("EMenu corners", () => {
+  test.each(["", "2px", "14px"])("a row's corner is the panel's less its padding (md %s)", async (md) => {
+    const { container } = await mount();
+    await userEvent.click(triggerOf(container));
+    await expect.poll(() => menu()).not.toBeNull();
+    if (md) menu()!.style.setProperty("--e-radius-md", md);
+    const outer = parseFloat(getComputedStyle(menu()!).borderTopLeftRadius);
+    const inset =
+      parseFloat(getComputedStyle(menu()!).paddingTop) / 2 + parseFloat(getComputedStyle(menu()!).borderTopWidth); // pad-inset is half the padding
+    const inner = parseFloat(getComputedStyle(rows()[0]!).borderTopLeftRadius);
+    expect(Math.abs(inner - Math.max(0, outer - inset))).toBeLessThan(0.5);
+  });
+});

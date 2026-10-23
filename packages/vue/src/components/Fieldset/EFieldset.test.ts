@@ -26,7 +26,7 @@ describe("EFieldset", () => {
     const fs = container.querySelector("fieldset")!;
     expect(fs.className).toBe("e-fieldset");
     expect(fs.querySelector("legend")!.classList.contains("e-kicker")).toBe(true);
-    expect(fs.querySelector(".e-fieldset-body")).toBeNull();
+    expect(fs.querySelector(".e-fieldset-body")!.classList.contains("e-fieldset-body--bare")).toBe(true);
     expect(fs.querySelector(".e-fieldset-rule")).toBeNull();
     expect(getComputedStyle(fs).borderTopWidth).toBe("0px");
   });
@@ -137,6 +137,25 @@ describe("EFieldset", () => {
     });
     expect(container.querySelector("fieldset")!.disabled).toBe(true);
     expect(container.querySelector("input")!.matches(":disabled")).toBe(true);
+  });
+
+  test("bare controls are spaced as the boxed ones are", async () => {
+    const gaps = async (bare: boolean) => {
+      const { container } = await render(EFieldset, {
+        props: { legend: "Phones", bare },
+        slots: {
+          default: () => [
+            h("input", { class: "e-input", "aria-label": "a" }),
+            h("input", { class: "e-input", "aria-label": "b" }),
+          ],
+        },
+      });
+      container.classList.add("e-root");
+      const [a, b] = [...container.querySelectorAll("input")].map((i) => i.getBoundingClientRect());
+      return b!.top - a!.bottom;
+    };
+    expect(await gaps(true)).toBeGreaterThan(0);
+    expect(await gaps(true)).toBe(await gaps(false));
   });
 
   test("the hint sits 8px under the last control, in the box and bare", async () => {

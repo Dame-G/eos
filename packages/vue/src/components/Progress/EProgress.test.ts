@@ -131,4 +131,13 @@ describe("EProgress", () => {
     );
     await expectNoViolations(container);
   });
+
+  test("a bar that stays inside its track is not clipped on the track's curve; only the sliding one is", async () => {
+    const set = await render(EProgress, { props: { label: "Upload", value: 40 } });
+    set.container.classList.add("e-root");
+    expect(getComputedStyle(set.container.querySelector(".e-progress-track")!).overflowX).toBe("visible");
+    const wait = await render(EProgress, { props: { label: "Loading" } });
+    wait.container.classList.add("e-root");
+    expect(getComputedStyle(wait.container.querySelector(".e-progress-track")!).overflowX).toBe("hidden");
+  });
 });

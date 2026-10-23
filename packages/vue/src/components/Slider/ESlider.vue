@@ -176,13 +176,16 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     border: var(--e-stroke-edge) solid var(--e-border-strong);
     border-radius: var(--e-radius-sm);
     background: var(--e-surface-tint);
+    background-clip: padding-box;
     box-shadow: var(--e-well);
   }
 
   .e-slider-range {
     position: absolute;
     height: 100%;
-    border-radius: inherit;
+
+    /* Fills the track's padding edge, so it takes the track's inner radius, not the outer one. */
+    border-radius: max(0px, calc(var(--e-radius-sm) - var(--e-stroke-edge)));
     background: var(--e-primary);
   }
 
@@ -213,6 +216,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-radius: var(--e-radius-sm);
     background: var(--e-ink);
+    background-clip: padding-box;
     cursor: grab;
     transition: var(--e-transition-state);
   }

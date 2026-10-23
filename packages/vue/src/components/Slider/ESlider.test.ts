@@ -177,4 +177,24 @@ describe("ESlider", () => {
     const range = await render(ESlider, { props: { label: "Price", range: true } });
     await expectNoViolations(range.container);
   });
+
+  test("the filled range takes the track's inner radius, under any radius", async () => {
+    const { container } = await render(ESlider, { props: { label: "Volume", modelValue: 30 } });
+    container.classList.add("e-root");
+    const track = container.querySelector(".e-slider-track")!;
+    const range = container.querySelector(".e-slider-range")!;
+    const edge = parseFloat(getComputedStyle(track).borderTopWidth);
+    for (const sm of ["0px", "4px", "8px"]) {
+      container.style.setProperty("--e-radius-sm", sm);
+      const outer = parseFloat(getComputedStyle(track).borderTopLeftRadius);
+      expect(parseFloat(getComputedStyle(range).borderTopLeftRadius)).toBeCloseTo(Math.max(0, outer - edge), 0);
+    }
+  });
+
+  test("the groove and the thumb fill stop inside their edge", async () => {
+    const { container } = await render(ESlider, { props: { label: "Volume", modelValue: 30 } });
+    container.classList.add("e-root");
+    expect(getComputedStyle(container.querySelector(".e-slider-track")!).backgroundClip).toBe("padding-box");
+    expect(getComputedStyle(container.querySelector(".e-slider-thumb")!).backgroundClip).toBe("padding-box");
+  });
 });

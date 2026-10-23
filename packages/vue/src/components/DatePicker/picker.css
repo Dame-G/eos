@@ -5,8 +5,8 @@
 
   .e-calpanel {
     width: auto;
-    max-width: calc(100vw - var(--e-space-4));
-    max-height: calc(100dvh - var(--e-space-4));
+    max-width: calc(100vw - var(--e-gap-loose));
+    max-height: calc(100dvh - var(--e-gap-loose));
     display: flex;
     flex-direction: column;
     gap: var(--e-gap-snug);

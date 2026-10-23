@@ -619,23 +619,24 @@ defineExpose({
     align-items: center;
     gap: var(--e-gap-tight);
     height: var(--e-control-height);
-    padding: 0 var(--e-space-2);
+    padding: 0 var(--e-gap-snug);
     border: 0;
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
-    font: var(--e-weight-strong) var(--e-text-lg) / 1 var(--e-font-sans);
+    font: var(--e-weight-strong) var(--e-text-lg) / var(--e-leading-none) var(--e-font-sans);
     cursor: pointer;
-    transition: background-color var(--e-duration-tap) var(--e-easing-out);
+    transition: var(--e-transition-state);
   }
 
   .e-cal-pick:hover {
     background: var(--e-wash-hover);
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-wash-ring);
+    box-shadow: var(--e-ring-hover);
   }
 
   .e-cal-pick:active {
     background: var(--e-wash-press);
+    box-shadow: var(--e-ring-press);
   }
 
   .e-cal-pick:focus-visible {
@@ -675,7 +676,7 @@ defineExpose({
 
   .e-cal-grid th {
     height: var(--e-space-8);
-    font: var(--e-weight-strong) var(--e-text-sm) / 1 var(--e-font-sans);
+    font: var(--e-weight-strong) var(--e-text-sm) / var(--e-leading-none) var(--e-font-sans);
     color: var(--e-muted);
     text-align: center;
   }
@@ -698,21 +699,22 @@ defineExpose({
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
-    font: var(--e-weight-medium) var(--e-text-sm) / 1 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-none) var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     cursor: pointer;
-    transition: background-color var(--e-duration-tap) var(--e-easing-out);
+    transition: var(--e-transition-state);
   }
 
   .e-day:hover:not(:disabled, .e-day--sel),
   .e-cal-cell:hover:not(:disabled, .e-day--sel) {
     background: var(--e-wash-hover);
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-wash-ring);
+    box-shadow: var(--e-ring-hover);
   }
 
   .e-day:active:not(:disabled, .e-day--sel),
   .e-cal-cell:active:not(:disabled, .e-day--sel) {
     background: var(--e-wash-press);
+    box-shadow: var(--e-ring-press);
   }
 
   .e-day:focus-visible,
@@ -802,10 +804,10 @@ defineExpose({
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
-    font: var(--e-weight-medium) var(--e-text-md) / 1 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-md) / var(--e-leading-none) var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     cursor: pointer;
-    transition: background-color var(--e-duration-tap) var(--e-easing-out);
+    transition: var(--e-transition-state);
   }
 
   .e-cal-years .e-cal-cell {

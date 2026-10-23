@@ -97,7 +97,7 @@
     .e-cards .e-table tbody tr {
       display: block;
       margin: 0 0 var(--e-gap-base);
-      padding: var(--e-space-1) var(--e-pad-card);
+      padding: var(--e-gap-tight) var(--e-pad-card);
       border-radius: var(--e-radius-md);
       background: var(--e-surface);
       box-shadow: var(--e-frame);

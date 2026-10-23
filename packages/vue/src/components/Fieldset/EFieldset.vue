@@ -58,12 +58,11 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
       <span v-if="!bare && !section && !hideLegend" class="e-fieldset-rule" aria-hidden="true" />
       <EFieldFlag :required="required" :optional="optional" />
     </legend>
-    <slot v-if="bare" />
-    <div v-else class="e-fieldset-body">
+    <div class="e-fieldset-body" :class="bare && 'e-fieldset-body--bare'">
       <!-- In a section the hint sits under the legend, ahead of the controls; the error always follows them. -->
       <EFieldMessage v-if="section && !error" :id="hintId" :hint="hint" />
       <slot />
-      <EFieldMessage v-if="!section || error" :id="hintId" :error="error" :hint="hint" />
+      <EFieldMessage v-if="!bare && (!section || error)" :id="hintId" :error="error" :hint="hint" />
     </div>
     <EFieldMessage v-if="bare" :id="hintId" :error="error" :hint="hint" />
   </fieldset>
@@ -107,8 +106,8 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
     padding-block: 0 var(--e-pad-card);
     padding-inline: var(--e-pad-card);
     border: 0;
-    outline: var(--e-stroke-hair) solid var(--e-border);
-    outline-offset: calc(-1 * var(--e-stroke-hair));
+    outline: var(--e-stroke-card) solid var(--e-border);
+    outline-offset: calc(-1 * var(--e-stroke-card));
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
   }
@@ -181,7 +180,12 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
     padding-block-start: var(--e-gap-tight);
   }
 
-  /* With no body the message follows the controls directly, so it pulls up by the space the controls leave. */
+  /* A bare group has its controls in the body too, so they are spaced as in any other; its message follows the body, outside it. */
+  .e-fieldset-body--bare {
+    padding-block-start: 0;
+  }
+
+  /* In a bare group the message follows the controls directly, so it pulls up by the space the controls leave. */
   .e-fieldset > .e-field-hint,
   .e-fieldset > .e-field-error {
     margin-block-start: calc(-1 * (var(--e-gap-tight) + var(--e-stroke-focus)));

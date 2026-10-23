@@ -75,6 +75,7 @@ const label = computed(() =>
 @layer e.primitives {
   .e-avatar {
     --_ring: var(--e-border-strong);
+    --_r: var(--e-radius-md);
 
     position: relative;
     display: inline-grid;
@@ -84,7 +85,7 @@ const label = computed(() =>
     width: var(--e-tap);
     height: var(--e-tap);
     border: var(--e-stroke-edge) solid var(--_ring);
-    border-radius: var(--e-radius-md);
+    border-radius: var(--_r);
     background: var(--e-surface-tint);
     background-clip: padding-box;
     color: var(--e-primary);
@@ -122,7 +123,9 @@ const label = computed(() =>
     width: var(--e-avatar-size-sm);
     height: var(--e-avatar-size-sm);
     font-size: var(--e-text-xs);
-    border-radius: var(--e-radius-sm);
+    border-radius: var(--_r);
+
+    --_r: var(--e-radius-sm);
   }
 
   .e-avatar--l {
@@ -135,8 +138,14 @@ const label = computed(() =>
     display: block;
     width: 100%;
     height: 100%;
-    border-radius: inherit;
+    border-radius: max(0px, calc(var(--_r) - var(--e-stroke-edge)));
     object-fit: cover;
+  }
+
+  /* The picture is flush inside the ring, so its corners are the ring's less its width; a pressable avatar's slab deepens the bottom corners. */
+  .e-avatar--button .e-avatar-img {
+    border-end-start-radius: max(0px, calc(var(--_r) - var(--e-stroke-edge) - var(--_lift)));
+    border-end-end-radius: max(0px, calc(var(--_r) - var(--e-stroke-edge) - var(--_lift)));
   }
 
   .e-avatar-status {

@@ -205,7 +205,7 @@ const DARK_DANGER = "#d33b30";
 const DARK_WARNING = "#ffc857";
 const COMPACT_SPACE = 0.75;
 const STAMP_INK = "#b23a14";
-const DARK_WELL = "inset 0 2px 0 0 rgba(0, 0, 0, 0.55)";
+const DARK_WELL = "inset 0 2px 0 0 rgba(0, 0, 0, 0.35)";
 
 /** Boxes that belong to the text beside them, so they grow with `textScale` as the type does. */
 const TEXT_SIZED = [
@@ -334,7 +334,7 @@ function deriveElevation(
     out["float"] = `${ring(card)}, ${layers(LIFTED, dark, base)}`;
   } else if (style === "bold") {
     out["frame"] = ring(card);
-    out["well"] = `inset 0 3px 0 0 ${dark ? "rgba(0, 0, 0, 0.55)" : "rgba(0, 0, 0, 0.14)"}`;
+    out["well"] = `inset 0 3px 0 0 ${dark ? "rgba(0, 0, 0, 0.35)" : "rgba(0, 0, 0, 0.08)"}`;
     out["float"] =
       `${ring(card)}, 4px 4px 0 0 rgba(${base}, ${dark ? 0.75 : 0.32}), 0 14px 28px -10px rgba(${base}, ${dark ? 0.7 : 0.22})`;
   } else {

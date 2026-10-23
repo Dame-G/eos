@@ -337,7 +337,7 @@ defineExpose({
 
   .e-range-sep {
     flex: none;
-    font: 500 var(--e-text-sm) / 1 var(--e-font-sans);
+    font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-none) var(--e-font-sans);
     color: var(--e-muted);
   }
 }
