@@ -69,6 +69,38 @@ describe("EStamp", () => {
     expect(getComputedStyle(el).boxShadow).not.toBe("none");
   });
 
+  test("a thick side on the inline-start edge, in the fill's own shade, as a notice has", async () => {
+    for (const props of [
+      {},
+      { status: "paid" },
+      { status: "overdue" },
+      { tone: "warning" },
+      { status: "paid", size: "sm" },
+    ] as Record<string, unknown>[]) {
+      const { container } = await render(EStamp, { props });
+      container.classList.add("e-root");
+      const style = getComputedStyle(container.querySelector(".e-stamp")!);
+      expect(parseFloat(style.borderInlineStartWidth), JSON.stringify(props)).toBeGreaterThan(2);
+      expect(style.borderTopWidth).toBe("0px");
+      expect(style.borderInlineStartColor, JSON.stringify(props)).not.toBe(style.backgroundColor);
+    }
+  });
+
+  test("the side takes no room from the text: the word starts where it did", async () => {
+    const { container } = await render(EStamp, { props: { status: "paid" } });
+    container.classList.add("e-root");
+    const el = container.querySelector(".e-stamp")!;
+    const style = getComputedStyle(el);
+    const pad = parseFloat(style.borderInlineStartWidth) + parseFloat(style.paddingInlineStart);
+    expect(Math.abs(pad - parseFloat(style.paddingInlineEnd))).toBeLessThanOrEqual(0.5);
+  });
+
+  test("a final stamp is a ring and has no side", async () => {
+    const { container } = await render(EStamp, { props: { status: "paid", final: true } });
+    container.classList.add("e-root");
+    expect(getComputedStyle(container.querySelector(".e-stamp")!).borderInlineStartWidth).toBe("0px");
+  });
+
   test("capitals come from CSS, so the text stays sentence case", async () => {
     const { container } = await render(EStamp, { slots: { default: "Paid in full" } });
     expect(container.querySelector(".e-stamp-word")!.textContent).toBe("Paid in full");

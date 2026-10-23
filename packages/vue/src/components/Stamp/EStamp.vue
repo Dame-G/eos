@@ -72,6 +72,9 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
     --_fill: var(--e-ink);
     --_on: var(--e-surface);
 
+    /* The side is the fill's own slab shade, as a Notice's is its tone: a thick edge on the inline-start side, which flips in a right-to-left page. */
+    --_side: color-mix(in srgb, var(--_fill), var(--e-shade-slab));
+
     display: inline-flex;
     flex-wrap: nowrap;
     white-space: nowrap;
@@ -79,9 +82,16 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
     gap: var(--e-gap-snug);
     min-height: calc(var(--e-chip-height) + var(--e-gap-tight));
     padding: 0 var(--e-pad-chip);
+    padding-inline-start: calc(var(--e-pad-chip) - var(--e-slab-bold));
+    border-inline-start: var(--e-slab-bold) solid var(--_side);
     border-radius: var(--e-radius-sm);
     background: var(--_fill);
     color: var(--_on);
+  }
+
+  /* An ink fill has no darker shade to take, so the neutral side is the muted grey. */
+  .e-stamp:not(.e-stamp--success, .e-stamp--info, .e-stamp--danger, .e-stamp--warning) {
+    --_side: var(--e-muted);
   }
 
   .e-stamp--success {
@@ -106,6 +116,8 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
 
   /* The ink is a ring, not a fill, so it reads as pressed onto the page. */
   .e-stamp--final {
+    padding-inline-start: var(--e-pad-chip);
+    border-inline-start: 0;
     background: transparent;
     color: var(--e-stamp-ink);
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-stamp-ink);
