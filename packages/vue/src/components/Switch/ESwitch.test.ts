@@ -16,24 +16,18 @@ describe("ESwitch", () => {
     }
   });
 
-  test("on, the track is a raised face with a slab under it, as a checked box is; off, it has none", async () => {
-    const off = await render(ESwitch, { props: { label: "Autopay", modelValue: false } });
-    off.container.classList.add("e-root");
-    const on = await render(ESwitch, { props: { label: "Autopay", modelValue: true } });
-    on.container.classList.add("e-root");
-    await new Promise((r) => setTimeout(r, 250));
-    const edges = (host: Element) => {
-      const css = getComputedStyle(host.querySelector(".e-switch-track")!);
-      return [parseFloat(css.borderTopWidth), parseFloat(css.borderBottomWidth)];
+  test("on or off the track is flat and the thumb sits at the same height", async () => {
+    const heights = async (modelValue: boolean) => {
+      const { container } = await render(ESwitch, { props: { label: "Autopay", modelValue } });
+      container.classList.add("e-root");
+      await new Promise((r) => setTimeout(r, 250));
+      const track = container.querySelector(".e-switch-track")!;
+      const css = getComputedStyle(track);
+      expect(css.borderBottomWidth).toBe(css.borderTopWidth);
+      const thumb = getComputedStyle(track, "::after");
+      return [track.getBoundingClientRect().height, parseFloat(thumb.top), parseFloat(thumb.height)];
     };
-    const [offTop, offBottom] = edges(off.container);
-    const [onTop, onBottom] = edges(on.container);
-    expect(offBottom).toBe(offTop);
-    expect(onBottom).toBeGreaterThan(onTop!);
-    // The box is the same height either way: the slab comes out of the face.
-    expect(on.container.querySelector(".e-switch-track")!.getBoundingClientRect().height).toBe(
-      off.container.querySelector(".e-switch-track")!.getBoundingClientRect().height,
-    );
+    expect(await heights(true)).toEqual(await heights(false));
   });
 
   test("the track is pressed in while off and flat while on, as a checkbox is", async () => {
