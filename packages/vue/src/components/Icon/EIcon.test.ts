@@ -33,29 +33,41 @@ describe("EIcon", () => {
     expect(getComputedStyle(svg).fill).not.toBe("none");
   });
 
-  test("small uses the 14px size and the bold weight", async () => {
+  test("sm uses the 14px size and the bold weight", async () => {
     const regular = await render(EIcon, { props: { name: "check" } });
     const regularPath = regular.container.querySelector("path")!.getAttribute("d");
-    const small = await render(EIcon, { props: { name: "check", small: true } });
+    const small = await render(EIcon, { props: { name: "check", size: "sm" } });
     const svg = small.container.querySelector("svg")!;
     expect(svg.getBoundingClientRect().width).toBe(14);
     expect(svg.querySelector("path")!.getAttribute("d")).not.toBe(regularPath);
   });
 
-  test("size sm, md and lg use the icon size tokens, and no size is 20px", async () => {
+  test("the default is md, 20px, with sm 14px, lg 28px and xl 40px around it", async () => {
     const width = async (props: Record<string, unknown>) => {
       const { container } = await render(EIcon, { props: { name: "check", ...props } });
       return container.querySelector("svg")!.getBoundingClientRect().width;
     };
     expect(await width({})).toBe(20);
     expect(await width({ size: "sm" })).toBe(14);
-    expect(await width({ size: "md" })).toBe(28);
-    expect(await width({ size: "lg" })).toBe(40);
+    expect(await width({ size: "md" })).toBe(20);
+    expect(await width({ size: "lg" })).toBe(28);
+    expect(await width({ size: "xl" })).toBe(40);
+  });
+
+  test("small still gives 14px, and warns once that it is deprecated", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const a = await render(EIcon, { props: { name: "check", small: true } });
+    await render(EIcon, { props: { name: "info", small: true } });
+    expect(a.container.querySelector("svg")!.getBoundingClientRect().width).toBe(14);
+    const deprecations = warn.mock.calls.filter(([m]) => String(m).includes("EIcon `small` is deprecated"));
+    expect(deprecations).toHaveLength(1);
+    expect(String(deprecations[0]![0])).toContain('size="sm"');
+    warn.mockRestore();
   });
 
   test("size wins over small and warns in development", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const { container } = await render(EIcon, { props: { name: "check", size: "lg", small: true } });
+    const { container } = await render(EIcon, { props: { name: "check", size: "xl", small: true } });
     expect(container.querySelector("svg")!.getBoundingClientRect().width).toBe(40);
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("EIcon"));
     warn.mockRestore();
@@ -149,7 +161,7 @@ describe("EIcon", () => {
     const { container } = await render(
       defineComponent({
         render: () =>
-          h("div", [h(EIcon, { name: "check" }), h(EIcon, { name: Square }), h(EIcon, { name: "info", small: true })]),
+          h("div", [h(EIcon, { name: "check" }), h(EIcon, { name: Square }), h(EIcon, { name: "info", size: "sm" })]),
       }),
     );
     await expectNoViolations(container);

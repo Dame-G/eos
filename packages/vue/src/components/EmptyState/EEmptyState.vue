@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import EIcon from "../Icon/EIcon.vue";
 import type { IconProp } from "../../icons/types.js";
+import type { Tone } from "../../composables/useSize.js";
 import "../../styles/base.css";
 import "../Heading/scale.css";
 
@@ -15,7 +16,7 @@ withDefaults(
     /** Removes the outline, for use inside a table or panel. */
     bare?: boolean;
     /** `danger` colours the icon in the error colour, for a failed load or a search that broke rather than one that found nothing. */
-    tone?: "neutral" | "danger";
+    tone?: Extract<Tone, "neutral" | "danger">;
     /** `sm` is more compact with a smaller icon, for use inside a panel or a table. */
     size?: "sm" | "md";
   }>(),
@@ -35,7 +36,7 @@ defineSlots<{
     class="e-empty"
     :class="[bare && 'e-empty--bare', tone === 'danger' && 'e-empty--danger', size === 'sm' && 'e-empty--sm']"
   >
-    <span v-if="icon" class="e-empty-icon"><EIcon :name="icon" :size="size === 'sm' ? 'md' : 'lg'" /></span>
+    <span v-if="icon" class="e-empty-icon"><EIcon :name="icon" :size="size === 'sm' ? 'lg' : 'xl'" /></span>
     <component :is="`h${headingLevel}`" class="e-empty-title e-h e-h3">{{ title }}</component>
     <p v-if="$slots.default" class="e-empty-text"><slot /></p>
     <slot name="action" />

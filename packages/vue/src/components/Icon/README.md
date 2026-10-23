@@ -5,7 +5,7 @@ One icon, 20px by default, in the colour of the surrounding text, for putting a 
 ```vue
 <EIcon name="download" />
 <EIcon name="check" size="sm" />
-<EIcon name="info" size="lg" />
+<EIcon name="info" size="xl" />
 <EIcon :name="CreditCard" />
 <EIcon name="lucide:credit-card" />
 ```
@@ -14,18 +14,18 @@ One icon, 20px by default, in the colour of the surrounding text, for putting a 
 
 <!-- props:start -->
 
-| Prop    | Type                   | Default      | Notes                                                                                                                                                                                        |
-| ------- | ---------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`  | `IconProp`             | **Required** | A name (from the built-in list or your icon set, such as `"credit-card"` or `"lucide:credit-card"`), or an icon component.                                                                   |
-| `size`  | `"sm" \| "md" \| "lg"` | None         | `sm` is 14px (drawn in the bold weight), `md` 28px and `lg` 40px. Left out, the icon is 20px.                                                                                                |
-| `small` | `boolean`              | `false`      | The 14px size, drawn in the bold weight, for chips and stamps. Same as `size="sm"`.                                                                                                          |
-| `bold`  | `boolean`              | `false`      | The bold weight at the normal 20px size, where the icon set has one.                                                                                                                         |
-| `label` | `string`               | None         | Makes the icon informative: it becomes an image with this name. Without it the icon is decoration and hidden from screen readers.                                                            |
-| `flip`  | `boolean`              | None         | Turns the icon around in right-to-left text, for a component icon that points one way. A name with a `left` or `right` part (`chevron-left`) does so without it; `:flip="false"` stops that. |
+| Prop    | Type       | Default      | Notes                                                                                                                                                                                        |
+| ------- | ---------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`  | `IconProp` | **Required** | A name (from the built-in list or your icon set, such as `"credit-card"` or `"lucide:credit-card"`), or an icon component.                                                                   |
+| `size`  | `Size`     | `"md"`       | `sm` is 14px (drawn in the bold weight) for chips and stamps, `md` 20px, `lg` 28px and `xl` 40px.                                                                                            |
+| `small` | `boolean`  | `false`      | **Deprecated.** Use `size="sm"`.                                                                                                                                                             |
+| `bold`  | `boolean`  | `false`      | The bold weight at the normal 20px size, where the icon set has one.                                                                                                                         |
+| `label` | `string`   | None         | Makes the icon informative: it becomes an image with this name. Without it the icon is decoration and hidden from screen readers.                                                            |
+| `flip`  | `boolean`  | None         | Turns the icon around in right-to-left text, for a component icon that points one way. A name with a `left` or `right` part (`chevron-left`) does so without it; `:flip="false"` stops that. |
 
 <!-- props:end -->
 
-`class` and attributes land on the icon element. A name resolves through `createEos({ icons })`, then the set's resolver and aliases, then the built-in set. An unknown name draws nothing and logs once in development. Names with a `left` or `right` part (`chevron-left`, `arrow-right`) mirror in right-to-left text; a physical alignment such as `text-align-left` does not. `flip` turns a component icon around in right-to-left text too, and `:flip="false"` stops a named one. `size` is `sm` (14px, drawn in the bold weight), `md` (28px) or `lg` (40px); `small` is shorthand for `size="sm"`. See [Bring your own icons](../../icons/README.md).
+`class` and attributes land on the icon element. A name resolves through `createEos({ icons })`, then the set's resolver and aliases, then the built-in set. An unknown name draws nothing and logs once in development. Names with a `left` or `right` part (`chevron-left`, `arrow-right`) mirror in right-to-left text; a physical alignment such as `text-align-left` does not. `flip` turns a component icon around in right-to-left text too, and `:flip="false"` stops a named one. `size` is `sm` (14px, drawn in the bold weight), `md` (20px, the default), `lg` (28px) or `xl` (40px). `small` is deprecated: use `size="sm"`. See [Bring your own icons](../../icons/README.md).
 
 ## Accessibility
 

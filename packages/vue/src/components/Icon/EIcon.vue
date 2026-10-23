@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useIconResolver } from "../../config.js";
-import { isProduction } from "../../env.js";
+import { useSize, type Size } from "../../composables/useSize.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
@@ -9,9 +9,9 @@ const props = withDefaults(
   defineProps<{
     /** A name (from the built-in list or your icon set, such as `"credit-card"` or `"lucide:credit-card"`), or an icon component. */
     name: IconProp;
-    /** `sm` is 14px (drawn in the bold weight), `md` 28px and `lg` 40px. Left out, the icon is 20px. */
-    size?: "sm" | "md" | "lg";
-    /** The 14px size, drawn in the bold weight, for chips and stamps. Same as `size="sm"`. */
+    /** `sm` is 14px (drawn in the bold weight) for chips and stamps, `md` 20px, `lg` 28px and `xl` 40px. @default "md" */
+    size?: Size;
+    /** @deprecated Use `size="sm"`. */
     small?: boolean;
     /** The bold weight at the normal 20px size, where the icon set has one. */
     bold?: boolean;
@@ -24,10 +24,14 @@ const props = withDefaults(
 );
 
 const resolve = useIconResolver();
-if (props.size && props.small && !isProduction()) {
-  console.warn("[eos] EIcon got `size` and `small`. Use `size` alone; it wins.");
-}
-const size = computed(() => props.size ?? (props.small ? "sm" : undefined));
+const size = useSize(props, "EIcon");
+/** The token of each size. `md` is the icon size every component uses, so it sets nothing and a component can still change it. */
+const SIZE_TOKEN: Record<Size, string | undefined> = {
+  sm: "--e-icon-size-sm",
+  md: undefined,
+  lg: "--e-icon-size-md",
+  xl: "--e-icon-size-lg",
+};
 const resolved = computed(() => resolve(props.name as string, size.value === "sm" || !!props.bold));
 /** An arrow or chevron that points left or right turns around in a right-to-left page. A physical alignment (`text-align-left`) does not. */
 const directional = computed(
@@ -37,7 +41,7 @@ const directional = computed(
 );
 const common = computed(() => ({
   class: ["e-icon", { "e-icon--s": size.value === "sm", "e-icon--dir": directional.value }],
-  style: size.value && { "--_size": `var(--e-icon-size-${size.value})` },
+  style: SIZE_TOKEN[size.value] && { "--_size": `var(${SIZE_TOKEN[size.value]})` },
   role: props.label ? "img" : undefined,
   "aria-label": props.label || undefined,
   "aria-hidden": props.label ? undefined : (true as const),
