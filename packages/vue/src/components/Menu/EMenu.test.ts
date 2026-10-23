@@ -365,8 +365,7 @@ describe("EMenu corners", () => {
     await expect.poll(() => menu()).not.toBeNull();
     if (md) menu()!.style.setProperty("--e-radius-md", md);
     const outer = parseFloat(getComputedStyle(menu()!).borderTopLeftRadius);
-    const inset =
-      parseFloat(getComputedStyle(menu()!).paddingTop) / 2 + parseFloat(getComputedStyle(menu()!).borderTopWidth); // pad-inset is half the padding
+    const inset = parseFloat(getComputedStyle(menu()!).paddingTop) + parseFloat(getComputedStyle(menu()!).borderTopWidth);
     const inner = parseFloat(getComputedStyle(rows()[0]!).borderTopLeftRadius);
     expect(Math.abs(inner - Math.max(0, outer - inset))).toBeLessThan(0.5);
   });
