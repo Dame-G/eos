@@ -786,6 +786,32 @@ describe("EDataGrid", () => {
     expect(queries[2]).toMatchObject({ sort: { key: "a", dir: "asc" }, search: "alp" });
   });
 
+  test("manual: searchDebounce also waits for a pause in typing in a column filter", async () => {
+    const queries: any[] = [];
+    const { container } = await grid({
+      props: {
+        caption: "T",
+        columns: FILTER_COLS,
+        rows: ROWS,
+        manual: true,
+        filterable: true,
+        searchDebounce: 120,
+        onQueryChange: (q: unknown) => queries.push(q),
+      },
+    });
+    expect(queries).toHaveLength(1);
+    const box = input(container.querySelector(".e-filterrow input[type=search]"));
+    await typeInto(box, "a");
+    await typeInto(box, "al");
+    await typeInto(box, "alp");
+    expect(queries).toHaveLength(1);
+    await expect.poll(() => queries.length).toBe(2);
+    expect(queries[1]).toMatchObject({ filters: { n: "alp" }, page: 1 });
+    (container.querySelectorAll("th")[0]!.querySelector("button") as HTMLButtonElement).click();
+    await expect.poll(() => queries.length).toBe(3);
+    expect(queries[2]).toMatchObject({ sort: { key: "n", dir: "asc" }, filters: { n: "alp" } });
+  });
+
   test("selected keeps the id type of the rows: numbers stay numbers", async () => {
     const picked: unknown[][] = [];
     const { container } = await grid({

@@ -61,7 +61,7 @@ const props = withDefaults(
     cards?: boolean;
     /** Marks the data as living on a server. The grid shows the rows given, in the order given, and reports every change through `queryChange`, once on mount too, so the first fetch needs no code of its own. */
     manual?: boolean;
-    /** With `manual`, how many milliseconds to wait after the last keystroke in the search box before `queryChange`. Other changes report at once. */
+    /** With `manual`, how many milliseconds to wait after the last keystroke in the search box or a text or number filter before `queryChange`. Other changes report at once. */
     searchDebounce?: number;
     /** With `manual`, how many rows there are in all. */
     total?: number;
@@ -396,10 +396,16 @@ function resetWidth(key: string) {
   columnSizing.value = next;
 }
 let queryTimer: ReturnType<typeof setTimeout> | undefined;
-let reportedSearch = search.value;
+/** What is typed: the search and the text and number filters. A choice from a select filter is not typing. */
+const typed = () =>
+  JSON.stringify([
+    search.value,
+    Object.entries(filters.value).filter(([key]) => colByKey.value.get(key)?.filter?.type !== "select"),
+  ]);
+let reportedTyped = typed();
 function report() {
   clearTimeout(queryTimer);
-  reportedSearch = search.value;
+  reportedTyped = typed();
   emit("queryChange", {
     sort: sort.value,
     page: page.value,
@@ -409,8 +415,8 @@ function report() {
   });
 }
 watch([sort, page, search, filters], () => {
-  // Typing in the search box waits for a pause; a click on a heading or a page goes at once.
-  if (props.manual && props.searchDebounce > 0 && search.value !== reportedSearch) {
+  // Typing in the search box or a filter field waits for a pause; a click on a heading, a page or a choice goes at once.
+  if (props.manual && props.searchDebounce > 0 && typed() !== reportedTyped) {
     clearTimeout(queryTimer);
     queryTimer = setTimeout(report, props.searchDebounce);
   } else report();
