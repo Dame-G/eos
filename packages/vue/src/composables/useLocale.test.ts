@@ -134,4 +134,11 @@ describe("useLocale", () => {
     );
     expect(api.formatDate(new Date(2026, 9, 22, 12))).toBe("10/22/2026");
   });
+
+  test("an unknown tag falls back to English names from Intl, keeping the direction its language implies", async () => {
+    const { api } = await locale({ locale: "ar-@@bad" });
+    expect(api.months.value[0]).toBe("January");
+    expect(api.dir.value).toBe("rtl");
+    expect((await locale({ locale: "zz-@@bad" })).api.dir.value).toBe("ltr");
+  });
 });

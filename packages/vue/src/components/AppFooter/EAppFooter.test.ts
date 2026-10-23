@@ -41,4 +41,12 @@ describe("EAppFooter", () => {
     const { container } = await render(EAppFooter, { slots });
     await expectNoViolations(container);
   });
+
+  test("a link in the footer shows a focus ring from the keyboard", async () => {
+    const { container } = await render(EAppFooter, { slots });
+    container.classList.add("e-root");
+    await userEvent.tab();
+    expect(document.activeElement!.getAttribute("href")).toBe("/privacy");
+    expect(document.activeElement!.closest("footer")).not.toBeNull();
+  });
 });

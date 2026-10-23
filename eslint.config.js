@@ -5,7 +5,7 @@ import a11y from "eslint-plugin-vuejs-accessibility";
 import globals from "globals";
 
 export default tseslint.config(
-  { ignores: ["**/dist/**", "**/node_modules/**", "**/generated/**", "**/storybook-static/**"] },
+  { ignores: ["**/dist/**", "**/node_modules/**", "**/generated/**", "**/storybook-static/**", "**/.claude/**"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...vue.configs["flat/recommended"],

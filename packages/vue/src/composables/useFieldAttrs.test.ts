@@ -5,10 +5,14 @@ import { useFieldAttrs } from "./useFieldAttrs.js";
 
 const Field = defineComponent({
   inheritAttrs: false,
-  props: { describedby: { type: String, default: undefined } },
+  props: { describedby: { type: [String, Array], default: undefined } },
   setup(props) {
     const attrs = useFieldAttrs();
-    return () => h("div", attrs.wrapper(), [h("input", attrs.input(props.describedby))]);
+    return () =>
+      h("div", attrs.wrapper(), [
+        h("input", attrs.input(props.describedby as string | string[] | undefined)),
+        h("i", { "data-form": attrs.form() }),
+      ]);
   },
 });
 
@@ -49,5 +53,20 @@ describe("useFieldAttrs", () => {
   test("no aria-describedby when there is none", async () => {
     const { container } = await render(Field);
     expect(container.querySelector("input")!.hasAttribute("aria-describedby")).toBe(false);
+  });
+
+  test("a list of ids is joined in order, skipping the ones that are missing, ahead of the consumer's", async () => {
+    const { container } = await render(Field, {
+      props: { describedby: ["prefix", "", "hint"] },
+      attrs: { "aria-describedby": "mine" },
+    });
+    expect(container.querySelector("input")!.getAttribute("aria-describedby")).toBe("prefix hint mine");
+  });
+
+  test("form() gives the form attribute the consumer set", async () => {
+    const { container } = await render(Field, { attrs: { form: "checkout" } });
+    expect(container.querySelector("i")!.getAttribute("data-form")).toBe("checkout");
+    const none = await render(Field);
+    expect(none.container.querySelector("i")!.hasAttribute("data-form")).toBe(false);
   });
 });

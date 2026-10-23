@@ -1,40 +1,32 @@
-/* The type scale for titles: one rule set per step. EHeading, EPageHeader, EDialog, EEmptyState and ENotice take their title size from here by carrying `e-h e-h<step>`. */
+/* The type scale for titles: one rule per step, from the `type-h1` to `type-h6` tokens. EHeading, EPageHeader, EDialog, EEmptyState and ENotice take their title style from here by carrying `e-h e-h<step>`. */
 @layer e.primitives {
   .e-h {
     margin: 0;
-    font-family: var(--e-font-sans);
-    font-weight: var(--e-weight-medium);
     color: var(--e-ink);
     text-wrap: balance;
   }
 
   .e-h1 {
-    font-size: var(--e-text-4xl);
-    line-height: 1.15;
+    font: var(--e-type-h1);
   }
 
   .e-h2 {
-    font-size: var(--e-text-2xl);
-    line-height: 1.25;
+    font: var(--e-type-h2);
   }
 
   .e-h3 {
-    font-size: var(--e-text-xl);
-    line-height: 1.25;
+    font: var(--e-type-h3);
   }
 
   .e-h4 {
-    font-size: var(--e-text-lg);
-    line-height: 1.3;
+    font: var(--e-type-h4);
   }
 
   .e-h5 {
-    font-size: var(--e-text-md);
-    line-height: 1.3;
+    font: var(--e-type-h5);
   }
 
   .e-h6 {
-    font-size: var(--e-text-sm);
-    line-height: 1.3;
+    font: var(--e-type-h6);
   }
 }

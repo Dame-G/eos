@@ -137,6 +137,31 @@ describe("ETooltip", () => {
     }
   });
 
+  test("start follows a right-to-left locale, and close fires when it hides", async () => {
+    const emitted_: Record<string, unknown[][]> = {};
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: { padding: "160px 300px" } }, [
+            h(ETooltip, { label: "Start", side: "start", onClose: () => (emitted_.close ??= []).push([]) }, () =>
+              h(EIconButton, { icon: "download", label: "Download" }),
+            ),
+          ]),
+      }),
+      { global: { plugins: [createEos({ dir: "rtl" })] } },
+    );
+    const emitted = () => emitted_;
+    await userEvent.tab();
+    await expect.poll(() => bubble()).not.toBeNull();
+    expect(bubble()!.getBoundingClientRect().left).toBeGreaterThanOrEqual(
+      container.querySelector("button")!.getBoundingClientRect().right - 1,
+    );
+    await userEvent.keyboard("{Escape}");
+    await expect.poll(() => bubble()).toBeNull();
+    expect(emitted().close).toHaveLength(1);
+    document.documentElement.removeAttribute("dir");
+  });
+
   test("after one tooltip closes the next opens without waiting out the delay", async () => {
     await render(
       defineComponent({

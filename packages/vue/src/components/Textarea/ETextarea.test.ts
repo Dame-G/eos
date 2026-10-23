@@ -4,6 +4,7 @@ import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ETextarea from "./ETextarea.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { expectPostingContract } from "../../../test/formPosting.js";
 
 describe("ETextarea", () => {
   test("is a labelled textarea, 4 rows by default, resizable vertically", async () => {
@@ -89,5 +90,34 @@ describe("ETextarea", () => {
       }),
     );
     await expectNoViolations(container);
+  });
+
+  test("autocomplete and maxlength land on the textarea, and the counter reads the length", async () => {
+    const { container } = await render(ETextarea, {
+      props: { label: "Notes", autocomplete: "off", maxlength: 10, counter: true, modelValue: "hello" },
+    });
+    const area = container.querySelector("textarea")!;
+    expect(area.getAttribute("autocomplete")).toBe("off");
+    expect(area.maxLength).toBe(10);
+    const count = container.querySelector(".e-field-count")!;
+    expect(count.textContent!.trim()).toBe("5 of 10 characters");
+    expect(area.getAttribute("aria-describedby")).toContain(count.id);
+  });
+
+  test("autoGrow follows the text and has no resize handle", async () => {
+    const { container } = await render(ETextarea, { props: { label: "Notes", autoGrow: true, rows: 2 } });
+    container.classList.add("e-root");
+    const area = container.querySelector("textarea")!;
+    const before = area.getBoundingClientRect().height;
+    await page.getByRole("textbox", { name: "Notes" }).fill("a\nb\nc\nd\ne\nf\ng\nh");
+    await expect.poll(() => area.getBoundingClientRect().height).toBeGreaterThan(before + 40);
+    expect(getComputedStyle(area).resize).toBe("none");
+    expect(area.scrollHeight).toBeLessThanOrEqual(area.clientHeight);
+    await page.getByRole("textbox", { name: "Notes" }).fill("a");
+    await expect.poll(() => area.getBoundingClientRect().height).toBe(before);
+  });
+
+  test("a disabled textarea posts nothing, and a named one joins a form it is outside of", async () => {
+    await expectPostingContract(ETextarea, { label: "Notes", modelValue: "hi" });
   });
 });

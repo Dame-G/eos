@@ -6,6 +6,15 @@ import ESwitch from "./ESwitch.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESwitch", () => {
+  test("the track is pressed in while off and flat while on, as a checkbox is", async () => {
+    const { container } = await render(ESwitch, { props: { label: "Reminders" } });
+    container.classList.add("e-root");
+    const track = container.querySelector(".e-switch-track")!;
+    expect(getComputedStyle(track).boxShadow).toContain("inset");
+    await page.getByText("Reminders").click();
+    await expect.poll(() => getComputedStyle(track).boxShadow).toBe("none");
+  });
+
   test("is a switch named by its label", async () => {
     const { container } = await render(ESwitch, { props: { label: "Reminders" } });
     await expect.element(page.getByRole("switch", { name: "Reminders" })).toBeVisible();
@@ -66,15 +75,15 @@ describe("ESwitch", () => {
     expect(container.querySelector("label")!.classList.contains("e-choice--disabled")).toBe(true);
   });
 
-  test("attributes land on the input, class and style on the row", async () => {
+  test("attributes land on the input, class and style on the wrapper", async () => {
     const { container } = await render(ESwitch, {
       props: { label: "A" },
       attrs: { "data-x": "1", class: "mine", style: "max-width: 300px" },
     });
     expect(container.querySelector("input")!.dataset["x"]).toBe("1");
-    const label = container.querySelector("label")!;
-    expect(label.className).toBe("e-choice e-switch mine");
-    expect(label.style.maxWidth).toBe("300px");
+    const wrap = container.firstElementChild as HTMLElement;
+    expect(wrap.className).toBe("e-choice-wrap mine");
+    expect(wrap.style.maxWidth).toBe("300px");
   });
 
   test("has no accessibility violations in any state", async () => {
@@ -91,5 +100,36 @@ describe("ESwitch", () => {
       }),
     );
     await expectNoViolations(container);
+  });
+
+  test("the description is not part of the name, and hint, error and required are wired", async () => {
+    const { container } = await render(ESwitch, {
+      props: { label: "Reminders", description: "By text", hint: "Sent the day before", required: true },
+    });
+    const input = container.querySelector("input")!;
+    expect(input.required).toBe(true);
+    const hint = container.querySelector(".e-field-hint")!;
+    expect(input.getAttribute("aria-describedby")!.split(" ")).toContain(hint.id);
+    await expect
+      .element(page.getByRole("switch", { name: "Reminders Required" }))
+      .toHaveAccessibleDescription("Sent the day before By text");
+  });
+
+  test("an error marks the switch invalid and is announced", async () => {
+    const { container } = await render(ESwitch, { props: { label: "Reminders", error: "Turn this on" } });
+    expect(container.querySelector("input")!.getAttribute("aria-invalid")).toBe("true");
+    expect(container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+  });
+
+  test("readonly keeps the state and blocks the flip", async () => {
+    const got: boolean[] = [];
+    const { container } = await render(ESwitch, {
+      props: { label: "A", readonly: true, "onUpdate:modelValue": (v: boolean) => got.push(v) },
+    });
+    const input = container.querySelector("input")!;
+    expect(input.getAttribute("aria-readonly")).toBe("true");
+    await input.click();
+    expect(got).toEqual([]);
+    expect(input.checked).toBe(false);
   });
 });

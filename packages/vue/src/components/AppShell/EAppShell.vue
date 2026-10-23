@@ -1,22 +1,27 @@
 <script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, provide, ref, watch } from "vue";
+import EDrawer from "../Drawer/EDrawer.vue";
 import ESkipLink from "../SkipLink/ESkipLink.vue";
+import { shellKey } from "./shellContext.js";
 import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     /** The `id` of the `main` element, which the skip link targets. It must be unique on the page. */
     mainId?: string;
-    /** The name of the sidebar landmark. @default "Main" */
+    /** The name of the sidebar landmark. @default "Sidebar" */
     sidebarLabel?: string;
+    /** Below 48rem the sidebar leaves the page and opens in a drawer from a menu button in the header. Turn it off to keep the sidebar above the content on a phone. @default true */
+    navToggle?: boolean;
   }>(),
-  { mainId: "main" },
+  { mainId: "main", navToggle: true },
 );
 
 defineSlots<{
   /** An EAppHeader. */
   header?(): unknown;
-  /** The side navigation, such as an `ENavList`. It sits beside the content from 48rem wide and above the content below that. */
+  /** The side navigation, such as an `ENavList`. It sits beside the content from 48rem wide, and below that it opens in a drawer. */
   sidebar?(): unknown;
   /** An EAppFooter. */
   footer?(): unknown;
@@ -24,7 +29,32 @@ defineSlots<{
   default?(): unknown;
 }>();
 
+/** Whether the sidebar drawer is open. It only exists below 48rem. */
+const navOpen = defineModel<boolean>("navOpen", { default: false });
+
 const t = useMessages();
+
+// The page-frame breakpoint (48rem) is a window query, not the shell's own width; the sidebar is in one place at a time.
+const narrow = ref(false);
+let query: MediaQueryList | undefined;
+const sync = () => (narrow.value = !!query?.matches);
+onMounted(() => {
+  if (typeof matchMedia === "undefined") return;
+  query = matchMedia("(max-width: 47.99rem)");
+  sync();
+  query.addEventListener("change", sync);
+});
+onBeforeUnmount(() => query?.removeEventListener("change", sync));
+
+const drawer = computed(() => props.navToggle && narrow.value);
+watch(drawer, (on) => on || (navOpen.value = false));
+
+provide(shellKey, { drawer, open: navOpen, toggle: () => (navOpen.value = !navOpen.value) });
+
+/** Following a link in the drawer takes the person to a page, so the drawer gets out of the way. */
+function closeOnLink(event: MouseEvent) {
+  if ((event.target as Element).closest("a[href]")) navOpen.value = false;
+}
 </script>
 
 <template>
@@ -32,7 +62,7 @@ const t = useMessages();
     <ESkipLink :href="`#${mainId}`" />
     <slot name="header" />
     <div class="e-shell-body">
-      <aside v-if="$slots.sidebar" class="e-shell-side" :aria-label="sidebarLabel || t('mainNav')">
+      <aside v-if="$slots.sidebar && !drawer" class="e-shell-side" :aria-label="sidebarLabel || t('sidebar')">
         <slot name="sidebar" />
       </aside>
       <main :id="mainId" class="e-shell-main" tabindex="-1">
@@ -40,6 +70,15 @@ const t = useMessages();
       </main>
     </div>
     <slot name="footer" />
+    <EDrawer
+      v-if="$slots.sidebar && drawer"
+      v-model:open="navOpen"
+      side="start"
+      :title="sidebarLabel || t('menu')"
+      @click="closeOnLink"
+    >
+      <slot name="sidebar" />
+    </EDrawer>
   </div>
 </template>
 
@@ -58,11 +97,11 @@ const t = useMessages();
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     position: relative;
-    gap: var(--e-space-6);
+    gap: var(--e-gap-section);
     width: 100%;
     max-width: var(--e-shell-width, 72rem);
     margin-inline: auto;
-    padding: var(--e-space-6) var(--e-space-4);
+    padding: var(--e-gap-section) var(--e-gutter);
   }
 
   /* Hairlines just outside both edges of the page column, from the header to the footer and not through them. When the column fills the screen they fall off it and nothing shows. They are borders, not shadows, so forced colors keeps them. */

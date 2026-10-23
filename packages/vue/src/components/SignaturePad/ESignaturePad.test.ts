@@ -56,7 +56,7 @@ describe("ESignaturePad", () => {
   test("is a labelled drawing area with a hint and a Clear button", async () => {
     const { container } = await render(ESignaturePad);
     const canvas = container.querySelector("canvas")!;
-    await expect.element(page.getByRole("group", { name: "Draw your signature" })).toBeVisible();
+    await expect.element(page.getByRole("img", { name: "Draw your signature" })).toBeVisible();
     const hint = container.querySelector(".e-field-hint")!;
     expect(canvas.getAttribute("aria-describedby")).toBe(hint.id);
     expect(hint.textContent).toContain("choose Type");
@@ -181,11 +181,53 @@ describe("ESignaturePad", () => {
     expect(Math.abs(after.min - before.min)).toBeLessThan(0.03);
   });
 
-  test("a drawing is a group while it can be drawn on and an image when disabled", async () => {
-    const live = await render(ESignaturePad);
-    expect(live.container.querySelector("canvas")!.getAttribute("role")).toBe("group");
-    const off = await render(ESignaturePad, { props: { disabled: true } });
-    expect(off.container.querySelector("canvas")!.getAttribute("role")).toBe("img");
+  test("the canvas is an image named by the label and described by the instructions", async () => {
+    const { container } = await render(ESignaturePad, { props: { id: "p" } });
+    const canvas = container.querySelector("canvas")!;
+    expect(canvas.getAttribute("role")).toBe("img");
+    expect(canvas.getAttribute("aria-label")).toBe("Draw your signature");
+    expect(canvas.getAttribute("aria-describedby")).toBe("p-hint");
+    expect(canvas.hasAttribute("tabindex")).toBe(false);
+  });
+
+  test("a hint shows under the pad and is described with the instructions", async () => {
+    const { container } = await render(ESignaturePad, { props: { id: "p", hint: "Sign inside the box" } });
+    const canvas = container.querySelector("canvas")!;
+    expect(canvas.getAttribute("aria-describedby")).toBe("p-hint p-msg");
+    expect(container.querySelector("#p-msg")!.textContent).toBe("Sign inside the box");
+    expect(canvas.hasAttribute("aria-invalid")).toBe(false);
+  });
+
+  test("an error replaces the hint, marks the pad invalid and is announced", async () => {
+    const { container } = await render(ESignaturePad, {
+      props: { id: "p", hint: "Sign inside the box", error: "Sign here" },
+    });
+    const canvas = container.querySelector("canvas")!;
+    expect(canvas.getAttribute("aria-invalid")).toBe("true");
+    expect(canvas.getAttribute("aria-describedby")).toBe("p-hint p-msg");
+    const msg = container.querySelector("#p-msg")!;
+    expect(msg.getAttribute("role")).toBe("alert");
+    expect(msg.textContent).toContain("Sign here");
+    expect(container.querySelector(".e-pad-surface")!.hasAttribute("data-invalid")).toBe(true);
+    expect(container.textContent).not.toContain("Sign inside the box");
+  });
+
+  test("required adds the word to what screen readers hear", async () => {
+    const { container } = await render(ESignaturePad, { props: { id: "p", required: true } });
+    expect(container.querySelector("#p-hint")!.textContent).toMatch(/^Required\. /);
+  });
+
+  test("readonly keeps the signature, ignores drawing and disables Clear", async () => {
+    const got: string[] = [];
+    const { container } = await render(ESignaturePad, {
+      props: { readonly: true, modelValue: dataUrl() },
+      attrs: { "onUpdate:modelValue": (v: string) => got.push(v) },
+    });
+    await expect.poll(() => container.querySelector(".e-pad-placeholder")).toBeNull();
+    draw(container.querySelector("canvas")!);
+    await nextTick();
+    expect(got).toEqual([]);
+    await expect.element(page.getByRole("button", { name: "Clear signature" })).toBeDisabled();
   });
 
   test("disabled ignores drawing and disables Clear", async () => {
@@ -211,7 +253,12 @@ describe("ESignaturePad", () => {
   test("has no accessibility violations: empty, drawn, disabled", async () => {
     const { container } = await render(
       defineComponent({
-        render: () => h("div", [h(ESignaturePad, { id: "a" }), h(ESignaturePad, { id: "b", disabled: true })]),
+        render: () =>
+          h("div", [
+            h(ESignaturePad, { id: "a" }),
+            h(ESignaturePad, { id: "b", disabled: true }),
+            h(ESignaturePad, { id: "c", error: "Sign here", required: true, readonly: true }),
+          ]),
       }),
     );
     await expectNoViolations(container);

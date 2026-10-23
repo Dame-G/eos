@@ -13,17 +13,18 @@ Children in a row that wraps when it runs out of room, for a title with a status
 
 <!-- props:start -->
 
-| Prop      | Type                                                      | Default | Notes                                                                                                                            |
-| --------- | --------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `as`      | `string`                                                  | `"div"` | The element to render, for example `ul`.                                                                                         |
-| `gap`     | `InlineGap \| string`                                     | `2`     | A space token number (1 to 8, 10, 12 or 16) becomes `var(--e-space-N)`. A string is used as given, so any CSS length works.      |
-| `justify` | `"start" \| "center" \| "end" \| "between"`               | None    | Main-axis placement. `between` spreads the children apart. Left out, they sit at the start.                                      |
-| `align`   | `"start" \| "center" \| "end" \| "stretch" \| "baseline"` | None    | Cross-axis alignment. `start` aligns the top edges and `baseline` aligns the text baselines. Left out, the children are centred. |
-| `nowrap`  | `boolean`                                                 | `false` | Keeps the children on one line instead of wrapping.                                                                              |
+| Prop      | Type                                                      | Default  | Notes                                                                                                                                                                                      |
+| --------- | --------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `as`      | `string`                                                  | `"div"`  | The element to render, for example `ul`.                                                                                                                                                   |
+| `gap`     | `GapToken \| string`                                      | `"snug"` | `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. |
+| `justify` | `"start" \| "center" \| "end" \| "between"`               | None     | Main-axis placement. `between` spreads the children apart. Left out, they sit at the start.                                                                                                |
+| `align`   | `"start" \| "center" \| "end" \| "stretch" \| "baseline"` | None     | Cross-axis alignment. `start` aligns the top edges and `baseline` aligns the text baselines. Left out, the children are centred.                                                           |
+| `wrap`    | `boolean`                                                 | `true`   | Wraps the children onto further lines when they run out of room. `false` keeps them on one line.                                                                                           |
+| `nowrap`  | `boolean`                                                 | `false`  | Deprecated: use `:wrap="false"`.                                                                                                                                                           |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the rendered element.
+`class`, `style` and attributes land on the rendered element. The default `gap` is `snug` (8px); `gap` takes the same values as on [`EStack`](../Stack/README.md). `nowrap` is deprecated: use `:wrap="false"`.
 
 ## Slots
 

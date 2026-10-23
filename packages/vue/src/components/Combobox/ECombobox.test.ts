@@ -546,4 +546,15 @@ describe("ECombobox", () => {
     await expectNoViolations(document.body);
     e.unmount();
   });
+
+  test("a disabled combobox posts nothing through its hidden inputs", async () => {
+    const { container } = await render(ECombobox, {
+      props: { label: "Pay", name: "m", options: ["A", "B"], modelValue: "A", disabled: true },
+    });
+    const form = document.createElement("form");
+    form.append(container.firstElementChild!);
+    document.body.append(form);
+    expect(new FormData(form).getAll("m")).toEqual([]);
+    form.remove();
+  });
 });

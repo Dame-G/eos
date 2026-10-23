@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EStepper from "./EStepper.vue";
 import { expectNoViolations } from "../../../test/axe.js";
@@ -94,5 +94,112 @@ describe("EStepper", () => {
       props: { steps: steps.map((s, i) => ({ ...s, state: i ? ("upcoming" as const) : ("current" as const) })) },
     });
     await expectNoViolations(first.container);
+  });
+
+  test("an error step is marked for screen readers and drawn with an icon, not the number", async () => {
+    const { container } = await render(EStepper, {
+      props: {
+        steps: [
+          { label: "Account", state: "done" },
+          { label: "Payment", state: "error" },
+          { label: "Review", state: "upcoming" },
+        ],
+      },
+    });
+    container.classList.add("e-root");
+    const lis = container.querySelectorAll("li");
+    expect(lis[1]!.getAttribute("data-state")).toBe("error");
+    expect(lis[1]!.querySelector(".e-step-dot svg")).not.toBeNull();
+    expect(lis[1]!.querySelector(".e-sr")!.textContent).toContain("has an error");
+    expect(getComputedStyle(lis[1]!.querySelector(".e-step-dot")!).borderTopColor).not.toBe(
+      getComputedStyle(lis[2]!.querySelector(".e-step-dot")!).borderTopColor,
+    );
+  });
+
+  test("an optional step says so under its label", async () => {
+    const { container } = await render(EStepper, {
+      props: {
+        steps: [
+          { label: "Account", state: "current" },
+          { label: "Insurance", state: "upcoming", optional: true },
+        ],
+      },
+    });
+    expect(container.querySelectorAll(".e-step-optional").length).toBe(1);
+    expect(container.querySelector(".e-step-optional")!.textContent).toBe("Optional");
+  });
+
+  test("a display-only stepper has no buttons; interactive makes each step a button that emits select", async () => {
+    const plain = await render(EStepper, { props: { steps } });
+    expect(plain.container.querySelectorAll("button").length).toBe(0);
+    const { container, emitted } = await render(EStepper, { props: { steps, interactive: true } });
+    expect(container.querySelectorAll("li > button.e-step-body").length).toBe(steps.length);
+    await userEvent.click(container.querySelectorAll("button")[1]!);
+    expect(emitted().select).toEqual([[1, steps[1]]]);
+  });
+
+  test("interactive: Tab walks the steps, Enter and Space choose, a disabled step is skipped, the current one is aria-current", async () => {
+    const list = [
+      { label: "One", state: "done" as const },
+      { label: "Two", state: "current" as const },
+      { label: "Three", state: "upcoming" as const, disabled: true },
+      { label: "Four", state: "upcoming" as const },
+    ];
+    const { container, emitted } = await render(EStepper, { props: { steps: list, interactive: true } });
+    container.classList.add("e-root");
+    await userEvent.tab();
+    expect(document.activeElement!.textContent).toContain("One");
+    expect(getComputedStyle(document.activeElement!).outlineStyle).toBe("solid");
+    await userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    expect(document.activeElement!.getAttribute("aria-current")).toBe("step");
+    await userEvent.tab();
+    expect(document.activeElement!.textContent).toContain("Four");
+    await userEvent.keyboard(" ");
+    expect(emitted().select).toEqual([
+      [0, list[0]],
+      [3, list[3]],
+    ]);
+    expect(container.querySelectorAll("li[aria-current]").length).toBe(0);
+  });
+
+  test("a disabled interactive step is a disabled button", async () => {
+    const list = [
+      { label: "One", state: "current" as const },
+      { label: "Two", state: "upcoming" as const, disabled: true },
+    ];
+    const { container, emitted } = await render(EStepper, { props: { steps: list, interactive: true } });
+    const two = container.querySelectorAll("button")[1]!;
+    expect(two.disabled).toBe(true);
+    two.click();
+    expect(emitted().select).toBeUndefined();
+  });
+
+  test("orientation vertical stacks the steps in any width, horizontal never stacks", async () => {
+    const wide = await render(EStepper, { props: { steps, orientation: "vertical" } });
+    wide.container.classList.add("e-root");
+    const rows = [...wide.container.querySelectorAll("li")].map((li) => li.getBoundingClientRect().top);
+    expect(new Set(rows).size).toBe(steps.length);
+    const narrow = await render(
+      defineComponent({
+        render: () => h("div", { style: "width: 20rem" }, [h(EStepper, { steps, orientation: "horizontal" })]),
+      }),
+    );
+    narrow.container.classList.add("e-root");
+    const tops = [...narrow.container.querySelectorAll("li")].map((li) => li.getBoundingClientRect().top);
+    expect(new Set(tops).size).toBe(1);
+  });
+
+  test("the steps are their own stacking context, so the raised dots stay under a sticky header", async () => {
+    const { container } = await render(EStepper, { props: { steps } });
+    container.classList.add("e-root");
+    expect(getComputedStyle(container.querySelector(".e-steps")!).isolation).toBe("isolate");
+  });
+
+  test("an interactive stepper has no accessibility violations", async () => {
+    const { container } = await render(EStepper, {
+      props: { steps: [...steps.slice(0, 2), { label: "Pay", state: "error", optional: true }], interactive: true },
+    });
+    await expectNoViolations(container);
   });
 });

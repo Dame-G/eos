@@ -1,0 +1,203 @@
+@layer e.primitives {
+  .e-btn {
+    --_fill: var(--e-primary);
+    --_on: var(--e-on-primary);
+    --_hover: var(--e-primary-hover);
+    --_press: var(--e-primary-press);
+    --_slab: var(--e-primary-slab);
+    --_lift: var(--e-slab);
+    --_ring: var(--_slab);
+    --_h: var(--e-control-height);
+    --_pad: var(--e-pad-control);
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--e-gap-tight);
+    height: var(--_h);
+    padding: 0 calc(var(--_pad) - var(--e-stroke-edge));
+    box-sizing: border-box;
+    border: var(--e-stroke-edge) solid var(--_ring);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
+    border-radius: var(--e-radius-md);
+    background-color: var(--_fill);
+
+    /* A solid face runs under its border so no page colour shows between them. */
+    background-clip: border-box;
+    color: var(--_on);
+    font: var(--e-type-button);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--e-transition-state);
+  }
+
+  .e-btn--sm {
+    --_h: var(--e-tap);
+    --_pad: var(--e-pad-control-sm);
+
+    font-size: var(--e-text-sm);
+  }
+
+  .e-btn--lg {
+    --_h: calc(var(--e-control-height) + var(--e-gap-snug));
+
+    font-size: var(--e-text-lg);
+  }
+
+  .e-btn:not(:disabled, [aria-disabled="true"], .e-btn--loading):hover {
+    background-color: var(--_hover);
+  }
+
+  .e-btn:not(:disabled, [aria-disabled="true"], .e-btn--loading):active {
+    --_lift: 0px;
+
+    background-color: var(--_press);
+  }
+
+  .e-btn--secondary {
+    --_fill: var(--e-secondary);
+    --_on: var(--e-on-secondary);
+    --_hover: var(--e-secondary-hover);
+    --_press: var(--e-secondary-press);
+    --_slab: var(--e-secondary-slab);
+  }
+
+  .e-btn--danger {
+    --_fill: var(--e-danger);
+    --_on: var(--e-on-danger);
+    --_hover: var(--e-danger-hover);
+    --_press: var(--e-danger-press);
+    --_slab: var(--e-danger-slab);
+  }
+
+  .e-btn--outline {
+    --_fill: var(--e-surface);
+    --_on: var(--e-ink);
+    --_hover: var(--e-surface-hover);
+    --_press: var(--e-surface-press);
+    --_slab: var(--e-border-strong);
+
+    background-clip: padding-box;
+  }
+
+  .e-btn--outline:not(:disabled, [aria-disabled="true"], [aria-pressed="true"], .e-btn--loading):is(:hover, :active) {
+    --_slab: var(--e-ink);
+  }
+
+  /* No fill: the quiet item recipe, a wash and a ring, under an underlined label. */
+  .e-btn--quiet {
+    --_fill: transparent;
+    --_on: var(--e-ink);
+    --_hover: var(--e-wash-hover);
+    --_press: var(--e-wash-press);
+    --_slab: transparent;
+    --_lift: 0px;
+
+    padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    text-decoration-thickness: var(--e-stroke-edge);
+    text-decoration-color: var(--e-border-strong);
+  }
+
+  .e-btn--quiet:not(:disabled, [aria-disabled="true"], .e-btn--loading):hover {
+    box-shadow: var(--e-ring-hover);
+    text-decoration-color: currentcolor;
+  }
+
+  .e-btn--quiet:not(:disabled, [aria-disabled="true"], .e-btn--loading):active {
+    box-shadow: var(--e-ring-press);
+  }
+
+  .e-btn .e-btn-spinner {
+    width: 1.125em;
+    height: 1.125em;
+  }
+
+  /* A button that is only an icon (EIconButton): a square the height of the control. */
+  .e-btn--icon {
+    width: var(--_h);
+    padding: 0;
+  }
+
+  /* Busy reads as unavailable and in progress: a soft tint of the button's colour with a dashed edge like a disabled button, and the spinner. The edge is a pseudo-element, so a page's focus reset cannot remove it. */
+  .e-btn--loading {
+    --_lift: 0px;
+    --_tint: var(--_fill);
+    --_busy: color-mix(in srgb, var(--_tint) 80%, var(--e-ink));
+
+    background-color: color-mix(in srgb, var(--_tint) 14%, var(--e-surface));
+    background-clip: padding-box;
+    border-color: transparent;
+    color: var(--_busy);
+    cursor: not-allowed;
+  }
+
+  .e-btn--outline.e-btn--loading {
+    --_tint: var(--e-border-strong);
+  }
+
+  .e-btn--loading::before {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--e-stroke-edge));
+    border: var(--e-stroke-edge) dashed var(--_busy);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .e-btn--block {
+    width: 100%;
+  }
+
+  /* A toggle that is on (`aria-pressed="true"`) is a value you set: filled primary with its slab, like a checked box or a chosen segment. */
+  .e-btn[aria-pressed="true"] {
+    --_fill: var(--e-primary);
+    --_on: var(--e-on-primary);
+    --_hover: var(--e-primary-hover);
+    --_press: var(--e-primary-press);
+    --_slab: var(--e-primary-slab);
+
+    background-clip: border-box;
+  }
+
+  .e-btn[disabled],
+  .e-btn[aria-disabled="true"] {
+    --_lift: 0px;
+
+    cursor: not-allowed;
+    background: var(--e-disabled-fill);
+    color: var(--e-disabled-ink);
+    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  @media print {
+    .e-btn {
+      display: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-btn {
+      border: var(--e-stroke-focus) solid ButtonText;
+    }
+
+    .e-btn[aria-pressed="true"] {
+      forced-color-adjust: none;
+      background: Highlight;
+      color: HighlightText;
+    }
+
+    .e-btn[disabled],
+    .e-btn[aria-disabled="true"] {
+      outline-color: GrayText;
+      color: GrayText;
+    }
+  }
+}

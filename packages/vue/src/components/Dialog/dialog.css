@@ -2,7 +2,11 @@
   .e-dialog,
   .e-drawer {
     z-index: var(--e-z-modal);
+    display: flex;
+    flex-direction: column;
+    gap: var(--e-gap-base);
     padding: 0;
+    overflow: hidden;
     border: 0;
     background: var(--e-surface);
     color: var(--e-ink);
@@ -10,11 +14,51 @@
     font-family: var(--e-font-sans);
   }
 
+  .e-dialog--sm,
+  .e-drawer--sm {
+    --_w: var(--e-size-panel-sm);
+  }
+
+  .e-dialog--md,
+  .e-drawer--md {
+    --_w: var(--e-size-panel-md);
+  }
+
+  .e-dialog--lg,
+  .e-drawer--lg {
+    --_w: var(--e-size-panel-lg);
+  }
+
   .e-dialog-overlay {
     position: fixed;
     inset: 0;
     z-index: var(--e-z-modal);
     background: var(--e-scrim);
+  }
+
+  /* A short scale and fade in, the counterpart of the drawer's slide. The motion tokens go to ~0 under reduced motion. */
+  .e-dialog[data-state="open"],
+  .e-cmd[data-state="open"] {
+    animation: e-dialog-in var(--e-duration-move) var(--e-easing-out);
+  }
+
+  .e-dialog[data-state="closed"],
+  .e-cmd[data-state="closed"] {
+    animation: e-dialog-out var(--e-duration-move) var(--e-easing-out) forwards;
+  }
+
+  @keyframes e-dialog-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes e-dialog-out {
+    to {
+      opacity: 0;
+      transform: scale(0.96);
+    }
   }
 
   .e-dialog-overlay[data-state="open"] {
@@ -37,38 +81,47 @@
     }
   }
 
+  /* The panel is a column: the head and the foot stay, the body scrolls, and the panel's own gap separates the parts. */
   .e-dialog-body,
   .e-drawer-body {
-    padding-block: var(--e-space-3) var(--e-space-6);
-    padding-inline: var(--e-space-6);
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding-inline: var(--e-pad-panel);
     font: var(--e-weight-regular) var(--e-text-md) / 1.5 var(--e-font-sans);
+  }
+
+  .e-dialog-body:focus-visible,
+  .e-drawer-body:focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-dialog-head {
     display: flex;
-    align-items: flex-start;
+    flex: none;
+    align-items: center;
     justify-content: space-between;
-    gap: var(--e-space-3);
-    padding-block: var(--e-space-4) 0;
-    padding-inline: var(--e-space-6) var(--e-space-2);
+    gap: var(--e-gap-base);
+    padding-block-start: var(--e-gap-loose);
+    padding-inline: var(--e-pad-panel) calc(var(--e-pad-panel) - var(--e-gap-snug));
   }
 
-  /* The size and weight come from the type scale (`e-h e-h2`). */
-  .e-dialog-title {
-    margin-block-start: var(--e-space-2);
-  }
-
+  /* The size and weight of the title come from the type scale (`e-h e-h2`). */
   .e-dialog-description {
+    flex: none;
     margin: 0;
-    padding-block: var(--e-space-2) 0;
-    padding-inline: var(--e-space-6);
+    padding-inline: var(--e-pad-panel);
     color: var(--e-muted);
     font: var(--e-weight-regular) var(--e-text-md) / 1.5 var(--e-font-sans);
   }
 
   .e-dialog-foot {
-    gap: var(--e-space-3);
-    padding: var(--e-space-4) var(--e-space-6);
+    flex: none;
+    gap: var(--e-gap-snug);
+    padding-block: var(--e-gap-loose);
+    padding-inline: var(--e-pad-panel);
   }
 
   @media (forced-colors: active) {

@@ -10,19 +10,22 @@ A single yes/no choice. Use [`ESwitch`](../Switch/README.md) for a setting that 
 
 <!-- props:start -->
 
-| Prop            | Type      | Default      | Notes                                                                                                    |
-| --------------- | --------- | ------------ | -------------------------------------------------------------------------------------------------------- |
-| `modelValue`    | `boolean` | `false`      | `v-model`: whether it is checked.                                                                        |
-| `label`         | `string`  | **Required** | What the person agrees to or turns on.                                                                   |
-| `description`   | `string`  | None         | A line of detail under the label.                                                                        |
-| `indeterminate` | `boolean` | `false`      | A mixed state, such as select-all with some rows chosen.                                                 |
-| `bare`          | `boolean` | `false`      | Hides the label from the page and keeps it for screen readers, for a table cell. It shows no error text. |
-| `disabled`      | `boolean` | `false`      | Disables the checkbox. It cannot take focus and is not submitted.                                        |
-| `required`      | `boolean` | `false`      | Sets the `required` attribute.                                                                           |
-| `error`         | `string`  | None         | Shows what to fix under the row and sets `aria-invalid`.                                                 |
-| `name`          | `string`  | None         | The name submitted with a form.                                                                          |
-| `value`         | `string`  | None         | The value submitted with a form when checked.                                                            |
-| `id`            | `string`  | `generated`  | The `id` of the input, which the label points at.                                                        |
+| Prop            | Type      | Default      | Notes                                                                                                            |
+| --------------- | --------- | ------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `modelValue`    | `boolean` | `false`      | `v-model`: whether it is checked.                                                                                |
+| `label`         | `string`  | **Required** | What the person agrees to or turns on.                                                                           |
+| `description`   | `string`  | None         | A line of detail under the label.                                                                                |
+| `indeterminate` | `boolean` | `false`      | A mixed state, such as select-all with some rows chosen.                                                         |
+| `bare`          | `boolean` | `false`      | Hides the label from the page and keeps it for screen readers, for a table cell. It shows no hint or error text. |
+| `disabled`      | `boolean` | `false`      | Disables the checkbox. It cannot take focus and is not submitted.                                                |
+| `readonly`      | `boolean` | `false`      | Shows the state but blocks changing it. The box stays focusable and is still submitted.                          |
+| `required`      | `boolean` | `false`      | Sets the `required` attribute and shows "Required" beside the label.                                             |
+| `optional`      | `boolean` | `false`      | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.                         |
+| `hint`          | `string`  | None         | Help under the row, linked with `aria-describedby`.                                                              |
+| `error`         | `string`  | None         | Shows what to fix under the row, in place of the hint, and sets `aria-invalid`.                                  |
+| `name`          | `string`  | None         | The name submitted with a form.                                                                                  |
+| `value`         | `string`  | None         | The value submitted with a form when checked.                                                                    |
+| `id`            | `string`  | `generated`  | The `id` of the input, which the label points at.                                                                |
 
 <!-- props:end -->
 
@@ -31,7 +34,7 @@ A single yes/no choice. Use [`ESwitch`](../Switch/README.md) for a setting that 
 ## Accessibility
 
 - The label is required. With `bare` it stays for screen readers.
-- `error` and `description` are linked to the input with `aria-describedby`. The description is not part of the checkbox's name.
+- `readonly` sets `aria-readonly`, keeps the box focusable and blocks the toggle. `hint`, `error` and `description` are linked to the input with `aria-describedby`. The description is not part of the checkbox's name.
 - `indeterminate` is the prop's to set: a click checks the box, and the mixed state stays until the prop changes.
 
 ## Keyboard
@@ -43,4 +46,4 @@ A single yes/no choice. Use [`ESwitch`](../Switch/README.md) for a setting that 
 
 ## Related
 
-[`ESwitch`](../Switch/README.md) for a setting that applies at once, [`ERadioGroup`](../RadioGroup/README.md) to choose one of several.
+[`ESwitch`](../Switch/README.md) for a setting that applies at once, [`ECheckboxGroup`](../CheckboxGroup/README.md) for several related boxes, [`ERadioGroup`](../RadioGroup/README.md) to choose one of several.

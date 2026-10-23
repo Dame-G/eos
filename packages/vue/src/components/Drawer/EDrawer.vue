@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, watchEffect } from "vue";
+import { isProduction } from "../../env.js";
 import DialogFrame from "../Dialog/DialogFrame.vue";
 import EDrawerBody from "./EDrawerBody.vue";
 
@@ -15,14 +16,18 @@ const props = withDefaults(
     role?: "dialog" | "alertdialog";
     /** The level of the title's heading element, 1 to 6. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
-    /** The edge it slides in from. `end` is the right in a left-to-right page, `start` the left, and both flip in a right-to-left page. `bottom` gives a sheet that suits phones. `right` and `left` are older names for `end` and `start`. */
+    /** The edge it slides in from. `end` is the right in a left-to-right page, `start` the left, and both flip in a right-to-left page. `bottom` gives a sheet that suits phones. `right` and `left` are deprecated names for `end` and `start`. */
     side?: "end" | "start" | "bottom" | "right" | "left";
+    /** The width of a side drawer: `sm`, `md` or `lg`. A `bottom` sheet is always full width. */
+    size?: "sm" | "md" | "lg";
+    /** A CSS selector for the element that takes focus when it opens. Without it, an element marked `data-autofocus` does; an `alertdialog` falls back to its least destructive action and any other drawer to its first control. */
+    initialFocus?: string;
     /** Closes the drawer when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. */
     dismissible?: boolean;
     /** Shows the drawer in the page, without the backdrop or the focus trap, for a preview. */
     inline?: boolean;
   }>(),
-  { role: "dialog", headingLevel: 2, side: "end" },
+  { role: "dialog", headingLevel: 2, side: "end", size: "sm" },
 );
 
 const emit = defineEmits<{
@@ -40,6 +45,11 @@ defineSlots<{
 /** Whether it is open. Without a binding it keeps its own state. */
 const open = defineModel<boolean>("open");
 
+watchEffect(() => {
+  if ((props.side === "left" || props.side === "right") && !isProduction())
+    console.warn(`[eos] EDrawer side="${props.side}" is deprecated. Use "${props.side === "left" ? "start" : "end"}".`);
+});
+
 const edge = computed(() => (props.side === "left" ? "start" : props.side === "right" ? "end" : props.side));
 </script>
 
@@ -53,7 +63,13 @@ const edge = computed(() => (props.side === "left" ? "start" : props.side === "r
     :role="role"
     :inline="inline"
     :dismissible="dismissible"
-    :content-class="['e-drawer', edge !== 'end' && `e-drawer--${edge}`, inline && 'e-drawer--inline']"
+    :initial-focus="initialFocus"
+    :content-class="[
+      'e-drawer',
+      `e-drawer--${size}`,
+      edge !== 'end' && `e-drawer--${edge}`,
+      inline && 'e-drawer--inline',
+    ]"
     @close="emit('close')"
   >
     <EDrawerBody><slot /></EDrawerBody>
@@ -69,14 +85,12 @@ const edge = computed(() => (props.side === "left" ? "start" : props.side === "r
 
     position: fixed;
     inset: 0;
-    width: min(28rem, 100dvw);
+    width: min(var(--_w), 100dvw);
     height: 100dvh;
     max-height: none;
     margin-block: 0;
     margin-inline: auto 0;
     border-radius: 0;
-    display: flex;
-    flex-direction: column;
   }
 
   .e-drawer:dir(rtl) {
@@ -157,37 +171,22 @@ const edge = computed(() => (props.side === "left" ? "start" : props.side === "r
     }
   }
 
-  .e-drawer-body {
-    flex: 1;
-    overflow: auto;
-    overscroll-behavior: contain;
-  }
-
-  .e-drawer .e-dialog-foot {
-    margin-block-start: auto;
-  }
-
   .e-drawer--inline,
   .e-drawer--inline[data-state] {
     animation: none;
     position: static;
     width: 100%;
-    max-width: 28rem;
+    max-width: var(--_w);
     height: 26rem;
     margin: 0;
     transform: none;
   }
 
   .e-drawer--inline.e-drawer--bottom {
-    max-width: 28rem;
+    max-width: var(--_w);
     height: auto;
     max-height: 18rem;
     border-radius: var(--e-radius-md);
-  }
-
-  .e-drawer-body:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 }
 </style>

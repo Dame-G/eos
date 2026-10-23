@@ -221,6 +221,88 @@ describe("ERangePicker", () => {
     expect(container.querySelector(".e-input-wrap")!.hasAttribute("data-disabled")).toBe(true);
   });
 
+  test("a disabled field does not submit its hidden inputs", async () => {
+    const { container } = await bound(
+      { label: "Dates", disabled: true, startName: "from", endName: "to" },
+      { start: d(2026, 10, 4), end: d(2026, 10, 18) },
+    );
+    const form = document.createElement("form");
+    for (const i of container.querySelectorAll<HTMLInputElement>("input[type=hidden]")) {
+      expect(i.disabled).toBe(true);
+      form.append(i);
+    }
+    expect([...new FormData(form).keys()]).toEqual([]);
+  });
+
+  test("readonly shows the span, keeps the boxes focusable, never opens, and still submits", async () => {
+    const { container, start } = await bound(
+      { label: "Dates", readonly: true, open: true, startName: "from", endName: "to" },
+      { start: d(2026, 10, 4), end: d(2026, 10, 18) },
+    );
+    await sleep(80);
+    expect(panel()).toBeNull();
+    const [a, b] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
+    expect([a!.readOnly, b!.readOnly, a!.disabled]).toEqual([true, true, false]);
+    expect(a!.value).toBe("10/04/2026");
+    await expect.element(page.getByRole("button", { name: "Choose dates" })).toBeDisabled();
+    expect(container.querySelector(".e-input-wrap")!.hasAttribute("data-readonly")).toBe(true);
+    a!.focus();
+    expect(active()).toBe(a);
+    await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
+    await sleep(80);
+    expect(panel()).toBeNull();
+    const form = document.createElement("form");
+    for (const i of container.querySelectorAll<HTMLInputElement>("input[type=hidden]")) form.append(i);
+    expect([...new FormData(form).entries()]).toEqual([
+      ["from", "2026-10-04"],
+      ["to", "2026-10-18"],
+    ]);
+    expect(start.value).toEqual(d(2026, 10, 4));
+  });
+
+  test("a date before only min names just that bound", async () => {
+    const { container } = await bound({ label: "Dates", min: d(2026, 1, 1) });
+    const [a] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
+    await setText(a!, "06/15/2020");
+    a!.blur();
+    await sleep(30);
+    expect(container.querySelector(".e-field-error")!.textContent).toMatch("Choose a date on or after 01/01/2026.");
+  });
+
+  test("valueFormat iso: start and end are YYYY-MM-DD strings or null", async () => {
+    const start = ref<string | null>("2026-10-04");
+    const end = ref<string | null>(null);
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(ERangePicker as Component, {
+            label: "Dates",
+            valueFormat: "iso",
+            startName: "from",
+            start: start.value,
+            end: end.value,
+            "onUpdate:start": (v: string | null) => (start.value = v),
+            "onUpdate:end": (v: string | null) => (end.value = v),
+          }),
+      }),
+    );
+    const [a, b] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
+    expect(a!.value).toBe("10/04/2026");
+    await setText(b!, "10/18/2026");
+    b!.blur();
+    await expect.poll(() => end.value).toBe("2026-10-18");
+    expect(start.value).toBe("2026-10-04");
+    start.value = "2026-10-06";
+    await expect.poll(() => a!.value).toBe("10/06/2026");
+    expect(container.querySelector<HTMLInputElement>("input[type=hidden]")!.value).toBe("2026-10-06");
+  });
+
+  test("the popup follows the locale's direction with no dir option", async () => {
+    await bound({ label: "Dates", open: true }, { start: null, end: null }, plugin({ locale: "he-IL" }));
+    await expect.poll(() => panel()).not.toBeNull();
+    expect(panel()!.getAttribute("dir")).toBe("rtl");
+  });
+
   test("class and style land on the wrapper, other attributes on the control", async () => {
     const { container } = await render(ERangePicker, {
       props: { label: "Dates" },

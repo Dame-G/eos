@@ -17,7 +17,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "changeset": "changeset",
-    "release": "pnpm build && node scripts/publish.mjs",
+    "release": "pnpm build && pnpm check:built && node scripts/publish.mjs",
     "tokens": "node packages/tokens/scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs",
     "check": "pnpm --filter @eos-ui/vue check",

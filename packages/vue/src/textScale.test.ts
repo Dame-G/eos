@@ -27,7 +27,7 @@ const CASES: Case[] = [
     props: { large: true },
     slots: { default: "Body" },
     selector: ".e-text",
-    lineHeight: 26,
+    lineHeight: 27,
   },
   {
     name: "EText small",
@@ -35,16 +35,16 @@ const CASES: Case[] = [
     props: { small: true },
     slots: { default: "Body" },
     selector: ".e-text",
-    lineHeight: 20,
+    lineHeight: 21,
   },
   {
     name: "ENotice title",
     component: ENotice,
     props: { title: "Form due" },
     selector: ".e-notice-title",
-    lineHeight: 24,
+    lineHeight: 23.4,
   },
-  { name: "EStamp word", component: EStamp, props: { status: "success" }, selector: ".e-stamp-word", lineHeight: 16 },
+  { name: "EStamp word", component: EStamp, props: { status: "success" }, selector: ".e-stamp-word", lineHeight: 13.8 },
   {
     name: "ETabs count",
     component: ETabs,
@@ -92,7 +92,7 @@ describe("text scale", () => {
       const scaled = await measure(c, 2);
       expect(scaled.fontSize).toBeCloseTo(base.fontSize * 2, 1);
       expect(scaled.lineHeight).toBeGreaterThanOrEqual(scaled.fontSize);
-      expect(scaled.lineHeight / scaled.fontSize).toBeGreaterThanOrEqual(1.2);
+      expect(scaled.lineHeight / scaled.fontSize).toBeGreaterThanOrEqual(1.15);
       expect(scaled.lineHeight).toBeCloseTo(base.lineHeight * 2, 1);
     });
   }

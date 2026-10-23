@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EButton from "./EButton.vue";
@@ -61,7 +61,7 @@ describe("EButton", () => {
     expect(container.querySelector("button")).toBeNull();
     expect(a.hasAttribute("target")).toBe(false);
     await render(EButton, { props: { href: "https://example.com", external: true }, slots: { default: "Elsewhere" } });
-    const ext = page.getByRole("link", { name: "Elsewhere" }).element();
+    const ext = page.getByRole("link", { name: "Elsewhere (opens in a new tab)" }).element();
     expect(ext.getAttribute("target")).toBe("_blank");
     expect(ext.getAttribute("rel")).toBe("noreferrer");
   });
@@ -186,5 +186,70 @@ describe("EButton", () => {
       }),
     );
     await expectNoViolations(container);
+  });
+
+  test("a disabled toggle does not answer hover and a pressed toggle is filled like a segment", async () => {
+    const { container } = await render(EButton, {
+      props: { disabled: true, variant: "outline" },
+      attrs: { "aria-pressed": "true" },
+      slots: { default: "Unpaid only" },
+    });
+    const el = container.querySelector("button")!;
+    container.classList.add("e-root");
+    const rest = getComputedStyle(el).backgroundColor;
+    await userEvent.hover(el);
+    expect(getComputedStyle(el).backgroundColor).toBe(rest);
+    expect(getComputedStyle(el).outlineStyle).toBe("dashed");
+    const on = await render(EButton, {
+      props: { variant: "outline" },
+      attrs: { "aria-pressed": "true" },
+      slots: { default: "On" },
+    });
+    const primary = await render(EButton, { slots: { default: "Primary" } });
+    expect(getComputedStyle(on.container.querySelector("button")!).backgroundColor).toBe(
+      getComputedStyle(primary.container.querySelector("button")!).backgroundColor,
+    );
+  });
+
+  test("size sm and lg change the height, and every size keeps a 44px target", async () => {
+    const heights: number[] = [];
+    for (const size of ["sm", "md", "lg"] as const) {
+      const { container } = await render(EButton, { props: { size }, slots: { default: size } });
+      heights.push(container.querySelector("button")!.getBoundingClientRect().height);
+    }
+    expect(heights[0]).toBeGreaterThanOrEqual(44);
+    expect(heights[0]).toBeLessThan(heights[1]!);
+    expect(heights[1]).toBeLessThan(heights[2]!);
+    const { container } = await render(EButton, { props: { size: "md" }, slots: { default: "Pay" } });
+    expect(container.querySelector("button")!.className).toBe("e-btn");
+  });
+
+  test("iconEnd puts an icon after the label, hidden from the name", async () => {
+    const { container } = await render(EButton, { props: { iconEnd: "chevron-right" }, slots: { default: "Next" } });
+    const button = container.querySelector("button")!;
+    expect(button.lastElementChild!.matches("svg.e-icon")).toBe(true);
+    await expect.element(page.getByRole("button", { name: "Next", exact: true })).toBeVisible();
+  });
+
+  test("loading is announced once it starts", async () => {
+    const loading = ref(false);
+    await render(defineComponent({ render: () => h(EButton, { loading: loading.value }, () => "Save") }));
+    loading.value = true;
+    const live = () => document.querySelector("[data-e-announcer=polite]")?.textContent;
+    await expect.poll(live).toContain("Loading");
+  });
+
+  test("an external link says it opens in a new tab and has no active style when disabled", async () => {
+    const { container } = await render(EButton, {
+      props: { href: "https://example.com", external: true },
+      slots: { default: "Docs" },
+    });
+    expect(container.querySelector("a .e-sr")!.textContent).toContain("opens in a new tab");
+    const off = await render(EButton, { props: { href: "/x", disabled: true }, slots: { default: "Off" } });
+    const a = off.container.querySelector("a")!;
+    off.container.classList.add("e-root");
+    const rest = getComputedStyle(a).backgroundColor;
+    await userEvent.hover(a);
+    expect(getComputedStyle(a).backgroundColor).toBe(rest);
   });
 });

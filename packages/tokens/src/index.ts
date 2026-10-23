@@ -6,6 +6,8 @@ export type {
   ThemeInput,
   MotionPreset,
   ElevationPreset,
+  ThemePreset,
+  SkippedPair,
   ContrastPreset,
   DensityPreset,
   SchemePreset,
@@ -18,6 +20,7 @@ export type {
 } from "./theme.js";
 export {
   contrast,
+  resolveColor,
   luminance,
   reachContrast,
   settleContrast,

@@ -22,6 +22,7 @@ afterEach(() => {
   document.documentElement.removeAttribute("style");
   document.documentElement.removeAttribute("data-e-theme");
   document.documentElement.removeAttribute("dir");
+  document.documentElement.removeAttribute("lang");
 });
 
 describe("createEos", () => {
@@ -103,6 +104,36 @@ describe("createEos", () => {
     expect(document.documentElement.getAttribute("dir")).toBeNull();
     mountApp(defineComponent({ render: () => h("div") }), createEos({ dir: "rtl" }));
     expect(document.documentElement.getAttribute("dir")).toBe("rtl");
+  });
+
+  test("a locale sets lang and the direction it is written in", async () => {
+    const eos = createEos({ locale: "ar" });
+    mountApp(defineComponent({ render: () => h("div") }), eos);
+    const root = document.documentElement;
+    expect(root.getAttribute("lang")).toBe("ar");
+    expect(root.getAttribute("dir")).toBe("rtl");
+    eos.config.locale = "en-US";
+    await nextTick();
+    expect(root.getAttribute("lang")).toBe("en-US");
+    expect(root.getAttribute("dir")).toBe("ltr");
+  });
+
+  test("an explicit dir wins over the locale, and no locale leaves lang alone", () => {
+    mountApp(defineComponent({ render: () => h("div") }), createEos({ locale: "ar", dir: "ltr" }));
+    expect(document.documentElement.getAttribute("dir")).toBe("ltr");
+    document.documentElement.removeAttribute("lang");
+    mountApp(defineComponent({ render: () => h("div") }), createEos());
+    expect(document.documentElement.hasAttribute("lang")).toBe(false);
+  });
+
+  test("lang and dir go on the theme target when the theme is scoped", () => {
+    const scope = document.createElement("section");
+    document.body.append(scope);
+    hosts.push(scope);
+    mountApp(defineComponent({ render: () => h("div") }), createEos({ locale: "he", themeTarget: scope }));
+    expect(scope.getAttribute("dir")).toBe("rtl");
+    expect(scope.getAttribute("lang")).toBe("he");
+    expect(document.documentElement.hasAttribute("dir")).toBe(false);
   });
 
   test("portalTarget defaults to body and can point at a themed container", () => {

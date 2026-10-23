@@ -116,6 +116,95 @@ describe("EDatePicker", () => {
     );
   });
 
+  test("a date before only min, or after only max, names just that bound", async () => {
+    const early = await bound({ label: "Date", min: d(2026, 1, 1) }, null);
+    const input = early.container.querySelector<HTMLInputElement>(".e-combo-input")!;
+    await setText(input, "06/15/2020");
+    input.blur();
+    await sleep(30);
+    expect(early.container.querySelector(".e-field-error")!.textContent).toMatch(
+      "Choose a date on or after 01/01/2026.",
+    );
+    const late = await bound({ label: "Date", max: d(2026, 12, 31) }, null);
+    const box = late.container.querySelector<HTMLInputElement>(".e-combo-input")!;
+    await setText(box, "06/15/2030");
+    box.blur();
+    await sleep(30);
+    expect(late.container.querySelector(".e-field-error")!.textContent).toMatch(
+      "Choose a date on or before 12/31/2026.",
+    );
+  });
+
+  test("a disabled field does not submit its hidden input", async () => {
+    const { container } = await bound({ label: "Date", name: "dob", disabled: true }, d(2026, 10, 22));
+    const hidden = container.querySelector<HTMLInputElement>("input[type=hidden]")!;
+    expect(hidden.disabled).toBe(true);
+    const form = document.createElement("form");
+    form.append(hidden);
+    expect(new FormData(form).has("dob")).toBe(false);
+  });
+
+  test("a read-only field still submits its date", async () => {
+    const { container } = await bound({ label: "Date", name: "dob", readonly: true }, d(2026, 10, 22));
+    const hidden = container.querySelector<HTMLInputElement>("input[type=hidden]")!;
+    expect(hidden.disabled).toBe(false);
+    const form = document.createElement("form");
+    form.append(hidden);
+    expect(new FormData(form).get("dob")).toBe("2026-10-22");
+  });
+
+  test("valueFormat iso: the model is a YYYY-MM-DD string or null", async () => {
+    const model = ref<string | null>("2026-10-22");
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(EDatePicker as Component, {
+            label: "Date",
+            valueFormat: "iso",
+            name: "dob",
+            modelValue: model.value,
+            "onUpdate:modelValue": (v: string | null) => (model.value = v),
+          }),
+      }),
+    );
+    const input = container.querySelector<HTMLInputElement>(".e-combo-input")!;
+    expect(input.value).toBe("10/22/2026");
+    await setText(input, "01/02/2030");
+    await userEvent.keyboard("{Enter}");
+    expect(model.value).toBe("2030-01-02");
+    model.value = "2031-03-04";
+    await expect.poll(() => input.value).toBe("03/04/2031");
+    expect(container.querySelector<HTMLInputElement>("input[type=hidden]")!.value).toBe("2031-03-04");
+    await userEvent.clear(input);
+    input.blur();
+    await expect.poll(() => model.value).toBeNull();
+  });
+
+  test("valueFormat iso: choosing a day in the calendar writes the string", async () => {
+    const model = ref<string | null>("2026-10-22");
+    await render(
+      defineComponent({
+        render: () =>
+          h(EDatePicker as Component, {
+            label: "Date",
+            valueFormat: "iso",
+            open: true,
+            modelValue: model.value,
+            "onUpdate:modelValue": (v: string | null) => (model.value = v),
+          }),
+      }),
+    );
+    await expect.poll(() => panel()).not.toBeNull();
+    day(/October 25, 2026/).click();
+    await expect.poll(() => model.value).toBe("2026-10-25");
+  });
+
+  test("right to left follows the locale, with no dir option", async () => {
+    await bound({ label: "Date", open: true }, d(2026, 10, 22), plugin({ locale: "he-IL" }));
+    await expect.poll(() => panel()).not.toBeNull();
+    expect(panel()!.getAttribute("dir")).toBe("rtl");
+  });
+
   test("emptying the box clears the value", async () => {
     const { model, container } = await bound({ label: "Date" }, d(2026, 10, 22));
     const input = container.querySelector<HTMLInputElement>(".e-combo-input")!;

@@ -303,8 +303,8 @@ describe("derived inputs", () => {
   test("textScale and spaceScale scale only their own tokens, in whole pixels", () => {
     const text = defineTheme({ textScale: 1.25 }).tokens;
     expect(changed({ textScale: 1.25 })).toEqual([...groups.fontSize, ...ICON_BOXES]);
-    expect(text["text-md"]).toBe("20px");
-    expect(text["text-xs"]).toBe("15px");
+    expect(text["text-md"]).toBe("1.25rem");
+    expect(text["text-xs"]).toBe("0.9375rem");
     expect(changed({ spaceScale: 1.5 })).toEqual(groups.spacing);
     expect(defineTheme({ spaceScale: 1.5 }).tokens["space-4"]).toBe("24px");
     expect(defineTheme({ spaceScale: 0.01 }).tokens["space-1"]).toBe("1px");
@@ -354,9 +354,14 @@ describe("derived inputs", () => {
   });
 
   test("motion presets set the three motion tokens", () => {
-    expect(changed({ motion: "snappy" }).sort()).toEqual(["duration-move", "duration-tap"]);
-    expect(changed({ motion: "none" }).sort()).toEqual(["duration-move", "duration-tap"]);
-    expect(changed({ motion: "gentle" }).sort()).toEqual(["duration-move", "duration-tap", "easing-out"]);
+    expect(changed({ motion: "snappy" }).sort()).toEqual(["duration-fade", "duration-move", "duration-tap"]);
+    expect(changed({ motion: "none" }).sort()).toEqual(["duration-fade", "duration-move", "duration-tap"]);
+    expect(changed({ motion: "gentle" }).sort()).toEqual([
+      "duration-fade",
+      "duration-move",
+      "duration-tap",
+      "easing-out",
+    ]);
     expect(defineTheme({ motion: "none" }).tokens["duration-move"]).toBe("0ms");
   });
 
@@ -389,10 +394,10 @@ describe("derived inputs", () => {
 
   test("controlHeight sets the control and an even chip height", () => {
     expect(changed({ controlHeight: 40 }).sort()).toEqual(["chip-height", "control-height"]);
-    expect(defineTheme({ controlHeight: 40 }).tokens["chip-height"]).toBe("20px");
-    expect(defineTheme({ controlHeight: 44 }).tokens["chip-height"]).toBe("22px");
-    expect(defineTheme({ controlHeight: 53 }).tokens["chip-height"]).toBe("26px");
-    expect(defineTheme({ controlHeight: 56 }).tokens["control-height"]).toBe("56px");
+    expect(defineTheme({ controlHeight: 40 }).tokens["chip-height"]).toBe("1.25rem");
+    expect(defineTheme({ controlHeight: 44 }).tokens["chip-height"]).toBe("1.375rem");
+    expect(defineTheme({ controlHeight: 53 }).tokens["chip-height"]).toBe("1.625rem");
+    expect(defineTheme({ controlHeight: 56 }).tokens["control-height"]).toBe("3.5rem");
   });
 
   test("explicit tokens win over every new input", () => {
@@ -478,7 +483,7 @@ describe("scheme, contrast and density", () => {
   test("every theme sets the durations to 0.01ms under reduced motion and prints black on white", () => {
     const css = defineTheme({ motion: "gentle" }).css();
     expect(css).toMatch(
-      /prefers-reduced-motion: reduce\) \{\n {2}:root, \[data-e-theme\] \{\n {4}--e-duration-tap: 0.01ms !important;\n {4}--e-duration-move: 0.01ms !important;/,
+      /prefers-reduced-motion: reduce\) \{\n {2}:root, \[data-e-theme\] \{\n {4}--e-duration-tap: 0.01ms !important;\n {4}--e-duration-fade: 0.01ms !important;\n {4}--e-duration-move: 0.01ms !important;/,
     );
     expect(css).toMatch(/@media print \{[^}]*--e-ink: #000000 !important;[^}]*--e-surface: #ffffff !important;/);
     expect(defineTheme({ motion: "none" }).css()).toMatch(/--e-duration-tap: 0ms;/);
@@ -489,18 +494,18 @@ describe("scheme, contrast and density", () => {
   test("density compact tightens space, sets controls to the tap size and keeps chips even", () => {
     const t = defineTheme({ density: "compact" }).tokens;
     expect(t["space-4"]).toBe("12px");
-    expect(t["control-height"]).toBe("44px");
-    expect(t["chip-height"]).toBe("22px");
-    expect(defineTheme({ density: "compact", controlHeight: 30 }).tokens["control-height"]).toBe("44px");
+    expect(t["control-height"]).toBe("2.75rem");
+    expect(t["chip-height"]).toBe("1.375rem");
+    expect(defineTheme({ density: "compact", controlHeight: 30 }).tokens["control-height"]).toBe("2.75rem");
     expect(defineTheme({ density: "compact", spaceScale: 2 }).tokens["space-4"]).toBe("24px");
     expect(defineTheme({ density: "comfortable" }).tokens).toEqual(defineTheme().tokens);
   });
   test("icon, check and avatar boxes follow textScale", () => {
     const t = defineTheme({ textScale: 1.5 }).tokens;
-    expect(t["icon-size"]).toBe("30px");
-    expect(t["check-size"]).toBe("36px");
-    expect(t["avatar-size-lg"]).toBe("96px");
-    expect(defineTheme({ spaceScale: 2 }).tokens["icon-size"]).toBe("20px");
+    expect(t["icon-size"]).toBe("1.875rem");
+    expect(t["check-size"]).toBe("2.25rem");
+    expect(t["avatar-size-lg"]).toBe("6rem");
+    expect(defineTheme({ spaceScale: 2 }).tokens["icon-size"]).toBe("1.25rem");
   });
   test("the script font follows fonts.script", () => {
     expect(defineTheme({ fonts: { script: "Caveat, cursive" } }).tokens["font-script"]).toBe("Caveat, cursive");

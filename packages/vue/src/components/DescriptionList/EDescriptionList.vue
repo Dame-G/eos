@@ -3,6 +3,7 @@ import { computed, type VNodeChild } from "vue";
 import EButton from "../Button/EButton.vue";
 import EStamp from "../Stamp/EStamp.vue";
 import EIcon from "../Icon/EIcon.vue";
+import EKicker from "../Kicker/EKicker.vue";
 import type { StampTone } from "../Stamp/EStamp.vue";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
@@ -51,16 +52,16 @@ const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["v
     <li v-for="(item, i) in shown" :key="i" class="e-fact">
       <EIcon v-if="item.icon" :name="item.icon" />
       <span class="e-fact-text"><Render :value="item.text" /></span>
-      <EStamp v-if="item.badge" :tone="item.badgeTone" small>{{ item.badge }}</EStamp>
+      <EStamp v-if="item.badge" :tone="item.badgeTone" size="sm">{{ item.badge }}</EStamp>
       <slot name="action" :item="item" :index="i" />
     </li>
   </ul>
   <dl v-else class="e-facts">
     <div v-for="(item, i) in shown" :key="i" class="e-fact">
-      <dt class="e-kicker"><EIcon v-if="item.icon" :name="item.icon" />{{ item.label }}</dt>
+      <EKicker as="dt"><EIcon v-if="item.icon" :name="item.icon" />{{ item.label }}</EKicker>
       <dd class="e-fact-text">
         <span class="e-fact-value"><Render :value="item.text" /></span>
-        <EStamp v-if="item.badge" :tone="item.badgeTone" small>{{ item.badge }}</EStamp>
+        <EStamp v-if="item.badge" :tone="item.badgeTone" size="sm">{{ item.badge }}</EStamp>
         <slot name="action" :item="item" :index="i" />
         <EButton
           v-if="item.editable"
@@ -88,9 +89,9 @@ const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["v
   .e-fact {
     display: grid;
     grid-template-columns: 8rem minmax(0, 1fr);
-    gap: var(--e-space-1) var(--e-space-4);
+    gap: var(--e-gap-tight) var(--e-gap-loose);
     align-items: baseline;
-    padding-block: var(--e-space-3);
+    padding-block: var(--e-gap-base);
     border-top: var(--e-stroke-hair) solid var(--e-border);
     min-width: 0;
   }
@@ -102,22 +103,16 @@ const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["v
   .e-fact > .e-kicker {
     display: flex;
     align-items: center;
-    gap: var(--e-space-2);
-  }
-
-  .e-fact > .e-kicker .e-icon {
-    flex: none;
-    width: var(--e-icon-size);
-    height: var(--e-icon-size);
+    gap: var(--e-gap-snug);
   }
 
   .e-fact-text {
     display: flex;
     align-items: center;
-    gap: var(--e-space-3);
+    gap: var(--e-gap-base);
     margin: 0;
     min-width: 0;
-    font: var(--e-weight-regular) var(--e-text-md) / 1.45 var(--e-font-sans);
+    font: var(--e-type-body);
   }
 
   .e-fact-value {
@@ -132,28 +127,24 @@ const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["v
 
   /* Plain list: icon, text, then the end. */
   .e-facts--plain {
-    gap: var(--e-space-2);
+    gap: var(--e-gap-snug);
   }
 
   .e-facts--plain > .e-fact {
     display: flex;
     align-items: flex-start;
-    gap: var(--e-space-2);
+    gap: var(--e-gap-snug);
     padding: 0;
     border-top: 0;
   }
 
   .e-facts--plain > .e-fact > .e-icon {
-    flex: none;
-    width: var(--e-icon-size);
-    height: var(--e-icon-size);
-    margin-block-start: var(--e-space-1);
+    margin-block-start: var(--e-gap-tight);
   }
 
   .e-facts--plain > .e-fact > .e-fact-text {
     flex: 1;
     display: block;
-    line-height: 1.4;
   }
 
   @container (max-width: 26rem) {

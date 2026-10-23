@@ -14,13 +14,15 @@ The bar across the top of the page, with logo, actions and a navigation row that
 
 <!-- props:start -->
 
-| Prop     | Type      | Default | Notes                                              |
-| -------- | --------- | ------- | -------------------------------------------------- |
-| `sticky` | `boolean` | `false` | Pins the header to the top while the page scrolls. |
+| Prop        | Type      | Default | Notes                                                                                                                                                                        |
+| ----------- | --------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `navOpen`   | `boolean` | `false` | `v-model:navOpen`: whether the navigation the menu button opens is open. It is the `aria-expanded` of the button. Inside an `EAppShell` the shell keeps it.                  |
+| `sticky`    | `boolean` | `false` | Pins the header to the top while the page scrolls.                                                                                                                           |
+| `navToggle` | `boolean` | `false` | Shows a menu button before the logo, for a navigation that opens on demand. Inside an `EAppShell` it shows by itself while the sidebar is in a drawer, so you do not set it. |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `header` element.
+`class`, `style` and attributes land on the `header` element. `navToggle` adds a menu button before the logo and `v-model:navOpen` holds its `aria-expanded` state. Inside an [`EAppShell`](../AppShell/README.md) the button appears by itself while the sidebar is in a drawer.
 
 ## Slots
 
@@ -34,11 +36,12 @@ The bar across the top of the page, with logo, actions and a navigation row that
 
 - Renders the `banner` landmark: use one per page.
 - Give the navigation a `label` (on `ENavList`) so it differs from other navigations.
-- The navigation row is hidden in print.
+- The navigation row and the menu button are hidden in print.
+- The menu button is named "Menu" (message `menu`) and carries `aria-expanded`.
 
 ## Keyboard
 
-No custom keyboard behavior. The logo, the navigation links and the actions are reached with Tab in that order.
+The menu button (when shown), the logo, the actions and the navigation links are reached with Tab in that order. Enter or Space on the menu button toggles `navOpen`.
 
 ## Related
 

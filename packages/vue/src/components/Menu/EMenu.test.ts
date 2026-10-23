@@ -257,4 +257,103 @@ describe("EMenu", () => {
       .poll(() => menu()!.getBoundingClientRect().bottom <= triggerOf(container).getBoundingClientRect().top + 1)
       .toBe(true);
   });
+
+  test("Tab from the trigger closes nothing and does not ask for the menu's focus", async () => {
+    const { container } = await mount();
+    triggerOf(container).focus();
+    await userEvent.keyboard("{Tab}");
+    expect(menu()).toBeNull();
+  });
+
+  test("a keyboard-focused row shows the focus outline, not only the hover wash", async () => {
+    const { container } = await mount();
+    triggerOf(container).focus();
+    await userEvent.keyboard("{Enter}");
+    await expect.poll(() => menu()).not.toBeNull();
+    await expect.poll(() => document.activeElement?.getAttribute("role")).toBe("menuitem");
+    const style = getComputedStyle(document.activeElement!);
+    expect(style.outlineStyle).toBe("solid");
+    expect(parseFloat(style.outlineWidth)).toBeGreaterThan(0);
+    expect(parseFloat(style.outlineOffset)).toBeLessThan(0);
+  });
+
+  test("a link row is an anchor and a checkbox row reports its change", async () => {
+    const seen: boolean[] = [];
+    const { container, emitted } = await mount({
+      items: [
+        { label: "Docs", href: "#docs" },
+        { type: "label", label: "View" },
+        { type: "checkbox", label: "Grid", checked: true, onChange: (v: boolean) => seen.push(v) },
+      ],
+    });
+    await triggerOf(container).click();
+    await expect.poll(() => menu()).not.toBeNull();
+    expect(document.querySelector("a[role=menuitem]")!.getAttribute("href")).toBe("#docs");
+    expect(document.querySelector(".e-menu-label")!.textContent?.trim()).toBe("View");
+    const grid = document.querySelector<HTMLElement>("[role=menuitemcheckbox]")!;
+    expect(grid.getAttribute("aria-checked")).toBe("true");
+    grid.click();
+    await expect.poll(() => seen).toEqual([false]);
+    expect(emitted<[unknown, boolean]>().change![0]![1]).toBe(false);
+  });
+
+  test("a radio group marks the chosen option and reports a pick", async () => {
+    let picked = "";
+    const { container } = await mount({
+      items: [
+        {
+          type: "radio-group",
+          label: "Sort",
+          value: "name",
+          options: [
+            { label: "Name", value: "name" },
+            { label: "Date", value: "date" },
+          ],
+          onChange: (v: string) => (picked = v),
+        },
+      ],
+    });
+    await triggerOf(container).click();
+    await expect.poll(() => menu()).not.toBeNull();
+    const radios = [...document.querySelectorAll<HTMLElement>("[role=menuitemradio]")];
+    expect(radios.map((r) => r.getAttribute("aria-checked"))).toEqual(["true", "false"]);
+    radios[1]!.click();
+    await expect.poll(() => picked).toBe("date");
+  });
+
+  test("a submenu opens beside its row with ArrowRight", async () => {
+    const { container } = await mount({
+      items: [{ type: "submenu", label: "Share", items: [{ label: "Email" }, { label: "Link" }] }],
+    });
+    await triggerOf(container).click();
+    await expect.poll(() => menu()).not.toBeNull();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect.poll(() => document.querySelectorAll("[role=menu]").length).toBe(2);
+    await expect.poll(() => document.activeElement?.textContent?.trim()).toBe("Email");
+  });
+
+  test("side accepts start and end", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: { padding: "160px 300px" } }, [h(EMenu, { label: "More", items: ITEMS, side: "end" })]),
+      }),
+    );
+    const trigger = triggerOf(container);
+    await trigger.click();
+    await expect.poll(() => menu()).not.toBeNull();
+    await expect
+      .poll(() => menu()!.getBoundingClientRect().left)
+      .toBeGreaterThanOrEqual(trigger.getBoundingClientRect().right - 1);
+    await userEvent.keyboard("{Escape}");
+    await expect.poll(() => menu()).toBeNull();
+  });
+
+  test("close fires when it shuts", async () => {
+    const { container, emitted } = await mount();
+    await triggerOf(container).click();
+    await expect.poll(() => menu()).not.toBeNull();
+    await userEvent.keyboard("{Escape}");
+    await expect.poll(() => emitted().close).toHaveLength(1);
+  });
 });

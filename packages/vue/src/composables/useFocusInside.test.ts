@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
-import { focusInside } from "./focusInside.js";
+import { focusInside } from "./useFocusInside.js";
 
 function box(inner: () => unknown, disabled = false) {
   return render(
@@ -15,7 +15,7 @@ function box(inner: () => unknown, disabled = false) {
   );
 }
 
-describe("focusInside", () => {
+describe("useFocusInside", () => {
   test("a click on the padding of the box focuses the input", async () => {
     const { container } = await box(() => []);
     (container.querySelector(".box") as HTMLElement).click();
@@ -34,5 +34,11 @@ describe("focusInside", () => {
     const { container } = await box(() => [], true);
     (container.querySelector(".box") as HTMLElement).click();
     expect(document.activeElement).not.toBe(container.querySelector("input"));
+  });
+
+  test("a click on another control inside, such as a colour swatch, is left alone", async () => {
+    const { container } = await box(() => [h("input", { type: "color", class: "swatch" })]);
+    (container.querySelector(".swatch") as HTMLElement).click();
+    expect(document.activeElement).not.toBe(container.querySelector("input:not(.swatch)"));
   });
 });

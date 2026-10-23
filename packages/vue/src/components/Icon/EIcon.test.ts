@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 import EIcon from "./EIcon.vue";
@@ -38,6 +38,34 @@ describe("EIcon", () => {
     const svg = small.container.querySelector("svg")!;
     expect(svg.getBoundingClientRect().width).toBe(14);
     expect(svg.querySelector("path")!.getAttribute("d")).not.toBe(regularPath);
+  });
+
+  test("size sm, md and lg use the icon size tokens, and no size is 20px", async () => {
+    const width = async (props: Record<string, unknown>) => {
+      const { container } = await render(EIcon, { props: { name: "check", ...props } });
+      return container.querySelector("svg")!.getBoundingClientRect().width;
+    };
+    expect(await width({})).toBe(20);
+    expect(await width({ size: "sm" })).toBe(14);
+    expect(await width({ size: "md" })).toBe(28);
+    expect(await width({ size: "lg" })).toBe(40);
+  });
+
+  test("size wins over small and warns in development", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { container } = await render(EIcon, { props: { name: "check", size: "lg", small: true } });
+    expect(container.querySelector("svg")!.getBoundingClientRect().width).toBe(40);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("EIcon"));
+    warn.mockRestore();
+  });
+
+  test("flip turns a component icon around in right-to-left text, and false stops a named one", async () => {
+    const flipped = await render(EIcon, { props: { name: Square, flip: true } });
+    expect(flipped.container.querySelector(".e-icon--dir")).not.toBeNull();
+    const plain = await render(EIcon, { props: { name: Square } });
+    expect(plain.container.querySelector(".e-icon--dir")).toBeNull();
+    const off = await render(EIcon, { props: { name: "chevron-right", flip: false } });
+    expect(off.container.querySelector(".e-icon--dir")).toBeNull();
   });
 
   test("an icon component can be passed directly, and keeps its own stroke", async () => {

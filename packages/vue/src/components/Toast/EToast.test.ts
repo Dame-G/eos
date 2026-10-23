@@ -62,7 +62,7 @@ describe("EToast", () => {
   test("the dismiss button shows by default, emits close, and closable turns it off", async () => {
     let got = 0;
     await render(EToast, { props: { title: "x", onClose: () => got++ } });
-    await page.getByRole("button", { name: "Dismiss" }).click();
+    await page.getByRole("button", { name: "Close notification" }).click();
     expect(got).toBe(1);
     const off = await render(EToast, { props: { title: "x", closable: false } });
     expect(off.container.querySelector(".e-notice-dismiss")).toBeNull();
@@ -76,12 +76,17 @@ describe("EToast", () => {
     );
   });
 
-  test("the tone colours a slab on the inline-start edge", async () => {
+  test("the tone colours a slab-bold border on the inline-start edge", async () => {
     const { container } = await render(EToast, { props: { title: "x", tone: "danger" } });
-    const el = container.querySelector(".e-toast")!;
-    const stripe = getComputedStyle(el, "::before");
-    expect(stripe.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
-    expect(parseFloat(stripe.width)).toBeGreaterThan(0);
+    const style = getComputedStyle(container.querySelector(".e-toast")!);
+    expect(style.borderInlineStartColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(style.borderInlineStartStyle).toBe("solid");
+    expect(parseFloat(style.borderInlineStartWidth)).toBeGreaterThan(parseFloat(style.borderTopWidth));
+  });
+
+  test("live=false leaves out the alert and status roles", async () => {
+    const { container } = await render(EToast, { props: { title: "x", tone: "danger", live: false } });
+    expect(container.querySelector(".e-toast")!.hasAttribute("role")).toBe(false);
   });
 
   test("class and data attributes fall through to the root", async () => {

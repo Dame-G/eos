@@ -43,7 +43,7 @@ const target = computed(() => (props.to !== undefined ? { to: props.to } : { hre
     <!-- With an icon the underline belongs to the text, so it does not run under the icon or its gap. -->
     <span v-if="icon" class="e-link-text"><slot /></span>
     <slot v-else />
-    <span v-if="external" class="e-sr"> ({{ t("opensInNewTab") }})</span>
+    <span v-if="external" class="e-sr"> {{ t("opensNewTab") }}</span>
   </component>
 </template>
 
@@ -54,31 +54,38 @@ const target = computed(() => (props.to !== undefined ? { to: props.to } : { hre
     font-weight: var(--e-weight-medium);
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
-    text-underline-offset: var(--e-space-1);
+    text-underline-offset: var(--e-gap-tight);
     text-decoration-color: currentcolor;
+    border-radius: var(--e-radius-sm);
+    transition: var(--e-transition-state);
   }
 
   .e-link:hover {
     color: var(--e-ink);
+    background-color: var(--e-wash-hover);
+  }
+
+  .e-link:active {
+    color: var(--e-ink);
+    background-color: var(--e-wash-press);
   }
 
   .e-link:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: var(--e-stroke-focus);
-    border-radius: var(--e-radius-sm);
   }
 
   .e-link--icon {
     display: inline-flex;
     align-items: center;
-    gap: var(--e-space-2);
+    gap: var(--e-gap-tight);
     text-decoration: none;
   }
 
   .e-link--icon .e-link-text {
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
-    text-underline-offset: var(--e-space-1);
+    text-underline-offset: var(--e-gap-tight);
   }
 
   .e-link--icon .e-icon {

@@ -5,6 +5,7 @@ import { render } from "vitest-browser-vue";
 import ENumberField from "./ENumberField.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
+import { expectPostingContract } from "../../../test/formPosting.js";
 
 async function bound(props: Record<string, unknown>, initial: number | null, global = {}) {
   const model = ref<number | null>(initial);
@@ -34,8 +35,8 @@ describe("ENumberField", () => {
     await expect.element(page.getByRole("button", { name: "Increase" })).toBeVisible();
     const wrap = container.querySelector(".e-input-wrap")!;
     expect(wrap.className).toBe("e-input-wrap e-numfield");
-    expect(wrap.firstElementChild!.className).toBe("e-numbtn");
-    expect(wrap.lastElementChild!.className).toBe("e-numbtn");
+    expect(wrap.firstElementChild!.classList.contains("e-numbtn")).toBe(true);
+    expect(wrap.lastElementChild!.classList.contains("e-numbtn")).toBe(true);
   });
 
   test("arrows step, the range clamps, and the model gets numbers", async () => {
@@ -82,7 +83,7 @@ describe("ENumberField", () => {
     expect(document.activeElement).toBe(inc);
   });
 
-  test("the model updates as soon as the text reads as a number in range", async () => {
+  test("the model updates as soon as the text reads as a number", async () => {
     const { got } = await bound({ label: "Visits", min: 0, max: 100 }, null);
     const box = page.getByRole("spinbutton", { name: "Visits" });
     await box.click();
@@ -93,6 +94,56 @@ describe("ENumberField", () => {
     await expect.element(box).toHaveValue("42.");
     await userEvent.keyboard("{Backspace}{Backspace}{Backspace}");
     expect(got.at(-1)).toBeNull();
+  });
+
+  test("out-of-range text is committed as typed, then clamped on blur", async () => {
+    const { got } = await bound({ label: "Visits", min: 0, max: 100 }, 5);
+    const box = page.getByRole("spinbutton", { name: "Visits" });
+    await box.fill("500");
+    expect(got.at(-1)).toBe(500);
+    await userEvent.tab();
+    expect(got.at(-1)).toBe(100);
+    await expect.element(box).toHaveValue("100");
+  });
+
+  test("Enter in a form posts the clamped value, not the stale one", async () => {
+    let posted: string | null = null;
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(
+            "form",
+            {
+              onSubmit: (e: Event) => (
+                e.preventDefault(),
+                (posted = String(new FormData(e.target as HTMLFormElement).get("visits")))
+              ),
+            },
+            [h(ENumberField, { label: "Visits", name: "visits", min: 0, max: 100, modelValue: 5 }), h("button", "Go")],
+          ),
+      }),
+    );
+    expect(container.querySelector("form")).not.toBeNull();
+    await page.getByRole("spinbutton", { name: "Visits" }).fill("500");
+    await userEvent.keyboard("{Enter}");
+    expect(posted).toBe("100");
+  });
+
+  test("a named field posts its number, nothing while disabled, and joins a form it is outside of", async () => {
+    await expectPostingContract(ENumberField, { label: "Visits", modelValue: 7 }, "visits");
+  });
+
+  test("size sm and lg change the height of the box and the buttons", async () => {
+    const sm = await render(ENumberField, { props: { label: "S", size: "sm" } });
+    sm.container.classList.add("e-root");
+    const small = sm.container.querySelector(".e-input-wrap")!.getBoundingClientRect().height;
+    const lg = await render(ENumberField, { props: { label: "L", size: "lg" } });
+    lg.container.classList.add("e-root");
+    const large = lg.container.querySelector(".e-input-wrap")!.getBoundingClientRect().height;
+    expect(small).toBeLessThan(48);
+    expect(large).toBeGreaterThan(48);
+    const btn = lg.container.querySelector(".e-numbtn")!.getBoundingClientRect();
+    expect(Math.round(btn.width)).toBe(Math.round(large));
   });
 
   test("a prefix or suffix is part of the value text for screen readers", async () => {

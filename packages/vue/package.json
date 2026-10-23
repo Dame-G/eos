@@ -14,8 +14,6 @@
   "engines": {
     "node": ">=22"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -23,10 +21,6 @@
       "default": "./dist/index.js"
     },
     "./fonts.css": "./dist/fonts.css",
-    "./resolver": {
-      "types": "./dist/resolver.d.ts",
-      "default": "./dist/resolver.js"
-    },
     "./icons": {
       "types": "./dist/icons/index.d.ts",
       "default": "./dist/icons/index.js"
@@ -35,9 +29,14 @@
       "types": "./dist/icons/iconify.d.ts",
       "default": "./dist/icons/iconify.js"
     },
-    "./llms.txt": "./dist/llms.txt",
     "./llms-full.txt": "./dist/llms-full.txt",
+    "./llms.txt": "./dist/llms.txt",
+    "./llms/*": "./dist/llms/*",
     "./package.json": "./package.json",
+    "./resolver": {
+      "types": "./dist/resolver.d.ts",
+      "default": "./dist/resolver.js"
+    },
     "./style.css": "./dist/style.css"
   },
   "publishConfig": {
@@ -50,12 +49,14 @@
     "directory": "packages/vue"
   },
   "scripts": {
-    "build": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vite build && node scripts/gen-llms.mjs",
-    "typecheck": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vue-tsc --noEmit -p tsconfig.json",
-    "test": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vitest run",
-    "dev": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vite build --watch",
+    "build": "pnpm prepare:gen && vite build && node scripts/gen-llms.mjs",
+    "typecheck": "pnpm prepare:gen && vue-tsc --noEmit -p tsconfig.json",
+    "test": "pnpm prepare:gen && vitest run",
+    "dev": "pnpm prepare:gen && vite build --watch",
     "test:watch": "vitest",
-    "check": "pnpm check:css && pnpm check:layers && pnpm check:props && pnpm check:docs",
+    "prepare:gen": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs",
+    "gen:check": "node scripts/gen-index.mjs --check",
+    "check": "pnpm gen:check && pnpm check:css && pnpm check:layers && pnpm check:props && pnpm check:docs",
     "check:css": "node scripts/check-css.mjs",
     "check:layers": "node scripts/check-layers.mjs",
     "gen:props": "node scripts/gen-props.mjs",

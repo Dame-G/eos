@@ -4,6 +4,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EPhoneField from "./EPhoneField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { expectPostingContract } from "../../../test/formPosting.js";
 
 describe("EPhoneField", () => {
   test("is a labelled tel input that shows the number pad and can be filled by a browser", async () => {
@@ -156,5 +157,67 @@ describe("EPhoneField", () => {
       }),
     );
     await expectNoViolations(container);
+  });
+
+  test("valueFormat e164 stores +1 and the digits, and shows the formatted number", async () => {
+    const model = ref("");
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(EPhoneField, {
+            modelValue: model.value,
+            valueFormat: "e164",
+            format: "us",
+            "onUpdate:modelValue": (v: string) => (model.value = v),
+          }),
+      }),
+    );
+    await page.getByRole("textbox", { name: "Phone number" }).fill("5551234567");
+    expect(model.value).toBe("+15551234567");
+    expect(container.querySelector("input")!.value).toBe("(555) 123-4567");
+  });
+
+  test("valueFormat digits stores the digits alone, and a stored value is read back into the format", async () => {
+    const model = ref("5551234567");
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(EPhoneField, {
+            modelValue: model.value,
+            valueFormat: "digits",
+            format: "us",
+            "onUpdate:modelValue": (v: string) => (model.value = v),
+          }),
+      }),
+    );
+    expect(container.querySelector("input")!.value).toBe("(555) 123-4567");
+    await page.getByRole("textbox", { name: "Phone number" }).fill("5559876543");
+    expect(model.value).toBe("5559876543");
+  });
+
+  test("clearable, size and loading pass through to the text field", async () => {
+    const { container } = await render(EPhoneField, {
+      props: { modelValue: "5551234567", clearable: true, size: "sm", loading: true },
+    });
+    expect(container.querySelector(".e-input-btn")).not.toBeNull();
+    expect(container.querySelector(".e-input-spin")).not.toBeNull();
+    expect(container.querySelector("input")!.getAttribute("data-size")).toBe("sm");
+  });
+
+  test("a disabled phone field posts nothing, and a named one joins a form it is outside of", async () => {
+    await expectPostingContract(EPhoneField, { modelValue: "5551234567", format: "us" });
+  });
+
+  test("with valueFormat the form posts the model while the input shows the formatted number", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("form", [h(EPhoneField, { modelValue: "+15551234567", valueFormat: "e164", format: "us", name: "phone" })]),
+      }),
+    );
+    const input = container.querySelector<HTMLInputElement>("input:not([type=hidden])")!;
+    expect(input.value).toBe("(555) 123-4567");
+    expect(input.hasAttribute("name")).toBe(false);
+    expect(new FormData(container.querySelector("form")!).get("phone")).toBe("+15551234567");
   });
 });

@@ -56,7 +56,7 @@ watch(
   <PopoverRoot v-model:open="open">
     <PopoverTrigger as-child>
       <button type="button" class="e-definition-term" v-bind="$attrs">
-        <EIcon name="info" small />
+        <EIcon name="info" size="sm" />
         <slot name="trigger" />
         <span class="e-sr">, {{ label }}</span>
       </button>
@@ -89,17 +89,17 @@ watch(
   .e-definition-term {
     display: inline-flex;
     align-items: center;
-    gap: var(--e-space-1);
+    gap: var(--e-gap-tight);
     position: relative;
     min-height: var(--e-icon-size-md);
     padding: 0;
     border: 0;
     background: transparent;
     color: var(--e-primary);
-    font: var(--e-weight-medium) var(--e-text-sm) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-snug) var(--e-font-sans);
     text-decoration: underline dotted;
     text-decoration-color: currentcolor;
-    text-underline-offset: var(--e-space-1);
+    text-underline-offset: var(--e-gap-tight);
     text-decoration-thickness: var(--e-stroke-edge);
     cursor: help;
   }
@@ -107,7 +107,7 @@ watch(
   .e-definition-term::after {
     content: "";
     position: absolute;
-    inset: calc(-1 * var(--e-space-2)) calc(-1 * var(--e-space-1));
+    inset: calc(-1 * var(--e-gap-snug)) calc(-1 * var(--e-gap-tight));
   }
 
   .e-definition-term:hover,
@@ -120,27 +120,27 @@ watch(
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--e-space-2);
-    padding-block: var(--e-space-1) 0;
-    padding-inline: var(--e-space-4) var(--e-space-1);
+    gap: var(--e-gap-snug);
+    padding-block: var(--e-gap-tight) 0;
+    padding-inline: var(--e-pad-card) var(--e-gap-tight);
   }
 
   .e-pop-title {
     margin: 0;
-    font: var(--e-weight-strong) var(--e-text-xs) / 1.2 var(--e-font-mono);
-    letter-spacing: 0.08em;
+    font: var(--e-type-kicker);
+    letter-spacing: var(--e-tracking-label);
     text-transform: uppercase;
     color: var(--e-muted);
   }
 
   .e-pop-body {
-    padding-block: var(--e-space-3) var(--e-space-4);
-    padding-inline: var(--e-space-4);
-    font: var(--e-weight-regular) var(--e-text-md) / 1.5 var(--e-font-sans);
+    padding-block: var(--e-gap-base) var(--e-pad-card);
+    padding-inline: var(--e-pad-card);
+    font: var(--e-type-body);
   }
 
   .e-pop-head + .e-pop-body {
-    padding-top: var(--e-space-1);
+    padding-top: var(--e-gap-tight);
   }
 
   @media print {

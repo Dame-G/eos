@@ -45,7 +45,7 @@ defineSlots<{
 @layer e.page {
   .e-pagehead {
     display: grid;
-    gap: var(--e-space-3);
+    gap: var(--e-gap-base);
     container-type: inline-size;
   }
 
@@ -54,10 +54,12 @@ defineSlots<{
     flex-wrap: wrap;
     align-items: flex-start;
     justify-content: space-between;
-    gap: var(--e-space-3) var(--e-space-4);
+    gap: var(--e-gap-base) var(--e-gap-loose);
   }
 
   .e-pagehead-text {
+    display: grid;
+    gap: var(--e-gap-snug);
     flex: 1 1 18rem;
     min-width: 0;
   }
@@ -67,7 +69,7 @@ defineSlots<{
   }
 
   .e-pagehead-desc {
-    margin: var(--e-space-2) 0 0;
+    margin: 0;
     max-width: var(--e-measure);
     font: var(--e-weight-regular) var(--e-text-lg) / 1.45 var(--e-font-sans);
     color: var(--e-muted);
@@ -83,7 +85,7 @@ defineSlots<{
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--e-space-2) var(--e-space-4);
+    gap: var(--e-gap-snug) var(--e-gap-loose);
   }
 }
 </style>

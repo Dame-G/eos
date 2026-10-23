@@ -1,43 +1,31 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import EField from "../Field/EField.vue";
-import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import EInputShell from "../Field/EInputShell.vue";
+import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
+import { useFieldControl } from "../../composables/useFieldControl.js";
 import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<{
-  /** The visible label. */
-  label: string;
-  /** Keeps the label for screen readers and hides it from the page. */
-  hideLabel?: boolean;
-  /** Shows help text under the input. */
-  hint?: string;
-  /** Shows what to fix in place of the hint, marks the input invalid and is announced. Invalid typed text shows "Enter a colour like #2c95b4" after blur. */
-  error?: string;
-  /** Sets the `required` attribute and shows a word beside the label. */
-  required?: boolean;
-  /** Shows a word beside the label. Use it on whichever of required and optional is rarer. */
-  optional?: boolean;
-  /** Disables the field. */
-  disabled?: boolean;
-  /** Keeps the value but stops it being changed. The text box can still be focused and selected. */
-  readonly?: boolean;
-  /** The name submitted with a form: the normalised `#rrggbb`, or empty when the text is not a colour. */
-  name?: string;
-  /** The `id` of the text input, which the label points at. @default generated */
-  id?: string;
-}>();
+const props = defineProps<
+  EFieldCommonProps &
+    Pick<EFieldBoxProps, "size"> & {
+      /** The visible label. */
+      label: string;
+      /** The name submitted with a form: the normalised `#rrggbb`, or empty when the text is not a colour. Posts nothing while disabled. */
+      name?: string;
+    }
+>();
 
 /** `#rrggbb`, lower case. Only complete, valid colours are written, and clearing the text writes an empty string. `#abc` expands to `#aabbcc`. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
-const attrs = useFieldAttrs();
-const input = ref<HTMLInputElement | null>(null);
-const swatchEl = ref<HTMLInputElement | null>(null);
+const control = useFieldControl(props);
+const input = control.input;
 
 function normalize(raw: string): string | null {
   const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(raw.trim());
@@ -75,24 +63,17 @@ function onBlur() {
   if (hex) text.value = hex;
 }
 
-function onWrapClick(e: MouseEvent) {
-  if (!(e.target as Element).closest(".e-color-swatch-box") && !props.disabled) input.value?.focus();
-}
-
 function onPick(e: Event) {
   model.value = (e.target as HTMLInputElement).value;
   text.value = model.value;
 }
 
-defineExpose({
-  input,
-  focus: () => input.value?.focus(),
-});
+defineExpose(control.exposed);
 </script>
 
 <template>
   <EField
-    v-bind="attrs.wrapper()"
+    v-bind="control.attrs.wrapper()"
     :id="id"
     :label="label"
     :hide-label="hideLabel"
@@ -102,17 +83,9 @@ defineExpose({
     :optional="optional"
   >
     <template #default="field">
-      <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-      <div
-        class="e-input-wrap e-colorfield"
-        :data-invalid="shownError ? '' : undefined"
-        :data-disabled="disabled ? '' : undefined"
-        :data-readonly="readonly ? '' : undefined"
-        @click="onWrapClick"
-      >
+      <EInputShell v-bind="control.shell(shownError)" class="e-colorfield">
         <span class="e-color-swatch-box">
           <input
-            ref="swatchEl"
             class="e-color-swatch"
             type="color"
             :value="swatch"
@@ -122,9 +95,9 @@ defineExpose({
           />
           <span v-if="empty" class="e-color-empty" aria-hidden="true"></span>
         </span>
-        <input v-if="name" type="hidden" :name="name" :value="submitted" :disabled="disabled" />
+        <input v-if="name" type="hidden" v-bind="control.hidden(name, submitted)" />
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
         <input
-          :id="field.id"
           ref="input"
           class="e-input"
           type="text"
@@ -133,15 +106,11 @@ defineExpose({
           maxlength="7"
           :placeholder="t('colorPlaceholder')"
           :value="text"
-          :disabled="disabled"
-          :required="required"
-          :readonly="readonly"
-          :aria-invalid="field.ariaInvalid"
-          v-bind="attrs.input(field.ariaDescribedby)"
+          v-bind="control.bind(field)"
           @input="onText"
           @blur="onBlur"
         />
-      </div>
+      </EInputShell>
     </template>
   </EField>
 </template>
@@ -150,8 +119,8 @@ defineExpose({
 @layer e.composites {
   .e-colorfield {
     align-items: center;
-    gap: var(--e-space-2);
-    padding-inline-start: var(--e-space-1);
+    gap: var(--e-gap-snug);
+    padding-inline-start: var(--e-gap-tight);
   }
 
   .e-color-swatch-box {
@@ -180,8 +149,8 @@ defineExpose({
 
   .e-color-swatch {
     flex: none;
-    width: calc(var(--e-control-height) - 2 * (var(--e-stroke-edge) + var(--e-space-1)));
-    height: calc(var(--e-control-height) - 2 * (var(--e-stroke-edge) + var(--e-space-1)));
+    width: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--e-gap-tight)));
+    height: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--e-gap-tight)));
     padding: 0;
     border: 0;
     border-radius: var(--e-radius-sm);

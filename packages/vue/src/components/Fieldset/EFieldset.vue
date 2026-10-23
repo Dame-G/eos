@@ -82,7 +82,7 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: var(--e-space-3);
+    gap: var(--e-gap-base);
     width: 100%;
     padding: 0;
   }
@@ -93,7 +93,7 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
 
   .e-fieldset:not(.e-fieldset--box, .e-fieldset--section) > .e-fieldset-legend {
     float: inline-start;
-    margin-block-end: var(--e-space-2);
+    margin-block-end: var(--e-gap-snug);
   }
 
   .e-fieldset:not(.e-fieldset--box, .e-fieldset--section) > .e-fieldset-legend + * {
@@ -102,10 +102,10 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
 
   /* The ring is the outline alone: a native fieldset border is broken around its legend, so pairing it with the overlay painted a second, unbroken line. The legend straddles the ring and its own surface background breaks the line instead. */
   .e-fieldset--box {
-    --_legend-lh: 1.3;
+    --_legend-lh: var(--e-leading-snug);
 
-    padding-block: 0 var(--e-space-4);
-    padding-inline: var(--e-space-4);
+    padding-block: 0 var(--e-pad-card);
+    padding-inline: var(--e-pad-card);
     border: 0;
     outline: var(--e-stroke-hair) solid var(--e-border);
     outline-offset: calc(-1 * var(--e-stroke-hair));
@@ -117,12 +117,12 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
     position: relative;
     align-items: center;
     gap: 0;
-    width: calc(100% + var(--e-space-4));
+    width: calc(100% + var(--e-pad-card));
 
     /* Half the line box, so the ring runs through the middle of the title. */
     inset-block-start: calc(-0.5 * var(--_legend-lh) * 1em);
-    margin-block: 0 var(--e-space-3);
-    margin-inline: calc(-1 * var(--e-space-2)) 0;
+    margin-block: 0 var(--e-gap-base);
+    margin-inline: calc(-1 * var(--e-gap-snug)) 0;
     font: var(--e-weight-medium) var(--e-text-md) / var(--_legend-lh) var(--e-font-sans);
     letter-spacing: 0;
     text-transform: none;
@@ -132,22 +132,22 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
   /* The title and the Required or Optional word each break the outline on their own surface, the title at the start and the word always at the end of the line, with the outline running between them. */
   .e-fieldset--box .e-fieldset-title,
   .e-fieldset--box .e-field-flag {
-    padding-inline: var(--e-space-2);
+    padding-inline: var(--e-gap-snug);
     background: var(--e-surface);
   }
 
   .e-fieldset--box .e-fieldset-rule {
-    flex: 1 1 var(--e-space-2);
+    flex: 1 1 var(--e-gap-snug);
     width: auto;
-    min-width: var(--e-space-2);
+    min-width: var(--e-gap-snug);
   }
 
   /* The rule is the legend's own border, never a native fieldset border (which would break around the legend). */
   .e-fieldset--section > .e-fieldset-legend {
     display: block;
-    padding-block-start: var(--e-space-6);
+    padding-block-start: var(--e-gap-section);
     border-block-start: var(--e-stroke-hair) solid var(--e-border);
-    font: var(--e-weight-medium) var(--e-text-xl) / 1.25 var(--e-font-sans);
+    font: var(--e-type-h3);
     color: var(--e-ink);
   }
 
@@ -161,35 +161,35 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
   }
 
   .e-fieldset--section > .e-fieldset-body {
-    padding-block-start: var(--e-space-4);
+    padding-block-start: var(--e-gap-loose);
   }
 
-  /* The body's gap is a space-4; a hint or error under the controls pulls up to space-2, and in a section the hint pulls up to the legend. */
+  /* The body's gap is gap-loose; a hint or error under the controls pulls up to gap-snug, and in a section the hint pulls up to the legend. */
   .e-fieldset--section > .e-fieldset-body > .e-field-hint:first-child {
-    margin-block-start: calc(var(--e-space-4) * -1 + var(--e-space-1));
+    margin-block-start: calc(var(--e-gap-loose) * -1 + var(--e-gap-tight));
     max-width: var(--e-measure);
   }
 
   .e-fieldset-rule {
     flex: none;
-    width: var(--e-space-2);
+    width: var(--e-gap-snug);
   }
 
   .e-fieldset-body {
     display: grid;
-    gap: var(--e-space-4);
-    padding-block-start: var(--e-space-1);
+    gap: var(--e-gap-loose);
+    padding-block-start: var(--e-gap-tight);
   }
 
   /* With no body the message follows the controls directly, so it pulls up by the space the controls leave. */
   .e-fieldset > .e-field-hint,
   .e-fieldset > .e-field-error {
-    margin-block-start: calc(-1 * (var(--e-space-1) + var(--e-stroke-focus)));
+    margin-block-start: calc(-1 * (var(--e-gap-tight) + var(--e-stroke-focus)));
   }
 
   .e-fieldset-body > .e-field-hint:not(:first-child),
   .e-fieldset-body > .e-field-error {
-    margin-block-start: calc(var(--e-space-4) * -1 + var(--e-space-2));
+    margin-block-start: calc(var(--e-gap-loose) * -1 + var(--e-gap-snug));
   }
 }
 </style>

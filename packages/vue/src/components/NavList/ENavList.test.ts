@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ENavList from "./ENavList.vue";
@@ -143,6 +143,123 @@ describe("ENavList", () => {
 
   test("has no accessibility violations", async () => {
     const { container } = await render(ENavList, { props: { items } });
+    await expectNoViolations(container);
+  });
+
+  const tree = [
+    { label: "Home", href: "/" },
+    {
+      label: "Billing",
+      icon: "card",
+      children: [
+        { label: "Pay a bill", href: "/pay" },
+        { label: "Statements", href: "/statements" },
+        { label: "Old invoices", href: "/old", disabled: true },
+      ],
+    },
+    { label: "Archive", href: "/archive", disabled: true },
+  ];
+
+  test("a disabled item is dimmed, not a link and skipped by Tab", async () => {
+    const { container } = await render(ENavList, { props: { items: tree.filter((i) => !i.children) } });
+    container.classList.add("e-root");
+    const off = container.querySelector<HTMLElement>("[aria-disabled=true]")!;
+    expect(off.getAttribute("role")).toBe("link");
+    expect(off.hasAttribute("href")).toBe(false);
+    expect(getComputedStyle(off).cursor).toBe("not-allowed");
+    await userEvent.tab();
+    expect(document.activeElement!.textContent).toContain("Home");
+    await userEvent.tab();
+    expect(document.activeElement!.closest("nav")).toBeNull();
+  });
+
+  test("an item with children is a group that opens and closes, from the keyboard too", async () => {
+    const { container } = await render(ENavList, { props: { items: tree } });
+    const group = container.querySelector<HTMLDetailsElement>("details.e-nav-group")!;
+    expect(group.open).toBe(false);
+    const summary = group.querySelector("summary")!;
+    expect(summary.classList.contains("e-nav-item")).toBe(true);
+    await userEvent.tab();
+    await userEvent.tab();
+    expect(document.activeElement).toBe(summary);
+    await userEvent.keyboard("{Enter}");
+    expect(group.open).toBe(true);
+    await expect.poll(() => group.getBoundingClientRect().height).toBeGreaterThan(200);
+    await userEvent.tab();
+    expect(document.activeElement!.textContent).toContain("Pay a bill");
+    await userEvent.tab();
+    expect(document.activeElement!.textContent).toContain("Statements");
+    await userEvent.tab();
+    expect(document.activeElement!.closest("nav")).toBeNull();
+    summary.focus();
+    await userEvent.keyboard(" ");
+    expect(group.open).toBe(false);
+  });
+
+  test("a group that holds the current page starts open and is marked, and open opens one", async () => {
+    const withCurrent = tree.map((i) =>
+      i.children ? { ...i, children: i.children.map((c) => ({ ...c, current: c.href === "/pay" })) } : i,
+    );
+    const { container } = await render(ENavList, { props: { items: withCurrent } });
+    const group = container.querySelector<HTMLDetailsElement>("details")!;
+    expect(group.open).toBe(true);
+    expect(group.querySelector("summary")!.hasAttribute("data-current")).toBe(true);
+    expect(group.querySelector("summary")!.hasAttribute("aria-current")).toBe(false);
+    expect(container.querySelectorAll("[aria-current=page]").length).toBe(1);
+    const opened = await render(ENavList, {
+      props: { items: tree.map((i) => (i.children ? { ...i, open: true } : i)) },
+    });
+    expect(opened.container.querySelector<HTMLDetailsElement>("details")!.open).toBe(true);
+  });
+
+  test("a disabled group does not open", async () => {
+    const { container } = await render(ENavList, {
+      props: { items: [{ label: "Locked", disabled: true, children: [{ label: "Inside", href: "/in" }] }] },
+    });
+    const summary = container.querySelector("summary")!;
+    expect(summary.getAttribute("aria-disabled")).toBe("true");
+    await userEvent.click(summary);
+    expect(container.querySelector("details")!.open).toBe(false);
+  });
+
+  test("isCurrent marks the current page for items that do not say, and current wins over it", async () => {
+    const path = ref("/pay");
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(ENavList, {
+            items: [
+              { label: "Home", href: "/" },
+              { label: "Pay a bill", href: "/pay" },
+              { label: "Forms", href: "/forms", current: false },
+            ],
+            isCurrent: (item: { href?: string }) => item.href === path.value || item.href === "/forms",
+          }),
+      }),
+    );
+    const current = () => [...container.querySelectorAll("[aria-current=page]")].map((a) => a.textContent!.trim());
+    expect(current()).toEqual(["Pay a bill"]);
+    path.value = "/";
+    await expect.poll(current).toEqual(["Home"]);
+  });
+
+  test("a group opens by itself when isCurrent moves into it", async () => {
+    const path = ref("/");
+    const { container } = await render(
+      defineComponent({
+        render: () => h(ENavList, { items: tree, isCurrent: (item: { href?: string }) => item.href === path.value }),
+      }),
+    );
+    const group = container.querySelector<HTMLDetailsElement>("details")!;
+    expect(group.open).toBe(false);
+    path.value = "/statements";
+    await expect.poll(() => group.open).toBe(true);
+  });
+
+  test("nested groups have no accessibility violations", async () => {
+    const { container } = await render(ENavList, {
+      props: { items: tree.map((i) => (i.children ? { ...i, open: true } : i)) },
+    });
     await expectNoViolations(container);
   });
 });

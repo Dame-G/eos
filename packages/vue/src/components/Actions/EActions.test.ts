@@ -100,4 +100,10 @@ describe("EActions", () => {
     );
     await expectNoViolations(container);
   });
+
+  test("buttons in the group are spaced by gap-snug", async () => {
+    const { container } = await render(EActions, { slots: { default: buttons } });
+    container.classList.add("e-root");
+    expect(getComputedStyle(container.querySelector(".e-actions")!).columnGap).toBe("8px");
+  });
 });

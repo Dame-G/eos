@@ -9,9 +9,11 @@ import {
   DialogTitle,
 } from "reka-ui";
 import { computed, useAttrs } from "vue";
+import { ConfigProvider } from "reka-ui";
 import EActions from "../Actions/EActions.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages, usePortalTarget } from "../../config.js";
+import { useDir } from "../../composables/useDir.js";
 import "../../styles/base.css";
 import "../Heading/scale.css";
 import "./dialog.css";
@@ -27,6 +29,10 @@ const props = withDefaults(
     inline?: boolean;
     dismissible?: boolean;
     contentClass?: unknown;
+    /** A CSS selector for the element that takes focus when it opens. With none, an alert dialog focuses `[data-autofocus]` or else its least destructive action, and any other dialog its first control. */
+    initialFocus?: string;
+    /** Draws only the content, with the title hidden: the caller brings the whole layout, as the command palette does. */
+    bare?: boolean;
   }>(),
   { headingLevel: 2, role: "dialog" },
 );
@@ -44,10 +50,30 @@ const open = defineModel<boolean>("open");
 
 const t = useMessages();
 const target = usePortalTarget();
+const dir = useDir();
 
 /** An inline preview is part of the page, so it leaves focus alone: it does not take it when it opens, and does not send it back to wherever it was when it closes. Sending it back could land on a tab or link and activate it. */
 function keepFocus(event: Event) {
   if (props.inline) event.preventDefault();
+}
+
+/** The first control of the foot that is not a danger button: the answer that undoes nothing. */
+function safestAction(content: HTMLElement): HTMLElement | null {
+  const buttons = [...content.querySelectorAll<HTMLElement>(".e-dialog-foot button:not(:disabled)")];
+  return buttons.find((b) => !b.classList.contains("e-btn--danger")) ?? buttons[0] ?? null;
+}
+
+/** Reka focuses the first control, which is the Close button. An alert dialog must not open on a way out, so it picks the answer itself. */
+function focusInitial(event: Event) {
+  if (props.inline) return event.preventDefault();
+  const content = event.target as HTMLElement | null;
+  if (!content) return;
+  const explicit = props.initialFocus ? content.querySelector<HTMLElement>(props.initialFocus) : null;
+  const marked = content.querySelector<HTMLElement>("[data-autofocus]");
+  const picked = explicit ?? marked ?? (props.role === "alertdialog" ? safestAction(content) : null);
+  if (!picked) return;
+  event.preventDefault();
+  picked.focus({ preventScroll: true });
 }
 
 const attrs = useAttrs();
@@ -64,29 +90,37 @@ function setOpen(value: boolean) {
 </script>
 
 <template>
-  <DialogRoot :open="!!open" :modal="!inline" @update:open="setOpen">
-    <DialogPortal :to="target" :disabled="inline">
-      <div class="e-root">
-        <DialogOverlay v-if="!inline" class="e-dialog-overlay" />
-        <DialogContent
-          :role="role"
-          v-bind="{ ...describedby, ...$attrs }"
-          :class="contentClass"
-          @interact-outside="(e) => !dismissible && e.preventDefault()"
-          @open-auto-focus="keepFocus"
-          @close-auto-focus="keepFocus"
-        >
-          <header class="e-dialog-head">
-            <DialogTitle :as="`h${headingLevel}`" class="e-dialog-title e-h e-h2">{{ title }}</DialogTitle>
-            <DialogClose as-child>
-              <EIconButton icon="x" :label="t('close')" />
-            </DialogClose>
-          </header>
-          <DialogDescription v-if="description" class="e-dialog-description">{{ description }}</DialogDescription>
-          <slot />
-          <EActions v-if="$slots.actions" as="footer" bar class="e-dialog-foot"><slot name="actions" /></EActions>
-        </DialogContent>
-      </div>
-    </DialogPortal>
-  </DialogRoot>
+  <ConfigProvider :dir="dir">
+    <DialogRoot :open="!!open" :modal="!inline" :dir="dir" @update:open="setOpen">
+      <DialogPortal :to="target" :disabled="inline">
+        <div class="e-root">
+          <DialogOverlay v-if="!inline" class="e-dialog-overlay" />
+          <DialogContent
+            :role="role"
+            v-bind="{ ...describedby, ...$attrs }"
+            :class="contentClass"
+            @interact-outside="(e) => !dismissible && e.preventDefault()"
+            @open-auto-focus="focusInitial"
+            @close-auto-focus="keepFocus"
+          >
+            <template v-if="bare">
+              <DialogTitle class="e-sr">{{ title }}</DialogTitle>
+              <slot />
+            </template>
+            <template v-else>
+              <header class="e-dialog-head">
+                <DialogTitle :as="`h${headingLevel}`" class="e-dialog-title e-h e-h2">{{ title }}</DialogTitle>
+                <DialogClose as-child>
+                  <EIconButton icon="x" :label="t('close')" />
+                </DialogClose>
+              </header>
+              <DialogDescription v-if="description" class="e-dialog-description">{{ description }}</DialogDescription>
+              <slot />
+              <EActions v-if="$slots.actions" as="footer" bar class="e-dialog-foot"><slot name="actions" /></EActions>
+            </template>
+          </DialogContent>
+        </div>
+      </DialogPortal>
+    </DialogRoot>
+  </ConfigProvider>
 </template>

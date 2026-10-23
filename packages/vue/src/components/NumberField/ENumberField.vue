@@ -2,46 +2,44 @@
 import { computed, onBeforeUnmount, ref, watch } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EField from "../Field/EField.vue";
-import type { EFieldCommonProps } from "../Field/fieldProps.js";
+import EInputShell from "../Field/EInputShell.vue";
+import type { EFieldCommonProps, EFieldBoxProps } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
 import { useLocale } from "../../composables/useLocale.js";
-import { focusInside } from "../../composables/focusInside.js";
-import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
 
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<
-  EFieldCommonProps & {
-    /** The visible label above the field. */
-    label: string;
-    /** The lowest value. The value clamps to it and the decrease button dims there (it stays focusable). */
-    min?: number;
-    /** The highest value. The value clamps to it and the increase button dims there (it stays focusable). */
-    max?: number;
-    /** The amount one step of the buttons and arrow keys changes the value. Decimals shown follow the step (`0.25` shows two). @default 1 */
-    step?: number;
-    /** A unit before the value. Read with the value by screen readers. */
-    prefix?: string;
-    /** A unit after the value, such as visits. Read with the value by screen readers. */
-    suffix?: string;
-    /** The name submitted with a form (the number, or empty). */
-    name?: string;
-    /** Disables the input and both buttons. */
-    disabled?: boolean;
-    /** Shows the value but blocks editing. The input stays focusable and selectable. Both buttons and the keys that change the value do nothing. */
-    readonly?: boolean;
-  }
+  EFieldCommonProps &
+    Pick<EFieldBoxProps, "size"> & {
+      /** The visible label above the field. */
+      label: string;
+      /** The lowest value. The value clamps to it and the decrease button dims there (it stays focusable). */
+      min?: number;
+      /** The highest value. The value clamps to it and the increase button dims there (it stays focusable). */
+      max?: number;
+      /** The amount one step of the buttons and arrow keys changes the value. Decimals shown follow the step (`0.25` shows two). @default 1 */
+      step?: number;
+      /** A unit before the value. Read with the value by screen readers. */
+      prefix?: string;
+      /** A unit after the value, such as visits. Read with the value by screen readers. */
+      suffix?: string;
+      /** The name submitted with a form (the number, or empty). Posts nothing while disabled. */
+      name?: string;
+    }
 >();
 
 /** The number, or `null` when empty. */
 const model = defineModel<number | null>({ default: null });
 
 const t = useMessages();
-const attrs = useFieldAttrs();
+const control = useFieldControl(props);
 const loc = useLocale();
-const input = ref<HTMLInputElement | null>(null);
+const input = control.input;
+const hidden = ref<HTMLInputElement | null>(null);
 
 const stepBy = computed(() => props.step || 1);
 const decimals = computed(() => (String(stepBy.value).split(".")[1] || "").length);
@@ -98,10 +96,15 @@ function clamp(n: number): number {
   if (props.max != null && n > props.max) n = props.max;
   return n;
 }
+/** The posted value is written at once as well: Enter submits the form before Vue has rendered the new model. */
+function post(n: number | null) {
+  if (hidden.value) hidden.value.value = n == null ? "" : String(n);
+}
 function set(n: number) {
   n = clamp(n);
   model.value = n;
   text.value = format(n);
+  post(n);
 }
 const atMin = computed(() => props.min != null && num.value != null && num.value <= props.min);
 const atMax = computed(() => props.max != null && num.value != null && num.value >= props.max);
@@ -111,23 +114,32 @@ function bump(dir: 1 | -1, mult = 1) {
   const base = num.value == null ? (props.min != null ? props.min - stepBy.value * (dir > 0 ? 1 : 0) : 0) : num.value;
   set(Math.round((base + dir * stepBy.value * mult) * 1e6) / 1e6);
 }
-/** Emits as soon as the text reads as a number inside the range, so a form sees the value without a blur. */
+/** Emits as soon as the text reads as a number, even outside the range, so a form sees what was typed. Blur and Enter clamp it. */
 function onInput(e: Event) {
   text.value = (e.target as HTMLInputElement).value;
   if (props.readonly) return;
   if (text.value.trim() === "") {
     model.value = null;
+    post(null);
     return;
   }
   const n = parse(text.value);
-  if (!isNaN(n) && n === clamp(n)) model.value = n;
+  if (!isNaN(n)) {
+    model.value = n;
+    post(n);
+  }
 }
 function commit() {
   if (props.readonly) return;
   const n = parse(text.value);
   if (isNaN(n)) {
-    if (text.value === "") model.value = null;
-    else text.value = format(model.value);
+    if (text.value === "") {
+      model.value = null;
+      post(null);
+    } else {
+      text.value = format(model.value);
+      post(model.value);
+    }
   } else set(n);
 }
 function onKeydown(e: KeyboardEvent) {
@@ -182,19 +194,15 @@ function press(dir: 1 | -1) {
 }
 onBeforeUnmount(stopHold);
 
-function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }) {
+function inputBind(field: FieldSlot) {
   return {
-    id: field.id,
     class: ["e-input", "e-numinput", !props.prefix && "e-numfield-first", !props.suffix && "e-numfield-last"],
-    style: { "--e-chars": Math.max(text.value.length, 1) },
+    style: { "--_chars": Math.max(text.value.length, 1) },
     type: "text" as const,
     inputmode: "decimal" as const,
     role: "spinbutton",
     autocomplete: "off",
     value: text.value,
-    disabled: props.disabled,
-    readonly: props.readonly,
-    required: props.required,
     "aria-valuenow": num.value,
     "aria-valuetext":
       num.value != null && (props.prefix || props.suffix)
@@ -202,20 +210,16 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
         : undefined,
     "aria-valuemin": props.min,
     "aria-valuemax": props.max,
-    "aria-invalid": field.ariaInvalid,
-    ...attrs.input(field.ariaDescribedby),
+    ...control.bind(field),
   };
 }
 
-defineExpose({
-  input,
-  focus: () => input.value?.focus(),
-});
+defineExpose(control.exposed);
 </script>
 
 <template>
   <EField
-    v-bind="attrs.wrapper()"
+    v-bind="control.attrs.wrapper()"
     :id="id"
     :label="label"
     :hide-label="hideLabel"
@@ -225,18 +229,10 @@ defineExpose({
     :optional="optional"
   >
     <template #default="field">
-      <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-      <div
-        class="e-input-wrap e-numfield"
-        :class="{ 'e-numfield--affix': prefix || suffix }"
-        :data-invalid="error ? '' : undefined"
-        :data-disabled="disabled ? '' : undefined"
-        :data-readonly="readonly ? '' : undefined"
-        @click="focusInside"
-      >
+      <EInputShell v-bind="control.shell(error)" class="e-numfield" :class="{ 'e-numfield--affix': prefix || suffix }">
         <button
           type="button"
-          class="e-numbtn"
+          class="e-numbtn e-interact e-interact--inset"
           :aria-label="t('decrease')"
           :disabled="disabled || readonly"
           :aria-disabled="atMin || undefined"
@@ -253,7 +249,7 @@ defineExpose({
         <span v-if="suffix" class="e-affix e-affix--post e-numfield-last" aria-hidden="true">{{ suffix }}</span>
         <button
           type="button"
-          class="e-numbtn"
+          class="e-numbtn e-interact e-interact--inset"
           :aria-label="t('increase')"
           :disabled="disabled || readonly"
           :aria-disabled="atMax || undefined"
@@ -265,8 +261,8 @@ defineExpose({
         >
           <EIcon name="plus" bold />
         </button>
-      </div>
-      <input v-if="name" type="hidden" :name="name" :value="num == null ? '' : num" />
+      </EInputShell>
+      <input v-if="name" ref="hidden" type="hidden" v-bind="control.hidden(name, num)" />
     </template>
   </EField>
 </template>
@@ -280,70 +276,56 @@ defineExpose({
 
   .e-numfield .e-numinput {
     text-align: center;
-    font: var(--e-weight-medium) var(--e-text-md)/1 var(--e-font-mono);
+    font: var(--e-type-button);
+    font-family: var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     height: auto;
-    padding-inline: var(--e-space-2);
+    padding-inline: var(--e-gap-snug);
   }
 
   .e-numbtn {
     display: inline-grid;
     place-items: center;
     flex: none;
-    width: var(--e-control-height);
+    width: var(--_h, var(--e-control-height));
     padding: 0;
     border: 0;
     background: transparent;
     color: var(--e-ink);
     cursor: pointer;
-    transition: background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  .e-numbtn:first-child {
+  .e-numbtn:first-of-type {
     border-inline-end: var(--e-stroke-hair) solid var(--e-border-strong);
     border-start-start-radius: var(--e-radius-md);
     border-end-start-radius: var(--e-radius-md);
   }
 
-  .e-numbtn:last-child {
+  .e-numbtn:last-of-type {
     border-inline-start: var(--e-stroke-hair) solid var(--e-border-strong);
     border-start-end-radius: var(--e-radius-md);
     border-end-end-radius: var(--e-radius-md);
-  }
-
-  .e-numbtn:hover:not(:disabled, [aria-disabled="true"]) {
-    background: var(--e-wash-hover);
-  }
-
-  .e-numbtn:active:not(:disabled, [aria-disabled="true"]) {
-    background: var(--e-wash-press);
-  }
-
-  .e-numbtn:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-numbtn:disabled,
   .e-numbtn[aria-disabled="true"] {
     color: var(--e-disabled-ink);
     cursor: not-allowed;
-    background: transparent;
   }
 
   .e-numfield--affix .e-numinput {
     flex: none;
-    width: calc(var(--e-chars) * 1ch);
+    width: calc(var(--_chars) * 1ch);
     padding-inline: 0;
     text-align: start;
   }
 
   .e-numfield--affix .e-affix--pre {
-    padding-inline: 0 var(--e-space-1);
+    padding-inline: 0 var(--e-gap-tight);
   }
 
   .e-numfield--affix .e-affix--post {
-    padding-inline: var(--e-space-1) 0;
+    padding-inline: var(--e-gap-tight) 0;
   }
 
   .e-numfield--affix .e-numfield-first {
@@ -361,7 +343,7 @@ defineExpose({
 
     .e-numfield:not(.e-numfield--affix) .e-numinput {
       text-align: start;
-      padding-inline: var(--e-space-3);
+      padding-inline: var(--e-pad-control-sm);
     }
   }
 
@@ -371,7 +353,7 @@ defineExpose({
     }
 
     .e-numfield--affix .e-numfield-first {
-      margin-inline-start: var(--e-space-3);
+      margin-inline-start: var(--e-pad-control-sm);
     }
 
     .e-numfield--affix .e-numfield-last {

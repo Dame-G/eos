@@ -1,10 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { h } from "vue";
+import { defineComponent, h, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EAppHeader from "./EAppHeader.vue";
 import ENavList from "../NavList/ENavList.vue";
 import EButton from "../Button/EButton.vue";
+import ETabs from "../Tabs/ETabs.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 const slots = {
@@ -96,5 +97,63 @@ describe("EAppHeader", () => {
   test("has no accessibility violations when sticky and with only a logo", async () => {
     const { container } = await render(EAppHeader, { props: { sticky: true }, slots: { logo: slots.logo } });
     await expectNoViolations(container);
+  });
+
+  test("navToggle shows a menu button first in the tab order and reports the open state", async () => {
+    const open = ref(false);
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(
+            EAppHeader,
+            { navToggle: true, navOpen: open.value, "onUpdate:navOpen": (v: boolean) => (open.value = v) },
+            slots,
+          ),
+      }),
+    );
+    const button = container.querySelector<HTMLElement>(".e-appheader-toggle")!;
+    expect(button.getAttribute("aria-label")).toBe("Menu");
+    expect(button.getAttribute("aria-expanded")).toBe("false");
+    await userEvent.tab();
+    expect(document.activeElement).toBe(button);
+    await userEvent.keyboard("{Enter}");
+    expect(open.value).toBe(true);
+    await expect.poll(() => button.getAttribute("aria-expanded")).toBe("true");
+    await userEvent.keyboard(" ");
+    expect(open.value).toBe(false);
+  });
+
+  test("there is no menu button unless asked for, and the logo shows a focus ring from the keyboard", async () => {
+    const { container } = await render(EAppHeader, { slots });
+    container.classList.add("e-root");
+    expect(container.querySelector(".e-appheader-toggle")).toBeNull();
+    await userEvent.tab();
+    expect(document.activeElement!.textContent).toBe("OpenPractice");
+    expect(getComputedStyle(document.activeElement!).outlineStyle).toBe("solid");
+  });
+
+  test("a sticky header stays above the raised tabs of the page under it", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(EAppHeader, { sticky: true }, { logo: () => "Logo" }),
+            h(
+              ETabs,
+              {
+                items: [
+                  { id: "a", label: "One" },
+                  { id: "b", label: "Two" },
+                ],
+              },
+              { "panel-a": () => "A" },
+            ),
+          ]),
+      }),
+    );
+    container.classList.add("e-root");
+    const header = container.querySelector("header")!;
+    expect(getComputedStyle(header).position).toBe("sticky");
+    expect(getComputedStyle(container.querySelector(".e-tabs")!).isolation).toBe("isolate");
   });
 });

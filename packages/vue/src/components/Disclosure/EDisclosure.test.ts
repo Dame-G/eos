@@ -15,6 +15,44 @@ describe("EDisclosure", () => {
     expect(details.querySelector(".e-details-body")!.textContent).toBe("Body");
   });
 
+  test("its only border is a straight line along the top, with square ends", async () => {
+    const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
+    container.classList.add("e-root");
+    const style = getComputedStyle(container.querySelector("summary")!);
+    expect(style.borderTopWidth).not.toBe("0px");
+    expect(style.borderBottomWidth).toBe("0px");
+    expect(style.borderLeftWidth).toBe("0px");
+    expect(parseFloat(style.borderTopLeftRadius)).toBe(0);
+    expect(parseFloat(style.borderTopRightRadius)).toBe(0);
+  });
+
+  test("the title sits in the middle of its summary, closed and open, so its focus ring is even", async () => {
+    const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
+    container.classList.add("e-root");
+    const details = container.querySelector("details")!;
+    const summary = details.querySelector("summary")!;
+    const gaps = () => {
+      const range = document.createRange();
+      range.selectNodeContents(
+        [...summary.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim())!,
+      );
+      const text = range.getBoundingClientRect();
+      const box = summary.getBoundingClientRect();
+      return { above: text.top - box.top, below: box.bottom - text.bottom };
+    };
+    const heights: number[] = [];
+    for (const open of [false, true]) {
+      details.open = open;
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      const { above, below } = gaps();
+      expect(Math.abs(above - below), `open: ${open}`).toBeLessThanOrEqual(1.5);
+      expect(above).toBeGreaterThan(4);
+      heights.push(summary.getBoundingClientRect().height);
+    }
+    // The summary is the same size open and closed: opening only adds the content below it.
+    expect(heights[0]).toBe(heights[1]);
+  });
+
   test("clicking the summary opens and closes it", async () => {
     const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
     const details = container.querySelector("details")!;
@@ -105,5 +143,36 @@ describe("EDisclosure", () => {
     await expectNoViolations(container);
     await page.getByText("History").last().click();
     await expectNoViolations(container);
+  });
+
+  test("disabled keeps it as it is: marked, dimmed and ignoring the click and the keys", async () => {
+    const { container } = await render(EDisclosure, {
+      props: { title: "History", disabled: true },
+      slots: { default: "Body" },
+    });
+    container.classList.add("e-root");
+    const details = container.querySelector("details")!;
+    const summary = container.querySelector("summary")!;
+    expect(summary.getAttribute("aria-disabled")).toBe("true");
+    expect(getComputedStyle(summary).cursor).toBe("not-allowed");
+    await userEvent.click(summary);
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard(" ");
+    expect(details.open).toBe(false);
+  });
+
+  test("hover lights up the title like a link: its colour and an underline, no fill or ring", async () => {
+    const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
+    container.classList.add("e-root");
+    const summary = container.querySelector("summary")!;
+    const rest = getComputedStyle(summary);
+    const restColour = rest.color;
+    const restFill = rest.backgroundColor;
+    await userEvent.hover(summary);
+    await expect.poll(() => getComputedStyle(summary).color).not.toBe(restColour);
+    const hovered = getComputedStyle(summary);
+    expect(hovered.textDecorationLine).toBe("underline");
+    expect(hovered.backgroundColor).toBe(restFill);
+    expect(hovered.boxShadow).toBe("none");
   });
 });

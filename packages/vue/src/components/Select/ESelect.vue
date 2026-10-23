@@ -1,46 +1,31 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string = string, M extends boolean = false">
 import { computed, ref } from "vue";
 import EField from "../Field/EField.vue";
+import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import type { ELabelProps } from "../Field/labelProps.js";
 import ESelectControl from "./ESelectControl.vue";
-import { normalizeOptions, type EOptionInput } from "./options.js";
+import { normalizeOptions } from "./options.js";
+import type { ESelectFields } from "./selectProps.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import "../../styles/base.css";
 
-interface ESelectFields {
-  /** Strings, or `{ value, label, description?, icon?, group?, disabled? }`. A string is both value and label. `value` is never an empty string. A new `group` heading starts where `group` changes, so options of one group belong together. */
-  options: readonly EOptionInput[];
-  /** What the button says while nothing is chosen. @default "Select" */
-  placeholder?: string;
-  /** Help that stays under the control. */
-  hint?: string;
-  /** What to fix. Replaces the hint, marks the control invalid and is announced. */
-  error?: string;
-  /** Sets the `required` attribute and adds a word beside the label. */
-  required?: boolean;
-  /** Adds a word beside the label. Use it when most fields in the form are required. */
-  optional?: boolean;
-  /** Disables the control, so it never opens. */
-  disabled?: boolean;
-  /** Submits the chosen value with a form (a hidden input carries it). */
-  name?: string;
-  /** The id of the button, which the label points at. @default generated */
-  id?: string;
-}
-
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<ELabelProps & ESelectFields>();
+const props = defineProps<ELabelProps & Omit<EFieldCommonProps, "hideLabel"> & ESelectFields<T, M>>();
 
-/** The chosen option's `value`. Empty means nothing is chosen. */
-const model = defineModel<string>({ default: "" });
+/** The chosen option's `value`, or an empty string for nothing. With `multiple` it is the array of chosen values, in the order chosen, and `[]` for nothing. */
+const model = defineModel<M extends true ? T[] : T | "">();
 
-/** Whether the list is open. A disabled field never opens. */
+/** Whether the list is open. A disabled or read-only field never opens. */
 const open = defineModel<boolean>("open", { default: false });
 
 const attrs = useFieldAttrs();
 const control = ref<InstanceType<typeof ESelectControl> | null>(null);
-const options = computed(() => normalizeOptions(props.options));
+const options = computed(() => normalizeOptions<T>(props.options));
+const current = computed<string | string[]>(() => {
+  const v = model.value as string | string[] | undefined;
+  return props.multiple ? (Array.isArray(v) ? v : []) : typeof v === "string" ? v : "";
+});
 
 type FieldSlot = { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined };
 function triggerAttrs(field?: FieldSlot) {
@@ -51,6 +36,20 @@ function triggerAttrs(field?: FieldSlot) {
     ...attrs.input(field?.ariaDescribedby),
   };
 }
+const bind = (field?: FieldSlot) => ({
+  options: options.value,
+  placeholder: props.placeholder,
+  disabled: props.disabled,
+  readonly: props.readonly,
+  required: props.required,
+  multiple: props.multiple,
+  clearable: props.clearable,
+  loading: props.loading,
+  name: props.name,
+  form: attrs.form(),
+  label: field ? props.label : (props.ariaLabel ?? props.label),
+  triggerAttrs: triggerAttrs(field),
+});
 defineExpose({
   input: computed(() => control.value?.trigger ?? null),
   focus: () => control.value?.trigger?.focus(),
@@ -61,15 +60,10 @@ defineExpose({
   <div v-if="bare" v-bind="attrs.wrapper()">
     <ESelectControl
       ref="control"
-      v-model="model"
+      v-bind="bind()"
       v-model:open="open"
-      :options="options"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      :required="required"
-      :name="name"
-      :label="ariaLabel ?? label"
-      :trigger-attrs="triggerAttrs()"
+      :model-value="current"
+      @update:model-value="model = $event as never"
     />
   </div>
   <EField
@@ -86,15 +80,10 @@ defineExpose({
     <template #default="field">
       <ESelectControl
         ref="control"
-        v-model="model"
+        v-bind="bind(field)"
         v-model:open="open"
-        :options="options"
-        :placeholder="placeholder"
-        :disabled="disabled"
-        :required="required"
-        :name="name"
-        :label="label"
-        :trigger-attrs="triggerAttrs(field)"
+        :model-value="current"
+        @update:model-value="model = $event as never"
       />
     </template>
   </EField>

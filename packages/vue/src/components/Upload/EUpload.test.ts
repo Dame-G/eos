@@ -84,6 +84,51 @@ describe("EUpload", () => {
     expect(container.querySelector("input")!.files!.length).toBe(1);
   });
 
+  test("without multiple, the extra files are rejected with reason count and announced", async () => {
+    const rejected: { file: File; reason: string }[][] = [];
+    const { container } = await render(EUpload, {
+      props: { label: "Card", onReject: (r: { file: File; reason: string }[]) => rejected.push(r) },
+    });
+    drop(container.querySelector(".e-drop")!, file("1.pdf"), file("2.pdf"), file("3.pdf"));
+    await expect.poll(() => rejected.length).toBe(1);
+    expect(rejected[0]!.map((r) => [r.file.name, r.reason])).toEqual([
+      ["2.pdf", "count"],
+      ["3.pdf", "count"],
+    ]);
+    await expect
+      .poll(() => document.querySelector("[data-e-announcer=assertive]")?.textContent?.replace(/00a0/g, ""))
+      .toBe("1 file added. Only 1 file can be added");
+  });
+
+  test("readonly keeps the files, blocks drops, picks and removal, and still submits the files", async () => {
+    const emitted: File[][] = [];
+    const { container } = await render(EUpload, {
+      props: {
+        label: "Card",
+        name: "card",
+        readonly: true,
+        modelValue: [file("a.pdf")],
+        onFiles: (v: File[]) => emitted.push(v),
+      },
+    });
+    const input = container.querySelector<HTMLInputElement>("input")!;
+    const zone = container.querySelector(".e-drop")!;
+    expect(input.disabled).toBe(false);
+    expect(input.getAttribute("aria-readonly")).toBe("true");
+    expect(zone.classList.contains("e-drop--readonly")).toBe(true);
+    drop(zone, file("x.pdf"));
+    choose(input, file("y.pdf"));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(emitted).toEqual([]);
+    expect(container.querySelectorAll(".e-file-name")).toHaveLength(1);
+    expect(container.querySelector<HTMLButtonElement>(".e-files button")!.disabled).toBe(true);
+    const click = new MouseEvent("click", { bubbles: true, cancelable: true });
+    input.dispatchEvent(click);
+    expect(click.defaultPrevented).toBe(true);
+    input.focus();
+    expect(document.activeElement).toBe(input);
+  });
+
   test("accept filters dropped and chosen files by extension, MIME type and wildcard, ignoring case", async () => {
     const { container } = await render(EUpload, {
       props: { label: "Card", multiple: true, accept: ".pdf, image/png,audio/*" },
@@ -362,6 +407,7 @@ describe("EUpload", () => {
             h(EUpload, { label: "Hinted", hint: "PDF up to 5 MB", accept: ".pdf", required: true }),
             h(EUpload, { label: "Invalid", error: "File too large", optional: true }),
             h(EUpload, { label: "Disabled", disabled: true }),
+            h(EUpload, { label: "Read only", readonly: true, modelValue: [file("a.pdf")] }),
             h(EUpload, { label: "With files", modelValue: [file("a.pdf")], multiple: true }),
           ]),
       }),

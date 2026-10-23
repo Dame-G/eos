@@ -14,8 +14,12 @@ withDefaults(
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     /** Removes the outline, for use inside a table or panel. */
     bare?: boolean;
+    /** `danger` colours the icon in the error colour, for a failed load or a search that broke rather than one that found nothing. */
+    tone?: "neutral" | "danger";
+    /** `sm` is more compact with a smaller icon, for use inside a panel or a table. */
+    size?: "sm" | "md";
   }>(),
-  { headingLevel: 3 },
+  { headingLevel: 3, tone: "neutral", size: "md" },
 );
 
 defineSlots<{
@@ -27,8 +31,11 @@ defineSlots<{
 </script>
 
 <template>
-  <div class="e-empty" :class="bare && 'e-empty--bare'">
-    <span v-if="icon" class="e-empty-icon"><EIcon :name="icon" /></span>
+  <div
+    class="e-empty"
+    :class="[bare && 'e-empty--bare', tone === 'danger' && 'e-empty--danger', size === 'sm' && 'e-empty--sm']"
+  >
+    <span v-if="icon" class="e-empty-icon"><EIcon :name="icon" :size="size === 'sm' ? 'md' : 'lg'" /></span>
     <component :is="`h${headingLevel}`" class="e-empty-title e-h e-h3">{{ title }}</component>
     <p v-if="$slots.default" class="e-empty-text"><slot /></p>
     <slot name="action" />
@@ -40,9 +47,9 @@ defineSlots<{
   .e-empty {
     display: grid;
     justify-items: center;
-    gap: var(--e-space-2);
-    padding-block: var(--e-space-8);
-    padding-inline: var(--e-space-4);
+    gap: var(--e-gap-base);
+    padding-block: calc(var(--e-pad-panel) + var(--e-gap-snug));
+    padding-inline: var(--e-pad-card);
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
@@ -53,23 +60,24 @@ defineSlots<{
     outline: 0;
   }
 
+  .e-empty--sm {
+    padding-block: var(--e-pad-card);
+  }
+
   .e-empty-icon {
     display: grid;
     place-items: center;
-    margin-bottom: var(--e-space-1);
     color: var(--e-primary);
   }
 
-  .e-empty-icon .e-icon {
-    width: var(--e-icon-size-lg);
-    height: var(--e-icon-size-lg);
+  .e-empty--danger .e-empty-icon {
+    color: var(--e-danger);
   }
 
   .e-empty-text {
     margin: 0;
-    margin-block-end: var(--e-space-2);
     max-width: 38ch;
-    font: var(--e-weight-regular) var(--e-text-md) / 1.5 var(--e-font-sans);
+    font: var(--e-type-body);
     color: var(--e-muted);
   }
 

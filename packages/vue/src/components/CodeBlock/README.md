@@ -14,15 +14,21 @@ For your own highlighting, put the markup in the slot. The button copies the tex
 </ECodeBlock>
 ```
 
+Blocks that sit back to back with no gap (a plain container, or an `EStack` with `gap="0"`) join into one box that shares a single hairline and is rounded only at its outer corners. Give them a gap and each is a separate rounded block, so choose one or the other.
+
+`lineNumbers` numbers plain `code` by itself. With your own markup, wrap each line in an element with the class `line`, as Shiki does.
+
 ## Props
 
 <!-- props:start -->
 
-| Prop        | Type     | Default       | Notes                                                                                                    |
-| ----------- | -------- | ------------- | -------------------------------------------------------------------------------------------------------- |
-| `code`      | `string` | None          | The text to show, as plain text. Leave it out to use the slot and put your own highlighted markup there. |
-| `lang`      | `string` | `"Code"`      | The language, named for screen readers (the name of the scrollable code group).                          |
-| `copyLabel` | `string` | `"Copy code"` | The copy button's name. Say what is copied when a page has several.                                      |
+| Prop          | Type      | Default       | Notes                                                                                                                                           |
+| ------------- | --------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `code`        | `string`  | None          | The text to show, as plain text. Leave it out to use the slot and put your own highlighted markup there.                                        |
+| `lang`        | `string`  | `"Code"`      | The language, named for screen readers (the name of the scrollable code group).                                                                 |
+| `copyLabel`   | `string`  | `"Copy code"` | The copy button's name. Say what is copied when a page has several.                                                                             |
+| `wrap`        | `boolean` | `false`       | Wraps long lines instead of scrolling sideways.                                                                                                 |
+| `lineNumbers` | `boolean` | `false`       | Numbers the lines. Plain `code` is numbered by itself; your own markup needs each line in an element with the class `line` (Shiki writes them). |
 
 <!-- props:end -->
 

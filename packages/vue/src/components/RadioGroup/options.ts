@@ -1,10 +1,14 @@
 import { normalizeOptions, type EOption, type EOptionInput } from "../Select/options.js";
 
 /** One choice in a `ERadioGroup`. */
-export type RadioOption = Pick<EOption, "value" | "label" | "description" | "disabled">;
+export type RadioOption<T extends string = string> = Pick<EOption, "label" | "description" | "disabled"> & {
+  value: T;
+};
 
 /** One choice in an `ESegmented`. */
-export type SegmentedOption = Pick<EOption, "value" | "label" | "icon" | "disabled">;
+export type SegmentedOption<T extends string = string> = Pick<EOption, "label" | "icon" | "disabled"> & {
+  value: T;
+};
 
 /** The choices of `ERadioGroup` and `ESegmented`: the same normalizer as `ESelect`, so a string is both value and label. */
 type ChoiceInput<T extends Partial<EOption> = EOption> = string | T;

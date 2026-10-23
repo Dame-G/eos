@@ -44,7 +44,12 @@ describe("ESelect", () => {
   test("keyboard: ArrowDown opens, arrows move, Enter chooses and closes, name is submitted", async () => {
     const got: string[] = [];
     const { container } = await render(ESelect, {
-      props: { label: "Pay with", name: "method", options: OPTIONS, "onUpdate:modelValue": (v: string) => got.push(v) },
+      props: {
+        label: "Pay with",
+        name: "method",
+        options: OPTIONS,
+        "onUpdate:modelValue": (v: unknown) => got.push(v as string),
+      },
     });
     const button = buttonOf(container);
     button.focus();
@@ -64,7 +69,7 @@ describe("ESelect", () => {
   test("Space and Enter open it; Space chooses", async () => {
     const got: string[] = [];
     const { container } = await render(ESelect, {
-      props: { label: "Pay with", options: OPTIONS, "onUpdate:modelValue": (v: string) => got.push(v) },
+      props: { label: "Pay with", options: OPTIONS, "onUpdate:modelValue": (v: unknown) => got.push(v as string) },
     });
     const button = buttonOf(container);
     await userEvent.tab();
@@ -84,7 +89,7 @@ describe("ESelect", () => {
   test("Home and End jump to the first and last option", async () => {
     const got: string[] = [];
     const { container } = await render(ESelect, {
-      props: { label: "Pay with", options: OPTIONS, "onUpdate:modelValue": (v: string) => got.push(v) },
+      props: { label: "Pay with", options: OPTIONS, "onUpdate:modelValue": (v: unknown) => got.push(v as string) },
     });
     const button = buttonOf(container);
     button.focus();
@@ -103,7 +108,7 @@ describe("ESelect", () => {
   test("Escape closes the list and returns focus to the button without choosing", async () => {
     const got: string[] = [];
     const { container } = await render(ESelect, {
-      props: { label: "Pay with", options: OPTIONS, "onUpdate:modelValue": (v: string) => got.push(v) },
+      props: { label: "Pay with", options: OPTIONS, "onUpdate:modelValue": (v: unknown) => got.push(v as string) },
     });
     const button = buttonOf(container);
     button.focus();
@@ -120,7 +125,7 @@ describe("ESelect", () => {
   test("typing on the open list jumps to the matching option", async () => {
     const got: string[] = [];
     const { container } = await render(ESelect, {
-      props: { label: "Pay with", options: OPTIONS, "onUpdate:modelValue": (v: string) => got.push(v) },
+      props: { label: "Pay with", options: OPTIONS, "onUpdate:modelValue": (v: unknown) => got.push(v as string) },
     });
     const button = buttonOf(container);
     button.focus();
@@ -136,7 +141,7 @@ describe("ESelect", () => {
   test("typing on the closed button chooses the matching option, like a native select", async () => {
     const got: string[] = [];
     const { container } = await render(ESelect, {
-      props: { label: "Pay with", options: OPTIONS, "onUpdate:modelValue": (v: string) => got.push(v) },
+      props: { label: "Pay with", options: OPTIONS, "onUpdate:modelValue": (v: unknown) => got.push(v as string) },
     });
     buttonOf(container).focus();
     await userEvent.keyboard("c");
@@ -147,7 +152,7 @@ describe("ESelect", () => {
   test("clicking opens the list, a click on an option chooses it, an outside press closes it", async () => {
     const got: string[] = [];
     const { container } = await render(ESelect, {
-      props: { label: "Pay with", options: OPTIONS, "onUpdate:modelValue": (v: string) => got.push(v) },
+      props: { label: "Pay with", options: OPTIONS, "onUpdate:modelValue": (v: unknown) => got.push(v as string) },
     });
     const button = buttonOf(container);
     await page.getByRole("combobox", { name: "Pay with" }).click();
@@ -194,9 +199,9 @@ describe("ESelect", () => {
             label: "Pay with",
             options: OPTIONS,
             modelValue: model.value,
-            "onUpdate:modelValue": (v: string) => {
-              got.push(v);
-              model.value = v;
+            "onUpdate:modelValue": (v: unknown) => {
+              got.push(v as string);
+              model.value = v as string;
             },
           }),
       }),
@@ -231,7 +236,7 @@ describe("ESelect", () => {
           { value: "b", label: "Plus", icon: "info", disabled: true },
           "Pro",
         ],
-        "onUpdate:modelValue": (v: string) => got.push(v),
+        "onUpdate:modelValue": (v: unknown) => got.push(v as string),
       },
     });
     const button = buttonOf(container);
@@ -462,5 +467,103 @@ describe("ESelect", () => {
     expect(api!.input).toBe(trigger);
     api!.focus();
     expect(document.activeElement).toBe(trigger);
+  });
+
+  test("a disabled select posts nothing through its hidden input", async () => {
+    const { container } = await render(ESelect, {
+      props: { label: "Pay", name: "m", options: OPTIONS, modelValue: "Bank", disabled: true },
+    });
+    const form = document.createElement("form");
+    form.append(container.firstElementChild!);
+    document.body.append(form);
+    expect(new FormData(form).getAll("m")).toEqual([]);
+    form.remove();
+  });
+
+  test("readonly keeps focus and the value but never opens or picks", async () => {
+    const got: string[] = [];
+    const { container } = await render(ESelect, {
+      props: {
+        label: "Pay",
+        options: OPTIONS,
+        modelValue: "Bank",
+        readonly: true,
+        "onUpdate:modelValue": (v: unknown) => got.push(v as string),
+      },
+    });
+    const button = buttonOf(container);
+    expect(button.getAttribute("aria-readonly")).toBe("true");
+    button.focus();
+    await userEvent.keyboard("{ArrowDown}c");
+    await userEvent.click(button);
+    expect(button.getAttribute("aria-expanded")).toBe("false");
+    expect(list()).toBeNull();
+    expect(got).toEqual([]);
+    expect(document.activeElement).toBe(button);
+  });
+
+  test("multiple chooses several, stays open, says how many and posts one value each", async () => {
+    const got: string[][] = [];
+    const { container } = await render(ESelect, {
+      props: {
+        label: "Pay",
+        name: "m",
+        options: OPTIONS,
+        multiple: true,
+        modelValue: [],
+        "onUpdate:modelValue": (v: unknown) => got.push(v as string[]),
+      },
+    });
+    const button = buttonOf(container);
+    await userEvent.click(button);
+    await opened(button);
+    await userEvent.click(optionEls()[0]!);
+    expect(got.at(-1)).toEqual(["Visa"]);
+    expect(list()).not.toBeNull();
+  });
+
+  test("multiple shows a count and a hidden input per value", async () => {
+    const { container } = await render(ESelect, {
+      props: { label: "Pay", name: "m", options: OPTIONS, multiple: true, modelValue: ["Visa", "Cash"] },
+    });
+    expect(buttonOf(container).textContent).toContain("2 selected");
+    expect(Array.from(container.querySelectorAll<HTMLInputElement>("input[type=hidden]")).map((i) => i.value)).toEqual([
+      "Visa",
+      "Cash",
+    ]);
+  });
+
+  test("clearable shows a clear button that empties the value and keeps focus on the button", async () => {
+    const got: string[] = [];
+    const { container } = await render(ESelect, {
+      props: {
+        label: "Pay",
+        options: OPTIONS,
+        modelValue: "Bank",
+        clearable: true,
+        "onUpdate:modelValue": (v: unknown) => got.push(v as string),
+      },
+    });
+    await page.getByRole("button", { name: "Clear" }).click();
+    expect(got).toEqual([""]);
+    expect(document.activeElement).toBe(buttonOf(container));
+  });
+
+  test("loading shows a spinner and sets aria-busy", async () => {
+    const { container } = await render(ESelect, { props: { label: "Pay", options: OPTIONS, loading: true } });
+    expect(buttonOf(container).getAttribute("aria-busy")).toBe("true");
+    expect(container.querySelector(".e-spinner, [role=status]")).not.toBeNull();
+  });
+
+  test("an option answers hover with a wash and a ring, and a disabled option does not", async () => {
+    const { container } = await render(ESelect, {
+      props: { label: "Pay", options: ["A", { value: "b", label: "B", disabled: true }] },
+    });
+    await userEvent.click(buttonOf(container));
+    const [a, b] = optionEls();
+    await userEvent.hover(a!);
+    await expect.poll(() => getComputedStyle(a!).boxShadow).not.toBe("none");
+    await userEvent.hover(b!);
+    expect(getComputedStyle(b!).boxShadow).toBe("none");
   });
 });

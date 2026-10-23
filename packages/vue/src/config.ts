@@ -1,5 +1,5 @@
 import { computed, inject, reactive, type ComputedRef, type InjectionKey } from "vue";
-import { defaultMessages, type MessageKey } from "./messages.js";
+import { defaultMessages, type MessageKey, type MessageVars } from "./messages.js";
 import type { Component } from "vue";
 import { phosphor, ICON_VIEWBOX, type IconMarkup } from "./icons/phosphor.js";
 import type { IconSource, IconsConfig } from "./icons/types.js";
@@ -11,7 +11,7 @@ export interface EosConfig {
   locale: string;
   /** ISO 4217 code, for amounts. */
   currency: string;
-  /** Text direction. `null` follows the document. */
+  /** Text direction. `null` follows the document, and the locale when `createEos` was given one (`ar` is right to left). Read the result with `useDir()`. */
   dir: "ltr" | "rtl" | null;
   /** Overrides for any message, by key. See `defaultMessages`. A message is a string, or a plural object when it takes a count `n`. */
   messages: Record<string, MessageValue>;
@@ -43,7 +43,13 @@ export type PluralMessage = Partial<Record<Intl.LDMLPluralRule, string>> & { oth
 /** A message is a string, or a `PluralMessage` chosen by the `n` passed to `t()`. */
 export type MessageValue = string | PluralMessage;
 
-export type Translate = (key: MessageKey | (string & {}), vars?: Record<string, string | number>) => string;
+type MessageValues = Record<string, string | number>;
+
+/** `t(key, vars)`. For a built-in key the editor suggests the variables its text uses; extra variables are allowed for overrides. */
+export type Translate = <K extends MessageKey | (string & {})>(
+  key: K,
+  vars?: K extends MessageKey ? Partial<Record<MessageVars<K>, string | number>> & MessageValues : MessageValues,
+) => string;
 
 function pluralForm(message: PluralMessage, locale: string, n: string | number | undefined): string {
   const count = Number(n);
@@ -62,7 +68,7 @@ function pluralForm(message: PluralMessage, locale: string, n: string | number |
  */
 export function useMessages(): Translate {
   const config = useConfig();
-  return (key, vars) => {
+  return (key, vars?: MessageValues) => {
     const found = config.messages[key] ?? (defaultMessages as Record<string, MessageValue>)[key] ?? key;
     const raw = typeof found === "string" ? found : pluralForm(found, config.locale, vars?.n);
     return vars ? raw.replace(/\{(\w+)\}/g, (m, k: string) => (vars[k] != null ? String(vars[k]) : m)) : raw;

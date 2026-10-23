@@ -57,6 +57,33 @@ describe("ESkeleton", () => {
     expect(el.getBoundingClientRect().height).toBe(16);
   });
 
+  test("lines draws that many text lines, the last one shorter", async () => {
+    const { container } = await render(
+      defineComponent({ render: () => h("div", { style: "width: 300px" }, [h(ESkeleton, { lines: 3 })]) }),
+    );
+    const lines = [...container.querySelectorAll(".e-skeleton-lines > .e-skel")].map((e) => e.getBoundingClientRect());
+    expect(lines).toHaveLength(3);
+    expect(lines[0]!.width).toBe(300);
+    expect(lines[2]!.width).toBe(180);
+    expect(lines[1]!.top - lines[0]!.bottom).toBeGreaterThan(0);
+    expect(container.querySelector(".e-skeleton-lines")!.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  test("text is a single full-width line", async () => {
+    const { container } = await render(ESkeleton, { props: { text: true } });
+    expect(container.querySelectorAll(".e-skel")).toHaveLength(1);
+    expect(container.querySelector(".e-skeleton")).toBeNull();
+  });
+
+  test("a label makes it a polite status region that is not hidden", async () => {
+    const { container } = await render(ESkeleton, { props: { label: "Loading invoices", lines: 2 } });
+    const root = container.firstElementChild!;
+    expect(root.getAttribute("role")).toBe("status");
+    expect(root.hasAttribute("aria-hidden")).toBe(false);
+    expect(root.querySelector(".e-sr")!.textContent).toBe("Loading invoices");
+    await expectNoViolations(container);
+  });
+
   test("attributes and styles fall through to the root", async () => {
     const { container } = await render(ESkeleton, { attrs: { "data-testid": "s", class: "mine" } });
     const el = container.querySelector(".e-skeleton")!;

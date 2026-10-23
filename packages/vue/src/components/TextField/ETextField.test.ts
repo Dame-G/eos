@@ -4,6 +4,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ETextField from "./ETextField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { expectPostingContract } from "../../../test/formPosting.js";
 
 describe("ETextField", () => {
   test("is a labelled text input: the label names it", async () => {
@@ -260,5 +261,90 @@ describe("ETextField", () => {
     expect(document.activeElement).toBe(input);
     await userEvent.keyboard("zzz");
     expect(input.value).toBe("abc");
+  });
+
+  test("autocomplete and maxlength are props that land on the input", async () => {
+    const { container } = await render(ETextField, { props: { label: "Email", autocomplete: "email", maxlength: 20 } });
+    const input = container.querySelector("input")!;
+    expect(input.getAttribute("autocomplete")).toBe("email");
+    expect(input.maxLength).toBe(20);
+  });
+
+  test("counter shows the length out of maxlength and is part of the input's description", async () => {
+    const { container } = await render(ETextField, {
+      props: { label: "Bio", counter: true, maxlength: 5, modelValue: "abc", hint: "Short" },
+    });
+    const count = container.querySelector(".e-field-count")!;
+    expect(count.textContent!.trim()).toBe("3 of 5 characters");
+    expect(count.hasAttribute("data-full")).toBe(false);
+    expect(container.querySelector("input")!.getAttribute("aria-describedby")!.split(" ")).toContain(count.id);
+    const full = await render(ETextField, { props: { label: "Bio", counter: true, maxlength: 3, modelValue: "abc" } });
+    expect(full.container.querySelector(".e-field-count")!.hasAttribute("data-full")).toBe(true);
+    const open = await render(ETextField, { props: { label: "Bio", counter: true, modelValue: "a" } });
+    expect(open.container.querySelector(".e-field-count")!.textContent!.trim()).toBe("1 character");
+  });
+
+  test("clearable shows a button only while there is text; it empties the input, emits clear and keeps focus", async () => {
+    let cleared = 0;
+    const model = ref("abc");
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(ETextField, {
+            label: "Name",
+            clearable: true,
+            modelValue: model.value,
+            "onUpdate:modelValue": (v: string) => (model.value = v),
+            onClear: () => cleared++,
+          }),
+      }),
+    );
+    await page.getByRole("button", { name: "Clear" }).click();
+    expect(model.value).toBe("");
+    expect(cleared).toBe(1);
+    expect(document.activeElement).toBe(container.querySelector("input"));
+    await nextTick();
+    expect(container.querySelector(".e-input-btn")).toBeNull();
+  });
+
+  test("no clear button while disabled or readonly", async () => {
+    const off = await render(ETextField, { props: { label: "A", clearable: true, modelValue: "x", disabled: true } });
+    expect(off.container.querySelector(".e-input-btn")).toBeNull();
+    const ro = await render(ETextField, { props: { label: "B", clearable: true, modelValue: "x", readonly: true } });
+    expect(ro.container.querySelector(".e-input-btn")).toBeNull();
+  });
+
+  test("loading shows a spinner in the box and sets aria-busy on the input", async () => {
+    const { container } = await render(ETextField, { props: { label: "City", loading: true } });
+    expect(container.querySelector(".e-input-wrap .e-input-spin")).not.toBeNull();
+    expect(container.querySelector("input")!.getAttribute("aria-busy")).toBe("true");
+  });
+
+  test("size changes the height: sm is shorter and lg taller than the default", async () => {
+    const height = async (size?: "sm" | "md" | "lg") => {
+      const { container } = await render(ETextField, { props: { label: "x", size } });
+      container.classList.add("e-root");
+      return container.querySelector("input")!.getBoundingClientRect().height;
+    };
+    const [sm, md, lg] = [await height("sm"), await height("md"), await height()];
+    expect(sm).toBeLessThan(md);
+    expect(md).toBe(48);
+    expect(await height("lg")).toBeGreaterThan(lg);
+  });
+
+  test("a boxed size keeps the clear button inside the box", async () => {
+    const { container } = await render(ETextField, {
+      props: { label: "x", size: "sm", clearable: true, modelValue: "a" },
+    });
+    container.classList.add("e-root");
+    const wrap = container.querySelector(".e-input-wrap")!.getBoundingClientRect();
+    const btn = container.querySelector(".e-input-btn")!.getBoundingClientRect();
+    expect(btn.height).toBeLessThan(wrap.height);
+    expect(btn.top).toBeGreaterThanOrEqual(wrap.top);
+    expect(btn.bottom).toBeLessThanOrEqual(wrap.bottom);
+  });
+
+  test("a disabled text field posts nothing, and a named one joins a form it is outside of", async () => {
+    await expectPostingContract(ETextField, { label: "Name", modelValue: "Ana" });
   });
 });

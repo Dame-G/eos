@@ -10,11 +10,16 @@ An icon-only button with a target as tall as the control height, for rows where 
 
 <!-- props:start -->
 
-| Prop       | Type       | Default      | Notes                                                                 |
-| ---------- | ---------- | ------------ | --------------------------------------------------------------------- |
-| `icon`     | `IconProp` | **Required** | The glyph.                                                            |
-| `label`    | `string`   | **Required** | The accessible name, phrased as an action such as "Download receipt". |
-| `disabled` | `boolean`  | `false`      | Disables the button.                                                  |
+| Prop       | Type                                                           | Default      | Notes                                                                                                                                                |
+| ---------- | -------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `icon`     | `IconProp`                                                     | **Required** | The glyph.                                                                                                                                           |
+| `label`    | `string`                                                       | **Required** | The accessible name, phrased as an action such as "Download receipt".                                                                                |
+| `variant`  | `"quiet" \| "primary" \| "secondary" \| "outline" \| "danger"` | `"quiet"`    | `quiet` has no fill and suits a row or a toolbar. The others are the `EButton` variants as a square.                                                 |
+| `size`     | `"sm" \| "md" \| "lg"`                                         | `"md"`       | `sm` is a compact square, `lg` a larger one. Every size keeps a 44px target.                                                                         |
+| `disabled` | `boolean`                                                      | `false`      | Disables the button.                                                                                                                                 |
+| `loading`  | `boolean`                                                      | `false`      | Shows a spinner in place of the icon and ignores clicks while an action runs. The button stays focusable, is marked busy and "Loading" is announced. |
+| `type`     | `"button" \| "submit" \| "reset"`                              | `"button"`   | `submit` submits a form.                                                                                                                             |
+| `tooltip`  | `boolean`                                                      | `false`      | Shows the label in a tooltip on hover and focus, for an icon that is not obvious.                                                                    |
 
 <!-- props:end -->
 
@@ -22,8 +27,9 @@ An icon-only button with a target as tall as the control height, for rows where 
 
 ## Accessibility
 
-- A `button` named by `label`. Pair it with `ETooltip` when the icon is not obvious.
-- Hover washes the button, press sinks it, and `aria-pressed="true"` draws it sunk for a toggle.
+- A `button` named by `label`. `tooltip` shows the label in an [`ETooltip`](../Tooltip/README.md) for an icon that is not obvious; attributes and listeners still land on the `button`.
+- Hover washes the quiet button, press sinks it, and `aria-pressed="true"` draws it sunk for a toggle. The other variants are the `EButton` ones as a square.
+- `loading` marks the button `aria-busy`, ignores clicks and announces "Loading".
 
 ## Keyboard
 

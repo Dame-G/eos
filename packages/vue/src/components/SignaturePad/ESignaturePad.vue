@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from "vue";
 import { useResizeObserver } from "@vueuse/core";
 import EIcon from "../Icon/EIcon.vue";
 import EButton from "../Button/EButton.vue";
+import EFieldMessage from "../Field/EFieldMessage.vue";
 import { useMessages } from "../../config.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
@@ -11,8 +12,16 @@ const props = withDefaults(
   defineProps<{
     /** The height of the drawing area in pixels. */
     height?: number;
+    /** Help that stays under the pad. */
+    hint?: string;
+    /** What to fix. Replaces the hint, marks the pad invalid (`aria-invalid`, a danger edge) and is announced. */
+    error?: string;
+    /** Adds "Required" to what screen readers hear with the pad. Nothing stops an empty pad from being submitted: check the value. */
+    required?: boolean;
     /** Ignores drawing and disables Clear. */
     disabled?: boolean;
+    /** Shows the signature but ignores drawing and disables Clear. */
+    readonly?: boolean;
     /** The id of the canvas. @default generated */
     id?: string;
   }>(),
@@ -116,7 +125,7 @@ function point(e: PointerEvent): Point {
 }
 
 function down(e: PointerEvent) {
-  if (props.disabled) return;
+  if (props.disabled || props.readonly) return;
   e.preventDefault();
   try {
     canvas.value!.setPointerCapture(e.pointerId);
@@ -201,15 +210,21 @@ defineExpose({
 
 <template>
   <div class="e-pad">
-    <div class="e-pad-surface" :data-empty="empty ? '' : undefined">
+    <div
+      class="e-pad-surface"
+      :data-empty="empty ? '' : undefined"
+      :data-invalid="error ? '' : undefined"
+      :data-readonly="readonly ? '' : undefined"
+    >
       <canvas
         :id="id"
         ref="canvas"
         class="e-pad-canvas"
-        :role="disabled ? 'img' : 'group'"
+        role="img"
         :style="{ height: `${height}px`, color: 'var(--e-ink)' }"
         :aria-label="t('drawSignature')"
-        :aria-describedby="`${id}-hint`"
+        :aria-invalid="error ? 'true' : undefined"
+        :aria-describedby="[`${id}-hint`, error || hint ? `${id}-msg` : ''].filter(Boolean).join(' ')"
         @pointerdown="down"
         @pointermove="move"
         @pointerup="up"
@@ -221,11 +236,14 @@ defineExpose({
       </span>
     </div>
     <div class="e-pad-foot">
-      <p :id="`${id}-hint`" class="e-field-hint">{{ t("signDrawHint") }}</p>
-      <EButton variant="quiet" icon="eraser" :disabled="empty || disabled" @click="clear">
+      <p :id="`${id}-hint`" class="e-field-hint">
+        <span v-if="required" class="e-sr">{{ t("required") }}. </span>{{ t("signDrawHint") }}
+      </p>
+      <EButton variant="quiet" icon="eraser" :disabled="empty || disabled || readonly" @click="clear">
         {{ t("signClear") }}
       </EButton>
     </div>
+    <EFieldMessage :id="`${id}-msg`" :error="error" :hint="hint" />
   </div>
 </template>
 
@@ -233,7 +251,7 @@ defineExpose({
 @layer e.composites {
   .e-pad {
     display: grid;
-    gap: var(--e-space-2);
+    gap: var(--e-gap-snug);
   }
 
   .e-pad-surface {
@@ -244,6 +262,10 @@ defineExpose({
     background: var(--e-surface);
     background-clip: padding-box;
     box-shadow: var(--e-well);
+  }
+
+  .e-pad-surface[data-invalid] {
+    border-color: var(--e-danger);
   }
 
   .e-pad-surface::after {
@@ -268,7 +290,7 @@ defineExpose({
     display: grid;
     place-content: center;
     justify-items: center;
-    gap: var(--e-space-2);
+    gap: var(--e-gap-snug);
     color: var(--e-muted);
     font: var(--e-weight-regular) var(--e-text-sm) / 1.4 var(--e-font-sans);
     pointer-events: none;
@@ -279,7 +301,7 @@ defineExpose({
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: var(--e-space-2) var(--e-space-4);
+    gap: var(--e-gap-snug) var(--e-gap-loose);
   }
 
   .e-pad-foot .e-field-hint {

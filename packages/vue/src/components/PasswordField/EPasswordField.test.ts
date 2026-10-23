@@ -4,6 +4,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EPasswordField from "./EPasswordField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { expectPostingContract } from "../../../test/formPosting.js";
 
 const rules = [
   { label: "10 characters", test: (v: string) => v.length >= 10 },
@@ -206,5 +207,19 @@ describe("EPasswordField", () => {
     await expectNoViolations(container);
     await page.getByRole("button", { name: "Show password" }).first().click();
     await expectNoViolations(container);
+  });
+
+  test("the reveal button is Show password with aria-pressed, and loading and size reach the box", async () => {
+    const { container } = await render(EPasswordField, { props: { size: "lg", loading: true } });
+    const toggle = container.querySelector(".e-reveal")!;
+    expect(toggle.getAttribute("aria-label")).toBe("Show password");
+    expect(toggle.getAttribute("aria-pressed")).toBe("false");
+    expect(container.querySelector(".e-input-wrap")!.getAttribute("data-size")).toBe("lg");
+    expect(container.querySelector(".e-input-spin")).not.toBeNull();
+    expect(container.querySelector("input")!.getAttribute("aria-busy")).toBe("true");
+  });
+
+  test("a disabled password field posts nothing", async () => {
+    await expectPostingContract(EPasswordField, { modelValue: "secret" });
   });
 });

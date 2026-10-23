@@ -13,6 +13,11 @@ describe("EKbd", () => {
     await expect.element(page.getByText("Esc")).toBeVisible();
   });
 
+  test("size sm is the small key", async () => {
+    const { container } = await render(EKbd, { props: { size: "sm" }, slots: { default: "/" } });
+    expect(container.querySelector("kbd")!.classList.contains("e-kbd--s")).toBe(true);
+  });
+
   test("is a bordered mono keycap, and small is smaller", async () => {
     const normal = await render(EKbd, { slots: { default: "/" } });
     const small = await render(EKbd, { props: { small: true }, slots: { default: "/" } });

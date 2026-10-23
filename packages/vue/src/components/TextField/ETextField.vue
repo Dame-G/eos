@@ -1,75 +1,85 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed } from "vue";
 import EField from "../Field/EField.vue";
-import { focusInside } from "../../composables/focusInside.js";
-import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import EFieldCount from "../Field/EFieldCount.vue";
+import EInputClear from "../Field/EInputClear.vue";
+import EInputShell from "../Field/EInputShell.vue";
+import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
+import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
 import "./input.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<{
-  /** The visible label above the input. A placeholder never replaces it. */
-  label: string;
-  /** Keeps the label for screen readers and hides it from the page. */
-  hideLabel?: boolean;
-  /** Help that stays under the input. */
-  hint?: string;
-  /** What to fix. Replaces the hint, marks the input invalid and is announced. */
-  error?: string;
-  /** An example, never the label. */
-  placeholder?: string;
-  /** The input type. @default "text" */
-  type?: string;
-  /** A unit before the value, such as `$`. Read as part of the input's description. */
-  prefix?: string;
-  /** A unit after the value, such as `USD`. Read as part of the input's description. */
-  suffix?: string;
-  /** Sets the `required` attribute and adds a word beside the label. */
-  required?: boolean;
-  /** Adds a word beside the label. Use it when most fields in the form are required. */
-  optional?: boolean;
-  /** Disables the field. */
-  disabled?: boolean;
-  /** Shows the value but blocks editing. The input stays focusable and selectable. */
-  readonly?: boolean;
-  /** The id of the input, which the label points at. @default generated */
-  id?: string;
+const props = defineProps<
+  EFieldCommonProps &
+    EFieldBoxProps & {
+      /** The visible label above the input. A placeholder never replaces it. */
+      label: string;
+      /** An example, never the label. */
+      placeholder?: string;
+      /** The input type. @default "text" */
+      type?: string;
+      /** A unit before the value, such as `$`. Read as part of the input's description. */
+      prefix?: string;
+      /** A unit after the value, such as `USD`. Read as part of the input's description. */
+      suffix?: string;
+      /** The name submitted with a form. */
+      name?: string;
+      /** Posts this under `name` instead of the text in the input, for an input that shows a formatted number and posts the plain one. The input itself is then not named. */
+      submitValue?: string;
+      /** What the browser may fill in (`email`, `given-name`, `off`). Set it on every personal detail (WCAG 1.3.5). */
+      autocomplete?: string;
+      /** The most characters the input takes. */
+      maxlength?: number;
+      /** Shows how many characters there are, out of `maxlength` when it is set. */
+      counter?: boolean;
+      /** Shows a button that empties the input while it has text. */
+      clearable?: boolean;
+    }
+>();
+
+const emit = defineEmits<{
+  /** The person pressed the clear button. The model is already empty. */
+  clear: [];
 }>();
 
 /** The text. */
 const model = defineModel<string>({ default: "" });
 
-const input = ref<HTMLInputElement | null>(null);
-const attrs = useFieldAttrs();
-/** The units, then the hint or error: a screen reader says "$" after the label, so the number is not a bare amount. */
-function describedBy(field: { id: string; ariaDescribedby: string | undefined }) {
-  const ids = [props.prefix && `${field.id}-prefix`, props.suffix && `${field.id}-suffix`, field.ariaDescribedby];
-  return ids.filter(Boolean).join(" ") || undefined;
-}
-function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }) {
+const control = useFieldControl(props);
+const input = control.input;
+/** A box around the input is only drawn when something sits beside it. */
+const boxed = computed(() => !!(props.prefix || props.suffix || props.clearable || props.loading));
+const canClear = computed(() => props.clearable && model.value !== "" && !props.disabled && !props.readonly);
+
+function inputBind(field: FieldSlot) {
   return {
-    id: field.id,
     class: "e-input",
     type: props.type || "text",
     placeholder: props.placeholder,
     value: model.value,
-    disabled: props.disabled,
-    readonly: props.readonly,
-    required: props.required,
-    "aria-invalid": field.ariaInvalid,
-    ...attrs.input(describedBy(field)),
+    autocomplete: props.autocomplete,
+    maxlength: props.maxlength,
+    name: props.submitValue === undefined ? props.name : undefined,
+    ...control.bind(field, [
+      props.prefix && `${field.id}-prefix`,
+      props.suffix && `${field.id}-suffix`,
+      props.counter && `${field.id}-count`,
+    ]),
   };
 }
-defineExpose({
-  input,
-  focus: () => input.value?.focus(),
-});
+function clear() {
+  model.value = "";
+  emit("clear");
+  input.value?.focus();
+}
+defineExpose(control.exposed);
 </script>
 
 <template>
   <EField
-    v-bind="attrs.wrapper()"
+    v-bind="control.attrs.wrapper()"
     :id="id"
     :label="label"
     :hide-label="hideLabel"
@@ -79,20 +89,17 @@ defineExpose({
     :optional="optional"
   >
     <template #default="field">
-      <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-      <div
-        v-if="prefix || suffix"
-        class="e-input-wrap"
-        :data-invalid="error ? '' : undefined"
-        :data-disabled="disabled ? '' : undefined"
-        :data-readonly="readonly ? '' : undefined"
-        @click="focusInside"
-      >
+      <EInputShell v-if="boxed" v-bind="control.shell(error)">
         <span v-if="prefix" :id="`${field.id}-prefix`" class="e-affix e-affix--pre">{{ prefix }}</span>
         <input ref="input" v-bind="inputBind(field)" @input="model = ($event.target as HTMLInputElement).value" />
+        <EInputClear v-if="canClear" @click="clear" />
         <span v-if="suffix" :id="`${field.id}-suffix`" class="e-affix e-affix--post">{{ suffix }}</span>
-      </div>
+      </EInputShell>
       <input v-else ref="input" v-bind="inputBind(field)" @input="model = ($event.target as HTMLInputElement).value" />
+      <input v-if="name && submitValue !== undefined" type="hidden" v-bind="control.hidden(name, submitValue)" />
+    </template>
+    <template v-if="counter" #aside="{ id: fieldId }">
+      <EFieldCount :id="`${fieldId}-count`" :count="model.length" :max="maxlength" />
     </template>
   </EField>
 </template>

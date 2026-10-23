@@ -22,18 +22,22 @@ const signed = ref<SignatureValue>({ method: "type", name: "", image: "", agreed
 | `agreement`  | `string`                     | `"I agree and want to sign this form."`                  | The sentence the person agrees to.                                                                                                                                               |
 | `date`       | `Date`                       | `today`                                                  | The date shown with the signature, in the configured locale.                                                                                                                     |
 | `hint`       | `string`                     | None                                                     | Help that is announced with the group.                                                                                                                                           |
-| `error`      | `string`                     | None                                                     | What to fix. Replaces the hint, marks the group invalid and is announced with the group.                                                                                         |
-| `disabled`   | `boolean`                    | `false`                                                  | Disables the fields and the agreement.                                                                                                                                           |
+| `error`      | `string`                     | None                                                     | What to fix. Replaces the hint, is announced and marks the typed-name input or the pad invalid.                                                                                  |
+| `required`   | `boolean`                    | `false`                                                  | Sets the `required` attribute on the typed-name input and shows a word beside the label.                                                                                         |
+| `disabled`   | `boolean`                    | `false`                                                  | Disables the fields and the agreement. A disabled field is not submitted.                                                                                                        |
+| `readonly`   | `boolean`                    | `false`                                                  | Shows the signature but blocks changes: the name, the pad, the switch and the agreement. It is still submitted.                                                                  |
 | `name`       | `string`                     | None                                                     | The name submitted with a form: the typed name, or the drawn image as a data URL.                                                                                                |
 | `id`         | `string`                     | `generated`                                              | The id of the typed-name input.                                                                                                                                                  |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `fieldset` element. Switching method clears the image and keeps the typed name. The `SignatureValue` type is exported.
+`class`, `style` and attributes land on the `fieldset` element. A disabled field is not submitted. Switching method clears the image and keeps the typed name. The `SignatureValue` type is exported.
 
 ## Accessibility
 
+- The group is a bare `EFieldset`: `hint` is announced with it. `error` replaces the hint and goes to the typed-name input (`aria-invalid`, alert) or to the pad, never onto the `fieldset`.
 - A drawn signature cannot be made from a keyboard, so use `mode="both"`.
+- `required` marks the typed-name input required; in `draw` mode the legend says "Required". `readonly` keeps everything visible and submitted but changes nothing, including the Type and Draw switch.
 - The typed-name preview beside the date is not a live region: it repeats what the person is typing, which the input already announces.
 - Signing needs a signature and the checked agreement: validate both before accepting the form.
 

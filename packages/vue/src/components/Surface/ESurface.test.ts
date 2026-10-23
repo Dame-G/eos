@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -112,6 +112,47 @@ describe("ESurface", () => {
       slots: { default: "Body", actions: () => "A" },
     });
     expect(container.querySelector(".e-surface--clip")).toBeNull();
+  });
+
+  test("clip with a bar warns in development", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await render(ESurface, { props: { clip: true }, slots: { default: "Body", actions: () => "A" } });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("clip"));
+    warn.mockRestore();
+  });
+
+  test("size sets the padding, and wins over small and large with a warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const pad = async (props: Record<string, unknown>) => {
+      const { container } = await render(ESurface, { props, slots: { default: "x" } });
+      return getComputedStyle(container.querySelector(".e-surface")!).paddingTop;
+    };
+    expect(await pad({ size: "sm" })).toBe(await pad({ small: true }));
+    expect(await pad({ size: "lg" })).toBe(await pad({ large: true }));
+    expect(warn.mock.calls.filter(([m]) => String(m).startsWith("[eos]"))).toEqual([]);
+    expect(await pad({ size: "md", large: true })).toBe(await pad({}));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("ESurface"));
+    warn.mockRestore();
+  });
+
+  test("padding takes a gap name, a space number or a length, on the body when there is a bar", async () => {
+    const { container } = await render(ESurface, { props: { padding: "section" }, slots: { default: "x" } });
+    expect(getComputedStyle(container.querySelector(".e-surface")!).paddingTop).toBe("24px");
+    const bar = await render(ESurface, { props: { padding: 2 }, slots: { default: "x", actions: () => "A" } });
+    expect(getComputedStyle(bar.container.querySelector(".e-surface-body")!).paddingTop).toBe("8px");
+    expect(getComputedStyle(bar.container.querySelector(".e-surface")!).paddingTop).toBe("0px");
+  });
+
+  test("outline has no fill and tone has a tint", async () => {
+    const bg = async (variant: "outline" | "tone" | "paper") => {
+      const { container } = await render(ESurface, { props: { variant }, slots: { default: "x" } });
+      return getComputedStyle(container.querySelector(".e-surface")!).backgroundColor;
+    };
+    const plain = await render(ESurface, { slots: { default: "x" } });
+    const base = getComputedStyle(plain.container.querySelector(".e-surface")!).backgroundColor;
+    expect(await bg("outline")).toBe("rgba(0, 0, 0, 0)");
+    expect(await bg("tone")).not.toBe(base);
+    expect(await bg("paper")).not.toBe(base);
   });
 
   test("in a Grid every card takes the tallest height, with the bar level at the foot", async () => {

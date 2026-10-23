@@ -1,46 +1,34 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import ENumberField from "../NumberField/ENumberField.vue";
+import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 import { useConfig } from "../../config.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
-  defineProps<{
-    /** The visible label. The symbol is decoration, so say what the amount is for. */
-    label: string;
-    /** Keeps the label for screen readers and hides it from the page. */
-    hideLabel?: boolean;
-    /** ISO 4217 code. An unknown code falls back to the configured currency's symbol. @default configured currency */
-    currency?: string;
-    /** BCP 47 tag used for the symbol. @default configured locale */
-    locale?: string;
-    /** The lowest value. Use a negative number to allow negative amounts. @default 0 */
-    min?: number;
-    /** The highest value. */
-    max?: number;
-    /** The size of one step of the buttons and arrow keys. Decimals shown follow the step. @default the currency's smallest unit (0.01 for dollars, 1 for yen) */
-    step?: number;
-    /** Replaces the currency symbol before the value. */
-    prefix?: string;
-    /** A unit after the value. */
-    suffix?: string;
-    /** The name submitted with a form (the number, or empty). */
-    name?: string;
-    /** Shows help text under the field. */
-    hint?: string;
-    /** Shows what to fix in place of the hint, marks the field invalid and is announced. */
-    error?: string;
-    /** Sets the `required` attribute and shows a word beside the label. */
-    required?: boolean;
-    /** Shows a word beside the label. Use it on whichever of required and optional is rarer. */
-    optional?: boolean;
-    /** Disables the field and its buttons. */
-    disabled?: boolean;
-    /** Shows the value but blocks editing. The input stays focusable and selectable. Both buttons and the keys that change the value do nothing. */
-    readonly?: boolean;
-    /** The `id` of the input, which the label points at. @default generated */
-    id?: string;
-  }>(),
+  defineProps<
+    EFieldCommonProps &
+      Pick<EFieldBoxProps, "size"> & {
+        /** The visible label. The symbol is decoration, so say what the amount is for. */
+        label: string;
+        /** ISO 4217 code. An unknown code falls back to the configured currency's symbol. @default configured currency */
+        currency?: string;
+        /** BCP 47 tag used for the symbol. @default configured locale */
+        locale?: string;
+        /** The lowest value. Use a negative number to allow negative amounts. @default 0 */
+        min?: number;
+        /** The highest value. */
+        max?: number;
+        /** The size of one step of the buttons and arrow keys. Decimals shown follow the step. @default the currency's smallest unit (0.01 for dollars, 1 for yen) */
+        step?: number;
+        /** Replaces the currency symbol before the value. */
+        prefix?: string;
+        /** A unit after the value. */
+        suffix?: string;
+        /** The name submitted with a form (the number, or empty). Posts nothing while disabled. */
+        name?: string;
+      }
+  >(),
   { min: 0 },
 );
 
@@ -105,6 +93,7 @@ defineExpose({
     :optional="optional"
     :disabled="disabled"
     :readonly="readonly"
+    :size="size"
   />
 </template>
 

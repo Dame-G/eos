@@ -30,8 +30,9 @@ describe("ESegmented", () => {
     await expect.element(page.getByRole("radio", { name: "Day" })).toBeChecked();
   });
 
-  test("an unset v-model is told the first option, so the model matches what is shown", async () => {
+  test("an unset v-model shows the first option without emitting, so a form stays clean", async () => {
     const model = ref<string | undefined>(undefined);
+    const got: unknown[] = [];
     await render(
       defineComponent({
         render: () =>
@@ -39,15 +40,22 @@ describe("ESegmented", () => {
             label: "View",
             options,
             modelValue: model.value,
-            "onUpdate:modelValue": (v?: string) => (model.value = v),
+            "onUpdate:modelValue": (v?: string) => {
+              got.push(v);
+              model.value = v;
+            },
           }),
       }),
     );
-    await expect.poll(() => model.value).toBe("Day");
     await expect.element(page.getByRole("radio", { name: "Day" })).toBeChecked();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(got).toEqual([]);
+    expect(model.value).toBeUndefined();
+    await page.getByRole("radio", { name: "Week" }).click();
+    expect(got).toEqual(["Week"]);
   });
 
-  test("the first option that can be chosen is the default", async () => {
+  test("the first option that can be chosen is shown as the default", async () => {
     const model = ref<string | undefined>(undefined);
     await render(
       defineComponent({
@@ -60,7 +68,31 @@ describe("ESegmented", () => {
           }),
       }),
     );
-    await expect.poll(() => model.value).toBe("B");
+    await expect.element(page.getByRole("radio", { name: "B" })).toBeChecked();
+    expect(model.value).toBeUndefined();
+  });
+
+  test("readonly keeps the choice and blocks changing it", async () => {
+    const got: string[] = [];
+    await render(ESegmented, {
+      props: {
+        label: "View",
+        options,
+        modelValue: "Week",
+        readonly: true,
+        "onUpdate:modelValue": (v: unknown) => got.push(v as string),
+      },
+    });
+    await expect.element(page.getByRole("radiogroup", { name: "View" })).toHaveAttribute("aria-readonly", "true");
+    await page.getByRole("radio", { name: "Day" }).click({ force: true });
+    expect(got).toEqual([]);
+    await expect.element(page.getByRole("radio", { name: "Week" })).toBeChecked();
+  });
+
+  test("required marks the group and its name", async () => {
+    await render(ESegmented, { props: { label: "View", options, required: true } });
+    const group = page.getByRole("radiogroup", { name: "View, Required" });
+    await expect.element(group).toHaveAttribute("aria-required", "true");
   });
 
   test("v-model gets the value, and the model picks the option", async () => {

@@ -3,6 +3,7 @@ import { computed } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
+import { useSize, type Size } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
 /** `ink` is another name for `neutral`, kept so existing code works. */
@@ -21,7 +22,9 @@ const props = defineProps<{
   icon?: IconProp;
   /** A date or day count, set after the word. */
   detail?: string;
-  /** Shorter, for rows and tables. */
+  /** `sm` is shorter, for rows and tables. */
+  size?: Exclude<Size, "lg">;
+  /** Shorter, for rows and tables. Same as `size="sm"`. */
   small?: boolean;
   /** Rubber-stamp ink for the one mark on a page that says a thing is final, such as PAID or VOID. Outlined, in `stamp-ink`. Use it once per screen. */
   final?: boolean;
@@ -46,6 +49,7 @@ const PRESETS: Record<StampStatus, StampTone> = {
 };
 
 const t = useMessages();
+const size = useSize(props, "EStamp");
 const preset = computed(() => (props.status ? PRESETS[props.status] : undefined));
 const tone = computed<StampTone>(() => props.tone || preset.value || "neutral");
 const toneClass = computed(() => (tone.value === "neutral" || tone.value === "ink" ? null : `e-stamp--${tone.value}`));
@@ -53,8 +57,8 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
 </script>
 
 <template>
-  <span class="e-stamp" :class="[toneClass, small && 'e-stamp--sm', final && 'e-stamp--final']">
-    <EIcon v-if="icon" :name="icon" bold />
+  <span class="e-stamp" :class="[toneClass, size === 'sm' && 'e-stamp--sm', final && 'e-stamp--final']">
+    <EIcon v-if="icon" :name="icon" size="sm" />
     <span class="e-stamp-word"
       ><slot>{{ text }}</slot></span
     >
@@ -67,20 +71,17 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
   .e-stamp {
     --_fill: var(--e-ink);
     --_on: var(--e-surface);
-    --_tracking: 0.1em;
 
     display: inline-flex;
     flex-wrap: nowrap;
     white-space: nowrap;
     align-items: center;
-    gap: var(--e-space-2);
-    min-height: calc(var(--e-chip-height) + var(--e-space-1));
-    padding: 0 var(--e-space-3);
+    gap: var(--e-gap-snug);
+    min-height: calc(var(--e-chip-height) + var(--e-gap-tight));
+    padding: 0 var(--e-pad-chip);
     border-radius: var(--e-radius-sm);
     background: var(--_fill);
     color: var(--_on);
-    cursor: default;
-    justify-self: start;
   }
 
   .e-stamp--success {
@@ -100,7 +101,7 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
 
   .e-stamp--warning {
     --_fill: var(--e-warning);
-    --_on: var(--e-surface);
+    --_on: var(--e-on-warning);
   }
 
   /* The ink is a ring, not a fill, so it reads as pressed onto the page. */
@@ -111,33 +112,21 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
   }
 
   .e-stamp-word {
-    font: var(--e-weight-strong) var(--e-text-xs) / calc(4 / 3) var(--e-font-mono);
-    letter-spacing: var(--_tracking);
+    font: var(--e-type-kicker);
+    letter-spacing: var(--e-tracking-label);
     text-transform: uppercase;
   }
 
   .e-stamp-detail {
-    font: var(--e-weight-medium) var(--e-text-xs) / 1 var(--e-font-mono);
-    letter-spacing: 0.04em;
-    padding-inline-start: var(--e-space-2);
+    font: var(--e-weight-medium) var(--e-text-xs) / var(--e-leading-none) var(--e-font-mono);
+    letter-spacing: var(--e-tracking-wide);
+    padding-inline-start: var(--e-gap-snug);
     border-inline-start: var(--e-stroke-hair) solid color-mix(in srgb, currentcolor 55%, transparent);
   }
 
-  .e-stamp .e-icon {
-    width: var(--e-icon-size-sm);
-    height: var(--e-icon-size-sm);
-  }
-
   .e-stamp--sm {
-    --_tracking: 0.06em;
-
     min-height: var(--e-chip-height);
-    gap: var(--e-space-1);
-    align-self: flex-start;
-  }
-
-  .e-stamp--sm .e-stamp-word {
-    line-height: calc(14 / 12);
+    gap: var(--e-gap-tight);
   }
 
   @media (forced-colors: active) {

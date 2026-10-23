@@ -7,11 +7,11 @@ import { expectNoViolations } from "../../../test/axe.js";
 const cell = (text: string, style: Record<string, string> = {}) => h("div", { class: "cell", style }, text);
 
 describe("EGrid", () => {
-  test("sets --_gap (default space 4) and --_min (default 16rem)", async () => {
+  test("sets --_gap (default the loose gap) and --_min (default 16rem)", async () => {
     const { container } = await render(EGrid, { slots: { default: () => cell("a") } });
     const el = container.firstElementChild as HTMLElement;
     expect(el.className).toBe("e-grid-layout");
-    expect(el.style.getPropertyValue("--_gap")).toBe("var(--e-space-4)");
+    expect(el.style.getPropertyValue("--_gap")).toBe("var(--e-gap-loose)");
     expect(el.style.getPropertyValue("--_min")).toBe("16rem");
   });
 

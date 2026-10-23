@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue";
+import EFieldFlag from "../Field/EFieldFlag.vue";
 import EFieldMessage from "../Field/EFieldMessage.vue";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useUid } from "../../composables/useUid.js";
+import { keepIfReadonly, useChoiceMessage } from "./useChoiceMessage.js";
 import "../../styles/base.css";
 import "./choice.css";
 
@@ -15,13 +17,19 @@ const props = defineProps<{
   description?: string;
   /** A mixed state, such as select-all with some rows chosen. */
   indeterminate?: boolean;
-  /** Hides the label from the page and keeps it for screen readers, for a table cell. It shows no error text. */
+  /** Hides the label from the page and keeps it for screen readers, for a table cell. It shows no hint or error text. */
   bare?: boolean;
   /** Disables the checkbox. It cannot take focus and is not submitted. */
   disabled?: boolean;
-  /** Sets the `required` attribute. */
+  /** Shows the state but blocks changing it. The box stays focusable and is still submitted. */
+  readonly?: boolean;
+  /** Sets the `required` attribute and shows "Required" beside the label. */
   required?: boolean;
-  /** Shows what to fix under the row and sets `aria-invalid`. */
+  /** Shows "Optional" beside the label. Only the rarer of required and optional needs a flag. */
+  optional?: boolean;
+  /** Help under the row, linked with `aria-describedby`. */
+  hint?: string;
+  /** Shows what to fix under the row, in place of the hint, and sets `aria-invalid`. */
   error?: string;
   /** The name submitted with a form. */
   name?: string;
@@ -35,16 +43,13 @@ const props = defineProps<{
 const model = defineModel<boolean>({ default: false });
 
 const id = useUid(() => props.id);
-const errorId = computed(() => `${id.value}-hint`);
 const descId = computed(() => `${id.value}-desc`);
-const shownError = computed(() => (props.bare ? undefined : props.error));
+const message = computed(() => (props.bare ? {} : { hint: props.hint, error: props.error }));
+const { messageId, describedBy } = useChoiceMessage(id, message);
 const shownDescription = computed(() => (props.bare ? undefined : props.description));
-const describedBy = computed(
-  () =>
-    [shownError.value && errorId.value, shownDescription.value && descId.value].filter(Boolean).join(" ") || undefined,
-);
 const input = ref<HTMLInputElement | null>(null);
 const attrs = useFieldAttrs();
+const guard = keepIfReadonly(() => props.readonly);
 
 watch(
   () => [props.indeterminate, input.value] as const,
@@ -63,8 +68,9 @@ const inputBind = () => ({
   required: props.required,
   disabled: props.disabled,
   name: props.name,
+  "aria-readonly": props.readonly ? ("true" as const) : undefined,
   "aria-invalid": props.error ? ("true" as const) : undefined,
-  ...attrs.input(describedBy.value),
+  ...attrs.input(describedBy(shownDescription.value && descId.value)),
 });
 
 // A click clears the native mixed state and checks the box. The props stay the truth: put both back once the parent has answered.
@@ -86,15 +92,18 @@ defineExpose({
 <template>
   <div class="e-choice-wrap" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
     <label class="e-choice" :class="{ 'e-choice--bare': bare, 'e-choice--disabled': disabled }" :for="id">
-      <input ref="input" v-bind="inputBind()" @change="onChange" />
+      <input ref="input" v-bind="inputBind()" @click="guard" @change="onChange" />
       <span v-if="bare" class="e-sr">{{ label }}</span>
       <span v-else class="e-choice-text">
-        {{ label }}
+        <span class="e-choice-label">
+          {{ label }}
+          <EFieldFlag :required="required" :optional="optional" />
+        </span>
         <!-- Visible under the label, but kept out of its accessible name: the input points at it with aria-describedby. -->
         <span v-if="shownDescription" :id="descId" class="e-choice-desc" aria-hidden="true">{{ description }}</span>
       </span>
     </label>
-    <EFieldMessage v-if="shownError" :id="errorId" :error="shownError" />
+    <EFieldMessage v-if="!bare" :id="messageId" :error="error" :hint="hint" />
   </div>
 </template>
 
@@ -111,8 +120,10 @@ defineExpose({
     display: grid;
   }
 
+  /* The row keeps its 48px tap height, so the message pulls up to sit gap-snug under the box. */
+  .e-choice-wrap > .e-field-hint,
   .e-choice-wrap > .e-field-error {
-    margin-top: calc(var(--e-space-1) - var(--e-space-2) - var(--e-stroke-focus));
+    margin-block-start: calc(var(--e-gap-tight) - var(--e-gap-snug) - var(--e-stroke-focus));
   }
 }
 </style>

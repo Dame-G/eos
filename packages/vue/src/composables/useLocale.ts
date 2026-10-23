@@ -30,6 +30,7 @@ const MONTHS = [
   "December",
 ];
 const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const RTL = /^(ar|he|fa|ur|yi|ps|sd|ug|dv)(-|$)/i;
 const cache = new Map<string, LocaleInfo>();
 
 function build(locale: string): LocaleInfo {
@@ -79,24 +80,33 @@ function build(locale: string): LocaleInfo {
       weekStart: week?.firstDay ? week.firstDay % 7 : 0,
       order: order.length === 3 ? order : ["month", "day", "year"],
       separator: literal || "/",
-      rtl: text?.direction ? text.direction === "rtl" : /^(ar|he|fa|ur|yi|ps|sd|ug|dv)(-|$)/i.test(locale),
+      rtl: text?.direction ? text.direction === "rtl" : RTL.test(locale),
       long: new Intl.DateTimeFormat(locale, { weekday: "long", month: "long", day: "numeric", year: "numeric" }),
     };
   } catch {
-    info = {
-      months: MONTHS,
-      monthsShort: MONTHS.map((n) => n.slice(0, 3)),
-      weekdays: WEEKDAYS,
-      weekdaysShort: WEEKDAYS.map((n) => n.slice(0, 2)),
-      weekStart: 0,
-      order: ["month", "day", "year"],
-      separator: "/",
-      rtl: false,
-      long: null,
-    };
+    // An unknown tag makes Intl throw; English names from Intl are still better than the constants, which are for runtimes with no Intl.
+    const english = locale === "en-US" ? undefined : build("en-US");
+    info = english
+      ? { ...english, rtl: RTL.test(locale) }
+      : {
+          months: MONTHS,
+          monthsShort: MONTHS.map((n) => n.slice(0, 3)),
+          weekdays: WEEKDAYS,
+          weekdaysShort: WEEKDAYS.map((n) => n.slice(0, 2)),
+          weekStart: 0,
+          order: ["month", "day", "year"],
+          separator: "/",
+          rtl: RTL.test(locale),
+          long: null,
+        };
   }
   cache.set(locale, info);
   return info;
+}
+
+/** The text direction a locale is written in: `"rtl"` for Arabic, Hebrew, Persian and the like, else `"ltr"`. */
+export function localeDirection(locale: string): "ltr" | "rtl" {
+  return build(locale).rtl ? "rtl" : "ltr";
 }
 
 const pad2 = (n: number) => (n < 10 ? "0" : "") + n;

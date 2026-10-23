@@ -1,19 +1,38 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useSize, type Size } from "../../composables/useSize.js";
 import "../../styles/base.css";
+
+export type TextTone = "muted" | "info" | "success" | "warning" | "danger";
 
 const props = withDefaults(
   defineProps<{
-    /** Smaller text, for captions and fine print. `textScale` rescales it. */
+    /** `sm` for captions and fine print, `lg` for the one-sentence reading of a statement. `textScale` rescales both. */
+    size?: Size;
+    /** Smaller text. Same as `size="sm"`. */
     small?: boolean;
-    /** Larger text, for the one-sentence reading of a statement. `textScale` rescales it. */
+    /** Larger text. Same as `size="lg"`. */
     large?: boolean;
-    /** Secondary copy, in the muted colour. */
+    /** Secondary copy, in the muted colour. Same as `tone="muted"`. */
     muted?: boolean;
+    /** The colour of the text. Left out, it is the ink colour. */
+    tone?: TextTone;
+    /** Aligns the lines. `start` and `end` follow the writing direction. */
+    align?: "start" | "center" | "end";
+    /** The weight, instead of the regular one. */
+    weight?: "medium" | "strong";
+    /** Sets the text in the mono font, for codes and amounts. */
+    mono?: boolean;
+    /** Keeps the text to one line and ends it with an ellipsis where it does not fit. Give the element a width to cut it to. */
+    truncate?: boolean;
+    /** Cuts the text after this many lines with an ellipsis. */
+    lines?: number;
+    /** Caps the line at the reading measure (`--e-measure`). `false` lets it fill its cell, as in a flex or grid layout. */
+    measure?: boolean;
     /** The element to render. */
     as?: string;
   }>(),
-  { as: "p" },
+  { as: "p", measure: true },
 );
 
 defineSlots<{
@@ -21,39 +40,68 @@ defineSlots<{
   default(): unknown;
 }>();
 
-const sizes = computed(() => [
-  props.small && "e-text--small",
-  props.large && "e-text--large",
-  props.muted && "e-text--muted",
-]);
+const size = useSize(props, "EText");
+const tone = computed(() => props.tone ?? (props.muted ? "muted" : undefined));
+const style = computed(() => ({
+  "--_tone": tone.value && `var(--e-${tone.value})`,
+  "--_measure": props.measure ? undefined : "none",
+  "--_lines": props.lines,
+  textAlign: props.align,
+  fontWeight: props.weight && `var(--e-weight-${props.weight})`,
+}));
 </script>
 
 <template>
-  <component :is="as" class="e-text" :class="sizes"><slot /></component>
+  <component
+    :is="as"
+    class="e-text"
+    :class="[
+      size === 'sm' && 'e-text--small',
+      size === 'lg' && 'e-text--large',
+      tone === 'muted' && 'e-text--muted',
+      mono && 'e-text--mono',
+      truncate && 'e-text--truncate',
+      lines && 'e-text--clamp',
+    ]"
+    :style="style"
+  >
+    <slot />
+  </component>
 </template>
 
 <style>
 @layer e.primitives {
   .e-text {
     margin: 0;
-    max-width: var(--e-measure);
-    font: var(--e-weight-regular) var(--e-text-md) / 1.5 var(--e-font-sans);
-    color: var(--e-ink);
+    max-width: var(--_measure, var(--e-measure));
+    font: var(--e-type-body);
+    color: var(--_tone, var(--e-ink));
     text-wrap: pretty;
   }
 
   .e-text--large {
-    font-size: var(--e-text-lg);
-    line-height: calc(26 / 18);
+    font: var(--e-type-deck);
   }
 
   .e-text--small {
-    font-size: var(--e-text-sm);
-    line-height: calc(20 / 14);
+    font: var(--e-type-small);
   }
 
-  .e-text--muted {
-    color: var(--e-muted);
+  .e-text--mono {
+    font-family: var(--e-font-mono);
+  }
+
+  .e-text--truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .e-text--clamp {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--_lines);
   }
 }
 </style>

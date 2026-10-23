@@ -1,23 +1,24 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useGap, type GapToken } from "../Stack/gap.js";
 import "../../styles/base.css";
-
-export type InlineGap = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 10 | 12 | 16;
 
 const props = withDefaults(
   defineProps<{
     /** The element to render, for example `ul`. */
     as?: string;
-    /** A space token number (1 to 8, 10, 12 or 16) becomes `var(--e-space-N)`. A string is used as given, so any CSS length works. */
-    gap?: InlineGap | string;
+    /** `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. */
+    gap?: GapToken | string;
     /** Main-axis placement. `between` spreads the children apart. Left out, they sit at the start. */
     justify?: "start" | "center" | "end" | "between";
     /** Cross-axis alignment. `start` aligns the top edges and `baseline` aligns the text baselines. Left out, the children are centred. */
     align?: "start" | "center" | "end" | "stretch" | "baseline";
-    /** Keeps the children on one line instead of wrapping. */
+    /** Wraps the children onto further lines when they run out of room. `false` keeps them on one line. */
+    wrap?: boolean;
+    /** Deprecated: use `:wrap="false"`. */
     nowrap?: boolean;
   }>(),
-  { as: "div", gap: 2 },
+  { as: "div", gap: "snug", wrap: true },
 );
 
 defineSlots<{
@@ -25,15 +26,16 @@ defineSlots<{
   default(): unknown;
 }>();
 
-const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-${props.gap})` : props.gap));
+const gapCss = useGap(() => props.gap);
+const single = computed(() => !props.wrap || props.nowrap);
 </script>
 
 <template>
   <component
     :is="as"
     class="e-inline"
-    :class="[nowrap && 'e-inline--nowrap', justify && `e-inline--j-${justify}`, align && `e-inline--a-${align}`]"
-    :style="{ '--_gap': gapValue }"
+    :class="[single && 'e-inline--nowrap', justify && `e-inline--j-${justify}`, align && `e-inline--a-${align}`]"
+    :style="{ '--_gap': gapCss }"
   >
     <slot />
   </component>
@@ -45,7 +47,7 @@ const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--_gap, var(--e-space-2));
+    gap: var(--_gap, var(--e-gap-snug));
     min-width: 0;
   }
 

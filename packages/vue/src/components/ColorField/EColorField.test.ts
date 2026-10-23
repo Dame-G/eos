@@ -4,6 +4,7 @@ import { render } from "vitest-browser-vue";
 import EColorField from "./EColorField.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
+import { expectPostingContract } from "../../../test/formPosting.js";
 
 describe("EColorField", () => {
   test("is a labelled text box with a swatch beside it", async () => {
@@ -117,5 +118,18 @@ describe("EColorField", () => {
       props: { label: "Brand colour", modelValue: "#2c95b4", hint: "A hint" },
     });
     await expectNoViolations(container);
+  });
+
+  test("a disabled colour posts nothing, and a named one joins a form it is outside of", async () => {
+    await expectPostingContract(EColorField, { label: "Brand", modelValue: "#2c95b4" });
+  });
+
+  test("a click on the padding focuses the text box, but the swatch keeps its own click", async () => {
+    const { container } = await render(EColorField, { props: { label: "Brand", modelValue: "#2c95b4" } });
+    (container.querySelector(".e-input-wrap") as HTMLElement).click();
+    expect(document.activeElement).toBe(container.querySelector("input[type=text]"));
+    (document.activeElement as HTMLElement).blur();
+    (container.querySelector(".e-color-swatch") as HTMLElement).click();
+    expect(document.activeElement).not.toBe(container.querySelector("input[type=text]"));
   });
 });

@@ -1,77 +1,44 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import "../../styles/base.css";
+import "./skeleton.css";
 
 const props = defineProps<{
-  /** A number is in px and a string is any CSS length. @default 96 */
+  /** A number is in px and a string is any CSS length. Ignored with `lines` or `text`. @default 96 */
   height?: number | string;
   /** Same units as `height`. @default full width */
   width?: number | string;
   /** A round block, for a photo. The width follows `height`. */
   circle?: boolean;
+  /** Draws this many lines of text, the last one shorter, instead of a block. */
+  lines?: number;
+  /** One line of text. Same as `lines` of 1. */
+  text?: boolean;
+  /** Names what is loading. The skeleton becomes a polite `status` region that reads this, instead of being hidden from screen readers. */
+  label?: string;
 }>();
 
 const px = (v: number | string) => (typeof v === "number" ? `${v}px` : v);
+const count = computed(() => props.lines ?? (props.text ? 1 : 0));
 const size = computed(() => ({
   height: px(props.height ?? 96),
   ...(props.width != null ? { width: px(props.width) } : {}),
 }));
+const style = computed(() =>
+  count.value ? (props.width != null ? { width: px(props.width) } : undefined) : size.value,
+);
 </script>
 
 <template>
-  <div class="e-skeleton" :class="{ 'e-skeleton--circle': circle }" :style="size" aria-hidden="true"></div>
+  <div
+    :class="count ? 'e-skeleton-lines' : ['e-skeleton', circle && 'e-skeleton--circle']"
+    :style="style"
+    :role="label ? 'status' : undefined"
+    :aria-hidden="label ? undefined : 'true'"
+  >
+    <span v-if="label" class="e-sr">{{ label }}</span>
+    <template v-if="count">
+      <span v-for="n in count" :key="n" class="e-skel" aria-hidden="true"></span>
+    </template>
+  </div>
 </template>
-
-<style>
-@layer e.primitives {
-  /* The one owner of the loading placeholder: `.e-skeleton` is the block and `.e-skel` the line of text a table cell or list row uses. No container or outline: a faint neutral tint with the same diagonal stripes as a busy button and the progress bar, pulsing. */
-  .e-skeleton,
-  .e-skel {
-    display: block;
-    background-color: var(--e-skeleton);
-    background-image: repeating-linear-gradient(
-      135deg,
-      transparent 0 var(--e-space-2),
-      var(--e-wash-hover) var(--e-space-2) var(--e-space-4)
-    );
-    animation: e-pulse var(--e-duration-loop) var(--e-easing-standard) infinite;
-  }
-
-  .e-skeleton {
-    width: 100%;
-    border-radius: var(--e-radius-md);
-  }
-
-  .e-skel {
-    height: var(--e-space-4);
-    border-radius: var(--e-radius-sm);
-  }
-
-  .e-skeleton--circle {
-    width: auto;
-    aspect-ratio: 1;
-    border-radius: 50%;
-  }
-
-  @keyframes e-pulse {
-    50% {
-      opacity: 0.5;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-skel,
-    .e-skeleton {
-      animation: none;
-    }
-  }
-
-  @media (forced-colors: active) {
-    .e-skel,
-    .e-skeleton {
-      forced-color-adjust: none;
-      background: GrayText;
-    }
-  }
-}
-</style>

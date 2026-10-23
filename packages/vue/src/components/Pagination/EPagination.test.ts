@@ -208,4 +208,22 @@ describe("EPagination", () => {
     );
     await expectNoViolations(container);
   });
+
+  test("the current page is a slab drawn with the border, as tall as the other pages", async () => {
+    const { container } = await render(EPagination, { props: { pageCount: 5, modelValue: 2 } });
+    container.classList.add("e-root");
+    const current = container.querySelector<HTMLElement>(".e-page[aria-current=page]")!;
+    const other = container.querySelector<HTMLElement>(".e-page:not([aria-current])")!;
+    const cs = getComputedStyle(current);
+    expect(cs.boxShadow).toBe("none");
+    expect(parseFloat(cs.borderBottomWidth)).toBeGreaterThan(parseFloat(cs.borderTopWidth));
+    expect(current.getBoundingClientRect().height).toBe(other.getBoundingClientRect().height);
+  });
+
+  test("Next has its chevron after the label", async () => {
+    const { container } = await render(EPagination, { props: { pageCount: 5 } });
+    const next = [...container.querySelectorAll<HTMLElement>(".e-btn")].at(-1)!;
+    expect(next.lastElementChild!.matches("svg.e-icon")).toBe(true);
+    expect(next.innerHTML.indexOf("Next")).toBeLessThan(next.innerHTML.indexOf("<svg"));
+  });
 });

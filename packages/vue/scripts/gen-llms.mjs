@@ -1,5 +1,6 @@
-// Writes dist/llms.txt (an index) and dist/llms-full.txt (every README in one file) for AI coding assistants,
-// following https://llmstxt.org. Both are built from the READMEs, so they never drift from the docs.
+// Writes dist/llms.txt (an index), dist/llms-full.txt (every README in one file) and dist/llms/<Name>.txt (one component's
+// README each, for an assistant that should not load 300 kB) for AI coding assistants, following https://llmstxt.org.
+// All are built from the READMEs, so they never drift from the docs.
 //
 //   node scripts/gen-llms.mjs
 
@@ -68,7 +69,7 @@ const index = [
   "",
   `> ${tagline}`,
   "",
-  "Every component is a Vue 3 single-file component named `E` plus its name (`EButton`, `ETextField`). All CSS lives in the cascade layers `e.*`, so your own styles win without `!important`. Every component and composable is exported from `@eos-ui/vue`; import `@eos-ui/vue/style.css` once. Use `llms-full.txt` for the complete documentation in one file.",
+  "Every component is a Vue 3 single-file component named `E` plus its name (`EButton`, `ETextField`). All CSS lives in the cascade layers `e.*`, so your own styles win without `!important`. Every component and composable is exported from `@eos-ui/vue`; import `@eos-ui/vue/style.css` once. Use `llms-full.txt` for the complete documentation in one file, or the per-component files under `llms/` (listed below) to load one component at a time.",
   "",
   "## Guides",
   "",
@@ -77,6 +78,10 @@ const index = [
   "## Components",
   "",
   ...entries.map((e) => `- [${e.title}](${base}/packages/vue/src/components/${e.folder}/README.md): ${e.summary}`),
+  "",
+  "## Per-component files",
+  "",
+  ...entries.map((e) => `- [${e.title}](llms/${e.title}.txt)`),
   "",
   "## Optional",
   "",
@@ -101,4 +106,12 @@ const full = [
 mkdirSync(dist, { recursive: true });
 writeFileSync(join(dist, "llms.txt"), index);
 writeFileSync(join(dist, "llms-full.txt"), full);
-console.log(`llms.txt: ${entries.length} components, ${sections.length} guides (${full.length} bytes full)`);
+mkdirSync(join(dist, "llms"), { recursive: true });
+for (const e of entries)
+  writeFileSync(
+    join(dist, "llms", `${e.title}.txt`),
+    absolutise(e.markdown, `packages/vue/src/components/${e.folder}`) + "\n",
+  );
+console.log(
+  `llms.txt: ${entries.length} components, ${sections.length} guides (${full.length} bytes full, ${entries.length} per-component files)`,
+);

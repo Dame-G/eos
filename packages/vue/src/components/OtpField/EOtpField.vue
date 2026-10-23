@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from "vue";
 import EField from "../Field/EField.vue";
-import type { EFieldCommonProps } from "../Field/fieldProps.js";
+import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
-import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import { useFieldControl } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
 
@@ -11,20 +11,21 @@ defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
   defineProps<
-    EFieldCommonProps & {
-      /** The field's label. @default "Verification code" */
-      label?: string;
-      /** How many characters: the number of boxes. */
-      length?: number;
-      /** `numeric` opens the number pad and `text` takes letters and digits, upper-cased. */
-      inputmode?: "numeric" | "text";
-      /** The number of boxes in each group, with a gap between groups. A `length` of 6 with 3 reads 123 456. */
-      groupSize?: number;
-      /** The name submitted with a form (the whole code), through a hidden input. */
-      name?: string;
-      /** Focuses the first empty box when the field mounts. */
-      autoFocus?: boolean;
-    }
+    EFieldCommonProps &
+      Pick<EFieldBoxProps, "size"> & {
+        /** The field's label. @default "Verification code" */
+        label?: string;
+        /** How many characters: the number of boxes. */
+        length?: number;
+        /** `numeric` opens the number pad and `text` takes letters and digits, upper-cased. */
+        inputmode?: "numeric" | "text";
+        /** The number of boxes in each group, with a gap between groups. A `length` of 6 with 3 reads 123 456. */
+        groupSize?: number;
+        /** The name submitted with a form (the whole code), through a hidden input. Posts nothing while disabled. */
+        name?: string;
+        /** Focuses the first empty box when the field mounts. */
+        autoFocus?: boolean;
+      }
   >(),
   { length: 6, inputmode: "numeric", groupSize: 0 },
 );
@@ -38,7 +39,8 @@ const emit = defineEmits<{
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
-const attrs = useFieldAttrs();
+const control = useFieldControl(props);
+const attrs = control.attrs;
 const numeric = computed(() => props.inputmode !== "text");
 const refs: (HTMLInputElement | null)[] = [];
 
@@ -66,6 +68,7 @@ function focusAt(i: number) {
 }
 const without = (v: string, i: number) => v.slice(0, i) + v.slice(i + 1);
 function put(i: number, text: string) {
+  if (props.readonly) return;
   const chars = clean(text);
   if (!chars) return;
   const from = chars.length >= props.length ? 0 : Math.min(i, live.length);
@@ -74,6 +77,10 @@ function put(i: number, text: string) {
 }
 function onInput(i: number, e: Event) {
   const target = e.target as HTMLInputElement;
+  if (props.readonly) {
+    target.value = live[i] ?? "";
+    return;
+  }
   const v = live;
   let raw = target.value;
   if (!raw) {
@@ -98,7 +105,9 @@ function onInput(i: number, e: Event) {
 function onKey(i: number, e: KeyboardEvent) {
   const v = live;
   const k = e.key;
-  if (k === "Backspace") {
+  if (props.readonly && (k === "Backspace" || k === "Delete")) {
+    e.preventDefault();
+  } else if (k === "Backspace") {
     e.preventDefault();
     if (v[i]) {
       commit(without(v, i));
@@ -171,7 +180,9 @@ defineExpose({
             :spellcheck="false"
             :value="value[i - 1] || ''"
             :disabled="disabled"
+            :readonly="readonly"
             :required="required"
+            :data-size="size && size !== 'md' ? size : undefined"
             :data-filled="value[i - 1] ? '' : undefined"
             :aria-label="t(numeric ? 'otpDigit' : 'otpChar', { n: i, total: length })"
             :aria-invalid="field.ariaInvalid"
@@ -181,7 +192,7 @@ defineExpose({
             @paste="onPaste(i - 1, $event)"
           />
         </template>
-        <input v-if="name" type="hidden" :name="name" :value="value" />
+        <input v-if="name" type="hidden" v-bind="control.hidden(name, value)" />
       </div>
     </template>
   </EField>
@@ -192,23 +203,23 @@ defineExpose({
   .e-otp {
     display: flex;
     align-items: center;
-    gap: var(--e-space-2);
+    gap: var(--e-gap-snug);
     max-width: 100%;
   }
 
   .e-otp-sep {
     flex: none;
-    width: var(--e-space-3);
+    width: var(--e-gap-base);
   }
 
   .e-otp .e-otp-box {
     flex: 1 1 0;
     width: 0;
     min-width: var(--e-space-8);
-    max-width: var(--e-control-height);
+    max-width: var(--_h, var(--e-control-height));
     padding: 0;
     text-align: center;
-    font: var(--e-weight-medium) var(--e-text-xl)/1 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-xl) / var(--e-leading-none) var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     text-transform: uppercase;
     caret-color: var(--e-primary);

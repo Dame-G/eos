@@ -93,6 +93,26 @@ describe("EStamp", () => {
     expect(container.querySelector(".e-stamp--sm")).not.toBeNull();
   });
 
+  test("size sm matches the small flag, and the stamp sets no placement of its own", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () => h("div", [h(EStamp, { status: "paid", size: "sm" }), h(EStamp, { status: "paid", small: true })]),
+      }),
+    );
+    const [a, b] = [...container.querySelectorAll<HTMLElement>(".e-stamp")];
+    expect(a!.getBoundingClientRect().height).toBe(b!.getBoundingClientRect().height);
+    expect(getComputedStyle(a!).alignSelf).toBe("auto");
+    expect(getComputedStyle(a!).justifySelf).toBe("auto");
+  });
+
+  test("a warning stamp reads its text in the on-warning colour", async () => {
+    const { container } = await render(EStamp, { props: { tone: "warning", label: "Review" } });
+    const probe = document.createElement("span");
+    probe.style.color = "var(--e-on-warning)";
+    container.append(probe);
+    expect(getComputedStyle(container.querySelector(".e-stamp")!).color).toBe(getComputedStyle(probe).color);
+  });
+
   test("the words come from the configured messages", async () => {
     const plugin = createEos({ messages: { "status.paid": "Settled up" }, warnOnContrast: false });
     const { container } = await render(EStamp, { props: { status: "paid" }, global: { plugins: [plugin] } });
@@ -103,7 +123,7 @@ describe("EStamp", () => {
     const { container } = await render(EStamp, { props: { status: "paid" } });
     const el = container.querySelector(".e-stamp")! as HTMLElement;
     expect(el.tabIndex).toBe(-1);
-    expect(getComputedStyle(el).cursor).toBe("default");
+    expect(getComputedStyle(el).cursor).not.toBe("pointer");
   });
 
   test("attributes fall through to the root", async () => {

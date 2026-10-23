@@ -31,6 +31,9 @@ The label, hint and error wrapper for a control the system does not wrap itself.
 | Slot      | Use                                                                                                                                                                                                                                                                                |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `default` | The control. The scope is `{ id, ariaInvalid, ariaDescribedby, required }` and the control must carry the first three. `ariaInvalid` is `"true"` or `undefined`. `ariaDescribedby` is the hint or error id, or `undefined`. `required` is whether to set the `required` attribute. |
+| `aside`   | Beside the hint or error, at the end of the row, such as a character counter. The scope is `{ id }`.                                                                                                                                                                               |
+
+Inside an [`EForm`](../Form/README.md) the field tells the form its id, label and `error`, so the form's summary can list it.
 
 ## Accessibility
 

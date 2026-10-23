@@ -24,7 +24,7 @@
     max-width: none;
     max-height: min(60dvh, 22rem);
     margin: 0;
-    padding: var(--e-space-1);
+    padding: var(--e-gap-tight);
     list-style: none;
     overflow: auto;
     overscroll-behavior: contain;
@@ -33,12 +33,13 @@
   .e-opt {
     display: flex;
     align-items: center;
-    gap: var(--e-space-2);
+    gap: var(--e-gap-snug);
     min-height: var(--e-control-height);
-    padding: var(--e-space-2) var(--e-space-3);
+    padding: var(--e-gap-snug) var(--e-pad-control-sm);
     border-radius: var(--e-radius-sm);
     font: var(--e-weight-regular) var(--e-text-md) / 1.3 var(--e-font-sans);
     cursor: pointer;
+    transition: var(--e-transition-state);
   }
 
   .e-opt .e-icon {
@@ -48,18 +49,13 @@
   .e-opt-text {
     display: grid;
     flex: 1;
-    gap: calc(var(--e-space-1) / 2);
+    gap: calc(var(--e-gap-tight) / 2);
     min-width: 0;
   }
 
   .e-opt-desc {
     font: var(--e-weight-regular) var(--e-text-sm) / 1.35 var(--e-font-sans);
     color: var(--e-muted);
-  }
-
-  .e-opt--active {
-    background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 
   .e-opt--selected .e-opt-label {
@@ -71,18 +67,24 @@
     cursor: not-allowed;
   }
 
-  .e-opt-group {
-    padding: var(--e-space-2) var(--e-space-3) var(--e-space-1);
-    font: var(--e-weight-strong) var(--e-text-xs) / 1.2 var(--e-font-mono);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--e-muted);
+  /* A row answers the pointer and the highlight the way every pressable item does: a wash and a ring, darker when pressed. A disabled row only dims. */
+  .e-opt:not(.e-opt--disabled):hover,
+  .e-opt[data-highlighted]:not(.e-opt--disabled) {
+    background: var(--e-wash-hover);
+    box-shadow: var(--e-ring-hover);
   }
 
-  .e-opt-group:not(:first-child) {
-    margin-top: var(--e-space-1);
-    border-top: var(--e-stroke-hair) solid var(--e-border);
-    padding-top: var(--e-space-3);
+  .e-opt:not(.e-opt--disabled):active {
+    background: var(--e-wash-press);
+    box-shadow: var(--e-ring-press);
+  }
+
+  .e-opt-group {
+    padding: var(--e-gap-snug) var(--e-pad-control-sm) var(--e-gap-tight);
+    font: var(--e-type-kicker);
+    letter-spacing: var(--e-tracking-label);
+    text-transform: uppercase;
+    color: var(--e-muted);
   }
 
   .e-opt-status {
@@ -90,7 +92,7 @@
     align-items: center;
     justify-content: center;
     min-height: var(--e-control-height);
-    padding: 0 var(--e-space-3);
+    padding: 0 var(--e-pad-control-sm);
     font: var(--e-weight-regular) var(--e-text-md) / 1.3 var(--e-font-sans);
     color: var(--e-muted);
   }
@@ -102,7 +104,7 @@
     text-decoration: underline;
     text-decoration-color: var(--e-primary);
     text-decoration-thickness: var(--e-stroke-focus);
-    text-underline-offset: calc(var(--e-space-1) - var(--e-stroke-edge));
+    text-underline-offset: calc(var(--e-gap-tight) - var(--e-stroke-edge));
   }
 
   [data-reka-popper-content-wrapper] > .e-popover {
@@ -115,14 +117,10 @@
     min-width: var(--reka-popper-anchor-width);
   }
 
-  /* The row with aria-activedescendant is shown by [data-highlighted]; options never take real focus. */
+  /* A select option takes real focus: the same inset outline as any row that touches its neighbours. A combobox option never does; its input keeps focus and [data-highlighted] shows the active row. */
   .e-opt:focus-visible {
-    outline: none;
-  }
-
-  .e-opt[data-highlighted]:not(.e-opt--disabled) {
-    background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-opt-set {
@@ -130,13 +128,12 @@
   }
 
   .e-opt-set:not(:first-child) > .e-opt-group {
-    margin-top: var(--e-space-1);
+    margin-top: var(--e-gap-tight);
     border-top: var(--e-stroke-hair) solid var(--e-border);
-    padding-top: var(--e-space-3);
+    padding-top: var(--e-gap-base);
   }
 
   @media (forced-colors: active) {
-    .e-opt--active,
     .e-opt[data-highlighted]:not(.e-opt--disabled) {
       forced-color-adjust: none;
       background: Highlight;

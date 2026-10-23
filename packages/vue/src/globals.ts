@@ -9,14 +9,17 @@ declare module "vue" {
     EAppHeader: typeof Library.EAppHeader;
     EAppShell: typeof Library.EAppShell;
     EAvatar: typeof Library.EAvatar;
+    EAvatarGroup: typeof Library.EAvatarGroup;
     EBreadcrumb: typeof Library.EBreadcrumb;
     EButton: typeof Library.EButton;
     ECalendar: typeof Library.ECalendar;
     ECheckbox: typeof Library.ECheckbox;
+    ECheckboxGroup: typeof Library.ECheckboxGroup;
     ECodeBlock: typeof Library.ECodeBlock;
     EColorField: typeof Library.EColorField;
     ECombobox: typeof Library.ECombobox;
     ECommandPalette: typeof Library.ECommandPalette;
+    EContainer: typeof Library.EContainer;
     ECopyButton: typeof Library.ECopyButton;
     ECurrencyField: typeof Library.ECurrencyField;
     EDataGrid: typeof Library.EDataGrid;
@@ -31,6 +34,7 @@ declare module "vue" {
     EExpandableRow: typeof Library.EExpandableRow;
     EField: typeof Library.EField;
     EFieldset: typeof Library.EFieldset;
+    EForm: typeof Library.EForm;
     EGrid: typeof Library.EGrid;
     EHeading: typeof Library.EHeading;
     EHighlight: typeof Library.EHighlight;
@@ -41,6 +45,7 @@ declare module "vue" {
     EKicker: typeof Library.EKicker;
     ELink: typeof Library.ELink;
     EMenu: typeof Library.EMenu;
+    EMetric: typeof Library.EMetric;
     ENavList: typeof Library.ENavList;
     ENotice: typeof Library.ENotice;
     ENumberField: typeof Library.ENumberField;
@@ -60,6 +65,7 @@ declare module "vue" {
     ESignaturePad: typeof Library.ESignaturePad;
     ESkeleton: typeof Library.ESkeleton;
     ESkipLink: typeof Library.ESkipLink;
+    ESlider: typeof Library.ESlider;
     ESpinner: typeof Library.ESpinner;
     EStack: typeof Library.EStack;
     EStamp: typeof Library.EStamp;
@@ -68,6 +74,7 @@ declare module "vue" {
     ESwitch: typeof Library.ESwitch;
     ETable: typeof Library.ETable;
     ETabs: typeof Library.ETabs;
+    ETag: typeof Library.ETag;
     EText: typeof Library.EText;
     ETextField: typeof Library.ETextField;
     ETextarea: typeof Library.ETextarea;

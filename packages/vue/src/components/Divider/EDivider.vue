@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import EKicker from "../Kicker/EKicker.vue";
 import "../../styles/base.css";
 
 defineProps<{
@@ -14,7 +15,7 @@ defineProps<{
   <hr v-else-if="!label" class="e-divider" />
   <!-- A separator's children are presentational, so the name is on the separator and the text is for the eye. -->
   <div v-else class="e-divider-label" role="separator" :aria-label="label">
-    <span class="e-kicker" aria-hidden="true">{{ label }}</span>
+    <EKicker as="span" aria-hidden="true">{{ label }}</EKicker>
   </div>
 </template>
 
@@ -39,7 +40,7 @@ defineProps<{
   .e-divider-label {
     display: flex;
     align-items: center;
-    gap: var(--e-space-3);
+    gap: var(--e-gap-base);
   }
 
   .e-divider-label::before,

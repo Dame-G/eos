@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EDialog from "./EDialog.vue";
 import EToastProvider from "../ToastProvider/EToastProvider.vue";
@@ -52,9 +52,21 @@ describe("live regions while a modal dialog is open", () => {
     const region = document.querySelector<HTMLElement>(".e-toast-region")!;
     expect(hiddenAncestor(region)).toBeNull();
     expect(getComputedStyle(region).pointerEvents).not.toBe("none");
-    await page.getByRole("button", { name: "Dismiss" }).click();
+    await page.getByRole("button", { name: "Close notification" }).click();
     await expect.poll(() => document.querySelectorAll(".e-toast-region .e-toast").length).toBe(0);
     // The dialog is still open: the click was on the toast, not the backdrop.
     expect(document.querySelector(".e-dialog")).not.toBeNull();
+  });
+});
+
+describe("toasts under a modal dialog", () => {
+  test("the toast is announced and its close button takes a click, while the focus trap keeps keyboard focus in the dialog", async () => {
+    await openDialog();
+    toast.show({ title: "Saved", tone: "success", duration: 0 });
+    await expect.poll(() => document.querySelectorAll(".e-toast-region .e-toast").length).toBe(1);
+    await expect.poll(() => document.querySelector("[data-e-announcer='polite']")?.textContent?.trim()).toBe("Saved");
+    await userEvent.keyboard("{F8}");
+    await new Promise((r) => setTimeout(r, 100));
+    expect(document.querySelector(".e-dialog")!.contains(document.activeElement)).toBe(true);
   });
 });

@@ -14,7 +14,7 @@ export interface TabItem {
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, useSlots, watch } from "vue";
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from "reka-ui";
-import { useConfig } from "../../config.js";
+import { useDir } from "../../composables/useDir.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
@@ -45,14 +45,13 @@ const own = (id: string) => (slots[`panel-${id}`] ? `panel-${id}` : !RESERVED.ha
 /** The `id` of the selected tab. Keeps its own state when unbound. @default first tab */
 const model = defineModel<string>();
 
-const config = useConfig();
-const current = computed(() => model.value ?? flat.value.find((i) => !i.disabled)?.id ?? flat.value[0]?.id);
+/** A model that is absent from the items, or points at a disabled tab, falls back to the first tab that can be chosen. */
+const current = computed(() => {
+  const chosen = flat.value.find((i) => i.id === model.value && !i.disabled);
+  return (chosen ?? flat.value.find((i) => !i.disabled) ?? flat.value[0])?.id;
+});
 
-// The reading direction decides which arrow key goes forward. It is read from the page once mounted, so the server
-// and the first client render agree (both use the configured direction, else left to right).
-const root = ref<{ $el: HTMLElement } | null>(null);
-const inherited = ref<"ltr" | "rtl">("ltr");
-const dir = computed(() => config.dir ?? inherited.value);
+const dir = useDir();
 
 const list = ref<{ $el: HTMLElement } | null>(null);
 
@@ -67,17 +66,12 @@ async function reveal(smooth: boolean) {
   el.scrollBy({ left: a.left + a.width / 2 - (b.left + b.width / 2), behavior: smooth && !calm ? "smooth" : "auto" });
 }
 
-onMounted(() => {
-  const parent = root.value?.$el.parentElement;
-  if (!config.dir && parent) inherited.value = getComputedStyle(parent).direction === "rtl" ? "rtl" : "ltr";
-  reveal(false);
-});
+onMounted(() => reveal(false));
 watch(current, () => reveal(true));
 </script>
 
 <template>
   <TabsRoot
-    ref="root"
     class="e-tabs"
     :class="{
       'e-tabs--fill': fill,
@@ -104,6 +98,11 @@ watch(current, () => reveal(true));
 
 <style>
 @layer e.containers {
+  /* The tabs raise themselves with z-index; the row is its own stacking context so they never paint over a sticky header. */
+  .e-tabs {
+    isolation: isolate;
+  }
+
   .e-tablist {
     display: flex;
     flex: none;
@@ -127,22 +126,19 @@ watch(current, () => reveal(true));
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: var(--e-space-2);
+    gap: var(--e-gap-snug);
     flex: none;
     height: var(--e-control-height);
-    padding: 0 calc(var(--e-space-4) - var(--e-stroke-edge));
+    padding: 0 calc(var(--e-pad-control) - var(--e-stroke-edge));
     border: var(--e-stroke-edge) solid var(--_bc);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-radius: 0;
     background: transparent;
     background-clip: padding-box;
     color: var(--e-muted);
-    font: var(--e-weight-medium) var(--e-text-md) / 1 var(--e-font-sans);
+    font: var(--e-type-button);
     cursor: pointer;
-    transition:
-      color var(--e-duration-tap) var(--e-easing-out),
-      background-color var(--e-duration-tap) var(--e-easing-out),
-      border-color var(--e-duration-tap) var(--e-easing-out);
+    transition: var(--e-transition-state);
   }
 
   .e-tab:first-child {
@@ -159,16 +155,16 @@ watch(current, () => reveal(true));
     margin-inline-start: calc(-1 * var(--e-stroke-edge));
   }
 
-  .e-tab:hover {
-    --_bc: var(--e-ink);
-
+  .e-tab:not([aria-selected="true"], :disabled):hover {
     z-index: var(--e-z-raised);
     color: var(--e-ink);
-    background-color: var(--e-surface-hover);
+    background-color: var(--e-wash-hover);
+    box-shadow: var(--e-ring-hover);
   }
 
-  .e-tab:active {
-    background-color: var(--e-surface-press);
+  .e-tab:not([aria-selected="true"], :disabled):active {
+    background-color: var(--e-wash-press);
+    box-shadow: var(--e-ring-press);
   }
 
   .e-tab[aria-selected="true"] {
@@ -178,14 +174,9 @@ watch(current, () => reveal(true));
     z-index: var(--e-z-sticky);
     border-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-bottom-color: var(--_slab);
-    background-color: var(--e-surface-tint);
-    color: var(--e-ink);
+    background-color: var(--e-surface-hover);
+    color: var(--e-primary);
     font-weight: var(--e-weight-strong);
-  }
-
-  /* In a vertical list the slab down the outer edge answers the pointer: it darkens under the cursor. In a horizontal list the slab faces the panel, so it holds its colour. */
-  .e-tabs--vertical > .e-tablist > .e-tab[aria-selected="true"]:hover {
-    --_slab: var(--e-primary-slab);
   }
 
   .e-tab:focus-visible {
@@ -214,19 +205,19 @@ watch(current, () => reveal(true));
     flex: 1 1 0;
     min-width: 0;
     justify-content: center;
-    padding-inline: max(0px, calc(var(--e-space-1) - var(--e-stroke-edge)));
+    padding-inline: max(0px, calc(var(--e-gap-tight) - var(--e-stroke-edge)));
   }
 
   /* Equal-width tabs stay equal: the chosen tab's thicker sides come out of its own padding. */
   .e-tabs--fill:not(.e-tabs--vertical) > .e-tablist > .e-tab[aria-selected="true"] {
-    padding-inline: max(0px, calc(var(--e-space-1) - var(--e-stroke-edge) - var(--_lift)));
+    padding-inline: max(0px, calc(var(--e-gap-tight) - var(--e-stroke-edge) - var(--_lift)));
   }
 
   /* Vertical: the tabs stack beside the panel, flush and sharing edges. The selected tab keeps the same thickness on all four sides, with the slab colour down the inline-start side, and only the column's ends are rounded. */
   .e-tabs--vertical {
     display: flex;
     align-items: flex-start;
-    gap: var(--e-space-4);
+    gap: var(--e-gap-loose);
   }
 
   .e-tabs--vertical > .e-tablist {
@@ -277,8 +268,8 @@ watch(current, () => reveal(true));
   }
 
   .e-tab-count {
-    min-width: var(--e-space-6);
-    padding: 0 var(--e-space-2);
+    min-width: var(--e-gap-section);
+    padding: 0 var(--e-gap-snug);
     border-radius: var(--e-radius-pill);
     border: var(--e-stroke-hair) solid var(--e-primary);
     background: var(--e-primary-soft);
@@ -289,7 +280,7 @@ watch(current, () => reveal(true));
   }
 
   .e-tabpanel {
-    padding-block-start: var(--e-space-4);
+    padding-block-start: var(--e-gap-loose);
   }
 
   @media (forced-colors: active) {

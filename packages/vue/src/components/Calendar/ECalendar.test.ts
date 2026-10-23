@@ -406,6 +406,26 @@ describe("ECalendar", () => {
     expect(active().textContent!.trim()).toBe("23");
   });
 
+  test("a Hebrew locale alone mirrors the grid and the arrow keys", async () => {
+    const { container } = await render(ECalendar, {
+      props: { modelValue: d(2026, 10, 22), footer: false },
+      global: plugin({ locale: "he-IL" }),
+    });
+    expect(container.querySelector(".e-cal")!.getAttribute("dir")).toBe("rtl");
+    container.querySelector<HTMLElement>('.e-day[tabindex="0"]')!.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    expect(active().textContent!.trim()).toBe("21");
+  });
+
+  test("day names say marked days through the translated sentence, and the plain date otherwise", async () => {
+    const { container } = await render(ECalendar, {
+      props: { modelValue: d(2026, 10, 22), marked: [d(2026, 10, 22)], markLabel: "open", month: d(2026, 10, 1) },
+      global: plugin({ messages: { dayMarked: "{date} ({mark})" } }),
+    });
+    expect(dayButton(container, /^Thursday, October 22, 2026 \(open\)$/)).toBeTruthy();
+    expect(dayButton(container, /^Saturday, October 24, 2026$/)).toBeTruthy();
+  });
+
   test("works without the plugin, and class and style land on the root", async () => {
     const { container } = await render(ECalendar, {
       props: { modelValue: d(2026, 10, 22) },

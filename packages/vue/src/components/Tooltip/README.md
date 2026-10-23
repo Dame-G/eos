@@ -29,6 +29,12 @@ A short label that names an icon-only control. It never holds anything to read o
 | --------- | ------------------------------------------------------------------------------------------------------- |
 | `default` | One focusable element, such as an icon button or a link. It is the trigger and gets `aria-describedby`. |
 
+## Events
+
+| Event   | Payload | Notes                                                                |
+| ------- | ------- | -------------------------------------------------------------------- |
+| `close` |         | It hid, by blur, pointer leave or Escape. `open` is already `false`. |
+
 ## Accessibility
 
 - Shows on keyboard focus at once, on hover after `delay` (400ms by default, none when you move from one tooltip to the next) and while a finger is held. It hides on Escape (focus stays) and when focus or pointer leaves. It stays open while the pointer is over it (WCAG 1.4.13).

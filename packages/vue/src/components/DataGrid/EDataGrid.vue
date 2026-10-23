@@ -1,6 +1,5 @@
 <script setup lang="ts" generic="Row extends DataGridRow">
 import { computed, onBeforeUnmount, onMounted, ref, watch, type CSSProperties } from "vue";
-import { PopoverClose, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import {
   columnFilteringFeature,
   columnSizingFeature,
@@ -25,17 +24,17 @@ import EButton from "../Button/EButton.vue";
 import ECheckbox from "../Checkbox/ECheckbox.vue";
 import EEmptyState from "../EmptyState/EEmptyState.vue";
 import EIcon from "../Icon/EIcon.vue";
-import EIconButton from "../IconButton/EIconButton.vue";
 import EPagination from "../Pagination/EPagination.vue";
 import "../Skeleton/ESkeleton.vue";
-import ESelect from "../Select/ESelect.vue";
-import ETextField from "../TextField/ETextField.vue";
+import EDataGridFilterRow from "./EDataGridFilterRow.vue";
 import EDataGridResizer from "./EDataGridResizer.vue";
+import EDataGridToolbar from "./EDataGridToolbar.vue";
 import "../Definition/EDefinition.vue";
-import { normalizeOptions, type EOption } from "../Select/options.js";
+import type { EOption } from "../Select/options.js";
 import type { IconProp } from "../../icons/types.js";
-import { useMessages, usePortalTarget } from "../../config.js";
+import { useMessages } from "../../config.js";
 import { useLocale } from "../../composables/useLocale.js";
+import { useOverflow } from "../../composables/useOverflow.js";
 import { cellValue, compareValues, filterActive, foldText, parsePx, passesFilter } from "./grid.js";
 import type {
   DataGridColumn,
@@ -47,8 +46,6 @@ import type {
 } from "./types.js";
 import "../../styles/base.css";
 import "../Table/table.css";
-import "../TextField/input.css";
-import "../Select/panel.css";
 
 const props = withDefaults(
   defineProps<{
@@ -86,7 +83,7 @@ const props = withDefaults(
     searchDebounce?: number;
     /** With `manual`, how many rows there are in all. */
     total?: number;
-    /** Shows placeholder rows while data loads, with `aria-busy`. */
+    /** Marks the data as loading, with `aria-busy`. With no rows yet it shows placeholder rows; with rows (the previous page) they stay, dimmed, until the new ones arrive. */
     loading?: boolean;
     /** How many placeholder rows `loading` shows. */
     skeletonRows?: number;
@@ -96,6 +93,10 @@ const props = withDefaults(
     emptyText?: string;
     /** The icon above the empty title. @default "search" */
     emptyIcon?: IconProp;
+    /** Shows a failed load in place of the rows. `true` says the default sentence; a string says your own. A "Try again" button emits `retry`. */
+    error?: boolean | string;
+    /** The name of a row for its checkbox ("Select Annual check-up"), when the first column's text is not a good one. */
+    rowLabel?: (row: Row) => string;
     /** Renders a bare table for a short static list, with no toolbar, filters, paging or footer. */
     bare?: boolean;
   }>(),
@@ -105,6 +106,8 @@ const props = withDefaults(
 const emit = defineEmits<{
   /** Sort, page, search or filters changed. With `manual`, fetch the rows this describes. */
   queryChange: [query: DataGridQuery];
+  /** The Try again button of the `error` state was pressed. Fetch again. */
+  retry: [];
 }>();
 
 const slots = defineSlots<{
@@ -114,6 +117,8 @@ const slots = defineSlots<{
   "bulk-actions"?: () => unknown;
   /** Anything else for the bar above the table. */
   toolbar?: () => unknown;
+  /** Your own failed-load state, in place of the sentence and button, when `error` is set. */
+  error?: () => unknown;
 }>();
 
 /** The sort: `{ key, dir: "asc" | "desc" }`, or `null` for none. */
@@ -129,11 +134,7 @@ const selected = defineModel<Row["id"][]>("selected", { default: () => [] });
 
 const t = useMessages();
 const loc = useLocale();
-const portal = usePortalTarget();
 
-const menuOpen = ref(false);
-
-const ALL = "__e-all__";
 const NONE = "__e-none__";
 
 const features = tableFeatures({
@@ -301,6 +302,7 @@ const allOn = computed(() => view.value.length > 0 && view.value.every((r) => r.
 const someOn = computed(() => view.value.some((r) => r.getIsSelected()));
 
 const scrollEl = ref<HTMLElement | null>(null);
+const tableEl = ref<HTMLElement | null>(null);
 const virtualizer = useVirtualizer(
   computed(() => ({
     count: vopt.value ? view.value.length : 0,
@@ -370,13 +372,42 @@ const scrollStyle = computed(
 );
 const role = (r: string) => (cards.value ? r : undefined);
 
+// Below 40rem of its own width a card grid hides its headings, so nothing in them may take focus.
+const root = ref<HTMLElement | null>(null);
+const narrow = ref(false);
+const overflows = useOverflow(scrollEl, [() => tableEl.value]);
+const scrollable = computed(() => overflows.value || !!props.maxHeight || !!vopt.value);
+const headInert = computed(() => cards.value && narrow.value);
+let widthObserver: ResizeObserver | undefined;
+onMounted(() => {
+  if (typeof ResizeObserver === "undefined" || !root.value) return;
+  const measure = () => {
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    narrow.value = (root.value?.clientWidth ?? Infinity) <= 40 * rem;
+  };
+  widthObserver = new ResizeObserver(measure);
+  widthObserver.observe(root.value);
+  measure();
+});
+onBeforeUnmount(() => widthObserver?.disconnect());
+
+// A row's checkbox is named after the row: the first shown column's text, else its id.
+const labelOf = (row: Row): string => {
+  const given = props.rowLabel?.(row);
+  if (given) return given;
+  const first = cols.value[0];
+  return (first && show(row, first)) || String(row.id);
+};
+const busyRows = computed(() => !!props.loading && view.value.length > 0);
+const failed = computed(() => !!props.error);
+
 const sortables = computed(() => props.columns.filter((c) => c.sortable));
 const sortOptions = computed<EOption[]>(() => [
   { value: NONE, label: t("sortBy") },
   ...sortables.value.flatMap((c) =>
     (["asc", "desc"] as const).map((d) => ({
       value: `${c.key}:${d}`,
-      label: `${c.label}, ${t(d === "asc" ? "ascending" : "descending")}`,
+      label: t(d === "asc" ? "sortOptionAsc" : "sortOptionDesc", { col: c.label }),
     })),
   ),
 ]);
@@ -388,8 +419,8 @@ const barOther = computed(
 );
 const showBar = computed(() => !props.bare && (barOther.value || showSortSelect.value));
 
-function onSearch(e: Event) {
-  search.value = (e.target as HTMLInputElement).value;
+function onSearch(value: string) {
+  search.value = value;
   page.value = 1;
 }
 function setFilter(key: string, value: DataGridFilterValue) {
@@ -419,19 +450,6 @@ function resetWidth(key: string) {
     return next;
   });
 }
-const numberFilter = (key: string) => {
-  const f = filters.value[key];
-  return typeof f === "object" ? f : { min: "", max: "" };
-};
-const textFilter = (key: string) => {
-  const f = filters.value[key];
-  return typeof f === "string" ? f : "";
-};
-const selectOptions = (c: DataGridColumn<Row>): EOption[] => [
-  { value: ALL, label: t("all") },
-  ...normalizeOptions(c.filter?.type === "select" ? c.filter.options : []),
-];
-
 let queryTimer: ReturnType<typeof setTimeout> | undefined;
 let reportedSearch = search.value;
 function report() {
@@ -458,73 +476,45 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="e-grid" :class="{ 'e-grid--bare': bare, 'e-grid--cards': cards }">
+  <div ref="root" class="e-grid" :class="{ 'e-grid--bare': bare, 'e-grid--cards e-cards': cards }">
     <div class="e-grid-frame">
-      <div v-if="showBar" class="e-grid-bar" :class="{ 'e-grid-bar--sortonly': !barOther }">
-        <div v-if="searchable" class="e-input-wrap e-grid-search">
-          <span class="e-affix e-affix--pre"><EIcon name="search" /></span>
-          <input
-            class="e-input"
-            type="search"
-            :placeholder="searchPlaceholder || t('searchAll')"
-            :aria-label="t('searchAll')"
-            :value="search"
-            @input="onSearch"
-          />
-        </div>
-        <div v-if="nPicked" class="e-grid-picked">
-          <span class="e-grid-count">{{ t("selected", { n: nPicked }) }}</span>
-          <slot name="bulk-actions" />
-        </div>
-        <div v-if="showSortSelect" class="e-grid-sortsel">
-          <ESelect
-            bare
-            :aria-label="t('sortBy')"
-            :placeholder="t('sortBy')"
-            :options="sortOptions"
-            :model-value="sortSelectValue"
-            @update:model-value="chooseSort"
-          />
-        </div>
-        <div class="e-grid-tools">
-          <EButton v-if="anyFilter || q" variant="quiet" @click="clearFilters">{{ t("clearFilters") }}</EButton>
-          <PopoverRoot v-if="columnToggle" v-model:open="menuOpen">
-            <PopoverTrigger as-child>
-              <EButton variant="outline" :aria-label="t('chooseColumns')">{{ t("columns") }}</EButton>
-            </PopoverTrigger>
-            <PopoverPortal :to="portal">
-              <PopoverContent
-                class="e-popover e-root"
-                side="bottom"
-                align="start"
-                :side-offset="8"
-                :collision-padding="16"
-              >
-                <header class="e-pop-head">
-                  <h3 class="e-pop-title">{{ t("showColumns") }}</h3>
-                  <PopoverClose as-child>
-                    <EIconButton icon="x" :label="t('close')" />
-                  </PopoverClose>
-                </header>
-                <div class="e-pop-body">
-                  <ECheckbox
-                    v-for="column in table.getAllLeafColumns()"
-                    :key="column.id"
-                    :label="colByKey.get(column.id)?.label ?? column.id"
-                    :model-value="column.getIsVisible()"
-                    @update:model-value="column.toggleVisibility($event)"
-                  />
-                </div>
-              </PopoverContent>
-            </PopoverPortal>
-          </PopoverRoot>
-          <slot name="toolbar" />
-        </div>
-      </div>
-      <div ref="scrollEl" class="e-grid-scroll" :style="scrollStyle" tabindex="0" role="region" :aria-label="caption">
+      <EDataGridToolbar
+        v-if="showBar"
+        :searchable="searchable"
+        :search-placeholder="searchPlaceholder"
+        :search="search"
+        :picked="nPicked"
+        :sort-options="showSortSelect ? sortOptions : undefined"
+        :sort-value="sortSelectValue"
+        :filtered="anyFilter || !!q"
+        :columns="
+          columnToggle
+            ? table
+                .getAllLeafColumns()
+                .map((c) => ({ id: c.id, label: colByKey.get(c.id)?.label ?? c.id, visible: c.getIsVisible() }))
+            : undefined
+        "
+        :sort-only="!barOther"
+        @update:search="onSearch"
+        @sort="chooseSort"
+        @clear="clearFilters"
+        @toggle-column="(id, visible) => table.getColumn(id)?.toggleVisibility(visible)"
+      >
+        <template #bulk-actions><slot name="bulk-actions" /></template>
+        <template v-if="hasToolbar" #toolbar><slot name="toolbar" /></template>
+      </EDataGridToolbar>
+      <div
+        ref="scrollEl"
+        class="e-grid-scroll"
+        :style="scrollStyle"
+        :tabindex="scrollable ? 0 : undefined"
+        :role="scrollable ? 'region' : undefined"
+        :aria-label="scrollable ? caption : undefined"
+      >
         <table
+          ref="tableEl"
           class="e-table e-gridtable"
-          :class="{ 'e-gridtable--virtual': vopt, 'e-gridtable--fixed': fixedLayout }"
+          :class="{ 'e-gridtable--virtual': vopt, 'e-gridtable--fixed': fixedLayout, 'e-gridtable--busy': busyRows }"
           :style="tableStyle"
           :role="role('table')"
           :aria-busy="loading ? 'true' : undefined"
@@ -539,7 +529,7 @@ onMounted(() => {
             <col v-if="selectable" style="width: var(--_check-w)" />
             <col v-for="c in cols" :key="c.key" :style="widthOf(c) ? { width: `${widthOf(c)}px` } : undefined" />
           </colgroup>
-          <thead :role="role('rowgroup')">
+          <thead :role="role('rowgroup')" :inert="headInert || undefined">
             <tr ref="headRow" :role="role('row')">
               <th v-if="selectable" scope="col" class="e-cell-check" :role="role('columnheader')">
                 <ECheckbox
@@ -591,61 +581,34 @@ onMounted(() => {
                 />
               </th>
             </tr>
-            <tr v-if="hasFilterRow" class="e-filterrow" :role="role('row')">
-              <td v-if="selectable" class="e-cell-check" :role="role('cell')" />
-              <td
-                v-for="(c, i) in cols"
-                :key="c.key"
-                :role="role('cell')"
-                :class="{ 'e-sticky': stick(i) }"
-                :style="stickStyle(i)"
-              >
-                <template v-if="c.filter">
-                  <ESelect
-                    v-if="c.filter.type === 'select'"
-                    bare
-                    :aria-label="t('filterColumn', { col: c.label })"
-                    :placeholder="t('all')"
-                    :options="selectOptions(c)"
-                    :model-value="textFilter(c.key) || ALL"
-                    @update:model-value="setFilter(c.key, $event === ALL ? '' : $event)"
-                  />
-                  <div v-else-if="c.filter.type === 'number'" class="e-filter-range">
-                    <ETextField
-                      hide-label
-                      inputmode="decimal"
-                      :label="t('minOf', { col: t('filterColumn', { col: c.label }) })"
-                      :placeholder="t('min')"
-                      :model-value="numberFilter(c.key).min"
-                      @update:model-value="setFilter(c.key, { min: $event, max: numberFilter(c.key).max })"
-                    />
-                    <ETextField
-                      hide-label
-                      inputmode="decimal"
-                      :label="t('maxOf', { col: t('filterColumn', { col: c.label }) })"
-                      :placeholder="t('max')"
-                      :model-value="numberFilter(c.key).max"
-                      @update:model-value="setFilter(c.key, { min: numberFilter(c.key).min, max: $event })"
-                    />
-                  </div>
-                  <ETextField
-                    v-else
-                    hide-label
-                    type="search"
-                    :label="t('filterColumn', { col: c.label })"
-                    :placeholder="t('filter')"
-                    :model-value="textFilter(c.key)"
-                    @update:model-value="setFilter(c.key, $event)"
-                  />
-                </template>
-              </td>
-            </tr>
+            <EDataGridFilterRow
+              v-if="hasFilterRow"
+              :columns="cols"
+              :filters="filters"
+              :selectable="selectable"
+              :sticky-style="stickStyle"
+              :role="role"
+              @filter="setFilter"
+            />
           </thead>
           <tbody :role="role('rowgroup')">
-            <template v-if="loading">
+            <tr v-if="failed" :role="role('row')">
+              <td :colspan="colCount" class="e-grid-empty" :role="role('cell')">
+                <slot name="error">
+                  <EEmptyState bare icon="triangle-alert" :title="typeof error === 'string' ? error : t('loadFailed')">
+                    <template #action>
+                      <EButton variant="outline" @click="emit('retry')">{{ t("retry") }}</EButton>
+                    </template>
+                  </EEmptyState>
+                </slot>
+              </td>
+            </tr>
+            <template v-else-if="loading && view.length === 0">
               <tr v-for="n in skeletonRows" :key="`s${n}`" :role="role('row')">
                 <td v-if="selectable" class="e-cell-check" :role="role('cell')" />
-                <td v-for="c in cols" :key="c.key" :role="role('cell')"><span class="e-skel" /></td>
+                <td v-for="c in cols" :key="c.key" :role="role('cell')" :data-label="c.label">
+                  <span class="e-skel" />
+                </td>
               </tr>
             </template>
             <tr v-else-if="view.length === 0" :role="role('row')">
@@ -672,7 +635,7 @@ onMounted(() => {
                 <td v-if="selectable" class="e-cell-check" :role="role('cell')">
                   <ECheckbox
                     bare
-                    :label="t('selectRow')"
+                    :label="t('selectRowNamed', { label: labelOf(row.original) })"
                     :model-value="row.getIsSelected()"
                     @update:model-value="row.toggleSelected($event)"
                   />
@@ -712,17 +675,19 @@ onMounted(() => {
           v-if="pageSize > 0 && pages > 1"
           :model-value="cur"
           :page-count="pages"
-          :label="`${t('pagination')}: ${caption}`"
+          :label="t('paginationFor', { caption })"
           @update:model-value="page = $event"
         />
       </div>
       <span class="e-sr" role="status">{{
-        loading
-          ? t("loading")
-          : (sortedCol
-              ? t("sortedBy", { col: sortedCol.label, dir: t(sort?.dir === "asc" ? "ascending" : "descending") }) + " "
-              : "") + t("rowsAnnounce", { n: total })
+        failed
+          ? ""
+          : loading
+            ? t("loading")
+            : (sortedCol ? t(sort?.dir === "asc" ? "sortedAsc" : "sortedDesc", { col: sortedCol.label }) + " " : "") +
+              t("rowsAnnounce", { n: total })
       }}</span>
+      <span class="e-sr" role="status">{{ nPicked ? t("selected", { n: nPicked }) : "" }}</span>
     </div>
   </div>
 </template>
@@ -736,6 +701,7 @@ onMounted(() => {
     isolation: isolate;
     border-radius: var(--e-radius-md);
     min-width: 0;
+    container-type: inline-size;
   }
 
   .e-grid-frame::after {
@@ -755,12 +721,13 @@ onMounted(() => {
     background: var(--e-surface);
   }
 
+  /* A wrapping cluster: the controls share one left edge, and below 26rem each takes a full row. */
   .e-grid-bar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--e-space-3);
-    padding: var(--e-space-3) var(--e-space-4);
+    gap: var(--e-gap-snug);
+    padding: var(--e-gap-base) var(--e-pad-card);
     border-bottom: var(--e-stroke-hair) solid var(--e-border);
   }
 
@@ -773,21 +740,21 @@ onMounted(() => {
     padding-inline-start: var(--e-space-2);
   }
 
-  .e-grid-picked {
+  .e-grid-picked,
+  .e-grid-tools {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: var(--e-space-3);
+    gap: var(--e-gap-snug);
   }
 
   .e-grid-count {
-    font: var(--e-weight-strong) var(--e-text-xs) / 1 var(--e-font-mono);
-    letter-spacing: 0.04em;
+    font: var(--e-type-kicker);
+    letter-spacing: var(--e-tracking-label);
   }
 
   .e-grid-tools {
     margin-inline-start: auto;
-    display: flex;
-    gap: var(--e-space-2);
   }
 
   .e-grid-scroll {
@@ -798,6 +765,10 @@ onMounted(() => {
   .e-grid-scroll:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: calc(-1 * var(--e-stroke-focus));
+  }
+
+  .e-gridtable--busy tbody {
+    opacity: 0.5;
   }
 
   .e-gridtable--fixed {
@@ -872,8 +843,8 @@ onMounted(() => {
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: var(--e-space-3);
-    padding: var(--e-space-3) var(--e-space-4);
+    gap: var(--e-gap-snug);
+    padding: var(--e-gap-base) var(--e-pad-card);
     border-top: var(--e-stroke-hair) solid var(--e-border);
   }
 
@@ -883,12 +854,14 @@ onMounted(() => {
     font-variant-numeric: tabular-nums;
   }
 
+  /* The pager sizes itself to its container, so it needs a width of its own here, not the nothing its content gives. */
   .e-grid-foot .e-pager {
+    flex: 1 1 26rem;
     justify-content: flex-end;
   }
 
   .e-filterrow td {
-    padding: var(--e-space-1) var(--e-space-3);
+    padding: var(--e-gap-tight) var(--e-pad-control-sm);
     background: var(--e-surface);
     box-shadow: inset 0 calc(-1 * var(--e-stroke-card)) 0 var(--e-border-strong);
     border-top: 0;
@@ -911,7 +884,7 @@ onMounted(() => {
   .e-filter-range {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--e-space-1);
+    gap: var(--e-gap-tight);
   }
 
   .e-gridtable thead th,
@@ -1012,6 +985,11 @@ onMounted(() => {
   }
 
   @media (forced-colors: active) {
+    .e-grid-frame::after {
+      border: var(--e-stroke-card) solid CanvasText;
+      box-shadow: none;
+    }
+
     .e-gridtable tbody tr[data-selected] td {
       forced-color-adjust: none;
       background: Highlight;
@@ -1035,10 +1013,6 @@ onMounted(() => {
     }
   }
 
-  .e-grid--cards {
-    container-type: inline-size;
-  }
-
   .e-grid-sortsel {
     display: none;
     min-width: 11rem;
@@ -1058,49 +1032,19 @@ onMounted(() => {
       display: flex;
     }
 
-    .e-grid--cards .e-grid-scroll {
-      overflow: visible;
-      max-height: none;
-    }
-
-    .e-grid--cards .e-gridtable,
-    .e-grid--cards .e-gridtable tbody {
-      display: block;
-      min-width: 0;
-      width: 100%;
-    }
-
-    .e-grid--cards .e-gridtable thead {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      /* stylelint-disable-next-line property-no-deprecated -- clip hides text visually */
-      clip: rect(0 0 0 0);
-      white-space: nowrap;
-    }
-
+    /* The cards have no frame to close, so the bars sit flush with them and draw no rule. */
     .e-grid--cards .e-grid-frame {
       overflow: visible;
       background: transparent;
-    }
-
-    /* The cards have no frame to close, so the toolbar's underline would sit on the first card's rounded top corners. */
-    .e-grid--cards .e-grid-bar {
-      border-bottom: 0;
     }
 
     .e-grid--cards .e-grid-frame::after {
       content: none;
     }
 
-    .e-grid--cards .e-gridtable tbody tr {
-      display: block;
-      margin: 0 0 var(--e-space-3);
-      padding: var(--e-space-1) var(--e-space-4);
-      border-radius: var(--e-radius-md);
-      background: var(--e-surface);
-      box-shadow: var(--e-frame);
+    .e-grid--cards :is(.e-grid-bar, .e-grid-foot) {
+      padding-inline: 0;
+      border: 0;
     }
 
     .e-grid--cards .e-gridtable tbody tr:hover td {
@@ -1115,38 +1059,10 @@ onMounted(() => {
       background: transparent;
     }
 
-    .e-grid--cards .e-gridtable td {
-      display: grid;
-      grid-template-columns: minmax(5rem, 38%) minmax(0, 1fr);
-      gap: var(--e-space-3);
-      align-items: baseline;
-      padding: var(--e-space-2) 0;
-      border-top: var(--e-stroke-hair) solid var(--e-border);
-      overflow: visible;
-      white-space: normal;
-      text-align: start;
-    }
-
-    .e-grid--cards .e-gridtable tbody tr:first-child td:not(:first-child) {
-      border-top: var(--e-stroke-hair) solid var(--e-border);
-    }
-
-    .e-grid--cards .e-gridtable tbody td:first-child {
-      border-top: 0;
-    }
-
-    .e-grid--cards .e-gridtable td::before {
-      content: attr(data-label);
-      font: var(--e-weight-strong) var(--e-text-xs) / 1.3 var(--e-font-mono);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--e-muted);
-    }
-
     .e-grid--cards .e-gridtable td.e-cell-check {
       display: flex;
       width: auto;
-      padding: var(--e-space-2) 0;
+      padding: var(--e-gap-snug) 0;
     }
 
     .e-grid--cards .e-gridtable td.e-cell-check::before {
@@ -1156,10 +1072,6 @@ onMounted(() => {
     .e-grid--cards .e-gridtable .e-sticky {
       position: static;
       box-shadow: none;
-    }
-
-    .e-grid--cards .e-gridtable .e-num {
-      text-align: start;
     }
 
     .e-grid--cards .e-gridtable .e-grid-empty {
@@ -1177,6 +1089,44 @@ onMounted(() => {
     .e-grid--cards .e-gridtable--fixed td {
       overflow: visible;
       text-overflow: clip;
+    }
+
+    .e-grid--cards .e-grid-foot {
+      padding-block-end: 0;
+    }
+  }
+
+  @container (max-width: 26rem) {
+    .e-grid-search,
+    .e-grid-sortsel,
+    .e-grid-picked,
+    .e-grid-tools {
+      flex: 1 1 100%;
+      max-width: none;
+    }
+
+    .e-grid-picked > :not(.e-grid-count),
+    .e-grid-tools > * {
+      flex: 1 1 auto;
+    }
+
+    /* The pager stacks above the range text: its page status on top, Previous and Next side by side below it. */
+    .e-grid-foot .e-pager {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex-basis: 100%;
+      order: -1;
+    }
+
+    .e-grid-foot .e-pager-status {
+      grid-column: 1 / -1;
+      order: -1;
+      text-align: center;
+    }
+
+    .e-grid-range {
+      flex: 1 1 100%;
+      text-align: center;
     }
   }
 }

@@ -80,14 +80,23 @@ describe("EDataGrid", () => {
     expect(picked.at(-1)!.length).toBe(3);
   });
 
-  test("is a real table: a named region, a caption, column headers with scope, cells", async () => {
+  test("is a real table: a caption, column headers with scope, cells; a named region only while it scrolls", async () => {
     const { container } = await grid({ props: { caption: "Payments", columns: COLS, rows: ROWS } });
-    await expect.element(page.getByRole("region", { name: "Payments" })).toBeVisible();
+    const scroller = container.querySelector(".e-grid-scroll")!;
+    expect(scroller.hasAttribute("role")).toBe(false);
+    expect(scroller.hasAttribute("tabindex")).toBe(false);
+
     await expect.element(page.getByRole("table")).toBeVisible();
     expect(container.querySelector("caption")!.textContent!.trim()).toBe("Payments");
     expect(page.getByRole("columnheader").elements().length).toBe(2);
     expect([...container.querySelectorAll("th")].every((c) => c.getAttribute("scope") === "col")).toBe(true);
     expect(page.getByRole("cell").elements().length).toBe(6);
+  });
+
+  test("a height limit makes the scroller a named, focusable region", async () => {
+    const { container } = await grid({ props: { caption: "Payments", columns: COLS, rows: ROWS, maxHeight: "60px" } });
+    await expect.element(page.getByRole("region", { name: "Payments" })).toBeVisible();
+    expect(container.querySelector(".e-grid-scroll")!.getAttribute("tabindex")).toBe("0");
   });
 
   test("numbers sort by size, text in natural order, missing values last; value() feeds the sort", async () => {
@@ -1004,5 +1013,119 @@ describe("EDataGrid", () => {
     expect(document.body.style.cursor).toBe("col-resize");
     shown.value = false;
     await expect.poll(() => document.body.style.cursor).toBe("");
+  });
+
+  describe("names, announcements and states", () => {
+    test("each row checkbox is named after the row: its first column, or rowLabel", async () => {
+      const { container } = await grid({ props: { caption: "T", columns: COLS, rows: ROWS, selectable: true } });
+      await expect.element(page.getByRole("checkbox", { name: "Select Alpha" })).toBeVisible();
+      await expect.element(page.getByRole("checkbox", { name: "Select Gamma" })).toBeVisible();
+      expect(container.querySelectorAll("tbody input[type=checkbox]").length).toBe(3);
+    });
+
+    test("rowLabel names the checkboxes when the first column is not a good name", async () => {
+      await grid({
+        props: { caption: "T", columns: COLS, rows: ROWS, selectable: true, rowLabel: (r: Row) => `order ${r.id}` },
+      });
+      await expect.element(page.getByRole("checkbox", { name: "Select order 2" })).toBeVisible();
+    });
+
+    test("a change of selection is announced in its own live region", async () => {
+      const { container } = await grid({ props: { caption: "T", columns: COLS, rows: ROWS, selectable: true } });
+      const live = () => container.querySelectorAll("[role=status]")[1]!.textContent;
+      expect(live()).toBe("");
+      (container.querySelector("tbody input[type=checkbox]") as HTMLInputElement).click();
+      await expect.poll(live).toBe("1 selected");
+      expect(container.querySelector(".e-grid-count")!.getAttribute("aria-hidden")).toBe("true");
+    });
+
+    test("the pager is named after the grid", async () => {
+      const { container } = await grid({ props: { caption: "Statements", columns: COLS, rows: bigRows(25) } });
+      expect(container.querySelector("nav.e-pager")!.getAttribute("aria-label")).toBe("Pagination: Statements");
+    });
+
+    test("loading keeps the rows it has, dimmed and busy, instead of swapping them for placeholders", async () => {
+      const { container } = await grid({ props: { caption: "T", columns: COLS, rows: ROWS, loading: true } });
+      expect(container.querySelectorAll(".e-skel").length).toBe(0);
+      expect(names(container).length).toBe(3);
+      const table = container.querySelector("table")!;
+      expect(table.getAttribute("aria-busy")).toBe("true");
+      expect(getComputedStyle(table.querySelector("tbody")!).opacity).toBe("0.5");
+    });
+
+    test("error shows a sentence and a Try again button that emits retry; a string says your own", async () => {
+      let retries = 0;
+      const { container } = await grid({
+        props: { caption: "T", columns: COLS, rows: [], error: true, onRetry: () => retries++ },
+      });
+      expect(container.textContent).toContain("The data could not be loaded.");
+      await page.getByRole("button", { name: "Try again" }).click();
+      expect(retries).toBe(1);
+      const own = await grid({ props: { caption: "T", columns: COLS, rows: [], error: "Offline" } });
+      expect(own.container.textContent).toContain("Offline");
+    });
+
+    test("as cards on a narrow grid the heading row is inert, so no hidden control takes focus", async () => {
+      const props = { caption: "T", columns: COLS, rows: ROWS, selectable: true, cards: true };
+      const wide = await render(boxed(900, props));
+      const narrow = await render(boxed(300, props));
+      await expect.poll(() => narrow.container.querySelector("thead")!.hasAttribute("inert")).toBe(true);
+      expect(wide.container.querySelector("thead")!.hasAttribute("inert")).toBe(false);
+    });
+  });
+
+  describe("small screens", () => {
+    const manyCols: DataGridColumn<Row>[] = [
+      { key: "n", label: "Name", sortable: true, filter: { type: "text" } },
+      { key: "s", label: "Status", filter: { type: "select", options: ["paid", "due"] } },
+      { key: "a", label: "Amount", numeric: true, sortable: true },
+    ];
+    const phone = () =>
+      render(
+        boxed(343, {
+          caption: "Statements",
+          columns: manyCols,
+          rows: bigRows(25),
+          searchable: true,
+          selectable: true,
+          columnToggle: true,
+          pageSize: 5,
+          selected: [1, 2],
+          cards: true,
+        }),
+      );
+
+    test("nothing overflows sideways at 343px: toolbar controls and the footer fit and align", async () => {
+      const { container } = await phone();
+      await wait(80);
+      const box = container.firstElementChild!.getBoundingClientRect();
+      const inside = (el: Element) => {
+        const r = el.getBoundingClientRect();
+        return r.left >= box.left - 0.5 && r.right <= box.right + 0.5;
+      };
+      for (const el of container.querySelectorAll(
+        ".e-grid-bar > *, .e-grid-bar button, .e-grid-foot > *, .e-pager > *",
+      ))
+        expect(inside(el), el.className || el.tagName).toBe(true);
+      const search = container.querySelector(".e-grid-search")!.getBoundingClientRect();
+      const sortsel = container.querySelector(".e-grid-sortsel")!.getBoundingClientRect();
+      const tools = container.querySelector(".e-grid-tools")!.getBoundingClientRect();
+      expect(sortsel.left).toBeCloseTo(search.left, 0);
+      expect(sortsel.width).toBeCloseTo(search.width, 0);
+      expect(tools.width).toBeCloseTo(search.width, 0);
+    });
+
+    test("the footer stacks the pager above its range, with Previous and Next on one line", async () => {
+      const { container } = await phone();
+      await wait(80);
+      const pager = container.querySelector(".e-pager")!.getBoundingClientRect();
+      const range = container.querySelector(".e-grid-range")!.getBoundingClientRect();
+      expect(pager.bottom).toBeLessThanOrEqual(range.top + 0.5);
+      expect(container.querySelector(".e-pager-status")!.getBoundingClientRect().width).toBeGreaterThan(40);
+      const ends = container.querySelectorAll(".e-pager > a, .e-pager > button");
+      expect(
+        Math.abs(ends[0]!.getBoundingClientRect().top - ends[ends.length - 1]!.getBoundingClientRect().top),
+      ).toBeLessThan(2);
+    });
   });
 });
