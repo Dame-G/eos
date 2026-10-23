@@ -69,7 +69,7 @@ describe("EStamp", () => {
     expect(getComputedStyle(el).boxShadow).not.toBe("none");
   });
 
-  test("a thick side on the inline-start edge, in the fill's own shade, as a notice has", async () => {
+  test("a tinted chip with an edge in its tone and a thick side on the inline-start edge, as a notice has", async () => {
     for (const props of [
       {},
       { status: "paid" },
@@ -80,9 +80,13 @@ describe("EStamp", () => {
       const { container } = await render(EStamp, { props });
       container.classList.add("e-root");
       const style = getComputedStyle(container.querySelector(".e-stamp")!);
-      expect(parseFloat(style.borderInlineStartWidth), JSON.stringify(props)).toBeGreaterThan(2);
-      expect(style.borderTopWidth).toBe("0px");
-      expect(style.borderInlineStartColor, JSON.stringify(props)).not.toBe(style.backgroundColor);
+      expect(parseFloat(style.borderInlineStartWidth), JSON.stringify(props)).toBeGreaterThan(
+        parseFloat(style.borderTopWidth),
+      );
+      expect(parseFloat(style.borderTopWidth)).toBeGreaterThan(0);
+      expect(style.borderInlineStartColor, JSON.stringify(props)).toBe(style.borderTopColor);
+      // Tinted, not filled: the edge is a stronger colour than the background behind the word.
+      expect(style.borderTopColor, JSON.stringify(props)).not.toBe(style.backgroundColor);
     }
   });
 
@@ -91,8 +95,9 @@ describe("EStamp", () => {
     container.classList.add("e-root");
     const el = container.querySelector(".e-stamp")!;
     const style = getComputedStyle(el);
-    const pad = parseFloat(style.borderInlineStartWidth) + parseFloat(style.paddingInlineStart);
-    expect(Math.abs(pad - parseFloat(style.paddingInlineEnd))).toBeLessThanOrEqual(0.5);
+    const start = parseFloat(style.borderInlineStartWidth) + parseFloat(style.paddingInlineStart);
+    const end = parseFloat(style.borderInlineEndWidth) + parseFloat(style.paddingInlineEnd);
+    expect(Math.abs(start - end)).toBeLessThanOrEqual(0.5);
   });
 
   test("a final stamp is a ring and has no side", async () => {
@@ -137,10 +142,10 @@ describe("EStamp", () => {
     expect(getComputedStyle(a!).justifySelf).toBe("auto");
   });
 
-  test("a warning stamp reads its text in the on-warning colour", async () => {
+  test("a warning stamp reads its text in the warning colour, on its tint", async () => {
     const { container } = await render(EStamp, { props: { tone: "warning", label: "Review" } });
     const probe = document.createElement("span");
-    probe.style.color = "var(--e-on-warning)";
+    probe.style.color = "var(--e-warning)";
     container.append(probe);
     expect(getComputedStyle(container.querySelector(".e-stamp")!).color).toBe(getComputedStyle(probe).color);
   });

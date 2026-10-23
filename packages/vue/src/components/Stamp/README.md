@@ -1,6 +1,6 @@
 # EStamp
 
-A small non-interactive mark with a word that says where something stands, such as paid or overdue. Like a notice, it has a thick side on its inline-start edge, in a darker shade of its fill. It also serves as a plain label: pass the word in the slot and a `tone`. Use a button for anything pressable.
+A small non-interactive mark with a word that says where something stands, such as paid or overdue. Like a notice, it is a soft tint of its tone with an edge in that tone and a thick side on its inline-start edge. It also serves as a plain label: pass the word in the slot and a `tone`. Use a button for anything pressable.
 
 ```vue
 <EStamp status="overdue" detail="12 days" />
