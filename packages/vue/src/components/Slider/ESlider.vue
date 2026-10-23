@@ -173,9 +173,9 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     background: var(--e-border-strong);
   }
 
-  /* The thumb is a small button face with a slab under it. Like the switch's, its face is `ink`, so it stands out on the groove and on the page in every theme. */
+  /* The thumb is a small button face with a slab under it. Like the switch's, its face is `ink`, so it stands out on the groove and on the page in every theme, and it stands on a primary slab that sinks when pressed. */
   .e-slider-thumb {
-    --_slab: var(--e-slab-ink);
+    --_slab: var(--e-primary-slab);
     --_lift: var(--e-slab);
 
     display: block;
@@ -190,12 +190,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     transition: var(--e-transition-state);
   }
 
-  .e-slider-thumb:hover {
-    --_slab: var(--e-primary-slab);
-  }
-
   .e-slider-thumb:active {
-    --_slab: var(--e-primary-slab);
     --_lift: 0px;
 
     cursor: grabbing;
