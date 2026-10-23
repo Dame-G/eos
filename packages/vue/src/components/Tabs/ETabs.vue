@@ -159,16 +159,19 @@ watch(current, () => reveal(true));
     margin-inline-start: calc(-1 * var(--e-stroke-edge));
   }
 
+  /* An inactive tab answers the pointer with ink text, a wash and a darker edge of the same width: no ring is added, so the edge never gets thicker. */
   .e-tab:not([aria-selected="true"], :disabled):hover {
+    --_bc: var(--e-wash-ring);
+
     z-index: var(--e-z-raised);
     color: var(--e-ink);
     background-color: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
   }
 
   .e-tab:not([aria-selected="true"], :disabled):active {
+    --_bc: var(--e-ink);
+
     background-color: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
   }
 
   .e-tab[aria-selected="true"] {

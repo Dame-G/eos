@@ -3,6 +3,7 @@ import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ESegmented from "./ESegmented.vue";
+import ETabs from "../Tabs/ETabs.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 function colourOf(host: Element, token: string) {
@@ -239,15 +240,39 @@ describe("ESegmented", () => {
     expect(getComputedStyle(text).color).toBe(ink);
   });
 
-  test("the hover ring is the piece's own border, so no strip of bare wash lies between it and the next piece", async () => {
+  test("an option that is not chosen answers the pointer as an inactive tab does", async () => {
+    const tabs = await render(ETabs, {
+      props: {
+        items: [
+          { id: "a", label: "A" },
+          { id: "b", label: "B" },
+        ],
+      },
+      slots: { a: () => "A", b: () => "B" },
+    });
+    tabs.container.classList.add("e-root");
     const { container } = await render(ESegmented, { props: { label: "View", options, modelValue: "Day" } });
     container.classList.add("e-root");
+    const look = (el: Element) => {
+      const css = getComputedStyle(el);
+      return {
+        bg: css.backgroundColor,
+        edge: css.borderTopColor,
+        width: css.borderTopWidth,
+        shadow: css.boxShadow,
+        ink: css.color,
+      };
+    };
     await userEvent.hover(container.querySelectorAll("input")[1]!);
     await new Promise((r) => setTimeout(r, 250));
-    const hovered = getComputedStyle(container.querySelectorAll(".e-seg-text")[1]!);
-    expect(hovered.boxShadow).toBe("none");
-    expect(hovered.borderTopColor).toBe(colourOf(container, "--e-wash-ring"));
-    expect(hovered.borderLeftColor).toBe(colourOf(container, "--e-wash-ring"));
+    const seg = look(container.querySelectorAll(".e-seg-text")[1]!);
+    await userEvent.hover(tabs.container.querySelectorAll(".e-tab")[1]!);
+    await new Promise((r) => setTimeout(r, 250));
+    const tab = look(tabs.container.querySelectorAll(".e-tab")[1]!);
+    expect(seg).toEqual(tab);
+    // The edge changes colour but never gets thicker: no ring is laid inside it.
+    expect(seg.shadow).toBe("none");
+    expect(seg.width).toBe("1px");
   });
 
   test("the end pieces carry the track's corners, so a ring, an outline or a slab is never cut by the track's clip", async () => {

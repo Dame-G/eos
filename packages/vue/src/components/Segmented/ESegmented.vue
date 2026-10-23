@@ -254,10 +254,11 @@ const groupAttrs = () => ({
     border-end-end-radius: var(--e-radius-md);
   }
 
-  /* The hover and press ring is the piece's own border, not an inset shadow: a shadow draws inside the border, which leaves a strip of bare wash between the ring and the next piece. */
+  /* An option that is not chosen answers the pointer as an inactive tab does: ink text, a wash and a darker edge of the same width, darker again when pressed. No ring is added, so the edge never gets thicker. */
   .e-seg-opt:hover .e-seg-input:enabled:not(:checked) + .e-seg-text {
     --_slab: var(--e-wash-ring);
 
+    color: var(--e-ink);
     background: var(--e-wash-hover);
   }
 
