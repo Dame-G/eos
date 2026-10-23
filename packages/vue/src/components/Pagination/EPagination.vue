@@ -125,7 +125,7 @@ const items = computed<(number | "gap")[]>(() => {
   .e-pager-status {
     display: none;
     margin: 0;
-    font: var(--e-weight-medium) var(--e-text-sm) / 1.2 var(--e-font-mono);
+    font: var(--e-type-numeral);
     font-variant-numeric: tabular-nums;
     color: var(--e-muted);
   }
@@ -172,7 +172,7 @@ const items = computed<(number | "gap")[]>(() => {
   /* The current page is a value: filled primary on its slab. */
   .e-page[aria-current="page"] {
     --_slab: var(--e-primary-slab);
-    --_lift: var(--e-slab);
+    --_lift: var(--e-depth);
 
     background: var(--e-primary);
     color: var(--e-on-primary);

@@ -46,7 +46,7 @@
   }
 
   .e-table tbody tr:hover :is(td, th) {
-    background: var(--e-surface-hover);
+    background: var(--e-wash-hover);
   }
 
   .e-table .e-num {

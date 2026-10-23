@@ -136,7 +136,7 @@ There are no look variants. A component has one good default. If two looks are b
 - **Motion.** Use `--e-duration-tap`, `--e-duration-fade` and `--e-duration-move` for state changes: the theme CSS sets all three to 0.01ms under `prefers-reduced-motion`, so a transition needs no media query of its own. A looping animation (a skeleton pulse, a spinner, an indeterminate bar) uses `--e-duration-loop` or `--e-duration-spin` with `--e-easing-standard` or `--e-easing-linear`, and sets `animation: none` itself under `prefers-reduced-motion`, because a loop at 0.01ms would flicker.
 - **Print.** The theme CSS makes `ink`, the borders and the grounds black and white under `@media print`. A component only hides what should not print and drops its shadow; it does not write print colours.
 - **Weights and sizes.** `font-weight` is `var(--e-weight-regular | medium | strong)` (400, 500, 600; there is no 700). An icon, a checkbox or an avatar is sized with `--e-icon-size`, `--e-icon-size-sm`, `--e-icon-size-md`, `--e-icon-size-lg`, `--e-check-size`, `--e-avatar-size-sm` or `--e-avatar-size-lg`, so it grows with `textScale`.
-- **A fill and its states** use the tone tokens, not a `color-mix()` of your own: `--e-<tone>`, `--e-<tone>-hover`, `--e-<tone>-press`, `--e-<tone>-slab` for `primary`, `secondary` and `danger`; `--e-<tone>-soft` for the backdrop of `success`, `info`, `warning` and `danger`; `--e-wash-hover`, `--e-wash-press` and `--e-wash-ring` for something without a fill; `--e-skeleton` for a loading placeholder; `--e-disabled-ink` and `--e-disabled-fill` for a disabled control. A raised face with no colour of its own uses `.e-slab` (see Design conventions).
+- **A fill and its states** use the tone tokens, not a `color-mix()` of your own: `--e-<tone>`, `--e-<tone>-hover`, `--e-<tone>-press`, `--e-<tone>-slab` for `primary`, `secondary` and `danger`; `--e-<tone>-soft` for the backdrop of `success`, `info`, `warning` and `danger`; `--e-wash-hover`, `--e-wash-press` and `--e-wash-ring` for something without a fill; `--e-skeleton` for a loading placeholder; `--e-disabled-ink` and `--e-disabled-fill` for a disabled control. A raised face with no colour of its own uses the slab construction with `--e-slab-ink` (see Design conventions).
 - **Breakpoints** are written as literals, because a custom property cannot be read inside `@media` or `@container`: `26rem` (a phone column), `36rem` (two columns) and `48rem` (the page frame shows its navigation). `--e-bp-narrow`, `--e-bp-medium` and `--e-bp-wide` record them for design tools. Query the component's own container (`@container`) except for the page frame.
 
 ### Documentation
@@ -217,7 +217,7 @@ The slab is the raised bottom edge under a face. There is one construction, the 
 }
 ```
 
-`.e-slab` in `base.css` is exactly this, with `--_slab` defaulting to `--e-slab-ink` for a face with no colour of its own. Thickness comes from three tokens and nothing else (no `0.6 *`, `1.5 *`, `space-1`): `slab-thin` (a small part: a switch thumb, a key), `slab` (everything else), `slab-bold` (a side edge that marks a tone, as on a Notice or Toast). A tone's edge colour is its `*-slab` token. Do not draw the slab as a gradient band, a `::before` bar or an inset shadow. The one exception is a face that cannot grow a border: `.e-slab--shadow` / `--e-slab-edge` (the face is shorter by `--e-slab`), and `.e-slab--sink` / `--e-slab-sink` for a quiet control toggled on.
+The recipe comment in `base.css` is the reference; use `--e-slab-ink` for `--_slab` on a face with no colour of its own. Thickness comes from three tokens and nothing else (no `0.6 *`, `1.5 *`, `space-1`): `slab-thin` (a small part: a switch thumb, a key), `depth` (everything else; `slab` is its deprecated alias), and `slab-bold` for a side edge that marks a tone (Notice, Stamp, Toast), always `calc(var(--e-stroke-edge) + var(--e-slab-bold))` on the inline-start border. A tone's edge colour is its `*-slab` token. Do not draw the slab as a gradient band, a `::before` bar or an inset shadow. The one exception is a face that cannot grow a border: `--e-slab-edge` (the face is shorter by `--e-depth`), and `--e-slab-sink` for a quiet control toggled on.
 
 ### Corners
 
@@ -230,11 +230,11 @@ A rounded thing inside a rounded, bordered thing has a smaller radius, so the tw
 }
 ```
 
-Write the sum where the child is styled, with the container's real border and padding: a custom property built from `var(--e-radius-md)` is resolved where it is declared, so a scoped theme that sets `--e-radius-md` on a container would not reach it. A component that needs the sum twice keeps the inset in a private `--_inset` and computes `max(0px, calc(var(--e-radius-md) - var(--_inset)))` on the element itself. A child that sits a full `gap-tight` inside its container would round a lot less than the container (4px against 8px) and look sharp beside it. So rows of a list panel and swatches in a field use `--e-pad-inset` (2px, half of `gap-tight`) in the sum while keeping their real padding: `max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))`. Use the real inset for a child that fills its container, such as a segment or the picture in an avatar ring. The maths follows every `radius` setting (`sharp`, `default`, `round`). A circle or pill (`radius-round`, `radius-pill`) is left alone.
+Write the sum where the child is styled, with the container's real border and padding: a custom property built from `var(--e-radius-md)` is resolved where it is declared, so a scoped theme that sets `--e-radius-md` on a container would not reach it. A component that needs the sum twice keeps the inset in a private `--_inset` and computes `max(0px, calc(var(--e-radius-md) - var(--_inset)))` on the element itself. Use the real inset, padding and border both: rows of a list panel, a menu or a stepper sit `gap-tight` inside an unbordered `radius-md` panel, so their corner is `max(0px, calc(var(--e-radius-md) - var(--e-gap-tight)))`, and a swatch `gap-tight` inside a field also takes off the field's `stroke-edge`. There is no token for the sum on purpose: it would be resolved on `:root` and miss a `--e-radius-md` set on a container. The same holds for a child that fills its container, such as a segment or the picture in an avatar ring. The maths follows every `radius` setting (`sharp`, `default`, `round`). A circle or pill (`radius-round`, `radius-pill`) is left alone.
 
 ### Hover, press and focus
 
-One recipe for anything that can be pressed. `.e-interact` in `base.css` is the reference; a component that needs its own selectors copies these declarations.
+One recipe for anything that can be pressed. The recipe comment and `.e-interact` in `base.css` are the reference; a component that needs its own selectors copies these declarations. A bordered item (a tab, a segment) recolours its own border instead of adding a ring, so its edge never thickens. A text link, a breadcrumb and a disclosure summary are the named exceptions and draw no ring.
 
 | State      | Quiet item (no fill)                                                               | Filled control                          |
 | ---------- | ---------------------------------------------------------------------------------- | --------------------------------------- |
@@ -244,8 +244,8 @@ One recipe for anything that can be pressed. `.e-interact` in `base.css` is the 
 | transition | `transition: var(--e-transition-state)`                                            | the same                                |
 | focus      | solid `--e-stroke-focus` outline in `--e-focus-ring`, offset by `--e-stroke-focus` | the same                                |
 
-- The ring is `--e-stroke-ring` wide, one value for every hover (not `stroke-card`, `stroke-hair` or `stroke-edge` as the case may be). Hover darkens the edge to `wash-ring`, press to `ink`, so a pressed item reads as sunk.
-- Focus has three variants. **Default:** outline 2px, offset 2px (buttons, links, tabs, rows). **Inset** (`.e-interact--inset`): offset `-2px`, for rows that touch their neighbours or sit in a clipped list. **Field** (`.e-interact--field`): `--e-focus-field` (primary), offset `--e-focus-gap-field`, laid exactly over the border of a text input. An invalid input keeps `danger`.
+- The ring is `--e-stroke-edge` wide, one value for every hover (not `stroke-card`, `stroke-hair` or `stroke-edge` as the case may be). Hover darkens the edge to `wash-ring`, press to `ink`, so a pressed item reads as sunk.
+- Focus has three variants. **Default:** outline 2px, offset 2px (buttons, links, tabs, rows). **Inset** (`.e-interact--inset`): offset `-2px`, for rows that touch their neighbours or sit in a clipped list. **Field**: `--e-focus-field` (primary), offset `--e-focus-gap-field`, laid exactly over the border of a text input. An invalid input keeps `danger`.
 - Never gate a state on colour alone: hover, press and disabled also change a ring, a slab or an outline.
 - Hover styles are held back for devices that can hover by the build (`postcss-hover`); write `:hover` plainly.
 
@@ -253,14 +253,16 @@ One recipe for anything that can be pressed. `.e-interact` in `base.css` is the 
 
 There are two voices, and a component uses one.
 
-| Voice     | Means           | Look                                                                                   | Used by                                                                               |
-| --------- | --------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| **Value** | a value you set | filled `--e-primary` with `--e-on-primary`, `primary-slab` edge (`.e-selected--value`) | toggle button, checkbox, radio, switch, segmented control, current page, selected day |
-| **Place** | where you are   | `surface-hover` face, `primary` text and a `primary` slab (`.e-selected--place`)       | tab, nav item                                                                         |
+| Voice     | Means           | Look                                                            | Used by                                                                               |
+| --------- | --------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| **Value** | a value you set | filled `--e-primary` with `--e-on-primary`, `primary-slab` edge | toggle button, checkbox, radio, switch, segmented control, current page, selected day |
+| **Place** | where you are   | `wash-hover` face, `primary` text and a `primary` edge          | tab, nav item                                                                         |
+
+Place is drawn two ways on purpose. A tab sits in a bordered strip next to its neighbours, so the selected one thickens all four of its edges evenly and the bottom one is primary; a nav item stands alone and takes a real slab, its bottom border thicker by `--e-depth`.
 
 ### Disabled
 
-A control keeps its box, drops its lift, dims to `--e-disabled-ink` and draws a dashed `border-strong` outline inside its edge, so colour is never the only cue (`.e-disabled`). A list row (menu item, option, nav item) only dims its text and stops answering the pointer (`.e-disabled-row`): a dashed box on every unavailable row is noise. Both use `aria-disabled` or `disabled`, not just a class.
+A control keeps its box, drops its lift, dims to `--e-disabled-ink` and draws a dashed `border-strong` outline inside its edge, so colour is never the only cue. A list row (menu item, option, nav item) only dims its text and stops answering the pointer: a dashed box on every unavailable row is noise. Both use `aria-disabled` or `disabled`, not just a class.
 
 ### Motion
 

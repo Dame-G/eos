@@ -1,4 +1,4 @@
-import { defaults, derivedFrom, groups, usage, type TokenName } from "./generated/defaults.js";
+import { defaults, deprecated, derivedFrom, groups, usage, type TokenName } from "./generated/defaults.js";
 import { toDtcg, type DtcgTokens } from "./dtcg.js";
 import {
   type ContrastCheck,
@@ -17,6 +17,7 @@ import {
 
 export type TokenValues = Partial<Record<TokenName, string>>;
 
+/** `"none"` is deprecated: the theme CSS already stops every transition under `prefers-reduced-motion`. It still sets the durations to 0ms. */
 export type MotionPreset = "default" | "snappy" | "gentle" | "none";
 export type ElevationPreset = "outline" | "lifted" | "bold";
 /** A named bundle of `elevation`, `strokes`, `radius` and `motion`. Anything you set yourself wins over the preset. `"paper"` is the default look, `"ink"` is heavy and sharp, `"quiet"` is soft and round. Fonts are never part of a preset. */
@@ -52,14 +53,21 @@ export interface ThemeInput {
   warning?: string;
   /** Font stacks for body, mono and signature text. Fonts are never bundled: load them yourself or import `@eos-ui/vue/fonts.css`. */
   fonts?: { sans?: string; mono?: string; script?: string };
-  /** Corner style: a preset or explicit values. */
-  radius?: "sharp" | "default" | "round" | { sm?: string; md?: string; lg?: string };
+  /** Corner style: a preset, one base radius in px (`radius-md`; `radius-sm` is half of it and `radius-lg` double), or explicit values. */
+  radius?: "sharp" | "default" | "round" | number | { sm?: string; md?: string; lg?: string };
   /** Multiplier for the type scale, `text-xs` to `text-4xl`, and the icon, checkbox and avatar boxes that sit beside text. Those tokens are in rem, so this multiplies on top of the visitor's own browser font size. 1 is the default scale. Non-finite or non-positive values are ignored. */
   textScale?: number;
   /** Multiplier for the spacing scale, `space-1` to `space-16` (the semantic `gap-*`, `pad-*` and `gutter` tokens are references to it, so they follow). 1 is the default scale. Non-finite or non-positive values are ignored. */
   spaceScale?: number;
-  /** Line weights in px. `hair` sets `stroke-hair`, `stroke-card` and `stroke-edge` (1.5 times it, rounded down to whole pixels). `focus` sets `stroke-focus`, which is both the width of the focus outline and its gap. `edge` and `card` set `stroke-edge` (controls) and `stroke-card` (containers, chips) outright and win over what `hair` and a bold `elevation` give. `focus-gap-field` always follows `stroke-edge` in CSS (minus the border width), so a field's focus outline sits exactly over its border. */
-  strokes?: { hair?: number; focus?: number; edge?: number; card?: number };
+  /** Line weights in px: `hair` and `focus` are all a theme needs. `hair` sets `stroke-hair` and derives `stroke-card` (the same, or 2px with a bold `elevation`) and `stroke-edge` (1.5 times it, rounded down to whole pixels). `focus` sets `stroke-focus`, which is both the width of the focus outline and its gap. `focus-gap-field` always follows `stroke-edge` in CSS (minus the border width), so a field's focus outline sits exactly over its border. */
+  strokes?: {
+    hair?: number;
+    focus?: number;
+    /** @deprecated Derived from `hair`. To pin it, set `tokens: { "stroke-edge": "2px" }`. */
+    edge?: number;
+    /** @deprecated Derived from `hair` and `elevation`. To pin it, set `tokens: { "stroke-card": "2px" }`. */
+    card?: number;
+  };
   /** `"high"` draws every line and secondary text at full strength: `border` and `border-strong` become the foreground colour, `muted` is softened only until it holds 15:1, `surface-tint` is a neutral grey (no brand tint) and `scrim` is darker. Pair it with heavier `strokes`. `"auto"` keeps the standard theme and adds the high one under `prefers-contrast: more`. Default `"standard"`. */
   contrast?: ContrastPreset;
   /** Opt in to `prefers-color-scheme` with `"auto"`. The theme is the light one; `dark` (default: a dark surface of `#10151a`) is derived the same way and emitted inside `@media (prefers-color-scheme: dark)`. `color-scheme` becomes `light dark`. Without it the theme is fixed: dark when `surface` is dark, light otherwise. */
@@ -68,7 +76,7 @@ export interface ThemeInput {
   dark?: ThemeVariant;
   /** `"compact"` tightens the space scale to 0.75 (the `gap-*`, `pad-*` and `gutter` tokens follow, since they reference it) and makes controls exactly the 44px tap target (chips follow at 22px); a smaller `controlHeight` is raised to 44 and reported in `warnings`. `"comfortable"` is the default scale. Tap targets never fall under 44px in a compact theme. */
   density?: DensityPreset;
-  /** How state changes feel: sets `duration-tap`, `duration-fade`, `duration-move` and `easing-out`. */
+  /** How state changes feel: sets `duration-tap`, `duration-fade`, `duration-move` and `easing-out`. `"none"` is deprecated: every theme already stops moving under `prefers-reduced-motion`. */
   motion?: MotionPreset;
   /** How depth is drawn: sets `frame`, `well`, `float` and `paper` from the border, ink and hairline. `outline` is flat rings, `lifted` adds soft drops, `bold` uses heavy rings and a hard offset shadow. */
   elevation?: ElevationPreset;
@@ -148,8 +156,6 @@ const PAIRS: { fg: TokenName; bg: TokenName; min: number; role: string }[] = [
   { fg: "on-danger", bg: "danger", min: 4.5, role: "Danger button label" },
   { fg: "danger", bg: "surface", min: 4.5, role: "Error text" },
   { fg: "danger", bg: "danger-soft", min: 4.5, role: "Danger notice text" },
-  { fg: "warning-strong", bg: "warning-soft", min: 4.5, role: "Warning notice text" },
-  { fg: "secondary", bg: "secondary-soft", min: 4.5, role: "Success notice text" },
   { fg: "border", bg: "surface", min: 3, role: "Card outline (non-text)" },
   { fg: "border", bg: "surface-tint", min: 3, role: "Outline on the tinted ground (non-text)" },
   { fg: "border-strong", bg: "surface", min: 3, role: "Control edge (non-text)" },
@@ -179,12 +185,12 @@ const PAIRS: { fg: TokenName; bg: TokenName; min: number; role: string }[] = [
   { fg: "stamp-ink", bg: "surface", min: 4.5, role: "Stamp ink" },
   { fg: "stamp-ink", bg: "surface-paper", min: 4.5, role: "Stamp ink on the paper surface" },
   { fg: "on-warning", bg: "warning", min: 4.5, role: "Warning fill label" },
-  { fg: "ink", bg: "surface-hover", min: 7, role: "Text on a hovered row" },
-  { fg: "muted", bg: "surface-hover", min: 4.5, role: "Secondary text on a hovered row" },
-  { fg: "primary", bg: "surface-hover", min: 4.5, role: "Primary text on a hovered row" },
-  { fg: "ink", bg: "surface-press", min: 7, role: "Text on a pressed row" },
-  { fg: "muted", bg: "surface-press", min: 4.5, role: "Secondary text on a pressed row" },
-  { fg: "primary", bg: "surface-press", min: 4.5, role: "Primary text on a pressed row" },
+  { fg: "ink", bg: "wash-hover", min: 7, role: "Text on a hovered row" },
+  { fg: "muted", bg: "wash-hover", min: 4.5, role: "Secondary text on a hovered row" },
+  { fg: "primary", bg: "wash-hover", min: 4.5, role: "Primary text on a hovered row" },
+  { fg: "ink", bg: "wash-press", min: 7, role: "Text on a pressed row" },
+  { fg: "muted", bg: "wash-press", min: 4.5, role: "Secondary text on a pressed row" },
+  { fg: "primary", bg: "wash-press", min: 4.5, role: "Primary text on a pressed row" },
   { fg: "ink", bg: "primary-soft", min: 7, role: "Text on a selected row" },
   { fg: "muted", bg: "primary-soft", min: 4.5, role: "Secondary text on a selected row" },
   { fg: "primary", bg: "primary-soft", min: 4.5, role: "Primary text on a selected row" },
@@ -308,6 +314,13 @@ function shadowRgb(out: Record<string, string>, dark: boolean) {
   return `${r}, ${g}, ${b}`;
 }
 
+/** The scrim is the deep shade of the brand, as the default teal one is of the logo blue, so it follows a theme instead of tinting every brand teal. */
+function brandScrim(brand: string) {
+  const { c, h } = toOklch(brand);
+  const [r, g, b] = parseHex(fromOklch({ l: 0.2613, c: Math.min(c, 0.0408), h }));
+  return `rgb(${r} ${g} ${b} / 0.55)`;
+}
+
 function layers(set: ShadowLayer[], dark: boolean, base: string) {
   return set
     .map(
@@ -317,29 +330,31 @@ function layers(set: ShadowLayer[], dark: boolean, base: string) {
     .join(", ");
 }
 
+/** The outline of cards, popovers and paper. Written with `var()` so a `border` or `stroke-card` override, from a theme or from plain CSS, reaches every shadow; only the drop layers are literal. */
+const RING = "0 0 0 var(--e-stroke-card) var(--e-border)";
+
 function deriveElevation(
   style: ElevationPreset,
   out: Record<string, string>,
   dark: boolean,
   strokes?: ThemeInput["strokes"],
 ) {
-  const ring = (w: string) => `0 0 0 ${w} ${out["border"]}`;
   const hair = out["stroke-hair"]!;
   const given = positive(strokes?.card);
   const card = given !== undefined ? px(given) : style === "bold" ? "2px" : hair;
   out["stroke-card"] = card;
   const base = shadowRgb(out, dark);
   if (style === "lifted") {
-    out["frame"] = `${ring(card)}, ${layers(CARD, dark, base)}`;
-    out["float"] = `${ring(card)}, ${layers(LIFTED, dark, base)}`;
+    out["frame"] = `${RING}, ${layers(CARD, dark, base)}`;
+    out["float"] = `${RING}, ${layers(LIFTED, dark, base)}`;
   } else if (style === "bold") {
-    out["frame"] = ring(card);
+    out["frame"] = RING;
     out["well"] = `inset 0 3px 0 0 ${dark ? "rgba(0, 0, 0, 0.35)" : "rgba(0, 0, 0, 0.08)"}`;
     out["float"] =
-      `${ring(card)}, 4px 4px 0 0 rgba(${base}, ${dark ? 0.75 : 0.32}), 0 14px 28px -10px rgba(${base}, ${dark ? 0.7 : 0.22})`;
+      `${RING}, 4px 4px 0 0 rgba(${base}, ${dark ? 0.75 : 0.32}), 0 14px 28px -10px rgba(${base}, ${dark ? 0.7 : 0.22})`;
   } else {
-    out["frame"] = ring(card);
-    out["float"] = `${ring(card)}, ${layers(SOFT, dark, base)}`;
+    out["frame"] = RING;
+    out["float"] = `${RING}, ${layers(SOFT, dark, base)}`;
   }
 }
 
@@ -432,7 +447,7 @@ function deriveGround(input: ThemeInput, out: Record<string, string>, dark: bool
   const surface = input.surface ?? out["surface"]!;
   if (input.surface) {
     out["surface"] = input.surface;
-    const hue = toOklch(input.brand ?? out["brand-blue"]!).h;
+    const hue = toOklch(input.brand ?? out["brand"]!).h;
     const l = toOklch(input.surface).l;
     out["surface-tint"] = fromOklch({ l: Math.min(1, Math.max(0, dark ? l + 0.06 : l - 0.045)), c: 0.025, h: hue });
     for (const [token, hueSource] of [
@@ -506,10 +521,10 @@ const lookup = (out: Record<string, string>) => (name: string) => out[name];
 const hexOf = (out: Record<string, string>, name: string) =>
   resolveColor(out[name] ?? "", lookup(out), resolveColor(out["surface"] ?? "", lookup(out)));
 
-/** The fills that carry text and have a strength to give: `surface` pulled toward `ink` (hover, press) and tinted with `primary` (a selected row). */
+/** The fills that carry text and have a strength to give: a wash of `ink` (hover, press), judged over `surface`, and `surface` tinted with `primary` (a selected row). `surface-hover` and `surface-press` are aliases of the washes. */
 const FEEDBACK: [token: string, pct: number, mix: (pct: number) => string][] = [
-  ["surface-hover", 9, (p) => `color-mix(in srgb, var(--e-surface), var(--e-ink) ${p}%)`],
-  ["surface-press", 15, (p) => `color-mix(in srgb, var(--e-surface), var(--e-ink) ${p}%)`],
+  ["wash-hover", 8, (p) => `color-mix(in srgb, var(--e-ink) ${p}%, transparent)`],
+  ["wash-press", 15, (p) => `color-mix(in srgb, var(--e-ink) ${p}%, transparent)`],
   ["primary-soft", 12, (p) => `color-mix(in srgb, var(--e-primary) ${p}%, var(--e-surface))`],
 ];
 
@@ -547,7 +562,7 @@ function deriveFeedback(out: Record<string, string>) {
 /** On a mid-tone surface even the faintest fill leaves the primary colour a hair short, so the primary moves a little further from it. */
 function fitFeedback(out: Record<string, string>) {
   const checks: ContrastCheck[] = [];
-  for (const name of ["surface", "surface-hover", "surface-press"]) {
+  for (const name of ["surface", "wash-hover", "wash-press"]) {
     const hex = hexOf(out, name);
     if (hex) checks.push([hex, 4.5]);
   }
@@ -572,10 +587,11 @@ function derive(input: ThemeInput): Record<string, string> {
   }
   const dangerBase = input.danger ?? (dark ? DARK_DANGER : undefined);
   if (dangerBase) out["danger"] = reachContrast(dangerBase, out["on-danger"]!, 7);
-  if (input.brand) out["brand-blue"] = input.brand;
-  if (input.brand || dark) out["primary"] = reachContrast(out["brand-blue"]!, out["on-primary"]!, 7);
-  if (input.accent) out["brand-green"] = input.accent;
-  if (input.accent || dark) out["secondary"] = reachContrast(out["brand-green"]!, out["on-secondary"]!, 7);
+  if (input.brand) out["brand"] = input.brand;
+  if (input.brand && !dark) out["scrim"] = brandScrim(input.brand);
+  if (input.brand || dark) out["primary"] = reachContrast(out["brand"]!, out["on-primary"]!, 7);
+  if (input.accent) out["brand-accent"] = input.accent;
+  if (input.accent || dark) out["secondary"] = reachContrast(out["brand-accent"]!, out["on-secondary"]!, 7);
   if (input.brand && !input.surface) out["surface-tint"] = tint(input.brand);
   if (input.accent && !input.surface) out["secondary-soft"] = tint(input.accent, 0.96, 0.04);
   deriveGround(input, out, dark);
@@ -592,13 +608,13 @@ function derive(input: ThemeInput): Record<string, string> {
   if (input.warning && !dark) out["warning-strong"] = reachContrast(input.warning, out["surface"]!, 7);
   const surface = out["surface"]!;
   if (input.surface) {
-    if (!fitFill(out, "primary", "on-primary", out["brand-blue"]!, [[surface, 4.5]])) {
-      out["primary"] = reachAll(out["brand-blue"]!, [
+    if (!fitFill(out, "primary", "on-primary", out["brand"]!, [[surface, 4.5]])) {
+      out["primary"] = reachAll(out["brand"]!, [
         [out["on-primary"]!, 4.5],
         [surface, 4.5],
       ]).color;
     }
-    fitTone(out, "secondary", "on-secondary", "secondary-soft", out["brand-green"]!, surface);
+    fitTone(out, "secondary", "on-secondary", "secondary-soft", out["brand-accent"]!, surface);
   }
   if (input.surface || input.danger) {
     fitTone(out, "danger", "on-danger", "danger-soft", dangerBase ?? defaults["danger"], surface);
@@ -615,7 +631,12 @@ function derive(input: ThemeInput): Record<string, string> {
   if (input.fonts?.sans) out["font-sans"] = input.fonts.sans;
   if (input.fonts?.mono) out["font-mono"] = input.fonts.mono;
   if (input.fonts?.script) out["font-script"] = input.fonts.script;
-  if (input.radius) {
+  const radiusBase = typeof input.radius === "number" ? (input.radius === 0 ? 0 : positive(input.radius)) : undefined;
+  if (radiusBase !== undefined) {
+    out["radius-sm"] = px(radiusBase / 2);
+    out["radius-md"] = px(radiusBase);
+    out["radius-lg"] = px(radiusBase * 2);
+  } else if (input.radius && typeof input.radius !== "number") {
     const r = typeof input.radius === "string" ? RADII[input.radius] : { ...RADII.default, ...input.radius };
     out["radius-sm"] = r.sm;
     out["radius-md"] = r.md;
@@ -647,7 +668,6 @@ function derive(input: ThemeInput): Record<string, string> {
   deriveFeedback(out);
   deriveMarks(out, dark);
   fitFeedback(out);
-  out["paper"] = `0 0 0 ${out["stroke-card"]} ${out["border"]}, ${out["well"]}`;
   Object.assign(out, input.tokens);
   return out;
 }
@@ -759,7 +779,17 @@ function inputWarnings(raw: ThemeInput): string[] {
     const v = raw.strokes?.[key];
     if (v !== undefined && positive(v) === undefined)
       out.push(`strokes.${key}: ${String(v)} is not a positive number, so it is ignored.`);
+    else if (v !== undefined && (key === "edge" || key === "card"))
+      out.push(
+        `strokes.${key} is deprecated: it is derived from strokes.hair. It still applies; to pin it, set tokens: { "stroke-${key}": "${v}px" }.`,
+      );
   }
+  if (typeof raw.radius === "number" && raw.radius !== 0 && positive(raw.radius) === undefined)
+    out.push(`radius: ${String(raw.radius)} is not a positive number, so it is ignored.`);
+  if (raw.motion === "none")
+    out.push(
+      'motion: "none" is deprecated: every theme already stops moving under prefers-reduced-motion. It still sets the durations to 0ms.',
+    );
   const tap = parseFloat(defaults["tap"]);
   if (raw.density === "compact" && positive(raw.controlHeight) !== undefined && raw.controlHeight! < tap)
     out.push(`controlHeight: ${raw.controlHeight} is raised to ${tap}, the tap target, because density is "compact".`);
@@ -772,6 +802,7 @@ function inputWarnings(raw: ThemeInput): string[] {
     out.push(`preset: "${raw.preset}" is not a preset (paper, ink, quiet), so it is ignored.`);
   for (const key of Object.keys(raw.tokens ?? {}))
     if (!(key in defaults)) out.push(`tokens.${key}: not a known token, so it only adds a custom property.`);
+    else if (deprecated[key]) out.push(`tokens.${key} is deprecated: ${deprecated[key]}`);
   return out;
 }
 
@@ -815,6 +846,7 @@ export function defineTheme(given: ThemeInput = {}): Theme {
       if (value === undefined) return `${token}: not a token.`;
       const drivers = (derivedFrom[token] ?? "").split(",").filter(Boolean);
       const lines = [`--e-${token}: ${value}`];
+      if (deprecated[token]) lines.push(`deprecated: ${deprecated[token]}`);
       const hex = resolveColor(
         value,
         (n) => tokens[n],

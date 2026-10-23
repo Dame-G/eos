@@ -101,7 +101,7 @@ function closeOnLink(event: MouseEvent) {
     position: relative;
     gap: var(--e-gap-section);
     width: 100%;
-    max-width: var(--e-shell-width, 72rem);
+    max-width: var(--e-shell-width);
     margin-inline: auto;
     padding: var(--e-gap-section) var(--e-gutter);
   }
@@ -112,7 +112,7 @@ function closeOnLink(event: MouseEvent) {
     position: absolute;
     inset-block: 0;
     inset-inline: calc(-1 * var(--e-stroke-hair));
-    border-inline: var(--e-stroke-hair) solid var(--e-shell-rail, var(--e-border));
+    border-inline: var(--e-stroke-hair) solid var(--e-shell-rail);
     pointer-events: none;
   }
 

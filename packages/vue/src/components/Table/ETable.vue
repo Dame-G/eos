@@ -150,7 +150,7 @@ const scrollable = computed(() => overflows.value || !!props.maxHeight);
   }
 
   .e-table-wrap--striped tbody tr:hover :is(td, th) {
-    background: var(--e-surface-hover);
+    background: var(--e-wash-hover);
   }
 
   .e-table-wrap--dense .e-table {

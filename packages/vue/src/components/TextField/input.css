@@ -39,7 +39,7 @@
   /* The hover fill is laid over the well, so it runs unbroken to the top edge. */
   .e-input:hover,
   .e-input-wrap:hover {
-    box-shadow: inset 0 0 0 100vmax var(--_over, var(--e-surface-hover));
+    box-shadow: inset 0 0 0 100vmax var(--_over, var(--e-wash-hover));
   }
 
   .e-input:focus {

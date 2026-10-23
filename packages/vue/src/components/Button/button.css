@@ -5,7 +5,7 @@
     --_hover: var(--e-primary-hover);
     --_press: var(--e-primary-press);
     --_slab: var(--e-primary-slab);
-    --_lift: var(--e-slab);
+    --_lift: var(--e-depth);
     --_ring: var(--_slab);
     --_h: var(--e-control-height);
     --_pad: var(--e-pad-control);
@@ -27,7 +27,7 @@
     background-clip: border-box;
     color: var(--_on);
     font: var(--e-type-button);
-    letter-spacing: 0.01em;
+    letter-spacing: var(--e-tracking-snug);
     white-space: nowrap;
     text-decoration: none;
     cursor: pointer;
@@ -76,8 +76,9 @@
   .e-btn--outline {
     --_fill: var(--e-surface);
     --_on: var(--e-ink);
-    --_hover: var(--e-surface-hover);
-    --_press: var(--e-surface-press);
+    --_hover: var(--_fill);
+    --_press: var(--_fill);
+    --_wash: var(--e-wash-hover);
     --_slab: var(--e-border-strong);
 
     background-clip: padding-box;
@@ -85,6 +86,13 @@
 
   .e-btn--outline:not(:disabled, [aria-disabled="true"], [aria-pressed="true"], .e-btn--loading):is(:hover, :active) {
     --_slab: var(--e-ink);
+
+    /* The face stays opaque: the wash is laid over the surface fill. */
+    box-shadow: inset 0 0 0 100vmax var(--_wash);
+  }
+
+  .e-btn--outline:active {
+    --_wash: var(--e-wash-press);
   }
 
   /* No fill: the quiet item recipe, a wash and a ring, under an underlined label. */
@@ -98,7 +106,7 @@
 
     padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
     text-decoration: underline;
-    text-underline-offset: 5px;
+    text-underline-offset: var(--e-underline-offset);
     text-decoration-thickness: var(--e-stroke-edge);
     text-decoration-color: var(--e-border-strong);
   }

@@ -97,7 +97,7 @@ const label = computed(() =>
 
   /* One you can press has the button's slab under it, which sinks away when pressed. */
   .e-avatar--button {
-    --_lift: var(--e-slab);
+    --_lift: var(--e-depth);
 
     padding: 0;
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
@@ -111,7 +111,7 @@ const label = computed(() =>
   .e-avatar--button:hover {
     --_ring: var(--e-ink);
 
-    background-color: var(--e-surface-hover);
+    background-color: var(--e-wash-hover);
   }
 
   .e-avatar--button:focus-visible {

@@ -292,7 +292,7 @@ defineExpose({
     justify-items: center;
     gap: var(--e-gap-snug);
     color: var(--e-muted);
-    font: var(--e-weight-regular) var(--e-text-sm) / 1.4 var(--e-font-sans);
+    font: var(--e-type-small);
     pointer-events: none;
   }
 

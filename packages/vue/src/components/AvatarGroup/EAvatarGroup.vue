@@ -67,7 +67,7 @@ const name = computed(
   }
 
   .e-avatar-group > .e-avatar {
-    box-shadow: 0 0 0 var(--e-stroke-ring) var(--e-surface);
+    box-shadow: 0 0 0 var(--e-stroke-edge) var(--e-surface);
   }
 }
 </style>

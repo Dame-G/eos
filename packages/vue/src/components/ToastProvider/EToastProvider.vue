@@ -220,7 +220,7 @@ Render.props = ["content"];
   }
 
   .e-toast-region > .e-toast {
-    width: min(24rem, calc(100vw - 2 * var(--e-gap-loose)));
+    width: min(var(--e-size-panel-sm), calc(100vw - 2 * var(--e-gap-loose)));
   }
 
   .e-toast-region > .e-toast--actions {

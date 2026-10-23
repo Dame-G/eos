@@ -67,18 +67,19 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
 
 <style>
 @layer e.containers {
-  /* The slab on the tone's side: the inline-start border, `slab-bold` thick, in the colour of the tone's edge. It flips in a right-to-left page. */
+  /* The slab on the tone's side: the inline-start border, `stroke-edge` plus `slab-bold` thick as on a Notice and a Stamp, in the colour of the tone's edge. It flips in a right-to-left page. */
   .e-toast {
     --e-tone: var(--e-info);
 
     position: relative;
     container-type: inline-size;
-    width: min(24rem, 100%);
+    width: min(var(--e-size-panel-sm), 100%);
     padding: var(--e-gap-base) var(--e-pad-card);
-    border-inline-start: var(--e-slab-bold) solid var(--e-tone);
+    border-inline-start: calc(var(--e-stroke-edge) + var(--e-slab-bold)) solid var(--e-tone);
   }
 
   .e-toast--actions {
+    /* Wider than the notice's 36rem container step plus padding, so the action sits at the end of the row. */
     width: min(40rem, 100%);
   }
 
@@ -101,14 +102,14 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
 
   .e-toast-text {
     margin: 0;
-    font: var(--e-weight-regular) var(--e-text-sm) / 1.45 var(--e-font-sans);
+    font: var(--e-type-small);
     color: var(--e-muted);
   }
 
   @media (forced-colors: active) {
     .e-toast {
       border: var(--e-stroke-card) solid CanvasText;
-      border-inline-start-width: var(--e-slab-bold);
+      border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-slab-bold));
     }
   }
 }

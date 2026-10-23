@@ -3,7 +3,7 @@
     position: fixed;
     inset: auto;
     margin: 0;
-    width: min(24rem, calc(100vw - var(--e-space-8)));
+    width: min(var(--e-size-panel-sm), calc(100vw - var(--e-space-8)));
     max-height: min(60dvh, 32rem);
     overflow: auto;
     overscroll-behavior: contain;
@@ -37,8 +37,8 @@
     min-height: var(--e-control-height);
     padding: var(--e-gap-snug) var(--e-pad-control-sm);
 
-    /* A row sits `gap-tight` inside a borderless md panel (select, combobox, palette, search results). Its corner uses `pad-inset`, the smaller distance the corner maths assumes, so the row rounds almost as much as the panel and the two read as one shape. */
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)));
+    /* A row sits `gap-tight` inside a borderless md panel (select, combobox, palette, search results), so its corner is the panel's radius less that gap and the two curves share a centre. */
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-gap-tight)));
     font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
     cursor: pointer;
     transition: var(--e-transition-state);
@@ -56,7 +56,7 @@
   }
 
   .e-opt-desc {
-    font: var(--e-weight-regular) var(--e-text-sm) / 1.35 var(--e-font-sans);
+    font: var(--e-type-small);
     color: var(--e-muted);
   }
 
@@ -106,7 +106,7 @@
     text-decoration: underline;
     text-decoration-color: var(--e-primary);
     text-decoration-thickness: var(--e-stroke-focus);
-    text-underline-offset: calc(var(--e-gap-tight) - var(--e-stroke-edge));
+    text-underline-offset: var(--e-underline-offset);
   }
 
   [data-reka-popper-content-wrapper] > .e-popover {

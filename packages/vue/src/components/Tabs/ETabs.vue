@@ -181,7 +181,7 @@ watch(current, () => reveal(true));
     z-index: var(--e-z-sticky);
     border-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-bottom-color: var(--_slab);
-    background-color: var(--e-surface-hover);
+    background-color: var(--e-wash-hover);
     color: var(--e-primary);
     font-weight: var(--e-weight-strong);
   }

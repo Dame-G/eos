@@ -245,7 +245,7 @@ defineExpose({
     gap: var(--e-gap-snug);
     min-width: 0;
     overflow: hidden;
-    line-height: 1.4;
+    line-height: var(--e-leading-normal);
     text-overflow: ellipsis;
     white-space: nowrap;
   }

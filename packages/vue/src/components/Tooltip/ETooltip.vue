@@ -88,12 +88,12 @@ function touchEnd(e: PointerEvent) {
   .e-tip-bubble {
     z-index: var(--e-z-tooltip);
     width: max-content;
-    max-width: 16rem;
+    max-width: calc(var(--e-size-panel-md) / 2);
     padding: var(--e-gap-snug) var(--e-pad-control-sm);
     border-radius: var(--e-radius-sm);
     background: var(--e-ink);
     color: var(--e-surface);
-    font: var(--e-weight-regular) var(--e-text-sm) / 1.35 var(--e-font-sans);
+    font: var(--e-type-small);
     text-align: center;
   }
 }

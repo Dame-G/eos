@@ -160,19 +160,19 @@ function update(patch: Partial<SignatureValue>) {
   }
 
   .e-sign-name {
-    font: italic var(--e-weight-medium) var(--e-text-3xl) / 1.1 var(--e-font-script);
+    font: italic var(--e-weight-medium) var(--e-text-3xl) / var(--e-leading-tight) var(--e-font-script);
     min-width: 0;
     overflow-wrap: anywhere;
   }
 
   .e-sign-empty {
-    font: var(--e-weight-regular) var(--e-text-md) / 1.4 var(--e-font-sans);
+    font: var(--e-type-body);
     color: var(--e-muted);
   }
 
   .e-sign-date {
     flex: none;
-    font: var(--e-weight-medium) var(--e-text-xs) / 1.2 var(--e-font-mono);
+    font: var(--e-type-meta);
     color: var(--e-muted);
   }
 

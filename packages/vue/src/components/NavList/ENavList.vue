@@ -84,8 +84,8 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
     margin-block: var(--e-gap-section) var(--e-gap-snug);
     margin-inline: 0;
     padding-inline: var(--e-pad-control-sm);
-    font: var(--e-weight-strong) var(--e-text-sm) / 1.2 var(--e-font-mono);
-    letter-spacing: 0.08em;
+    font: var(--e-type-kicker);
+    letter-spacing: var(--e-tracking-label);
     text-transform: uppercase;
     color: var(--e-ink);
   }
@@ -149,9 +149,9 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
   /* Where you are: a washed face with the primary slab, in the voice tabs use. */
   .e-nav-item[aria-current="page"] {
     --_slab: var(--e-primary);
-    --_lift: var(--e-slab);
+    --_lift: var(--e-depth);
 
-    background-color: var(--e-surface-hover);
+    background-color: var(--e-wash-hover);
     background-clip: padding-box;
     color: var(--e-primary);
     font-weight: var(--e-weight-strong);

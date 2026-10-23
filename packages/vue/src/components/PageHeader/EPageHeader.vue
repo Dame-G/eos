@@ -65,13 +65,13 @@ defineSlots<{
   }
 
   .e-pagehead-title {
-    line-height: 1.1;
+    line-height: var(--e-leading-tight);
   }
 
   .e-pagehead-desc {
     margin: 0;
     max-width: var(--e-measure);
-    font: var(--e-weight-regular) var(--e-text-lg) / 1.45 var(--e-font-sans);
+    font: var(--e-type-deck);
     color: var(--e-muted);
   }
 

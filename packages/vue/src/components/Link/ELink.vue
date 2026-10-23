@@ -54,7 +54,7 @@ const target = computed(() => (props.to !== undefined ? { to: props.to } : { hre
     font-weight: var(--e-weight-medium);
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
-    text-underline-offset: var(--e-gap-tight);
+    text-underline-offset: var(--e-underline-offset);
     text-decoration-color: currentcolor;
     border-radius: var(--e-radius-sm);
     transition: var(--e-transition-state);
@@ -79,7 +79,7 @@ const target = computed(() => (props.to !== undefined ? { to: props.to } : { hre
   .e-link--icon .e-link-text {
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
-    text-underline-offset: var(--e-gap-tight);
+    text-underline-offset: var(--e-underline-offset);
   }
 
   .e-link--icon .e-icon {

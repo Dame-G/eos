@@ -51,6 +51,7 @@ groups.font = ["font-sans", "font-mono", "font-script"];
 const usage = {};
 const derivedFrom = { "font-sans": "fonts", "font-mono": "fonts", "font-script": "fonts" };
 const constants = [];
+const deprecated = {};
 const inputTokens = ["font-sans", "font-mono", "font-script"];
 for (const family of [...FAMILIES, "type"])
   for (const t of tokensOf(family)) {
@@ -58,6 +59,7 @@ for (const family of [...FAMILIES, "type"])
     if (t.from) derivedFrom[t.name] = t.from;
     if (t.constant) constants.push(t.name);
     if (t.input) inputTokens.push(t.name);
+    if (t.deprecated) deprecated[t.name] = t.deprecated;
   }
 
 const colors = new Set(src.color.tokens.map((t) => t.name));
@@ -68,6 +70,8 @@ export const usage: Record<string, string> = ${JSON.stringify(usage, null, 2)};
 export const derivedFrom: Record<string, string> = ${JSON.stringify(derivedFrom, null, 2)};
 export const constants: string[] = ${JSON.stringify(constants)};
 export const inputTokens: string[] = ${JSON.stringify(inputTokens)};
+/** Tokens that are still emitted but will be removed, with what to use instead. */
+export const deprecated: Record<string, string> = ${JSON.stringify(deprecated, null, 2)};
 export type TokenName = keyof typeof defaults;
 export const colorNames: ReadonlySet<string> = new Set(${JSON.stringify([...colors])});
 `;

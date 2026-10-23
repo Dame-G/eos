@@ -206,7 +206,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
   /* The thumb is a small button face with a slab under it. Like the switch's, its face is `ink`, so it stands out on the groove and on the page in every theme, and it stands on a primary slab that sinks when pressed. */
   .e-slider-thumb {
     --_slab: var(--e-primary-slab);
-    --_lift: var(--e-slab);
+    --_lift: var(--e-depth);
 
     display: block;
     box-sizing: border-box;

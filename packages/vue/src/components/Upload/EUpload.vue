@@ -286,7 +286,7 @@ defineExpose({
   }
 
   .e-drop:hover:not(.e-drop--readonly) {
-    background: var(--e-surface-hover);
+    background: var(--e-wash-hover);
     outline-color: var(--e-ink);
   }
 
@@ -300,14 +300,14 @@ defineExpose({
   }
 
   .e-drop-main {
-    font: var(--e-weight-regular) var(--e-text-md) / 1.4 var(--e-font-sans);
+    font: var(--e-type-body);
   }
 
   .e-drop-pick {
     color: var(--e-primary);
     font-weight: var(--e-weight-medium);
     text-decoration: underline;
-    text-underline-offset: 0.2em;
+    text-underline-offset: var(--e-underline-offset);
   }
 
   .e-drop--disabled {
@@ -330,8 +330,8 @@ defineExpose({
   }
 
   .e-drop-hint {
-    font: var(--e-weight-medium) var(--e-text-xs) / 1.2 var(--e-font-mono);
-    letter-spacing: 0.06em;
+    font: var(--e-type-meta);
+    letter-spacing: var(--e-tracking-wide);
     color: var(--e-muted);
   }
 
