@@ -5,7 +5,7 @@ export type Size = "sm" | "md" | "lg";
 
 /**
  * The size of a component that takes `size` and the older `small` and `large` flags. `size` wins; giving it together
- * with a flag warns in development.
+ * with a flag warns in development. @internal
  */
 export function useSize(
   props: { size?: Size; small?: boolean; large?: boolean },

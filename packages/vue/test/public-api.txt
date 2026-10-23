@@ -78,7 +78,6 @@ EToastProvider
 ETooltip
 EUpload
 EVisuallyHidden
-FORM_KEY
 TOAST_KEY
 createEos
 createToasts
@@ -87,18 +86,13 @@ defineTheme
 focusInside
 formatShortcut
 iconNames
-isApple
-localeDirection
 phosphor
 themeCss
 useAnnouncer
 useConfig
 useCopy
-useDetails
 useDir
 useFieldAttrs
-useFieldControl
-useFormField
 useIconResolver
 useLocale
 useMessages
@@ -106,6 +100,5 @@ useOverflow
 usePortalTarget
 useQuietFocus
 useShortcuts
-useSize
 useToast
 useUid
