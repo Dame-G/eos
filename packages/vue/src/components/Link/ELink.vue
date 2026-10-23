@@ -60,14 +60,8 @@ const target = computed(() => (props.to !== undefined ? { to: props.to } : { hre
     transition: var(--e-transition-state);
   }
 
-  .e-link:hover {
+  .e-link:is(:hover, :active) {
     color: var(--e-ink);
-    background-color: var(--e-wash-hover);
-  }
-
-  .e-link:active {
-    color: var(--e-ink);
-    background-color: var(--e-wash-press);
   }
 
   .e-link:focus-visible {
