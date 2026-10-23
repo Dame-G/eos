@@ -88,6 +88,7 @@ export default defineConfig(({ command }) => ({
       entry: {
         index: src("./src/index.ts"),
         resolver: src("./src/resolver.ts"),
+        globals: src("./src/globals.ts"),
         "icons/index": src("./src/icons/index.ts"),
         "icons/iconify": src("./src/icons/iconify.ts"),
       },

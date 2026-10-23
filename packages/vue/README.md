@@ -46,7 +46,7 @@ const email = ref("");
 - `defineTheme()` (re-exported from [`@eos-ui/tokens`](../tokens)) builds a theme from `brand`, `accent` and other inputs and checks its contrast.
 - Icons: a built-in Phosphor set, or Lucide, Tabler, Heroicons, Phosphor (Vue), Iconify or your own set (`@eos-ui/vue/icons`, see [Bring your own icons](src/icons/README.md)).
 - `EosResolver` from `@eos-ui/vue/resolver` auto-imports components for `unplugin-vue-components`. It does not import the stylesheet unless you pass `{ css: true }`.
-- Importing the package types globally registered components and `$e` for Volar and `vue-tsc`.
+- Importing the package types `$e` (the config) in templates. `createEos()` registers no components, so their global types are opt-in: after `app.component("EButton", EButton)`, add `import type {} from "@eos-ui/vue/globals"` (or `"types": ["@eos-ui/vue/globals"]` in `tsconfig.json`). With `unplugin-vue-components` you do not need it: the plugin writes its own `components.d.ts`.
 - Composables for common needs: `useAnnouncer` (screen reader announcements), `useShortcuts` (keyboard shortcuts), `useCopy`, `useToast`. See [Composables](src/composables/README.md).
 - `@eos-ui/vue/llms.txt` and `llms-full.txt` give AI coding assistants an index and the complete docs.
 - Components work without the plugin, in English and US dollars.

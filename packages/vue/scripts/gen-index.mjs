@@ -40,7 +40,6 @@ const lines = [
   'export type { ResolvedIcon } from "./config.js";',
   'export { defineTheme } from "@eos-ui/tokens";',
   'export type { Theme, ThemeInput } from "@eos-ui/tokens";',
-  'export type * from "./globals.js"; // no exports: loads the "vue" augmentation (GlobalComponents, $e) into the types',
   ...composables.map((c) => `export * from "./composables/${c}.js";`),
   ...components.map((c) => `export * from "./components/${c}/index.js";`),
   "",
@@ -61,21 +60,21 @@ emit(
   join(root, "component-names.ts"),
   `${header}export const componentNames: ReadonlySet<string> = new Set([\n${names.map((n) => `  "${n}",\n`).join("")}]);\n`,
 );
-// Gives Volar and vue-tsc the global component types (<EButton> in a template after global registration or a resolver)
-// and types `$e`. index.ts loads it, so importing the package is enough.
+// Gives Volar and vue-tsc the global component types (<EButton> in a template after `app.component` registration).
+// Opt-in, as `@eos-ui/vue/globals`: `createEos()` registers no components, so declaring them for every app would let a
+// missing import pass the type check and fail at run time. `$e` is declared in plugin.ts, since the plugin always sets it.
 emit(
   join(root, "globals.ts"),
-  `${header}import type * as Library from "./index.js";
-import type { EosConfig } from "./config.js";
+  `${header}// Opt-in types for components you register globally with \`app.component\`. Load them with
+// \`import type {} from "@eos-ui/vue/globals"\` or \`"types": ["@eos-ui/vue/globals"]\` in tsconfig.json.
+import type * as Library from "./index.js";
 
 declare module "vue" {
   interface GlobalComponents {
 ${names.map((n) => `    ${n}: typeof Library.${n};\n`).join("")}  }
-  interface ComponentCustomProperties {
-    /** The EOS config (locale, currency, messages, icons). Set by \`createEos()\`. */
-    $e: EosConfig;
-  }
 }
+
+export {};
 `,
 );
 if (check) {

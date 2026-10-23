@@ -95,10 +95,18 @@ for (const name of ["plugin.js", "config.js", "env.js"]) {
     problems.push(`dist/${name} reads import.meta.env, which the build freezes`);
 }
 
-// 5. The types that augment "vue" are reachable from the package entry.
+// 5. The global component types are opt-in (`@eos-ui/vue/globals`): the package entry must not load them, since the
+// plugin registers no components. `$e` is always set, so its type comes with the entry.
 const indexTypes = join(pkgRoot, "dist", "index.d.ts");
-if (!existsSync(indexTypes) || !readFileSync(indexTypes, "utf8").includes("globals.js"))
-  problems.push("dist/index.d.ts does not load globals.d.ts (GlobalComponents and $e types)");
+const globalsTypes = join(pkgRoot, "dist", "globals.d.ts");
+if (existsSync(indexTypes) && readFileSync(indexTypes, "utf8").includes("globals.js"))
+  problems.push("dist/index.d.ts loads globals.d.ts; the GlobalComponents types are opt-in (@eos-ui/vue/globals)");
+if (!existsSync(globalsTypes) || !readFileSync(globalsTypes, "utf8").includes("GlobalComponents"))
+  problems.push("dist/globals.d.ts is missing or does not declare GlobalComponents");
+if (!existsSync(join(pkgRoot, "dist", "globals.js"))) problems.push("dist/globals.js is missing");
+const pluginTypes = join(pkgRoot, "dist", "plugin.d.ts");
+if (!existsSync(pluginTypes) || !readFileSync(pluginTypes, "utf8").includes("$e"))
+  problems.push("dist/plugin.d.ts does not declare $e");
 
 if (problems.length) {
   console.error(problems.join("\n"));

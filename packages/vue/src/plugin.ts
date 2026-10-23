@@ -29,6 +29,13 @@ export interface EosOptions extends Partial<EosConfig> {
   warnOnContrast?: boolean;
 }
 
+declare module "vue" {
+  interface ComponentCustomProperties {
+    /** The EOS config (locale, currency, messages, icons). Set by `createEos()`. */
+    $e: EosConfig;
+  }
+}
+
 export interface Eos {
   install(app: App): void;
   /** The reactive config. Change `config.locale` or `config.messages` and the components follow. */
