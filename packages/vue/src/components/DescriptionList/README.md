@@ -29,7 +29,7 @@ A list where no item has a `label` renders as a plain list of facts. It has no E
 
 | Slot     | Use                                                                                                     |
 | -------- | ------------------------------------------------------------------------------------------------------- |
-| `action` | Adds content after a row's text and badge, such as a Button or IconButton. Receives `item` and `index`. |
+| `action` | Adds content after a row's text and stamp, such as a Button or IconButton. Receives `item` and `index`. |
 
 ## Events
 
