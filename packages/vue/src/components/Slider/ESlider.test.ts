@@ -6,6 +6,19 @@ import ESlider from "./ESlider.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESlider", () => {
+  test("the focus ring is for the keyboard: a press hides it, the next key brings it back", async () => {
+    const { container } = await render(ESlider, { props: { label: "Volume", modelValue: 30 } });
+    container.classList.add("e-root");
+    const thumb = container.querySelector(".e-slider-thumb") as HTMLElement;
+    const ring = () => getComputedStyle(thumb).outlineStyle;
+    await userEvent.tab();
+    expect(ring()).toBe("solid");
+    thumb.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerId: 1, button: 0 }));
+    await expect.poll(ring).toBe("none");
+    await userEvent.keyboard("{ArrowRight}");
+    await expect.poll(ring).toBe("solid");
+  });
+
   test("the filled range stops at a disabled thumb instead of showing through it", async () => {
     const { container } = await render(ESlider, { props: { label: "Volume", modelValue: 60, disabled: true } });
     container.classList.add("e-root");

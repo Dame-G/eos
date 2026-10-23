@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { ConfigProvider, SliderRoot, SliderThumb, SliderTrack } from "reka-ui";
 import EField from "../Field/EField.vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
@@ -53,6 +53,13 @@ function update(next: number[] | undefined) {
 }
 
 /** A read-only slider takes focus but swallows the pointer and the keys that would move a thumb. */
+/**
+ * The thumb is focused in code when it is pressed, and the browser then guesses whether to draw the focus ring from the
+ * last interaction: on a fresh page it guesses a keyboard and draws it. The ring is for the keyboard, so a press hides it
+ * until the next key.
+ */
+const byPointer = ref(false);
+
 function hold(e: Event) {
   if (props.readonly && !(e instanceof KeyboardEvent && e.key === "Tab")) e.stopImmediatePropagation();
 }
@@ -102,10 +109,16 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
           :dir="dir"
           :disabled="disabled"
           class="e-slider"
-          :class="{ 'e-slider--readonly': readonly }"
+          :class="{ 'e-slider--readonly': readonly, 'e-slider--pointer': byPointer }"
           @update:model-value="update"
-          @pointerdown.capture="hold"
-          @keydown.capture="hold"
+          @pointerdown.capture="
+            byPointer = true;
+            hold($event);
+          "
+          @keydown.capture="
+            byPointer = false;
+            hold($event);
+          "
         >
           <SliderTrack class="e-slider-track">
             <span class="e-slider-range" :style="filled" />
@@ -213,6 +226,10 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
   .e-slider-thumb:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: var(--e-stroke-focus);
+  }
+
+  .e-slider--pointer .e-slider-thumb:focus-visible {
+    outline: none;
   }
 
   .e-slider-thumb[aria-invalid="true"] {
