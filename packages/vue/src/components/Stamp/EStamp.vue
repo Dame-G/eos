@@ -81,9 +81,9 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
     gap: var(--e-gap-snug);
     min-height: calc(var(--e-chip-height) + var(--e-gap-tight));
     padding-block: 0;
-    padding-inline: calc(var(--e-pad-chip) - var(--e-slab-bold)) calc(var(--e-pad-chip) - var(--e-stroke-edge));
+    padding-inline: calc(var(--e-pad-chip) - var(--e-stroke-edge) - var(--e-slab-bold)) calc(var(--e-pad-chip) - var(--e-stroke-edge));
     border: var(--e-stroke-edge) solid var(--_tone);
-    border-inline-start-width: var(--e-slab-bold);
+    border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-slab-bold));
     border-radius: var(--e-radius-sm);
     background-color: var(--_bg);
     background-clip: padding-box;

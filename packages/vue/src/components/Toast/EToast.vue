@@ -64,7 +64,7 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
 
 <style>
 @layer e.containers {
-  /* The slab on the tone's side: the inline-start border, `slab-bold` thick, in the colour of the tone's edge. It flips in a right-to-left page. */
+  /* The slab on the tone's side: the inline-start border, `stroke-edge` plus `slab-bold` thick as on a Notice and a Stamp, in the colour of the tone's edge. It flips in a right-to-left page. */
   .e-toast {
     --e-tone: var(--e-info);
 
@@ -72,7 +72,7 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
     container-type: inline-size;
     width: min(24rem, 100%);
     padding: var(--e-gap-base) var(--e-pad-card);
-    border-inline-start: var(--e-slab-bold) solid var(--e-tone);
+    border-inline-start: calc(var(--e-stroke-edge) + var(--e-slab-bold)) solid var(--e-tone);
   }
 
   .e-toast--actions {
@@ -105,7 +105,7 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
   @media (forced-colors: active) {
     .e-toast {
       border: var(--e-stroke-card) solid CanvasText;
-      border-inline-start-width: var(--e-slab-bold);
+      border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-slab-bold));
     }
   }
 }
