@@ -19,6 +19,7 @@ defineSlots<{
 <style>
 @layer e.page {
   .e-appfooter {
+    background: var(--e-surface);
     padding: var(--e-gap-section) 0;
     border-top: var(--e-stroke-hair) solid var(--e-border);
     font: var(--e-weight-regular) var(--e-text-sm) / 1.5 var(--e-font-sans);
