@@ -4,6 +4,7 @@ import EField from "../Field/EField.vue";
 import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
 import { useFieldControl } from "../../composables/useFieldControl.js";
+import { useDir } from "../../composables/useDir.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
 
@@ -39,6 +40,7 @@ const emit = defineEmits<{
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
+const dir = useDir();
 const control = useFieldControl(props);
 const attrs = control.attrs;
 const numeric = computed(() => props.inputmode !== "text");
@@ -119,12 +121,11 @@ function onKey(i: number, e: KeyboardEvent) {
   } else if (k === "Delete") {
     e.preventDefault();
     commit(without(v, i));
-  } else if (k === "ArrowLeft") {
+  } else if (k === "ArrowLeft" || k === "ArrowRight") {
+    // The boxes run with the text: in a right-to-left page the first box is on the right, so the arrows swap.
     e.preventDefault();
-    focusAt(i - 1);
-  } else if (k === "ArrowRight") {
-    e.preventDefault();
-    focusAt(Math.min(i + 1, v.length));
+    const back = (k === "ArrowLeft") === (dir.value === "ltr");
+    focusAt(back ? i - 1 : Math.min(i + 1, v.length));
   } else if (k === "Home") {
     e.preventDefault();
     focusAt(0);

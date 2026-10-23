@@ -3,6 +3,7 @@ import { defineComponent, h, nextTick, ref } from "vue";
 import { userEvent, page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EOtpField from "./EOtpField.vue";
+import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 import { expectPostingContract } from "../../../test/formPosting.js";
 
@@ -136,6 +137,20 @@ describe("EOtpField", () => {
     await userEvent.keyboard("{Backspace}");
     expect(got.at(-1)).toBe("12");
     expect(document.activeElement).toBe(boxesOf(container)[2]);
+  });
+
+  test("in a right-to-left page the arrows follow the boxes: left is the next box, right the one before", async () => {
+    const { container } = await render(EOtpField, {
+      props: { label: "Code", modelValue: "1234" },
+      global: { plugins: [createEos({ themeTarget: null, locale: "he-IL", dir: "rtl" })] },
+    });
+    container.setAttribute("dir", "rtl");
+    const boxes = boxesOf(container);
+    boxes[2]!.focus();
+    await userEvent.keyboard("{ArrowLeft}");
+    expect(document.activeElement).toBe(boxes[3]);
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}");
+    expect(document.activeElement).toBe(boxes[1]);
   });
 
   test("arrows, Home and End move; Delete removes", async () => {
