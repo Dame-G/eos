@@ -19,6 +19,9 @@ export interface EosResolverOptions {
  * ```
  *
  * The resolver does not import the stylesheet unless you pass `css: true`. Otherwise import it once in your entry file: `import "@eos-ui/vue/style.css"`.
+ *
+ * Template types come from the `components.d.ts` that `unplugin-vue-components` writes. Registering components yourself with
+ * `app.component` instead? Load their types once with `import type {} from "@eos-ui/vue/globals"`.
  */
 export function EosResolver(options: EosResolverOptions = {}) {
   const css = options.css === true ? "@eos-ui/vue/style.css" : options.css || undefined;

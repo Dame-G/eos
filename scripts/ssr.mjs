@@ -49,7 +49,7 @@ const props = {
   ECurrencyField: { label: "Amount" },
   EDataGrid: { caption: "Rows", columns: [{ key: "n", label: "Name" }], rows: [{ id: 1, n: "one" }] },
   EDatePicker: { label: "Due" },
-  EDefinition: { term: "APR", definition: "Annual percentage rate" },
+  EDefinition: { label: "Annual percentage rate" },
   EDescriptionList: { items: [{ label: "Name", text: "Ada", stamp: "New" }] },
   EDialog: { title: "Confirm", open: true },
   EDrawer: { title: "Details", open: true },
