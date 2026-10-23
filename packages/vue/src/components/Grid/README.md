@@ -15,7 +15,7 @@ Cards in as many equal columns as fit, responding to its container's width rathe
 
 | Prop      | Type                                                      | Default   | Notes                                                                                                                                                                                      |
 | --------- | --------------------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `as`      | `string`                                                  | `"div"`   | The element to render, for example `ul` with `li` children.                                                                                                                                |
+| `as`      | `ElementTag`                                              | `"div"`   | The element to render, such as `ul` with `li` children. `ul` and `ol` lose their bullets and padding and keep their list role.                                                             |
 | `min`     | `string`                                                  | `"16rem"` | The narrowest a column may be, as a CSS length. One column below that.                                                                                                                     |
 | `gap`     | `GapToken \| string`                                      | `"loose"` | `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. |
 | `align`   | `"start" \| "center" \| "end" \| "stretch" \| "baseline"` | None      | Aligns each item inside its row. Items stretch to the tallest by default. Not used with `masonry`.                                                                                         |
@@ -38,7 +38,7 @@ With `masonry` the grid is CSS multi-column: `min` is the column width, the gap 
 
 - Layout only, with no role. The DOM order is the reading and focus order, so do not rely on visual position to convey sequence.
 - Give each card its own heading or accessible name.
-- For a list of items use `as="ul"` with `li` children so the count is announced.
+- For a list of items use `as="ul"` with `li` children so the count is announced. The bullets and padding are removed and `role="list"` is set, so Safari keeps the list semantics.
 
 ## Keyboard
 
