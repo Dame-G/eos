@@ -6,14 +6,16 @@ import EDatePicker from "./EDatePicker.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 import { expectPostingContract } from "../../../test/formPosting.js";
+import { frames } from "../../../test/frames.js";
 
 const d = (y: number, m: number, day: number) => new Date(y, m - 1, day, 12);
 const plugin = (options: Parameters<typeof createEos>[0]) => ({
   plugins: [createEos({ themeTarget: null, ...options })],
 });
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const active = () => document.activeElement as HTMLElement;
 const panel = () => document.querySelector<HTMLElement>(".e-calpanel");
+/** The calendar is open and has taken focus, so keys reach it. */
+const opened = () => expect.poll(() => panel()?.contains(document.activeElement) ?? false).toBe(true);
 const day = (label: RegExp) =>
   [...document.querySelectorAll<HTMLButtonElement>(".e-calpanel .e-day")].find((b) =>
     label.test(b.getAttribute("aria-label") ?? ""),
@@ -49,7 +51,7 @@ describe("EDatePicker", () => {
     await expect.element(page.getByRole("button", { name: "Choose date" })).toBeDisabled();
     input.focus();
     await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
-    await sleep(80);
+    await frames();
     expect(panel()).toBeNull();
     expect(model.value).toEqual(d(2026, 10, 22));
   });
@@ -73,8 +75,7 @@ describe("EDatePicker", () => {
     const input = container.querySelector<HTMLInputElement>(".e-combo-input")!;
     await setText(input, "10-22-1981");
     input.blur();
-    await sleep(30);
-    expect(model.value).toEqual(d(1981, 10, 22));
+    await expect.poll(() => model.value).toEqual(d(1981, 10, 22));
     expect(input.value).toBe("10/22/1981");
     expect(container.querySelector<HTMLInputElement>("input[type=hidden]")!.name).toBe("dob");
     expect(container.querySelector<HTMLInputElement>("input[type=hidden]")!.value).toBe("1981-10-22");
@@ -92,7 +93,7 @@ describe("EDatePicker", () => {
     const input = container.querySelector<HTMLInputElement>(".e-combo-input")!;
     await setText(input, "13/45/2020");
     input.blur();
-    await sleep(30);
+    await expect.poll(() => container.querySelector(".e-field-error")).not.toBeNull();
     const error = container.querySelector(".e-field-error")!;
     expect(error.textContent).toMatch(/Enter a date as MM\/DD\/YYYY\./);
     expect(error.getAttribute("role")).toBe("alert");
@@ -111,10 +112,9 @@ describe("EDatePicker", () => {
     const input = container.querySelector<HTMLInputElement>(".e-combo-input")!;
     await setText(input, "06/15/2030");
     input.blur();
-    await sleep(30);
-    expect(container.querySelector(".e-field-error")!.textContent).toMatch(
-      /Choose a date between 01\/01\/2026 and 12\/31\/2026\./,
-    );
+    await expect
+      .poll(() => container.querySelector(".e-field-error")!.textContent)
+      .toMatch(/Choose a date between 01\/01\/2026 and 12\/31\/2026\./);
   });
 
   test("a date before only min, or after only max, names just that bound", async () => {
@@ -122,18 +122,16 @@ describe("EDatePicker", () => {
     const input = early.container.querySelector<HTMLInputElement>(".e-combo-input")!;
     await setText(input, "06/15/2020");
     input.blur();
-    await sleep(30);
-    expect(early.container.querySelector(".e-field-error")!.textContent).toMatch(
-      "Choose a date on or after 01/01/2026.",
-    );
+    await expect
+      .poll(() => early.container.querySelector(".e-field-error")!.textContent)
+      .toMatch("Choose a date on or after 01/01/2026.");
     const late = await bound({ label: "Date", max: d(2026, 12, 31) }, null);
     const box = late.container.querySelector<HTMLInputElement>(".e-combo-input")!;
     await setText(box, "06/15/2030");
     box.blur();
-    await sleep(30);
-    expect(late.container.querySelector(".e-field-error")!.textContent).toMatch(
-      "Choose a date on or before 12/31/2026.",
-    );
+    await expect
+      .poll(() => late.container.querySelector(".e-field-error")!.textContent)
+      .toMatch("Choose a date on or before 12/31/2026.");
   });
 
   test("a named field posts its date, nothing while disabled, and joins a form it is outside of", async () => {
@@ -255,8 +253,7 @@ describe("EDatePicker", () => {
     input.focus();
     await userEvent.clear(input);
     input.blur();
-    await sleep(30);
-    expect(model.value).toBeNull();
+    await expect.poll(() => model.value).toBeNull();
   });
 
   test("an error from the consumer wins over a typed one", async () => {
@@ -269,14 +266,13 @@ describe("EDatePicker", () => {
     const { model, container } = await bound({ label: "Date" }, null);
     model.value = d(2027, 3, 5);
     await nextTick();
-    await sleep(10);
-    expect(container.querySelector<HTMLInputElement>(".e-combo-input")!.value).toBe("03/05/2027");
+    await expect.poll(() => container.querySelector<HTMLInputElement>(".e-combo-input")!.value).toBe("03/05/2027");
   });
 
   test("the button opens a calendar dialog on the selected day; choosing a day closes it and returns focus to the box", async () => {
     const { model, container } = await bound({ label: "Date" }, d(2026, 10, 22));
     await page.getByRole("button", { name: "Choose date" }).click();
-    await sleep(80);
+    await opened();
     const dialog = panel()!;
     expect(dialog.getAttribute("role")).toBe("dialog");
     expect(dialog.getAttribute("aria-label")).toBe("Choose date");
@@ -285,8 +281,7 @@ describe("EDatePicker", () => {
     expect(page.getByRole("button", { name: "Choose date" }).element().getAttribute("aria-expanded")).toBe("true");
     expect(active().getAttribute("aria-label")).toMatch(/October 22, 2026/);
     day(/October 23,/).click();
-    await sleep(80);
-    expect(model.value).toEqual(d(2026, 10, 23));
+    await expect.poll(() => model.value).toEqual(d(2026, 10, 23));
     expect(panel()).toBeNull();
     expect(active()).toBe(container.querySelector(".e-combo-input"));
     expect(container.querySelector<HTMLInputElement>(".e-combo-input")!.value).toBe("10/23/2026");
@@ -296,49 +291,43 @@ describe("EDatePicker", () => {
     const { container } = await bound({ label: "Date" }, d(2026, 10, 22));
     container.querySelector<HTMLInputElement>(".e-combo-input")!.focus();
     await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
-    await sleep(80);
-    expect(panel()).not.toBeNull();
+    await opened();
     expect(active().getAttribute("aria-label")).toMatch(/October 22, 2026/);
     await userEvent.keyboard("{ArrowRight}{Enter}");
-    await sleep(80);
-    expect(panel()).toBeNull();
+    await expect.poll(() => panel()).toBeNull();
     container.querySelector<HTMLInputElement>(".e-combo-input")!.focus();
     await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
-    await sleep(80);
+    await opened();
     await userEvent.keyboard("{Escape}");
-    await sleep(80);
-    expect(panel()).toBeNull();
+    await expect.poll(() => panel()).toBeNull();
     expect(active()).toBe(container.querySelector(".e-combo-input"));
   });
 
   test("Escape inside the years goes back to the days first, a second Escape closes", async () => {
     await bound({ label: "Date" }, d(2026, 10, 22));
     await page.getByRole("button", { name: "Choose date" }).click();
-    await sleep(80);
+    await opened();
     (document.querySelector(".e-cal-pick") as HTMLElement).click();
-    await sleep(40);
-    expect(document.querySelector(".e-cal-years")).not.toBeNull();
+    await expect.poll(() => document.querySelector(".e-cal-years")).not.toBeNull();
     await userEvent.keyboard("{Escape}");
-    await sleep(80);
+    await expect.poll(() => document.querySelector(".e-calpanel table")).not.toBeNull();
     expect(panel()).not.toBeNull();
-    expect(document.querySelector("table")).not.toBeNull();
     await userEvent.keyboard("{Escape}");
-    await sleep(80);
-    expect(panel()).toBeNull();
+    await expect.poll(() => panel()).toBeNull();
   });
 
   test("Clear empties the field and closes; Today chooses today", async () => {
     const { model, container } = await bound({ label: "Date" }, d(2026, 10, 22));
     await page.getByRole("button", { name: "Choose date" }).click();
-    await sleep(80);
+    await opened();
     await page.getByRole("button", { name: "Clear" }).click();
-    await sleep(80);
-    expect(model.value).toBeNull();
+    await expect.poll(() => model.value).toBeNull();
     expect(container.querySelector<HTMLInputElement>(".e-combo-input")!.value).toBe("");
+    await expect.poll(() => panel()).toBeNull();
     await page.getByRole("button", { name: "Choose date" }).click();
-    await sleep(80);
+    await opened();
     await page.getByRole("button", { name: "Today" }).click();
-    await sleep(80);
+    await expect.poll(() => model.value).not.toBeNull();
     const now = new Date();
     expect(model.value!.getFullYear()).toBe(now.getFullYear());
     expect(model.value!.getDate()).toBe(now.getDate());
@@ -347,8 +336,7 @@ describe("EDatePicker", () => {
   test("min and max reach the calendar", async () => {
     await bound({ label: "Date", min: d(2026, 10, 10), max: d(2026, 10, 20) }, d(2026, 10, 12));
     await page.getByRole("button", { name: "Choose date" }).click();
-    await sleep(80);
-    expect(day(/October 9,/).disabled).toBe(true);
+    await expect.poll(() => day(/October 9,/).disabled).toBe(true);
     expect(day(/October 21,/).disabled).toBe(true);
     expect(day(/October 15,/).disabled).toBe(false);
   });
@@ -356,10 +344,9 @@ describe("EDatePicker", () => {
   test("clicking outside closes the calendar", async () => {
     await bound({ label: "Date" }, d(2026, 10, 22));
     await page.getByRole("button", { name: "Choose date" }).click();
-    await sleep(80);
+    await opened();
     document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
-    await sleep(80);
-    expect(panel()).toBeNull();
+    await expect.poll(() => panel()).toBeNull();
   });
 
   test("the popup renders in the configured portal target, which carries a scoped theme", async () => {
@@ -371,8 +358,7 @@ describe("EDatePicker", () => {
       global: plugin({ portalTarget: "#theme-host" }),
     });
     await page.getByRole("button", { name: "Choose date" }).click();
-    await sleep(80);
-    expect(host.contains(panel())).toBe(true);
+    await expect.poll(() => host.contains(panel())).toBe(true);
     host.remove();
   });
 
@@ -428,12 +414,10 @@ describe("EDatePicker", () => {
     expect(input.placeholder).toBe("DD.MM.YYYY");
     await setText(input, "05.03.2027");
     input.blur();
-    await sleep(30);
-    expect(model.value).toEqual(d(2027, 3, 5));
+    await expect.poll(() => model.value).toEqual(d(2027, 3, 5));
     await setText(input, "13.45.2020");
     input.blur();
-    await sleep(30);
-    expect(container.querySelector(".e-field-error")!.textContent).toMatch(/DD\.MM\.YYYY/);
+    await expect.poll(() => container.querySelector(".e-field-error")!.textContent).toMatch(/DD\.MM\.YYYY/);
   });
 
   test("locale: en-GB is day first, en-US month first", async () => {
@@ -455,11 +439,9 @@ describe("EDatePicker", () => {
     expect(input.value).toBe("22.10.2026");
     await setText(input, "05.03.2027");
     input.blur();
-    await sleep(30);
-    expect(model.value).toEqual(d(2027, 3, 5));
+    await expect.poll(() => model.value).toEqual(d(2027, 3, 5));
     await page.getByRole("button", { name: "Choose date" }).click();
-    await sleep(80);
-    expect(panel()!.getAttribute("dir")).toBe("rtl");
+    await expect.poll(() => panel()!.getAttribute("dir")).toBe("rtl");
     expect(document.querySelector(".e-cal-pick")!.textContent).toContain("2027");
   });
 
@@ -471,8 +453,7 @@ describe("EDatePicker", () => {
     });
     expect(container.querySelector("input")!.value).toBe("10/22/2026");
     eos.config.locale = "de-DE";
-    await sleep(30);
-    expect(container.querySelector("input")!.value).toBe("22.10.2026");
+    await expect.poll(() => container.querySelector("input")!.value).toBe("22.10.2026");
     expect(container.querySelector("input")!.placeholder).toBe("DD.MM.YYYY");
   });
 
@@ -486,8 +467,7 @@ describe("EDatePicker", () => {
     const input = container.querySelector<HTMLInputElement>(".e-combo-input")!;
     await setText(input, "nope");
     input.blur();
-    await sleep(30);
-    expect(container.querySelector(".e-field-error")!.textContent).toMatch(/Format: MM\/DD\/YYYY/);
+    await expect.poll(() => container.querySelector(".e-field-error")!.textContent).toMatch(/Format: MM\/DD\/YYYY/);
   });
 
   test("has no accessibility violations: closed, hint, invalid, disabled and open", async () => {
@@ -501,8 +481,7 @@ describe("EDatePicker", () => {
     await expectNoViolations(off.container);
     const open = await render(EDatePicker, { props: { label: "Date d", modelValue: d(2026, 10, 22) } });
     await page.getByRole("button", { name: "Choose date" }).nth(3).click();
-    await sleep(80);
-    expect(panel()).not.toBeNull();
+    await expect.poll(() => panel()).not.toBeNull();
     await expectNoViolations(document.body);
     expect(open.container).toBeTruthy();
   });

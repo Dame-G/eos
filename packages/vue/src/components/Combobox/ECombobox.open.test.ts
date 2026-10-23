@@ -5,6 +5,7 @@ import { render } from "vitest-browser-vue";
 import ECombobox from "./ECombobox.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
+import { frames, settled } from "../../../test/frames.js";
 
 const panel = () => document.querySelector<HTMLElement>("[role=listbox]");
 const trigger = (c: Element) => c.querySelector<HTMLElement>("button[aria-label='Show options']")!;
@@ -19,6 +20,7 @@ async function bound(initial: boolean, extra: Record<string, unknown> = {}) {
     defineComponent({
       render: () =>
         h(ECombobox as Component, {
+          clearable: true,
           ...{ label: "Country", options: ["France", "Germany", "Spain"] },
           ...extra,
           open: state.value,
@@ -61,7 +63,7 @@ describe("ECombobox open", () => {
     const el = panel()!;
     expect(container.contains(el)).toBe(false);
     expect(el.classList.contains("e-root") || !!el.closest(".e-root")).toBe(true);
-    await new Promise((r) => setTimeout(r, 300));
+    await frames();
     expect(document.activeElement).toBe(before);
     expect(el.contains(document.activeElement)).toBe(false);
   });
@@ -76,7 +78,7 @@ describe("ECombobox open", () => {
     const before = document.activeElement;
     state.value = true;
     await expect.poll(() => panel()).not.toBeNull();
-    await new Promise((r) => setTimeout(r, 300));
+    await frames();
     expect(document.activeElement).toBe(before);
     state.value = false;
     await expect.poll(() => panel()).toBeNull();
@@ -98,7 +100,7 @@ describe("ECombobox open", () => {
 
   test("works uncontrolled: it opens and closes on its own without an open prop", async () => {
     const { container } = await render(ECombobox as Component, {
-      props: { label: "Country", options: ["France", "Germany", "Spain"] },
+      props: { clearable: true, label: "Country", options: ["France", "Germany", "Spain"] },
       global: { plugins: [createEos({ themeTarget: null })] },
     });
     await openIt(container);
@@ -109,14 +111,14 @@ describe("ECombobox open", () => {
 
   test("disabled stays closed, even with open set", async () => {
     await bound(true, { disabled: true });
-    await new Promise((r) => setTimeout(r, 300));
+    await frames();
     expect(panel()).toBeNull();
   });
 
   test("axe: open", async () => {
     await bound(true);
     await expect.poll(() => panel()).not.toBeNull();
-    await new Promise((r) => setTimeout(r, 300));
+    await settled();
     await expectNoViolations(document.body);
   });
 });

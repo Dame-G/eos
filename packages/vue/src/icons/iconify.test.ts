@@ -57,7 +57,7 @@ describe("iconify adapter", () => {
 
   test("ph bold names end in -bold", async () => {
     const plugin = createEos({ themeTarget: null, icons: iconify("ph") });
-    const { container } = await render(EIcon, { props: { name: "card", small: true }, global: { plugins: [plugin] } });
+    const { container } = await render(EIcon, { props: { name: "card", size: "sm" }, global: { plugins: [plugin] } });
     expect(drawn(container)).toBe("ph:credit-card-bold");
   });
 

@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { defineComponent, h, ref } from "vue";
+import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EUpload from "./EUpload.vue";
@@ -84,7 +84,7 @@ describe("EUpload", () => {
     expect(container.querySelector("input")!.accept).toBe(".pdf,.jpg");
   });
 
-  test("choosing files lists them with their size, emits the files and updates v-model", async () => {
+  test("choosing files lists them with their size and updates v-model", async () => {
     const model = ref<File[]>([]);
     const emitted: File[][] = [];
     const { container } = await render(
@@ -94,13 +94,15 @@ describe("EUpload", () => {
             label: "Card",
             multiple: true,
             modelValue: model.value,
-            "onUpdate:modelValue": (v: File[]) => (model.value = v),
-            onFiles: (v: File[]) => emitted.push(v),
+            "onUpdate:modelValue": (v: File[]) => {
+              emitted.push(v);
+              model.value = v;
+            },
           }),
       }),
     );
     choose(container.querySelector("input")!, file("front.pdf", 2048), file("back.pdf", 100));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(emitted.length).toBe(1);
     expect(emitted[0]!.map((f) => f.name)).toEqual(["front.pdf", "back.pdf"]);
     expect(model.value.length).toBe(2);
@@ -112,7 +114,7 @@ describe("EUpload", () => {
   test("sizes use bytes, kilobytes or megabytes", async () => {
     const { container } = await render(EUpload, { props: { label: "Card", multiple: true } });
     choose(container.querySelector("input")!, file("a.pdf", 5 * 1024 * 1024 + 512 * 1024), file("b.pdf", 0));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     const sizes = [...container.querySelectorAll(".e-file-size")].map((s) => s.textContent);
     expect(sizes).toEqual(["5.5 MB", "0 byte"]);
   });
@@ -120,7 +122,7 @@ describe("EUpload", () => {
   test("without multiple, a drop of three files keeps the first", async () => {
     const { container } = await render(EUpload, { props: { label: "Card" } });
     drop(container.querySelector(".e-drop")!, file("1.pdf"), file("2.pdf"), file("3.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect([...container.querySelectorAll(".e-file-name")].map((n) => n.textContent)).toEqual(["1.pdf"]);
     expect(container.querySelector("input")!.files!.length).toBe(1);
   });
@@ -149,7 +151,7 @@ describe("EUpload", () => {
         name: "card",
         readonly: true,
         modelValue: [file("a.pdf")],
-        onFiles: (v: File[]) => emitted.push(v),
+        "onUpdate:modelValue": (v: File[]) => emitted.push(v),
       },
     });
     const input = container.querySelector<HTMLInputElement>("input")!;
@@ -161,7 +163,7 @@ describe("EUpload", () => {
     expect(zone.classList.contains("e-drop--readonly")).toBe(true);
     drop(zone, file("x.pdf"));
     choose(input, file("y.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(emitted).toEqual([]);
     expect(container.querySelectorAll(".e-file-name")).toHaveLength(1);
     expect(container.querySelector<HTMLButtonElement>(".e-files button")!.disabled).toBe(true);
@@ -185,10 +187,10 @@ describe("EUpload", () => {
       file("pic2", 10, "image/jpeg"),
       file("song", 10, "audio/mpeg"),
     );
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(names()).toEqual(["a.PDF", "pic", "song"]);
     choose(container.querySelector("input")!, file("b.exe", 10, "application/x-msdownload"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(names()).toEqual(["a.PDF", "pic", "song"]);
   });
 
@@ -199,9 +201,9 @@ describe("EUpload", () => {
     });
     const input = container.querySelector("input")!;
     choose(input, file("keep.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     choose(input, file("bad.exe", 10, "x/y"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect([...container.querySelectorAll(".e-file-name")].map((n) => n.textContent)).toEqual(["keep.pdf"]);
     expect([...input.files!].map((f) => f.name)).toEqual(["keep.pdf"]);
     expect(rejected).toEqual([[expect.objectContaining({ reason: "type" })]]);
@@ -215,9 +217,9 @@ describe("EUpload", () => {
     const names = () => [...container.querySelectorAll(".e-file-name")].map((n) => n.textContent);
     const a = file("a.pdf");
     drop(container.querySelector(".e-drop")!, a, file("b.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     drop(container.querySelector(".e-drop")!, a, file("c.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(names()).toEqual(["a.pdf", "b.pdf", "c.pdf"]);
     expect(container.querySelector("input")!.files!.length).toBe(3);
   });
@@ -225,9 +227,9 @@ describe("EUpload", () => {
   test("without multiple a new choice replaces the file", async () => {
     const { container } = await render(EUpload, { props: { label: "Card" } });
     drop(container.querySelector(".e-drop")!, file("one.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     drop(container.querySelector(".e-drop")!, file("two.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect([...container.querySelectorAll(".e-file-name")].map((n) => n.textContent)).toEqual(["two.pdf"]);
   });
 
@@ -242,7 +244,7 @@ describe("EUpload", () => {
       },
     });
     drop(container.querySelector(".e-drop")!, file("small.pdf", 1000), file("huge.pdf", 2 * 1024 * 1024));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect([...container.querySelectorAll(".e-file-name")].map((n) => n.textContent)).toEqual(["small.pdf"]);
     expect(rejected[0]![0]!.reason).toBe("size");
     await expect
@@ -253,9 +255,9 @@ describe("EUpload", () => {
   test("maxFiles caps the list with multiple, counting the files already there", async () => {
     const { container } = await render(EUpload, { props: { label: "Card", multiple: true, maxFiles: 2 } });
     drop(container.querySelector(".e-drop")!, file("a.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     drop(container.querySelector(".e-drop")!, file("b.pdf"), file("c.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect([...container.querySelectorAll(".e-file-name")].map((n) => n.textContent)).toEqual(["a.pdf", "b.pdf"]);
     await expect
       .poll(() => document.querySelector("[data-e-announcer=assertive]")?.textContent?.replace(/\u00a0/g, ""))
@@ -288,12 +290,12 @@ describe("EUpload", () => {
       }),
     );
     choose(container.querySelector("input")!, file("scan.pdf", 100), file("scan.pdf", 200), file("other.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(container.querySelectorAll(".e-files li").length).toBe(3);
     const buttons = container.querySelectorAll<HTMLButtonElement>(".e-files button");
     expect(buttons[0]!.getAttribute("aria-label")).toBe("Remove scan.pdf");
     buttons[1]!.click();
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(model.value.map((f) => f.size)).toEqual([100, 2048]);
     expect(container.querySelectorAll(".e-files li").length).toBe(2);
     expect(container.querySelector("input")!.files!.length).toBe(2);
@@ -324,21 +326,21 @@ describe("EUpload", () => {
   test("without v-model it still lists the chosen files", async () => {
     const { container } = await render(EUpload, { props: { label: "Card" } });
     choose(container.querySelector("input")!, file("one.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(container.querySelectorAll(".e-files li").length).toBe(1);
   });
 
   test("dropping files on the zone takes them; dragging over highlights the zone", async () => {
     const emitted: File[][] = [];
     const { container } = await render(EUpload, {
-      props: { label: "Card", onFiles: (v: File[]) => emitted.push(v) },
+      props: { label: "Card", "onUpdate:modelValue": (v: File[]) => emitted.push(v) },
     });
     const zone = container.querySelector(".e-drop")!;
     zone.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true }));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(zone.classList.contains("e-drop--over")).toBe(true);
     const event = drop(zone, file("dropped.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(event.defaultPrevented).toBe(true);
     expect(zone.classList.contains("e-drop--over")).toBe(false);
     expect(emitted[0]!.map((f) => f.name)).toEqual(["dropped.pdf"]);
@@ -349,9 +351,9 @@ describe("EUpload", () => {
     const { container } = await render(EUpload, { props: { label: "Card" } });
     const zone = container.querySelector(".e-drop")!;
     zone.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true }));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     zone.dispatchEvent(new DragEvent("dragleave", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(zone.classList.contains("e-drop--over")).toBe(false);
   });
 
@@ -362,22 +364,22 @@ describe("EUpload", () => {
     zone.dispatchEvent(new DragEvent("dragenter", { bubbles: true, cancelable: true }));
     main.dispatchEvent(new DragEvent("dragenter", { bubbles: true, cancelable: true }));
     zone.dispatchEvent(new DragEvent("dragleave", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(zone.classList.contains("e-drop--over")).toBe(true);
     main.dispatchEvent(new DragEvent("dragleave", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(zone.classList.contains("e-drop--over")).toBe(false);
   });
 
   test("a disabled upload ignores drops and dims its edge", async () => {
     const emitted: File[][] = [];
     const { container } = await render(EUpload, {
-      props: { label: "Card", disabled: true, onFiles: (v: File[]) => emitted.push(v) },
+      props: { label: "Card", disabled: true, "onUpdate:modelValue": (v: File[]) => emitted.push(v) },
     });
     const zone = container.querySelector(".e-drop")!;
     zone.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true }));
     drop(zone, file("x.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     expect(emitted.length).toBe(0);
     expect(zone.classList.contains("e-drop--over")).toBe(false);
     expect(zone.classList.contains("e-drop--disabled")).toBe(true);
@@ -394,7 +396,7 @@ describe("EUpload", () => {
   test("with files listed the focus ring is on the zone, not the list", async () => {
     const { container } = await render(EUpload, { props: { label: "Card", multiple: true } });
     choose(container.querySelector("input")!, file("a.pdf"));
-    await new Promise((r) => setTimeout(r, 0));
+    await nextTick();
     await userEvent.tab();
     expect(document.activeElement).toBe(container.querySelector("input"));
     expect(getComputedStyle(container.querySelector(".e-drop")!).outlineStyle).toBe("solid");

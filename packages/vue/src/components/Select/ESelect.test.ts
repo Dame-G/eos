@@ -511,7 +511,7 @@ describe("ESelect", () => {
             h("div", { class: "e-root" }, [
               h(ETextField, { label: "Name", size }),
               h(ESelect, { label: "Plan", options: ["Basic"], size }),
-              h(ECombobox, { label: "City", options: ["Lyon"], size }),
+              h(ECombobox, { clearable: true, label: "City", options: ["Lyon"], size }),
               h(EDatePicker, { label: "Date", size }),
               h(ERangePicker, { label: "Stay", size }),
             ]),

@@ -6,6 +6,7 @@ import ETooltip from "./ETooltip.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
+import { frames, settled } from "../../../test/frames.js";
 
 const panel = () => document.querySelector<HTMLElement>(".e-tip-bubble");
 const openIt = async () => {
@@ -47,7 +48,7 @@ describe("ETooltip open", () => {
     const el = panel()!;
     expect(container.contains(el)).toBe(false);
     expect(el.classList.contains("e-root") || !!el.closest(".e-root")).toBe(true);
-    await new Promise((r) => setTimeout(r, 300));
+    await frames();
     expect(document.activeElement).toBe(before);
     expect(el.contains(document.activeElement)).toBe(false);
   });
@@ -62,7 +63,7 @@ describe("ETooltip open", () => {
     const before = document.activeElement;
     state.value = true;
     await expect.poll(() => panel()).not.toBeNull();
-    await new Promise((r) => setTimeout(r, 300));
+    await frames();
     expect(document.activeElement).toBe(before);
     state.value = false;
     await expect.poll(() => panel()).toBeNull();
@@ -113,7 +114,7 @@ describe("ETooltip open", () => {
   test("axe: open", async () => {
     await bound(true);
     await expect.poll(() => panel()).not.toBeNull();
-    await new Promise((r) => setTimeout(r, 300));
+    await settled();
     await expectNoViolations(document.body);
   });
 });

@@ -1,15 +1,16 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ETooltip from "./ETooltip.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { createEos } from "../../plugin.js";
+import { createTooltipGroup, TOOLTIP_KEY } from "./group.js";
 import { expectNoViolations } from "../../../test/axe.js";
+import { frames } from "../../../test/frames.js";
 
 const tip = () => document.querySelector<HTMLElement>("[role=tooltip]");
 const bubble = () => document.querySelector<HTMLElement>(".e-tip-bubble");
-const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function mount(label = "Download receipt") {
   return render(ETooltip, {
@@ -50,13 +51,17 @@ describe("ETooltip", () => {
   });
 
   test("shows on hover after a short delay, and hides when the pointer leaves", async () => {
-    await wait(350); // a tooltip that closed a moment ago would let this one skip its delay
-    await mount();
+    // A group of its own: a tooltip another test closed a moment ago would let this one skip its delay.
+    await render(ETooltip, {
+      props: { label: "Download receipt" },
+      slots: { default: () => h(EIconButton, { icon: "download", label: "Download" }) },
+      global: { provide: { [TOOLTIP_KEY as symbol]: createTooltipGroup() } },
+    });
     const button = page.getByRole("button", { name: "Download" });
     await button.hover();
-    await wait(100);
+    await frames();
     expect(bubble()).toBeNull();
-    await expect.poll(() => bubble()?.textContent?.trim(), { timeout: 3000 }).toContain("Download receipt");
+    await expect.poll(() => bubble()?.textContent?.trim()).toContain("Download receipt");
     await userEvent.unhover(button);
     await expect.poll(() => bubble(), { timeout: 3000 }).toBeNull();
   });
@@ -66,9 +71,17 @@ describe("ETooltip", () => {
     const button = container.querySelector("button")!;
     button.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" }));
     await expect.poll(() => bubble()).not.toBeNull();
-    button.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, pointerType: "touch" }));
-    await wait(100);
-    expect(bubble()).not.toBeNull();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      button.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, pointerType: "touch" }));
+      // It stays a moment after the finger lifts, so it can be read, then goes.
+      await vi.advanceTimersByTimeAsync(1499);
+      expect(bubble()).not.toBeNull();
+      await vi.advanceTimersByTimeAsync(1);
+    } finally {
+      vi.useRealTimers();
+    }
+    await expect.poll(() => bubble()).toBeNull();
   });
 
   test("a press hides it, so it never covers what you are about to read", async () => {
@@ -163,26 +176,40 @@ describe("ETooltip", () => {
   });
 
   test("after one tooltip closes the next opens without waiting out the delay", async () => {
+    // The second delay is far past the poll timeout, so only the skip can open it in time. The group's skip window is
+    // as long, so a slow runner taking a while to move the pointer still lands inside it: no wall-clock measure.
+    const long = 60_000;
     await render(
       defineComponent({
         render: () =>
           h("div", [
-            h(ETooltip, { label: "First", delay: 600 }, () => h(EIconButton, { icon: "download", label: "One" })),
-            h(ETooltip, { label: "Second", delay: 600 }, () => h(EIconButton, { icon: "download", label: "Two" })),
+            h(ETooltip, { label: "First", delay: 0 }, () => h(EIconButton, { icon: "download", label: "One" })),
+            h(ETooltip, { label: "Second", delay: long }, () => h(EIconButton, { icon: "download", label: "Two" })),
           ]),
       }),
+      { global: { provide: { [TOOLTIP_KEY as symbol]: createTooltipGroup(long) } } },
     );
     const one = page.getByRole("button", { name: "One" });
     const two = page.getByRole("button", { name: "Two" });
     await one.hover();
-    await expect.poll(() => bubble()?.textContent?.trim(), { timeout: 3000 }).toContain("First");
+    await expect.poll(() => bubble()?.textContent?.trim()).toContain("First");
     await userEvent.unhover(one);
     await two.hover();
-    const started = Date.now();
     await expect
       .poll(() => [...document.querySelectorAll(".e-tip-bubble")].some((b) => b.textContent?.includes("Second")))
       .toBe(true);
-    expect(Date.now() - started).toBeLessThan(500);
+  });
+
+  test("without a tooltip just closed, the delay holds", async () => {
+    await render(ETooltip, {
+      props: { label: "Later", delay: 60_000 },
+      slots: { default: () => h(EIconButton, { icon: "download", label: "Wait" }) },
+      global: { provide: { [TOOLTIP_KEY as symbol]: createTooltipGroup() } },
+    });
+    await page.getByRole("button", { name: "Wait" }).hover();
+    // Long enough for a delay of zero to have opened it: the control for the test above.
+    await frames();
+    expect(bubble()).toBeNull();
   });
 
   test("unmounting while a finger is held leaves no timer behind", async () => {
@@ -190,10 +217,15 @@ describe("ETooltip", () => {
     const button = container.querySelector("button")!;
     button.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" }));
     await expect.poll(() => bubble()).not.toBeNull();
-    button.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, pointerType: "touch" }));
-    unmount();
-    await wait(1700);
-    expect(bubble()).toBeNull();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      button.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, pointerType: "touch" }));
+      unmount();
+      await vi.advanceTimersByTimeAsync(1700);
+      expect(bubble()).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("axe: closed and open", async () => {

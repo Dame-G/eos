@@ -11,9 +11,16 @@ const d = (y: number, m: number, day: number) => new Date(y, m - 1, day, 12);
 const plugin = (options: Parameters<typeof createEos>[0]) => ({
   plugins: [createEos({ themeTarget: null, ...options })],
 });
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const active = () => document.activeElement as HTMLElement;
 const grid = (c: Element) => c.querySelector<HTMLElement>("table")!;
+/** The years or the months are showing, with focus on one, so keys reach them. */
+const showing = (c: Element, view: "years" | "months") =>
+  expect
+    .poll(
+      () =>
+        c.querySelector(view === "years" ? ".e-cal-years" : ".e-cal-cells")?.contains(document.activeElement) ?? false,
+    )
+    .toBe(true);
 const dayButton = (c: Element, label: RegExp) =>
   [...c.querySelectorAll<HTMLButtonElement>(".e-day")].find((b) => label.test(b.getAttribute("aria-label") ?? ""))!;
 
@@ -138,8 +145,7 @@ describe("ECalendar", () => {
     dayButton(container, /October 3,/).click();
     expect(model.value!.getDate()).toBe(3);
     dayButton(container, /November 1,/).click();
-    await sleep(30);
-    expect(model.value!.getMonth()).toBe(10);
+    await expect.poll(() => model.value!.getMonth()).toBe(10);
     expect(container.querySelector(".e-cal-pick")!.textContent!.trim()).toBe("November 2026");
   });
 
@@ -171,26 +177,22 @@ describe("ECalendar", () => {
       "Change month or year, currently October 2026",
     );
     container.querySelector<HTMLElement>(".e-cal-pick")!.click();
-    await sleep(30);
-    expect(container.querySelector(".e-cal-years")).not.toBeNull();
+    await expect.poll(() => container.querySelector(".e-cal-years")).not.toBeNull();
     expect(container.querySelector(".e-cal-title")!.textContent).toMatch(/Choose a year/);
     expect(container.querySelector(".e-cal-head button")!.getAttribute("aria-label")).toBe("Back to the days");
     expect(active().id).toMatch(/-y-2026$/);
     container.querySelector<HTMLElement>('[id$="-y-2027"]')!.click();
-    await sleep(30);
-    expect(container.querySelector(".e-cal-cells")).not.toBeNull();
+    await expect.poll(() => container.querySelector(".e-cal-cells")).not.toBeNull();
     expect(container.querySelector(".e-cal-years")).toBeNull();
     expect(container.querySelector(".e-cal-title")!.textContent).toMatch(/Choose a month in 2027/);
     expect(container.querySelector(".e-cal-head button")!.getAttribute("aria-label")).toBe("Back to the years");
     expect(active().id).toMatch(/-m-9$/);
     container.querySelector<HTMLElement>(".e-cal-head button")!.click();
-    await sleep(30);
-    expect(container.querySelector(".e-cal-years")).not.toBeNull();
+    await expect.poll(() => container.querySelector(".e-cal-years")).not.toBeNull();
     container.querySelector<HTMLElement>('[id$="-y-2027"]')!.click();
-    await sleep(30);
+    await showing(container, "months");
     container.querySelectorAll<HTMLElement>(".e-cal-cell")[2]!.click();
-    await sleep(30);
-    expect(grid(container)).not.toBeNull();
+    await expect.poll(() => grid(container)).not.toBeNull();
     expect(container.querySelector(".e-cal-pick")!.textContent!.trim()).toBe("March 2027");
     expect(active().getAttribute("aria-label")).toMatch(/March 22, 2027/);
   });
@@ -198,11 +200,11 @@ describe("ECalendar", () => {
   test("the month is never set before the year: a date of birth is year, month, day", async () => {
     const { model, container } = await bound({ footer: false, min: d(1900, 1, 1), max: d(2026, 12, 31) }, null);
     container.querySelector<HTMLElement>(".e-cal-pick")!.click();
-    await sleep(30);
+    await showing(container, "years");
     container.querySelector<HTMLElement>('[id$="-y-1981"]')!.click();
-    await sleep(30);
+    await showing(container, "months");
     container.querySelectorAll<HTMLElement>(".e-cal-cell")[9]!.click();
-    await sleep(30);
+    await expect.poll(() => grid(container)).not.toBeNull();
     dayButton(container, /October 22,/).click();
     expect(model.value).toEqual(d(1981, 10, 22));
   });
@@ -212,11 +214,11 @@ describe("ECalendar", () => {
       props: { modelValue: d(2026, 10, 22), min: d(2025, 3, 1), max: d(2027, 6, 30), footer: false },
     });
     container.querySelector<HTMLElement>(".e-cal-pick")!.click();
-    await sleep(30);
+    await showing(container, "years");
     expect(container.querySelector<HTMLButtonElement>('[id$="-y-2024"]')).toBeNull();
     expect(container.querySelector<HTMLButtonElement>('[id$="-y-2025"]')!.disabled).toBe(false);
     container.querySelector<HTMLElement>('[id$="-y-2025"]')!.click();
-    await sleep(30);
+    await showing(container, "months");
     const cells = container.querySelectorAll<HTMLButtonElement>(".e-cal-cell");
     expect(cells[1]!.disabled).toBe(true);
     expect(cells[2]!.disabled).toBe(false);
@@ -225,7 +227,7 @@ describe("ECalendar", () => {
   test("years and months move with the arrows, Home, End and Page keys; Enter chooses", async () => {
     const { container } = await render(ECalendar, { props: { modelValue: d(2026, 10, 22), footer: false } });
     container.querySelector<HTMLElement>(".e-cal-pick")!.click();
-    await sleep(30);
+    await showing(container, "years");
     await userEvent.keyboard("{ArrowRight}");
     expect(active().id).toMatch(/-y-2027$/);
     await userEvent.keyboard("{ArrowDown}");
@@ -238,8 +240,7 @@ describe("ECalendar", () => {
     expect(Number(active().textContent)).toBe(new Date().getFullYear() + 20);
     container.querySelector<HTMLElement>('[id$="-y-2026"]')!.focus();
     await userEvent.keyboard("{Enter}");
-    await sleep(30);
-    expect(active().id).toMatch(/-m-9$/);
+    await expect.poll(() => active().id).toMatch(/-m-9$/);
     await userEvent.keyboard("{ArrowLeft}{ArrowUp}");
     expect(active().id).toMatch(/-m-5$/);
     await userEvent.keyboard("{End}");
@@ -251,10 +252,9 @@ describe("ECalendar", () => {
   test("Escape returns up to the days and puts focus back on the day", async () => {
     const { container } = await render(ECalendar, { props: { modelValue: d(2026, 10, 22), footer: false } });
     container.querySelector<HTMLElement>(".e-cal-pick")!.click();
-    await sleep(30);
+    await showing(container, "years");
     await userEvent.keyboard("{Escape}");
-    await sleep(30);
-    expect(grid(container)).not.toBeNull();
+    await expect.poll(() => grid(container)).not.toBeNull();
     expect(active().getAttribute("aria-label")).toMatch(/October 22, 2026/);
   });
 
@@ -326,23 +326,19 @@ describe("ECalendar", () => {
     const help = () => container.querySelector(".e-cal-help")!.textContent;
     expect(help()).toBe("Choose a start date");
     dayButton(container, /October 14,/).click();
-    await sleep(30);
-    expect(help()).toBe("Starts Oct 14. Now choose an end date");
+    await expect.poll(() => help()).toBe("Starts Oct 14. Now choose an end date");
     dayButton(container, /October 10,/).click();
-    await sleep(30);
-    expect(start.value!.getDate()).toBe(10);
+    await expect.poll(() => start.value!.getDate()).toBe(10);
     expect(end.value).toBeNull();
     dayButton(container, /October 18,/).click();
-    await sleep(30);
-    expect(end.value!.getDate()).toBe(18);
+    await expect.poll(() => end.value!.getDate()).toBe(18);
     expect(help()).toBe("Oct 10 to Oct 18 (9 days)");
     expect(spans).toHaveLength(3);
     expect(container.querySelectorAll(".e-cal-in")).toHaveLength(7);
     expect(dayButton(container, /October 10,/).classList.contains("e-day--sel")).toBe(true);
     expect(dayButton(container, /October 18,/).classList.contains("e-day--sel")).toBe(true);
     dayButton(container, /October 25,/).click();
-    await sleep(30);
-    expect(start.value!.getDate()).toBe(25);
+    await expect.poll(() => start.value!.getDate()).toBe(25);
     expect(end.value).toBeNull();
   });
 
@@ -351,8 +347,7 @@ describe("ECalendar", () => {
       props: { mode: "range", start: d(2026, 10, 10), end: null, month: d(2026, 10, 1), footer: false },
     });
     dayButton(container, /October 14,/).dispatchEvent(new MouseEvent("mouseenter"));
-    await sleep(30);
-    expect(container.querySelectorAll(".e-cal-in")).toHaveLength(3);
+    await expect.poll(() => container.querySelectorAll(".e-cal-in")).toHaveLength(3);
   });
 
   test("locale: de-DE starts on Monday and names the month in German", async () => {
@@ -383,8 +378,7 @@ describe("ECalendar", () => {
     });
     expect(container.querySelector("th")!.textContent!.trim()).toBe("Su");
     eos.config.locale = "fr-FR";
-    await sleep(30);
-    expect(container.querySelector("th")!.textContent!.trim()).toMatch(/^lu/);
+    await expect.poll(() => container.querySelector("th")!.textContent!.trim()).toMatch(/^lu/);
     expect(container.querySelector(".e-cal-pick")!.textContent!.trim()).toBe("octobre 2026");
   });
 
@@ -461,10 +455,10 @@ describe("ECalendar", () => {
     await expectNoViolations(spanned.container);
     const years = await render(ECalendar, { props: { modelValue: d(2026, 10, 22) } });
     years.container.querySelector<HTMLElement>(".e-cal-pick")!.click();
-    await sleep(30);
+    await showing(years.container, "years");
     await expectNoViolations(years.container);
     years.container.querySelector<HTMLElement>('[id$="-y-2027"]')!.click();
-    await sleep(30);
+    await showing(years.container, "months");
     await expectNoViolations(years.container);
   });
 
@@ -497,12 +491,11 @@ describe("ECalendar", () => {
     await page.getByRole("button", { name: /Previous month/ }).click();
     expect(stop().disabled).toBe(false);
     container.querySelector<HTMLElement>(".e-cal-pick")!.click();
-    await sleep(30);
+    await showing(container, "years");
     container.querySelector<HTMLElement>('[id$="-y-2027"]')!.click();
-    await sleep(30);
+    await showing(container, "months");
     container.querySelector<HTMLElement>('[id$="-m-5"]')!.click();
-    await sleep(30);
-    expect(stop().disabled).toBe(false);
+    await expect.poll(() => stop().disabled).toBe(false);
     await page.getByRole("button", { name: "Today" }).click();
     expect(stop().disabled).toBe(false);
   });
@@ -562,8 +555,9 @@ describe("ECalendar", () => {
     );
     container.querySelector<HTMLElement>('.e-day[tabindex="0"]')!.focus();
     await userEvent.keyboard("{PageDown}");
-    await sleep(30);
-    expect(container.querySelector('.e-day[tabindex="0"]')!.getAttribute("aria-label")).toMatch(/November \d+/);
+    await expect
+      .poll(() => container.querySelector('.e-day[tabindex="0"]')!.getAttribute("aria-label"))
+      .toMatch(/November \d+/);
     expect(month.value.getMonth()).toBe(10);
   });
 

@@ -4,6 +4,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ESwitch from "./ESwitch.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { settled } from "../../../test/frames.js";
 
 describe("ESwitch", () => {
   test("the thumb is plain: no border at all, on or off", async () => {
@@ -20,7 +21,7 @@ describe("ESwitch", () => {
     const heights = async (modelValue: boolean) => {
       const { container } = await render(ESwitch, { props: { label: "Autopay", modelValue } });
       container.classList.add("e-root");
-      await new Promise((r) => setTimeout(r, 250));
+      await settled();
       const track = container.querySelector(".e-switch-track")!;
       const css = getComputedStyle(track);
       expect(css.borderBottomWidth).toBe(css.borderTopWidth);

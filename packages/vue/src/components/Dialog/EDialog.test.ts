@@ -5,6 +5,7 @@ import { render } from "vitest-browser-vue";
 import EDialog from "./EDialog.vue";
 import EButton from "../Button/EButton.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { frames } from "../../../test/frames.js";
 
 afterEach(() => {
   document.body.removeAttribute("style");
@@ -244,7 +245,7 @@ describe("EDialog", () => {
     await userEvent.keyboard("{Escape}");
     await userEvent.click(document.getElementById("elsewhere")!);
     await userEvent.tab();
-    await new Promise((r) => setTimeout(r, 50));
+    await frames();
     expect(open.value).toBe(true);
     expect(closed.value).toBe(0);
     expect(document.querySelector(".e-dialog")).not.toBeNull();

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 import EInline from "./EInline.vue";
@@ -19,14 +19,22 @@ describe("EInline", () => {
     );
   });
 
-  test("wrap=false keeps the children on one line, like nowrap", async () => {
+  test("wrap=false keeps the children on one line, like the older nowrap, which warns", async () => {
     const { container } = await render(EInline, { props: { wrap: false }, slots: { default: kids } });
     expect(container.firstElementChild!.classList.contains("e-inline--nowrap")).toBe(true);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const old = await render(EInline, { props: { nowrap: true }, slots: { default: kids } });
+      expect(old.container.firstElementChild!.className).toBe(container.firstElementChild!.className);
+      expect(warn).toHaveBeenCalledWith('[eos] EInline `nowrap` is deprecated. Use :wrap="false".');
+    } finally {
+      warn.mockRestore();
+    }
   });
 
-  test("justify and align and nowrap add modifier classes", async () => {
+  test("justify and align and wrap=false add modifier classes", async () => {
     const { container } = await render(EInline, {
-      props: { justify: "between", align: "baseline", nowrap: true },
+      props: { justify: "between", align: "baseline", wrap: false },
       slots: { default: kids },
     });
     expect(container.firstElementChild!.className).toBe(
@@ -61,14 +69,14 @@ describe("EInline", () => {
     expect(Math.round(b!.right)).toBe(Math.round(row.right));
   });
 
-  test("wraps when it runs out of room, and not with nowrap", async () => {
+  test("wraps when it runs out of room, and not with wrap=false", async () => {
     const wrapped = await render(
       defineComponent({ render: () => h("div", { style: { width: "150px" } }, [h(EInline, null, kids)]) }),
     );
     const [a, b] = [...wrapped.container.querySelectorAll("span")].map((s) => s.getBoundingClientRect());
     expect(b!.top).toBeGreaterThan(a!.bottom - 1);
     const single = await render(
-      defineComponent({ render: () => h("div", { style: { width: "150px" } }, [h(EInline, { nowrap: true }, kids)]) }),
+      defineComponent({ render: () => h("div", { style: { width: "150px" } }, [h(EInline, { wrap: false }, kids)]) }),
     );
     const [c, d] = [...single.container.querySelectorAll("span")].map((s) => s.getBoundingClientRect());
     expect(Math.abs(c!.top - d!.top)).toBeLessThan(1);

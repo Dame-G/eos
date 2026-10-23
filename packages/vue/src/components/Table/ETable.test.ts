@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 import ETable from "./ETable.vue";
@@ -60,9 +60,9 @@ describe("ETable", () => {
     expect(caption.getBoundingClientRect().width).toBeLessThanOrEqual(1);
   });
 
-  test("striped and dense add modifiers; striped tints every other row", async () => {
+  test("striped and size sm add modifiers; striped tints every other row", async () => {
     const { container } = await render(ETable, {
-      props: { caption: "Plans", striped: true, dense: true },
+      props: { caption: "Plans", striped: true, size: "sm" },
       slots: { default: rows },
     });
     container.classList.add("e-root");
@@ -110,8 +110,14 @@ describe("ETable", () => {
     };
     const normal = await pad({});
     expect(await pad({ size: "sm" })).not.toBe(normal);
-    expect(await pad({ dense: true })).not.toBe(normal);
-    expect(await pad({ size: "md", dense: true })).toBe(normal);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      expect(await pad({ dense: true })).toBe(await pad({ size: "sm" }));
+      expect(warn).toHaveBeenCalledWith('[eos] ETable `dense` is deprecated. Use size="sm".');
+      expect(await pad({ size: "md", dense: true })).toBe(normal);
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   test("loading marks the table busy, dims its rows and shows placeholder lines", async () => {

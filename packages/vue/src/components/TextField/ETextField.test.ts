@@ -5,6 +5,7 @@ import { render } from "vitest-browser-vue";
 import ETextField from "./ETextField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 import { expectPostingContract } from "../../../test/formPosting.js";
+import { settled } from "../../../test/frames.js";
 
 /** The top-left corner radius in px. */
 const corner = (el: Element) => parseFloat(getComputedStyle(el).borderTopLeftRadius);
@@ -134,7 +135,7 @@ describe("ETextField", () => {
     const idleBorder = idle.borderColor;
     const idleShadow = idle.boxShadow;
     await userEvent.hover(input);
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     const hovered = getComputedStyle(input);
     expect(hovered.borderColor).toBe(idleBorder);
     expect(hovered.boxShadow).not.toBe(idleShadow);

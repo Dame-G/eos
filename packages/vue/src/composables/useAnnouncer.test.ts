@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { useAnnouncer } from "./useAnnouncer.js";
 
 const polite = () => document.querySelector("[data-e-announcer=polite]");
@@ -52,8 +52,15 @@ describe("useAnnouncer", () => {
   });
 
   test("an empty message does nothing", async () => {
-    useAnnouncer().announce("");
-    await new Promise((r) => setTimeout(r, 80));
-    expect(polite()?.textContent ?? "").toBe("");
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      useAnnouncer().announce("");
+      // Nothing is queued to be said, now or later.
+      expect(vi.getTimerCount()).toBe(0);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(polite()?.textContent ?? "").toBe("");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

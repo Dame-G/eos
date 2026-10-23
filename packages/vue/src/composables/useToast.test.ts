@@ -1,11 +1,18 @@
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 import { createToasts, useToast } from "./useToast.js";
 
-const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// The timers are fake: a duration is exact and no test waits it out.
+const wait = (ms: number) => vi.advanceTimersByTimeAsync(ms);
+const fakeTimers = () => {
+  beforeEach(() => void vi.useFakeTimers());
+  afterEach(() => void vi.useRealTimers());
+};
 
 describe("createToasts", () => {
+  fakeTimers();
+
   test("show returns an id and adds the toast with its tone, info by default", () => {
     const store = createToasts();
     const id = store.show({ title: "Saved" });
@@ -71,6 +78,8 @@ describe("createToasts", () => {
 });
 
 describe("createToasts options", () => {
+  fakeTimers();
+
   test("a toast with no duration is closable even when closable is false, and warns", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const store = createToasts();

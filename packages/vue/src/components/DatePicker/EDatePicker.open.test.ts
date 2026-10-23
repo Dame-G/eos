@@ -5,6 +5,7 @@ import { render } from "vitest-browser-vue";
 import EDatePicker from "./EDatePicker.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
+import { frames, settled } from "../../../test/frames.js";
 
 const panel = () => document.querySelector<HTMLElement>(".e-calpanel");
 const trigger = (c: Element) => c.querySelector<HTMLElement>("button.e-combo-btn")!;
@@ -41,7 +42,7 @@ describe("EDatePicker open", () => {
     const el = panel()!;
     expect(container.contains(el)).toBe(false);
     expect(el.classList.contains("e-root") || !!el.closest(".e-root")).toBe(true);
-    await new Promise((r) => setTimeout(r, 300));
+    await frames();
     expect(document.activeElement).toBe(before);
     expect(el.contains(document.activeElement)).toBe(false);
   });
@@ -56,7 +57,7 @@ describe("EDatePicker open", () => {
     const before = document.activeElement;
     state.value = true;
     await expect.poll(() => panel()).not.toBeNull();
-    await new Promise((r) => setTimeout(r, 300));
+    await frames();
     expect(document.activeElement).toBe(before);
     state.value = false;
     await expect.poll(() => panel()).toBeNull();
@@ -89,14 +90,14 @@ describe("EDatePicker open", () => {
 
   test("disabled stays closed, even with open set", async () => {
     await bound(true, { disabled: true });
-    await new Promise((r) => setTimeout(r, 300));
+    await frames();
     expect(panel()).toBeNull();
   });
 
   test("axe: open", async () => {
     await bound(true);
     await expect.poll(() => panel()).not.toBeNull();
-    await new Promise((r) => setTimeout(r, 300));
+    await settled();
     await expectNoViolations(document.body);
   });
 });

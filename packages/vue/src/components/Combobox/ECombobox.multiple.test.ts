@@ -21,7 +21,7 @@ const corner = (el: Element) => parseFloat(getComputedStyle(el).borderTopLeftRad
 describe("ECombobox multiple", () => {
   test("shows chosen options as tags in the field, each with its own labelled Remove button", async () => {
     const { container } = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text", "Email"] },
+      props: { clearable: true, multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text", "Email"] },
     });
     expect(tags(container)).toEqual(["Text", "Email"]);
     await expect.element(page.getByRole("button", { name: "Remove Text" })).toBeVisible();
@@ -31,11 +31,13 @@ describe("ECombobox multiple", () => {
   });
 
   test("the tags are the library's own ETag, and sit in the middle of a field that keeps its height", async () => {
-    const empty = await render(ECombobox, { props: { multiple: true, label: "Empty", options: WAYS } });
+    const empty = await render(ECombobox, {
+      props: { clearable: true, multiple: true, label: "Empty", options: WAYS },
+    });
     empty.container.classList.add("e-root");
     const emptyHeight = empty.container.querySelector(".e-input-wrap")!.getBoundingClientRect().height;
     const { container } = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text", "Email"] },
+      props: { clearable: true, multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text", "Email"] },
     });
     container.classList.add("e-root");
     const wrap = container.querySelector(".e-input-wrap")!.getBoundingClientRect();
@@ -48,7 +50,14 @@ describe("ECombobox multiple", () => {
 
   test("bare: just the field, named by ariaLabel", async () => {
     const { container } = await render(ECombobox, {
-      props: { multiple: true, bare: true, ariaLabel: "Channels", options: WAYS, modelValue: ["Text"] },
+      props: {
+        clearable: true,
+        multiple: true,
+        bare: true,
+        ariaLabel: "Channels",
+        options: WAYS,
+        modelValue: ["Text"],
+      },
     });
     expect(container.querySelector("label")).toBeNull();
     expect(container.querySelector(".e-field")).toBeNull();
@@ -63,7 +72,7 @@ describe("ECombobox multiple", () => {
           h("div", [
             h(ETextField, { label: "A" }),
             h(ESelect, { label: "B", options: ["x"] }),
-            h(ECombobox, { multiple: true, label: "C", options: WAYS, modelValue: ["Text"] }),
+            h(ECombobox, { clearable: true, multiple: true, label: "C", options: WAYS, modelValue: ["Text"] }),
           ]),
       }),
     );
@@ -80,6 +89,7 @@ describe("ECombobox multiple", () => {
     const got: string[][] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         multiple: true,
         label: "Remind me by",
         options: WAYS,
@@ -106,6 +116,7 @@ describe("ECombobox multiple", () => {
     const got: string[][] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         multiple: true,
         label: "Remind me by",
         options: WAYS,
@@ -132,6 +143,7 @@ describe("ECombobox multiple", () => {
     const got: string[][] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         multiple: true,
         label: "Remind me by",
         options: WAYS,
@@ -149,6 +161,7 @@ describe("ECombobox multiple", () => {
     const got: string[][] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         multiple: true,
         label: "Remind me by",
         options: WAYS,
@@ -166,6 +179,7 @@ describe("ECombobox multiple", () => {
     const got: string[][] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         multiple: true,
         label: "Remind me by",
         options: WAYS,
@@ -183,6 +197,7 @@ describe("ECombobox multiple", () => {
     const got: string[][] = [];
     await render(ECombobox, {
       props: {
+        clearable: true,
         multiple: true,
         label: "Remind me by",
         options: WAYS,
@@ -198,6 +213,7 @@ describe("ECombobox multiple", () => {
     const got: string[][] = [];
     await render(ECombobox, {
       props: {
+        clearable: true,
         multiple: true,
         label: "Remind me by",
         options: WAYS,
@@ -211,7 +227,14 @@ describe("ECombobox multiple", () => {
 
   test("name submits one hidden input per chosen value", async () => {
     const { container } = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", name: "remind", options: WAYS, modelValue: ["Text", "Call"] },
+      props: {
+        clearable: true,
+        multiple: true,
+        label: "Remind me by",
+        name: "remind",
+        options: WAYS,
+        modelValue: ["Text", "Call"],
+      },
     });
     const hidden = Array.from(container.querySelectorAll<HTMLInputElement>("input[type=hidden]"));
     expect(hidden.map((i) => [i.name, i.value])).toEqual([
@@ -222,13 +245,20 @@ describe("ECombobox multiple", () => {
 
   test("none chosen submits nothing; required is satisfied by a chosen value", async () => {
     const empty = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", name: "remind", options: WAYS, required: true },
+      props: { clearable: true, multiple: true, label: "Remind me by", name: "remind", options: WAYS, required: true },
     });
     expect(empty.container.querySelectorAll("input[type=hidden]").length).toBe(0);
     expect(inputOf(empty.container).required).toBe(true);
     empty.unmount();
     const full = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, required: true, modelValue: ["Text"] },
+      props: {
+        clearable: true,
+        multiple: true,
+        label: "Remind me by",
+        options: WAYS,
+        required: true,
+        modelValue: ["Text"],
+      },
     });
     expect(inputOf(full.container).required).toBe(false);
   });
@@ -240,6 +270,7 @@ describe("ECombobox multiple", () => {
       defineComponent({
         render: () =>
           h(ECombobox, {
+            clearable: true,
             multiple: true,
             label: "Remind me by",
             options: WAYS,
@@ -261,7 +292,9 @@ describe("ECombobox multiple", () => {
   });
 
   test("without v-model it keeps its own choices", async () => {
-    const { container } = await render(ECombobox, { props: { multiple: true, label: "Remind me by", options: WAYS } });
+    const { container } = await render(ECombobox, {
+      props: { clearable: true, multiple: true, label: "Remind me by", options: WAYS },
+    });
     await page.getByRole("button", { name: "Show options" }).click();
     await page.getByRole("option", { name: "Call" }).click();
     await expect.poll(() => tags(container)).toEqual(["Call"]);
@@ -270,7 +303,14 @@ describe("ECombobox multiple", () => {
   test("many tags wrap inside the field; hint and error come from the field", async () => {
     const many = Array.from({ length: 12 }, (_, i) => `Option number ${i + 1}`);
     const { container, rerender } = await render(ECombobox, {
-      props: { multiple: true, label: "Pick", options: many, modelValue: many, hint: "As many as you like" },
+      props: {
+        clearable: true,
+        multiple: true,
+        label: "Pick",
+        options: many,
+        modelValue: many,
+        hint: "As many as you like",
+      },
     });
     container.classList.add("e-root");
     expect(container.querySelector(".e-combo")!.getBoundingClientRect().height).toBeGreaterThan(96);
@@ -288,6 +328,7 @@ describe("ECombobox multiple", () => {
     const got: string[][] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         multiple: true,
         label: "Remind me by",
         options: WAYS,
@@ -303,7 +344,7 @@ describe("ECombobox multiple", () => {
 
   test("removing the last tag with Backspace announces it", async () => {
     const { container } = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Email", "Call"] },
+      props: { clearable: true, multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Email", "Call"] },
     });
     inputOf(container).focus();
     await userEvent.keyboard("{Backspace}");
@@ -312,7 +353,14 @@ describe("ECombobox multiple", () => {
 
   test("disabled: tags cannot be removed and the field never opens", async () => {
     const { container } = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text"], disabled: true },
+      props: {
+        clearable: true,
+        multiple: true,
+        label: "Remind me by",
+        options: WAYS,
+        modelValue: ["Text"],
+        disabled: true,
+      },
     });
     expect(inputOf(container).disabled).toBe(true);
     expect(container.querySelector(".e-tag")!.textContent).toContain("Text");
@@ -324,7 +372,7 @@ describe("ECombobox multiple", () => {
   test("passes aria-*, data-* and listeners to the input; class and style stay on the wrapper", async () => {
     let focused = 0;
     const { container } = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS },
+      props: { clearable: true, multiple: true, label: "Remind me by", options: WAYS },
       attrs: { "data-test": "x", class: "mine", onFocus: () => focused++ },
     });
     expect(inputOf(container).dataset["test"]).toBe("x");
@@ -335,12 +383,12 @@ describe("ECombobox multiple", () => {
 
   test("axe: empty, with tags, open, invalid, disabled", async () => {
     const a = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, hint: "Pick any" },
+      props: { clearable: true, multiple: true, label: "Remind me by", options: WAYS, hint: "Pick any" },
     });
     await expectNoViolations(a.container);
     a.unmount();
     const b = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text", "Email"] },
+      props: { clearable: true, multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text", "Email"] },
     });
     await expectNoViolations(b.container);
     await page.getByRole("button", { name: "Show options" }).click();
@@ -348,19 +396,32 @@ describe("ECombobox multiple", () => {
     await expectNoViolations(document.body);
     b.unmount();
     const c = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, error: "Pick one" },
+      props: { clearable: true, multiple: true, label: "Remind me by", options: WAYS, error: "Pick one" },
     });
     await expectNoViolations(c.container);
     c.unmount();
     const d = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, disabled: true, modelValue: ["Text"] },
+      props: {
+        clearable: true,
+        multiple: true,
+        label: "Remind me by",
+        options: WAYS,
+        disabled: true,
+        modelValue: ["Text"],
+      },
     });
     await expectNoViolations(d.container);
   });
 
   test("corners are concentric: chosen tags (a tight gap) and the buttons ((snug + edge) / 2) follow the wrap's radius at any theme", async () => {
     const { container } = await render(ECombobox, {
-      props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text", "Email"], clearable: true },
+      props: {
+        multiple: true,
+        label: "Remind me by",
+        options: WAYS,
+        modelValue: ["Text", "Email"],
+        clearable: true,
+      },
     });
     const root = container as HTMLElement;
     root.classList.add("e-root");

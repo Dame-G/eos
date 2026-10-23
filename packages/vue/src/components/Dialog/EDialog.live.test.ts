@@ -6,6 +6,7 @@ import EDialog from "./EDialog.vue";
 import EToastProvider from "../ToastProvider/EToastProvider.vue";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useToast, type ToastApi } from "../../composables/useToast.js";
+import { frames } from "../../../test/frames.js";
 
 let toast: ToastApi;
 const Grab = defineComponent({
@@ -68,7 +69,7 @@ describe("live regions while a modal dialog is open", () => {
     await expect.poll(() => document.querySelectorAll(".e-toast-region .e-toast").length).toBe(1);
     await page.getByRole("button", { name: "Dismiss" }).click();
     await expect.poll(() => document.querySelectorAll(".e-toast-region .e-toast").length).toBe(0);
-    await new Promise((r) => setTimeout(r, 50));
+    await frames();
     expect(document.querySelector(".e-dialog")).not.toBeNull();
     expect(closed).toEqual([]);
   });
@@ -81,7 +82,7 @@ describe("toasts under a modal dialog", () => {
     await expect.poll(() => document.querySelectorAll(".e-toast-region .e-toast").length).toBe(1);
     await expect.poll(() => document.querySelector("[data-e-announcer='polite']")?.textContent?.trim()).toBe("Saved");
     await userEvent.keyboard("{F8}");
-    await new Promise((r) => setTimeout(r, 100));
+    await frames();
     expect(document.querySelector(".e-dialog")!.contains(document.activeElement)).toBe(true);
   });
 });
