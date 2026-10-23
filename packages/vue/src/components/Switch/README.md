@@ -32,12 +32,12 @@ A switch for a setting that takes effect the moment it is flipped. Use [`ECheckb
 ## Accessibility
 
 - `description`, `hint` and `error` are linked with `aria-describedby`, not folded into the name. `readonly` sets `aria-readonly` and blocks the flip.
-- A checkbox with `role="switch"`: Space toggles it and the state is announced as on or off.
+- A checkbox with `role="switch"`: the state is announced as on or off.
 - State never depends on colour alone: the knob sits at the end when on.
 
 ## Keyboard
 
-| Key   | Does                          |
+| Key   | Action                        |
 | ----- | ----------------------------- |
 | Tab   | Moves to and from the switch. |
 | Space | Turns it on or off.           |

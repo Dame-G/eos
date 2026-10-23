@@ -1,6 +1,6 @@
 # ESearchResults
 
-A list of search results as links, with a title and a muted line under it, arrow-key movement between them and the matched text marked.
+A list of search results as links, with a title and a muted line under it, arrow-key movement between them and the matched text marked. Pair it with [`ESearchBar`](../SearchBar/README.md), and use [`ECommandPalette`](../CommandPalette/README.md) for commands.
 
 ```vue
 <ESearchBar
@@ -51,18 +51,18 @@ A list of search results as links, with a title and a muted line under it, arrow
 
 ## Accessibility
 
-- A list of links named by `label`. Tab reaches each one. ArrowDown and ArrowUp move between them, Home and End jump to the first and last. Wire ArrowDown from the search box to `focusFirst()`.
+- A list of links named by `label`. Wire Arrow Down from the search box to `focusFirst()`.
 - `emptyText` is announced politely when it appears. The result count is not: put a polite live region (`role="status"`) beside the list that says "3 results".
 - A result with no `href` or `to` is a real `button`, not a link to `#`.
 
 ## Keyboard
 
-| Key                  | Does                                                                          |
-| -------------------- | ----------------------------------------------------------------------------- |
-| Tab                  | Moves to and from the results.                                                |
-| Arrow Down, Arrow Up | Move between results. Past either end they emit `exit-bottom` and `exit-top`. |
-| Home, End            | Focus the first or last result.                                               |
-| Enter                | Opens the focused result (`select`).                                          |
+| Key                  | Action                                                                         |
+| -------------------- | ------------------------------------------------------------------------------ |
+| Tab                  | Moves to and from the results.                                                 |
+| Arrow Down, Arrow Up | Moves between results. Past either end they emit `exit-bottom` and `exit-top`. |
+| Home, End            | Focuses the first or last result.                                              |
+| Enter                | Opens the focused result (`select`).                                           |
 
 ## Related
 

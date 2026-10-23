@@ -1,6 +1,6 @@
 # ECalendar
 
-A month grid to choose a day or a span, with names, week start and date order from the configured locale.
+A month grid to choose a day or a span, with names, week start and date order from the configured locale. In a form use [`EDatePicker`](../DatePicker/README.md) or [`ERangePicker`](../RangePicker/README.md), which open it in a popup.
 
 ```vue
 <ECalendar v-model="day" :min="today" />

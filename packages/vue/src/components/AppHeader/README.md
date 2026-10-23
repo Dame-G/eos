@@ -1,6 +1,6 @@
 # EAppHeader
 
-The bar across the top of the page, with logo, actions and a navigation row that wraps its links when they do not fit.
+The bar across the top of the page, with logo, actions and a navigation row that wraps its links when they do not fit. Put it in the `header` slot of [`EAppShell`](../AppShell/README.md), and use [`EPageHeader`](../PageHeader/README.md) for the title of each page.
 
 ```vue
 <EAppHeader sticky brand="Acme" brand-to="/" :link-component="RouterLink">

@@ -12,14 +12,14 @@ Children in a column with an even gap. Use it instead of margins. Use [`EInline`
 
 <!-- props:start -->
 
-| Prop        | Type                                                      | Default  | Notes                                                                                                                                                                                      |
-| ----------- | --------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `as`        | `ElementTag`                                              | `"div"`  | The element to render, such as `ul` (with `li` children). `ul` and `ol` lose their bullets and padding.                                                                                    |
-| `gap`       | `GapToken \| string`                                      | `"base"` | `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. |
-| `align`     | `"start" \| "center" \| "end" \| "stretch" \| "baseline"` | None     | Aligns the children across the column. Stretched by default.                                                                                                                               |
-| `justify`   | `"start" \| "center" \| "end" \| "between"`               | None     | Places the children down the column when the stack is taller than they are. Left out, they sit at the start.                                                                               |
-| `divider`   | `boolean`                                                 | `false`  | Draws a hairline between the children, centred in the gap. Not used with `wrapBelow`.                                                                                                      |
-| `wrapBelow` | `string`                                                  | None     | A CSS length. Lays the children side by side, each as wide as the stack allows, and stacks them into one column once the stack is narrower than this. Left out, the children always stack. |
+| Prop        | Type                                                                                                                      | Default  | Notes                                                                                                                                                                                      |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `as`        | `string`                                                                                                                  | `"div"`  | The element to render, such as `ul` (with `li` children). `ul` and `ol` lose their bullets and padding.                                                                                    |
+| `gap`       | `1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7 \| 8 \| 10 \| 12 \| 16 \| "tight" \| "snug" \| "base" \| "loose" \| "section" \| string` | `"base"` | `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. |
+| `align`     | `"start" \| "center" \| "end" \| "stretch" \| "baseline"`                                                                 | None     | Aligns the children across the column. Stretched by default.                                                                                                                               |
+| `justify`   | `"start" \| "center" \| "end" \| "between"`                                                                               | None     | Places the children down the column when the stack is taller than they are. Left out, they sit at the start.                                                                               |
+| `divider`   | `boolean`                                                                                                                 | `false`  | Draws a hairline between the children, centred in the gap. Not used with `wrapBelow`.                                                                                                      |
+| `wrapBelow` | `string`                                                                                                                  | None     | A CSS length. Lays the children side by side, each as wide as the stack allows, and stacks them into one column once the stack is narrower than this. Left out, the children always stack. |
 
 <!-- props:end -->
 
@@ -39,9 +39,7 @@ Children in a column with an even gap. Use it instead of margins. Use [`EInline`
 - With `as="ul"` (or `ol`) and `li` children it is a list, announced with its item count. The bullets are removed and `role="list"` is set, so Safari keeps the list semantics.
 - Spacing is not a substitute for structure. Use headings and landmarks inside it as the content needs.
 
-## Keyboard
-
-Not focusable and takes no keys. Focus follows the DOM order of the children.
+Not focusable.
 
 ## Related
 

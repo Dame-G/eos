@@ -33,9 +33,9 @@ An icon button that copies text and shows a check mark. For a block of code use 
 
 ## Keyboard
 
-| Key          | Action         |
-| ------------ | -------------- |
-| Enter, Space | Copy the text. |
+| Key          | Action           |
+| ------------ | ---------------- |
+| Enter, Space | Copies the text. |
 
 ## Related
 

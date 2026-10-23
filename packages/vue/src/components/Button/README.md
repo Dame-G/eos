@@ -1,6 +1,6 @@
 # EButton
 
-A button for an action: one `primary` per screen, the other variants rank below it.
+A button for an action: one `primary` per screen, the other variants rank below it. Use [`ELink`](../Link/README.md) to go somewhere, [`EIconButton`](../IconButton/README.md) where a text button would crowd, and [`EActions`](../Actions/README.md) to group several.
 
 ```vue
 <EButton @click="pay">Pay $162.40</EButton>

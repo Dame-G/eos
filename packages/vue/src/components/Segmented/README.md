@@ -1,6 +1,6 @@
 # ESegmented
 
-A joined set of two to five options where exactly one is active. Use it to change how a list is filtered or shown, not to switch content.
+A joined set of two to five options where exactly one is active. Use it to change how a list is filtered or shown, not to switch content: that is [`ETabs`](../Tabs/README.md).
 
 ```vue
 <ESegmented
@@ -31,6 +31,8 @@ A joined set of two to five options where exactly one is active. Use it to chang
 | `readonly`   | `boolean`                     | `false`        | Shows the choice but blocks changing it. The options stay focusable and the value is still submitted.                                               |
 | `name`       | `string`                      | `generated`    | The name the radios share, submitted with a form.                                                                                                   |
 
+`T` is a type parameter, inferred from the props you pass. It extends `string` (default `string`).
+
 <!-- props:end -->
 
 `class` and `style` land on the outer element, which also holds the hint or error. Other attributes land on the `radiogroup` element; `@focus` and `@blur` fire as focus enters and leaves it. Exposes `input` (the chosen radio, else the first) and `focus()`.
@@ -43,7 +45,7 @@ A joined set of two to five options where exactly one is active. Use it to chang
 
 ## Keyboard
 
-| Key                     | Does                                                 |
+| Key                     | Action                                               |
 | ----------------------- | ---------------------------------------------------- |
 | Tab                     | Moves into and out of the group.                     |
 | Arrow Left, Arrow Right | Moves to the previous or next option and chooses it. |

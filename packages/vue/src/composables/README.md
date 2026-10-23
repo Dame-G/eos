@@ -65,8 +65,10 @@ Shows a toast from anywhere in an app that installed `createEos()`, or from insi
 
 ```ts
 const toast = useToast();
-toast.show({ title: "Saved", tone: "success" });
+const id = toast.show({ title: "Saved", tone: "success" });
 ```
+
+It returns `show`, `update(id, patch)`, `promise(promise, { loading, success, error })`, `dismiss(id)` and `clear()`. The options (`title`, `message`, `tone`, `icon`, `closable`, `key`, `action`, `duration`) are listed in [`EToastProvider`](../components/ToastProvider/README.md#options). Outside the plugin and a provider it throws; `app.provide(TOAST_KEY, createToasts())` gives code elsewhere a store.
 
 ## `useOverflow(scroller, watch?, options?)`
 

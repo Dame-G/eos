@@ -10,9 +10,9 @@ A small label above a value or a section. It is a label, not a heading: use [`EH
 
 <!-- props:start -->
 
-| Prop | Type         | Default | Notes                                                   |
-| ---- | ------------ | ------- | ------------------------------------------------------- |
-| `as` | `ElementTag` | `"p"`   | The element to render, if it should not be a paragraph. |
+| Prop | Type     | Default | Notes                                                   |
+| ---- | -------- | ------- | ------------------------------------------------------- |
+| `as` | `string` | `"p"`   | The element to render, if it should not be a paragraph. |
 
 <!-- props:end -->
 
@@ -31,11 +31,7 @@ A small label above a value or a section. It is a label, not a heading: use [`EH
 - The capitals come from CSS, so assistive technology reads the sentence-case text you wrote.
 - Keep it for short labels rather than body copy.
 
-## Keyboard
-
-| Key | Action                     |
-| --- | -------------------------- |
-| Tab | A kicker is not focusable. |
+Not focusable.
 
 ## Related
 

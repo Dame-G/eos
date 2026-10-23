@@ -1,6 +1,6 @@
 # EStepper
 
-Shows where a person is in a multi-step flow such as registration. It displays progress and does not navigate.
+Shows where a person is in a multi-step flow such as registration. It displays progress and does not navigate. Use [`EProgress`](../Progress/README.md) for a single bar of progress.
 
 ```vue
 <EStepper

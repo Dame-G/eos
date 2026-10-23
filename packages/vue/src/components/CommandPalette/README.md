@@ -57,18 +57,17 @@ The `CommandItem` type (`id`, `label`, `description`, `group`, `icon`, `shortcut
 ## Accessibility
 
 - A modal dialog named by `label`, with focus on a `combobox` input that controls a `listbox`. The active option is `aria-activedescendant`, and focus stays in the input.
-- Arrow Up and Down move (wrapping, skipping disabled commands), Ctrl+Home and Ctrl+End jump, Enter chooses, Escape closes. Focus returns to what had it.
 - The number of results, or "No results", is announced politely as the person types. Messages `resultsCount`, `noResults` and `commandPlaceholder` are configurable.
 
 ## Keyboard
 
-| Key                  | Action                                                          |
-| -------------------- | --------------------------------------------------------------- |
-| Mod + K              | Opens and closes it from anywhere (`shortcut`).                 |
-| Arrow Down, Arrow Up | Move the active command, wrapping and skipping disabled ones.   |
-| Ctrl+Home, Ctrl+End  | Jump to the first or last command. Home and End move the caret. |
-| Enter                | Choose the active command.                                      |
-| Escape               | Close it. Focus returns to what had it.                         |
+| Key                  | Action                                                           |
+| -------------------- | ---------------------------------------------------------------- |
+| Mod + K              | Opens and closes it from anywhere (`shortcut`).                  |
+| Arrow Down, Arrow Up | Moves the active command, wrapping and skipping disabled ones.   |
+| Ctrl+Home, Ctrl+End  | Jumps to the first or last command. Home and End move the caret. |
+| Enter                | Chooses the active command.                                      |
+| Escape               | Closes it. Focus returns to what had it.                         |
 
 ## Related
 

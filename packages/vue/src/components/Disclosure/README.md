@@ -1,6 +1,6 @@
 # EDisclosure
 
-A section that opens and closes, for secondary detail. Give several the same `group` for an accordion that keeps one open at a time.
+A section that opens and closes, for secondary detail. Give several the same `group` for an accordion that keeps one open at a time. Use [`EExpandableRow`](../ExpandableRow/README.md) for a row of a list, and [`ETabs`](../Tabs/README.md) to switch between views.
 
 ```vue
 <EDisclosure title="History (4)">
@@ -32,7 +32,7 @@ A section that opens and closes, for secondary detail. Give several the same `gr
 
 ## Accessibility
 
-- A native `details`. The summary is keyboard operable (Enter, Space) and the open state is announced.
+- A native `details`, so the open state is announced.
 - `disabled` sets `aria-disabled="true"` on the summary: it stays focusable, is dimmed and does not toggle.
 
 ## Keyboard

@@ -1,6 +1,6 @@
 # EMenu
 
-A button that opens a short list of actions. Use it when there are three or more actions and no room for buttons.
+A button that opens a short list of actions. Use it when there are three or more actions and no room for buttons, and [`EActions`](../Actions/README.md) when there is.
 
 ```vue
 <EMenu
@@ -65,8 +65,7 @@ A button that opens a short list of actions. Use it when there are three or more
 ## Accessibility
 
 - `role="menu"` with `menuitem`, `menuitemcheckbox` and `menuitemradio` rows. It is not modal.
-- Enter, Space, Arrow Down or Arrow Up on the button opens it with the first action focused. A click does too. Tab only passes through the button. Arrows, Home, End and letters move between actions.
-- Escape closes the menu and returns focus to the button.
+- A click on the button opens it too. Tab only passes through the button.
 - Choosing an action runs its `onClick`, then emits `select`. Use `onClick` for a handler per action and `select` for one handler for all.
 
 ## Keyboard

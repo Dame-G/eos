@@ -21,7 +21,7 @@ Changes the theme, colour scheme, language, currency, direction, words or icons 
 | `dir`      | `"ltr" \| "rtl"`               | None    | The text direction for this part. Left out, the one `locale` is written in, or the parent's.                                                                                                                                                                            |
 | `messages` | `Record<string, MessageValue>` | None    | Words for this part, laid over the parent's (and the plugin's) messages.                                                                                                                                                                                                |
 | `icons`    | `IconsConfig`                  | None    | Icons for this part, laid over the parent's: `icons` and `aliases` are merged, `resolve` and `builtin` replace.                                                                                                                                                         |
-| `as`       | `ElementTag`                   | `"div"` | The element to render.                                                                                                                                                                                                                                                  |
+| `as`       | `string`                       | `"div"` | The element to render.                                                                                                                                                                                                                                                  |
 | `portal`   | `boolean`                      | `true`  | Renders menus, dialogs, tooltips and toasts opened from inside into this element, so they keep its theme and direction. `false` leaves them where the parent puts them.                                                                                                 |
 
 <!-- props:end -->
@@ -42,12 +42,10 @@ Changes the theme, colour scheme, language, currency, direction, words or icons 
 - A themed part keeps the contrast `defineTheme()` checks. Check a theme of your own with `defineTheme(...).issues`.
 - The element has no role. Wrap the part in a landmark or a heading of its own when it is a section of the page.
 
-## Keyboard
-
-| Key | Action                                                          |
-| --- | --------------------------------------------------------------- |
-| Tab | Moves through the part as usual. The provider is not focusable. |
+Not focusable.
 
 ## Related
 
 [`ESurface`](../Surface/README.md) for a themed block's ground, [`EToastProvider`](../ToastProvider/README.md) for toasts in a part of the page.
+
+<!-- lede: no sibling -->

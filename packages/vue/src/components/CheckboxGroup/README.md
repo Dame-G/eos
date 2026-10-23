@@ -30,6 +30,8 @@ Any number of several related options, checked into an array. Use [`ECheckbox`](
 | `id`          | `string`                     | `generated`  | The id of the group's `fieldset`, which an `EForm` summary links to. The boxes are `{id}-1`, `{id}-2` and so on.            |
 | `orientation` | `"vertical" \| "horizontal"` | `"vertical"` | Lays the options out in a row that wraps, or one under another.                                                             |
 
+`T` is a type parameter, inferred from the props you pass. It extends `string` (default `string`).
+
 <!-- props:end -->
 
 `class`, `style`, attributes and listeners land on the `fieldset` element. Exposes `input` (the first checkbox) and `focus()`. `id` is the fieldset's, and the boxes are `{id}-1`, `{id}-2` and so on.
@@ -43,7 +45,7 @@ Any number of several related options, checked into an array. Use [`ECheckbox`](
 
 ## Keyboard
 
-| Key   | Does                                              |
+| Key   | Action                                            |
 | ----- | ------------------------------------------------- |
 | Tab   | Moves to the next box. A disabled box is skipped. |
 | Space | Checks or unchecks the focused box.               |

@@ -40,7 +40,7 @@ A term that opens a small floating panel with a definition or short explanation.
 
 - The term is a button with `aria-haspopup="dialog"`, and its name is the visible term followed by `label`.
 - The panel is a non-modal `role="dialog"` named by its title, or by `label` without one.
-- Enter or Space opens it and moves focus in. Escape, an outside press or Close closes it and returns focus to the term.
+- An outside press or Close also closes it and returns focus to the term.
 
 ## Keyboard
 

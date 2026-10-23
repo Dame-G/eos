@@ -33,7 +33,7 @@ An input that filters a list as you type and only accepts an option from it. `fr
 
 | Prop          | Type                                          | Default                               | Notes                                                                                                                                                                                                                                                                 |
 | ------------- | --------------------------------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `modelValue`  | `M extends true ? string[] : string`          | `"" or []`                            | `v-model`: the `value` of the chosen option, empty for nothing. With `multiple` it holds the chosen values in the order chosen (replaced, not mutated). With `freeform` it is the typed text, updated on every key.                                                   |
+| `modelValue`  | `string \| string[]`                          | `"" or []`                            | `v-model`: the `value` of the chosen option, empty for nothing. With `multiple` it holds the chosen values in the order chosen (replaced, not mutated). With `freeform` it is the typed text, updated on every key.                                                   |
 | `open`        | `boolean`                                     | `false`                               | `v-model:open`: whether the list is open. Setting it moves no focus, and a disabled or readonly field never opens.                                                                                                                                                    |
 | `hideLabel`   | `boolean`                                     | `false`                               | Hides the label from the page and keeps it for screen readers.                                                                                                                                                                                                        |
 | `ariaLabel`   | `string`                                      | None                                  | The accessible name when `bare`.                                                                                                                                                                                                                                      |
@@ -46,8 +46,8 @@ An input that filters a list as you type and only accepts an option from it. `fr
 | `disabled`    | `boolean`                                     | `false`                               | Disables the control. A disabled control posts nothing.                                                                                                                                                                                                               |
 | `readonly`    | `boolean`                                     | `false`                               | Shows the value but blocks editing. The control stays focusable and selectable, and still posts its value.                                                                                                                                                            |
 | `id`          | `string`                                      | `generated`                           | The id of the control. The label points at it.                                                                                                                                                                                                                        |
-| `size`        | `EFieldSize`                                  | `"md"`                                | The height of the box: `sm` and `lg` are a step under and over the control height.                                                                                                                                                                                    |
-| `multiple`    | `M`                                           | None                                  | Lets people choose several options. `v-model` is a `string[]` shown as removable tags, the list stays open while choosing, `placeholder` shows only while nothing is chosen, and `name` submits one hidden input per value.                                           |
+| `size`        | `"sm" \| "md" \| "lg"`                        | `"md"`                                | The height of the box: `sm` and `lg` are a step under and over the control height.                                                                                                                                                                                    |
+| `multiple`    | `boolean`                                     | `false`                               | Lets people choose several options. `v-model` is a `string[]` shown as removable tags, the list stays open while choosing, `placeholder` shows only while nothing is chosen, and `name` submits one hidden input per value.                                           |
 | `freeform`    | `boolean`                                     | `false`                               | Accepts any typed text, not only an option. `v-model` is the text, options are suggestions and choosing one puts its `label` in the field. There is no Show options button, and the list stays closed when nothing matches. `multiple` ignores it.                    |
 | `options`     | `readonly EOptionInput[]`                     | **Required**                          | Strings, or `{ value, label, description, icon, group, disabled }` as in `ESelect`. A value is never an empty string.                                                                                                                                                 |
 | `placeholder` | `string`                                      | None                                  | An example, never the label.                                                                                                                                                                                                                                          |
@@ -73,24 +73,22 @@ An input that filters a list as you type and only accepts an option from it. `fr
 - Empty is `""` for a single value and `[]` with `multiple`; the model is typed `string[]` when `multiple` is set. A date or number control uses `null` instead.
 - `disabled` posts nothing through the hidden inputs.
 
-- Focus stays in the input. Arrow Down and Arrow Up open the list and move the highlighted row (`aria-activedescendant`), and Enter chooses it.
-- Escape closes the list and a second Escape clears the field. Home and End move the text cursor.
-- When focus leaves, the text snaps back to the chosen option.
+- Focus stays in the input, and the highlighted row is `aria-activedescendant`.
 - Matching ignores case and accents: "cafe" finds "Café". `readonly` keeps the value and the focus but never opens the list.
-- With `multiple` the listbox is `aria-multiselectable`, each tag has a Remove button ("Remove Text") and Backspace in an empty field removes the last tag. Removing a tag announces "Removed Text" and puts focus in the input.
+- With `multiple` the listbox is `aria-multiselectable`, each tag has a Remove button ("Remove Text"). Removing a tag announces "Removed Text" and puts focus in the input.
 - With `freeform`, typed text stays when focus leaves and Arrow Down reopens the suggestions.
 - An empty or loading list is announced through a status region.
 
 ## Keyboard
 
-| Key                  | Action                                                     |
-| -------------------- | ---------------------------------------------------------- |
-| Arrow Down, Arrow Up | Open the list and move the highlighted row.                |
-| Enter                | Choose the highlighted row.                                |
-| Escape               | Close the list. A second press clears the field.           |
-| Backspace            | In an empty `multiple` field, remove the last tag.         |
-| Home, End            | Move the text cursor.                                      |
-| Tab                  | Leave the field. The text snaps back to the chosen option. |
+| Key                  | Action                                                      |
+| -------------------- | ----------------------------------------------------------- |
+| Arrow Down, Arrow Up | Opens the list and moves the highlighted row.               |
+| Enter                | Chooses the highlighted row.                                |
+| Escape               | Closes the list. A second press clears the field.           |
+| Backspace            | In an empty `multiple` field, removes the last tag.         |
+| Home, End            | Moves the text cursor.                                      |
+| Tab                  | Leaves the field. The text snaps back to the chosen option. |
 
 ## Related
 

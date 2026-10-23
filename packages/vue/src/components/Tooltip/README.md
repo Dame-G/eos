@@ -42,7 +42,7 @@ A short label that names an icon-only control. It never holds anything to read o
 
 ## Keyboard
 
-| Key    | Does                                            |
+| Key    | Action                                          |
 | ------ | ----------------------------------------------- |
 | Tab    | Focusing the control shows the tooltip at once. |
 | Escape | Hides it. Focus stays on the control.           |

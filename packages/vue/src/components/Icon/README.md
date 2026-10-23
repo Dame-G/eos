@@ -1,6 +1,6 @@
 # EIcon
 
-One icon, 20px by default, in the colour of the surrounding text, for putting a glyph beside text.
+One icon, 20px by default, in the colour of the surrounding text, for putting a glyph beside text. Use [`EIconButton`](../IconButton/README.md) when the icon is pressed.
 
 ```vue
 <EIcon name="download" />
@@ -14,14 +14,14 @@ One icon, 20px by default, in the colour of the surrounding text, for putting a 
 
 <!-- props:start -->
 
-| Prop    | Type       | Default      | Notes                                                                                                                                                                                        |
-| ------- | ---------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`  | `IconProp` | **Required** | A name (from the built-in list or your icon set, such as `"credit-card"` or `"lucide:credit-card"`), or an icon component.                                                                   |
-| `size`  | `Size`     | `"md"`       | `sm` is 14px (drawn in the bold weight) for chips and stamps, `md` 20px, `lg` 28px and `xl` 40px.                                                                                            |
-| `small` | `boolean`  | `false`      | **Deprecated.** Use `size="sm"`.                                                                                                                                                             |
-| `bold`  | `boolean`  | `false`      | The bold weight at the normal 20px size, where the icon set has one.                                                                                                                         |
-| `label` | `string`   | None         | Makes the icon informative: it becomes an image with this name. Without it the icon is decoration and hidden from screen readers.                                                            |
-| `flip`  | `boolean`  | None         | Turns the icon around in right-to-left text, for a component icon that points one way. A name with a `left` or `right` part (`chevron-left`) does so without it; `:flip="false"` stops that. |
+| Prop    | Type                           | Default      | Notes                                                                                                                                                                                        |
+| ------- | ------------------------------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`  | `IconProp`                     | **Required** | A name (from the built-in list or your icon set, such as `"credit-card"` or `"lucide:credit-card"`), or an icon component.                                                                   |
+| `size`  | `"sm" \| "md" \| "lg" \| "xl"` | `"md"`       | `sm` is 14px (drawn in the bold weight) for chips and stamps, `md` 20px, `lg` 28px and `xl` 40px.                                                                                            |
+| `bold`  | `boolean`                      | `false`      | The bold weight at the normal 20px size, where the icon set has one.                                                                                                                         |
+| `label` | `string`                       | None         | Makes the icon informative: it becomes an image with this name. Without it the icon is decoration and hidden from screen readers.                                                            |
+| `flip`  | `boolean`                      | None         | Turns the icon around in right-to-left text, for a component icon that points one way. A name with a `left` or `right` part (`chevron-left`) does so without it; `:flip="false"` stops that. |
+| `small` | `boolean`                      | `false`      | **Deprecated.** Use `size="sm"`.                                                                                                                                                             |
 
 <!-- props:end -->
 
@@ -33,11 +33,7 @@ One icon, 20px by default, in the colour of the surrounding text, for putting a 
 - With a `label` it is an image (`role="img"`) with that name, for an icon that carries meaning on its own.
 - For an icon-only control use `EIconButton`.
 
-## Keyboard
-
-| Key | Action                    |
-| --- | ------------------------- |
-| Tab | An icon is not focusable. |
+Not focusable.
 
 ## Related
 

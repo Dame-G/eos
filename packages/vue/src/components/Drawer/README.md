@@ -46,7 +46,6 @@ A side panel that slides in from an edge, for reading something beside the list,
 ## Accessibility
 
 - A `role="dialog"` named by its title. Focus is trapped while open and returns to the opener.
-- Escape closes it.
 - `description` shows a sentence under the title and sets `aria-describedby` to it. Without one the attribute is left off. An `aria-describedby` you pass yourself is kept.
 - `role="alertdialog"` is available as on [`EDialog`](../Dialog/README.md).
 - The slide takes its length from the `--e-duration-move` token, so the `motion` presets apply, and it stops moving under `prefers-reduced-motion`.

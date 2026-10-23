@@ -1,6 +1,6 @@
 # EPagination
 
-Previous, Next and page-number buttons for paging through a long list.
+Previous, Next and page-number buttons for paging through a long list. For a table to work in, use the paging built into [`EDataGrid`](../DataGrid/README.md).
 
 ```vue
 <EPagination v-model="page" :page-count="12" />

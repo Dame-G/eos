@@ -1,6 +1,6 @@
 # EDataGrid
 
-A `table` with sorting, per-column filters, search, resizing, column toggling, row selection, and paging or virtual scrolling for thousands of rows.
+A `table` with sorting, per-column filters, search, resizing, column toggling, row selection, and paging or virtual scrolling for thousands of rows. Use [`ETable`](../Table/README.md) for a short list that is only read.
 
 ```vue
 <EDataGrid
@@ -61,7 +61,9 @@ The models work without a binding.
 | `emptyIcon`         | `IconProp`                            | `"search"`             | The icon above the empty title.                                                                                                                                                                          |
 | `error`             | `boolean \| string`                   | None                   | Shows a failed load in place of the rows. `true` says the default sentence; a string says your own. A "Try again" button emits `retry`.                                                                  |
 | `rowLabel`          | `(row: Row) => string`                | None                   | The name of a row for its checkbox ("Select Annual check-up"), when the first column's text is not a good one.                                                                                           |
-| `bare`              | `boolean`                             | `false`                | Renders a bare table for a short static list, with no toolbar, filters, paging or footer. **Deprecated.** Use `ETable` for a short static list. `bare` still works, and warns in development.            |
+| `bare`              | `boolean`                             | `false`                | **Deprecated.** Use `ETable` for a short static list. `bare` still works, and warns in development. Renders a bare table for a short static list, with no toolbar, filters, paging or footer.            |
+
+`Row` is a type parameter, inferred from the props you pass. It extends `DataGridRow`.
 
 <!-- props:end -->
 
@@ -110,18 +112,18 @@ A `DataGridColumn` has:
 - Below 40rem, with `cards`, the heading row is `inert` (the Sort by menu replaces its buttons, and with `filterable` the filters move above the cards as fields labelled by their column), so no hidden control takes focus.
 - While `loading` with rows already shown (the previous page), the rows stay, dimmed, and the table is `aria-busy`. With no rows, placeholder rows show.
 - `error` replaces the rows with a message and a Try again button, which emits `retry`.
-- Column edges are focusable separators with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`. Dragging, or Arrow Left and Arrow Right (10px, Shift 40px), changes the width within `minWidth` and `maxWidth`.
+- Column edges are focusable separators with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`. Dragging or the arrow keys change the width within `minWidth` and `maxWidth`.
 - Virtual grids set `aria-rowcount` and `aria-rowindex`.
 - All strings are configurable messages.
 
 ## Keyboard
 
-| Key                                | Does                                              |
-| ---------------------------------- | ------------------------------------------------- |
-| Enter, Space on a heading          | Sorts: ascending, descending, off                 |
-| Arrow Left, Arrow Right on an edge | Narrows or widens the column by 10px (Shift 40px) |
-| Home on an edge                    | Back to the automatic width                       |
-| Escape on an edge, or in a drag    | Back to the width it had before                   |
+| Key                                | Action                                             |
+| ---------------------------------- | -------------------------------------------------- |
+| Enter, Space on a heading          | Sorts ascending, then descending, then off.        |
+| Arrow Left, Arrow Right on an edge | Narrows or widens the column by 10px (Shift 40px). |
+| Home on an edge                    | Goes back to the automatic width.                  |
+| Escape on an edge, or in a drag    | Goes back to the width it had before.              |
 
 The scrolling region is a tab stop only while it scrolls; its arrow keys scroll it.
 

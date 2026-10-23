@@ -50,7 +50,7 @@ A modal dialog for a short decision. Use [`EDrawer`](../Drawer/README.md) to rea
 
 - A `role="dialog"` named by its title. Focus moves in, is trapped, and returns to the opener on close.
 - Focus lands on the first control, or on the element marked `data-autofocus` or matched by `initialFocus`. An `alertdialog` lands on its least destructive action (the first foot button that is not `danger`), never on Close.
-- Escape closes it. Always offer a Close or Cancel action too.
+- Always offer a Close or Cancel action as well as Escape.
 - The header and the foot stay in view and only the body scrolls.
 - `description` shows a sentence under the title and sets `aria-describedby` to it. Without one the attribute is left off. An `aria-describedby` you pass yourself is kept.
 - Set `role="alertdialog"` for a confirmation that needs an answer, such as a delete. Focus, Escape and the backdrop behave the same.

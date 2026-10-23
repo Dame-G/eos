@@ -1,6 +1,6 @@
 # ELink
 
-An inline anchor for going somewhere. Things that change something are buttons.
+An inline anchor for going somewhere. Things that change something are an [`EButton`](../Button/README.md). Use [`ELinkCard`](../LinkCard/README.md) when a whole card is the link.
 
 ```vue
 <ELink href="/statements">All statements</ELink>

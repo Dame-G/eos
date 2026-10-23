@@ -33,10 +33,10 @@ A signature drawn with a finger, stylus or mouse. Most forms should use [`ESigna
 
 ## Keyboard
 
-| Key         | Does                       |
-| ----------- | -------------------------- |
-| Tab         | Moves to the Clear button. |
-| Enter/Space | Clears the signature.      |
+| Key          | Action                     |
+| ------------ | -------------------------- |
+| Tab          | Moves to the Clear button. |
+| Enter, Space | Clears the signature.      |
 
 Drawing needs a pointer. Offer a typed signature as well. The pad has no input of its own: submit the value yourself.
 

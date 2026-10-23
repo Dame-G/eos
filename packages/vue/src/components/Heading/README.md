@@ -1,6 +1,6 @@
 # EHeading
 
-The six heading levels, with an optional kicker label above.
+The six heading levels, with an optional kicker label above. Use [`EPageHeader`](../PageHeader/README.md) for the title of a page, and [`EKicker`](../Kicker/README.md) alone for a small label that is not a heading.
 
 ```vue
 <EHeading :level="1" kicker="Statement 8842">Your visit on October 22</EHeading>
@@ -31,11 +31,7 @@ The six heading levels, with an optional kicker label above.
 - Renders an `h1` to `h6`. Use one level 1 per page and do not skip levels.
 - `as="p"`, `div` or `span` draws heading-sized text that is not part of the outline.
 
-## Keyboard
-
-| Key | Action                      |
-| --- | --------------------------- |
-| Tab | A heading is not focusable. |
+Not focusable.
 
 ## Related
 

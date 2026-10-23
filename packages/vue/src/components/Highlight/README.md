@@ -32,11 +32,7 @@ A short run of text set off by the accent colour: a name, a value or a word wort
 - `code` renders a `code` element and the default renders a `mark`, so assistive technology can announce them as code or as marked text.
 - Check a custom `accent` for contrast, since the text is set in `secondary`. Forced-colors mode uses the system highlight colour.
 
-## Keyboard
-
-| Key | Action                     |
-| --- | -------------------------- |
-| Tab | The text is not focusable. |
+Not focusable.
 
 ## Related
 
