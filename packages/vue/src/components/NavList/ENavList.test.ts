@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h, ref } from "vue";
+import { defineComponent, h, ref, markRaw } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ENavList from "./ENavList.vue";
@@ -11,13 +11,15 @@ const items = [
   { label: "Statements and receipts", href: "/statements" },
 ];
 
-const FakeRouterLink = defineComponent({
-  props: { to: { type: String, required: true } },
-  setup:
-    (props, { slots }) =>
-    () =>
-      h("a", { href: `/app${props.to}`, "data-router": "" }, slots.default?.()),
-});
+const FakeRouterLink = markRaw(
+  defineComponent({
+    props: { to: { type: String, required: true } },
+    setup:
+      (props, { slots }) =>
+      () =>
+        h("a", { href: `/app${props.to}`, "data-router": "" }, slots.default?.()),
+  }),
+);
 
 describe("ENavList", () => {
   test("is a navigation landmark named Main by default, or by the label prop", async () => {

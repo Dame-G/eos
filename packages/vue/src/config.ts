@@ -1,4 +1,4 @@
-import { computed, inject, reactive, type ComputedRef, type InjectionKey } from "vue";
+import { computed, inject, reactive, toRaw, type ComputedRef, type InjectionKey } from "vue";
 import { defaultMessages, type MessageKey, type MessageVars } from "./messages.js";
 import type { Component } from "vue";
 import { phosphor, ICON_VIEWBOX, type IconMarkup } from "./icons/phosphor.js";
@@ -95,10 +95,10 @@ export function useIconResolver(): (icon: string | Component, bold: boolean) => 
     if (typeof source === "string") return { kind: "svg", html: source };
     if (Array.isArray(source))
       return { kind: "glyph", html: (source as unknown as IconMarkup)[bold ? 1 : 0], viewBox: ICON_VIEWBOX };
-    return { kind: "component", component: source as Component };
+    return { kind: "component", component: toRaw(source) as Component };
   };
   return (icon, bold) => {
-    if (typeof icon !== "string") return { kind: "component", component: icon };
+    if (typeof icon !== "string") return { kind: "component", component: toRaw(icon) };
     const set = config.icons;
     const explicit = set.icons?.[icon];
     if (explicit) return fromSource(explicit, bold);

@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { createApp, defineComponent, h, nextTick } from "vue";
+import { createApp, defineComponent, h, isReactive, nextTick } from "vue";
 import { contrast } from "@eos-ui/tokens";
 import { createEos, themeCss } from "./plugin.js";
 import { useConfig, useMessages } from "./config.js";
 import EButton from "./components/Button/EButton.vue";
 import ETextField from "./components/TextField/ETextField.vue";
+import EIcon from "./components/Icon/EIcon.vue";
 
 const hosts: HTMLElement[] = [];
 function mountApp(component: ReturnType<typeof defineComponent>, plugin?: ReturnType<typeof createEos>) {
@@ -139,6 +140,19 @@ describe("createEos", () => {
   test("portalTarget defaults to body and can point at a themed container", () => {
     expect(createEos().config.portalTarget).toBe("body");
     expect(createEos({ portalTarget: "#themed" }).config.portalTarget).toBe("#themed");
+  });
+
+  test("an icon component in the config is rendered as given, not as a reactive proxy", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const Mark = defineComponent({ render: () => h("svg", { "data-testid": "mark" }) });
+    const eos = createEos({ icons: { icons: { mark: Mark } } });
+    expect(isReactive(eos.config.icons.icons!.mark)).toBe(false);
+    expect(eos.config.icons.icons!.mark).toBe(Mark);
+    const { host } = mountApp(defineComponent({ render: () => h(EIcon, { name: "mark" }) }), eos);
+    await nextTick();
+    expect(host.querySelector("[data-testid=mark]")).not.toBeNull();
+    expect(warn.mock.calls.flat().join(" ")).not.toMatch(/reactive object/);
+    warn.mockRestore();
   });
 
   test("components work with no plugin installed", async () => {

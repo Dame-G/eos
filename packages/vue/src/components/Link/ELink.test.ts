@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, markRaw } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ELink from "./ELink.vue";
@@ -35,12 +35,14 @@ describe("ELink", () => {
   });
 
   test("linkComponent renders the link and gets to or href", async () => {
-    const Router = defineComponent({
-      props: { to: String },
-      render() {
-        return h("a", { href: "/r" + this.to, "data-router": "" }, this.$slots.default?.());
-      },
-    });
+    const Router = markRaw(
+      defineComponent({
+        props: { to: String },
+        render() {
+          return h("a", { href: "/r" + this.to, "data-router": "" }, this.$slots.default?.());
+        },
+      }),
+    );
     const { container } = await render(ELink, {
       props: { to: "/pay", linkComponent: Router },
       slots: { default: "Pay" },
@@ -99,9 +101,11 @@ describe("ELink", () => {
   });
 
   test("icon puts a decorative icon before the text, by name or component", async () => {
-    const Mark = defineComponent({
-      render: () => h("svg", { viewBox: "0 0 16 16" }, [h("path", { d: "M0 0h16v16H0z" })]),
-    });
+    const Mark = markRaw(
+      defineComponent({
+        render: () => h("svg", { viewBox: "0 0 16 16" }, [h("path", { d: "M0 0h16v16H0z" })]),
+      }),
+    );
     const named = await render(ELink, { props: { href: "#x", icon: "search" }, slots: { default: "Find" } });
     const a = named.container.querySelector("a")!;
     expect(a.classList.contains("e-link--icon")).toBe(true);

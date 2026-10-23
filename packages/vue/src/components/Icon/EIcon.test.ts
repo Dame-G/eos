@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, markRaw } from "vue";
 import { render } from "vitest-browser-vue";
 import EIcon from "./EIcon.vue";
 import { createEos } from "../../plugin.js";
@@ -12,13 +12,15 @@ function withIcons(
   return createEos({ themeTarget: null, icons });
 }
 
-const Square = defineComponent({
-  name: "Square",
-  render: () =>
-    h("svg", { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "data-testid": "square" }, [
-      h("rect", { width: 20, height: 20 }),
-    ]),
-});
+const Square = markRaw(
+  defineComponent({
+    name: "Square",
+    render: () =>
+      h("svg", { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "data-testid": "square" }, [
+        h("rect", { width: 20, height: 20 }),
+      ]),
+  }),
+);
 
 describe("EIcon", () => {
   test("draws a built-in icon as a filled glyph, hidden from assistive technology", async () => {

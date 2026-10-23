@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, markRaw } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EBreadcrumb from "./EBreadcrumb.vue";
@@ -11,13 +11,15 @@ const items = [
   { label: "Visit on Oct 2" },
 ];
 
-const FakeRouterLink = defineComponent({
-  props: { to: { type: String, required: true } },
-  setup:
-    (props, { slots }) =>
-    () =>
-      h("a", { href: `/app${props.to}`, "data-router": "" }, slots.default?.()),
-});
+const FakeRouterLink = markRaw(
+  defineComponent({
+    props: { to: { type: String, required: true } },
+    setup:
+      (props, { slots }) =>
+      () =>
+        h("a", { href: `/app${props.to}`, "data-router": "" }, slots.default?.()),
+  }),
+);
 
 describe("EBreadcrumb", () => {
   test("is a navigation landmark named Breadcrumb holding an ordered list", async () => {
