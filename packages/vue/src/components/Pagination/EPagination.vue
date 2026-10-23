@@ -61,7 +61,7 @@ const items = computed<(number | "gap")[]>(() => {
 </script>
 
 <template>
-  <nav class="e-pager" :aria-label="label ?? t('pagination')">
+  <nav class="e-pager" :aria-label="label || t('pagination')">
     <EButton
       variant="outline"
       icon="chevron-left"
