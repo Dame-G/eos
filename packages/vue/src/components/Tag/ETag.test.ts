@@ -8,26 +8,38 @@ import "../Combobox/ECombobox.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ETag", () => {
-  test("shows its label in a pill and has no button by default", async () => {
+  test("shows its label on a paper tag with an eyelet, and has no button by default", async () => {
     const { container } = await render(ETag, { props: { label: "Cardiology" } });
     container.classList.add("e-root");
     const tag = container.querySelector(".e-tag")!;
     expect(tag.textContent!.trim()).toBe("Cardiology");
     expect(container.querySelector("button")).toBeNull();
-    // A pill, not an ellipse: the radius is the pill token, far larger than half the height.
-    expect(parseFloat(getComputedStyle(tag).borderTopLeftRadius)).toBeGreaterThan(100);
+    // A tag, not a pill: a small corner radius, with a punched eyelet in place of an icon.
+    expect(parseFloat(getComputedStyle(tag).borderTopLeftRadius)).toBeLessThan(10);
+    expect(container.querySelector(".e-tag-eyelet")).not.toBeNull();
+    expect(getComputedStyle(container.querySelector(".e-tag-eyelet")!).borderTopLeftRadius).toBe("50%");
   });
 
-  test("is drawn by its own rules only: one border, even padding, text centred", async () => {
+  test("is drawn by its own rules only: one border, the eyelet and text centred", async () => {
     const { container } = await render(ETag, { props: { label: "Cardiology" } });
     container.classList.add("e-root");
     const tag = container.querySelector(".e-tag")! as HTMLElement;
     const style = getComputedStyle(tag);
     expect(style.boxShadow).toBe("none");
-    expect(style.paddingLeft).toBe(style.paddingRight);
+    // The eyelet side is tighter, as a hole sits near the edge of a tag.
+    expect(parseFloat(style.paddingLeft)).toBeLessThan(parseFloat(style.paddingRight));
+    const eyelet = tag.querySelector(".e-tag-eyelet")!.getBoundingClientRect();
+    const middle = tag.getBoundingClientRect();
+    expect(Math.abs(eyelet.top - middle.top - (middle.bottom - eyelet.bottom))).toBeLessThanOrEqual(1);
     const text = tag.querySelector(".e-tag-text")!.getBoundingClientRect();
     const box = tag.getBoundingClientRect();
     expect(Math.abs(text.top - box.top - (box.bottom - text.bottom))).toBeLessThanOrEqual(1);
+  });
+
+  test("an icon takes the place of the eyelet", async () => {
+    const { container } = await render(ETag, { props: { label: "Overdue", icon: "alert" } });
+    expect(container.querySelector(".e-tag-eyelet")).toBeNull();
+    expect(container.querySelector(".e-tag svg")).not.toBeNull();
   });
 
   test("the default slot replaces the label", async () => {

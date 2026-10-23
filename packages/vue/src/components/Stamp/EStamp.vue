@@ -26,7 +26,7 @@ const props = defineProps<{
   size?: Exclude<Size, "lg">;
   /** Shorter, for rows and tables. Same as `size="sm"`. */
   small?: boolean;
-  /** Rubber-stamp ink for the one mark on a page that says a thing is final, such as PAID or VOID. Outlined, in `stamp-ink`. Use it once per screen. */
+  /** The one mark on a page that says a thing is final, such as PAID or VOID: heavier, in the stamp's vermilion `stamp-ink`, pressed on a little crooked. Use it once per screen. */
   final?: boolean;
 }>();
 
@@ -68,9 +68,11 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
 
 <style>
 @layer e.primitives {
+  /* A rubber-stamp impression: the word in mono capitals, in the ink of its tone, inside a double rule. It is printed on the page, not filled in, so it never reads as a button or a badge. */
   .e-stamp {
-    --_fill: var(--e-ink);
-    --_on: var(--e-surface);
+    --_ink: var(--e-ink);
+    --_gap: calc(var(--e-gap-tight) / 2);
+    --_bw: var(--e-stroke-card);
 
     display: inline-flex;
     flex-wrap: nowrap;
@@ -79,41 +81,40 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
     gap: var(--e-gap-snug);
     min-height: calc(var(--e-chip-height) + var(--e-gap-tight));
     padding: 0 var(--e-pad-chip);
+    border: var(--_bw) solid var(--_ink);
     border-radius: var(--e-radius-sm);
-    background: var(--_fill);
-    color: var(--_on);
+    outline: var(--e-stroke-hair) solid var(--_ink);
+    outline-offset: calc(-1 * (var(--_bw) + var(--_gap)));
+    color: var(--_ink);
   }
 
   .e-stamp--success {
-    --_fill: var(--e-success);
-    --_on: var(--e-on-success);
+    --_ink: var(--e-success);
   }
 
   .e-stamp--info {
-    --_fill: var(--e-info);
-    --_on: var(--e-on-info);
+    --_ink: var(--e-info);
   }
 
   .e-stamp--danger {
-    --_fill: var(--e-danger);
-    --_on: var(--e-on-danger);
+    --_ink: var(--e-danger);
   }
 
   .e-stamp--warning {
-    --_fill: var(--e-warning);
-    --_on: var(--e-on-warning);
+    --_ink: var(--e-warning);
   }
 
-  /* The ink is a ring, not a fill, so it reads as pressed onto the page. */
+  /* The one mark on a page that says a thing is final: heavier, in the stamp's own vermilion, and pressed on a little crooked, as a hand would. */
   .e-stamp--final {
-    background: transparent;
-    color: var(--e-stamp-ink);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-stamp-ink);
+    --_ink: var(--e-stamp-ink);
+    --_bw: var(--e-slab);
+
+    transform: rotate(-2deg);
   }
 
   .e-stamp-word {
     font: var(--e-type-kicker);
-    letter-spacing: var(--e-tracking-label);
+    letter-spacing: var(--e-tracking-wide);
     text-transform: uppercase;
   }
 
@@ -131,15 +132,13 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
 
   @media (forced-colors: active) {
     .e-stamp {
-      border: var(--e-stroke-card) solid CanvasText;
+      border-color: CanvasText;
+      outline-color: CanvasText;
     }
   }
 
   @media print {
     .e-stamp {
-      border: var(--e-stroke-card) solid currentcolor;
-      background: none;
-      box-shadow: none;
       color: var(--e-ink);
     }
   }
