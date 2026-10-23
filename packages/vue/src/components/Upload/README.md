@@ -4,7 +4,7 @@ A dropzone for attaching files, clickable and droppable, listing the chosen file
 
 ```vue
 <EUpload v-model="files" label="Insurance card" accept=".pdf,.jpg,.png" multiple hint="Up to 5 MB each." />
-<EUpload label="Referral" @files="upload" />
+<EUpload label="Referral" @update:model-value="upload" />
 ```
 
 ## Props
@@ -37,7 +37,7 @@ A dropzone for attaching files, clickable and droppable, listing the chosen file
 
 | Event    | Payload              | Notes                                                                                                                                                                        |
 | -------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `files`  | `files: File[]`      | The chosen or dropped files, the same list as the model. Not emitted when every file of a choice was left out.                                                               |
+| `files`  | `files: File[]`      | Deprecated: use `v-model` or `@update:model-value`, which carry the same list. Warns in development.                                                                         |
 | `reject` | `{ file, reason }[]` | Files left out. `reason` is `type` (not in `accept`), `size` (over `maxSize`) or `count` (over `maxFiles`, or more than one file without `multiple`). Use it to set `error`. |
 
 ## Accessibility
@@ -46,7 +46,7 @@ A dropzone for attaching files, clickable and droppable, listing the chosen file
 - Say the accepted types and size limit in `hint`.
 - `accept`, `maxSize`, `maxFiles` and `multiple` apply to dropped files as well as chosen ones. Files that do not fit are left out, and a choice where every file is left out keeps the list as it was. With `multiple` new files are added to the list and a file already listed is not added again. Without it a choice replaces the file, and the others of several are rejected with reason `count`.
 - Adding files announces "2 files added", plus "1 file was not accepted", "1 file is larger than 5 MB" or "Only 3 files can be added" (assertively) when some were left out. Removing a file announces "Removed name.pdf" and returns focus to the input.
-- With `readonly` the files stay listed and focusable but drops, the picker and Remove do nothing, and the files are still submitted. A file input has no `readonly` of its own, so `aria-readonly` is a hint to assistive technology only.
+- With `readonly` the files stay listed and focusable but drops, the picker and Remove do nothing, and the files are still submitted. A file input has no `readonly` of its own and `aria-readonly` is not allowed on it, so the input is described as "Read only".
 - Each listed file has a Remove button named "Remove name.pdf". Sizes are shown in bytes, kB or MB in the configured locale.
 
 ## Keyboard

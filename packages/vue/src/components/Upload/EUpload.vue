@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, getCurrentInstance, ref } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EField from "../Field/EField.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
-import { useMessages } from "../../config.js";
+import { useConfig, useMessages } from "../../config.js";
+import { isProduction } from "../../env.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useLocale } from "../../composables/useLocale.js";
@@ -43,7 +44,10 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  /** The chosen or dropped files, the same list as the model. */
+  /**
+   * The chosen or dropped files, the same list as the model.
+   * @deprecated Use `v-model` (or `@update:model-value`), which carries the same list.
+   */
   files: [files: File[]];
   /** Files left out, each with why: `type` (not in `accept`), `size` (over `maxSize`) or `count` (over `maxFiles`). A choice that is entirely rejected leaves the list as it was. */
   reject: [rejected: { file: File; reason: "type" | "size" | "count" }[]];
@@ -53,7 +57,20 @@ const emit = defineEmits<{
 const model = defineModel<File[]>({ default: () => [] });
 
 const t = useMessages();
+const config = useConfig();
 const attrs = useFieldAttrs();
+
+if (getCurrentInstance()?.vnode.props?.onFiles && !isProduction()) {
+  console.warn("[eos] EUpload @files is deprecated. Use v-model or @update:model-value, which carry the same list.");
+}
+
+/** The prompt as one sentence, with the "choose one" words where the translation puts them. */
+const prompt = computed(() => {
+  // A translation made for the old two pieces keeps working until it gives `dropFile`.
+  if (config.messages.dragHere && !config.messages.dropFile) return [t("dragHere") + " ", ""];
+  const [before = "", after = ""] = t("dropFile").split("{choose}");
+  return [before, after];
+});
 const over = ref(false);
 const input = ref<HTMLInputElement | null>(null);
 const acceptHint = computed(() => props.accept?.replace(/\./g, "").replace(/,/g, ", ").toUpperCase());
@@ -221,8 +238,7 @@ defineExpose({
           :disabled="disabled"
           :required="required"
           :aria-invalid="field.ariaInvalid"
-          :aria-readonly="readonly || undefined"
-          v-bind="attrs.input(field.ariaDescribedby)"
+          v-bind="attrs.input([field.ariaDescribedby, readonly && `${field.id}-ro`])"
           @click="onPick"
           @change="take(($event.target as HTMLInputElement).files)"
         />
@@ -238,12 +254,14 @@ defineExpose({
           @drop="onDrop"
         >
           <EIcon name="upload" />
-          <span class="e-drop-main">
-            {{ t("dragHere") }}
-            <span class="e-drop-pick">{{ t("chooseOne") }}</span>
-          </span>
+          <span class="e-drop-main"
+            >{{ prompt[0] }}<span class="e-drop-pick">{{ t("chooseOne") }}</span
+            >{{ prompt[1] }}</span
+          >
           <span v-if="acceptHint" class="e-drop-hint">{{ acceptHint }}</span>
         </label>
+        <!-- A file input has no readonly of its own, and aria-readonly is not allowed on it: the state is described. -->
+        <span v-if="readonly" :id="`${field.id}-ro`" class="e-sr">{{ t("readOnly") }}</span>
         <ul v-if="model.length" class="e-files">
           <li v-for="(f, i) in model" :key="keyOf(f) + i">
             <EIcon name="file" />

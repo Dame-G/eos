@@ -1,8 +1,9 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h, ref } from "vue";
-import { userEvent } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EUpload from "./EUpload.vue";
+import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 const file = (name: string, size = 2048, type = "application/pdf") => new File([new Uint8Array(size)], name, { type });
@@ -35,6 +36,46 @@ describe("EUpload", () => {
     expect(text).toContain("Drag a file here or choose one");
     expect(container.querySelector("label.e-drop")!.getAttribute("for")).toBe(input.id);
     expect(container.querySelector("label.e-drop svg.e-icon")).not.toBeNull();
+  });
+
+  test("the prompt is one translatable sentence, with the link words where the translation puts them", async () => {
+    const { container } = await render(EUpload, {
+      props: { label: "Datei" },
+      global: {
+        plugins: [
+          createEos({
+            themeTarget: null,
+            messages: { dropFile: "{choose} oder hierher ziehen", chooseOne: "Datei wählen" },
+          }),
+        ],
+      },
+    });
+    const main = container.querySelector(".e-drop-main")!;
+    expect(main.textContent).toBe("Datei wählen oder hierher ziehen");
+    expect(main.firstElementChild!.className).toBe("e-drop-pick");
+  });
+
+  test("a translation of the old dragHere piece still shows", async () => {
+    const { container } = await render(EUpload, {
+      props: { label: "Datei" },
+      global: {
+        plugins: [createEos({ themeTarget: null, messages: { dragHere: "Hierher ziehen oder", chooseOne: "wählen" } })],
+      },
+    });
+    expect(container.querySelector(".e-drop-main")!.textContent).toBe("Hierher ziehen oder wählen");
+  });
+
+  test("@files is deprecated with a warning; v-model carries the same list", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      await render(EUpload, { props: { label: "A", onFiles: () => {} } });
+      expect(warn.mock.calls.some(([m]) => String(m).includes("@files is deprecated"))).toBe(true);
+      warn.mockClear();
+      await render(EUpload, { props: { label: "B" } });
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   test("accept shows as a hint inside the zone and goes to the input", async () => {
@@ -114,7 +155,9 @@ describe("EUpload", () => {
     const input = container.querySelector<HTMLInputElement>("input")!;
     const zone = container.querySelector(".e-drop")!;
     expect(input.disabled).toBe(false);
-    expect(input.getAttribute("aria-readonly")).toBe("true");
+    // aria-readonly is not allowed on a file input: the state is in the description instead.
+    expect(input.hasAttribute("aria-readonly")).toBe(false);
+    await expect.element(page.getByLabelText("Card")).toHaveAccessibleDescription("Read only");
     expect(zone.classList.contains("e-drop--readonly")).toBe(true);
     drop(zone, file("x.pdf"));
     choose(input, file("y.pdf"));

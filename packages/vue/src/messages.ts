@@ -49,8 +49,12 @@ export const defaultMessages = {
   trendUp: "Up {delta}",
   trendDown: "Down {delta}",
   trendFlat: "No change",
+  /** @deprecated Use `dropFile`. Still read when you translated it and not `dropFile`. */
   dragHere: "Drag a file here or",
+  /** The dropzone prompt. `{choose}` is where the "choose one" link text (`chooseOne`) goes. */
+  dropFile: "Drag a file here or {choose}",
   chooseOne: "choose one",
+  readOnly: "Read only",
   signature: "Signature",
   typeName: "Type your full name",
   fullName: "Full name",
