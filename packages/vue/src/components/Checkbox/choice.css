@@ -96,7 +96,10 @@
     background: var(--e-disabled-ink);
   }
 
+  /* A circle with an uneven border has an elliptical inner edge that steps against the fill, so the radio keeps an even ring and draws its slab as an inset crescent. */
   .e-radio:checked {
+    border-bottom-width: var(--e-stroke-edge);
+    box-shadow: inset 0 calc(-1 * var(--e-depth)) 0 var(--_slab);
     background-image: radial-gradient(
       circle,
       var(--e-on-primary) 0 calc(var(--e-check-size) / 6),
@@ -109,9 +112,12 @@
     background-color: var(--e-primary-press);
   }
 
-  .e-check:is(:checked, :indeterminate):active,
-  .e-radio:checked:active {
+  .e-check:is(:checked, :indeterminate):active {
     border-bottom-width: var(--e-stroke-edge);
+  }
+
+  .e-radio:checked:active {
+    box-shadow: none;
   }
 
   .e-check:focus-visible,
@@ -137,6 +143,13 @@
   .e-check[aria-invalid="true"]:is(:checked, :indeterminate),
   .e-radio[aria-invalid="true"]:checked {
     box-shadow:
+      0 0 0 var(--e-stroke-edge) var(--e-surface),
+      0 0 0 calc(2 * var(--e-stroke-edge)) var(--e-danger);
+  }
+
+  .e-radio[aria-invalid="true"]:checked:not(:active, :disabled) {
+    box-shadow:
+      inset 0 calc(-1 * var(--e-depth)) 0 var(--_slab),
       0 0 0 var(--e-stroke-edge) var(--e-surface),
       0 0 0 calc(2 * var(--e-stroke-edge)) var(--e-danger);
   }
