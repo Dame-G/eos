@@ -21,7 +21,7 @@ const props = withDefaults(
     /** How many avatars show before the rest collapse into a "+N" tile. */
     max?: number;
     /** `sm` 32px, `md` 44px or `lg` 64px, for every avatar. */
-    size?: Size;
+    size?: Extract<Size, "sm" | "md" | "lg">;
     /** Names the group, instead of the list of names. */
     label?: string;
   }>(),

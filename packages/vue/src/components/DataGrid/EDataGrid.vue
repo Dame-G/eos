@@ -520,7 +520,7 @@ onMounted(() => {
                   <slot :name="`header-${c.key}`" :column="c">{{ c.label }}</slot>
                   <EIcon
                     :name="sort?.key === c.key ? (sort.dir === 'asc' ? 'arrow-up' : 'arrow-down') : 'sort'"
-                    small
+                    size="sm"
                   />
                 </button>
                 <slot v-else :name="`header-${c.key}`" :column="c">{{ c.label }}</slot>

@@ -2,13 +2,21 @@ import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import dts from "vite-plugin-dts";
 import { playwright } from "@vitest/browser-playwright";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import layers from "./scripts/postcss-layers.ts";
 import hover from "./scripts/postcss-hover.ts";
 import { LAYER_ORDER } from "@eos-ui/tokens";
 
 const src = (p: string) => fileURLToPath(new URL(p, import.meta.url));
+
+// Each component folder is an entry of its own, so `@eos-ui/vue/components/EButton` resolves to a module that exists
+// (a file that only re-exports would otherwise be folded into its importers).
+const componentEntries = Object.fromEntries(
+  readdirSync(src("./src/components"), { withFileTypes: true })
+    .filter((d) => d.isDirectory() && existsSync(src(`./src/components/${d.name}/index.ts`)))
+    .map((d) => [`components/${d.name}/index`, src(`./src/components/${d.name}/index.ts`)]),
+);
 
 const pkg = JSON.parse(readFileSync(src("./package.json"), "utf8")) as {
   dependencies?: Record<string, string>;
@@ -88,8 +96,12 @@ export default defineConfig(({ command }) => ({
       entry: {
         index: src("./src/index.ts"),
         resolver: src("./src/resolver.ts"),
+        globals: src("./src/globals.ts"),
+        plugin: src("./src/plugin.ts"),
         "icons/index": src("./src/icons/index.ts"),
         "icons/iconify": src("./src/icons/iconify.ts"),
+        "icons/builtin": src("./src/icons/builtin.ts"),
+        ...componentEntries,
       },
       formats: ["es"],
     },

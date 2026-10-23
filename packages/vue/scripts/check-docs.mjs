@@ -11,13 +11,13 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { phosphor } from "../src/icons/phosphor.ts";
 
 const pkg = join(dirname(fileURLToPath(import.meta.url)), "..");
 const repo = resolve(pkg, "..", "..");
 const components = join(pkg, "src", "components");
 
-const phosphor = readFileSync(join(pkg, "src", "icons", "phosphor.ts"), "utf8").split("export const phosphor = {")[1];
-const builtin = new Set([...phosphor.matchAll(/^ {2}(?:"([a-z-]+)"|([a-z]+)): \[/gm)].map((m) => m[1] || m[2]));
+const builtin = new Set(Object.keys(phosphor));
 
 const names = readdirSync(components).filter((d) => existsSync(join(components, d, "README.md")));
 const files = [

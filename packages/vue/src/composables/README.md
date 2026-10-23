@@ -1,10 +1,10 @@
 # Composables
 
-Functions to call inside `setup()`. Each is exported from `@eos-ui/vue`.
+Functions to call inside `setup()`. Each one documented here is exported from `@eos-ui/vue`.
 
 ## Conventions
 
-- One composable per file: `useThing.ts` exports `useThing` (and its types). A helper that is not a composable (`focusInside`, from `useFocusInside.ts`) lives here too when components share it. `focusInside.ts` is a re-export kept for old imports. The file is exported from the package automatically by `scripts/gen-index.mjs`.
+- One composable per file: `useThing.ts` exports `useThing` (and its types). A helper that is not a composable (`focusInside`, from `useFocusInside.ts`) lives here too when components share it. `scripts/gen-index.mjs` exports each name from the package, except one marked `@internal` in its JSDoc, or a whole file whose first line is `// @internal`. Mark a helper the components share but apps should not depend on (`useSize`, `useDetails`, `useFieldControl`, `useFormField`) that way, so it can change without a breaking release.
 - Each has a test next to it (`useThing.test.ts`) that runs in a real browser.
 - Safe for the server: touch `window`, `document` and the clipboard only inside `onMounted` or an event handler, and do nothing when they are missing.
 - Take reactive input as `MaybeRefOrGetter`, read it with `toValue`, and return refs or computeds, so callers can pass props directly.

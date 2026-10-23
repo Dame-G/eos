@@ -105,7 +105,6 @@ describe("message catalogue", () => {
   const allowUnused = new Set<string>([
     ...Object.keys(defaultMessages).filter((k) => k.startsWith("status.")),
     "dateRange",
-    "sidebar",
   ]);
 
   test("every message is used by a component, or is allowed to be public only", () => {

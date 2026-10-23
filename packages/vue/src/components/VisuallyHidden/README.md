@@ -10,9 +10,9 @@ Text that is read out but not shown, for context sighted people get from layout,
 
 <!-- props:start -->
 
-| Prop | Type     | Default  | Notes                  |
-| ---- | -------- | -------- | ---------------------- |
-| `as` | `string` | `"span"` | The element to render. |
+| Prop | Type         | Default  | Notes                  |
+| ---- | ------------ | -------- | ---------------------- |
+| `as` | `ElementTag` | `"span"` | The element to render. |
 
 <!-- props:end -->
 

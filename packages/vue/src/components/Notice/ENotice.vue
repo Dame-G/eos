@@ -1,5 +1,7 @@
 <script lang="ts">
-export type NoticeTone = "neutral" | "info" | "success" | "warning" | "danger";
+import type { Tone } from "../../composables/useSize.js";
+
+export type NoticeTone = Extract<Tone, "neutral" | "info" | "success" | "warning" | "danger">;
 </script>
 
 <script setup lang="ts">

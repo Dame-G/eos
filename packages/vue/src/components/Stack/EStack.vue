@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useGap, type GapToken } from "./gap.js";
+import { useListRole } from "./list.js";
+import type { ElementTag } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
     /** The element to render, such as `ul` (with `li` children). `ul` and `ol` lose their bullets and padding. */
-    as?: string;
+    as?: ElementTag;
     /** `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. */
     gap?: GapToken | string;
     /** Aligns the children across the column. Stretched by default. */
@@ -33,7 +35,7 @@ const style = computed(() => ({
   "--_j": props.justify === "between" ? "space-between" : props.justify,
   "--_below": props.wrapBelow,
 }));
-const isList = computed(() => props.as === "ul" || props.as === "ol");
+const listRole = useListRole(() => props.as);
 </script>
 
 <template>
@@ -42,7 +44,7 @@ const isList = computed(() => props.as === "ul" || props.as === "ol");
     :is="as"
     class="e-stack"
     :class="[wrapBelow ? 'e-stack--wrap' : divider && 'e-stack--divider']"
-    :role="isList ? 'list' : undefined"
+    :role="listRole"
     :style="style"
   >
     <slot />

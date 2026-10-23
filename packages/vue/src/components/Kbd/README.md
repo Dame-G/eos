@@ -4,21 +4,21 @@ A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to 
 
 ```vue
 <ESearchBar label="Search" />
-<p>Press <EKbd>/</EKbd> to search, <EKbd small>Esc</EKbd> to close.</p>
+<p>Press <EKbd>/</EKbd> to search, <EKbd size="sm">Esc</EKbd> to close.</p>
 ```
 
 ## Props
 
 <!-- props:start -->
 
-| Prop    | Type                  | Default | Notes                                       |
-| ------- | --------------------- | ------- | ------------------------------------------- |
-| `size`  | `Exclude<Size, "lg">` | None    | `sm` is for a hint inside small text.       |
-| `small` | `boolean`             | `false` | Makes the key smaller. Same as `size="sm"`. |
+| Prop    | Type                          | Default | Notes                                 |
+| ------- | ----------------------------- | ------- | ------------------------------------- |
+| `size`  | `Extract<Size, "sm" \| "md">` | None    | `sm` is for a hint inside small text. |
+| `small` | `boolean`                     | `false` | **Deprecated.** Use `size="sm"`.      |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `kbd` element. `small` is shorthand for `size="sm"`.
+`class`, `style` and attributes land on the `kbd` element. `small` is deprecated: use `size="sm"`.
 
 ## Slots
 

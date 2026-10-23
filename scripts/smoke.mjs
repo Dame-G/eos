@@ -41,6 +41,9 @@ step("build");
 run("node packages/tokens/scripts/build.mjs");
 run("corepack pnpm --filter @eos-ui/vue build");
 
+step("server render of every component, from the build");
+run("node scripts/ssr.mjs");
+
 step("pack");
 const packs = join(work, "packs");
 mkdirSync(packs);
@@ -54,7 +57,7 @@ console.log(tarballs.join("\n"));
 step("lint the packages (publint, arethetypeswrong)");
 const checks = [
   [tokensTgz, "."],
-  [vueTgz, ". ./resolver ./icons ./icons/iconify"],
+  [vueTgz, ". ./resolver ./globals ./plugin ./components/EButton ./icons ./icons/builtin ./icons/iconify"],
 ];
 for (const [tgz, entrypoints] of checks) {
   run(`corepack pnpm --filter @eos-ui/vue exec publint "${join(packs, tgz)}" --strict`);

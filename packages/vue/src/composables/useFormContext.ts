@@ -1,3 +1,4 @@
+// @internal: shared by the components, not exported from the package (see scripts/gen-index.mjs).
 import { inject, onBeforeUnmount, type InjectionKey } from "vue";
 
 /** What a field tells the enclosing `EForm` so the error summary can list it. Getters, so the form always reads the current value. */

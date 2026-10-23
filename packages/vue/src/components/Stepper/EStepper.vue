@@ -56,8 +56,8 @@ function choose(index: number, step: Step) {
         @click="choose(i, step)"
       >
         <span class="e-step-dot">
-          <EIcon v-if="step.state === 'done'" name="check" small />
-          <EIcon v-else-if="step.state === 'error'" name="alert" small />
+          <EIcon v-if="step.state === 'done'" name="check" size="sm" />
+          <EIcon v-else-if="step.state === 'error'" name="alert" size="sm" />
           <template v-else>{{ i + 1 }}</template>
         </span>
         <span class="e-step-label">

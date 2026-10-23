@@ -7,6 +7,7 @@ import { computed } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EKicker from "../Kicker/EKicker.vue";
 import { useConfig, useMessages } from "../../config.js";
+import type { Tone } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
@@ -19,7 +20,7 @@ const props = defineProps<{
   /** The direction of the change. It chooses the arrow and the colour, and is read out with the delta ("Up +4.2%"). */
   trend?: MetricTrend;
   /** The colour of the change, when it is not what the direction suggests: `danger` for a cost that went up. Left out, up is `success`, down is `danger` and flat is quiet. */
-  tone?: "success" | "danger" | "neutral";
+  tone?: Extract<Tone, "success" | "danger" | "neutral">;
   /** A line of explanation under the figure, such as the period it covers. */
   help?: string;
 }>();

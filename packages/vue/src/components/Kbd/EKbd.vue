@@ -4,8 +4,8 @@ import "../../styles/base.css";
 
 const props = defineProps<{
   /** `sm` is for a hint inside small text. */
-  size?: Exclude<Size, "lg">;
-  /** Makes the key smaller. Same as `size="sm"`. */
+  size?: Extract<Size, "sm" | "md">;
+  /** @deprecated Use `size="sm"`. */
   small?: boolean;
 }>();
 

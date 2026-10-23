@@ -1,7 +1,7 @@
-import { computed, inject, reactive, type ComputedRef, type InjectionKey } from "vue";
+import { computed, inject, reactive, toRaw, type ComputedRef, type InjectionKey } from "vue";
 import { defaultMessages, type MessageKey, type MessageVars } from "./messages.js";
 import type { Component } from "vue";
-import { phosphor, ICON_VIEWBOX, type IconMarkup } from "./icons/phosphor.js";
+import { ICON_VIEWBOX, type IconMarkup } from "./icons/phosphor.js";
 import type { IconSource, IconsConfig } from "./icons/types.js";
 import { isProduction } from "./env.js";
 
@@ -84,6 +84,15 @@ export type ResolvedIcon =
 
 const warned = new Set<string>();
 
+// The fallback set. icons/builtin.ts registers the Phosphor set, and `@eos-ui/vue` imports that file, so the set is there
+// with or without the plugin. An app that imports only from the per-component paths leaves it out of its bundle.
+let builtinIcons: Readonly<Record<string, IconMarkup>> | undefined;
+
+/** Sets the icons used for a name nothing else provides. @internal */
+export function registerBuiltinIcons(set: Readonly<Record<string, IconMarkup>>): void {
+  builtinIcons = set;
+}
+
 /**
  * Turns an icon name (or a component passed directly) into something renderable. Order: a component is used as given,
  * then `icons[name]`, then `resolve(alias ?? name)`, then the built-in Phosphor icon. Otherwise nothing is drawn
@@ -95,20 +104,25 @@ export function useIconResolver(): (icon: string | Component, bold: boolean) => 
     if (typeof source === "string") return { kind: "svg", html: source };
     if (Array.isArray(source))
       return { kind: "glyph", html: (source as unknown as IconMarkup)[bold ? 1 : 0], viewBox: ICON_VIEWBOX };
-    return { kind: "component", component: source as Component };
+    return { kind: "component", component: toRaw(source) as Component };
   };
   return (icon, bold) => {
-    if (typeof icon !== "string") return { kind: "component", component: icon };
+    if (typeof icon !== "string") return { kind: "component", component: toRaw(icon) };
     const set = config.icons;
     const explicit = set.icons?.[icon];
     if (explicit) return fromSource(explicit, bold);
     const found = set.resolve?.(set.aliases?.[icon] ?? icon, { bold });
     if (found) return fromSource(found, bold);
-    const builtin = set.builtin === false ? undefined : (phosphor as Record<string, IconMarkup>)[icon];
+    const builtin = set.builtin === false ? undefined : builtinIcons?.[icon];
     if (builtin) return fromSource(builtin, bold);
     if (!isProduction() && !warned.has(icon)) {
       warned.add(icon);
-      console.warn(`[eos] No icon named "${icon}". Add it to createEos({ icons }) or alias it to one your set has.`);
+      console.warn(
+        `[eos] No icon named "${icon}". Add it to createEos({ icons }) or alias it to one your set has.` +
+          (builtinIcons || set.builtin === false
+            ? ""
+            : ' For the built-in set with per-component imports, add import "@eos-ui/vue/icons/builtin".'),
+      );
     }
     return { kind: "none" };
   };

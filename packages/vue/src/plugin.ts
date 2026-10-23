@@ -1,9 +1,10 @@
 import "./styles/base.css";
-import { reactive, watchEffect, type App } from "vue";
+import { markRaw, reactive, watchEffect, type App } from "vue";
 import { defineTheme, type Theme, type ThemeInput } from "@eos-ui/tokens";
 import { TOAST_KEY, createToasts } from "./composables/useToast.js";
 import { TOOLTIP_KEY, createTooltipGroup } from "./components/Tooltip/group.js";
 import { CONFIG_KEY, type EosConfig } from "./config.js";
+import type { IconsConfig } from "./icons/types.js";
 import { localeDirection } from "./composables/useLocale.js";
 import { isProduction } from "./env.js";
 
@@ -27,6 +28,19 @@ export interface EosOptions extends Partial<EosConfig> {
   themeTarget?: HTMLElement | null;
   /** Warn in the console when the theme fails a contrast pair. Default true unless `NODE_ENV` is `production`. */
   warnOnContrast?: boolean;
+  /**
+   * Set the theme's tokens on `themeTarget` as inline custom properties. Default true. Turn it off when the page ships the
+   * theme as CSS itself (`themeCss()` in a `<style>`, or a stylesheet of its own with a dark variant), so the inline
+   * tokens never override it. `lang` and `dir` are still set, and `theme` still names the theme for `themeCss`.
+   */
+  applyTheme?: boolean;
+}
+
+declare module "vue" {
+  interface ComponentCustomProperties {
+    /** The EOS config (locale, currency, messages, icons). Set by `createEos()`. */
+    $e: EosConfig;
+  }
 }
 
 export interface Eos {
@@ -37,6 +51,13 @@ export interface Eos {
 }
 
 const isTheme = (t: Theme | ThemeInput): t is Theme => typeof (t as Theme).css === "function";
+
+/** The icons map stays raw inside the reactive config, so an icon component is rendered as given, never as a reactive proxy. */
+function rawIcons(icons: IconsConfig | undefined): IconsConfig {
+  const out = { ...icons };
+  if (out.icons) out.icons = markRaw({ ...out.icons });
+  return out;
+}
 
 /**
  * The theme as CSS for the server. `createEos().install()` only applies the theme in a browser, so a server-rendered
@@ -69,7 +90,7 @@ export function createEos(options: EosOptions = {}): Eos {
     currency: options.currency ?? "USD",
     dir: options.dir ?? null,
     messages: { ...options.messages },
-    icons: { ...options.icons },
+    icons: rawIcons(options.icons),
     portalTarget: options.portalTarget ?? "body",
   });
   const explicitLocale = options.locale != null;
@@ -95,7 +116,7 @@ export function createEos(options: EosOptions = {}): Eos {
         );
       }
       const target = options.themeTarget ?? document.documentElement;
-      theme.apply(target);
+      if (options.applyTheme !== false) theme.apply(target);
       watchEffect(() => {
         if (explicitLocale) target.setAttribute("lang", config.locale);
         const dir = config.dir ?? (explicitLocale ? localeDirection(config.locale) : null);

@@ -104,7 +104,7 @@ function build(locale: string): LocaleInfo {
   return info;
 }
 
-/** The text direction a locale is written in: `"rtl"` for Arabic, Hebrew, Persian and the like, else `"ltr"`. */
+/** The text direction a locale is written in: `"rtl"` for Arabic, Hebrew, Persian and the like, else `"ltr"`. @internal */
 export function localeDirection(locale: string): "ltr" | "rtl" {
   return build(locale).rtl ? "rtl" : "ltr";
 }

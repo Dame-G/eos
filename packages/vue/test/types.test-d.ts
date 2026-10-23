@@ -13,8 +13,10 @@ import {
   type EosConfig,
 } from "../src/index.js";
 import * as Library from "../src/index.js";
+// Opt-in, as `@eos-ui/vue/globals` (the package entry alone declares no global components).
+import type {} from "../src/globals.js";
 
-// GlobalComponents maps every E-component to the exported component.
+// With the globals types loaded, GlobalComponents maps every E-component to the exported component.
 expectTypeOf<GlobalComponents["EButton"]>().toEqualTypeOf<typeof Library.EButton>();
 expectTypeOf<GlobalComponents["EDialog"]>().toEqualTypeOf<typeof Library.EDialog>();
 expectTypeOf<GlobalComponents["EToastProvider"]>().toEqualTypeOf<typeof Library.EToastProvider>();
@@ -27,6 +29,7 @@ expectTypeOf<EosOptions["locale"]>().toEqualTypeOf<string | undefined>();
 expectTypeOf<EosOptions["dir"]>().toEqualTypeOf<"ltr" | "rtl" | null | undefined>();
 expectTypeOf<EosOptions["themeTarget"]>().toEqualTypeOf<HTMLElement | null | undefined>();
 expectTypeOf<EosOptions["warnOnContrast"]>().toEqualTypeOf<boolean | undefined>();
+expectTypeOf<EosOptions["applyTheme"]>().toEqualTypeOf<boolean | undefined>();
 expectTypeOf(themeCss).returns.toEqualTypeOf<string>();
 
 // Props and emits.

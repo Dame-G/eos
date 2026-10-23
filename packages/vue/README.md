@@ -41,12 +41,13 @@ const email = ref("");
 - Requirements: ESM only, Node 22 or later, Vue 3.5 or later. Tree-shaking is done by your bundler. Your bundler must replace `process.env.NODE_ENV` with a literal, as Vite, webpack, Rollup, esbuild and Nuxt do by default. The library reads it to keep development warnings (a theme that fails contrast) out of production builds; with a bundler that does not define it, the warnings stay on, and you can turn the contrast one off with `warnOnContrast: false`.
 - `@eos-ui/vue/fonts.css` is opt-in: it loads the default typefaces from Google Fonts, which shares visitors' IP addresses with Google. Skip it to self-host or use system fonts.
 - Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights.
-- Plugin options: `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget`, `portalTarget` and `warnOnContrast`.
+- Plugin options: `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget`, `portalTarget`, `warnOnContrast` and `applyTheme` (`false` when the page ships the theme CSS itself). [`EConfigProvider`](src/components/ConfigProvider/README.md) changes the theme, locale or direction for one part of the page.
 - A message can be a plural object (`{ one, other }` and the locale's other categories) when it takes a count `n`. `resultsCount`, `rows`, `rowsAnnounce` and `rangeDone` do.
 - `defineTheme()` (re-exported from [`@eos-ui/tokens`](../tokens)) builds a theme from `brand`, `accent` and other inputs and checks its contrast.
 - Icons: a built-in Phosphor set, or Lucide, Tabler, Heroicons, Phosphor (Vue), Iconify or your own set (`@eos-ui/vue/icons`, see [Bring your own icons](src/icons/README.md)).
+- Per-component paths: `@eos-ui/vue/components/EButton` (any component), and `@eos-ui/vue/plugin` for `createEos` and `themeCss`. They leave out the built-in icon set, which the package root registers; `import "@eos-ui/vue/icons/builtin"` brings it back.
 - `EosResolver` from `@eos-ui/vue/resolver` auto-imports components for `unplugin-vue-components`. It does not import the stylesheet unless you pass `{ css: true }`.
-- Importing the package types globally registered components and `$e` for Volar and `vue-tsc`.
+- Importing the package types `$e` (the config) in templates. `createEos()` registers no components, so their global types are opt-in: after `app.component("EButton", EButton)`, add `import type {} from "@eos-ui/vue/globals"` (or `"types": ["@eos-ui/vue/globals"]` in `tsconfig.json`). With `unplugin-vue-components` you do not need it: the plugin writes its own `components.d.ts`.
 - Composables for common needs: `useAnnouncer` (screen reader announcements), `useShortcuts` (keyboard shortcuts), `useCopy`, `useToast`. See [Composables](src/composables/README.md).
 - `@eos-ui/vue/llms.txt` and `llms-full.txt` give AI coding assistants an index and the complete docs.
 - Components work without the plugin, in English and US dollars.

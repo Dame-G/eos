@@ -10,17 +10,17 @@ A ring that shows a single action is in progress. Say what is being waited for.
 
 <!-- props:start -->
 
-| Prop    | Type      | Default | Notes                                                                                                                                                      |
-| ------- | --------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `label` | `string`  | None    | Shown beside the ring. The spinner is a `status` region, so a label that appears with it is announced politely. Without one, screen readers get "Loading". |
-| `size`  | `Size`    | None    | The ring: `sm` 20px, `md` 28px, `lg` 40px.                                                                                                                 |
-| `small` | `boolean` | `false` | A smaller ring. Same as `size="sm"`.                                                                                                                       |
-| `large` | `boolean` | `false` | A larger ring. Same as `size="lg"`.                                                                                                                        |
-| `block` | `boolean` | `false` | Centre it in a panel.                                                                                                                                      |
+| Prop    | Type                                  | Default | Notes                                                                                                                                                      |
+| ------- | ------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `label` | `string`                              | None    | Shown beside the ring. The spinner is a `status` region, so a label that appears with it is announced politely. Without one, screen readers get "Loading". |
+| `size`  | `Extract<Size, "sm" \| "md" \| "lg">` | None    | The ring: `sm` 20px, `md` 28px, `lg` 40px.                                                                                                                 |
+| `small` | `boolean`                             | `false` | **Deprecated.** Use `size="sm"`.                                                                                                                           |
+| `large` | `boolean`                             | `false` | **Deprecated.** Use `size="lg"`.                                                                                                                           |
+| `block` | `boolean`                             | `false` | Centre it in a panel.                                                                                                                                      |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `span` element. `size` is `sm` (20px), `md` (28px) or `lg` (40px); `small` and `large` are shorthand for it.
+`class`, `style` and attributes land on the `span` element. `size` is `sm` (20px), `md` (28px) or `lg` (40px); `small` and `large` are deprecated: use `size`.
 
 ## Accessibility
 

@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { createApp, defineComponent, h, nextTick } from "vue";
+import { createApp, defineComponent, h, isReactive, nextTick } from "vue";
 import { contrast } from "@eos-ui/tokens";
 import { createEos, themeCss } from "./plugin.js";
 import { useConfig, useMessages } from "./config.js";
 import EButton from "./components/Button/EButton.vue";
 import ETextField from "./components/TextField/ETextField.vue";
+import EIcon from "./components/Icon/EIcon.vue";
 
 const hosts: HTMLElement[] = [];
 function mountApp(component: ReturnType<typeof defineComponent>, plugin?: ReturnType<typeof createEos>) {
@@ -34,6 +35,17 @@ describe("createEos", () => {
     const primary = root.style.getPropertyValue("--e-primary");
     expect(primary).toMatch(/^#[0-9a-f]{6}$/);
     expect(contrast(primary, "#ffffff")).toBeGreaterThanOrEqual(7);
+  });
+
+  test("applyTheme: false leaves the theme to the page's own CSS, and still sets lang and dir", () => {
+    const eos = createEos({ theme: { name: "mine", brand: "#8a2be2" }, applyTheme: false, locale: "ar" });
+    mountApp(defineComponent({ render: () => h("div") }), eos);
+    const root = document.documentElement;
+    expect(root.style.getPropertyValue("--e-primary")).toBe("");
+    expect(root.hasAttribute("data-e-theme")).toBe(false);
+    expect(root.getAttribute("lang")).toBe("ar");
+    expect(root.getAttribute("dir")).toBe("rtl");
+    expect(themeCss(eos.theme)).toContain("--e-primary");
   });
 
   test("a theme can be scoped to one element instead of the page", async () => {
@@ -139,6 +151,19 @@ describe("createEos", () => {
   test("portalTarget defaults to body and can point at a themed container", () => {
     expect(createEos().config.portalTarget).toBe("body");
     expect(createEos({ portalTarget: "#themed" }).config.portalTarget).toBe("#themed");
+  });
+
+  test("an icon component in the config is rendered as given, not as a reactive proxy", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const Mark = defineComponent({ render: () => h("svg", { "data-testid": "mark" }) });
+    const eos = createEos({ icons: { icons: { mark: Mark } } });
+    expect(isReactive(eos.config.icons.icons!.mark)).toBe(false);
+    expect(eos.config.icons.icons!.mark).toBe(Mark);
+    const { host } = mountApp(defineComponent({ render: () => h(EIcon, { name: "mark" }) }), eos);
+    await nextTick();
+    expect(host.querySelector("[data-testid=mark]")).not.toBeNull();
+    expect(warn.mock.calls.flat().join(" ")).not.toMatch(/reactive object/);
+    warn.mockRestore();
   });
 
   test("components work with no plugin installed", async () => {

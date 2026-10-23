@@ -4,11 +4,23 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EAvatar from "./EAvatar.vue";
 import EMenu from "../Menu/EMenu.vue";
+import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 const PIXEL = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 
 describe("EAvatar", () => {
+  test("capitalises the initials in the configured language", async () => {
+    const name = "ılgın işık"; // Turkish: dotless ı, dotted i
+    const turkish = await render(EAvatar, {
+      props: { name },
+      global: { plugins: [createEos({ locale: "tr-TR" })] },
+    });
+    expect(turkish.container.textContent).toBe("Iİ");
+    const english = await render(EAvatar, { props: { name }, global: { plugins: [createEos({ locale: "en-US" })] } });
+    expect(english.container.textContent).toBe("II");
+  });
+
   test("shows initials and is an image named by the person", async () => {
     const { container } = await render(EAvatar, { props: { name: "Ada Lovelace" } });
     await expect.element(page.getByRole("img", { name: "Ada Lovelace" })).toBeVisible();
@@ -53,16 +65,16 @@ describe("EAvatar", () => {
     warn.mockRestore();
   });
 
-  test("status adds a dot and is read with the name", async () => {
-    const { container } = await render(EAvatar, { props: { name: "Ada Lovelace", status: "online" } });
+  test("presence adds a dot and is read with the name", async () => {
+    const { container } = await render(EAvatar, { props: { name: "Ada Lovelace", presence: "online" } });
     await expect.element(page.getByRole("img", { name: "Ada Lovelace, Online" })).toBeVisible();
     const dot = container.querySelector(".e-avatar-status")!;
     expect(dot.getAttribute("aria-hidden")).toBe("true");
     expect(dot.getBoundingClientRect().width).toBeGreaterThan(0);
-    const button = await render(EAvatar, { props: { name: "Ada Lovelace", status: "busy", as: "button" } });
+    const button = await render(EAvatar, { props: { name: "Ada Lovelace", presence: "busy", as: "button" } });
     await expect.element(page.getByRole("button", { name: "Ada Lovelace, Busy" })).toBeVisible();
     for (const status of ["away", "offline"] as const) {
-      const r = await render(EAvatar, { props: { name: "Ada", status } });
+      const r = await render(EAvatar, { props: { name: "Ada", presence: status } });
       expect(r.container.querySelector(`.e-avatar-status--${status}`)).not.toBeNull();
     }
     expect(button.container.querySelector(".e-avatar-status")).not.toBeNull();
@@ -188,8 +200,8 @@ describe("EAvatar", () => {
             h(EAvatar, { name: "Ada Lovelace", large: true }),
             h(EAvatar, { name: "Ada Lovelace", as: "button" }),
             h(EAvatar, { name: "Ada Lovelace", src: PIXEL, as: "button" }),
-            h(EAvatar, { name: "Ada Lovelace", status: "away" }),
-            h(EAvatar, { name: "Ada Lovelace", status: "offline", as: "button" }),
+            h(EAvatar, { name: "Ada Lovelace", presence: "away" }),
+            h(EAvatar, { name: "Ada Lovelace", presence: "offline", as: "button" }),
           ]),
       }),
     );

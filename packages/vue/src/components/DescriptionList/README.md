@@ -17,7 +17,7 @@ Label and text rows, ruled apart, for facts such as what a statement covers or w
 
 | Prop    | Type                                       | Default      | Notes                                                                                                            |
 | ------- | ------------------------------------------ | ------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `items` | `(DescriptionItem \| null \| undefined)[]` | **Required** | The rows, as `{ label?, text, icon?, badge?, badgeTone?, editable? }`. `null` and `undefined` items are skipped. |
+| `items` | `(DescriptionItem \| null \| undefined)[]` | **Required** | The rows, as `{ label?, text, icon?, stamp?, stampTone?, editable? }`. `null` and `undefined` items are skipped. |
 
 <!-- props:end -->
 
@@ -51,4 +51,4 @@ A list where no item has a `label` renders as a plain list of facts. It has no E
 
 ## Related
 
-[`EStamp`](../Stamp/README.md) for the badge, [`ETable`](../Table/README.md) when the data has columns.
+[`EStamp`](../Stamp/README.md) for the stamp, [`ETable`](../Table/README.md) when the data has columns.

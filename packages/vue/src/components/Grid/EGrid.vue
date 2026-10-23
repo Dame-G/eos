@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useGap, type GapToken } from "../Stack/gap.js";
+import { useListRole } from "../Stack/list.js";
+import type { ElementTag } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** The element to render, for example `ul` with `li` children. */
-    as?: string;
+    /** The element to render, such as `ul` with `li` children. `ul` and `ol` lose their bullets and padding and keep their list role. */
+    as?: ElementTag;
     /** The narrowest a column may be, as a CSS length. One column below that. */
     min?: string;
     /** `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. */
@@ -26,6 +28,7 @@ defineSlots<{
 }>();
 
 const gapCss = useGap(() => props.gap);
+const listRole = useListRole(() => props.as);
 </script>
 
 <template>
@@ -37,6 +40,7 @@ const gapCss = useGap(() => props.gap);
       align && `e-grid-layout--a-${align}`,
       justify && `e-grid-layout--j-${justify}`,
     ]"
+    :role="listRole"
     :style="{ '--_gap': gapCss, '--_min': min }"
   >
     <slot />
@@ -50,6 +54,12 @@ const gapCss = useGap(() => props.gap);
     grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--_min, 16rem)), 1fr));
     gap: var(--_gap, var(--e-gap-loose));
     align-items: stretch;
+  }
+
+  .e-grid-layout:is(ul, ol) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   .e-grid-layout > * {

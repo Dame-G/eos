@@ -61,7 +61,7 @@ The models work without a binding.
 | `emptyIcon`         | `IconProp`                            | `"search"`             | The icon above the empty title.                                                                                                                                                                          |
 | `error`             | `boolean \| string`                   | None                   | Shows a failed load in place of the rows. `true` says the default sentence; a string says your own. A "Try again" button emits `retry`.                                                                  |
 | `rowLabel`          | `(row: Row) => string`                | None                   | The name of a row for its checkbox ("Select Annual check-up"), when the first column's text is not a good one.                                                                                           |
-| `bare`              | `boolean`                             | `false`                | Renders a bare table for a short static list, with no toolbar, filters, paging or footer. @deprecated Use `ETable` for a short static list. `bare` still works, and warns in development.                |
+| `bare`              | `boolean`                             | `false`                | Renders a bare table for a short static list, with no toolbar, filters, paging or footer. **Deprecated.** Use `ETable` for a short static list. `bare` still works, and warns in development.            |
 
 <!-- props:end -->
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h, nextTick, ref } from "vue";
+import { defineComponent, h, nextTick, ref, markRaw } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ESearchResults from "./ESearchResults.vue";
@@ -11,13 +11,15 @@ const items = [
   { label: "Disclosure", href: "/components/Disclosure" },
 ];
 
-const FakeRouterLink = defineComponent({
-  props: { to: { type: String, required: true } },
-  setup:
-    (props, { slots }) =>
-    () =>
-      h("a", { href: `/app${props.to}`, "data-router": "" }, slots.default?.()),
-});
+const FakeRouterLink = markRaw(
+  defineComponent({
+    props: { to: { type: String, required: true } },
+    setup:
+      (props, { slots }) =>
+      () =>
+        h("a", { href: `/app${props.to}`, "data-router": "" }, slots.default?.()),
+  }),
+);
 
 interface Handle {
   focusFirst: () => void;
