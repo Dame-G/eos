@@ -2,7 +2,7 @@
 // (ArrowLeft) moves forward, the one that points towards its start (ArrowRight) moves back. The app says so with
 // createEos({ dir: "rtl" }), which also sets dir on the page; here the page is a wrapper of its own.
 import { describe, expect, test } from "vitest";
-import { defineComponent, h, ref, type Component } from "vue";
+import { defineComponent, h, ref, type Component, type VNode } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import { createEos } from "../src/plugin.js";
@@ -14,7 +14,7 @@ import EOtpField from "../src/components/OtpField/EOtpField.vue";
 
 const rtl = { plugins: [createEos({ dir: "rtl", themeTarget: null })] };
 /** Renders `child` in a right-to-left block, with the app set to right to left. */
-const inRtl = (child: () => unknown) =>
+const inRtl = (child: () => VNode) =>
   render(defineComponent({ render: () => h("div", { dir: "rtl" }, [child()]) }), { global: rtl });
 
 describe("right to left keyboard", () => {
