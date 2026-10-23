@@ -117,11 +117,13 @@ defineExpose(control.exposed);
 
 <style>
 @layer e.composites {
-  /* The swatch is inset by the field's edge and a tight gap, so its corners are the field's nested radius. */
+  /* The swatch nearly fills the field, so it sits half a tight gap inside the edge, and its corners are the field's radius less that and the edge: the same curve, not a sharper one. */
   .e-colorfield {
+    --_inset: calc(var(--e-gap-tight) / 2);
+
     align-items: center;
     gap: var(--e-gap-snug);
-    padding-inline-start: var(--e-gap-tight);
+    padding-inline-start: var(--_inset);
   }
 
   .e-color-swatch-box {
@@ -135,7 +137,7 @@ defineExpose(control.exposed);
 
   /* No colour yet: a neutral struck-through chip over the picker's black, which still opens on click. */
   .e-color-empty {
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--_inset)));
     background:
       linear-gradient(
         to top right,
@@ -150,11 +152,11 @@ defineExpose(control.exposed);
 
   .e-color-swatch {
     flex: none;
-    width: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--e-gap-tight)));
-    height: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--e-gap-tight)));
+    width: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--_inset)));
+    height: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--_inset)));
     padding: 0;
     border: 0;
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--_inset)));
     background: none;
     cursor: pointer;
   }
@@ -165,13 +167,13 @@ defineExpose(control.exposed);
 
   .e-color-swatch::-webkit-color-swatch {
     border: 0;
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--_inset)));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 
   .e-color-swatch::-moz-color-swatch {
     border: 0;
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--_inset)));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 

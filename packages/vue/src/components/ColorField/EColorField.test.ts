@@ -136,7 +136,7 @@ describe("EColorField", () => {
     expect(document.activeElement).not.toBe(container.querySelector("input[type=text]"));
   });
 
-  test("corners are concentric: the swatch and the empty chip are inset by the edge and a tight gap at any theme", async () => {
+  test("corners are concentric: the swatch and the empty chip sit the same distance inside the field on every side, and their corners are the field radius less it, at any theme", async () => {
     const { container } = await render(EColorField, { props: { label: "Brand colour", modelValue: "" } });
     const root = container as HTMLElement;
     root.classList.add("e-root");
@@ -144,9 +144,15 @@ describe("EColorField", () => {
     const swatch = wrap.querySelector(".e-color-swatch")!;
     const chip = wrap.querySelector(".e-color-empty")!;
 
+    const w = wrap.getBoundingClientRect();
+    const c = swatch.getBoundingClientRect();
+    expect(c.left - w.left).toBeCloseTo(3, 0);
+    expect(c.top - w.top).toBeCloseTo(3, 0);
+    expect(w.bottom - c.bottom).toBeCloseTo(3, 0);
+
     for (const md of [null, "14px", "2px"]) {
       if (md) root.style.setProperty("--e-radius-md", md);
-      const want = Math.max(0, corner(wrap) - 5);
+      const want = Math.max(0, corner(wrap) - 3);
       expect(corner(swatch)).toBeCloseTo(want, 0);
       expect(corner(chip)).toBeCloseTo(want, 0);
     }
