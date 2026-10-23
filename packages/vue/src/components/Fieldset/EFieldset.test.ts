@@ -152,7 +152,7 @@ describe("EFieldset", () => {
       });
       container.classList.add("e-root");
       const [a, b] = [...container.querySelectorAll("input")].map((i) => i.getBoundingClientRect());
-      return b.top - a.bottom;
+      return b!.top - a!.bottom;
     };
     expect(await gaps(true)).toBeGreaterThan(0);
     expect(await gaps(true)).toBe(await gaps(false));
