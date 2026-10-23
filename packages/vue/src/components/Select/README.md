@@ -50,7 +50,6 @@ A dropdown for choosing one option from a list, when options need more than a li
 
 ## Accessibility
 
-- Enter, Space or Arrow keys open the list. Arrow keys, Home and End move, letters jump to a match, Enter or Space chooses, and Escape closes the list and returns focus.
 - `readonly` keeps the button focusable (`aria-readonly`) but it never opens and typing does not choose; the value is still submitted. `disabled` posts nothing.
 - `multiple` keeps the list open while choosing and the button reads "N selected". The model is then an array.
 - Empty is `""` for a single select and `[]` with `multiple`. A date or number control uses `null` instead.
@@ -59,14 +58,14 @@ A dropdown for choosing one option from a list, when options need more than a li
 
 ## Keyboard
 
-| Key                      | Does                                   |
-| ------------------------ | -------------------------------------- |
-| Enter, Space, Arrow keys | Open the list                          |
-| Arrow Up, Arrow Down     | Move through the options               |
-| Home, End                | First and last option                  |
-| Letters                  | Jump to the next option that starts so |
-| Enter, Space             | Choose the highlighted option          |
-| Escape                   | Closes the list and returns focus      |
+| Key                      | Action                                           |
+| ------------------------ | ------------------------------------------------ |
+| Enter, Space, Arrow keys | Opens the list.                                  |
+| Arrow Up, Arrow Down     | Moves through the options.                       |
+| Home, End                | Moves to the first or last option.               |
+| Letters                  | Moves to the next option that starts with them.  |
+| Enter, Space             | Chooses the highlighted option.                  |
+| Escape                   | Closes the list and returns focus to the button. |
 
 With the list closed, letters choose the matching option without opening it.
 

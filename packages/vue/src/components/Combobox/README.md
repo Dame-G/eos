@@ -73,24 +73,22 @@ An input that filters a list as you type and only accepts an option from it. `fr
 - Empty is `""` for a single value and `[]` with `multiple`; the model is typed `string[]` when `multiple` is set. A date or number control uses `null` instead.
 - `disabled` posts nothing through the hidden inputs.
 
-- Focus stays in the input. Arrow Down and Arrow Up open the list and move the highlighted row (`aria-activedescendant`), and Enter chooses it.
-- Escape closes the list and a second Escape clears the field. Home and End move the text cursor.
-- When focus leaves, the text snaps back to the chosen option.
+- Focus stays in the input, and the highlighted row is `aria-activedescendant`.
 - Matching ignores case and accents: "cafe" finds "Café". `readonly` keeps the value and the focus but never opens the list.
-- With `multiple` the listbox is `aria-multiselectable`, each tag has a Remove button ("Remove Text") and Backspace in an empty field removes the last tag. Removing a tag announces "Removed Text" and puts focus in the input.
+- With `multiple` the listbox is `aria-multiselectable`, each tag has a Remove button ("Remove Text"). Removing a tag announces "Removed Text" and puts focus in the input.
 - With `freeform`, typed text stays when focus leaves and Arrow Down reopens the suggestions.
 - An empty or loading list is announced through a status region.
 
 ## Keyboard
 
-| Key                  | Action                                                     |
-| -------------------- | ---------------------------------------------------------- |
-| Arrow Down, Arrow Up | Open the list and move the highlighted row.                |
-| Enter                | Choose the highlighted row.                                |
-| Escape               | Close the list. A second press clears the field.           |
-| Backspace            | In an empty `multiple` field, remove the last tag.         |
-| Home, End            | Move the text cursor.                                      |
-| Tab                  | Leave the field. The text snaps back to the chosen option. |
+| Key                  | Action                                                      |
+| -------------------- | ----------------------------------------------------------- |
+| Arrow Down, Arrow Up | Opens the list and moves the highlighted row.               |
+| Enter                | Chooses the highlighted row.                                |
+| Escape               | Closes the list. A second press clears the field.           |
+| Backspace            | In an empty `multiple` field, removes the last tag.         |
+| Home, End            | Moves the text cursor.                                      |
+| Tab                  | Leaves the field. The text snaps back to the chosen option. |
 
 ## Related
 

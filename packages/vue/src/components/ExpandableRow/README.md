@@ -40,7 +40,7 @@ Rows in a list line their leading items up when the lead column has a fixed widt
 
 ## Accessibility
 
-- A native `details` with a `summary`. Tab focuses the summary, and Enter or Space toggles it.
+- A native `details` with a `summary`, so the open state is announced.
 - `disabled` sets `aria-disabled="true"` on the summary: it stays focusable, is dimmed and does not toggle.
 - The summary holds only the title, subtitle, leading and trailing content, all as text (`span`s), because a summary may not contain a button or link. Put interactive controls in the body or the `actions` slot.
 

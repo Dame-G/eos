@@ -34,9 +34,7 @@ One figure with its label, an optional change and a line of help. Use it for the
 - A `dl`: the label is the term and the figure, change and help are its descriptions, so a screen reader reads "Balance, $1,240.00".
 - The change is read as words with its direction ("Up +4.2%", "Down 1%", "No change"); the arrow is decoration, and colour only backs up the arrow and the words.
 
-## Keyboard
-
-Not focusable and takes no keys.
+Not focusable.
 
 ## Related
 

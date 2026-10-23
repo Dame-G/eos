@@ -41,11 +41,11 @@ The bar is a `div` with `role="search"`, not a form, so it can sit inside one. `
 
 ## Keyboard
 
-| Key         | Does                                                            |
-| ----------- | --------------------------------------------------------------- |
-| Tab         | Moves from the box to the clear button, then the search button. |
-| Enter       | Submits the text.                                               |
-| Enter/Space | On the clear button, empties the box and returns focus to it.   |
+| Key          | Action                                                          |
+| ------------ | --------------------------------------------------------------- |
+| Tab          | Moves from the box to the clear button, then the search button. |
+| Enter        | Submits the text.                                               |
+| Enter, Space | On the clear button, empties the box and returns focus to it.   |
 
 ## Related
 

@@ -51,10 +51,10 @@ A dropzone for attaching files, clickable and droppable, listing the chosen file
 
 ## Keyboard
 
-| Key         | Does                                                                             |
-| ----------- | -------------------------------------------------------------------------------- |
-| Tab         | Focuses the file input (the zone shows the focus ring), then each Remove button. |
-| Enter/Space | Opens the file picker, or removes the file on a Remove button.                   |
+| Key          | Action                                                                           |
+| ------------ | -------------------------------------------------------------------------------- |
+| Tab          | Focuses the file input (the zone shows the focus ring), then each Remove button. |
+| Enter, Space | Opens the file picker, or removes the file on a Remove button.                   |
 
 ## Related
 

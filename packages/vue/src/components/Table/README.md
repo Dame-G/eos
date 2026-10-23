@@ -58,10 +58,10 @@ Use [`EDataGrid`](../DataGrid/README.md) when people need to sort, filter, selec
 
 ## Keyboard
 
-| Key        | Does                                     |
+| Key        | Action                                   |
 | ---------- | ---------------------------------------- |
 | Tab        | Focuses the frame only while it scrolls. |
-| Arrow keys | Scroll the frame when it has focus.      |
+| Arrow keys | Scrolls the frame when it has focus.     |
 
 ## Related
 

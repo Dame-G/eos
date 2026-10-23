@@ -27,9 +27,7 @@ A ring that shows a single action is in progress. Say what is being waited for. 
 - Always `role="status"`: the label (or "Loading") is announced politely when the spinner appears. Mount it where the wait begins, not at page load, or the first announcement is missed.
 - The ring stops turning under reduced motion.
 
-## Keyboard
-
-Not focusable and takes no keys.
+Not focusable.
 
 ## Related
 

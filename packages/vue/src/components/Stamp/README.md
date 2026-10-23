@@ -38,9 +38,7 @@ Presets: `paid`, `confirmed`, `signed` and `complete` are success. `due`, `sched
 - A `span` of plain text, read in flow: the word (and detail) carry the meaning, colour only backs it up. It has no role, so the text is not flattened into an image label.
 - `final` is for the one mark on a page that says a thing is final. It draws an outline in the stamp ink instead of a fill, so use it once per screen.
 
-## Keyboard
-
-Not focusable and takes no keys.
+Not focusable.
 
 ## Related
 

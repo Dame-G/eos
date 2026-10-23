@@ -32,7 +32,7 @@ A section that opens and closes, for secondary detail. Give several the same `gr
 
 ## Accessibility
 
-- A native `details`. The summary is keyboard operable (Enter, Space) and the open state is announced.
+- A native `details`, so the open state is announced.
 - `disabled` sets `aria-disabled="true"` on the summary: it stays focusable, is dimmed and does not toggle.
 
 ## Keyboard

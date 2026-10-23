@@ -37,10 +37,10 @@ A colour input as `#rrggbb`: a swatch that opens the native picker plus a text b
 
 ## Keyboard
 
-| Key          | Action                                           |
-| ------------ | ------------------------------------------------ |
-| Tab          | Moves between the swatch and the text box.       |
-| Enter, Space | On the swatch, open the browser's colour picker. |
+| Key          | Action                                            |
+| ------------ | ------------------------------------------------- |
+| Tab          | Moves between the swatch and the text box.        |
+| Enter, Space | On the swatch, opens the browser's colour picker. |
 
 ## Related
 

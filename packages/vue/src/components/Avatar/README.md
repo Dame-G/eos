@@ -40,7 +40,7 @@ A person, as a photo or as their initials on a rounded tile. Use [`EAvatarGroup`
 | Key          | Action                                                                         |
 | ------------ | ------------------------------------------------------------------------------ |
 | Tab          | Moves focus to an avatar with `as="button"`. A `span` avatar is not focusable. |
-| Enter, Space | Press an avatar with `as="button"`.                                            |
+| Enter, Space | Presses an avatar with `as="button"`.                                          |
 
 ## Related
 

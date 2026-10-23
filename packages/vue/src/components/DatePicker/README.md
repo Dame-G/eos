@@ -40,18 +40,18 @@ With `valueFormat="iso"` the model is a `YYYY-MM-DD` string with no time zone to
 
 ## Accessibility
 
-- Alt + Down opens the calendar. For its keys see `ECalendar`. Escape closes it and returns focus to the text box, as does choosing a day.
+- Escape or choosing a day closes the calendar and returns focus to the text box.
 - The button is named "Choose date" with `aria-haspopup="dialog"` and `aria-expanded`. The popup is a `dialog` in the portal target.
 - Error text is `role="alert"` and joined to the box with `aria-describedby`.
 
 ## Keyboard
 
-| Key              | Does                                                                 |
-| ---------------- | -------------------------------------------------------------------- |
-| Alt + Arrow Down | Opens the calendar on the chosen day                                 |
-| Enter            | Reads the typed date                                                 |
-| Escape           | Closes the calendar (from months or years, back to the days first)   |
-| Other keys       | See [`ECalendar`](../Calendar/README.md) for moving around the month |
+| Key              | Action                                                                |
+| ---------------- | --------------------------------------------------------------------- |
+| Alt + Arrow Down | Opens the calendar on the chosen day.                                 |
+| Enter            | Reads the typed date.                                                 |
+| Escape           | Closes the calendar (from months or years, back to the days first).   |
+| Other keys       | See [`ECalendar`](../Calendar/README.md) for moving around the month. |
 
 ## Related
 

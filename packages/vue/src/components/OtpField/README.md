@@ -43,8 +43,7 @@ A one-time code entered one character per box, with paste and SMS autofill suppo
 ## Accessibility
 
 - Each box is named "Digit 3 of 6" ("Character 3 of 6" for `text`), and the group carries the label.
-- Tab enters at the first empty box (the last when full) and leaves the field from there; the other boxes are reached with the arrow keys.
-- Arrow keys, Home and End move between boxes. Backspace in an empty box deletes the previous character.
+- Tab enters at the first empty box (the last when full); the other boxes are reached with the arrow keys.
 - Keep codes out of URLs and logs, and offer Resend beneath the field.
 
 ## Keyboard

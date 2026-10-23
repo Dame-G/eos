@@ -48,9 +48,7 @@ The flat, outlined card that content blocks are built from. Use it for any stand
 - Give a `section` or `aside` that has a role needing a name an `aria-label` or `aria-labelledby`.
 - A surface never changes on hover. For a card that is one link, use [`ELinkCard`](../LinkCard/README.md); otherwise put a link or button inside it.
 
-## Keyboard
-
-Not focusable and takes no keys. Controls inside it keep their own.
+Not focusable.
 
 ## Related
 

@@ -26,9 +26,7 @@ Several people as overlapping avatars, with a "+N" tile for the rest. Use [`EAva
 - The group is one image (`role="img"`) named by the people it shows and the count of the rest, such as "Ada Lovelace, Grace Hopper, and 2 more", joined with the words of the locale. Set `label` to name it differently, for example "Care team".
 - The avatars inside are not announced one by one. Put a list of links or buttons beside the group when each person must be reachable.
 
-## Keyboard
-
-Not focusable and takes no keys.
+Not focusable.
 
 ## Related
 

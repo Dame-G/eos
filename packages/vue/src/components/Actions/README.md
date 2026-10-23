@@ -37,7 +37,7 @@ A group of buttons in the order of the content, main action first, left-aligned,
 
 ## Keyboard
 
-No custom keyboard behavior. Each button is its own tab stop, in source order.
+Each button is its own tab stop, in source order.
 
 ## Related
 

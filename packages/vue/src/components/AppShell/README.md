@@ -47,7 +47,6 @@ The frame of a whole page: skip link, header, optional side navigation, main con
 
 - Landmarks: `banner`, `complementary` (named by `sidebarLabel`, "Sidebar" by default so it differs from the "Main" navigation inside it), `main`, `contentinfo`. Use one shell per page.
 - In the drawer the sidebar is a dialog named "Menu" (or `sidebarLabel`). Escape closes it and focus returns to the menu button.
-- The skip link is the first tab stop and moves focus to `main`.
 
 ## Keyboard
 

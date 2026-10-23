@@ -39,9 +39,7 @@ Children in a column with an even gap. Use it instead of margins. Use [`EInline`
 - With `as="ul"` (or `ol`) and `li` children it is a list, announced with its item count. The bullets are removed and `role="list"` is set, so Safari keeps the list semantics.
 - Spacing is not a substitute for structure. Use headings and landmarks inside it as the content needs.
 
-## Keyboard
-
-Not focusable and takes no keys. Focus follows the DOM order of the children.
+Not focusable.
 
 ## Related
 

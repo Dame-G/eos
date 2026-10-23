@@ -31,11 +31,7 @@ The six heading levels, with an optional kicker label above. Use [`EPageHeader`]
 - Renders an `h1` to `h6`. Use one level 1 per page and do not skip levels.
 - `as="p"`, `div` or `span` draws heading-sized text that is not part of the outline.
 
-## Keyboard
-
-| Key | Action                      |
-| --- | --------------------------- |
-| Tab | A heading is not focusable. |
+Not focusable.
 
 ## Related
 

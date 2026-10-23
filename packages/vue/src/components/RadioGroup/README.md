@@ -58,7 +58,7 @@ Exactly one of five or fewer options. Use [`ESelect`](../Select/README.md) for m
 
 ## Keyboard
 
-| Key                  | Does                                                       |
+| Key                  | Action                                                     |
 | -------------------- | ---------------------------------------------------------- |
 | Tab                  | Moves into the group (to the chosen option) and out of it. |
 | Arrow Up, Arrow Down | Moves to the previous or next option and chooses it.       |

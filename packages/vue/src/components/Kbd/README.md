@@ -31,11 +31,7 @@ A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to 
 - It only describes a shortcut: the shortcut must work and be named elsewhere, for example with `aria-keyshortcuts` on the control.
 - Add `aria-hidden="true"` when a nearby control already announces the shortcut.
 
-## Keyboard
-
-| Key | Action                     |
-| --- | -------------------------- |
-| Tab | A keycap is not focusable. |
+Not focusable.
 
 ## Related
 

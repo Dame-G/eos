@@ -42,10 +42,10 @@ A floating message that confirms or reports something just done. Show toasts thr
 
 ## Keyboard
 
-| Key         | Does                                             |
-| ----------- | ------------------------------------------------ |
-| Tab         | Moves between the action and the dismiss button. |
-| Enter/Space | Presses the focused button.                      |
+| Key          | Action                                           |
+| ------------ | ------------------------------------------------ |
+| Tab          | Moves between the action and the dismiss button. |
+| Enter, Space | Presses the focused button.                      |
 
 ## Related
 

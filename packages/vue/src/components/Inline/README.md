@@ -36,11 +36,7 @@ Children in a row that wraps when it runs out of room, for a title with a status
 
 - Visual order follows source order, so keep the source in reading order.
 
-## Keyboard
-
-| Key | Action                                        |
-| --- | --------------------------------------------- |
-| Tab | The row is layout only and adds no tab stops. |
+Not focusable.
 
 ## Related
 

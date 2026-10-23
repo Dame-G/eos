@@ -51,8 +51,8 @@ Blocks that sit back to back with no gap (a plain container, or an `EStack` with
 | Key                                       | Action                                            |
 | ----------------------------------------- | ------------------------------------------------- |
 | Tab                                       | Moves focus to the code, then to the copy button. |
-| Arrow keys, Page Up, Page Down, Home, End | Scroll the code region when it is focused.        |
-| Enter, Space                              | Press the copy button.                            |
+| Arrow keys, Page Up, Page Down, Home, End | Scrolls the code region when it is focused.       |
+| Enter, Space                              | Presses the copy button.                          |
 
 ## Related
 

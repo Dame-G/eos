@@ -44,9 +44,7 @@ An element that carries these classes is `aria-hidden="true"` and sits in a regi
 - With a `label` it is a `status` region that reads the label once, for a skeleton that is the only sign that something is loading.
 - The pulse stops under reduced motion.
 
-## Keyboard
-
-Not focusable and takes no keys.
+Not focusable.
 
 ## Related
 

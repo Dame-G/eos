@@ -40,11 +40,7 @@ With `masonry` the grid is CSS multi-column: `min` is the column width, the gap 
 - Give each card its own heading or accessible name.
 - For a list of items use `as="ul"` with `li` children so the count is announced. The bullets and padding are removed and `role="list"` is set, so Safari keeps the list semantics.
 
-## Keyboard
-
-| Key | Action                                                                         |
-| --- | ------------------------------------------------------------------------------ |
-| Tab | The grid is layout only and adds no tab stops; focus follows the source order. |
+Not focusable.
 
 ## Related
 

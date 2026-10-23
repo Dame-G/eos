@@ -22,9 +22,7 @@ The bottom of the page: small print, privacy and terms links, contact. Put it in
 - Renders the `contentinfo` landmark: use one per page, last, in the `footer` slot of `EAppShell`.
 - No primary actions here.
 
-## Keyboard
-
-No custom keyboard behavior.
+Not focusable.
 
 ## Related
 

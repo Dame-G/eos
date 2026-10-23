@@ -33,11 +33,7 @@ One icon, 20px by default, in the colour of the surrounding text, for putting a 
 - With a `label` it is an image (`role="img"`) with that name, for an icon that carries meaning on its own.
 - For an icon-only control use `EIconButton`.
 
-## Keyboard
-
-| Key | Action                    |
-| --- | ------------------------- |
-| Tab | An icon is not focusable. |
+Not focusable.
 
 ## Related
 

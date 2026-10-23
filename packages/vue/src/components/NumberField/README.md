@@ -40,7 +40,6 @@ A number input with decrease and increase buttons, for quantities. Use [`ECurren
 
 - `role="spinbutton"` with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`. With a `prefix` or `suffix`, `aria-valuetext` reads the value with its unit.
 - At `min` or `max` the button is `aria-disabled`, not `disabled`, so focus stays on it.
-- ArrowUp and ArrowDown step. Shift and PageUp or PageDown step by ten. Home and End go to `min` and `max` when they are set.
 - Typing follows the configured locale: a decimal comma in French or German, with spaces or the group separator ignored. A `.` also reads as the decimal point, except in locales that group with a dot (German, Spanish), where `1.5` means 15.
 - The buttons are named "Decrease" and "Increase" and are in the tab order.
 

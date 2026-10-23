@@ -44,10 +44,10 @@ const signed = ref<SignatureValue>({ method: "type", name: "", image: "", agreed
 
 ## Keyboard
 
-| Key        | Does                                                             |
+| Key        | Action                                                           |
 | ---------- | ---------------------------------------------------------------- |
 | Tab        | Moves through the Type/Draw switch, the name, and the agreement. |
-| Arrow keys | Switch between Type and Draw.                                    |
+| Arrow keys | Switches between Type and Draw.                                  |
 | Space      | Ticks the agreement.                                             |
 
 ## Related

@@ -42,11 +42,7 @@ Changes the theme, colour scheme, language, currency, direction, words or icons 
 - A themed part keeps the contrast `defineTheme()` checks. Check a theme of your own with `defineTheme(...).issues`.
 - The element has no role. Wrap the part in a landmark or a heading of its own when it is a section of the page.
 
-## Keyboard
-
-| Key | Action                                                          |
-| --- | --------------------------------------------------------------- |
-| Tab | Moves through the part as usual. The provider is not focusable. |
+Not focusable.
 
 ## Related
 

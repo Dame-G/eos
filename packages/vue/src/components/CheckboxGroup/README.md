@@ -45,7 +45,7 @@ Any number of several related options, checked into an array. Use [`ECheckbox`](
 
 ## Keyboard
 
-| Key   | Does                                              |
+| Key   | Action                                            |
 | ----- | ------------------------------------------------- |
 | Tab   | Moves to the next box. A disabled box is skipped. |
 | Space | Checks or unchecks the focused box.               |

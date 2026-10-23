@@ -45,7 +45,7 @@ A joined set of two to five options where exactly one is active. Use it to chang
 
 ## Keyboard
 
-| Key                     | Does                                                 |
+| Key                     | Action                                               |
 | ----------------------- | ---------------------------------------------------- |
 | Tab                     | Moves into and out of the group.                     |
 | Arrow Left, Arrow Right | Moves to the previous or next option and chooses it. |

@@ -34,7 +34,7 @@ A link, hidden until focused, that lets keyboard users jump past navigation to t
 
 ## Keyboard
 
-| Key   | Does                                          |
+| Key   | Action                                        |
 | ----- | --------------------------------------------- |
 | Tab   | Shows the link when it is the first tab stop. |
 | Enter | Moves focus to the target.                    |

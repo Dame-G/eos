@@ -41,9 +41,7 @@ Running text in three sizes (body, `sm`, `lg`), capped at a readable line length
 
 - Neutral text meets contrast but should not carry anything a person must act on.
 
-## Keyboard
-
-Not focusable and takes no keys.
+Not focusable.
 
 ## Related
 

@@ -57,12 +57,12 @@ The options of `toast.show`.
 
 ## Keyboard
 
-| Key         | Does                                                                                     |
-| ----------- | ---------------------------------------------------------------------------------------- |
-| F8          | Moves focus to the notifications.                                                        |
-| Tab         | Moves into the region and between a toast's buttons.                                     |
-| Escape      | Dismisses the toast that has focus. On the region itself, returns focus to where it was. |
-| Enter/Space | Presses the focused button. Focus inside pauses the timers.                              |
+| Key          | Action                                                                                   |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| F8           | Moves focus to the notifications.                                                        |
+| Tab          | Moves into the region and between a toast's buttons.                                     |
+| Escape       | Dismisses the toast that has focus. On the region itself, returns focus to where it was. |
+| Enter, Space | Presses the focused button. Focus inside pauses the timers.                              |
 
 ## Related
 
