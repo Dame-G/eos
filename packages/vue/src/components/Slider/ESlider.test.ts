@@ -6,6 +6,25 @@ import ESlider from "./ESlider.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESlider", () => {
+  test("the thumb, its tick and the end of the filled range share one centre at every value", async () => {
+    const marks = [0, 25, 50, 75, 100];
+    for (const value of [0, 25, 50, 75, 100]) {
+      const { container, unmount } = await render(ESlider, { props: { label: "Volume", modelValue: value, marks } });
+      container.classList.add("e-root");
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const centre = (el: Element) => {
+        const r = el.getBoundingClientRect();
+        return r.left + r.width / 2;
+      };
+      const thumb = centre(container.querySelector(".e-slider-thumb")!);
+      const tick = centre(container.querySelectorAll(".e-slider-mark")[marks.indexOf(value)]!);
+      const range = container.querySelector(".e-slider-range")!.getBoundingClientRect().right;
+      expect(Math.abs(thumb - tick), `tick at ${value}`).toBeLessThanOrEqual(1);
+      expect(Math.abs(thumb - range), `range end at ${value}`).toBeLessThanOrEqual(1);
+      unmount();
+    }
+  });
+
   test("is a slider named by its label, at min until a value is bound", async () => {
     await render(ESlider, { props: { label: "Volume", min: 10, max: 50 } });
     const thumb = page.getByRole("slider", { name: "Volume" });

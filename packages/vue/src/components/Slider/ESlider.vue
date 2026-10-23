@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { ConfigProvider, SliderRange, SliderRoot, SliderThumb, SliderTrack } from "reka-ui";
+import { ConfigProvider, SliderRoot, SliderThumb, SliderTrack } from "reka-ui";
 import EField from "../Field/EField.vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
@@ -64,7 +64,18 @@ const ticks = computed<number[]>(() => {
   for (let v = props.min; v <= props.max && out.length < 101; v += props.step) out.push(v);
   return out;
 });
-const at = (v: number) => `${((v - props.min) / (props.max - props.min)) * 100}%`;
+/**
+ * Where the middle of a thumb sits for a value. A thumb stays inside the track, so its middle runs from half a thumb in
+ * to half a thumb short of the end, not from edge to edge: the marks and the filled range use the same line.
+ */
+const at = (v: number) => {
+  const f = (v - props.min) / (props.max - props.min);
+  return `calc(var(--_half) - var(--e-stroke-edge) + (100% + 2 * var(--e-stroke-edge) - var(--_thumb)) * ${f})`;
+};
+const filled = computed(() => ({
+  insetInlineStart: values.value.length > 1 ? at(values.value[0]!) : "0",
+  insetInlineEnd: `calc(100% - ${at(values.value[values.value.length - 1]!)})`,
+}));
 
 /** The thumbs of a range are told apart by name: "Price minimum", "Price maximum". */
 const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", { col: props.label }) : undefined);
@@ -97,7 +108,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
           @keydown.capture="hold"
         >
           <SliderTrack class="e-slider-track">
-            <SliderRange class="e-slider-range" />
+            <span class="e-slider-range" :style="filled" />
             <span v-if="ticks.length" class="e-slider-marks" aria-hidden="true">
               <span v-for="tick in ticks" :key="tick" class="e-slider-mark" :style="{ insetInlineStart: at(tick) }" />
             </span>
@@ -134,6 +145,8 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
   /* The hit area is the tap height; the groove is a pressed-in track, as on the segmented control, with the chosen span filled in the primary colour. */
   .e-slider {
     --_groove: var(--e-gap-snug);
+    --_thumb: var(--e-check-size);
+    --_half: calc(var(--_thumb) / 2);
 
     position: relative;
     display: flex;
@@ -168,6 +181,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
 
   .e-slider-mark {
     position: absolute;
+    margin-inline-start: calc(var(--e-stroke-edge) / -2);
     width: var(--e-stroke-edge);
     height: var(--e-gap-tight);
     background: var(--e-border-strong);
@@ -180,8 +194,8 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
 
     display: block;
     box-sizing: border-box;
-    width: var(--e-check-size);
-    height: var(--e-check-size);
+    width: var(--_thumb);
+    height: var(--_thumb);
     border: var(--e-stroke-edge) solid var(--_slab);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-radius: var(--e-radius-sm);
