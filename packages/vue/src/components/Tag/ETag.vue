@@ -12,7 +12,7 @@ withDefaults(
   defineProps<{
     /** The text of the tag. It also names the Remove button, as "Remove Cardiology". */
     label: string;
-    /** `neutral` has no colour. The others tint the tag with the tone of a Notice. */
+    /** `neutral` has no colour. The others colour the eyelet and the text, and leave the tag on the neutral surface: a tag names a category, and `EStamp` is the status mark. */
     tone?: TagTone;
     /** `sm` is shorter, for a dense list. */
     size?: "sm" | "md";
@@ -63,6 +63,7 @@ const t = useMessages();
     --_ink: var(--e-ink);
     --_edge: var(--e-border-strong);
     --_bg: var(--e-surface-tint);
+    --_hole: var(--e-border-strong);
 
     display: inline-flex;
     align-items: center;
@@ -83,7 +84,7 @@ const t = useMessages();
     box-sizing: border-box;
     width: var(--e-gap-snug);
     height: var(--e-gap-snug);
-    border: var(--e-stroke-hair) solid var(--_edge);
+    border: var(--e-stroke-hair) solid var(--_hole);
     border-radius: var(--e-radius-round);
     background: var(--e-surface);
     box-shadow: var(--e-well);
@@ -93,28 +94,25 @@ const t = useMessages();
     min-block-size: var(--e-chip-height);
   }
 
+  /* A tag is a category, not a status, so a tone is quiet: it colours the eyelet and the text, and the tag keeps the neutral surface and edge. A Stamp is the loud mark. */
   .e-tag--info {
     --_ink: var(--e-info);
-    --_edge: var(--e-info);
-    --_bg: var(--e-primary-soft);
+    --_hole: var(--e-info);
   }
 
   .e-tag--success {
     --_ink: var(--e-success);
-    --_edge: var(--e-success);
-    --_bg: var(--e-success-soft);
+    --_hole: var(--e-success);
   }
 
   .e-tag--warning {
     --_ink: var(--e-warning);
-    --_edge: var(--e-warning);
-    --_bg: var(--e-warning-soft);
+    --_hole: var(--e-warning);
   }
 
   .e-tag--danger {
     --_ink: var(--e-danger);
-    --_edge: var(--e-danger);
-    --_bg: var(--e-danger-soft);
+    --_hole: var(--e-danger);
   }
 
   .e-tag-text {

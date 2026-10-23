@@ -50,19 +50,30 @@ describe("ETag", () => {
     expect(container.querySelector(".e-tag-text")!.textContent).toBe("Heart");
   });
 
-  test("tone adds its modifier and changes the colours; neutral adds none", async () => {
-    const colour = async (tone: "neutral" | "info" | "success" | "warning" | "danger") => {
+  test("tone adds its modifier and colours only the text and the eyelet; the tag stays on the neutral surface", async () => {
+    const look = async (tone: "neutral" | "info" | "success" | "warning" | "danger") => {
       const { container } = await render(ETag, { props: { label: "x", tone } });
       container.classList.add("e-root");
       const tag = container.querySelector(".e-tag")!;
-      return [tag.className, getComputedStyle(tag).backgroundColor];
+      const style = getComputedStyle(tag);
+      return {
+        cls: tag.className,
+        text: style.color,
+        hole: getComputedStyle(tag.querySelector(".e-tag-eyelet")!).borderTopColor,
+        bg: style.backgroundColor,
+        edge: style.borderTopColor,
+      };
     };
-    const neutral = await colour("neutral");
-    expect(neutral[0]).toBe("e-tag");
+    const neutral = await look("neutral");
+    expect(neutral.cls).toBe("e-tag");
     for (const tone of ["info", "success", "warning", "danger"] as const) {
-      const [cls, bg] = await colour(tone);
-      expect(cls).toBe(`e-tag e-tag--${tone}`);
-      expect(bg).not.toBe(neutral[1]);
+      const toned = await look(tone);
+      expect(toned.cls).toBe(`e-tag e-tag--${tone}`);
+      expect(toned.text, tone).not.toBe(neutral.text);
+      expect(toned.hole, tone).not.toBe(neutral.hole);
+      expect(toned.text, tone).toBe(toned.hole);
+      expect(toned.bg, tone).toBe(neutral.bg);
+      expect(toned.edge, tone).toBe(neutral.edge);
     }
   });
 

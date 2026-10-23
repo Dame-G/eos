@@ -12,13 +12,13 @@ A small paper tag that labels or categorises something, and can be removed. Use 
 
 <!-- props:start -->
 
-| Prop        | Type           | Default      | Notes                                                                         |
-| ----------- | -------------- | ------------ | ----------------------------------------------------------------------------- |
-| `label`     | `string`       | **Required** | The text of the tag. It also names the Remove button, as "Remove Cardiology". |
-| `tone`      | `TagTone`      | `"neutral"`  | `neutral` has no colour. The others tint the tag with the tone of a Notice.   |
-| `size`      | `"sm" \| "md"` | `"md"`       | `sm` is shorter, for a dense list.                                            |
-| `icon`      | `IconProp`     | None         | A decorative icon before the text, in place of the eyelet.                    |
-| `removable` | `boolean`      | `false`      | Adds a Remove button that emits `remove`. The tag does not remove itself.     |
+| Prop        | Type           | Default      | Notes                                                                                                                                                                  |
+| ----------- | -------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `label`     | `string`       | **Required** | The text of the tag. It also names the Remove button, as "Remove Cardiology".                                                                                          |
+| `tone`      | `TagTone`      | `"neutral"`  | `neutral` has no colour. The others colour the eyelet and the text, and leave the tag on the neutral surface: a tag names a category, and `EStamp` is the status mark. |
+| `size`      | `"sm" \| "md"` | `"md"`       | `sm` is shorter, for a dense list.                                                                                                                                     |
+| `icon`      | `IconProp`     | None         | A decorative icon before the text, in place of the eyelet.                                                                                                             |
+| `removable` | `boolean`      | `false`      | Adds a Remove button that emits `remove`. The tag does not remove itself.                                                                                              |
 
 <!-- props:end -->
 
