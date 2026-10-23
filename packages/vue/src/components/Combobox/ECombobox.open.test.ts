@@ -34,6 +34,26 @@ async function bound(initial: boolean, extra: Record<string, unknown> = {}) {
 }
 
 describe("ECombobox open", () => {
+  test("focus moving into another popover is leaving the field: the typed text goes back", async () => {
+    const other = document.createElement("div");
+    other.className = "e-popover";
+    other.innerHTML = "<button>Elsewhere</button>";
+    document.body.append(other);
+    try {
+      const { container, state } = await bound(false);
+      const input = container.querySelector<HTMLInputElement>("input")!;
+      input.focus();
+      await userEvent.type(input, "Fra");
+      expect(input.value).toBe("Fra");
+      other.querySelector("button")!.focus();
+      await nextTick();
+      expect(state.value).toBe(false);
+      expect(input.value).toBe("");
+    } finally {
+      other.remove();
+    }
+  });
+
   test("open from the first render: the panel is in the portal target with e-root, and no focus moves", async () => {
     const before = document.activeElement;
     const { container } = await bound(true);

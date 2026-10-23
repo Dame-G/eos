@@ -188,9 +188,16 @@ function keepCaretKeys(e: KeyboardEvent) {
   if (e.key === "Home" || e.key === "End") e.stopImmediatePropagation();
 }
 
+/** Whether an element is in this field's own list, which is teleported out of the field. Another popover is not. */
+function inOwnList(el: Element): boolean {
+  const list = content.value?.$el as Element | undefined;
+  const panel = el.closest?.(".e-popover");
+  return !!list && !!panel && (panel === list || panel.contains(list));
+}
+
 function onBlur(e: FocusEvent) {
   const next = e.relatedTarget as Element | null;
-  if (next && (anchor.value?.$el?.contains(next) || next.closest?.(".e-popover"))) return;
+  if (next && (anchor.value?.$el?.contains(next) || inOwnList(next))) return;
   wantOpen.value = false;
   typing.value = false;
   if (!free.value) text.value = resting();
@@ -377,8 +384,9 @@ defineExpose({
     gap: var(--e-gap-tight);
   }
 
+  /* The input fills the wrap's inner height: the box height less the wrap's block padding and edge, a tight gap on each side. */
   .e-combo--multi .e-input {
-    height: calc(var(--e-control-height) - 9px);
+    height: calc(var(--_h, var(--e-control-height)) - 2 * var(--e-gap-tight));
     align-self: center;
     padding-inline: var(--e-gap-snug);
   }
