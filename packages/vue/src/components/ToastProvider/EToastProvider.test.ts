@@ -228,6 +228,33 @@ describe("EToastProvider behaviour", () => {
     await expect.poll(() => document.activeElement).toBe(app);
   });
 
+  test("the close button moves focus to the next toast, and from the last one back to where it was", async () => {
+    await mountApp();
+    const app = document.getElementById("app") as HTMLElement;
+    app.focus();
+    api.show({ title: "First", duration: 0 });
+    api.show({ title: "Second", duration: 0 });
+    await expect.poll(() => toasts().length).toBe(2);
+    await userEvent.keyboard("{F8}");
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    await expect.poll(() => toasts().length).toBe(1);
+    await expect.poll(() => document.activeElement?.getAttribute("aria-label")).toBe("Close notification");
+    await userEvent.keyboard("{Enter}");
+    await expect.poll(() => toasts().length).toBe(0);
+    await expect.poll(() => document.activeElement).toBe(app);
+  });
+
+  test("the region shows a focus ring when F8 focuses it", async () => {
+    await mountApp();
+    api.show({ title: "Saved", duration: 0 });
+    await expect.poll(() => toasts().length).toBe(1);
+    await userEvent.keyboard("{F8}");
+    const region = document.querySelector<HTMLElement>(".e-toast-region")!;
+    expect(document.activeElement).toBe(region);
+    expect(getComputedStyle(region).outlineStyle).not.toBe("none");
+  });
+
   test("Escape on the region itself gives focus back and keeps the toasts", async () => {
     await mountApp();
     const app = document.getElementById("app") as HTMLElement;
