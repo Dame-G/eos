@@ -94,7 +94,7 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
 
   .e-toast-title {
     margin: 0;
-    font: var(--e-type-h4);
+    font: var(--e-weight-medium) var(--e-text-lg) / calc(4 / 3) var(--e-font-sans);
   }
 
   .e-toast-text {
