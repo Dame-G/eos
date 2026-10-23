@@ -40,13 +40,17 @@ describe("EDisclosure", () => {
       const box = summary.getBoundingClientRect();
       return { above: text.top - box.top, below: box.bottom - text.bottom };
     };
+    const heights: number[] = [];
     for (const open of [false, true]) {
       details.open = open;
       await new Promise((resolve) => setTimeout(resolve, 400));
       const { above, below } = gaps();
       expect(Math.abs(above - below), `open: ${open}`).toBeLessThanOrEqual(1.5);
       expect(above).toBeGreaterThan(4);
+      heights.push(summary.getBoundingClientRect().height);
     }
+    // The summary is the same size open and closed: opening only adds the content below it.
+    expect(heights[0]).toBe(heights[1]);
   });
 
   test("clicking the summary opens and closes it", async () => {

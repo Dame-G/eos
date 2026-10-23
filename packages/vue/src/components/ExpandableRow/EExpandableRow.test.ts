@@ -15,6 +15,17 @@ const slots = {
 };
 
 describe("EExpandableRow", () => {
+  test("the summary is the same height open and closed", async () => {
+    const { container } = await render(EExpandableRow, { props: { title: "Visit" }, slots });
+    container.classList.add("e-root");
+    const details = container.querySelector("details")!;
+    const summary = details.querySelector("summary")!;
+    const closed = summary.getBoundingClientRect().height;
+    details.open = true;
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    expect(summary.getBoundingClientRect().height).toBe(closed);
+  });
+
   test("is a native details whose summary holds leading, title, subtitle and trailing", async () => {
     const { container } = await render(EExpandableRow, { props: { title: "Row", subtitle: "Sub" }, slots });
     const row = container.querySelector<HTMLDetailsElement>("details.e-xrow")!;

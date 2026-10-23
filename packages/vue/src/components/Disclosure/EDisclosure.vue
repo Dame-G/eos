@@ -43,7 +43,7 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     align-items: center;
     justify-content: space-between;
     gap: var(--e-gap-base);
-    min-height: var(--e-control-height);
+    min-height: var(--e-tap);
     padding-block: var(--e-gap-snug);
     padding-inline: var(--e-gap-snug);
     border-block-start: var(--e-stroke-hair) solid var(--e-border);
@@ -94,13 +94,8 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     cursor: not-allowed;
   }
 
-  .e-details[open] > summary {
-    min-height: 0;
-  }
-
-  /* The room above the content is for its focus rings and shadows: the opening animation clips what pokes out of the body. */
   .e-details-body {
-    padding-block: var(--e-gap-tight) var(--e-gap-snug);
+    padding-block-end: var(--e-gap-snug);
     padding-inline: var(--e-gap-snug);
   }
 

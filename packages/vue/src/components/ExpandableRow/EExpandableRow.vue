@@ -104,6 +104,7 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     gap: var(--e-gap-base);
     padding-block: var(--e-pad-control-sm);
     padding-inline: var(--e-pad-card);
+    border-bottom: var(--e-stroke-hair) solid transparent;
     list-style: none;
     cursor: pointer;
   }
@@ -162,7 +163,7 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
   .e-xrow[open] > summary {
     border-end-start-radius: 0;
     border-end-end-radius: 0;
-    border-bottom: var(--e-stroke-hair) solid var(--e-border);
+    border-bottom-color: var(--e-border);
   }
 
   .e-xrow-body {
