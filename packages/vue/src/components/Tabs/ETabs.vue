@@ -183,8 +183,8 @@ watch(current, () => reveal(true));
     font-weight: var(--e-weight-strong);
   }
 
-  /* The slab answers the pointer too: it darkens under the cursor, in step with the face. */
-  .e-tab[aria-selected="true"]:hover {
+  /* In a vertical list the slab down the outer edge answers the pointer: it darkens under the cursor. In a horizontal list the slab faces the panel, so it holds its colour. */
+  .e-tabs--vertical > .e-tablist > .e-tab[aria-selected="true"]:hover {
     --_slab: var(--e-primary-slab);
   }
 
