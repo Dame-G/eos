@@ -300,7 +300,7 @@ defineExpose({
   }
 
   .e-drop-main {
-    font: var(--e-weight-regular) var(--e-text-md) / 1.4 var(--e-font-sans);
+    font: var(--e-type-body);
   }
 
   .e-drop-pick {
@@ -330,8 +330,8 @@ defineExpose({
   }
 
   .e-drop-hint {
-    font: var(--e-weight-medium) var(--e-text-xs) / 1.2 var(--e-font-mono);
-    letter-spacing: 0.06em;
+    font: var(--e-type-meta);
+    letter-spacing: var(--e-tracking-wide);
     color: var(--e-muted);
   }
 

@@ -70,8 +70,8 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(item as T)
     margin-block: var(--e-gap-section) var(--e-gap-snug);
     margin-inline: 0;
     padding-inline: var(--e-pad-control-sm);
-    font: var(--e-weight-strong) var(--e-text-sm) / 1.2 var(--e-font-mono);
-    letter-spacing: 0.08em;
+    font: var(--e-type-kicker);
+    letter-spacing: var(--e-tracking-label);
     text-transform: uppercase;
     color: var(--e-ink);
   }

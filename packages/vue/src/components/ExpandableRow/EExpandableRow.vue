@@ -154,7 +154,7 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 
   .e-xrow-sub {
     display: block;
-    font: var(--e-weight-regular) var(--e-text-sm) / 1.4 var(--e-font-sans);
+    font: var(--e-type-small);
     color: var(--e-muted);
     overflow-wrap: anywhere;
   }

@@ -860,7 +860,7 @@ onMounted(() => {
   }
 
   .e-grid-range {
-    font: var(--e-weight-medium) var(--e-text-xs) / 1.2 var(--e-font-mono);
+    font: var(--e-type-meta);
     color: var(--e-muted);
     font-variant-numeric: tabular-nums;
   }

@@ -109,7 +109,7 @@ const linkAttrs = (item: BreadcrumbItem) => ({
     margin: 0;
     padding: 0;
     list-style: none;
-    font: var(--e-weight-regular) var(--e-text-sm) / calc(10 / 7) var(--e-font-sans);
+    font: var(--e-type-small);
   }
 
   .e-crumbs li {

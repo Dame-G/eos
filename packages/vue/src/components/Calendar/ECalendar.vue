@@ -610,7 +610,7 @@ defineExpose({
     flex: 1;
     min-width: 0;
     margin: 0;
-    font: var(--e-weight-strong) var(--e-text-lg) / 1.2 var(--e-font-sans);
+    font: var(--e-type-h4);
     text-align: center;
   }
 
@@ -645,7 +645,7 @@ defineExpose({
   }
 
   .e-cal-range {
-    font: var(--e-weight-strong) var(--e-text-lg) / 1.2 var(--e-font-sans);
+    font: var(--e-type-h4);
     font-variant-numeric: tabular-nums;
   }
 
@@ -819,8 +819,8 @@ defineExpose({
   }
 
   .e-cal-help {
-    min-height: calc(var(--e-text-sm) * 1.4);
-    font: var(--e-weight-medium) var(--e-text-sm) / 1.4 var(--e-font-sans);
+    min-height: calc(var(--e-text-sm) * var(--e-leading-normal));
+    font: var(--e-type-small);
     color: var(--e-muted);
     text-align: center;
   }

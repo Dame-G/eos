@@ -98,7 +98,7 @@ function touchEnd(e: PointerEvent) {
     border-radius: var(--e-radius-sm);
     background: var(--e-ink);
     color: var(--e-surface);
-    font: var(--e-weight-regular) var(--e-text-sm) / 1.35 var(--e-font-sans);
+    font: var(--e-type-small);
     text-align: center;
   }
 }

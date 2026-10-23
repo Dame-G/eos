@@ -93,12 +93,12 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
 
   .e-toast-title {
     margin: 0;
-    font: var(--e-weight-medium) var(--e-text-lg) / calc(4 / 3) var(--e-font-sans);
+    font: var(--e-type-h4);
   }
 
   .e-toast-text {
     margin: 0;
-    font: var(--e-weight-regular) var(--e-text-sm) / 1.45 var(--e-font-sans);
+    font: var(--e-type-small);
     color: var(--e-muted);
   }
 
