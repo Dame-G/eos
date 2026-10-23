@@ -5,6 +5,7 @@ import { render } from "vitest-browser-vue";
 import * as Vue from "vue";
 import ESearchBar from "./ESearchBar.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { settled } from "../../../test/frames.js";
 
 /** The top-left corner radius in px. */
 const corner = (el: Element) => parseFloat(getComputedStyle(el).borderTopLeftRadius);
@@ -223,7 +224,7 @@ describe("ESearchBar", () => {
     expect(getComputedStyle(on.container.querySelector("[role=search]")!).backgroundColor).not.toBe(backgroundColor);
     expect(on.container.querySelector("[role=search]")!.hasAttribute("data-disabled")).toBe(false);
     await userEvent.hover(form);
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     const hovered = getComputedStyle(form);
     expect(hovered.backgroundColor).toBe(backgroundColor);
     expect(hovered.boxShadow).toBe(boxShadow);

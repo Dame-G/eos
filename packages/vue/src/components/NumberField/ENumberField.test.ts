@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h, nextTick, ref, type Component } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -157,14 +157,25 @@ describe("ENumberField", () => {
   test("holding a button repeats the step", async () => {
     const { got } = await bound({ label: "Visits" }, 0);
     const inc = page.getByRole("button", { name: "Increase" }).element() as HTMLButtonElement;
-    inc.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0 }));
-    await new Promise((r) => setTimeout(r, 800));
-    inc.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, button: 0 }));
-    inc.click();
-    const n = got.length;
-    expect(n).toBeGreaterThan(2);
-    await new Promise((r) => setTimeout(r, 200));
-    expect(got.length).toBe(n);
+    vi.useFakeTimers();
+    try {
+      inc.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0 }));
+      await vi.advanceTimersByTimeAsync(449);
+      expect(got).toEqual([]);
+      // After the pause, one step every 70ms while the button is held.
+      await vi.advanceTimersByTimeAsync(1 + 3 * 70);
+      expect(got).toEqual([1, 2, 3]);
+      inc.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, button: 0 }));
+      // The click that ends a hold is not one more step, and nothing repeats after letting go.
+      inc.click();
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(got).toEqual([1, 2, 3]);
+      // The next plain click steps again.
+      inc.click();
+      expect(got).toEqual([1, 2, 3, 4]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("a value with more decimals than the step is shown whole, and thousands are grouped", async () => {

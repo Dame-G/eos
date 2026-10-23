@@ -24,6 +24,7 @@ import EMetric from "../src/components/Metric/EMetric.vue";
 import EHighlight from "../src/components/Highlight/EHighlight.vue";
 import EKbd from "../src/components/Kbd/EKbd.vue";
 import { expectNoViolations } from "./axe.js";
+import { settled } from "./frames.js";
 
 const themes = {
   light: () => defineTheme({ name: "light" }),
@@ -32,7 +33,6 @@ const themes = {
 };
 const directions = { ltr: "en-US", rtl: "ar" } as const;
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const items = [
   { id: "a", label: "One" },
   { id: "b", label: "Two" },
@@ -161,7 +161,7 @@ async function show(c: Case, locale: string) {
   });
   if (c.overlay) {
     await expect.poll(c.overlay).toBe(true);
-    await sleep(300);
+    await settled();
   }
   return c.overlay ? document.body : container;
 }

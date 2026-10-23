@@ -4,6 +4,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ECheckbox from "./ECheckbox.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { settled } from "../../../test/frames.js";
 
 function colourOf(host: Element, token: string) {
   const probe = document.createElement("span");
@@ -184,11 +185,11 @@ describe("ECheckbox", () => {
     const { container } = await render(ECheckbox, { props: { label: "Agree", error: "Required" } });
     container.classList.add("e-root");
     const box = container.querySelector("input")!;
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     expect(getComputedStyle(box).borderTopColor).not.toBe(plain);
     expect(getComputedStyle(box).borderTopColor).toBe(colourOf(container, "--e-danger"));
     await userEvent.hover(box);
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     expect(getComputedStyle(box).backgroundColor).toBe(colourOf(container, "--e-danger-soft"));
   });
 
@@ -196,7 +197,7 @@ describe("ECheckbox", () => {
     const { container } = await render(ECheckbox, { props: { label: "Agree", error: "Required", modelValue: true } });
     container.classList.add("e-root");
     const box = container.querySelector("input")!;
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     const style = getComputedStyle(box);
     expect(style.backgroundColor).toBe(colourOf(container, "--e-primary"));
     expect(style.boxShadow).toContain(colourOf(container, "--e-danger"));

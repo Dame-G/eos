@@ -8,7 +8,11 @@ import EButton from "../Button/EButton.vue";
 import { createToasts, TOAST_KEY, useToast, type ToastApi } from "../../composables/useToast.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
-const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// A toast's timer runs on fake time, so a duration is exact and no test waits it out. Only the timers and the clock
+// are faked: the poll, the page and Vue keep real time.
+const clock = () => vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
+const wait = (ms: number) => vi.advanceTimersByTimeAsync(ms);
+afterEach(() => void vi.useRealTimers());
 const toasts = () => document.querySelectorAll(".e-toast-region .e-toast");
 
 let api: ToastApi;
@@ -53,11 +57,12 @@ describe("EToastProvider", () => {
 
   test("success goes after its duration, an error stays", async () => {
     await mountApp();
+    clock();
     api.show({ title: "Saved", duration: 120 });
     api.show({ title: "Failed", tone: "danger" });
-    await wait(60);
+    await wait(119);
     expect(toasts()).toHaveLength(2);
-    await wait(200);
+    await wait(1);
     expect(toasts()).toHaveLength(1);
     expect(toasts()[0]!.querySelector(".e-toast-title")!.textContent).toBe("Failed");
   });
@@ -82,7 +87,8 @@ describe("EToastProvider", () => {
     expect(toasts()[0]!.classList.contains("e-toast--actions")).toBe(true);
     await page.getByRole("button", { name: "Undo" }).click();
     expect(undone).toBe(1);
-    await wait(150);
+    clock();
+    await wait(60_000);
     expect(toasts()).toHaveLength(1);
   });
 
@@ -102,23 +108,26 @@ describe("EToastProvider", () => {
 
   test("the timers wait while the pointer is on a toast", async () => {
     await mountApp();
+    clock();
     api.show({ title: "Saved", duration: 150 });
     await expect.poll(() => toasts().length).toBe(1);
     const region = document.querySelector<HTMLElement>(".e-toast-region")!;
     region.dispatchEvent(new MouseEvent("mouseenter"));
-    await wait(350);
+    await wait(10_000);
     expect(toasts()).toHaveLength(1);
     region.dispatchEvent(new MouseEvent("mouseleave"));
-    await expect.poll(() => toasts().length).toBe(0);
+    await wait(150);
+    expect(toasts()).toHaveLength(0);
   });
 
   test("the timers wait while keyboard focus is on a toast", async () => {
     await mountApp();
+    clock();
     api.show({ title: "Saved", duration: 150, action: () => h(EButton, null, () => "Open") });
     api.show({ title: "Other", duration: 150 });
     await expect.poll(() => toasts().length).toBe(2);
     (document.querySelector(".e-toast-region button") as HTMLElement).focus();
-    await wait(350);
+    await wait(10_000);
     expect(toasts().length).toBeGreaterThanOrEqual(1);
     (document.getElementById("app") as HTMLElement).focus();
     await userEvent.keyboard("{Tab}");
@@ -269,27 +278,31 @@ describe("EToastProvider behaviour", () => {
 
   test("timers wait while the tab is hidden", async () => {
     await mountApp();
+    clock();
     const hidden = vi.spyOn(document, "hidden", "get").mockReturnValue(true);
     api.show({ title: "Saved", duration: 100 });
     await expect.poll(() => toasts().length).toBe(1);
     document.dispatchEvent(new Event("visibilitychange"));
-    await wait(300);
+    await wait(10_000);
     expect(toasts()).toHaveLength(1);
     hidden.mockReturnValue(false);
     document.dispatchEvent(new Event("visibilitychange"));
-    await expect.poll(() => toasts().length).toBe(0);
+    await wait(100);
+    expect(toasts()).toHaveLength(0);
     hidden.mockRestore();
   });
 
   test("a toast shown while the tab is already hidden does not start its timer", async () => {
     await mountApp();
+    clock();
     const hidden = vi.spyOn(document, "hidden", "get").mockReturnValue(true);
     api.show({ title: "Saved", duration: 100 });
-    await wait(300);
+    await wait(10_000);
     expect(toasts()).toHaveLength(1);
     hidden.mockReturnValue(false);
     document.dispatchEvent(new Event("visibilitychange"));
-    await expect.poll(() => toasts().length).toBe(0);
+    await wait(100);
+    expect(toasts()).toHaveLength(0);
     hidden.mockRestore();
   });
 

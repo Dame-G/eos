@@ -5,6 +5,7 @@ import { render } from "vitest-browser-vue";
 import ESegmented from "./ESegmented.vue";
 import ETabs from "../Tabs/ETabs.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { frames, settled } from "../../../test/frames.js";
 
 function colourOf(host: Element, token: string) {
   const probe = document.createElement("span");
@@ -50,7 +51,7 @@ describe("ESegmented", () => {
       }),
     );
     await expect.element(page.getByRole("radio", { name: "Day" })).toBeChecked();
-    await new Promise((r) => setTimeout(r, 50));
+    await frames();
     expect(got).toEqual([]);
     expect(model.value).toBeUndefined();
     await page.getByRole("radio", { name: "Week" }).click();
@@ -291,10 +292,10 @@ describe("ESegmented", () => {
       };
     };
     await userEvent.hover(container.querySelectorAll("input")[1]!);
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     const seg = look(container.querySelectorAll(".e-seg-text")[1]!);
     await userEvent.hover(tabs.container.querySelectorAll(".e-tab")[1]!);
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     const tab = look(tabs.container.querySelectorAll(".e-tab")[1]!);
     expect(seg).toEqual(tab);
     // The edge changes colour but never gets thicker: no ring is laid inside it.
@@ -400,7 +401,7 @@ describe("ESegmented", () => {
     ok.container.classList.add("e-root");
     expect(edge(ok.container, 1)).not.toBe(colourOf(container, "--e-danger"));
     await userEvent.hover(container.querySelectorAll("input")[1]!);
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     expect(getComputedStyle(container.querySelectorAll(".e-seg-text")[1]!).backgroundColor).toBe(
       colourOf(container, "--e-danger-soft"),
     );

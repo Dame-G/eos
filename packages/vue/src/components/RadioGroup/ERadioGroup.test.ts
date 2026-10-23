@@ -5,6 +5,7 @@ import { render } from "vitest-browser-vue";
 import ERadioGroupGeneric from "./ERadioGroup.vue";
 import ETextField from "../TextField/ETextField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { settled } from "../../../test/frames.js";
 
 // Generic SFCs are not assignable to `mount`/`h` component typings; the tests drive them by props.
 const ERadioGroup = ERadioGroupGeneric as unknown as Component;
@@ -266,11 +267,11 @@ describe("ERadioGroup", () => {
     container.classList.add("e-root");
     const radio = container.querySelector("input")!;
     expect(radio.getAttribute("aria-invalid")).toBe("true");
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     expect(getComputedStyle(radio).borderTopColor).not.toBe(plain);
     expect(getComputedStyle(radio).borderTopColor).toBe(colourOf(container, "--e-danger"));
     await userEvent.hover(radio);
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     expect(getComputedStyle(radio).backgroundColor).toBe(colourOf(container, "--e-danger-soft"));
   });
 
