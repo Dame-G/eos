@@ -8,6 +8,7 @@ import {
   EButton,
   EDialog,
   ESelect,
+  ECombobox,
   type Eos,
   type EosOptions,
   type EosConfig,
@@ -48,3 +49,38 @@ expectTypeOf<InstanceType<typeof EDialog>["$emit"]>().toBeCallableWith("close");
 expectTypeOf<InstanceType<typeof EDialog>["$emit"]>().toBeCallableWith("update:open", true);
 
 expectTypeOf<Parameters<typeof ESelect>[0]>().toHaveProperty("options");
+
+// ESelect infers its value type from `options`: the update:modelValue payload is one of the option values, or "" for
+// nothing, and with `multiple` an array of them. A call stands in for the template; this file is compiled, never run.
+// (A single model's payload also admits undefined, as defineModel without a default types it.)
+ESelect({
+  label: "Pay with",
+  options: ["Visa", "Bank"],
+  "onUpdate:modelValue": (value) => expectTypeOf(value).toEqualTypeOf<"Visa" | "Bank" | "" | undefined>(),
+});
+ESelect({
+  label: "Pay with",
+  options: [
+    { value: "card", label: "Card" },
+    { value: "bank", label: "Bank transfer" },
+  ],
+  "onUpdate:modelValue": (value) => expectTypeOf(value).toEqualTypeOf<"card" | "bank" | "" | undefined>(),
+});
+ESelect({
+  label: "Pay with",
+  options: ["Visa", "Bank"],
+  multiple: true,
+  "onUpdate:modelValue": (value) => expectTypeOf(value).toEqualTypeOf<("Visa" | "Bank")[]>(),
+});
+// ECombobox takes any text, so its payload is a string, and with `multiple` a string array.
+ECombobox({
+  label: "City",
+  options: ["Lyon", "Nice"],
+  "onUpdate:modelValue": (value) => expectTypeOf(value).toEqualTypeOf<string | undefined>(),
+});
+ECombobox({
+  label: "Cities",
+  options: ["Lyon", "Nice"],
+  multiple: true,
+  "onUpdate:modelValue": (value) => expectTypeOf(value).toEqualTypeOf<string[]>(),
+});
