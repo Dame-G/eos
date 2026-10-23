@@ -348,6 +348,25 @@ describe("ERangePicker", () => {
     expect(wrap.querySelector(".e-range-sep")).not.toBeNull();
   });
 
+  test("@focus and @blur fire as focus enters and leaves the field, not between its inputs", async () => {
+    const seen: string[] = [];
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(ERangePicker, { label: "Stay", onFocus: () => seen.push("focus"), onBlur: () => seen.push("blur") }),
+            h("button", { class: "after" }, "After"),
+          ]),
+      }),
+    );
+    const inputs = [...container.querySelectorAll<HTMLInputElement>("input.e-combo-input")];
+    inputs[0]!.focus();
+    inputs[1]!.focus();
+    expect(seen).toEqual(["focus"]);
+    container.querySelector<HTMLElement>(".after")!.focus();
+    expect(seen).toEqual(["focus", "blur"]);
+  });
+
   test("has no accessibility violations: closed, invalid, disabled, open", async () => {
     const closed = await render(ERangePicker, {
       props: { label: "Dates", hint: "Any span.", start: d(2026, 10, 4), end: d(2026, 10, 18) },

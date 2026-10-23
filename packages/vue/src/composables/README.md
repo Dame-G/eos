@@ -118,7 +118,7 @@ A click handler for a boxed input: a click on the padding or an icon puts the cu
 
 ## `useFieldAttrs()`
 
-For a form control built on `EField`: keeps `class` and `style` on the wrapper and sends every other attribute to the real input. Use it with `defineOptions({ inheritAttrs: false })`.
+For a form control built on `EField`: keeps `class` and `style` on the wrapper and sends every other attribute to the real input. Use it with `defineOptions({ inheritAttrs: false })`. A control made of several inputs puts `group()` on the element around them: the consumer's `@focus` and `@blur` then fire when focus enters or leaves the group.
 
 ## `useQuietFocus(open, inside)`
 

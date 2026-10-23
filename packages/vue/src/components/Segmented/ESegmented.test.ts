@@ -194,6 +194,25 @@ describe("ESegmented", () => {
     expect([...container.querySelectorAll("input")].every((i) => i.disabled)).toBe(true);
   });
 
+  test("@focus and @blur fire as focus enters and leaves the field, not between its inputs", async () => {
+    const seen: string[] = [];
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(ESegmented, { label: "View", options, modelValue: "Day", onFocus: () => seen.push("focus"), onBlur: () => seen.push("blur") }),
+            h("button", { class: "after" }, "After"),
+          ]),
+      }),
+    );
+    const inputs = [...container.querySelectorAll<HTMLInputElement>("input.e-seg-input")];
+    inputs[0]!.focus();
+    inputs[1]!.focus();
+    expect(seen).toEqual(["focus"]);
+    container.querySelector<HTMLElement>(".after")!.focus();
+    expect(seen).toEqual(["focus", "blur"]);
+  });
+
   test("attributes land on the group, class and style on the outer element", async () => {
     const { container } = await render(ESegmented, {
       props: { label: "View", options },

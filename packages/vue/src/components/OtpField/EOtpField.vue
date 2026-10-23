@@ -166,7 +166,7 @@ defineExpose({
     :optional="optional"
   >
     <template #default="field">
-      <div role="group" :aria-labelledby="`${field.id}-label`" class="e-otp" v-bind="attrs.input()">
+      <div role="group" :aria-labelledby="`${field.id}-label`" class="e-otp" v-bind="attrs.group()">
         <template v-for="i in length" :key="i">
           <span v-if="groupSize && i > 1 && (i - 1) % groupSize === 0" class="e-otp-sep" aria-hidden="true" />
           <input

@@ -95,7 +95,7 @@ const groupAttrs = () => ({
   "aria-required": props.required ? ("true" as const) : undefined,
   "aria-readonly": props.readonly ? ("true" as const) : undefined,
   "aria-invalid": props.error ? ("true" as const) : undefined,
-  ...attrs.input(describedBy()),
+  ...attrs.group(describedBy()),
 });
 </script>
 

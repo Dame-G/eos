@@ -220,7 +220,7 @@ defineExpose({
         <PopoverRoot :open="shown" @update:open="open = $event">
           <PopoverAnchor as-child>
             <div
-              v-bind="attrs.input()"
+              v-bind="attrs.group()"
               class="e-input-wrap e-combo e-rangefield"
               role="group"
               :aria-labelledby="`${field.id}-label`"

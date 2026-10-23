@@ -278,6 +278,25 @@ describe("EOtpField", () => {
     expect(boxesOf(container).every((b) => b.disabled)).toBe(true);
   });
 
+  test("@focus and @blur fire as focus enters and leaves the field, not between its inputs", async () => {
+    const seen: string[] = [];
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(EOtpField, { label: "Code", modelValue: "12", onFocus: () => seen.push("focus"), onBlur: () => seen.push("blur") }),
+            h("button", { class: "after" }, "After"),
+          ]),
+      }),
+    );
+    const inputs = [...container.querySelectorAll<HTMLInputElement>("input.e-otp-box")];
+    inputs[0]!.focus();
+    inputs[1]!.focus();
+    expect(seen).toEqual(["focus"]);
+    container.querySelector<HTMLElement>(".after")!.focus();
+    expect(seen).toEqual(["focus", "blur"]);
+  });
+
   test("attributes land on the group, class and style on the wrapper", async () => {
     const { container } = await render(EOtpField, {
       props: { label: "Code" },
