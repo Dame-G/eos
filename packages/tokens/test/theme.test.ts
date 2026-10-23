@@ -324,7 +324,8 @@ describe("derived inputs", () => {
     expect(t["stroke-focus"]).toBe("4px");
     expect(t["focus-gap"]).toBeUndefined();
     expect(t["focus-gap-field"]).toBe("calc(-1 * var(--e-stroke-edge))");
-    expect(t["frame"]).toBe("0 0 0 2px #7c8c93");
+    expect(t["stroke-card"]).toBe("2px");
+    expect(t["frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
     expect(changed({ strokes: { focus: 3 } }).sort()).toEqual(["stroke-focus"]);
   });
 
@@ -333,7 +334,7 @@ describe("derived inputs", () => {
     expect(t["stroke-hair"]).toBe("2px");
     expect(t["stroke-edge"]).toBe("2px");
     expect(t["stroke-card"]).toBe("3px");
-    expect(t["frame"]).toContain("0 0 0 3px");
+    expect(t["frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
     expect(changed({ strokes: { edge: 2 } })).toEqual(["stroke-edge"]);
     expect(defineTheme({ strokes: { edge: 0 } }).tokens).toEqual(base);
   });
@@ -345,7 +346,7 @@ describe("derived inputs", () => {
     expect(t["scrim"]).toBe("rgb(0 0 0 / 0.75)");
     expect(contrast(t["muted"]!, t["surface"]!)).toBeGreaterThanOrEqual(14.9);
     expect(toOklch(t["surface-tint"]!).c).toBeLessThan(0.005);
-    expect(t["frame"]).toContain(t["border"]!);
+    expect(t["frame"]).toContain("var(--e-border)");
     expect(defineTheme({ contrast: "standard" }).tokens).toEqual(base);
     expect(defineTheme({ contrast: "high" }).issues).toEqual([]);
     const dark = defineTheme({ surface: "#0f1418", background: "#0a0e11", foreground: "#ffffff", contrast: "high" });
@@ -375,19 +376,19 @@ describe("derived inputs", () => {
   test("elevation presets set the shadows from the border and ink", () => {
     const lifted = defineTheme({ elevation: "lifted" }).tokens;
     expect(lifted["frame"]).toBe(
-      "0 0 0 1px #7c8c93, 0 1px 2px 0px rgba(36, 36, 36, 0.12), 0 4px 8px -2px rgba(36, 36, 36, 0.08)",
+      "0 0 0 var(--e-stroke-card) var(--e-border), 0 1px 2px 0px rgba(36, 36, 36, 0.12), 0 4px 8px -2px rgba(36, 36, 36, 0.08)",
     );
     expect(lifted["float"]!.split("rgba(").length - 1).toBe(4);
     expect(lifted["well"]).toBe(base["well"]);
     expect(changed({ elevation: "lifted" }).sort()).toEqual(["float", "frame"]);
     const bold = defineTheme({ elevation: "bold" }).tokens;
     expect(bold["float"]).toBe(
-      "0 0 0 2px #7c8c93, 4px 4px 0 0 rgba(36, 36, 36, 0.32), 0 14px 28px -10px rgba(36, 36, 36, 0.22)",
+      "0 0 0 var(--e-stroke-card) var(--e-border), 4px 4px 0 0 rgba(36, 36, 36, 0.32), 0 14px 28px -10px rgba(36, 36, 36, 0.22)",
     );
-    expect(changed({ elevation: "bold" }).sort()).toEqual(["float", "frame", "paper", "stroke-card", "well"]);
+    expect(changed({ elevation: "bold" }).sort()).toEqual(["float", "stroke-card", "well"]);
     expect(bold["stroke-card"]).toBe("2px");
     const darkOutline = defineTheme({ ...dark, elevation: "outline" }).tokens;
-    expect(darkOutline["frame"]).toContain(darkOutline["border"]!);
+    expect(darkOutline["frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
     expect(darkOutline["float"]).toContain("0.43)");
     expect(darkOutline["well"]).toBe(defineTheme(dark).tokens["well"]);
   });
@@ -525,9 +526,28 @@ describe("scheme, contrast and density", () => {
       );
     }
   });
-  test("the paper shadow is the frame and the well", () => {
-    const t = defineTheme({ elevation: "bold" }).tokens;
-    expect(t["paper"]).toBe(`0 0 0 ${t["stroke-card"]} ${t["border"]}, ${t["well"]}`);
+  test("the paper shadow is the frame ring and the well", () => {
+    for (const elevation of ["outline", "lifted", "bold"] as const)
+      expect(defineTheme({ elevation }).tokens["paper"], elevation).toBe("0 0 0 var(--e-stroke-card) var(--e-border), var(--e-well)");
+  });
+  test("the frame, float and paper rings follow border and stroke-card, so an override in CSS reaches them", () => {
+    const ring = "0 0 0 var(--e-stroke-card) var(--e-border)";
+    for (const input of [
+      {},
+      { elevation: "lifted" as const },
+      { elevation: "bold" as const },
+      { surface: "#10151a" },
+      { contrast: "high" as const },
+      { foreground: "#3b2f2f", strokes: { hair: 2 } },
+      { tokens: { border: "#ff0000", "stroke-card": "3px" } },
+    ]) {
+      const t = defineTheme(input).tokens;
+      for (const name of ["frame", "float", "paper"]) {
+        expect(t[name]!.startsWith(ring), `${name} ${JSON.stringify(input)}`).toBe(true);
+        expect(t[name], name).not.toMatch(/0 0 0 d+px #/);
+      }
+    }
+    expect(defaults["frame"]).toBe(ring);
   });
   test("a tone reads the same through its alias", () => {
     const t = defineTheme({ brand: "#8a2be2", accent: "#2e7d32" }).tokens;

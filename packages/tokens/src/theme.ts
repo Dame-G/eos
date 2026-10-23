@@ -317,29 +317,31 @@ function layers(set: ShadowLayer[], dark: boolean, base: string) {
     .join(", ");
 }
 
+/** The outline of cards, popovers and paper. Written with `var()` so a `border` or `stroke-card` override, from a theme or from plain CSS, reaches every shadow; only the drop layers are literal. */
+const RING = "0 0 0 var(--e-stroke-card) var(--e-border)";
+
 function deriveElevation(
   style: ElevationPreset,
   out: Record<string, string>,
   dark: boolean,
   strokes?: ThemeInput["strokes"],
 ) {
-  const ring = (w: string) => `0 0 0 ${w} ${out["border"]}`;
   const hair = out["stroke-hair"]!;
   const given = positive(strokes?.card);
   const card = given !== undefined ? px(given) : style === "bold" ? "2px" : hair;
   out["stroke-card"] = card;
   const base = shadowRgb(out, dark);
   if (style === "lifted") {
-    out["frame"] = `${ring(card)}, ${layers(CARD, dark, base)}`;
-    out["float"] = `${ring(card)}, ${layers(LIFTED, dark, base)}`;
+    out["frame"] = `${RING}, ${layers(CARD, dark, base)}`;
+    out["float"] = `${RING}, ${layers(LIFTED, dark, base)}`;
   } else if (style === "bold") {
-    out["frame"] = ring(card);
+    out["frame"] = RING;
     out["well"] = `inset 0 3px 0 0 ${dark ? "rgba(0, 0, 0, 0.35)" : "rgba(0, 0, 0, 0.08)"}`;
     out["float"] =
-      `${ring(card)}, 4px 4px 0 0 rgba(${base}, ${dark ? 0.75 : 0.32}), 0 14px 28px -10px rgba(${base}, ${dark ? 0.7 : 0.22})`;
+      `${RING}, 4px 4px 0 0 rgba(${base}, ${dark ? 0.75 : 0.32}), 0 14px 28px -10px rgba(${base}, ${dark ? 0.7 : 0.22})`;
   } else {
-    out["frame"] = ring(card);
-    out["float"] = `${ring(card)}, ${layers(SOFT, dark, base)}`;
+    out["frame"] = RING;
+    out["float"] = `${RING}, ${layers(SOFT, dark, base)}`;
   }
 }
 
@@ -647,7 +649,6 @@ function derive(input: ThemeInput): Record<string, string> {
   deriveFeedback(out);
   deriveMarks(out, dark);
   fitFeedback(out);
-  out["paper"] = `0 0 0 ${out["stroke-card"]} ${out["border"]}, ${out["well"]}`;
   Object.assign(out, input.tokens);
   return out;
 }
