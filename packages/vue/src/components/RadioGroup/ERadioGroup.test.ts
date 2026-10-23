@@ -99,6 +99,10 @@ describe("ERadioGroup", () => {
       },
     });
     expect(container.querySelector(".e-choice-desc")!.textContent).toBe("$162.40");
+    // The description describes the radio and stays out of its name, as on a checkbox.
+    const full = page.getByRole("radio", { name: "Pay in full", exact: true });
+    await expect.element(full).toHaveAccessibleName("Pay in full");
+    await expect.element(full).toHaveAccessibleDescription("$162.40");
     const plan = page.getByRole("radio", { name: "Payment plan" });
     await expect.element(plan).toBeDisabled();
     expect(container.querySelectorAll(".e-choice--disabled").length).toBe(1);

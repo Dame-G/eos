@@ -43,6 +43,7 @@ defineSlots<{
 const model = defineModel<T>();
 
 const name = useUid(() => props.name);
+const uid = useUid();
 const slots = useSlots();
 
 function hasContent(nodes: VNode[]): boolean {
@@ -52,10 +53,11 @@ function hasContent(nodes: VNode[]): boolean {
 }
 
 function rows() {
-  return normalizeChoices<RadioOption<T>>(props.options).map((option) => {
+  return normalizeChoices<RadioOption<T>>(props.options).map((option, i) => {
     const chosen = model.value === option.value;
     const nodes = chosen ? slots.reveal?.({ option }) : undefined;
-    return { option, chosen, reveal: nodes && hasContent(nodes) ? nodes : null };
+    const descId = option.description ? `${uid.value}-d${i}` : undefined;
+    return { option, chosen, descId, reveal: nodes && hasContent(nodes) ? nodes : null };
   });
 }
 
@@ -80,7 +82,7 @@ Nodes.props = ["nodes"];
 
 <template>
   <EFieldset
-    :id="`${name}-fs`"
+    :id="`${uid}-fs`"
     ref="root"
     class="e-radiogroup"
     legend-class="e-radiogroup-legend"
@@ -105,13 +107,17 @@ Nodes.props = ["nodes"];
           :required="required"
           :checked="row.chosen"
           :aria-invalid="error ? 'true' : undefined"
+          :aria-describedby="row.descId"
           :disabled="row.option.disabled"
           @click="guard"
           @change="model = row.option.value"
         />
         <span class="e-choice-text">
-          {{ row.option.label }}
-          <span v-if="row.option.description" class="e-choice-desc">{{ row.option.description }}</span>
+          <span class="e-choice-label">{{ row.option.label }}</span>
+          <!-- Visible under the label, but kept out of its accessible name: the radio points at it with aria-describedby. -->
+          <span v-if="row.descId" :id="row.descId" class="e-choice-desc" aria-hidden="true">{{
+            row.option.description
+          }}</span>
         </span>
       </label>
       <div v-if="row.reveal" class="e-choice-reveal"><Nodes :nodes="row.reveal" /></div>
