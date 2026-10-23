@@ -684,11 +684,12 @@ describe("deprecated and renamed tokens", () => {
     expect(t["type-meta"]).toBe("var(--e-weight-medium) var(--e-text-xs) / var(--e-leading-tight) var(--e-font-mono)");
     expect(groups.type.indexOf("type-button")).toBeLessThan(groups.type.indexOf("type-kicker"));
   });
-  test("easing-linear is plain linear, and the shell and underline tokens exist", () => {
+  test("easing-linear is plain linear, and the shell, underline and row tokens exist", () => {
     expect(t["easing-linear"]).toBe("linear");
     expect(t["shell-width"]).toBe("72rem");
     expect(t["shell-rail"]).toBe("var(--e-border)");
     expect(t["underline-offset"]).toBe("0.25em");
+    expect(t["radius-row"]).toBe("max(0px, calc(var(--e-radius-md) - var(--e-gap-tight)))");
   });
 });
 

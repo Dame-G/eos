@@ -37,8 +37,8 @@
     min-height: var(--e-control-height);
     padding: var(--e-gap-snug) var(--e-pad-control-sm);
 
-    /* A row sits `gap-tight` inside a borderless md panel (select, combobox, palette, search results), so its corner is the panel's radius less that gap and the two curves share a centre. */
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-gap-tight)));
+    /* A row sits `gap-tight` inside a borderless md panel (select, combobox, palette, search results). Its corner uses `pad-inset`, the smaller distance the corner maths assumes, so the row rounds almost as much as the panel and the two read as one shape. */
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)));
     font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
     cursor: pointer;
     transition: var(--e-transition-state);

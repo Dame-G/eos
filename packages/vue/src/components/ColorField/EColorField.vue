@@ -117,7 +117,7 @@ defineExpose(control.exposed);
 
 <style>
 @layer e.composites {
-  /* The swatch nearly fills the field and sits `gap-tight` inside its edge. Its corner is the field's radius less its edge and that gap, so the two curves share a centre. */
+  /* The swatch nearly fills the field and sits `gap-tight` inside its edge. Its corner uses `pad-inset`, the smaller distance the corner maths assumes, so it rounds almost as much as the field: the same curve, not a sharper one. */
   .e-colorfield {
     --_inset: var(--e-gap-tight);
 
@@ -137,7 +137,7 @@ defineExpose(control.exposed);
 
   /* No colour yet: a neutral struck-through chip over the picker's black, which still opens on click. */
   .e-color-empty {
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-pad-inset)));
     background:
       linear-gradient(
         to top right,
@@ -156,7 +156,7 @@ defineExpose(control.exposed);
     height: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--_inset)));
     padding: 0;
     border: 0;
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-pad-inset)));
     background: none;
     cursor: pointer;
   }
@@ -167,13 +167,13 @@ defineExpose(control.exposed);
 
   .e-color-swatch::-webkit-color-swatch {
     border: 0;
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-pad-inset)));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 
   .e-color-swatch::-moz-color-swatch {
     border: 0;
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-pad-inset)));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 
