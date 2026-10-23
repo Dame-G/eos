@@ -1,4 +1,6 @@
 import "../src/styles/base.css";
+// The package entry registers the built-in icons; the tests import components on their own, as a per-component import does.
+import "../src/icons/builtin.js";
 import { afterEach } from "vitest";
 
 // Vue warns when a component is made a reactive object: a fixture passed as a prop or put in the config without markRaw.

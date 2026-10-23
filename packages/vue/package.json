@@ -5,7 +5,11 @@
   "type": "module",
   "license": "MIT",
   "sideEffects": [
-    "**/*.css"
+    "**/*.css",
+    "./dist/index.js",
+    "./dist/icons/builtin.js",
+    "./src/index.ts",
+    "./src/icons/builtin.ts"
   ],
   "files": [
     "dist",
@@ -20,6 +24,10 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./components/E*": {
+      "types": "./dist/components/*/index.d.ts",
+      "default": "./dist/components/*/index.js"
+    },
     "./fonts.css": "./dist/fonts.css",
     "./globals": {
       "types": "./dist/globals.d.ts",
@@ -29,6 +37,10 @@
       "types": "./dist/icons/index.d.ts",
       "default": "./dist/icons/index.js"
     },
+    "./icons/builtin": {
+      "types": "./dist/icons/builtin.d.ts",
+      "default": "./dist/icons/builtin.js"
+    },
     "./icons/iconify": {
       "types": "./dist/icons/iconify.d.ts",
       "default": "./dist/icons/iconify.js"
@@ -37,6 +49,10 @@
     "./llms.txt": "./dist/llms.txt",
     "./llms/*": "./dist/llms/*",
     "./package.json": "./package.json",
+    "./plugin": {
+      "types": "./dist/plugin.d.ts",
+      "default": "./dist/plugin.js"
+    },
     "./resolver": {
       "types": "./dist/resolver.d.ts",
       "default": "./dist/resolver.js"
@@ -67,7 +83,7 @@
     "check:props": "node scripts/gen-props.mjs --check",
     "check:docs": "node scripts/check-docs.mjs",
     "check:dist": "node scripts/check-dist.mjs",
-    "check:package": "publint --pack npm --strict && attw --pack . --profile esm-only --entrypoints . ./resolver ./globals ./icons ./icons/iconify"
+    "check:package": "publint --pack npm --strict && attw --pack . --profile esm-only --entrypoints . ./resolver ./globals ./plugin ./components/EButton ./icons ./icons/builtin ./icons/iconify"
   },
   "peerDependencies": {
     "@iconify/vue": "^5.0.0",

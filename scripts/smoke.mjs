@@ -54,7 +54,7 @@ console.log(tarballs.join("\n"));
 step("lint the packages (publint, arethetypeswrong)");
 const checks = [
   [tokensTgz, "."],
-  [vueTgz, ". ./resolver ./globals ./icons ./icons/iconify"],
+  [vueTgz, ". ./resolver ./globals ./plugin ./components/EButton ./icons ./icons/builtin ./icons/iconify"],
 ];
 for (const [tgz, entrypoints] of checks) {
   run(`corepack pnpm --filter @eos-ui/vue exec publint "${join(packs, tgz)}" --strict`);

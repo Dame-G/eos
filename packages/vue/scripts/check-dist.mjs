@@ -1,6 +1,7 @@
-// Checks the built stylesheet (dist/style.css) for what the PostCSS plugins in vite.config.ts guarantee, so a plugin that
-// silently stops running fails here. Needs a build. Run: node scripts/check-dist.mjs
-import { existsSync, readFileSync } from "node:fs";
+// Checks the build (dist): the stylesheet keeps what the PostCSS plugins in vite.config.ts guarantee, the development
+// check survives a consumer's bundler, the entry points exist, and the built-in icons tree-shake. Needs a build.
+// Run: node scripts/check-dist.mjs
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import postcss from "postcss";
 import { build } from "vite";
@@ -107,6 +108,59 @@ if (!existsSync(join(pkgRoot, "dist", "globals.js"))) problems.push("dist/global
 const pluginTypes = join(pkgRoot, "dist", "plugin.d.ts");
 if (!existsSync(pluginTypes) || !readFileSync(pluginTypes, "utf8").includes("$e"))
   problems.push("dist/plugin.d.ts does not declare $e");
+
+// 6. The built-in icon set (about 9 kB gzipped) is in a bundle that imports the package entry, and not in one that imports
+// only per-component paths (`@eos-ui/vue/components/EButton`, `@eos-ui/vue/plugin`). The bundler reads the package's
+// `sideEffects`, so the files are bundled from inside the package directory, as a consumer's bundler would see them.
+const iconMarker = readFileSync(join(pkgRoot, "dist", "icons", "phosphor.js"), "utf8").match(/M[0-9.,]{12}/)?.[0];
+const bundleOf = async (code) => {
+  const work = mkdtempSync(join(pkgRoot, "dist", ".shake-"));
+  try {
+    const entry = join(work, "entry.js");
+    writeFileSync(entry, code);
+    const out = await build({
+      configFile: false,
+      logLevel: "silent",
+      root: pkgRoot,
+      define: { "process.env.NODE_ENV": '"production"' },
+      build: {
+        write: false,
+        minify: false,
+        lib: { entry, formats: ["es"], fileName: "entry" },
+        rollupOptions: { external: (id) => !/^[./]|^[A-Za-z]:[\\/]/.test(id) },
+      },
+    });
+    return (Array.isArray(out) ? out[0] : out).output.map((c) => c.code ?? "").join("\n");
+  } finally {
+    rmSync(work, { recursive: true, force: true });
+  }
+};
+// 7. Every component has its own path, `@eos-ui/vue/components/E<Name>` -> dist/components/<Name>/index.js and .d.ts.
+const componentsDir = join(pkgRoot, "src", "components");
+for (const name of readdirSync(componentsDir)) {
+  if (!existsSync(join(componentsDir, name, "index.ts"))) continue;
+  for (const ext of ["js", "d.ts"])
+    if (!existsSync(join(pkgRoot, "dist", "components", name, `index.${ext}`)))
+      problems.push(`dist/components/${name}/index.${ext} is missing (@eos-ui/vue/components/E${name})`);
+}
+
+if (!iconMarker) problems.push("dist/icons/phosphor.js has no path data to look for");
+else {
+  const dist = (p) => JSON.stringify("../" + p);
+  const whole = await bundleOf(`import { EIcon, createEos } from ${dist("index.js")};\nexport { EIcon, createEos };\n`);
+  if (!whole.includes(iconMarker)) problems.push("a bundle of the package entry is missing the built-in icon set");
+  const parts = await bundleOf(
+    `import { EButton } from ${dist("components/Button/index.js")};
+import { createEos } from ${dist("plugin.js")};
+import { lucide } from ${dist("icons/index.js")};
+export { EButton, createEos, lucide };
+`,
+  );
+  if (parts.includes(iconMarker))
+    problems.push(
+      "a bundle of only per-component paths still has the built-in icon set; something imports it statically",
+    );
+}
 
 if (problems.length) {
   console.error(problems.join("\n"));
