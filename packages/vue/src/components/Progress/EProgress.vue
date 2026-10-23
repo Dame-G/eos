@@ -5,7 +5,7 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-    /** What is progressing. Also the bar's accessible name. @default "Loading" */
+    /** What is progressing. Also the bar's accessible name. @default "Progress" with a `value`, "Loading" without */
     label?: string;
     /** How far along, from 0 to `max`. Values outside that range are clamped. Without it the bar is indeterminate and slides back and forth while the length is unknown. */
     value?: number;
@@ -23,6 +23,7 @@ const limit = computed(() => props.max || 100);
 const clamped = computed(() => Math.max(0, Math.min(limit.value, props.value ?? 0)));
 const percent = computed(() => (clamped.value / limit.value) * 100);
 const complete = computed(() => !indeterminate.value && percent.value >= 100);
+const name = computed(() => props.label || t(indeterminate.value ? "loading" : "progressLabel"));
 const showHead = computed(() => !!props.label || !indeterminate.value || !!props.valueText);
 </script>
 
@@ -36,13 +37,13 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     ]"
   >
     <div v-if="showHead" class="e-progress-head">
-      <span class="e-progress-label">{{ label || t("loading") }}</span>
+      <span class="e-progress-label">{{ name }}</span>
       <span class="e-progress-value">{{ valueText || (indeterminate ? "" : Math.round(percent) + "%") }}</span>
     </div>
     <div
       class="e-progress-track"
       role="progressbar"
-      :aria-label="label || t('loading')"
+      :aria-label="name"
       aria-valuemin="0"
       :aria-valuemax="indeterminate ? undefined : limit"
       :aria-valuenow="indeterminate ? undefined : clamped"
@@ -60,22 +61,22 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     --_period: calc(var(--e-space-4) * 1.4142);
 
     display: grid;
-    gap: var(--e-space-2);
+    gap: var(--e-gap-snug);
   }
 
   .e-progress-head {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: var(--e-space-3);
+    gap: var(--e-gap-base);
   }
 
   .e-progress-label {
-    font: var(--e-weight-medium) var(--e-text-md) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-medium) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
   }
 
   .e-progress-value {
-    font: var(--e-weight-medium) var(--e-text-sm) / 1.3 var(--e-font-mono);
+    font: var(--e-type-numeral);
     font-variant-numeric: tabular-nums;
     color: var(--e-muted);
   }

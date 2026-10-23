@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import EFieldFlag from "./EFieldFlag.vue";
 import EFieldMessage from "./EFieldMessage.vue";
+import { useFormField } from "../../composables/useFormContext.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
 
@@ -30,10 +31,13 @@ defineSlots<{
     ariaDescribedby: string | undefined;
     required: boolean;
   }): unknown;
+  /** Beside the hint or error, at the end of the row: a character counter. */
+  aside(props: { id: string }): unknown;
 }>();
 
 const id = useUid(() => props.id);
 const hintId = computed(() => `${id.value}-hint`);
+useFormField({ id: () => id.value, label: () => props.label, error: () => props.error });
 </script>
 
 <template>
@@ -48,7 +52,11 @@ const hintId = computed(() => `${id.value}-hint`);
       :aria-describedby="error || hint ? hintId : undefined"
       :required="!!required"
     />
-    <EFieldMessage :id="hintId" :error="error" :hint="hint" />
+    <div v-if="$slots.aside" class="e-field-foot">
+      <EFieldMessage :id="hintId" :error="error" :hint="hint" />
+      <slot :id="id" name="aside" />
+    </div>
+    <EFieldMessage v-else :id="hintId" :error="error" :hint="hint" />
   </div>
 </template>
 
@@ -58,15 +66,21 @@ const hintId = computed(() => `${id.value}-hint`);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     align-content: start;
-    gap: var(--e-space-2);
+    gap: var(--e-gap-snug);
     min-width: 0;
+  }
+
+  .e-field-foot {
+    display: flex;
+    align-items: baseline;
+    gap: var(--e-gap-snug);
   }
 
   .e-field-label {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: var(--e-space-3);
+    gap: var(--e-gap-base);
   }
 }
 </style>

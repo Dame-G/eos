@@ -18,7 +18,7 @@ The six heading levels, with an optional kicker label above.
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the heading element. With a `kicker` there is a `div` around the kicker and the heading: `class` and `style` land on it, and other attributes on the heading. `as` sets the element and `level` the size, so a heading can sit at the right level in the outline and still be drawn at another size.
+`class`, `style` and attributes land on the heading element. With a `kicker` there is a bare `div` around the kicker and the heading, and they still land on the heading. `as` sets the element and `level` the size, so a heading can sit at the right level in the outline and still be drawn at another size.
 
 ## Slots
 

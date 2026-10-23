@@ -13,7 +13,7 @@ export interface SignatureValue {
 
 <script setup lang="ts">
 import { computed } from "vue";
-import EFieldMessage from "../Field/EFieldMessage.vue";
+import EFieldset from "../Fieldset/EFieldset.vue";
 import ESegmented from "../Segmented/ESegmented.vue";
 import ETextField from "../TextField/ETextField.vue";
 import ECheckbox from "../Checkbox/ECheckbox.vue";
@@ -34,10 +34,14 @@ const props = withDefaults(
     date?: Date;
     /** Help that is announced with the group. */
     hint?: string;
-    /** What to fix. Replaces the hint, marks the group invalid and is announced with the group. */
+    /** What to fix. Replaces the hint, is announced and marks the typed-name input or the pad invalid. */
     error?: string;
-    /** Disables the fields and the agreement. */
+    /** Sets the `required` attribute on the typed-name input and shows a word beside the label. */
+    required?: boolean;
+    /** Disables the fields and the agreement. A disabled field is not submitted. */
     disabled?: boolean;
+    /** Shows the signature but blocks changes: the name, the pad, the switch and the agreement. It is still submitted. */
+    readonly?: boolean;
     /** The name submitted with a form: the typed name, or the drawn image as a data URL. */
     name?: string;
     /** The id of the typed-name input. @default generated */
@@ -54,7 +58,6 @@ const model = defineModel<SignatureValue>({
 const t = useMessages();
 const config = useConfig();
 const id = useUid(() => props.id);
-const hintId = computed(() => `${id.value}-sign-hint`);
 
 const method = computed<"type" | "draw">(() => (props.mode === "both" ? model.value.method : props.mode));
 const dateText = computed(() =>
@@ -64,23 +67,26 @@ const dateText = computed(() =>
 );
 
 function update(patch: Partial<SignatureValue>) {
+  if (props.readonly) return;
   const next = { ...model.value, method: method.value, ...patch };
   model.value = { ...next, image: next.method === "draw" ? next.image : "" };
 }
 </script>
 
 <template>
-  <fieldset
+  <EFieldset
     class="e-sign"
+    bare
+    :legend="label || t('signature')"
+    :hint="error ? undefined : hint"
+    :required="required && method === 'draw'"
     :disabled="disabled"
-    :aria-describedby="error || hint ? hintId : undefined"
-    :aria-invalid="error ? 'true' : undefined"
   >
-    <legend class="e-kicker e-sign-legend">{{ label || t("signature") }}</legend>
     <ESegmented
       v-if="mode === 'both'"
       :label="t('signature')"
       :model-value="method"
+      :disabled="readonly"
       :options="[
         { value: 'type', label: t('signType'), icon: 'edit' },
         { value: 'draw', label: t('signDraw'), icon: 'signature' },
@@ -94,7 +100,9 @@ function update(patch: Partial<SignatureValue>) {
         :label="t('typeName')"
         :placeholder="t('fullName')"
         autocomplete="name"
-        required
+        :required="required"
+        :readonly="readonly"
+        :error="error"
         :hint="t('signHint')"
         @update:model-value="update({ name: $event })"
       />
@@ -105,41 +113,45 @@ function update(patch: Partial<SignatureValue>) {
       </div>
     </template>
     <template v-else>
-      <ESignaturePad :model-value="model.image" :disabled="disabled" @update:model-value="update({ image: $event })" />
+      <ESignaturePad
+        :model-value="model.image"
+        :required="required"
+        :error="error"
+        :disabled="disabled"
+        :readonly="readonly"
+        @update:model-value="update({ image: $event })"
+      />
       <p class="e-sign-date e-sign-date--solo">{{ dateText }}</p>
     </template>
     <ECheckbox
       :model-value="model.agreed"
       :label="agreement || t('agreeSign')"
       :disabled="disabled"
+      :readonly="readonly"
       @update:model-value="update({ agreed: $event })"
     />
-    <EFieldMessage :id="hintId" :error="error" :hint="hint" />
-    <input v-if="name" type="hidden" :name="name" :value="method === 'draw' ? model.image : model.name" />
-  </fieldset>
+    <input
+      v-if="name"
+      type="hidden"
+      :name="name"
+      :disabled="disabled"
+      :value="method === 'draw' ? model.image : model.name"
+    />
+  </EFieldset>
 </template>
 
 <style>
 @layer e.composites {
   .e-sign {
     display: grid;
-    gap: var(--e-space-3);
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-    border: 0;
-  }
-
-  .e-sign-legend {
-    padding: 0;
-    margin-bottom: var(--e-space-2);
+    gap: var(--e-gap-base);
   }
 
   .e-sign-line {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: var(--e-space-3);
+    gap: var(--e-gap-base);
     min-height: calc(var(--e-control-height) + var(--e-space-1));
     padding: var(--e-space-2) var(--e-space-4);
     border-bottom: var(--e-stroke-edge) solid var(--e-success);

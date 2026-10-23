@@ -3,9 +3,9 @@
     position: relative;
     display: flex;
     align-items: flex-start;
-    gap: var(--e-space-3);
+    gap: var(--e-gap-base);
     min-height: var(--e-control-height);
-    padding: calc(var(--e-space-2) + var(--e-stroke-focus)) 0;
+    padding-block: calc(var(--e-gap-snug) + var(--e-stroke-focus));
     cursor: pointer;
   }
 
@@ -16,9 +16,16 @@
 
   .e-choice-text {
     display: grid;
-    gap: calc(var(--e-space-1) / 2);
+    gap: calc(var(--e-gap-tight) / 2);
     min-width: 0;
     font: var(--e-weight-regular) var(--e-text-md)/1.5 var(--e-font-sans);
+  }
+
+  .e-choice-label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--e-gap-tight);
   }
 
   .e-choice-desc {
@@ -35,16 +42,16 @@
     margin: 0;
 
     --_ring: var(--e-border-strong);
+    --_lift: 0px;
 
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--_ring);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     background: var(--e-surface);
     background-clip: padding-box;
     box-shadow: var(--e-well);
     cursor: inherit;
-    transition:
-      border-color var(--e-duration-tap) var(--e-easing-out),
-      background-color var(--e-duration-tap) var(--e-easing-out);
+    transition: var(--e-transition-state);
   }
 
   .e-check {
@@ -55,9 +62,16 @@
     border-radius: 50%;
   }
 
-  /* Pointing at the label counts as pointing at the box: the outline darkens and the face takes the soft primary wash. */
-  .e-choice:hover .e-check:not(:checked, :disabled),
+  /* Pointing at the label counts as pointing at the box: the outline darkens and the face takes the soft primary wash. Pressing darkens the outline to ink. */
+  .e-choice:hover .e-check:not(:checked, :indeterminate, :disabled),
   .e-choice:hover .e-radio:not(:checked, :disabled) {
+    --_ring: var(--e-wash-ring);
+
+    background-color: var(--e-primary-soft);
+  }
+
+  .e-choice:active .e-check:not(:checked, :indeterminate, :disabled),
+  .e-choice:active .e-radio:not(:checked, :disabled) {
     --_ring: var(--e-ink);
 
     background-color: var(--e-primary-soft);
@@ -68,9 +82,9 @@
   .e-check:indeterminate,
   .e-radio:checked {
     --_slab: var(--e-primary-slab);
+    --_lift: var(--e-slab);
 
     border-color: var(--_slab);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
     background-color: var(--e-primary);
     background-clip: border-box;
     box-shadow: none;
@@ -99,7 +113,7 @@
   /* A circle with an uneven border has an elliptical inner edge that steps against the fill, so the radio keeps an even ring and draws its slab as an inset crescent. */
   .e-radio:checked {
     border-bottom-width: var(--e-stroke-edge);
-    box-shadow: inset 0 calc(-1 * var(--e-depth)) 0 var(--_slab);
+    box-shadow: inset 0 calc(-1 * var(--_lift)) 0 var(--_slab);
     background-image: radial-gradient(
       circle,
       var(--e-on-primary) 0 calc(var(--e-check-size) / 6),
@@ -109,15 +123,14 @@
 
   .e-choice:hover .e-check:is(:checked, :indeterminate):not(:disabled),
   .e-choice:hover .e-radio:checked:not(:disabled) {
+    background-color: var(--e-primary-hover);
+  }
+
+  .e-choice:active .e-check:is(:checked, :indeterminate):not(:disabled),
+  .e-choice:active .e-radio:checked:not(:disabled) {
+    --_lift: 0px;
+
     background-color: var(--e-primary-press);
-  }
-
-  .e-check:is(:checked, :indeterminate):active {
-    border-bottom-width: var(--e-stroke-edge);
-  }
-
-  .e-radio:checked:active {
-    box-shadow: none;
   }
 
   .e-check:focus-visible,
@@ -149,7 +162,7 @@
 
   .e-radio[aria-invalid="true"]:checked:not(:active, :disabled) {
     box-shadow:
-      inset 0 calc(-1 * var(--e-depth)) 0 var(--_slab),
+      inset 0 calc(-1 * var(--_lift)) 0 var(--_slab),
       0 0 0 var(--e-stroke-edge) var(--e-surface),
       0 0 0 calc(2 * var(--e-stroke-edge)) var(--e-danger);
   }
@@ -165,9 +178,10 @@
 
   .e-check:is(:checked, :indeterminate):disabled,
   .e-radio:checked:disabled {
+    --_lift: 0px;
+
     outline: 0;
     border-color: var(--e-border-strong);
-    border-bottom-width: var(--e-stroke-edge);
     background-color: var(--e-surface-tint);
     box-shadow: none;
   }
@@ -185,5 +199,23 @@
     .e-check:indeterminate::after {
       background: HighlightText;
     }
+  }
+
+  /* A group of choices is a bare fieldset: the legend, the rows, then the hint or error pulled up under the last row. */
+  :is(.e-radiogroup, .e-checkgroup) {
+    display: grid;
+    gap: 0;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  :is(.e-radiogroup-legend, .e-checkgroup-legend) {
+    padding: 0;
+  }
+
+  :is(.e-radiogroup, .e-checkgroup) > :is(.e-field-hint, .e-field-error) {
+    margin-block-start: calc(var(--e-gap-tight) - var(--e-gap-snug) - var(--e-stroke-focus));
   }
 }

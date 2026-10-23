@@ -61,15 +61,15 @@ describe("EHeading", () => {
     expect(el.classList.contains("mine")).toBe(true);
   });
 
-  test("with a kicker class and style go to the wrapper and other attributes to the heading", async () => {
+  test("with a kicker the wrapper is bare and every attribute lands on the heading", async () => {
     const { container } = await render(EHeading, {
       props: { kicker: "Portal" },
       attrs: { class: "mine", id: "t" },
       slots: { default: "Visit" },
     });
-    expect(container.querySelector(".e-heading")!.classList.contains("mine")).toBe(true);
+    expect(container.querySelector(".e-heading")!.className).toBe("e-heading");
     expect(container.querySelector("h2")!.id).toBe("t");
-    expect(container.querySelector("h2")!.classList.contains("mine")).toBe(false);
+    expect(container.querySelector("h2")!.classList.contains("mine")).toBe(true);
   });
 
   test("as sets the element and level keeps the size", async () => {

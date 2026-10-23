@@ -8,11 +8,20 @@ const box = { width: "100px", display: "inline-block" };
 const kids = () => [h("span", { style: box }, "One"), h("span", { style: box }, "Two")];
 
 describe("EInline", () => {
-  test("a number gap becomes the space token, default 2", async () => {
+  test("a number gap becomes the space token, default is the snug gap", async () => {
     const a = await render(EInline, { props: { gap: 3 }, slots: { default: kids } });
     expect((a.container.firstElementChild as HTMLElement).style.getPropertyValue("--_gap")).toBe("var(--e-space-3)");
     const b = await render(EInline, { slots: { default: kids } });
-    expect((b.container.firstElementChild as HTMLElement).style.getPropertyValue("--_gap")).toBe("var(--e-space-2)");
+    expect((b.container.firstElementChild as HTMLElement).style.getPropertyValue("--_gap")).toBe("var(--e-gap-snug)");
+    const c = await render(EInline, { props: { gap: "section" }, slots: { default: kids } });
+    expect((c.container.firstElementChild as HTMLElement).style.getPropertyValue("--_gap")).toBe(
+      "var(--e-gap-section)",
+    );
+  });
+
+  test("wrap=false keeps the children on one line, like nowrap", async () => {
+    const { container } = await render(EInline, { props: { wrap: false }, slots: { default: kids } });
+    expect(container.firstElementChild!.classList.contains("e-inline--nowrap")).toBe(true);
   });
 
   test("justify and align and nowrap add modifier classes", async () => {
@@ -74,7 +83,7 @@ describe("EInline", () => {
     const el = container.querySelector("ul")!;
     expect(el.classList.contains("mine")).toBe(true);
     expect(el.style.marginTop).toBe("5px");
-    expect(el.style.getPropertyValue("--_gap")).toBe("var(--e-space-2)");
+    expect(el.style.getPropertyValue("--_gap")).toBe("var(--e-gap-snug)");
     expect(el.getAttribute("aria-label")).toBe("Tags");
   });
 

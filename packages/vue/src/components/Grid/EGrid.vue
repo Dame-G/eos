@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { useGap, type GapToken } from "../Stack/gap.js";
 import "../../styles/base.css";
-
-export type GridGap = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 10 | 12 | 16;
 
 const props = withDefaults(
   defineProps<{
@@ -10,8 +8,8 @@ const props = withDefaults(
     as?: string;
     /** The narrowest a column may be, as a CSS length. One column below that. */
     min?: string;
-    /** A space token number (1 to 8, 10, 12 or 16) becomes `var(--e-space-N)`. A string is used as given, so any CSS length works. */
-    gap?: GridGap | string;
+    /** `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. */
+    gap?: GapToken | string;
     /** Aligns each item inside its row. Items stretch to the tallest by default. Not used with `masonry`. */
     align?: "start" | "center" | "end" | "stretch" | "baseline";
     /** Places each item inside its column when it is narrower than the column. Items fill the column by default. Not used with `masonry`. */
@@ -19,7 +17,7 @@ const props = withDefaults(
     /** Packs cards of uneven height into columns with no gaps under the short ones. Items flow top to bottom within each column. */
     masonry?: boolean;
   }>(),
-  { as: "div", min: "16rem", gap: 4, masonry: false },
+  { as: "div", min: "16rem", gap: "loose", masonry: false },
 );
 
 defineSlots<{
@@ -27,7 +25,7 @@ defineSlots<{
   default(): unknown;
 }>();
 
-const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-${props.gap})` : props.gap));
+const gapCss = useGap(() => props.gap);
 </script>
 
 <template>
@@ -39,7 +37,7 @@ const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-
       align && `e-grid-layout--a-${align}`,
       justify && `e-grid-layout--j-${justify}`,
     ]"
-    :style="{ '--_gap': gapValue, '--_min': min }"
+    :style="{ '--_gap': gapCss, '--_min': min }"
   >
     <slot />
   </component>
@@ -50,7 +48,7 @@ const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-
   .e-grid-layout {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--_min, 16rem)), 1fr));
-    gap: var(--_gap, var(--e-space-4));
+    gap: var(--_gap, var(--e-gap-loose));
     align-items: stretch;
   }
 
@@ -89,13 +87,13 @@ const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-
   .e-grid-layout--masonry {
     display: block;
     column-width: var(--_min, 16rem);
-    column-gap: var(--_gap, var(--e-space-4));
+    column-gap: var(--_gap, var(--e-gap-loose));
   }
 
   /* Each item carries the row gap below it, and a column drops the margin after its last item. */
   .e-grid-layout--masonry > * {
     break-inside: avoid;
-    margin-block-end: var(--_gap, var(--e-space-4));
+    margin-block-end: var(--_gap, var(--e-gap-loose));
   }
 }
 </style>

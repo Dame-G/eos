@@ -1,5 +1,5 @@
 <script lang="ts">
-export type NoticeTone = "info" | "success" | "warning" | "danger";
+export type NoticeTone = "neutral" | "info" | "success" | "warning" | "danger";
 </script>
 
 <script setup lang="ts">
@@ -15,7 +15,7 @@ import "./notice.css";
 
 const props = withDefaults(
   defineProps<{
-    /** `info` informs, `success` confirms, `warning` needs attention and `danger` is an error announced at once. */
+    /** `neutral` is plain information with no colour, `info` informs, `success` confirms, `warning` needs attention and `danger` is an error announced at once. */
     tone?: NoticeTone;
     /** What happened, in one short line. */
     title: string;
@@ -46,7 +46,13 @@ defineSlots<{
 }>();
 
 const t = useMessages();
-const TONE_ICON: Record<NoticeTone, string> = { info: "info", success: "check", warning: "alert", danger: "alert" };
+const TONE_ICON: Record<NoticeTone, string> = {
+  neutral: "info",
+  info: "info",
+  success: "check",
+  warning: "alert",
+  danger: "alert",
+};
 const role = computed(() =>
   props.role === false ? undefined : props.role || (props.tone === "danger" ? "alert" : "status"),
 );
@@ -80,28 +86,21 @@ const role = computed(() =>
     --e-tone: var(--e-info);
     --_bg: var(--e-info-soft);
 
-    position: relative;
     container-type: inline-size;
-    padding-block: calc(var(--e-space-3) - var(--e-stroke-edge));
-    padding-inline: calc(var(--e-space-4) - var(--e-stroke-edge) + 2 * var(--e-depth))
-      calc(var(--e-space-4) - var(--e-stroke-edge));
+    padding-block: calc(var(--e-gap-base) - var(--e-stroke-edge));
+    padding-inline: calc(var(--e-pad-card) - var(--e-stroke-edge));
     border: var(--e-stroke-edge) solid var(--e-tone);
+    border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-slab-bold));
     border-radius: var(--e-radius-md);
     background-color: var(--_bg);
     background-clip: padding-box;
     color: var(--e-ink);
   }
 
-  /* The slab on the tone's side: a solid edge in the colour of the tone. It follows the inline start, so it flips in a right-to-left page. */
-  .e-notice::before {
-    content: "";
-    position: absolute;
-    inset-block: 0;
-    inset-inline-start: 0;
-    inline-size: calc(2 * var(--e-depth));
-    border-start-start-radius: calc(var(--e-radius-md) - var(--e-stroke-edge));
-    border-end-start-radius: calc(var(--e-radius-md) - var(--e-stroke-edge));
-    background: var(--e-tone);
+  /* The slab sits on the tone's side: the inline-start border is thicker by `slab-bold`, so it flips in a right-to-left page. */
+  .e-notice--neutral {
+    --e-tone: var(--e-muted);
+    --_bg: var(--e-surface-tint);
   }
 
   .e-notice--success {
@@ -119,25 +118,16 @@ const role = computed(() =>
     --_bg: var(--e-danger-soft);
   }
 
-  /* The size and weight come from the type scale (`e-h e-h4`). */
-  .e-notice-title {
-    line-height: calc(4 / 3);
-  }
-
+  /* The title's style comes from the type scale (`e-h e-h4`). */
   .e-notice-text {
     margin: 0;
-    font: var(--e-weight-regular) var(--e-text-sm) / 1.45 var(--e-font-sans);
+    font: var(--e-type-small);
     color: var(--e-ink);
   }
 
   @media (forced-colors: active) {
     .e-notice {
       border: var(--e-stroke-edge) solid CanvasText;
-    }
-
-    .e-notice::before {
-      forced-color-adjust: none;
-      background: CanvasText;
     }
   }
 }

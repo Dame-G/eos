@@ -102,6 +102,68 @@ describe("ETable", () => {
     expect(getComputedStyle(wrap, "::after").boxShadow).not.toBe("none");
   });
 
+  test("size sm and the older dense both tighten the cells", async () => {
+    const pad = async (props: Record<string, unknown>) => {
+      const { container } = await render(ETable, { props: { caption: "P", ...props }, slots: { default: rows } });
+      container.classList.add("e-root");
+      return getComputedStyle(container.querySelector("td")!).paddingTop;
+    };
+    const normal = await pad({});
+    expect(await pad({ size: "sm" })).not.toBe(normal);
+    expect(await pad({ dense: true })).not.toBe(normal);
+    expect(await pad({ size: "md", dense: true })).toBe(normal);
+  });
+
+  test("loading marks the table busy, dims its rows and shows placeholder lines", async () => {
+    const { container } = await render(ETable, {
+      props: { caption: "Plans", loading: true, skeletonRows: 4 },
+      slots: { default: rows },
+    });
+    container.classList.add("e-root");
+    expect(container.querySelector("table")!.getAttribute("aria-busy")).toBe("true");
+    expect(container.querySelectorAll(".e-table-loading .e-skel").length).toBe(4);
+    expect(getComputedStyle(container.querySelector("tbody")!).opacity).toBe("0.5");
+    expect(container.querySelector("[role=status]")!.textContent).toBe("Loading");
+  });
+
+  test("empty shows the empty state under the headings, or your own slot", async () => {
+    const head = () => [h("thead", [h("tr", [h("th", { scope: "col" }, "Plan")])])];
+    const { container } = await render(ETable, {
+      props: { caption: "Plans", empty: true, emptyTitle: "No plans", emptyText: "Add one." },
+      slots: { default: head },
+    });
+    expect(container.querySelector(".e-table-empty")!.textContent).toContain("No plans");
+    expect(container.querySelector(".e-table-empty")!.textContent).toContain("Add one.");
+    const own = await render(ETable, {
+      props: { caption: "Plans", empty: true },
+      slots: { default: head, empty: () => h("p", "Nothing here") },
+    });
+    expect(own.container.querySelector(".e-table-empty")!.textContent).toBe("Nothing here");
+  });
+
+  test("cards turns rows into labelled cards below 40rem and keeps a table above it", async () => {
+    const labelled = () => [
+      h("thead", [h("tr", [h("th", { scope: "col" }, "Plan"), h("th", { scope: "col" }, "Visits")])]),
+      h("tbody", [h("tr", [h("td", { "data-label": "Plan" }, "Basic"), h("td", { "data-label": "Visits" }, "4")])]),
+    ];
+    const at = async (width: number) => {
+      const { container } = await render(
+        defineComponent({
+          render: () =>
+            h("div", { style: { width: `${width}px` } }, [h(ETable, { caption: "Plans", cards: true }, labelled)]),
+        }),
+      );
+      container.classList.add("e-root");
+      return container;
+    };
+    const narrow = await at(320);
+    await expect.poll(() => getComputedStyle(narrow.querySelector("tbody tr")!).display).toBe("block");
+    expect(getComputedStyle(narrow.querySelector("td")!, "::before").content).toBe('"Plan"');
+    expect(getComputedStyle(narrow.querySelector(".e-table-wrap")!, "::after").content).toBe("none");
+    const wide = await at(900);
+    expect(getComputedStyle(wide.querySelector("tbody tr")!).display).toBe("table-row");
+  });
+
   test("has no accessibility violations", async () => {
     const { container } = await render(ETable, {
       props: { caption: "Plans", striped: true },

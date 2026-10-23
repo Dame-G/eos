@@ -133,10 +133,10 @@ defineExpose({ focus, focusFirst });
 @layer e.controls {
   .e-results {
     max-height: min(24rem, 50vh);
-    min-height: 3rem;
+    min-height: var(--e-tap);
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: var(--e-space-1);
+    padding: var(--e-gap-tight);
     border-radius: var(--e-radius-md);
     box-shadow: var(--e-frame);
     color: var(--e-ink);
@@ -152,6 +152,7 @@ defineExpose({ focus, focusFirst });
   .e-results .e-opt {
     color: inherit;
     text-decoration: none;
+    transition: var(--e-transition-state);
   }
 
   /* A result with nowhere to go is a button; it looks like the links around it. */
@@ -162,13 +163,18 @@ defineExpose({ focus, focusFirst });
     text-align: start;
   }
 
-  .e-results .e-opt:hover,
-  .e-results .e-opt:focus-visible {
-    background: var(--e-surface-hover);
-    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
+  .e-results .e-opt:hover {
+    background: var(--e-wash-hover);
+    box-shadow: var(--e-ring-hover);
+  }
+
+  .e-results .e-opt:active {
+    background: var(--e-wash-press);
+    box-shadow: var(--e-ring-press);
   }
 
   .e-results .e-opt:focus-visible {
+    background: var(--e-wash-hover);
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: calc(-1 * var(--e-stroke-focus));
   }

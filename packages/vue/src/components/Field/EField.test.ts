@@ -134,4 +134,16 @@ describe("EField", () => {
     );
     await expectNoViolations(container);
   });
+
+  test("the aside slot sits beside the hint, and its id is the control's", async () => {
+    const { container } = await render(EField, {
+      props: { label: "Bio", hint: "Short" },
+      slots: { default: control, aside: (p: { id: string }) => h("span", { class: "side", "data-id": p.id }, "3/10") },
+    });
+    const foot = container.querySelector(".e-field-foot")!;
+    expect(foot.querySelector(".e-field-hint")).not.toBeNull();
+    expect(foot.querySelector(".side")!.getAttribute("data-id")).toBe(container.querySelector("input")!.id);
+    const none = await render(EField, { props: { label: "Bio" }, slots: { default: control } });
+    expect(none.container.querySelector(".e-field-foot")).toBeNull();
+  });
 });

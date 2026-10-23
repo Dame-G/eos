@@ -4,7 +4,7 @@
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas: "icon body dismiss";
     align-items: center;
-    gap: var(--e-space-3);
+    gap: var(--e-gap-base);
   }
 
   .e-notice--actions .e-notice-grid,
@@ -29,7 +29,7 @@
   .e-notice-body {
     grid-area: body;
     display: grid;
-    gap: var(--e-space-1);
+    gap: var(--e-gap-tight);
     min-width: 0;
   }
 
@@ -53,7 +53,7 @@
 
   .e-notice-dismiss {
     grid-area: dismiss;
-    margin-block: calc(-1 * var(--e-space-2));
-    margin-inline: 0 calc(-1 * var(--e-space-3));
+    margin-block: calc(-1 * var(--e-gap-snug));
+    margin-inline: 0 calc(-1 * var(--e-gap-base));
   }
 }

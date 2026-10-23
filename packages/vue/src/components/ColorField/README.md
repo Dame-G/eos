@@ -10,23 +10,24 @@ A colour input as `#rrggbb`: a swatch that opens the native picker plus a text b
 
 <!-- props:start -->
 
-| Prop         | Type      | Default      | Notes                                                                                                                                                  |
-| ------------ | --------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `modelValue` | `string`  | `""`         | `v-model`: `#rrggbb`, lower case. Only complete, valid colours are written, and clearing the text writes an empty string. `#abc` expands to `#aabbcc`. |
-| `label`      | `string`  | **Required** | The visible label.                                                                                                                                     |
-| `hideLabel`  | `boolean` | `false`      | Keeps the label for screen readers and hides it from the page.                                                                                         |
-| `hint`       | `string`  | None         | Shows help text under the input.                                                                                                                       |
-| `error`      | `string`  | None         | Shows what to fix in place of the hint, marks the input invalid and is announced. Invalid typed text shows "Enter a colour like #2c95b4" after blur.   |
-| `required`   | `boolean` | `false`      | Sets the `required` attribute and shows a word beside the label.                                                                                       |
-| `optional`   | `boolean` | `false`      | Shows a word beside the label. Use it on whichever of required and optional is rarer.                                                                  |
-| `disabled`   | `boolean` | `false`      | Disables the field.                                                                                                                                    |
-| `readonly`   | `boolean` | `false`      | Keeps the value but stops it being changed. The text box can still be focused and selected.                                                            |
-| `name`       | `string`  | None         | The name submitted with a form: the normalised `#rrggbb`, or empty when the text is not a colour.                                                      |
-| `id`         | `string`  | `generated`  | The `id` of the text input, which the label points at.                                                                                                 |
+| Prop         | Type         | Default      | Notes                                                                                                                                                  |
+| ------------ | ------------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `modelValue` | `string`     | `""`         | `v-model`: `#rrggbb`, lower case. Only complete, valid colours are written, and clearing the text writes an empty string. `#abc` expands to `#aabbcc`. |
+| `hideLabel`  | `boolean`    | `false`      | Hides the label from the page and keeps it for screen readers.                                                                                         |
+| `hint`       | `string`     | None         | Help that stays under the control.                                                                                                                     |
+| `error`      | `string`     | None         | What to fix. Replaces the hint, marks the control invalid and is announced.                                                                            |
+| `required`   | `boolean`    | `false`      | Sets the `required` attribute and shows "Required" beside the label.                                                                                   |
+| `optional`   | `boolean`    | `false`      | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.                                                               |
+| `disabled`   | `boolean`    | `false`      | Disables the control. A disabled control posts nothing.                                                                                                |
+| `readonly`   | `boolean`    | `false`      | Shows the value but blocks editing. The control stays focusable and selectable, and still posts its value.                                             |
+| `id`         | `string`     | `generated`  | The id of the control. The label points at it.                                                                                                         |
+| `size`       | `EFieldSize` | `"md"`       | The height of the box: `sm` and `lg` are a step under and over the control height.                                                                     |
+| `label`      | `string`     | **Required** | The visible label.                                                                                                                                     |
+| `name`       | `string`     | None         | The name submitted with a form: the normalised `#rrggbb`, or empty when the text is not a colour. Posts nothing while disabled.                        |
 
 <!-- props:end -->
 
-`class` and `style` land on the wrapper `div`. Other attributes and listeners land on the text `input` element. `name` submits the normalised `#rrggbb` through a hidden input. An empty value shows a struck-through chip, not black. The text box's example placeholder is the `colorPlaceholder` message. Exposes `input` and `focus()`. It does not check contrast, so pair it with `defineTheme()`.
+`class` and `style` land on the wrapper `div`. Other attributes and listeners land on the text `input` element. `name` submits the normalised `#rrggbb` through a hidden input; a disabled field posts nothing. An empty value shows a struck-through chip, not black. The text box's example placeholder is the `colorPlaceholder` message. Exposes `input` and `focus()`. It does not check contrast, so pair it with `defineTheme()`.
 
 ## Accessibility
 

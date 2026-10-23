@@ -1,11 +1,24 @@
 @layer e.controls {
-  .e-input {
+  .e-input,
+  .e-input-wrap {
     --e-ring: var(--e-border-strong);
+  }
 
+  .e-input[data-size="sm"],
+  .e-input-wrap[data-size="sm"] {
+    --_h: calc(var(--e-control-height) - var(--e-gap-snug));
+  }
+
+  .e-input[data-size="lg"],
+  .e-input-wrap[data-size="lg"] {
+    --_h: calc(var(--e-control-height) + var(--e-gap-snug));
+  }
+
+  .e-input {
     width: 100%;
     min-width: 0;
-    height: var(--e-control-height);
-    padding: 0 calc(var(--e-space-4) - var(--e-stroke-edge));
+    height: var(--_h, var(--e-control-height));
+    padding: 0 calc(var(--e-pad-control) - var(--e-stroke-edge));
 
     /* The edge is a border and the fill stops inside it: a fill under an inset-shadow edge leaks into the antialiased corner. */
     box-sizing: border-box;
@@ -15,10 +28,8 @@
     background-clip: padding-box;
     box-shadow: var(--e-well);
     color: var(--e-ink);
-    font: var(--e-weight-regular) var(--e-text-md) / 1 var(--e-font-sans);
-    transition:
-      border-color var(--e-duration-tap) var(--e-easing-out),
-      background-color var(--e-duration-tap) var(--e-easing-out);
+    font: var(--e-type-body);
+    transition: var(--e-transition-state);
   }
 
   .e-input::placeholder {
@@ -45,10 +56,9 @@
     outline-offset: var(--e-focus-gap-field);
   }
 
-  .e-input[aria-invalid="true"] {
+  .e-input[aria-invalid="true"],
+  .e-input-wrap[data-invalid] {
     --e-ring: var(--e-danger);
-
-    background-color: var(--e-surface);
   }
 
   .e-input[aria-invalid="true"]:hover,
@@ -56,70 +66,13 @@
     --e-over: var(--e-danger-soft);
   }
 
-  .e-input[aria-invalid="true"]:focus {
-    background-color: var(--e-surface);
-    box-shadow: var(--e-well);
-  }
-
   .e-input[aria-invalid="true"]:focus-visible {
     outline-color: var(--e-danger);
   }
 
-  .e-input:disabled {
-    cursor: not-allowed;
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
-    border-color: transparent;
-    background-color: var(--e-disabled-fill);
-    box-shadow: none;
-    color: var(--e-disabled-ink);
-  }
-
-  .e-input[readonly]:not(:disabled) {
-    background-color: var(--e-surface-tint);
-    box-shadow: none;
-  }
-
-  .e-input-wrap {
-    --e-ring: var(--e-border-strong);
-
-    display: flex;
-    align-items: stretch;
-    min-width: 0;
-    min-height: var(--e-control-height);
-    box-sizing: border-box;
-    border: var(--e-stroke-edge) solid var(--e-ring);
-    border-radius: var(--e-radius-md);
-    background: var(--e-surface);
-    background-clip: padding-box;
-    box-shadow: var(--e-well);
-    transition:
-      border-color var(--e-duration-tap) var(--e-easing-out),
-      background-color var(--e-duration-tap) var(--e-easing-out);
-  }
-
-  .e-input-wrap:focus-within {
-    --e-ring: var(--e-focus-field);
-
-    background: var(--e-surface);
-    box-shadow: var(--e-well);
-    outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
-    outline-offset: var(--e-focus-gap-field);
-  }
-
-  .e-input-wrap[data-invalid] {
-    --e-ring: var(--e-danger);
-
-    background: var(--e-surface);
-  }
-
-  .e-input-wrap[data-invalid]:focus-within {
-    background: var(--e-surface);
-    box-shadow: var(--e-well);
-    outline-color: var(--e-danger);
-  }
-
+  .e-input:disabled,
   .e-input-wrap[data-disabled] {
+    cursor: not-allowed;
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     border-color: transparent;
@@ -128,12 +81,39 @@
     color: var(--e-disabled-ink);
   }
 
-  /* A readonly wrap matches a bare readonly input: tinted, no well, still focusable. It stays solid, unlike disabled. */
+  .e-input[readonly]:not(:disabled),
   .e-input-wrap[data-readonly]:not([data-disabled]),
   .e-input-wrap[data-readonly]:not([data-disabled]):hover,
   .e-input-wrap[data-readonly]:not([data-disabled]):focus-within {
     background: var(--e-surface-tint);
     box-shadow: none;
+  }
+
+  .e-input-wrap {
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
+    min-height: var(--_h, var(--e-control-height));
+    box-sizing: border-box;
+    border: var(--e-stroke-edge) solid var(--e-ring);
+    border-radius: var(--e-radius-md);
+    background: var(--e-surface);
+    background-clip: padding-box;
+    box-shadow: var(--e-well);
+    transition: var(--e-transition-state);
+  }
+
+  .e-input-wrap:focus-within {
+    --e-ring: var(--e-focus-field);
+
+    outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
+    outline-offset: var(--e-focus-gap-field);
+  }
+
+  .e-input-wrap[data-invalid]:focus-within {
+    --e-ring: var(--e-danger);
+
+    outline-color: var(--e-danger);
   }
 
   .e-input-wrap .e-input {
@@ -161,9 +141,9 @@
     display: inline-flex;
     align-items: center;
     flex: none;
-    padding: 0 var(--e-space-3);
+    padding: 0 var(--e-pad-control-sm);
     color: var(--e-muted);
-    font: var(--e-weight-medium) var(--e-text-sm) / 1 var(--e-font-mono);
+    font: var(--e-type-numeral);
     font-variant-numeric: tabular-nums;
   }
 
@@ -173,6 +153,55 @@
 
   .e-affix--post {
     padding-inline-start: 0;
+  }
+
+  /* A button beside the text inside a box: clear, show password. Its hover, press and focus are `.e-interact e-interact--inset`. */
+  .e-input-btn {
+    --_side: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--e-gap-tight)));
+
+    display: inline-grid;
+    place-items: center;
+    position: relative;
+    flex: none;
+    align-self: center;
+    width: var(--_side);
+    height: var(--_side);
+    margin-inline-end: var(--e-gap-tight);
+    padding: 0;
+    border: 0;
+    border-radius: var(--e-radius-sm);
+    background: transparent;
+    color: var(--e-ink);
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+  }
+
+  /* A larger touch target than the glyph. */
+  .e-input-btn::after {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--e-gap-tight));
+  }
+
+  .e-input-btn[aria-pressed="true"] {
+    box-shadow: var(--e-slab-sink);
+  }
+
+  .e-input-btn:disabled {
+    color: var(--e-disabled-ink);
+    cursor: not-allowed;
+  }
+
+  .e-input-spin {
+    --_side: var(--e-icon-size-sm);
+
+    flex: none;
+    align-self: center;
+    width: var(--_side);
+    height: var(--_side);
+    margin-inline-end: var(--e-pad-control-sm);
+    color: var(--e-muted);
   }
 
   @media (forced-colors: active) {

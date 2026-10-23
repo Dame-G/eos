@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import ECopyButton from "../CopyButton/ECopyButton.vue";
 import { useMessages } from "../../config.js";
 import "../../styles/base.css";
@@ -11,6 +11,10 @@ const props = defineProps<{
   lang?: string;
   /** The copy button's name. Say what is copied when a page has several. @default "Copy code" */
   copyLabel?: string;
+  /** Wraps long lines instead of scrolling sideways. */
+  wrap?: boolean;
+  /** Numbers the lines. Plain `code` is numbered by itself; your own markup needs each line in an element with the class `line` (Shiki writes them). */
+  lineNumbers?: boolean;
 }>();
 
 defineSlots<{
@@ -21,14 +25,15 @@ defineSlots<{
 const t = useMessages();
 const root = ref<HTMLElement | null>(null);
 const text = () => props.code ?? root.value?.querySelector("pre")?.textContent ?? "";
+const lines = computed(() => (props.lineNumbers && props.code !== undefined ? props.code.split("\n") : undefined));
 </script>
 
 <template>
-  <div ref="root" class="e-code">
+  <div ref="root" class="e-code" :class="{ 'e-code--wrap': wrap, 'e-code--numbered': lineNumbers }">
     <!-- The body scrolls, so it takes focus: the keys scroll it, with the built-in pre or your own markup. -->
     <div class="e-code-body" role="group" tabindex="0" :aria-label="lang || t('codeBlock')">
       <slot>
-        <pre><code>{{ code }}</code></pre>
+        <pre><code v-if="lines"><span v-for="(line, i) in lines" :key="i" class="line">{{ line }}</span></code><code v-else>{{ code }}</code></pre>
       </slot>
     </div>
     <div class="e-code-side">
@@ -102,6 +107,30 @@ const text = () => props.code ?? root.value?.querySelector("pre")?.textContent ?
     padding: 0;
     background: transparent;
     font: inherit;
+  }
+
+  .e-code--wrap code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .e-code--numbered code {
+    counter-reset: line;
+  }
+
+  .e-code--numbered .line {
+    display: block;
+  }
+
+  .e-code--numbered .line::before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    min-width: 2ch;
+    margin-inline-end: var(--e-gap-base);
+    text-align: end;
+    color: var(--e-muted);
+    user-select: none;
   }
 
   .e-code-side {

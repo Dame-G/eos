@@ -1,13 +1,14 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="F extends 'date' | 'iso' = 'date'">
 import { computed, nextTick, ref, watch } from "vue";
-import { PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
+import { ConfigProvider, PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import EButton from "../Button/EButton.vue";
 import ECalendar from "../Calendar/ECalendar.vue";
 import type { CalendarRange } from "../Calendar/ECalendar.vue";
 import EField from "../Field/EField.vue";
 import EIcon from "../Icon/EIcon.vue";
-import { addDays, compareDays, isoDate, startOfDay } from "../Calendar/dates.js";
+import { addDays, boundsMessage, compareDays, isoDate, parseIso, startOfDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
+import { useDir } from "../../composables/useDir.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
@@ -38,8 +39,10 @@ const props = defineProps<{
   required?: boolean;
   /** Adds a word beside the label. Use it when most fields in the form are required. */
   optional?: boolean;
-  /** Disables both boxes and the button. */
+  /** Disables both boxes and the button. A disabled field is not submitted. */
   disabled?: boolean;
+  /** Shows the span but blocks editing. The boxes stay focusable and selectable. The calendar button is disabled and the calendar does not open. The dates are still submitted. */
+  readonly?: boolean;
   /** The earliest date that can be chosen or typed. */
   min?: Date;
   /** The latest date that can be chosen or typed. */
@@ -48,6 +51,8 @@ const props = defineProps<{
   disabledDate?: (date: Date) => boolean;
   /** Days that get a dot in the calendar: a list of dates or a function. */
   marked?: Date[] | ((date: Date) => boolean);
+  /** What `v-model:start` and `v-model:end` hold. `date` is a `Date` (a local day at noon). `iso` is a `YYYY-MM-DD` string, or `null` for no date, which has no time zone to shift. @default "date" */
+  valueFormat?: F;
   /** Submits the first date as `YYYY-MM-DD` with a form, through a hidden input. */
   startName?: string;
   /** Submits the last date as `YYYY-MM-DD` with a form, through a hidden input. */
@@ -58,20 +63,27 @@ const props = defineProps<{
   id?: string;
 }>();
 
-/** The first date of the span. */
-const start = defineModel<Date | null>("start", { default: null });
-/** The last date of the span. */
-const end = defineModel<Date | null>("end", { default: null });
+type Value = F extends "iso" ? string | null : Date | null;
+/** The first date of the span: a `Date`, or a `YYYY-MM-DD` string with `valueFormat="iso"`. `null` when empty. */
+const startModel = defineModel<Value>("start", { default: null as never });
+/** The last date of the span, in the same form as `start`. */
+const endModel = defineModel<Value>("end", { default: null as never });
+
+const asDate = (v: Date | string | null) => (typeof v === "string" ? parseIso(v) : v);
+const start = computed(() => asDate(startModel.value as Date | string | null));
+const end = computed(() => asDate(endModel.value as Date | string | null));
+const out = (d: Date | null) => (props.valueFormat === "iso" ? (d ? isoDate(d) : null) : d) as Value;
 
 const t = useMessages();
 const config = useConfig();
+const dir = useDir();
 const loc = useLocale();
 const portal = usePortalTarget();
 const attrs = useFieldAttrs();
 
 /** Whether the calendar is open. A disabled field never opens. */
 const open = defineModel<boolean>("open", { default: false });
-const shown = computed(() => open.value && !props.disabled);
+const shown = computed(() => open.value && !props.disabled && !props.readonly);
 const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel, .e-combo"));
 const trigger = { onClick: quiet.intent, onKeydown: quiet.intent };
 
@@ -119,8 +131,8 @@ const presets = computed(() => {
 });
 
 function setRange(r: { start: Date | null; end: Date | null }) {
-  start.value = r.start;
-  end.value = r.end;
+  startModel.value = out(r.start);
+  endModel.value = out(r.end);
   startText.value = loc.formatDate(r.start);
   endText.value = loc.formatDate(r.end);
   typedError.value = "";
@@ -130,6 +142,7 @@ const outOfBounds = (d: Date) =>
   (!!props.min && compareDays(d, props.min) < 0) || (!!props.max && compareDays(d, props.max) > 0);
 
 function commitText() {
+  if (props.readonly) return;
   const a = startText.value.trim() ? loc.parseDate(startText.value) : null;
   const b = endText.value.trim() ? loc.parseDate(endText.value) : null;
   if ((startText.value.trim() && !a) || (endText.value.trim() && !b)) {
@@ -138,10 +151,7 @@ function commitText() {
   }
   const bad = [a, b].find((d) => d && outOfBounds(d));
   if (bad) {
-    typedError.value = t("dateBetween", {
-      min: loc.formatDate(props.min || bad),
-      max: loc.formatDate(props.max || bad),
-    });
+    typedError.value = boundsMessage(t, loc.formatDate, props.min, props.max);
     return;
   }
   if ([a, b].some((d) => d && props.disabledDate?.(d))) {
@@ -181,7 +191,7 @@ function onEscape(e: KeyboardEvent) {
 }
 function onKey(e: KeyboardEvent) {
   if (e.key === "Enter") commitText();
-  else if (e.key === "ArrowDown" && e.altKey && !props.disabled) {
+  else if (e.key === "ArrowDown" && e.altKey && !props.disabled && !props.readonly) {
     e.preventDefault();
     quiet.intent();
     open.value = true;
@@ -206,97 +216,107 @@ defineExpose({
     :optional="optional"
   >
     <template #default="field">
-      <PopoverRoot :open="shown" @update:open="open = $event">
-        <PopoverAnchor as-child>
-          <div
-            v-bind="attrs.input()"
-            class="e-input-wrap e-combo e-rangefield"
-            role="group"
-            :aria-labelledby="`${field.id}-label`"
-            :data-invalid="shownError ? '' : undefined"
-            :data-disabled="disabled ? '' : undefined"
-          >
-            <input
-              :id="field.id"
-              ref="startInput"
-              v-model="startText"
-              class="e-input e-combo-input"
-              type="text"
-              autocomplete="off"
-              :placeholder="t('startDate')"
-              :aria-label="t('startDate')"
-              :disabled="disabled"
-              :required="required"
-              :aria-invalid="field.ariaInvalid"
-              :aria-describedby="field.ariaDescribedby"
-              @input="typedError = ''"
-              @blur="commitText"
-              @keydown="onKey"
-            />
-            <span class="e-range-sep" aria-hidden="true">{{ t("to") }}</span>
-            <input
-              v-model="endText"
-              class="e-input e-combo-input"
-              type="text"
-              autocomplete="off"
-              :placeholder="t('endDate')"
-              :aria-label="t('endDate')"
-              :disabled="disabled"
-              :required="required"
-              :aria-invalid="field.ariaInvalid"
-              :aria-describedby="field.ariaDescribedby"
-              @input="typedError = ''"
-              @blur="commitText"
-              @keydown="onKey"
-            />
-            <input v-if="startName" type="hidden" :name="startName" :value="isoDate(start)" />
-            <input v-if="endName" type="hidden" :name="endName" :value="isoDate(end)" />
-            <PopoverTrigger as-child v-bind="trigger">
-              <button type="button" class="e-combo-btn" :aria-label="t('chooseDates')" :disabled="disabled">
-                <EIcon name="calendar" />
-              </button>
-            </PopoverTrigger>
-          </div>
-        </PopoverAnchor>
-        <PopoverPortal :to="portal">
-          <PopoverContent
-            class="e-calpanel e-root"
-            :aria-label="t('chooseDates')"
-            :dir="config.dir ?? undefined"
-            side="bottom"
-            align="start"
-            :side-offset="6"
-            :collision-padding="8"
-            @open-auto-focus="onOpenFocus"
-            @close-auto-focus="onCloseFocus"
-            @escape-key-down="onEscape"
-          >
-            <ECalendar
-              ref="calendar"
-              mode="range"
-              :start="draft.start"
-              :end="draft.end"
-              :min="min"
-              :max="max"
-              :disabled-date="disabledDate"
-              :marked="marked"
-              :footer="false"
-              @range-change="onRange"
-            />
-            <div class="e-cal-presets">
-              <EButton
-                v-for="{ preset, span } in presets"
-                :key="preset.label"
-                variant="outline"
-                :disabled="!span"
-                @click="applyPreset(span)"
-              >
-                {{ preset.label }}
-              </EButton>
+      <ConfigProvider :dir="dir">
+        <PopoverRoot :open="shown" @update:open="open = $event">
+          <PopoverAnchor as-child>
+            <div
+              v-bind="attrs.input()"
+              class="e-input-wrap e-combo e-rangefield"
+              role="group"
+              :aria-labelledby="`${field.id}-label`"
+              :data-invalid="shownError ? '' : undefined"
+              :data-disabled="disabled ? '' : undefined"
+              :data-readonly="readonly ? '' : undefined"
+            >
+              <input
+                :id="field.id"
+                ref="startInput"
+                v-model="startText"
+                class="e-input e-combo-input"
+                type="text"
+                autocomplete="off"
+                :placeholder="t('startDate')"
+                :aria-label="t('startDate')"
+                :disabled="disabled"
+                :readonly="readonly"
+                :required="required"
+                :aria-invalid="field.ariaInvalid"
+                :aria-describedby="field.ariaDescribedby"
+                @input="typedError = ''"
+                @blur="commitText"
+                @keydown="onKey"
+              />
+              <span class="e-range-sep" aria-hidden="true">{{ t("to") }}</span>
+              <input
+                v-model="endText"
+                class="e-input e-combo-input"
+                type="text"
+                autocomplete="off"
+                :placeholder="t('endDate')"
+                :aria-label="t('endDate')"
+                :disabled="disabled"
+                :readonly="readonly"
+                :required="required"
+                :aria-invalid="field.ariaInvalid"
+                :aria-describedby="field.ariaDescribedby"
+                @input="typedError = ''"
+                @blur="commitText"
+                @keydown="onKey"
+              />
+              <input v-if="startName" type="hidden" :name="startName" :disabled="disabled" :value="isoDate(start)" />
+              <input v-if="endName" type="hidden" :name="endName" :disabled="disabled" :value="isoDate(end)" />
+              <PopoverTrigger as-child v-bind="trigger">
+                <button
+                  type="button"
+                  class="e-combo-btn"
+                  :aria-label="t('chooseDates')"
+                  :disabled="disabled || readonly"
+                >
+                  <EIcon name="calendar" />
+                </button>
+              </PopoverTrigger>
             </div>
-          </PopoverContent>
-        </PopoverPortal>
-      </PopoverRoot>
+          </PopoverAnchor>
+          <PopoverPortal :to="portal">
+            <PopoverContent
+              class="e-calpanel e-root"
+              :aria-label="t('chooseDates')"
+              :dir="dir"
+              side="bottom"
+              align="start"
+              :side-offset="6"
+              :collision-padding="8"
+              @open-auto-focus="onOpenFocus"
+              @close-auto-focus="onCloseFocus"
+              @escape-key-down="onEscape"
+            >
+              <ECalendar
+                ref="calendar"
+                mode="range"
+                :start="draft.start"
+                :end="draft.end"
+                :min="min"
+                :max="max"
+                :disabled-date="disabledDate"
+                :marked="marked"
+                :footer="false"
+                @range-change="onRange"
+              />
+              <div class="e-cal-presets">
+                <EButton
+                  v-for="{ preset, span } in presets"
+                  :key="preset.label"
+                  variant="outline"
+                  :disabled="!span"
+                  @click="applyPreset(span)"
+                >
+                  {{ preset.label }}
+                </EButton>
+              </div>
+            </PopoverContent>
+          </PopoverPortal>
+        </PopoverRoot>
+      </ConfigProvider>
     </template>
   </EField>
 </template>
@@ -306,9 +326,8 @@ defineExpose({
   .e-cal-presets {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--e-space-2);
-    margin-top: var(--e-space-3);
-    padding-top: var(--e-space-3);
+    gap: var(--e-gap-snug);
+    padding-top: var(--e-gap-base);
     border-top: var(--e-stroke-hair) solid var(--e-border);
   }
 

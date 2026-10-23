@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, watch } from "vue";
 import { TooltipContent, TooltipPortal, TooltipProvider, TooltipRoot, TooltipTrigger } from "reka-ui";
-import { useConfig, usePortalTarget } from "../../config.js";
+import { usePortalTarget } from "../../config.js";
+import { useDir } from "../../composables/useDir.js";
 import { useTooltipGroup } from "./group.js";
 import "../../styles/base.css";
 
@@ -19,30 +20,37 @@ const props = withDefaults(
   { side: "top", delay: 400 },
 );
 
+const emit = defineEmits<{
+  /** It hid, by blur, pointer leave or Escape. `open` is already false. */
+  close: [];
+}>();
+
 defineSlots<{
   /** One focusable element: an icon button, a link. It becomes the trigger and is described by the bubble. */
   default(): unknown;
 }>();
 
 const portal = usePortalTarget();
-const config = useConfig();
+const dir = useDir();
 const group = useTooltipGroup();
 /** Whether the bubble shows. Hover, focus and Escape update it. */
 const open = defineModel<boolean>("open", { default: false });
 
-// The direction is only read once mounted, so the server and the first client render agree.
-const rtl = ref(config.dir === "rtl");
-onMounted(() => {
-  if (!config.dir) rtl.value = getComputedStyle(document.documentElement).direction === "rtl";
-});
 const placement = computed(() => {
-  if (props.side === "start") return rtl.value ? "right" : "left";
-  if (props.side === "end") return rtl.value ? "left" : "right";
+  const rtl = dir.value === "rtl";
+  if (props.side === "start") return rtl ? "right" : "left";
+  if (props.side === "end") return rtl ? "left" : "right";
   return props.side;
 });
 const delayNow = computed(() => (group.skipping.value ? 0 : props.delay));
 
-watch(open, (now) => (now ? group.opened() : group.closed()));
+watch(open, (now) => {
+  if (now) group.opened();
+  else {
+    group.closed();
+    emit("close");
+  }
+});
 
 let hold: ReturnType<typeof setTimeout> | undefined;
 onBeforeUnmount(() => clearTimeout(hold));
@@ -65,7 +73,14 @@ function touchEnd(e: PointerEvent) {
         <slot />
       </TooltipTrigger>
       <TooltipPortal :to="portal">
-        <TooltipContent class="e-tip-bubble e-root" :side="placement" align="center" :side-offset="8" v-bind="$attrs">
+        <TooltipContent
+          class="e-tip-bubble e-root"
+          :side="placement"
+          align="center"
+          :side-offset="8"
+          :collision-padding="8"
+          v-bind="$attrs"
+        >
           {{ label }}
         </TooltipContent>
       </TooltipPortal>
@@ -74,12 +89,12 @@ function touchEnd(e: PointerEvent) {
 </template>
 
 <style>
-@layer e.containers {
+@layer e.primitives {
   .e-tip-bubble {
     z-index: var(--e-z-tooltip);
     width: max-content;
     max-width: 16rem;
-    padding: var(--e-space-2) var(--e-space-3);
+    padding: var(--e-gap-snug) var(--e-pad-control-sm);
     border-radius: var(--e-radius-sm);
     background: var(--e-ink);
     color: var(--e-surface);

@@ -13,9 +13,10 @@ describe("ESearchBar", () => {
     await expect.element(page.getByRole("textbox", { name: "Search" })).toBeVisible();
     await expect.element(page.getByRole("button", { name: "Search" })).toBeVisible();
     const input = container.querySelector("input")!;
-    expect(input.name).toBe("q");
+    expect(input.hasAttribute("name")).toBe(false);
     expect(input.className).toBe("e-input");
-    expect(container.querySelector("button")!.type).toBe("submit");
+    expect(container.querySelector("button")!.type).toBe("button");
+    expect(container.querySelector("form")).toBeNull();
     expect(container.querySelector(".e-search-lead svg")).not.toBeNull();
   });
 
@@ -38,11 +39,56 @@ describe("ESearchBar", () => {
     expect(got).toEqual(["flu shot", "flu shot"]);
   });
 
-  test("submitting does not reload the page (the default is prevented)", async () => {
-    const { container } = await render(ESearchBar);
-    const ev = new SubmitEvent("submit", { bubbles: true, cancelable: true });
-    container.querySelector("form")!.dispatchEvent(ev);
-    expect(ev.defaultPrevented).toBe(true);
+  test("Enter submits the search and never an enclosing form", async () => {
+    const got: string[] = [];
+    let posted = 0;
+    await render(
+      defineComponent({
+        render: () =>
+          h("form", { onSubmit: (e: Event) => (e.preventDefault(), posted++) }, [
+            h(ESearchBar, { modelValue: "flu", name: "q", onSubmit: (v: string) => got.push(v) }),
+            h("input", { type: "submit", value: "Save" }),
+          ]),
+      }),
+    );
+    await page.getByRole("textbox", { name: "Search" }).click();
+    await userEvent.keyboard("{Enter}");
+    expect(got).toEqual(["flu"]);
+    expect(posted).toBe(0);
+  });
+
+  test("the text posts under name with a form of your own, and nothing posts while disabled", async () => {
+    const make = (disabled: boolean) =>
+      render(
+        defineComponent({
+          render: () => h("form", [h(ESearchBar, { modelValue: "flu", name: "q", disabled })]),
+        }),
+      );
+    const on = await make(false);
+    expect(new FormData(on.container.querySelector("form")!).get("q")).toBe("flu");
+    const off = await make(true);
+    expect([...new FormData(off.container.querySelector("form")!).keys()]).toEqual([]);
+  });
+
+  test("an IME composition's Enter does not submit", async () => {
+    const got: string[] = [];
+    const { container } = await render(ESearchBar, {
+      props: { modelValue: "x", onSubmit: (v: string) => got.push(v) },
+    });
+    container
+      .querySelector("input")!
+      .dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", isComposing: true, bubbles: true, cancelable: true }),
+      );
+    expect(got).toEqual([]);
+  });
+
+  test("size and loading: a bigger box, and a busy button", async () => {
+    const { container } = await render(ESearchBar, { props: { size: "lg", loading: true } });
+    container.classList.add("e-root");
+    expect(Math.round(container.querySelector(".e-search")!.getBoundingClientRect().height)).toBe(56);
+    expect(container.querySelector("button")!.getAttribute("aria-busy")).toBe("true");
+    expect(container.querySelector("input")!.getAttribute("aria-busy")).toBe("true");
   });
 
   test("v-model round trip", async () => {
@@ -98,7 +144,7 @@ describe("ESearchBar", () => {
     await expect.element(page.getByRole("button", { name: "Search" })).toHaveFocus();
   });
 
-  test("attributes land on the input; class and style stay on the form", async () => {
+  test("attributes land on the input; class and style stay on the search box", async () => {
     const events: string[] = [];
     const { container } = await render(ESearchBar, {
       attrs: {
@@ -109,9 +155,9 @@ describe("ESearchBar", () => {
         onFocus: () => events.push("focus"),
       },
     });
-    const form = container.querySelector("form")!;
+    const form = container.querySelector<HTMLElement>("[role=search]")!;
     const input = container.querySelector("input")!;
-    expect(form.className).toBe("e-search mine");
+    expect(form.className.split(" ")).toEqual(expect.arrayContaining(["e-search", "mine"]));
     expect(form.style.maxWidth).toBe("320px");
     expect(input.autocomplete).toBe("off");
     expect(input.dataset["test"]).toBe("x");
@@ -129,7 +175,7 @@ describe("ESearchBar", () => {
   test("is as tall as an input (48px)", async () => {
     const { container } = await render(ESearchBar);
     container.classList.add("e-root");
-    expect(Math.round(container.querySelector("form")!.getBoundingClientRect().height)).toBe(48);
+    expect(Math.round(container.querySelector("[role=search]")!.getBoundingClientRect().height)).toBe(48);
   });
 
   test("has no accessibility violations: empty, filled, disabled", async () => {
@@ -164,15 +210,15 @@ describe("ESearchBar", () => {
   test("disabled gives the box the dashed disabled look and no hover change", async () => {
     const off = await render(ESearchBar, { props: { disabled: true } });
     off.container.classList.add("e-root");
-    const form = off.container.querySelector("form")!;
+    const form = off.container.querySelector("[role=search]")!;
     expect(form.hasAttribute("data-disabled")).toBe(true);
     const idle = getComputedStyle(form);
     expect(idle.outlineStyle).toBe("dashed");
     const { backgroundColor, boxShadow } = idle;
     const on = await render(ESearchBar);
     on.container.classList.add("e-root");
-    expect(getComputedStyle(on.container.querySelector("form")!).backgroundColor).not.toBe(backgroundColor);
-    expect(on.container.querySelector("form")!.hasAttribute("data-disabled")).toBe(false);
+    expect(getComputedStyle(on.container.querySelector("[role=search]")!).backgroundColor).not.toBe(backgroundColor);
+    expect(on.container.querySelector("[role=search]")!.hasAttribute("data-disabled")).toBe(false);
     await userEvent.hover(form);
     await new Promise((r) => setTimeout(r, 250));
     const hovered = getComputedStyle(form);

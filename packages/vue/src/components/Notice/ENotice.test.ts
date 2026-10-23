@@ -36,7 +36,7 @@ describe("ENotice", () => {
   });
 
   test("tone adds its modifier; info adds none", async () => {
-    for (const tone of ["success", "warning", "danger"] as const) {
+    for (const tone of ["neutral", "success", "warning", "danger"] as const) {
       const { container } = await render(ENotice, { props: { title: "x", tone } });
       expect(container.querySelector(`.e-notice--${tone}`)).not.toBeNull();
     }
@@ -144,7 +144,7 @@ describe("ENotice", () => {
   });
 
   test("axe finds nothing in any tone, with actions and a close button", async () => {
-    for (const tone of ["info", "success", "warning", "danger"] as const) {
+    for (const tone of ["neutral", "info", "success", "warning", "danger"] as const) {
       const { container } = await render(ENotice, {
         props: { title: "Heads up", tone, closable: true, headingLevel: 2 },
         slots: { default: "Something to know.", actions },
@@ -168,17 +168,30 @@ describe("ENotice", () => {
     await expect.poll(() => container.querySelector(".e-notice-dismiss")).toBeNull();
   });
 
-  test("the accent stripe sits on the inline start and flips in a right-to-left page", async () => {
+  test("the accent is a thicker inline-start border (the slab), not a pseudo-element, and flips in a right-to-left page", async () => {
     const { container } = await render(ENotice, { props: { title: "x", tone: "success" } });
     container.classList.add("e-root");
     const notice = container.querySelector<HTMLElement>(".e-notice")!;
-    const stripe = () => getComputedStyle(notice, "::before");
-    expect(stripe().insetInlineStart).toBe("0px");
+    const style = getComputedStyle(notice);
+    expect(parseFloat(style.borderInlineStartWidth)).toBe(parseFloat(style.borderInlineEndWidth) + 4);
+    expect(getComputedStyle(notice, "::before").content).toBe("none");
     const body = notice.getBoundingClientRect();
     const ltrIcon = container.querySelector(".e-notice-icon")!.getBoundingClientRect();
     notice.dir = "rtl";
     const rtlIcon = container.querySelector(".e-notice-icon")!.getBoundingClientRect();
     expect(ltrIcon.left - body.left).toBeLessThan(body.right - ltrIcon.right);
     expect(body.right - rtlIcon.right).toBeLessThan(rtlIcon.left - body.left);
+    expect(parseFloat(getComputedStyle(notice).borderRightWidth)).toBeGreaterThan(
+      parseFloat(getComputedStyle(notice).borderLeftWidth),
+    );
+  });
+
+  test("neutral is a tone with its own modifier, a status role and no colour", async () => {
+    const { container } = await render(ENotice, { props: { title: "Note", tone: "neutral" } });
+    const el = container.querySelector(".e-notice")!;
+    expect(el.classList.contains("e-notice--neutral")).toBe(true);
+    expect(el.getAttribute("role")).toBe("status");
+    container.classList.add("e-root");
+    await expectNoViolations(container);
   });
 });

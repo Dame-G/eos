@@ -148,7 +148,7 @@ describe("EDialog", () => {
     await expect.element(page.getByRole("dialog")).toBeVisible();
     const foot = document.querySelector<HTMLElement>(".e-dialog > footer.e-actions--bar.e-dialog-foot")!;
     expect(foot).not.toBeNull();
-    expect(foot.previousElementSibling!.className).toBe("e-dialog-body");
+    expect(foot.previousElementSibling!.classList.contains("e-dialog-body")).toBe(true);
     expect(foot.querySelectorAll("button")[0]!.textContent).toBe("Cancel appointment");
   });
 
@@ -267,6 +267,76 @@ describe("EDialog", () => {
     await expect.poll(() => document.querySelector(".e-dialog")).toBeNull();
     expect(closed.value).toBe(1);
     await expect.poll(() => document.activeElement).toBe(trigger);
+  });
+
+  test("the foot stays in view while a long body scrolls", async () => {
+    const { Host, open } = host();
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    const dialog = document.querySelector<HTMLElement>(".e-dialog")!;
+    const body = dialog.querySelector<HTMLElement>(".e-dialog-body")!;
+    body.append(Object.assign(document.createElement("div"), { style: "height: 3000px" }));
+    await expect.poll(() => body.scrollHeight > body.clientHeight).toBe(true);
+    expect(getComputedStyle(dialog).overflow).toBe("hidden");
+    const foot = dialog.querySelector<HTMLElement>(".e-dialog-foot")!;
+    expect(foot.getBoundingClientRect().bottom).toBeLessThanOrEqual(dialog.getBoundingClientRect().bottom + 1);
+    expect(getComputedStyle(body).overflowY).toBe("auto");
+  });
+
+  test("size sets the width from the panel tokens", async () => {
+    const small = host({ attrs: { size: "sm" } });
+    await render(small.Host);
+    small.open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    const w = () => getComputedStyle(document.querySelector<HTMLElement>(".e-dialog")!).getPropertyValue("--_w");
+    expect(w()).toBe("28rem");
+    small.open.value = false;
+    await expect.poll(() => document.querySelector(".e-dialog")).toBeNull();
+    const large = host({ attrs: { size: "lg" } });
+    await render(large.Host);
+    large.open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    expect(w()).toBe("36rem");
+  });
+
+  test("an alert dialog opens on its least destructive action, not on Close", async () => {
+    const { Host, open } = host({ attrs: { role: "alertdialog" } });
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("alertdialog")).toBeVisible();
+    await expect.poll(() => document.activeElement?.textContent).toBe("Keep it");
+  });
+
+  test("an alert dialog honours [data-autofocus] and initialFocus", async () => {
+    const marked = defineComponent({
+      render: () =>
+        h(
+          EDialog,
+          { title: "Sure?", open: true, role: "alertdialog" },
+          {
+            default: () => h("input", { id: "mine", "data-autofocus": "" }),
+            actions: () => h(EButton, null, () => "OK"),
+          },
+        ),
+    });
+    await render(marked);
+    await expect.poll(() => document.activeElement?.id).toBe("mine");
+  });
+
+  test("initialFocus picks the element by selector", async () => {
+    const picked = defineComponent({
+      render: () =>
+        h(
+          EDialog,
+          { title: "Name it", open: true, initialFocus: "#second" },
+          {
+            default: () => [h("input", { id: "first" }), h("input", { id: "second" })],
+          },
+        ),
+    });
+    await render(picked);
+    await expect.poll(() => document.activeElement?.id).toBe("second");
   });
 
   test("axe finds nothing in the open dialog, with and without actions", async () => {

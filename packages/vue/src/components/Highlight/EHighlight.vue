@@ -40,16 +40,16 @@ defineSlots<{
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
     text-decoration-color: currentcolor;
-    text-underline-offset: var(--e-space-1);
+    text-underline-offset: var(--e-gap-tight);
   }
 
   /* The square sits on the text's baseline, a little smaller than the letters, with a faint edge so a pale colour is still seen on a pale page. */
   .e-highlight-swatch {
     display: inline-block;
-    width: 0.85em;
-    height: 0.85em;
-    margin-inline-start: 0.4em;
-    border-radius: 0.2em;
+    width: var(--e-text-sm);
+    height: var(--e-text-sm);
+    margin-inline-start: var(--e-gap-tight);
+    border-radius: var(--e-radius-sm);
     box-sizing: border-box;
     border: var(--e-stroke-hair) solid var(--e-wash-ring);
     background: var(--_swatch);

@@ -99,4 +99,14 @@ describe("ESkipLink", () => {
     window.removeEventListener("error", onError);
     expect(errors).toHaveLength(0);
   });
+
+  test("a focused skip link answers the pointer like a filled button", async () => {
+    const { container } = await render(Page);
+    container.classList.add("e-root");
+    const a = container.querySelector<HTMLElement>(".e-skip")!;
+    await userEvent.tab();
+    const rest = getComputedStyle(a).backgroundColor;
+    await userEvent.hover(a);
+    await expect.poll(() => getComputedStyle(a).backgroundColor).not.toBe(rest);
+  });
 });

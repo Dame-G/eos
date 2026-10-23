@@ -1,0 +1,61 @@
+@layer e.primitives {
+  /* The one owner of the loading placeholder: `.e-skeleton` is a block, `.e-skel` a line of text that a table cell or list row can use without rendering ESkeleton. No container or outline: a faint neutral tint with the same diagonal stripes as a busy button and the progress bar, pulsing. */
+  .e-skeleton,
+  .e-skel {
+    display: block;
+    background-color: var(--e-skeleton);
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 var(--e-space-2),
+      var(--e-wash-hover) var(--e-space-2) var(--e-space-4)
+    );
+    animation: e-pulse var(--e-duration-loop) var(--e-easing-standard) infinite;
+  }
+
+  .e-skeleton {
+    width: 100%;
+    border-radius: var(--e-radius-md);
+  }
+
+  .e-skel {
+    height: var(--e-text-md);
+    border-radius: var(--e-radius-sm);
+  }
+
+  .e-skeleton--circle {
+    width: auto;
+    aspect-ratio: 1;
+    border-radius: var(--e-radius-round);
+  }
+
+  /* Lines of text: each is an `.e-skel`, and the last is shorter, as a paragraph ends. */
+  .e-skeleton-lines {
+    display: grid;
+    gap: var(--e-gap-snug);
+  }
+
+  .e-skeleton-lines > .e-skel:last-child:not(:only-child) {
+    width: 60%;
+  }
+
+  @keyframes e-pulse {
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .e-skel,
+    .e-skeleton {
+      animation: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-skel,
+    .e-skeleton {
+      forced-color-adjust: none;
+      background: GrayText;
+    }
+  }
+}

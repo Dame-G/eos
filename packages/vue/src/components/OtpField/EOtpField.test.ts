@@ -4,6 +4,7 @@ import { userEvent, page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EOtpField from "./EOtpField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { expectPostingContract } from "../../../test/formPosting.js";
 
 const boxesOf = (root: Element) => [...root.querySelectorAll<HTMLInputElement>("input.e-otp-box")];
 const code = (root: Element) =>
@@ -294,5 +295,22 @@ describe("EOtpField", () => {
     expect(api!.input).toBe(boxes[0]);
     api!.focus();
     expect(document.activeElement).toBe(boxes[0]);
+  });
+
+  test("a disabled code posts nothing, and a named one joins a form it is outside of", async () => {
+    await expectPostingContract(EOtpField, { modelValue: "123456" });
+  });
+
+  test("readonly keeps the code and ignores typing, Backspace and paste", async () => {
+    const got: string[] = [];
+    const { container } = await render(EOtpField, {
+      props: { modelValue: "1234", readonly: true, "onUpdate:modelValue": (v: string) => got.push(v) },
+    });
+    const boxes = container.querySelectorAll<HTMLInputElement>("input.e-otp-box");
+    expect(boxes[0]!.readOnly).toBe(true);
+    boxes[1]!.focus();
+    await userEvent.keyboard("9{Backspace}{Delete}");
+    expect(got).toEqual([]);
+    expect([...boxes].map((b) => b.value).join("")).toBe("1234");
   });
 });

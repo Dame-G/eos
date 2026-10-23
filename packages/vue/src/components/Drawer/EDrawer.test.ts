@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { defineComponent, h, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -105,7 +105,37 @@ describe("EDrawer", () => {
     await render(right.Host);
     right.open.value = true;
     await expect.element(page.getByRole("dialog")).toBeVisible();
-    expect(drawer().className).not.toContain("e-drawer--");
+    expect(drawer().classList.contains("e-drawer--start")).toBe(false);
+  });
+
+  test("left and right warn that they are deprecated", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { Host } = host({ side: "left" });
+    await render(Host);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('side="left" is deprecated'));
+    warn.mockRestore();
+  });
+
+  test("size widens a side drawer", async () => {
+    const { Host, open } = host({ size: "lg" });
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    await expect
+      .poll(() => Math.round(drawer().getBoundingClientRect().width))
+      .toBe(Math.round(parseFloat(getComputedStyle(document.documentElement).fontSize) * 36));
+  });
+
+  test("the foot stays while a long body scrolls", async () => {
+    const { Host, open } = host();
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    const body = drawer().querySelector<HTMLElement>(".e-drawer-body")!;
+    body.append(Object.assign(document.createElement("div"), { style: "height: 4000px" }));
+    await expect.poll(() => body.scrollHeight > body.clientHeight).toBe(true);
+    const foot = drawer().querySelector<HTMLElement>(".e-dialog-foot")!;
+    expect(foot.getBoundingClientRect().bottom).toBeLessThanOrEqual(window.innerHeight + 1);
   });
 
   test("focus is trapped, Escape closes it and focus returns to the trigger", async () => {

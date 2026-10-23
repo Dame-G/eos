@@ -1,21 +1,24 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useGap, type GapToken } from "./gap.js";
 import "../../styles/base.css";
-
-export type StackGap = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 10 | 12 | 16;
 
 const props = withDefaults(
   defineProps<{
-    /** The element to render, such as `ul` (with `li` children). */
+    /** The element to render, such as `ul` (with `li` children). `ul` and `ol` lose their bullets and padding. */
     as?: string;
-    /** A space token number (1 to 8, 10, 12 or 16) becomes `var(--e-space-N)`. A string is used as given, so any CSS length works. */
-    gap?: StackGap | string;
+    /** `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. */
+    gap?: GapToken | string;
     /** Aligns the children across the column. Stretched by default. */
     align?: "start" | "center" | "end" | "stretch" | "baseline";
     /** Places the children down the column when the stack is taller than they are. Left out, they sit at the start. */
     justify?: "start" | "center" | "end" | "between";
+    /** Draws a hairline between the children, centred in the gap. Not used with `wrapBelow`. */
+    divider?: boolean;
+    /** A CSS length. Lays the children side by side, each as wide as the stack allows, and stacks them into one column once the stack is narrower than this. Left out, the children always stack. */
+    wrapBelow?: string;
   }>(),
-  { as: "div", gap: 4 },
+  { as: "div", gap: "base" },
 );
 
 defineSlots<{
@@ -23,15 +26,24 @@ defineSlots<{
   default(): unknown;
 }>();
 
-const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-${props.gap})` : props.gap));
+const gapCss = useGap(() => props.gap);
+const style = computed(() => ({
+  "--_gap": gapCss.value,
+  "--_a": props.align,
+  "--_j": props.justify === "between" ? "space-between" : props.justify,
+  "--_below": props.wrapBelow,
+}));
+const isList = computed(() => props.as === "ul" || props.as === "ol");
 </script>
 
 <template>
+  <!-- A list with its bullets removed loses its role in Safari, so it is given back. -->
   <component
     :is="as"
     class="e-stack"
-    :class="[align && `e-stack--${align}`, justify && `e-stack--j-${justify}`]"
-    :style="{ '--_gap': gapValue }"
+    :class="[wrapBelow ? 'e-stack--wrap' : divider && 'e-stack--divider']"
+    :role="isList ? 'list' : undefined"
+    :style="style"
   >
     <slot />
   </component>
@@ -42,41 +54,33 @@ const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-
   .e-stack {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    align-content: start;
-    gap: var(--_gap, var(--e-space-3));
+    align-content: var(--_j, start);
+    justify-items: var(--_a, stretch);
+    gap: var(--_gap, var(--e-gap-base));
     min-width: 0;
   }
 
-  .e-stack--start {
-    justify-items: start;
+  .e-stack:is(ul, ol) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .e-stack--center {
-    justify-items: center;
+  /* A basis wider than the container (a negative one below it, clamped to 0) puts one child on each line. */
+  .e-stack--wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: var(--_a, stretch);
   }
 
-  .e-stack--end {
-    justify-items: end;
+  .e-stack--wrap > * {
+    flex: 1 1 calc((var(--_below) - 100%) * 999);
+    min-width: 0;
   }
 
-  .e-stack--stretch {
-    justify-items: stretch;
-  }
-
-  .e-stack--baseline {
-    justify-items: baseline;
-  }
-
-  .e-stack--j-center {
-    align-content: center;
-  }
-
-  .e-stack--j-end {
-    align-content: end;
-  }
-
-  .e-stack--j-between {
-    align-content: space-between;
+  .e-stack--divider > * + * {
+    padding-block-start: var(--_gap, var(--e-gap-base));
+    border-block-start: var(--e-stroke-hair) solid var(--e-border);
   }
 }
 </style>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import DialogFrame from "./DialogFrame.vue";
+import EDrawerBody from "../Drawer/EDrawerBody.vue";
 
 defineOptions({ inheritAttrs: false });
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     /** The question or task, shown as the heading and used as the accessible name. It reads best as a question. */
     title: string;
@@ -13,16 +14,20 @@ withDefaults(
     role?: "dialog" | "alertdialog";
     /** The level of the title's heading element, 1 to 6. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+    /** The width: `sm` for a confirmation, `md` for most dialogs, `lg` for a form. */
+    size?: "sm" | "md" | "lg";
+    /** A CSS selector for the element that takes focus when it opens, such as `#name`. Without it, an element marked `data-autofocus` does; an `alertdialog` falls back to its least destructive action and any other dialog to its first control. */
+    initialFocus?: string;
     /** Closes the dialog when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. */
     dismissible?: boolean;
     /** Shows the dialog in the page, without the backdrop or the focus trap, for a preview. */
     inline?: boolean;
   }>(),
-  { role: "dialog", headingLevel: 2 },
+  { role: "dialog", headingLevel: 2, size: "md" },
 );
 
 const emit = defineEmits<{
-  /** Fires when the person closes it with the Close button, Escape, or the backdrop when `dismissible`. `open` is already false. */
+  /** Fires when the person closes it with the Close button, Escape, or the backdrop when `dismissible`. `open` is already false, so `v-model:open` is enough unless you need the moment. */
   close: [];
 }>();
 
@@ -47,10 +52,11 @@ const open = defineModel<boolean>("open");
     :role="role"
     :inline="inline"
     :dismissible="dismissible"
-    :content-class="['e-dialog', inline && 'e-dialog--inline']"
+    :initial-focus="initialFocus"
+    :content-class="['e-dialog', `e-dialog--${props.size}`, inline && 'e-dialog--inline']"
     @close="emit('close')"
   >
-    <div class="e-dialog-body"><slot /></div>
+    <EDrawerBody class="e-dialog-body"><slot /></EDrawerBody>
     <template v-if="$slots.actions" #actions><slot name="actions" /></template>
   </DialogFrame>
 </template>
@@ -60,36 +66,11 @@ const open = defineModel<boolean>("open");
   .e-dialog {
     position: fixed;
     inset: 0;
-    width: min(32rem, calc(100dvw - var(--e-space-8)));
+    width: min(var(--_w), calc(100dvw - var(--e-space-8)));
     height: fit-content;
     max-height: calc(100dvh - var(--e-space-8));
     margin: auto;
     border-radius: var(--e-radius-md);
-    overflow: auto;
-    overscroll-behavior: contain;
-  }
-
-  /* A short scale and fade in, the counterpart of the drawer's slide. The motion tokens go to ~0 under reduced motion. */
-  .e-dialog[data-state="open"] {
-    animation: e-dialog-in var(--e-duration-move) var(--e-easing-out);
-  }
-
-  .e-dialog[data-state="closed"] {
-    animation: e-dialog-out var(--e-duration-move) var(--e-easing-out) forwards;
-  }
-
-  @keyframes e-dialog-in {
-    from {
-      opacity: 0;
-      transform: scale(0.96);
-    }
-  }
-
-  @keyframes e-dialog-out {
-    to {
-      opacity: 0;
-      transform: scale(0.96);
-    }
   }
 
   .e-dialog--inline,
@@ -98,7 +79,7 @@ const open = defineModel<boolean>("open");
     position: static;
     margin: 0;
     width: 100%;
-    max-width: 32rem;
+    max-width: var(--_w);
   }
 }
 </style>

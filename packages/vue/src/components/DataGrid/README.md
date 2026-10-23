@@ -54,11 +54,13 @@ The models work without a binding.
 | `manual`            | `boolean`                             | `false`                | Marks the data as living on a server. The grid shows the rows given, in the order given, and reports every change through `queryChange`, once on mount too, so the first fetch needs no code of its own. |
 | `searchDebounce`    | `number`                              | `0`                    | With `manual`, how many milliseconds to wait after the last keystroke in the search box before `queryChange`. Other changes report at once.                                                              |
 | `total`             | `number`                              | None                   | With `manual`, how many rows there are in all.                                                                                                                                                           |
-| `loading`           | `boolean`                             | `false`                | Shows placeholder rows while data loads, with `aria-busy`.                                                                                                                                               |
+| `loading`           | `boolean`                             | `false`                | Marks the data as loading, with `aria-busy`. With no rows yet it shows placeholder rows; with rows (the previous page) they stay, dimmed, until the new ones arrive.                                     |
 | `skeletonRows`      | `number`                              | `5`                    | How many placeholder rows `loading` shows.                                                                                                                                                               |
 | `emptyTitle`        | `string`                              | `"No results"`         | The title when there are no rows.                                                                                                                                                                        |
 | `emptyText`         | `string`                              | None                   | The sentence under the empty title, when there are no rows.                                                                                                                                              |
 | `emptyIcon`         | `IconProp`                            | `"search"`             | The icon above the empty title.                                                                                                                                                                          |
+| `error`             | `boolean \| string`                   | None                   | Shows a failed load in place of the rows. `true` says the default sentence; a string says your own. A "Try again" button emits `retry`.                                                                  |
+| `rowLabel`          | `(row: Row) => string`                | None                   | The name of a row for its checkbox ("Select Annual check-up"), when the first column's text is not a good one.                                                                                           |
 | `bare`              | `boolean`                             | `false`                | Renders a bare table for a short static list, with no toolbar, filters, paging or footer.                                                                                                                |
 
 <!-- props:end -->
@@ -90,16 +92,22 @@ A `DataGridColumn` has:
 | `header-<key>` | Replaces the column label, with `{ column }` in scope. |
 | `bulk-actions` | Buttons beside the "n selected" count.                 |
 | `toolbar`      | Extra content in the bar above the table.              |
+| `error`        | Your own failed-load state, when `error` is set.       |
 
 ## Events
 
 | Event         | Payload                                     | Notes                                                                                           |
 | ------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | `queryChange` | `{ sort, page, pageSize, search, filters }` | `pageSize` is 0 without paging. With `manual` it also fires once on mount, for the first fetch. |
+| `retry`       | none                                        | The Try again button of the `error` state was pressed. Fetch again.                             |
 
 ## Accessibility
 
-- A `table` with `caption`, `th scope="col"` and `aria-sort`, inside a focusable region named by `caption`. Sort changes are announced.
+- A `table` with `caption`, `th scope="col"` and `aria-sort`. Sort changes and the number of rows are announced, and so is each change of selection ("3 selected"). The scroller becomes a focusable region named by `caption` only while it scrolls.
+- Each row checkbox is named "Select <first column's text>". Set `rowLabel` when the first column is not a good name.
+- Below 40rem, with `cards`, the heading row is `inert` (the Sort by menu replaces its buttons), so no hidden control takes focus.
+- While `loading` with rows already shown (the previous page), the rows stay, dimmed, and the table is `aria-busy`. With no rows, placeholder rows show.
+- `error` replaces the rows with a message and a Try again button, which emits `retry`.
 - Column edges are focusable separators with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`. Dragging, or Arrow Left and Arrow Right (10px, Shift 40px), changes the width within `minWidth` and `maxWidth`.
 - Virtual grids set `aria-rowcount` and `aria-rowindex`.
 - All strings are configurable messages.
@@ -113,7 +121,7 @@ A `DataGridColumn` has:
 | Home on an edge                    | Back to the automatic width                       |
 | Escape on an edge, or in a drag    | Back to the width it had before                   |
 
-The scrolling region is a tab stop, so its arrow keys scroll it.
+The scrolling region is a tab stop only while it scrolls; its arrow keys scroll it.
 
 ## Related
 

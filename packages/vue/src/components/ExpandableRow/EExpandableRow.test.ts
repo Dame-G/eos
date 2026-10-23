@@ -58,8 +58,10 @@ describe("EExpandableRow", () => {
   test("the actions bar closes the row at its foot, with the rounded corners", async () => {
     const { container } = await render(EExpandableRow, { props: { title: "Row" }, slots, attrs: { open: true } });
     const bar = container.querySelector<HTMLElement>(".e-xrow-body > .e-actions--bar")!;
-    expect(Math.round(bar.getBoundingClientRect().bottom)).toBe(
-      Math.round(container.querySelector(".e-xrow")!.getBoundingClientRect().bottom),
+    const row = container.querySelector(".e-xrow")!;
+    // The row is a bordered box: the bar fills it down to the border.
+    expect(Math.round(bar.getBoundingClientRect().bottom + parseFloat(getComputedStyle(row).borderBottomWidth))).toBe(
+      Math.round(row.getBoundingClientRect().bottom),
     );
     expect(parseFloat(getComputedStyle(bar).borderEndStartRadius)).toBeGreaterThan(0);
   });
@@ -143,5 +145,29 @@ describe("EExpandableRow", () => {
     await expectNoViolations(container);
     container.querySelector<HTMLDetailsElement>("details")!.open = true;
     await expectNoViolations(container);
+  });
+
+  test("disabled keeps the row as it is and ignores the click and the keys", async () => {
+    const { container } = await render(EExpandableRow, { props: { title: "Row", disabled: true }, slots });
+    container.classList.add("e-root");
+    const row = container.querySelector<HTMLDetailsElement>("details")!;
+    const summary = container.querySelector("summary")!;
+    expect(summary.getAttribute("aria-disabled")).toBe("true");
+    expect(getComputedStyle(summary).cursor).toBe("not-allowed");
+    await userEvent.click(summary);
+    await userEvent.keyboard("{Enter}");
+    expect(row.open).toBe(false);
+  });
+
+  test("the row has an even border all round and the slab under it, flat when open", async () => {
+    const { container } = await render(EExpandableRow, { props: { title: "Row" }, slots });
+    container.classList.add("e-root");
+    const row = container.querySelector<HTMLDetailsElement>("details")!;
+    const closed = getComputedStyle(row);
+    expect(closed.borderTopWidth).toBe(closed.borderLeftWidth);
+    expect(parseFloat(closed.borderBottomWidth)).toBeGreaterThan(parseFloat(closed.borderTopWidth));
+    expect(closed.backgroundImage).toBe("none");
+    row.open = true;
+    await expect.poll(() => getComputedStyle(row).borderBottomWidth).toBe(getComputedStyle(row).borderTopWidth);
   });
 });

@@ -1,11 +1,12 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="F extends 'date' | 'iso' = 'date'">
 import { computed, nextTick, ref, watch } from "vue";
-import { PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
+import { ConfigProvider, PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import ECalendar from "../Calendar/ECalendar.vue";
 import EField from "../Field/EField.vue";
 import EIcon from "../Icon/EIcon.vue";
-import { compareDays, isoDate, sameDay } from "../Calendar/dates.js";
+import { boundsMessage, compareDays, isoDate, parseIso, sameDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
+import { useDir } from "../../composables/useDir.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
@@ -44,7 +45,9 @@ const props = withDefaults(
     marked?: Date[] | ((date: Date) => boolean);
     /** Shows the calendar's Today and Clear buttons. */
     footer?: boolean;
-    /** Submits the date as `YYYY-MM-DD` with a form, through a hidden input. */
+    /** What `v-model` holds. `date` is a `Date` (a local day at noon). `iso` is a `YYYY-MM-DD` string, or `null` for no date, which has no time zone to shift. @default "date" */
+    valueFormat?: F;
+    /** Submits the date as `YYYY-MM-DD` with a form, through a hidden input. A disabled field is not submitted. */
     name?: string;
     /** The `id` of the text box, which the label points at. @default generated */
     id?: string;
@@ -52,11 +55,12 @@ const props = withDefaults(
   { footer: true },
 );
 
-/** The chosen date. */
-const model = defineModel<Date | null>({ default: null });
+/** The chosen date: a `Date`, or a `YYYY-MM-DD` string with `valueFormat="iso"`. `null` when empty. */
+const model = defineModel<F extends "iso" ? string | null : Date | null>({ default: null as never });
 
 const t = useMessages();
 const config = useConfig();
+const dir = useDir();
 const loc = useLocale();
 const portal = usePortalTarget();
 const attrs = useFieldAttrs();
@@ -69,23 +73,32 @@ const shown = computed(() => open.value && !props.disabled && !props.readonly);
 const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel, .e-combo"));
 const trigger = { onClick: quiet.intent, onKeydown: quiet.intent };
 
-const text = ref(loc.formatDate(model.value));
+/** The chosen day, whichever form the model is in. */
+const current = computed<Date | null>(() => {
+  const v = model.value as Date | string | null;
+  return typeof v === "string" ? parseIso(v) : v;
+});
+function write(d: Date | null) {
+  model.value = (props.valueFormat === "iso" ? (d ? isoDate(d) : null) : d) as typeof model.value;
+}
+
+const text = ref(loc.formatDate(current.value));
 const typedError = ref("");
-let outside = false;
+let clickedOutside = false;
 
 // A change from outside (the calendar, the parent) replaces whatever was typed, and so its error.
-watch([() => model.value?.getTime(), () => config.locale], () => {
-  text.value = loc.formatDate(model.value);
+watch([() => current.value?.getTime(), () => config.locale], () => {
+  text.value = loc.formatDate(current.value);
   typedError.value = "";
 });
 watch(open, (isOpen) => {
-  if (isOpen) outside = false;
+  if (isOpen) clickedOutside = false;
 });
 
 const shownError = computed(() => props.error || typedError.value);
 
 function set(d: Date | null) {
-  model.value = d;
+  write(d);
   text.value = loc.formatDate(d);
   typedError.value = "";
 }
@@ -95,22 +108,23 @@ function commit() {
   const raw = text.value.trim();
   if (!raw) {
     typedError.value = "";
-    if (model.value) model.value = null;
+    if (current.value) write(null);
     return;
   }
   const d = loc.parseDate(raw);
-  const outside = !!d && ((props.min && compareDays(d, props.min) < 0) || (props.max && compareDays(d, props.max) > 0));
-  if (!d || outside || props.disabledDate?.(d)) {
+  const outOfRange =
+    !!d && ((props.min && compareDays(d, props.min) < 0) || (props.max && compareDays(d, props.max) > 0));
+  if (!d || outOfRange || props.disabledDate?.(d)) {
     typedError.value = !d
       ? t("dateError", { format: loc.dateFormatLabel() })
-      : outside
-        ? t("dateBetween", { min: loc.formatDate(props.min || d), max: loc.formatDate(props.max || d) })
+      : outOfRange
+        ? boundsMessage(t, loc.formatDate, props.min, props.max)
         : t("dateUnavailable");
     return;
   }
   typedError.value = "";
   text.value = loc.formatDate(d);
-  if (!sameDay(d, model.value)) model.value = d;
+  if (!sameDay(d, current.value)) write(d);
 }
 
 function onKey(e: KeyboardEvent) {
@@ -140,7 +154,7 @@ function onOpenFocus(e: Event) {
 function onCloseFocus(e: Event) {
   e.preventDefault();
   if (!quiet.returnsFocus()) return;
-  if (!outside) input.value?.focus();
+  if (!clickedOutside) input.value?.focus();
 }
 function onEscape(e: KeyboardEvent) {
   if (calendar.value && calendar.value.view !== "days") e.preventDefault();
@@ -180,61 +194,68 @@ defineExpose({
     :optional="optional"
   >
     <template #default="field">
-      <PopoverRoot :open="shown" @update:open="open = $event">
-        <PopoverAnchor as-child>
-          <div
-            class="e-input-wrap e-combo"
-            :data-invalid="shownError ? '' : undefined"
-            :data-disabled="disabled ? '' : undefined"
-            :data-readonly="readonly ? '' : undefined"
-          >
-            <input
-              ref="input"
-              v-bind="inputBind(field)"
-              @input="
-                text = ($event.target as HTMLInputElement).value;
-                typedError = '';
-              "
-              @blur="commit"
-              @keydown="onKey"
-            />
-            <input v-if="name" type="hidden" :name="name" :value="isoDate(model)" />
-            <PopoverTrigger as-child v-bind="trigger">
-              <button type="button" class="e-combo-btn" :aria-label="t('chooseDate')" :disabled="disabled || readonly">
-                <EIcon name="calendar" />
-              </button>
-            </PopoverTrigger>
-          </div>
-        </PopoverAnchor>
-        <PopoverPortal :to="portal">
-          <PopoverContent
-            class="e-calpanel e-root"
-            :aria-label="t('chooseDate')"
-            :dir="config.dir ?? undefined"
-            side="bottom"
-            align="start"
-            :side-offset="6"
-            :collision-padding="8"
-            @open-auto-focus="onOpenFocus"
-            @close-auto-focus="onCloseFocus"
-            @interact-outside="outside = true"
-            @escape-key-down="onEscape"
-          >
-            <ECalendar
-              ref="calendar"
-              :model-value="model"
-              :min="min"
-              :max="max"
-              :disabled-date="disabledDate"
-              :marked="marked"
-              :footer="footer"
-              clearable
-              @update:model-value="choose"
-              @clear="clear"
-            />
-          </PopoverContent>
-        </PopoverPortal>
-      </PopoverRoot>
+      <ConfigProvider :dir="dir">
+        <PopoverRoot :open="shown" @update:open="open = $event">
+          <PopoverAnchor as-child>
+            <div
+              class="e-input-wrap e-combo"
+              :data-invalid="shownError ? '' : undefined"
+              :data-disabled="disabled ? '' : undefined"
+              :data-readonly="readonly ? '' : undefined"
+            >
+              <input
+                ref="input"
+                v-bind="inputBind(field)"
+                @input="
+                  text = ($event.target as HTMLInputElement).value;
+                  typedError = '';
+                "
+                @blur="commit"
+                @keydown="onKey"
+              />
+              <input v-if="name" type="hidden" :name="name" :disabled="disabled" :value="isoDate(current)" />
+              <PopoverTrigger as-child v-bind="trigger">
+                <button
+                  type="button"
+                  class="e-combo-btn"
+                  :aria-label="t('chooseDate')"
+                  :disabled="disabled || readonly"
+                >
+                  <EIcon name="calendar" />
+                </button>
+              </PopoverTrigger>
+            </div>
+          </PopoverAnchor>
+          <PopoverPortal :to="portal">
+            <PopoverContent
+              class="e-calpanel e-root"
+              :aria-label="t('chooseDate')"
+              :dir="dir"
+              side="bottom"
+              align="start"
+              :side-offset="6"
+              :collision-padding="8"
+              @open-auto-focus="onOpenFocus"
+              @close-auto-focus="onCloseFocus"
+              @interact-outside="clickedOutside = true"
+              @escape-key-down="onEscape"
+            >
+              <ECalendar
+                ref="calendar"
+                :model-value="current"
+                :min="min"
+                :max="max"
+                :disabled-date="disabledDate"
+                :marked="marked"
+                :footer="footer"
+                clearable
+                @update:model-value="choose"
+                @clear="clear"
+              />
+            </PopoverContent>
+          </PopoverPortal>
+        </PopoverRoot>
+      </ConfigProvider>
     </template>
   </EField>
 </template>

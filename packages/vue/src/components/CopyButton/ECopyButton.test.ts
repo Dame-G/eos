@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ECopyButton from "./ECopyButton.vue";
 import { expectNoViolations } from "../../../test/axe.js";
@@ -57,5 +57,30 @@ describe("ECopyButton", () => {
   test("has no axe violations", async () => {
     const { container } = await render(ECopyButton, { props: { text: "x" } });
     await expectNoViolations(container);
+  });
+
+  test("keyboard: Tab reaches it, Enter and Space copy and announce", async () => {
+    const writeText = stubClipboard();
+    await render(ECopyButton, { props: { text: "from-keys" } });
+    await userEvent.tab();
+    expect(document.activeElement!.getAttribute("aria-label")).toBe("Copy");
+    await userEvent.keyboard("{Enter}");
+    await expect.poll(() => writeText).toHaveBeenCalledTimes(1);
+    await expect.poll(() => document.querySelector("[data-e-announcer=polite]")?.textContent).toBe("Copied");
+    await userEvent.keyboard(" ");
+    await expect.poll(() => writeText).toHaveBeenCalledTimes(2);
+    expect(writeText).toHaveBeenLastCalledWith("from-keys");
+    vi.unstubAllGlobals();
+  });
+
+  test("the failure colour lands on the icon button", async () => {
+    const writeText = vi.fn().mockRejectedValue(new Error("denied"));
+    vi.stubGlobal("navigator", { ...navigator, clipboard: { writeText } });
+    const exec = vi.spyOn(document, "execCommand").mockReturnValue(false);
+    const { container } = await render(ECopyButton, { props: { text: "x" } });
+    await page.getByRole("button", { name: "Copy" }).click();
+    await expect.poll(() => container.querySelector("button.e-icon-btn.e-copy--failed")).not.toBeNull();
+    exec.mockRestore();
+    vi.unstubAllGlobals();
   });
 });

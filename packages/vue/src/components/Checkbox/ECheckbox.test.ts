@@ -219,4 +219,37 @@ describe("ECheckbox", () => {
     expect(document.activeElement).toBe(container.querySelector("input"));
     expect(api!.input).toBe(container.querySelector("input"));
   });
+
+  test("a hint is linked with aria-describedby and replaced by the error", async () => {
+    const { container } = await render(ECheckbox, { props: { label: "Agree", hint: "You can change this" } });
+    const input = container.querySelector("input")!;
+    const hint = container.querySelector(".e-field-hint")!;
+    expect(input.getAttribute("aria-describedby")).toBe(hint.id);
+    await expect
+      .element(page.getByRole("checkbox", { name: "Agree" }))
+      .toHaveAccessibleDescription("You can change this");
+  });
+
+  test("required and optional show a word beside the label", async () => {
+    const { container } = await render(ECheckbox, { props: { label: "Agree", required: true } });
+    expect(container.querySelector(".e-field-flag")!.textContent).toBe("Required");
+    expect(container.querySelector("input")!.required).toBe(true);
+    const other = await render(ECheckbox, { props: { label: "News", optional: true } });
+    expect(other.container.querySelector(".e-field-flag")!.textContent).toBe("Optional");
+  });
+
+  test("readonly keeps the state and focus but blocks the toggle", async () => {
+    const got: boolean[] = [];
+    const { container } = await render(ECheckbox, {
+      props: { label: "Agree", readonly: true, modelValue: true, "onUpdate:modelValue": (v: boolean) => got.push(v) },
+    });
+    const input = container.querySelector("input")!;
+    expect(input.getAttribute("aria-readonly")).toBe("true");
+    await userEvent.tab();
+    expect(document.activeElement).toBe(input);
+    await userEvent.keyboard(" ");
+    await input.click();
+    expect(got).toEqual([]);
+    expect(input.checked).toBe(true);
+  });
 });

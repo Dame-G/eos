@@ -4,7 +4,7 @@ A person, as a photo or as their initials on a rounded tile.
 
 ```vue
 <EAvatar name="Ada Lovelace" />
-<EAvatar name="Ada Lovelace" src="/people/ada.jpg" large />
+<EAvatar name="Ada Lovelace" src="/people/ada.jpg" size="lg" status="online" />
 <EMenu label="Account" :items="items">
   <template #trigger><EAvatar name="Ada Lovelace" as="button" /></template>
 </EMenu>
@@ -14,21 +14,24 @@ A person, as a photo or as their initials on a rounded tile.
 
 <!-- props:start -->
 
-| Prop    | Type                 | Default      | Notes                                                                                                                   |
-| ------- | -------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| `name`  | `string`             | **Required** | The person's name. Screen readers read it, and the initials are the first letters of its first and last word.           |
-| `src`   | `string`             | None         | A photo URL. The initials show if it fails to load.                                                                     |
-| `small` | `boolean`            | `false`      | Makes the avatar smaller, for rows and bars.                                                                            |
-| `large` | `boolean`            | `false`      | Makes the avatar larger, for a profile or a practitioner on an appointment card.                                        |
-| `as`    | `"span" \| "button"` | `"span"`     | `button` renders a `button` with `type="button"`, named by `name`, for use as the `trigger` of an `EMenu`, for example. |
+| Prop     | Type                                        | Default      | Notes                                                                                                                                                                                             |
+| -------- | ------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`   | `string`                                    | **Required** | The person's name. Screen readers read it, and the initials are the first letter (a whole character, so a Chinese, Japanese, Korean or emoji one is never cut in two) of its first and last word. |
+| `src`    | `string`                                    | None         | A photo URL. The initials show if it fails to load.                                                                                                                                               |
+| `size`   | `Size`                                      | None         | `sm` (32px) for rows and bars, `md` (44px), `lg` (64px) for a profile or a practitioner on an appointment card.                                                                                   |
+| `small`  | `boolean`                                   | `false`      | Makes the avatar smaller. Same as `size="sm"`.                                                                                                                                                    |
+| `large`  | `boolean`                                   | `false`      | Makes the avatar larger. Same as `size="lg"`.                                                                                                                                                     |
+| `status` | `"online" \| "away" \| "busy" \| "offline"` | None         | A presence dot at the corner. The name is read with it, as "Ada Lovelace, Online".                                                                                                                |
+| `as`     | `"span" \| "button"`                        | `"span"`     | `button` renders a `button` with `type="button"`, named by `name`, for use as the `trigger` of an `EMenu`, for example.                                                                           |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `span` or `button` element.
+`class`, `style` and attributes land on the `span` or `button` element. A name without spaces (Chinese, Japanese or Korean) gives its first character. `size` is `sm` (32px), `md` (44px) or `lg` (64px); `small` and `large` are shorthand for it.
 
 ## Accessibility
 
 - The `span` root is `role="img"` with `aria-label` set to `name`. The photo has no alt text of its own.
+- With `status` the name is read with it ("Ada Lovelace, Online"); the dot differs by shape (the offline one is hollow) as well as colour.
 - As a `button` the root has no role and is named by hidden text set to `name`. The initials are hidden from screen readers.
 
 ## Keyboard
@@ -40,4 +43,4 @@ A person, as a photo or as their initials on a rounded tile.
 
 ## Related
 
-[`EMenu`](../Menu/README.md) takes an avatar button as its trigger, and [`EIconButton`](../IconButton/README.md) is the button for an icon action.
+[`EAvatarGroup`](../AvatarGroup/README.md) for several people in one overlapping stack. [`EMenu`](../Menu/README.md) takes an avatar button as its trigger, and [`EIconButton`](../IconButton/README.md) is the button for an icon action.

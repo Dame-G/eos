@@ -16,6 +16,30 @@ describe("EEmptyState", () => {
     expect(holder.borderRadius).toBe("0px");
   });
 
+  test("tone danger colours the icon in the error colour", async () => {
+    const colour = async (tone?: "danger") => {
+      const { container } = await render(EEmptyState, { props: { icon: "file", title: "x", tone } });
+      container.classList.add("e-root");
+      return getComputedStyle(container.querySelector(".e-empty-icon")!).color;
+    };
+    expect(await colour("danger")).not.toBe(await colour());
+  });
+
+  test("size sm is more compact with a smaller icon, both from the Icon size", async () => {
+    const measure = async (size: "sm" | "md") => {
+      const { container } = await render(EEmptyState, { props: { icon: "file", title: "x", size } });
+      container.classList.add("e-root");
+      return [
+        container.querySelector(".e-empty")!.getBoundingClientRect().height,
+        container.querySelector(".e-empty-icon svg")!.getBoundingClientRect().width,
+      ];
+    };
+    const [sm, md] = [await measure("sm"), await measure("md")];
+    expect(sm[0]).toBeLessThan(md[0]!);
+    expect(sm[1]).toBe(28);
+    expect(md[1]).toBe(40);
+  });
+
   test("shows the icon, title, text and action in that order", async () => {
     const { container } = await render(EEmptyState, {
       props: { icon: "file", title: "No statements yet" },

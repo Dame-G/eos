@@ -88,6 +88,12 @@ describe("EProgress", () => {
     expect(getComputedStyle(fill).animationName).not.toBe("none");
   });
 
+  test("a determinate bar with no label is named Progress, not Loading", async () => {
+    const { container } = await render(EProgress, { props: { value: 30 } });
+    await expect.element(page.getByRole("progressbar", { name: "Progress" })).toBeVisible();
+    expect(container.querySelector(".e-progress-label")!.textContent).toBe("Progress");
+  });
+
   test("indeterminate with no label is named Loading and shows no text row", async () => {
     const { container } = await render(EProgress);
     await expect.element(page.getByRole("progressbar", { name: "Loading" })).toBeVisible();

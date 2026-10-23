@@ -124,4 +124,14 @@ describe("ELink", () => {
     const { container } = await render(ELink, { props: { href: "#x", external: true }, slots: { default: "Help" } });
     await expectNoViolations(container);
   });
+
+  test("hover and press wash the link and the colour change is eased", async () => {
+    const { container } = await render(ELink, { props: { href: "/x" }, slots: { default: "Statements" } });
+    container.classList.add("e-root");
+    const a = container.querySelector("a")!;
+    expect(getComputedStyle(a).transitionProperty).toContain("color");
+    const rest = getComputedStyle(a).backgroundColor;
+    await userEvent.hover(a);
+    await expect.poll(() => getComputedStyle(a).backgroundColor).not.toBe(rest);
+  });
 });

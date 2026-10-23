@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
 import EButton from "../Button/EButton.vue";
-import EIcon from "../Icon/EIcon.vue";
 import { useMessages } from "../../config.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import "../../styles/base.css";
@@ -93,12 +92,12 @@ const items = computed<(number | "gap")[]>(() => {
     <p v-if="count" class="e-pager-status">{{ t("pageOf", { n: current, total: count }) }}</p>
     <EButton
       variant="outline"
+      icon-end="chevron-right"
       :href="href && !atEnd ? href(current + 1) : undefined"
       :aria-disabled="atEnd ? 'true' : undefined"
       @click="go(current + 1)"
     >
       {{ t("next") }}
-      <EIcon name="chevron-right" />
     </EButton>
   </nav>
 </template>
@@ -110,14 +109,14 @@ const items = computed<(number | "gap")[]>(() => {
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: var(--e-space-3);
+    gap: var(--e-gap-base);
     container-type: inline-size;
   }
 
   .e-pages {
     display: flex;
     align-items: flex-start;
-    gap: var(--e-space-1);
+    gap: var(--e-gap-tight);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -132,13 +131,19 @@ const items = computed<(number | "gap")[]>(() => {
   }
 
   .e-page {
+    --_slab: transparent;
+    --_ring: var(--_slab);
+    --_lift: 0px;
+
     display: inline-grid;
     place-items: center;
+    box-sizing: border-box;
     min-width: var(--e-control-height);
     height: var(--e-control-height);
     padding-block: 0;
-    padding-inline: var(--e-space-2);
-    border: 0;
+    padding-inline: calc(var(--e-gap-snug) - var(--e-stroke-edge));
+    border: var(--e-stroke-edge) solid var(--_ring);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
@@ -146,20 +151,17 @@ const items = computed<(number | "gap")[]>(() => {
     font-variant-numeric: tabular-nums;
     text-decoration: none;
     cursor: pointer;
-    transition:
-      background-color var(--e-duration-tap) var(--e-easing-out),
-      box-shadow var(--e-duration-tap) var(--e-easing-out);
+    transition: var(--e-transition-state);
   }
 
-  /* The shared recipe: hover washes, press sinks. */
-  .e-page:hover {
+  .e-page:not([aria-current="page"]):hover {
     background: var(--e-wash-hover);
-    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-wash-ring);
+    box-shadow: var(--e-ring-hover);
   }
 
-  .e-page:active {
+  .e-page:not([aria-current="page"]):active {
     background: var(--e-wash-press);
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ink);
+    box-shadow: var(--e-ring-press);
   }
 
   .e-page:focus-visible {
@@ -167,13 +169,12 @@ const items = computed<(number | "gap")[]>(() => {
     outline-offset: var(--e-stroke-focus);
   }
 
-  /* The current page is a slab: a face shorter by the depth, on an offset edge. */
-  .e-page[aria-current="page"],
-  .e-page[aria-current="page"]:hover,
-  .e-page[aria-current="page"]:active {
-    height: calc(var(--e-control-height) - var(--e-depth));
+  /* The current page is a value: filled primary on its slab. */
+  .e-page[aria-current="page"] {
+    --_slab: var(--e-primary-slab);
+    --_lift: var(--e-slab);
+
     background: var(--e-primary);
-    box-shadow: 0 var(--e-depth) 0 0 var(--e-primary-slab);
     color: var(--e-on-primary);
     font-weight: var(--e-weight-strong);
     cursor: default;
@@ -182,7 +183,7 @@ const items = computed<(number | "gap")[]>(() => {
   .e-page-gap {
     display: inline-grid;
     place-items: center;
-    min-width: calc(var(--e-space-6) + var(--e-space-1));
+    min-width: calc(var(--e-gap-section) + var(--e-gap-tight));
     height: var(--e-control-height);
     color: var(--e-muted);
   }

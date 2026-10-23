@@ -1,10 +1,13 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h, nextTick, ref } from "vue";
+import { type Component, defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
-import ERadioGroup from "./ERadioGroup.vue";
+import ERadioGroupGeneric from "./ERadioGroup.vue";
 import ETextField from "../TextField/ETextField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+
+// Generic SFCs are not assignable to `mount`/`h` component typings; the tests drive them by props.
+const ERadioGroup = ERadioGroupGeneric as unknown as Component;
 
 function colourOf(host: Element, token: string) {
   const probe = document.createElement("span");
@@ -18,7 +21,7 @@ function colourOf(host: Element, token: string) {
 describe("ERadioGroup", () => {
   test("is a group named by its legend, with a radio per option", async () => {
     const { container } = await render(ERadioGroup, { props: { label: "Reminder", options: ["Text", "Email"] } });
-    await expect.element(page.getByRole("group", { name: "Reminder" })).toBeVisible();
+    await expect.element(page.getByRole("radiogroup", { name: "Reminder" })).toBeVisible();
     await expect.element(page.getByRole("radio", { name: "Text" })).toBeVisible();
     await expect.element(page.getByRole("radio", { name: "Email" })).toBeVisible();
     const fs = container.querySelector("fieldset")!;
@@ -108,7 +111,7 @@ describe("ERadioGroup", () => {
     const fs = container.querySelector("fieldset")!;
     expect(fs.querySelector("legend")).not.toBeNull();
     expect(fs.getAttribute("aria-describedby")).toBe(container.querySelector(".e-field-hint")!.id);
-    await expect.element(page.getByRole("group", { name: "Reminder" })).toHaveAccessibleDescription("Pick one");
+    await expect.element(page.getByRole("radiogroup", { name: "Reminder" })).toHaveAccessibleDescription("Pick one");
 
     const bad = await render(ERadioGroup, {
       props: { label: "Reminder2", hint: "Pick one", error: "Choose a way", options: ["Text"] },
@@ -130,7 +133,7 @@ describe("ERadioGroup", () => {
     const { container } = await render(ERadioGroup, {
       props: { label: "Reminder", options: ["Text", "Email"], hideLabel: true },
     });
-    await expect.element(page.getByRole("group", { name: "Reminder" })).toBeInTheDocument();
+    await expect.element(page.getByRole("radiogroup", { name: "Reminder" })).toBeInTheDocument();
     expect(container.querySelector("legend")!.getBoundingClientRect().width).toBeLessThanOrEqual(1);
   });
 
@@ -252,5 +255,22 @@ describe("ERadioGroup", () => {
     expect(api!.input).toBe(radios[1]);
     api!.focus();
     expect(document.activeElement).toBe(radios[1]);
+  });
+
+  test("readonly keeps the choice and blocks changing it", async () => {
+    const got: string[] = [];
+    const { container } = await render(ERadioGroup, {
+      props: {
+        label: "Reminder",
+        options: ["Email", "Text"],
+        modelValue: "Email",
+        readonly: true,
+        "onUpdate:modelValue": (v: unknown) => got.push(v as string),
+      },
+    });
+    expect(container.querySelector("fieldset")!.getAttribute("aria-readonly")).toBe("true");
+    await container.querySelectorAll<HTMLInputElement>("input")[1]!.click();
+    expect(got).toEqual([]);
+    expect(container.querySelectorAll<HTMLInputElement>("input")[0]!.checked).toBe(true);
   });
 });

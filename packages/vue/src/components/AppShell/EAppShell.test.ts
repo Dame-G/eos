@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest";
-import { h } from "vue";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { defineComponent, h, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EAppShell from "./EAppShell.vue";
@@ -29,11 +29,15 @@ const slots = {
 const noSide = { header: slots.header, footer: slots.footer, default: slots.default };
 
 describe("EAppShell", () => {
+  // The test window is a phone; the page frame is tested wide unless a test says otherwise.
+  beforeEach(() => page.viewport(1024, 768));
+  afterEach(() => page.viewport(640, 800));
+
   test("lays out the landmarks: banner, navigation, complementary, main and contentinfo", async () => {
     await render(EAppShell, { slots });
     await expect.element(page.getByRole("banner")).toBeVisible();
     await expect.element(page.getByRole("navigation", { name: "Primary" })).toBeVisible();
-    await expect.element(page.getByRole("complementary", { name: "Main" })).toBeVisible();
+    await expect.element(page.getByRole("complementary", { name: "Sidebar" })).toBeVisible();
     await expect.element(page.getByRole("navigation", { name: "Account" })).toBeVisible();
     await expect.element(page.getByRole("main")).toBeVisible();
     await expect.element(page.getByRole("contentinfo")).toBeVisible();
@@ -86,7 +90,7 @@ describe("EAppShell", () => {
     expect(container.querySelector("main")!.tabIndex).toBe(-1);
   });
 
-  test("the sidebar is two columns from 48rem and sits above the content below that", async () => {
+  test("the sidebar is two columns from 48rem and leaves the page below that", async () => {
     await page.viewport(1024, 768);
     try {
       const { container } = await render(EAppShell, { slots });
@@ -95,12 +99,80 @@ describe("EAppShell", () => {
       expect(side.getBoundingClientRect().right).toBeLessThanOrEqual(main.getBoundingClientRect().left);
       expect(Math.round(side.getBoundingClientRect().width)).toBe(240);
       await page.viewport(600, 768);
-      expect(side.getBoundingClientRect().bottom).toBeLessThanOrEqual(main.getBoundingClientRect().top);
+      await expect.poll(() => container.querySelector("aside")).toBeNull();
       await page.viewport(768, 768);
-      expect(side.getBoundingClientRect().right).toBeLessThanOrEqual(main.getBoundingClientRect().left);
+      await expect.poll(() => container.querySelector("aside")).not.toBeNull();
+      const wide = container.querySelector("aside")!.getBoundingClientRect();
+      expect(wide.right).toBeLessThanOrEqual(container.querySelector("main")!.getBoundingClientRect().left);
     } finally {
       await page.viewport(1024, 768);
     }
+  });
+
+  test("below 48rem a menu button in the header opens the sidebar in a drawer", async () => {
+    await page.viewport(600, 768);
+    try {
+      await render(EAppShell, { slots });
+      const toggle = page.getByRole("button", { name: "Menu" });
+      await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
+      const button = toggle.element();
+      await toggle.click();
+      expect(button.getAttribute("aria-expanded")).toBe("true");
+      const dialog = page.getByRole("dialog", { name: "Menu" });
+      await expect.element(dialog).toBeVisible();
+      await expect.element(dialog.getByRole("navigation", { name: "Account" })).toBeVisible();
+      await userEvent.keyboard("{Escape}");
+      await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
+      expect(button.getAttribute("aria-expanded")).toBe("false");
+      expect(document.activeElement).toBe(button);
+    } finally {
+      await page.viewport(1024, 768);
+    }
+  });
+
+  test("following a link in the drawer closes it, and widening the window closes it too", async () => {
+    await page.viewport(600, 768);
+    try {
+      const open = ref(false);
+      await render(
+        defineComponent({
+          render: () =>
+            h(EAppShell, { navOpen: open.value, "onUpdate:navOpen": (v: boolean) => (open.value = v) }, slots),
+        }),
+      );
+      await page.getByRole("button", { name: "Menu" }).click();
+      expect(open.value).toBe(true);
+      const link = page.getByRole("dialog").getByRole("link", { name: "Statements" });
+      link.element().addEventListener("click", (e) => e.preventDefault());
+      await link.click();
+      expect(open.value).toBe(false);
+      open.value = true;
+      await page.viewport(1024, 768);
+      await expect.poll(() => open.value).toBe(false);
+    } finally {
+      await page.viewport(1024, 768);
+    }
+  });
+
+  test("navToggle off keeps the sidebar above the content on a phone", async () => {
+    await page.viewport(600, 768);
+    try {
+      const { container } = await render(EAppShell, { props: { navToggle: false }, slots });
+      const side = container.querySelector("aside")!;
+      expect(side.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+        container.querySelector("main")!.getBoundingClientRect().top,
+      );
+      expect(page.getByRole("button", { name: "Menu" }).elements().length).toBe(0);
+    } finally {
+      await page.viewport(1024, 768);
+    }
+  });
+
+  test("the sidebar and the navigation inside it are two landmarks with two names", async () => {
+    await render(EAppShell, { slots });
+    await expect.element(page.getByRole("complementary", { name: "Sidebar" })).toBeVisible();
+    await expect.element(page.getByRole("navigation", { name: "Account" })).toBeVisible();
+    expect(page.getByLabelText("Main", { exact: true }).elements().length).toBe(0);
   });
 
   test("the content is capped at 72rem and centred", async () => {

@@ -4,7 +4,8 @@ import EActions from "../Actions/EActions.vue";
 import EButton from "../Button/EButton.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
-import { useConfig, useMessages } from "../../config.js";
+import { useMessages } from "../../config.js";
+import { useDir } from "../../composables/useDir.js";
 import { useLocale } from "../../composables/useLocale.js";
 import { useUid } from "../../composables/useUid.js";
 import {
@@ -67,7 +68,7 @@ const end = defineModel<Date | null>("end", { default: null });
 type View = "days" | "months" | "years";
 
 const t = useMessages();
-const config = useConfig();
+const dir = useDir();
 const loc = useLocale();
 const uid = useUid();
 const root = ref<HTMLElement | null>(null);
@@ -243,11 +244,10 @@ function inRange(d: Date): boolean {
   );
 }
 function dayLabel(d: Date, marked: boolean): string {
-  return (
-    loc.formatLong(d) +
-    (sameDay(d, today.value) ? ", " + t("todaySuffix") : "") +
-    (marked ? ", " + (props.markLabel || t("timesAvailable")) : "")
-  );
+  const date = loc.formatLong(d);
+  const mark = props.markLabel || t("timesAvailable");
+  if (sameDay(d, today.value)) return t(marked ? "dayTodayMarked" : "dayToday", { date, mark });
+  return marked ? t("dayMarked", { date, mark }) : date;
 }
 
 function pickDay(d: Date) {
@@ -310,8 +310,7 @@ function step(n: number) {
 }
 
 function sign(): number {
-  if (config.dir) return config.dir === "rtl" ? -1 : 1;
-  return root.value && getComputedStyle(root.value).direction === "rtl" ? -1 : 1;
+  return dir.value === "rtl" ? -1 : 1;
 }
 
 function onDayKey(e: KeyboardEvent) {
@@ -449,7 +448,7 @@ defineExpose({
 
 <template>
   <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
-  <div ref="root" class="e-cal" :dir="config.dir ?? undefined" @keydown="onRootKey">
+  <div ref="root" class="e-cal" :dir="dir" @keydown="onRootKey">
     <div class="e-cal-head">
       <EIconButton
         v-if="picking"
@@ -586,6 +585,9 @@ defineExpose({
 <style>
 @layer e.composites {
   .e-cal {
+    display: flex;
+    flex-direction: column;
+    gap: var(--e-gap-snug);
     width: 20.5rem;
     max-width: 100%;
     font-family: var(--e-font-sans);
@@ -595,9 +597,8 @@ defineExpose({
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--e-space-2);
-    margin-bottom: var(--e-space-2);
-    padding-bottom: var(--e-space-2);
+    gap: var(--e-gap-snug);
+    padding-bottom: var(--e-gap-snug);
     border-bottom: var(--e-stroke-hair) solid var(--e-border);
   }
 
@@ -605,7 +606,7 @@ defineExpose({
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--e-space-1);
+    gap: var(--e-gap-tight);
     flex: 1;
     min-width: 0;
     margin: 0;
@@ -616,7 +617,7 @@ defineExpose({
   .e-cal-pick {
     display: inline-flex;
     align-items: center;
-    gap: var(--e-space-1);
+    gap: var(--e-gap-tight);
     height: var(--e-control-height);
     padding: 0 var(--e-space-2);
     border: 0;
@@ -779,7 +780,7 @@ defineExpose({
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-auto-rows: 1fr;
-    gap: var(--e-space-1);
+    gap: var(--e-gap-tight);
     height: calc(6 * var(--e-tap) + var(--e-space-8) + var(--e-space-4));
     padding-top: var(--e-space-1);
   }
@@ -813,7 +814,6 @@ defineExpose({
 
   .e-cal-help {
     min-height: calc(var(--e-text-sm) * 1.4);
-    margin: var(--e-space-2) 0 0;
     font: var(--e-weight-medium) var(--e-text-sm) / 1.4 var(--e-font-sans);
     color: var(--e-muted);
     text-align: center;
@@ -823,9 +823,8 @@ defineExpose({
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: var(--e-space-2);
-    margin-top: var(--e-space-2);
-    padding-top: var(--e-space-2);
+    gap: var(--e-gap-snug);
+    padding-top: var(--e-gap-snug);
     border-top: var(--e-stroke-hair) solid var(--e-border);
   }
 

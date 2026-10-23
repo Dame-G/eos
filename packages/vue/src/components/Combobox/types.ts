@@ -2,12 +2,12 @@ import type { EOption, EOptionInput } from "../Select/options.js";
 import type { ELabelProps } from "../Field/labelProps.js";
 
 /** What ECombobox takes besides its `v-model`. */
-export type EComboboxProps = ELabelProps & EComboboxFields;
+export type EComboboxProps<M extends boolean = boolean> = ELabelProps & EComboboxFields<M>;
 
 /** @public Exported so the generated declarations can name it. */
-export interface EComboboxFields {
+export interface EComboboxFields<M extends boolean = boolean> {
   /** Lets people choose several options. `v-model` is a `string[]` shown as removable tags, the list stays open while choosing, `placeholder` shows only while nothing is chosen, and `name` submits one hidden input per value. */
-  multiple?: boolean;
+  multiple?: M;
   /** Accepts any typed text, not only an option. `v-model` is the text, options are suggestions and choosing one puts its `label` in the field. There is no Show options button, and the list stays closed when nothing matches. `multiple` ignores it. */
   freeform?: boolean;
   /** Strings, or `{ value, label, description, icon, group, disabled }` as in `ESelect`. A value is never an empty string. */

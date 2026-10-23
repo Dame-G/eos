@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { useSize, type Size } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
-defineProps<{
-  /** Makes the key smaller, for a hint inside small text. */
+const props = defineProps<{
+  /** `sm` is for a hint inside small text. */
+  size?: Exclude<Size, "lg">;
+  /** Makes the key smaller. Same as `size="sm"`. */
   small?: boolean;
 }>();
 
@@ -10,10 +13,12 @@ defineSlots<{
   /** The key, written as it is on the keycap: "/", "Esc", "Ctrl". */
   default(): unknown;
 }>();
+
+const size = useSize(props, "EKbd");
 </script>
 
 <template>
-  <kbd class="e-kbd" :class="small && 'e-kbd--s'"><slot /></kbd>
+  <kbd class="e-kbd" :class="size === 'sm' && 'e-kbd--s'"><slot /></kbd>
 </template>
 
 <style>
@@ -21,14 +26,14 @@ defineSlots<{
   .e-kbd {
     display: inline-block;
     min-width: 1.5em;
-    padding: 0 var(--e-space-1);
+    padding: 0 var(--e-gap-tight);
     border: var(--e-stroke-edge) solid var(--e-border-strong);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-slab-thin));
     border-radius: var(--e-radius-sm);
     background: var(--e-surface-tint);
     background-clip: padding-box;
     color: var(--e-muted);
-    font: var(--e-weight-medium) var(--e-text-sm) / 1.5 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-normal) var(--e-font-mono);
     text-align: center;
     white-space: nowrap;
   }

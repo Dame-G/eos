@@ -12,13 +12,15 @@ export interface NavItem extends LinkItem {
   count?: number;
   /** What the count counts, as the phrase a screen reader reads after the label ("2 bills to pay"). Without it the number is read bare. */
   countLabel?: string;
+  /** Items under this one. The item becomes a group that opens and closes. Use it in a vertical list. */
+  children?: NavItem[];
 }
 
 export type NavSection = LinkSection<NavItem>;
 
 const props = withDefaults(
   defineProps<{
-    /** The destinations, in order: `{ label, href?, to?, icon?, count?, countLabel?, current? }`. With no `href` or `to` the item is plain text, not a link. `current` marks the current page and is never set for you. */
+    /** The destinations, in order: `{ label, href?, to?, icon?, count?, countLabel?, current?, disabled?, children? }`. With no `href` or `to` the item is plain text, not a link. `current` marks the current page and wins over `isCurrent`. */
     items?: NavItem[];
     /** Destinations in labelled groups, instead of `items`: `{ label?, items }`. A label is needed only when there is more than one section. */
     sections?: NavSection[];
@@ -28,6 +30,8 @@ const props = withDefaults(
     label?: string;
     /** What renders each link: `RouterLink` or any component that takes `href` or `to` and a default slot. It receives `to` or `href`, the class `e-nav-item` and `aria-current`. Items then use `to`. */
     linkComponent?: string | Component;
+    /** Says which item is the current page, for every item whose `current` is not set: `(item) => item.href === route.path`. It runs again when what it reads changes. */
+    isCurrent?: (item: NavItem) => boolean;
   }>(),
   { orientation: "vertical", linkComponent: "a" },
 );
@@ -42,6 +46,7 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     :groups="groups"
     :label="label"
     :link-component="linkComponent"
+    :is-current="isCurrent"
     item-class="e-nav-item"
     heading-class="e-nav-heading"
   >
@@ -60,53 +65,49 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
 @layer e.page {
   .e-nav ul {
     display: grid;
-    gap: calc(var(--e-space-1) / 2);
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-
-  .e-nav:not(.e-nav--horizontal) ul {
-    gap: 0;
   }
 
   .e-nav:not(.e-nav--horizontal) li + li::before {
     content: "";
     display: block;
     height: var(--e-stroke-hair);
-    margin-block: var(--e-space-2);
+    margin-block: var(--e-gap-snug);
     background: var(--e-border);
   }
 
+  /* A row uses the slab contract with no edge at rest, so the current page can rise without the row changing size. */
   .e-nav-item {
-    display: flex;
-    align-items: center;
-    gap: var(--e-space-3);
-    height: var(--e-control-height);
-    box-sizing: border-box;
-    padding-block: 0;
-    padding-inline: calc(var(--e-space-3) - var(--e-stroke-edge));
-
+    --_slab: transparent;
+    --_ring: var(--_slab);
     --_lift: 0px;
 
-    /* The current page is outlined with a border and its fill stops inside it, so the corner carries the edge colour alone. The other items have no edge and fill to the box. */
-    border: var(--e-stroke-edge) solid transparent;
+    display: flex;
+    align-items: center;
+    gap: var(--e-gap-base);
+    box-sizing: border-box;
+    height: var(--e-control-height);
+    padding-block: 0;
+    padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
+    border: var(--e-stroke-edge) solid var(--_ring);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-radius: var(--e-radius-md);
     color: var(--e-ink);
     font: var(--e-weight-regular) var(--e-text-md) / 1 var(--e-font-sans);
     text-decoration: none;
-    transition:
-      background-color var(--e-duration-tap) var(--e-easing-out),
-      border-color var(--e-duration-tap) var(--e-easing-out);
+    transition: var(--e-transition-state);
   }
 
-  .e-nav-item:is(a, button):hover {
-    background-color: var(--e-surface-hover);
+  .e-nav-item:is(a, button, summary):not([aria-current="page"], [aria-disabled="true"]):hover {
+    background-color: var(--e-wash-hover);
+    box-shadow: var(--e-ring-hover);
   }
 
-  .e-nav-item:is(a, button):active {
-    background-color: var(--e-surface-press);
+  .e-nav-item:is(a, button, summary):not([aria-current="page"], [aria-disabled="true"]):active {
+    background-color: var(--e-wash-press);
+    box-shadow: var(--e-ring-press);
   }
 
   .e-nav-item:focus-visible {
@@ -114,16 +115,53 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     outline-offset: var(--e-stroke-focus);
   }
 
+  /* Where you are: a washed face with the primary slab, in the voice tabs use. */
   .e-nav-item[aria-current="page"] {
+    --_slab: var(--e-primary);
+    --_lift: var(--e-slab);
+
     background-color: var(--e-surface-hover);
-    font-weight: var(--e-weight-strong);
-
-    --_lift: var(--e-depth);
-    --_slab: var(--e-primary-slab);
-
-    border-color: var(--e-primary);
-    border-bottom-color: var(--_slab);
     background-clip: padding-box;
+    color: var(--e-primary);
+    font-weight: var(--e-weight-strong);
+  }
+
+  /* An unavailable row only dims its text and stops answering the pointer. */
+  .e-nav-item[aria-disabled="true"] {
+    color: var(--e-disabled-ink);
+    cursor: not-allowed;
+  }
+
+  .e-nav-summary {
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .e-nav-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .e-nav-summary::after {
+    content: "";
+    flex: none;
+    width: var(--e-gap-snug);
+    height: var(--e-gap-snug);
+    border-inline-end: var(--e-stroke-card) solid currentcolor;
+    border-bottom: var(--e-stroke-card) solid currentcolor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform var(--e-duration-tap) var(--e-easing-out);
+  }
+
+  .e-nav-group[open] > .e-nav-summary::after {
+    transform: translateY(2px) rotate(-135deg);
+  }
+
+  .e-nav-summary[data-current]:not([aria-disabled="true"]) {
+    color: var(--e-primary);
+  }
+
+  .e-nav-group > ul {
+    padding-inline-start: var(--e-pad-control-sm);
   }
 
   .e-nav-label {
@@ -135,14 +173,13 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--e-space-2) var(--e-space-4);
+    gap: var(--e-gap-snug) var(--e-gap-loose);
   }
 
   /* The separator sits inside the next item's li, so the list has no gap of its own: the margins on the separator space both sides equally. */
   .e-nav--horizontal ul {
     display: flex;
     flex-wrap: wrap;
-    gap: 0;
   }
 
   .e-nav--horizontal li {
@@ -154,7 +191,7 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     content: "";
     width: var(--e-stroke-hair);
     height: var(--e-icon-size-md);
-    margin-inline: var(--e-space-2);
+    margin-inline: var(--e-gap-snug);
     background: var(--e-border);
   }
 
@@ -164,9 +201,9 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
   }
 
   .e-nav-count {
-    min-width: var(--e-space-6);
+    min-width: var(--e-gap-section);
     padding-block: 0;
-    padding-inline: var(--e-space-2);
+    padding-inline: var(--e-gap-snug);
     border-radius: var(--e-radius-pill);
     background: var(--e-primary-soft);
     border: var(--e-stroke-hair) solid var(--e-primary);

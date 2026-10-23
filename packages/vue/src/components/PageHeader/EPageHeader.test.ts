@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { h } from "vue";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EPageHeader from "./EPageHeader.vue";
 import EBreadcrumb from "../Breadcrumb/EBreadcrumb.vue";
@@ -100,5 +100,24 @@ describe("EPageHeader", () => {
   test("has no accessibility violations at another heading level", async () => {
     const { container } = await render(EPageHeader, { props: { title: "Plain", headingLevel: 3 } });
     await expectNoViolations(container, { disable: ["heading-order"] });
+  });
+
+  test("keyboard: Tab goes through the breadcrumb, then the actions in order, with a focus ring", async () => {
+    const { container } = await render(EPageHeader, { props: { title: "Visit on Oct 2" }, slots });
+    container.classList.add("e-root");
+    const seen: string[] = [];
+    for (let i = 0; i < 4; i++) {
+      await userEvent.tab();
+      seen.push(document.activeElement!.textContent!.trim());
+    }
+    expect(seen).toEqual(["Home", "Statements", "Pay $162.40", "Download"]);
+    expect(getComputedStyle(document.activeElement!).outlineStyle).toBe("solid");
+  });
+
+  test("the title, description and status are spaced by the parent's gap, not by margins", async () => {
+    const { container } = await render(EPageHeader, { props: { title: "Visit", description: "Details" }, slots });
+    container.classList.add("e-root");
+    expect(getComputedStyle(container.querySelector(".e-pagehead-desc")!).marginTop).toBe("0px");
+    expect(getComputedStyle(container.querySelector(".e-pagehead-text")!).rowGap).not.toBe("normal");
   });
 });

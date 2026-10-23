@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, test } from "vitest";
-import { defineComponent, h } from "vue";
+import { afterEach, describe, expect, test, vi } from "vitest";
+import { createSSRApp, defineComponent, h } from "vue";
+import { renderToString } from "vue/server-renderer";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EToastProvider from "./EToastProvider.vue";
@@ -25,21 +26,29 @@ async function mountApp() {
 afterEach(() => api?.clear());
 
 describe("EToastProvider", () => {
-  test("renders its content and one labelled region, announced politely as status messages", async () => {
+  test("renders its content, and the labelled region only while there are toasts", async () => {
     await mountApp();
     expect(document.getElementById("app")).not.toBeNull();
-    expect(document.querySelectorAll(".e-toast-region")).toHaveLength(1);
+    expect(document.querySelectorAll(".e-toast-region")).toHaveLength(0);
+    api.show({ title: "Saved" });
+    await expect.poll(() => document.querySelectorAll(".e-toast-region").length).toBe(1);
     await expect.element(page.getByRole("region", { name: "Notifications" })).toBeInTheDocument();
+    expect(document.querySelector(".e-toast-region")!.hasAttribute("aria-live")).toBe(false);
+    api.clear();
+    await expect.poll(() => document.querySelectorAll(".e-toast-region").length).toBe(0);
   });
 
-  test("show adds a toast with its title and detail; success is a status, danger an alert", async () => {
+  test("show adds a toast with its title and detail, announced through the shared live regions", async () => {
     await mountApp();
     api.show({ title: "Saved", message: "All changes kept.", tone: "success" });
     api.show({ title: "Failed", tone: "danger" });
     await expect.poll(() => toasts().length).toBe(2);
-    expect(toasts()[0]!.getAttribute("role")).toBe("status");
     expect(toasts()[0]!.querySelector(".e-toast-text")!.textContent).toBe("All changes kept.");
-    expect(toasts()[1]!.getAttribute("role")).toBe("alert");
+    for (const toast of toasts()) expect(toast.hasAttribute("role")).toBe(false);
+    await expect
+      .poll(() => document.querySelector("[data-e-announcer='polite']")?.textContent)
+      .toBe("Saved. All changes kept.");
+    await expect.poll(() => document.querySelector("[data-e-announcer='assertive']")?.textContent).toBe("Failed");
   });
 
   test("success goes after its duration, an error stays", async () => {
@@ -50,12 +59,12 @@ describe("EToastProvider", () => {
     expect(toasts()).toHaveLength(2);
     await wait(200);
     expect(toasts()).toHaveLength(1);
-    expect(toasts()[0]!.getAttribute("role")).toBe("alert");
+    expect(toasts()[0]!.querySelector(".e-toast-title")!.textContent).toBe("Failed");
   });
 
   test("icon and closable pass through to the toast", async () => {
     await mountApp();
-    api.show({ title: "Quiet", closable: false, duration: 0 });
+    api.show({ title: "Quiet", closable: false, duration: 60000 });
     api.show({ title: "Loud", icon: "pin", duration: 0 });
     await expect.poll(() => toasts().length).toBe(2);
     expect(toasts()[0]!.querySelector(".e-notice-dismiss")).toBeNull();
@@ -83,7 +92,7 @@ describe("EToastProvider", () => {
     api.show({ title: "b", tone: "danger" });
     api.show({ title: "c", tone: "danger" });
     await expect.poll(() => toasts().length).toBe(3);
-    await page.getByRole("button", { name: "Dismiss" }).first().click();
+    await page.getByRole("button", { name: "Close notification" }).first().click();
     await expect.poll(() => toasts().length).toBe(2);
     api.dismiss(a);
     expect(toasts()).toHaveLength(2);
@@ -183,5 +192,92 @@ describe("EToastProvider", () => {
       api.show({ title: `Toast ${tone}`, message: "Detail.", tone, duration: 0 });
     await expect.poll(() => toasts().length).toBe(4);
     await expectNoViolations(document.querySelector(".e-toast-region")!);
+  });
+});
+
+describe("EToastProvider behaviour", () => {
+  test("a toast with no duration keeps its close button even when closable is false", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await mountApp();
+    api.show({ title: "Failed", tone: "danger", closable: false });
+    await expect.poll(() => toasts().length).toBe(1);
+    expect(toasts()[0]!.querySelector(".e-notice-dismiss")).not.toBeNull();
+    warn.mockRestore();
+  });
+
+  test("limit keeps only the newest toasts", async () => {
+    await render(defineComponent({ render: () => h(EToastProvider, { limit: 2 }, { default: () => h(Grab) }) }));
+    for (const title of ["a", "b", "c"]) api.show({ title, tone: "danger" });
+    await expect.poll(() => toasts().length).toBe(2);
+    expect([...toasts()].map((t) => t.querySelector(".e-toast-title")!.textContent)).toEqual(["b", "c"]);
+  });
+
+  test("F8 focuses the notifications, Tab reaches a toast's button, Escape dismisses it and returns focus", async () => {
+    await mountApp();
+    const app = document.getElementById("app") as HTMLElement;
+    app.focus();
+    api.show({ title: "Failed", tone: "danger" });
+    await expect.poll(() => toasts().length).toBe(1);
+    await userEvent.keyboard("{F8}");
+    const region = document.querySelector<HTMLElement>(".e-toast-region")!;
+    expect(document.activeElement).toBe(region);
+    await userEvent.tab();
+    expect(document.activeElement?.getAttribute("aria-label")).toBe("Close notification");
+    await userEvent.keyboard("{Escape}");
+    await expect.poll(() => toasts().length).toBe(0);
+    await expect.poll(() => document.activeElement).toBe(app);
+  });
+
+  test("Escape on the region itself gives focus back and keeps the toasts", async () => {
+    await mountApp();
+    const app = document.getElementById("app") as HTMLElement;
+    app.focus();
+    api.show({ title: "Failed", tone: "danger" });
+    await expect.poll(() => toasts().length).toBe(1);
+    await userEvent.keyboard("{F8}");
+    await userEvent.keyboard("{Escape}");
+    expect(toasts()).toHaveLength(1);
+    await expect.poll(() => document.activeElement).toBe(app);
+  });
+
+  test("timers wait while the tab is hidden", async () => {
+    await mountApp();
+    const hidden = vi.spyOn(document, "hidden", "get").mockReturnValue(true);
+    api.show({ title: "Saved", duration: 100 });
+    await expect.poll(() => toasts().length).toBe(1);
+    document.dispatchEvent(new Event("visibilitychange"));
+    await wait(300);
+    expect(toasts()).toHaveLength(1);
+    hidden.mockReturnValue(false);
+    document.dispatchEvent(new Event("visibilitychange"));
+    await expect.poll(() => toasts().length).toBe(0);
+    hidden.mockRestore();
+  });
+
+  test("renders no teleport on the server and hydrates without a warning", async () => {
+    const App = defineComponent({ render: () => h(EToastProvider, null, { default: () => h("p", "app") }) });
+    const html = await renderToString(createSSRApp(App));
+    expect(html).toContain("<p>app</p>");
+    expect(html).not.toContain("teleport");
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const host = document.createElement("div");
+    host.innerHTML = html;
+    document.body.append(host);
+    const app = createSSRApp(App);
+    app.mount(host);
+    expect(warn.mock.calls.filter((c) => String(c[0]).includes("Hydration"))).toEqual([]);
+    app.unmount();
+    host.remove();
+    warn.mockRestore();
+  });
+
+  test("promise() shows a toast that turns into the result", async () => {
+    await mountApp();
+    let done!: () => void;
+    void api.promise(new Promise<void>((r) => (done = r)), { loading: "Saving", success: "Saved", error: "Failed" });
+    await expect.poll(() => toasts()[0]?.querySelector(".e-toast-title")?.textContent).toBe("Saving");
+    done();
+    await expect.poll(() => toasts()[0]?.querySelector(".e-toast-title")?.textContent).toBe("Saved");
+    expect(toasts()[0]!.classList.contains("e-toast--success")).toBe(true);
   });
 });

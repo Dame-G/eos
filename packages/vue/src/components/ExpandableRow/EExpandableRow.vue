@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import EActions from "../Actions/EActions.vue";
+import { useDetails } from "../../composables/useDetails.js";
 import "../../styles/base.css";
+import "../../styles/details.css";
 
-defineProps<{
+const props = defineProps<{
   /** The row's name, always visible in the summary. */
   title: string;
   /** A muted line under the title. */
   subtitle?: string;
   /** Rows that share a `group` open one at a time (the native `name` of `details`). */
   group?: string;
+  /** Keeps it as it is: the row shows it is unavailable and no longer toggles. */
+  disabled?: boolean;
 }>();
 
 defineSlots<{
@@ -25,15 +29,13 @@ defineSlots<{
 /** Whether it is open. Without a binding it keeps its own state. */
 const open = defineModel<boolean>("open");
 
-function onToggle(e: Event) {
-  open.value = (e.target as HTMLDetailsElement).open;
-}
+const { details, summary } = useDetails(open, { group: () => props.group, disabled: () => props.disabled });
 </script>
 
 <template>
-  <details class="e-xrow" :name="group" :open="open || undefined" @toggle="onToggle">
+  <details class="e-xrow" :class="disabled && 'e-xrow--disabled'" v-bind="details">
     <!-- A summary holds phrasing content only, so the parts are spans that CSS lays out as blocks. -->
-    <summary :class="{ 'e-xrow-summary--lead': $slots.leading }">
+    <summary :class="{ 'e-xrow-summary--lead': $slots.leading }" v-bind="summary">
       <span v-if="$slots.leading" class="e-xrow-lead"><slot name="leading" /></span>
       <span class="e-xrow-main">
         <span class="e-xrow-title">{{ title }}</span>
@@ -50,42 +52,48 @@ function onToggle(e: Event) {
 
 <style>
 @layer e.containers {
+  /* The slab contract: a border on every side, thicker at the bottom by the lift. Hover darkens the edge, press inks it, and opening lays the row flat. */
   .e-xrow {
-    --_band: var(--e-border);
+    --_slab: var(--e-border-strong);
+    --_ring: var(--_slab);
+    --_lift: var(--e-slab);
 
     container-type: inline-size;
-    border-bottom: var(--e-depth) solid transparent;
+    border: var(--e-stroke-edge) solid var(--_ring);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-radius: var(--e-radius-md);
     background-color: var(--e-surface);
-    background-image: linear-gradient(to top, var(--_band) var(--e-depth), transparent var(--e-depth));
-    background-origin: border-box;
-    background-repeat: no-repeat;
-    box-shadow: var(--e-frame);
-    transition:
-      background-color var(--e-duration-tap) var(--e-easing-out),
-      box-shadow var(--e-duration-tap) var(--e-easing-out);
-  }
-
-  .e-xrow:not([open]):hover {
-    --_band: var(--e-border-strong);
-
-    background-color: var(--e-surface-hover);
-    box-shadow: 0 0 0 var(--e-stroke-card) var(--e-border-strong);
+    background-clip: padding-box;
+    transition: var(--e-transition-state);
   }
 
   .e-xrow[open] {
-    border-bottom-width: 0;
-    background-image: none;
-    box-shadow: var(--e-frame);
+    --_lift: 0px;
   }
 
-  .e-xrow[open]:has(> summary:hover) {
+  .e-xrow:not([open], .e-xrow--disabled):hover,
+  .e-xrow[open]:not(.e-xrow--disabled):has(> summary:hover) {
+    --_slab: var(--e-wash-ring);
+
     background-color: var(--e-surface-hover);
-    box-shadow: 0 0 0 var(--e-stroke-card) var(--e-border-strong);
   }
 
-  .e-xrow[open] > summary:hover {
-    border-bottom-color: var(--e-border-strong);
+  .e-xrow:not(.e-xrow--disabled):has(> summary:active) {
+    --_slab: var(--e-ink);
+    --_lift: 0px;
+
+    background-color: var(--e-surface-press);
+  }
+
+  .e-xrow--disabled {
+    --_lift: 0px;
+
+    background-color: var(--e-disabled-fill);
+    color: var(--e-disabled-ink);
+  }
+
+  .e-xrow.e-xrow--disabled > summary {
+    cursor: not-allowed;
   }
 
   .e-xrow > summary {
@@ -93,9 +101,9 @@ function onToggle(e: Event) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: var(--e-space-3);
-    padding-block: var(--e-space-3);
-    padding-inline: var(--e-space-4);
+    gap: var(--e-gap-base);
+    padding-block: var(--e-pad-control-sm);
+    padding-inline: var(--e-pad-card);
     list-style: none;
     cursor: pointer;
   }
@@ -124,7 +132,8 @@ function onToggle(e: Event) {
   }
 
   .e-xrow-main {
-    display: block;
+    display: grid;
+    gap: var(--e-gap-tight);
     min-width: 0;
   }
 
@@ -137,7 +146,6 @@ function onToggle(e: Event) {
 
   .e-xrow-sub {
     display: block;
-    margin-block-start: var(--e-space-1);
     font: var(--e-weight-regular) var(--e-text-sm) / 1.4 var(--e-font-sans);
     color: var(--e-muted);
     overflow-wrap: anywhere;
@@ -165,8 +173,8 @@ function onToggle(e: Event) {
 
   .e-xrow-content {
     display: grid;
-    gap: var(--e-space-2);
-    padding: var(--e-space-4);
+    gap: var(--e-gap-snug);
+    padding: var(--e-pad-card);
   }
 
   .e-xrow-body > .e-actions--bar:last-child {

@@ -1,13 +1,13 @@
-/* The table look shared by ETable and EDataGrid: tinted mono headings, hairline rows, a hover row and numeric columns. */
+/* The table look shared by ETable and EDataGrid: tinted mono headings, hairline rows, a hover row and numeric columns. `.e-cards` on a container turns the rows into cards below 40rem of its width (each cell needs a `data-label`). */
 @layer e.containers {
   .e-table {
     width: 100%;
     border-collapse: collapse;
-    font: var(--e-weight-regular) var(--e-text-md) / 1.4 var(--e-font-sans);
+    font: var(--e-type-body);
   }
 
   .e-table th {
-    padding: var(--e-space-3) var(--e-space-4);
+    padding: var(--e-pad-cell);
     border-bottom: 0;
 
     /* The rule under a heading is a shadow, not a border: a sticky cell in a collapsed table drops its border when the table scrolls. */
@@ -15,27 +15,28 @@
     background: var(--e-surface-tint);
     text-align: start;
     white-space: nowrap;
-    font: var(--e-weight-strong) var(--e-text-xs) / 1.2 var(--e-font-mono);
-    letter-spacing: 0.08em;
+    font: var(--e-type-kicker);
+    letter-spacing: var(--e-tracking-label);
     text-transform: uppercase;
     color: var(--e-muted);
   }
 
   /* A heading at the start of a row names the row: it reads as a label, not as a column heading. */
   .e-table tbody th {
-    padding: var(--e-space-3) var(--e-space-4);
+    padding: var(--e-pad-cell);
     border-top: var(--e-stroke-hair) solid var(--e-border);
     border-bottom: 0;
     box-shadow: none;
     background: transparent;
-    font: var(--e-weight-strong) var(--e-text-md) / 1.4 var(--e-font-sans);
+    font: var(--e-type-body);
+    font-weight: var(--e-weight-strong);
     letter-spacing: normal;
     text-transform: none;
     color: var(--e-ink);
   }
 
   .e-table td {
-    padding: var(--e-space-3) var(--e-space-4);
+    padding: var(--e-pad-cell);
     border-top: var(--e-stroke-hair) solid var(--e-border);
     vertical-align: middle;
   }
@@ -61,5 +62,93 @@
 
   .e-table .e-center {
     text-align: center;
+  }
+
+  .e-cards {
+    container-type: inline-size;
+  }
+
+  @container (max-width: 40rem) {
+    .e-cards :is(.e-table-scroll, .e-grid-scroll) {
+      overflow: visible;
+      max-height: none;
+      background: transparent;
+    }
+
+    .e-cards .e-table,
+    .e-cards .e-table tbody {
+      display: block;
+      min-width: 0;
+      width: 100%;
+      background: transparent;
+    }
+
+    /* The heading row stays for screen readers; the sort control replaces its buttons. */
+    .e-cards .e-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      /* stylelint-disable-next-line property-no-deprecated -- clip hides text visually */
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    .e-cards .e-table tbody tr {
+      display: block;
+      margin: 0 0 var(--e-gap-base);
+      padding: var(--e-space-1) var(--e-pad-card);
+      border-radius: var(--e-radius-md);
+      background: var(--e-surface);
+      box-shadow: var(--e-frame);
+    }
+
+    .e-cards .e-table tbody tr:last-child {
+      margin-bottom: 0;
+    }
+
+    .e-cards .e-table tbody tr :is(td, th) {
+      display: grid;
+      grid-template-columns: minmax(5rem, 38%) minmax(0, 1fr);
+      gap: var(--e-gap-base);
+      align-items: baseline;
+      padding: var(--e-gap-snug) 0;
+      border-top: var(--e-stroke-hair) solid var(--e-border);
+      background: transparent;
+      overflow: visible;
+      white-space: normal;
+      text-align: start;
+      text-overflow: clip;
+    }
+
+    .e-cards .e-table tbody tr > :first-child {
+      border-top: 0;
+    }
+
+    .e-cards .e-table td::before {
+      content: attr(data-label);
+      font: var(--e-type-kicker);
+      letter-spacing: var(--e-tracking-label);
+      text-transform: uppercase;
+      color: var(--e-muted);
+    }
+
+    .e-cards .e-table td:not([data-label]) {
+      display: block;
+    }
+
+    .e-cards .e-table td:not([data-label])::before {
+      content: none;
+    }
+
+    .e-cards .e-table .e-num {
+      text-align: start;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-table th {
+      border-bottom: var(--e-stroke-card) solid CanvasText;
+    }
   }
 }

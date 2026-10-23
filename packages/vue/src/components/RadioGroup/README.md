@@ -21,18 +21,19 @@ Exactly one of five or fewer options. Use [`ESelect`](../Select/README.md) for m
 
 <!-- props:start -->
 
-| Prop         | Type                        | Default      | Notes                                                                                                        |
-| ------------ | --------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
-| `modelValue` | `string`                    | None         | `v-model`: the chosen value.                                                                                 |
-| `label`      | `string`                    | **Required** | The question, as the group's legend.                                                                         |
-| `hideLabel`  | `boolean`                   | `false`      | Keeps the legend for screen readers and hides it from the page.                                              |
-| `options`    | `(string \| RadioOption)[]` | **Required** | Five or fewer. A string is both value and label. `RadioOption`: `{ value, label, description?, disabled? }`. |
-| `hint`       | `string`                    | None         | Help that is announced with the group.                                                                       |
-| `error`      | `string`                    | None         | What to fix. Replaces the hint and is announced with the group.                                              |
-| `required`   | `boolean`                   | `false`      | Sets `required` on the radios and adds a word beside the legend.                                             |
-| `optional`   | `boolean`                   | `false`      | Adds a word beside the legend. Use it when most fields in the form are required.                             |
-| `disabled`   | `boolean`                   | `false`      | Disables every option.                                                                                       |
-| `name`       | `string`                    | `generated`  | Shared by the radios, submitted with a form.                                                                 |
+| Prop         | Type                      | Default      | Notes                                                                                                        |
+| ------------ | ------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
+| `modelValue` | `T`                       | None         | `v-model`: the chosen value.                                                                                 |
+| `label`      | `string`                  | **Required** | The question, as the group's legend.                                                                         |
+| `hideLabel`  | `boolean`                 | `false`      | Keeps the legend for screen readers and hides it from the page.                                              |
+| `options`    | `(T \| RadioOption<T>)[]` | **Required** | Five or fewer. A string is both value and label. `RadioOption`: `{ value, label, description?, disabled? }`. |
+| `hint`       | `string`                  | None         | Help that is announced with the group.                                                                       |
+| `error`      | `string`                  | None         | What to fix. Replaces the hint and is announced with the group.                                              |
+| `required`   | `boolean`                 | `false`      | Sets `required` on the radios and adds a word beside the legend.                                             |
+| `optional`   | `boolean`                 | `false`      | Adds a word beside the legend. Use it when most fields in the form are required.                             |
+| `disabled`   | `boolean`                 | `false`      | Disables every option.                                                                                       |
+| `readonly`   | `boolean`                 | `false`      | Shows the choice but blocks changing it. The radios stay focusable and the value is still submitted.         |
+| `name`       | `string`                  | `generated`  | Shared by the radios, submitted with a form.                                                                 |
 
 <!-- props:end -->
 
@@ -47,6 +48,7 @@ Exactly one of five or fewer options. Use [`ESelect`](../Select/README.md) for m
 ## Accessibility
 
 - A `fieldset` whose legend, hint and error are announced with the group.
+- `readonly` sets `aria-readonly` on the group, keeps the radios focusable and blocks changing the choice. Empty is `""`.
 - Native radios sharing one `name`: arrow keys move between options.
 
 ## Keyboard

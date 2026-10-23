@@ -13,18 +13,18 @@ Cards in as many equal columns as fit, responding to its container's width rathe
 
 <!-- props:start -->
 
-| Prop      | Type                                                      | Default   | Notes                                                                                                                              |
-| --------- | --------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `as`      | `string`                                                  | `"div"`   | The element to render, for example `ul` with `li` children.                                                                        |
-| `min`     | `string`                                                  | `"16rem"` | The narrowest a column may be, as a CSS length. One column below that.                                                             |
-| `gap`     | `GridGap \| string`                                       | `4`       | A space token number (1 to 8, 10, 12 or 16) becomes `var(--e-space-N)`. A string is used as given, so any CSS length works.        |
-| `align`   | `"start" \| "center" \| "end" \| "stretch" \| "baseline"` | None      | Aligns each item inside its row. Items stretch to the tallest by default. Not used with `masonry`.                                 |
-| `justify` | `"start" \| "center" \| "end" \| "stretch"`               | None      | Places each item inside its column when it is narrower than the column. Items fill the column by default. Not used with `masonry`. |
-| `masonry` | `boolean`                                                 | `false`   | Packs cards of uneven height into columns with no gaps under the short ones. Items flow top to bottom within each column.          |
+| Prop      | Type                                                      | Default   | Notes                                                                                                                                                                                      |
+| --------- | --------------------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `as`      | `string`                                                  | `"div"`   | The element to render, for example `ul` with `li` children.                                                                                                                                |
+| `min`     | `string`                                                  | `"16rem"` | The narrowest a column may be, as a CSS length. One column below that.                                                                                                                     |
+| `gap`     | `GapToken \| string`                                      | `"loose"` | `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. |
+| `align`   | `"start" \| "center" \| "end" \| "stretch" \| "baseline"` | None      | Aligns each item inside its row. Items stretch to the tallest by default. Not used with `masonry`.                                                                                         |
+| `justify` | `"start" \| "center" \| "end" \| "stretch"`               | None      | Places each item inside its column when it is narrower than the column. Items fill the column by default. Not used with `masonry`.                                                         |
+| `masonry` | `boolean`                                                 | `false`   | Packs cards of uneven height into columns with no gaps under the short ones. Items flow top to bottom within each column.                                                                  |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the rendered element. `align` and `justify` place each item inside its cell and are ignored with `masonry`.
+`class`, `style` and attributes land on the rendered element. The default `gap` is `loose` (16px); `gap` takes the same values as on [`EStack`](../Stack/README.md). `min` is the narrowest a column may be: columns fill the width and drop to fewer as the grid narrows. `align` and `justify` place each item inside its cell and are ignored with `masonry`.
 
 With `masonry` the grid is CSS multi-column: `min` is the column width, the gap applies between columns and between rows, and items keep their own height. Items flow top to bottom within each column, then on to the next, so the visual order is column by column, not row by row. Put the most important cards first.
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useAttrs } from "vue";
+import { computed } from "vue";
 import EKicker from "../Kicker/EKicker.vue";
 import "../../styles/base.css";
 import "./scale.css";
@@ -23,32 +23,23 @@ defineSlots<{
   default(): unknown;
 }>();
 
-const attrs = useAttrs();
 const tag = computed(() => props.as ?? `h${props.level}`);
-/** With a kicker there is a wrapper: it takes `class` and `style`, the heading takes the rest. Without one everything lands on the heading. */
-const outer = computed(() => ({ class: attrs.class, style: attrs.style }));
-const inner = computed(() => {
-  if (!props.kicker) return attrs;
-  const rest = { ...attrs };
-  delete rest.class;
-  delete rest.style;
-  return rest;
-});
 </script>
 
 <template>
-  <div v-if="kicker" class="e-heading" v-bind="outer">
+  <!-- With a kicker there is a wrapper for the two, but `class`, `style` and attributes still land on the heading. -->
+  <div v-if="kicker" class="e-heading">
     <EKicker>{{ kicker }}</EKicker>
-    <component :is="tag" class="e-h" :class="`e-h${level}`" v-bind="inner"><slot /></component>
+    <component :is="tag" class="e-h" :class="`e-h${level}`" v-bind="$attrs"><slot /></component>
   </div>
-  <component :is="tag" v-else class="e-h" :class="`e-h${level}`" v-bind="inner"><slot /></component>
+  <component :is="tag" v-else class="e-h" :class="`e-h${level}`" v-bind="$attrs"><slot /></component>
 </template>
 
 <style>
 @layer e.primitives {
   .e-heading {
     display: grid;
-    gap: var(--e-space-1);
+    gap: var(--e-gap-tight);
   }
 
   .e-heading > .e-kicker {

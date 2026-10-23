@@ -106,4 +106,29 @@ describe("EDisclosure", () => {
     await page.getByText("History").last().click();
     await expectNoViolations(container);
   });
+
+  test("disabled keeps it as it is: marked, dimmed and ignoring the click and the keys", async () => {
+    const { container } = await render(EDisclosure, {
+      props: { title: "History", disabled: true },
+      slots: { default: "Body" },
+    });
+    container.classList.add("e-root");
+    const details = container.querySelector("details")!;
+    const summary = container.querySelector("summary")!;
+    expect(summary.getAttribute("aria-disabled")).toBe("true");
+    expect(getComputedStyle(summary).cursor).toBe("not-allowed");
+    await userEvent.click(summary);
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard(" ");
+    expect(details.open).toBe(false);
+  });
+
+  test("hover washes the summary", async () => {
+    const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
+    container.classList.add("e-root");
+    const summary = container.querySelector("summary")!;
+    const rest = getComputedStyle(summary).backgroundColor;
+    await userEvent.hover(summary);
+    await expect.poll(() => getComputedStyle(summary).backgroundColor).not.toBe(rest);
+  });
 });

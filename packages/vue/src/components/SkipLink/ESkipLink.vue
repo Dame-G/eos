@@ -50,19 +50,29 @@ async function go(event: MouseEvent) {
 @layer e.page {
   .e-skip {
     position: absolute;
-    inset-inline-start: var(--e-space-4);
-    inset-block-start: var(--e-space-2);
-    transform: translateY(calc(-100% - var(--e-space-4)));
+    inset-inline-start: var(--e-gutter-min);
+    inset-block-start: var(--e-gap-snug);
+    transform: translateY(calc(-100% - var(--e-gap-loose)));
     z-index: var(--e-z-skip);
     display: inline-flex;
     align-items: center;
     height: var(--e-control-height);
-    padding: 0 var(--e-space-4);
+    padding: 0 var(--e-pad-control);
     border-radius: var(--e-radius-md);
     background: var(--e-primary);
     color: var(--e-on-primary);
-    font: var(--e-weight-strong) var(--e-text-md) / 1 var(--e-font-sans);
+    font: var(--e-type-button);
+    font-weight: var(--e-weight-strong);
     text-decoration: none;
+    transition: var(--e-transition-state);
+  }
+
+  .e-skip:hover {
+    background: var(--e-primary-hover);
+  }
+
+  .e-skip:active {
+    background: var(--e-primary-press);
   }
 
   .e-skip:focus {

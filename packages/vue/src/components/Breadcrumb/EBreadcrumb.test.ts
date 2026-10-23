@@ -91,4 +91,53 @@ describe("EBreadcrumb", () => {
     const single = await render(EBreadcrumb, { props: { items: [{ label: "Home" }] } });
     await expectNoViolations(single.container);
   });
+
+  const long = [
+    { label: "Home", href: "/" },
+    { label: "Account", href: "/account" },
+    { label: "Billing", href: "/billing" },
+    { label: "Statements", href: "/statements" },
+    { label: "Visit on Oct 2" },
+  ];
+
+  test("label names the navigation", async () => {
+    await render(EBreadcrumb, { props: { items, label: "Trail" } });
+    await expect.element(page.getByRole("navigation", { name: "Trail" })).toBeVisible();
+  });
+
+  test("maxItems keeps the first level and the last ones, with a button for the rest", async () => {
+    const { container } = await render(EBreadcrumb, { props: { items: long, maxItems: 3 } });
+    expect([...container.querySelectorAll("li")].map((li) => li.textContent!.trim())).toEqual([
+      "Home",
+      "…",
+      "Statements",
+      "Visit on Oct 2",
+    ]);
+    await expect.element(page.getByRole("button", { name: "Show full path" })).toBeVisible();
+    expect(container.querySelectorAll("[aria-current]").length).toBe(1);
+  });
+
+  test("a path that fits is not shortened, and maxItems under 2 does nothing", async () => {
+    const { container } = await render(EBreadcrumb, { props: { items, maxItems: 3 } });
+    expect(container.querySelector(".e-crumb-more")).toBeNull();
+    const other = await render(EBreadcrumb, { props: { items: long, maxItems: 1 } });
+    expect(other.container.querySelector(".e-crumb-more")).toBeNull();
+  });
+
+  test("the button shows the whole path and focus moves to the first level it brought back", async () => {
+    const { container } = await render(EBreadcrumb, { props: { items: long, maxItems: 3 } });
+    await userEvent.tab();
+    await userEvent.tab();
+    expect(document.activeElement!.classList.contains("e-crumb-more")).toBe(true);
+    await userEvent.keyboard("{Enter}");
+    expect(container.querySelectorAll("ol > li").length).toBe(5);
+    expect(document.activeElement!.textContent!.trim()).toBe("Account");
+    await userEvent.tab();
+    expect(document.activeElement!.textContent!.trim()).toBe("Billing");
+  });
+
+  test("the collapsed path has no accessibility violations", async () => {
+    const { container } = await render(EBreadcrumb, { props: { items: long, maxItems: 3 } });
+    await expectNoViolations(container);
+  });
 });

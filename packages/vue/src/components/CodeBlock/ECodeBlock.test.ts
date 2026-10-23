@@ -45,6 +45,50 @@ describe("ECodeBlock", () => {
     expect(getComputedStyle(container.querySelectorAll(".e-code")[1]!).marginTop).toBe("0px");
   });
 
+  test("blocks with no gap between them join: one shared hairline, rounded only at the outer corners", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: { width: "343px" } }, [
+            h(ECodeBlock, { code: "a" }),
+            h(ECodeBlock, { code: "b" }),
+            h(ECodeBlock, { code: "c" }),
+          ]),
+      }),
+    );
+    const [first, middle, last] = [...container.querySelectorAll<HTMLElement>(".e-code")];
+    const box = (el: HTMLElement) => el.getBoundingClientRect();
+    expect(box(middle!).top).toBeCloseTo(box(first!).bottom, 1);
+    expect(box(last!).top).toBeCloseTo(box(middle!).bottom, 1);
+    expect(getComputedStyle(first!).borderEndStartRadius).toBe("0px");
+    expect(getComputedStyle(first!).borderStartStartRadius).not.toBe("0px");
+    expect(getComputedStyle(middle!).borderStartStartRadius).toBe("0px");
+    expect(getComputedStyle(middle!).borderEndStartRadius).toBe("0px");
+    expect(getComputedStyle(last!).borderStartStartRadius).toBe("0px");
+    expect(getComputedStyle(last!).borderEndStartRadius).not.toBe("0px");
+    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(document.documentElement.clientWidth);
+  });
+
+  test("wrap folds long lines instead of scrolling; lineNumbers numbers plain code line by line", async () => {
+    const long = "word ".repeat(120);
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: { width: "320px" } }, [
+            h(ECodeBlock, { code: long, wrap: true }),
+            h(ECodeBlock, { code: "one\ntwo\nthree", lineNumbers: true }),
+          ]),
+      }),
+    );
+    const [wrapped, numbered] = [...container.querySelectorAll<HTMLElement>(".e-code")];
+    const body = wrapped!.querySelector<HTMLElement>(".e-code-body")!;
+    expect(body.scrollWidth).toBeLessThanOrEqual(body.clientWidth + 1);
+    const lines = [...numbered!.querySelectorAll(".line")];
+    expect(lines.map((l) => l.textContent)).toEqual(["one", "two", "three"]);
+    expect(getComputedStyle(lines[2]!, "::before").content).toBe("counter(line)");
+    expect(numbered!.querySelector("pre")!.textContent).toBe("onetwothree");
+  });
+
   test("the button sits beside the code, not over it", async () => {
     const { container } = await render(ECodeBlock, { props: { code: "x".repeat(400) } });
     const body = container.querySelector(".e-code-body")!.getBoundingClientRect();

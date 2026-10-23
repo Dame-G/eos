@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import {
+  ConfigProvider,
   SelectContent,
   SelectGroup,
   SelectLabel,
@@ -10,12 +11,15 @@ import {
   SelectViewport,
 } from "reka-ui";
 import EIcon from "../Icon/EIcon.vue";
+import ESpinner from "../Spinner/ESpinner.vue";
 import ESelectOption from "./ESelectOption.vue";
 import { sectionOptions, type EOption } from "./options.js";
 import { useMessages, usePortalTarget } from "../../config.js";
+import { useDir } from "../../composables/useDir.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
+import "../Combobox/combo.css";
 import "./panel.css";
 
 const props = defineProps<{
@@ -23,27 +27,38 @@ const props = defineProps<{
   options: EOption[];
   placeholder?: string | undefined;
   disabled?: boolean | undefined;
+  readonly?: boolean | undefined;
   required?: boolean | undefined;
+  multiple?: boolean | undefined;
+  clearable?: boolean | undefined;
+  loading?: boolean | undefined;
   name?: string | undefined;
+  /** The `form` attribute the consumer gave, so the hidden inputs can join a form they are not inside. */
+  form?: string | undefined;
   /** Names the list. */
   label?: string | undefined;
   /** Attributes for the button: id, aria-*, data-*, listeners. */
   triggerAttrs: Record<string, unknown>;
 }>();
 
-const model = defineModel<string>({ default: "" });
+/** The chosen `value`, or the array of them with `multiple`. */
+const model = defineModel<string | string[]>({ default: "" });
 
 const t = useMessages();
+const dir = useDir();
 const trigger = ref<{ $el: HTMLElement } | null>(null);
 const portal = usePortalTarget();
 
 const sections = computed(() => sectionOptions(props.options));
-const selected = computed(() => props.options.find((o) => o.value === model.value));
+const values = computed<string[]>(() => (Array.isArray(model.value) ? model.value : model.value ? [model.value] : []));
+const chosen = computed(() => props.options.filter((o) => values.value.includes(o.value)));
+const selected = computed(() => chosen.value[0]);
+const canClear = computed(() => !!props.clearable && values.value.length > 0 && !props.disabled && !props.readonly);
 
 let typed = "";
 let typedAt = 0;
 const open = defineModel<boolean>("open", { default: false });
-const isOpen = computed(() => open.value && !props.disabled);
+const isOpen = computed(() => open.value && !props.disabled && !props.readonly);
 const quiet = useQuietFocus(isOpen, (el) => !!el.closest("[role=listbox]"));
 watch(
   isOpen,
@@ -55,12 +70,24 @@ watch(
 function closeFocus(e: Event) {
   if (!quiet.returnsFocus()) e.preventDefault();
 }
+function change(v: unknown) {
+  if (!props.readonly) model.value = props.multiple ? (v as string[]) : (v as string);
+}
+function clear() {
+  model.value = props.multiple ? [] : "";
+  trigger.value?.$el.focus();
+}
+// A read-only button keeps focus but neither opens nor picks by typing: Reka never sees the key.
+function guard(e: KeyboardEvent) {
+  if (props.readonly && e.key !== "Tab") e.stopImmediatePropagation();
+}
 function keydown(e: KeyboardEvent) {
   quiet.intent();
   typeahead(e);
 }
 function typeahead(e: KeyboardEvent) {
-  if (props.disabled || isOpen.value || e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
+  if (props.disabled || props.readonly || props.multiple || isOpen.value) return;
+  if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
   if (e.key === " " && !typed) return;
   const now = Date.now();
   typed = (now - typedAt > 700 ? "" : typed) + e.key.toLowerCase();
@@ -81,48 +108,89 @@ defineExpose({
 </script>
 
 <template>
-  <div class="e-sel">
-    <SelectRoot v-model="model" :open="isOpen" :disabled="disabled" :required="required" @update:open="open = $event">
-      <SelectTrigger
-        ref="trigger"
-        class="e-input e-sel-trigger"
-        :tabindex="isOpen ? -1 : undefined"
-        v-bind="triggerAttrs"
-        @pointerdown="quiet.intent"
-        @keydown="keydown"
+  <div class="e-sel" :class="{ 'e-sel--clear': canClear }">
+    <ConfigProvider :dir="dir">
+      <SelectRoot
+        :model-value="model"
+        :multiple="multiple"
+        :open="isOpen"
+        :disabled="disabled"
+        :required="required"
+        :dir="dir"
+        @update:model-value="change"
+        @update:open="!readonly && (open = $event)"
       >
-        <span v-if="selected" class="e-sel-value">
-          <EIcon v-if="selected.icon" :name="selected.icon" />{{ selected.label }}
-        </span>
-        <span v-else class="e-sel-placeholder">{{ placeholder || t("select") }}</span>
-        <EIcon v-if="!disabled" name="chevron-down" bold />
-      </SelectTrigger>
-      <SelectPortal :to="portal">
-        <SelectContent
-          position="popper"
-          align="start"
-          :side-offset="6"
-          :collision-padding="8"
-          :body-lock="false"
-          class="e-popover e-listpanel e-root"
-          :aria-label="label"
-          @close-auto-focus="closeFocus"
+        <SelectTrigger
+          ref="trigger"
+          class="e-input e-sel-trigger"
+          :tabindex="isOpen ? -1 : undefined"
+          :aria-readonly="readonly ? 'true' : undefined"
+          :aria-busy="loading ? 'true' : undefined"
+          v-bind="triggerAttrs"
+          @pointerdown="quiet.intent"
+          @keydown.capture="guard"
+          @keydown="keydown"
         >
-          <SelectViewport>
-            <template v-for="(section, i) in sections" :key="i">
-              <SelectGroup v-if="section.group" class="e-opt-set">
-                <SelectLabel class="e-opt-group">{{ section.group }}</SelectLabel>
-                <ESelectOption v-for="o in section.options" :key="o.value" :option="o" :selected="o.value === model" />
-              </SelectGroup>
-              <template v-else>
-                <ESelectOption v-for="o in section.options" :key="o.value" :option="o" :selected="o.value === model" />
+          <span v-if="multiple && chosen.length > 1" class="e-sel-value">
+            {{ t("selected", { n: chosen.length }) }}
+          </span>
+          <span v-else-if="selected" class="e-sel-value">
+            <EIcon v-if="selected.icon" :name="selected.icon" />{{ selected.label }}
+          </span>
+          <span v-else class="e-sel-placeholder">{{ placeholder || t("select") }}</span>
+          <ESpinner v-if="loading" :label="t('loading')" />
+          <EIcon v-else-if="!disabled" name="chevron-down" bold />
+        </SelectTrigger>
+        <SelectPortal :to="portal">
+          <SelectContent
+            position="popper"
+            align="start"
+            :side-offset="6"
+            :collision-padding="8"
+            :body-lock="false"
+            class="e-popover e-listpanel e-root"
+            :aria-label="label"
+            @close-auto-focus="closeFocus"
+          >
+            <SelectViewport>
+              <template v-for="(section, i) in sections" :key="i">
+                <SelectGroup v-if="section.group" class="e-opt-set">
+                  <SelectLabel class="e-opt-group">{{ section.group }}</SelectLabel>
+                  <ESelectOption
+                    v-for="o in section.options"
+                    :key="o.value"
+                    :option="o"
+                    :selected="values.includes(o.value)"
+                  />
+                </SelectGroup>
+                <template v-else>
+                  <ESelectOption
+                    v-for="o in section.options"
+                    :key="o.value"
+                    :option="o"
+                    :selected="values.includes(o.value)"
+                  />
+                </template>
               </template>
-            </template>
-          </SelectViewport>
-        </SelectContent>
-      </SelectPortal>
-    </SelectRoot>
-    <input v-if="name" type="hidden" :name="name" :value="model" />
+            </SelectViewport>
+          </SelectContent>
+        </SelectPortal>
+      </SelectRoot>
+    </ConfigProvider>
+    <button v-if="canClear" type="button" class="e-combo-btn e-sel-clear" :aria-label="t('clear')" @click="clear">
+      <EIcon name="x" />
+    </button>
+    <template v-if="name">
+      <input
+        v-for="(v, k) in multiple ? values : [values[0] ?? '']"
+        :key="k"
+        type="hidden"
+        :name="name"
+        :value="v"
+        :disabled="disabled || undefined"
+        :form="form"
+      />
+    </template>
   </div>
 </template>
 
@@ -133,13 +201,27 @@ defineExpose({
   }
 
   .e-sel-trigger {
+    --_clear: calc(var(--e-pad-control-sm) + var(--e-icon-size) + var(--e-gap-tight));
+
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--e-space-2);
-    padding-inline-end: calc(var(--e-space-3) - var(--e-stroke-edge));
+    gap: var(--e-gap-snug);
+    padding-inline-end: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
     text-align: start;
     cursor: pointer;
+  }
+
+  /* The clear button sits over the trigger, just inside its arrow, so the trigger leaves room for it. */
+  .e-sel-clear {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: var(--_clear);
+    translate: 0 -50%;
+  }
+
+  .e-sel--clear .e-sel-trigger {
+    padding-inline-end: calc(var(--_clear) + var(--e-control-height) - var(--e-gap-snug) - var(--e-stroke-edge));
   }
 
   /* Open, the trigger looks focused: focus moves into the list, so the field's own :focus no longer applies. */
@@ -160,7 +242,7 @@ defineExpose({
   .e-sel-value {
     display: inline-flex;
     align-items: center;
-    gap: var(--e-space-2);
+    gap: var(--e-gap-snug);
     min-width: 0;
     overflow: hidden;
     line-height: 1.4;

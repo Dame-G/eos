@@ -1,9 +1,9 @@
 import type { IconProp } from "../../icons/types.js";
 
 /** One choice in a Select or Combobox. */
-export interface EOption {
+export interface EOption<T extends string = string> {
   /** What the model holds when this option is chosen. Never an empty string. */
-  value: string;
+  value: T;
   /** What people read. */
   label: string;
   /** A second, muted line under the label. Searched too. */
@@ -17,22 +17,24 @@ export interface EOption {
 }
 
 /** An option as a consumer writes it: a bare string stands for `{ value: s, label: s }`. */
-export type EOptionInput = string | EOption;
+export type EOptionInput<T extends string = string> = T | EOption<T>;
 
 /** A run of options under one heading (or none). */
-export interface EOptionSection {
+export interface EOptionSection<T extends string = string> {
   group: string | undefined;
-  options: EOption[];
+  options: EOption<T>[];
 }
 
 /** Turns strings into options. */
-export function normalizeOptions(options: readonly EOptionInput[] | undefined): EOption[] {
-  return (options ?? []).map((o) => (typeof o === "string" ? { value: o, label: o } : o));
+export function normalizeOptions<T extends string = string>(
+  options: readonly EOptionInput<T>[] | undefined,
+): EOption<T>[] {
+  return (options ?? []).map((o): EOption<T> => (typeof o === "string" ? { value: o, label: o } : o));
 }
 
 /** Splits options into runs under one heading, in order. A heading repeats only where the group changes. */
-export function sectionOptions(options: readonly EOption[]): EOptionSection[] {
-  const sections: EOptionSection[] = [];
+export function sectionOptions<T extends string = string>(options: readonly EOption<T>[]): EOptionSection<T>[] {
+  const sections: EOptionSection<T>[] = [];
   for (const option of options) {
     const last = sections[sections.length - 1];
     if (last && last.group === option.group) last.options.push(option);

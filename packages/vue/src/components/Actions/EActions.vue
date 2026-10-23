@@ -37,11 +37,11 @@ defineSlots<{
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--e-space-2);
+    gap: var(--e-gap-snug);
   }
 
   .e-actions--bar {
-    padding: var(--e-space-3) var(--e-space-4);
+    padding: var(--e-pad-control-sm) var(--e-pad-card);
     border-top: var(--e-stroke-hair) solid var(--e-border);
     background: var(--e-surface-tint);
 

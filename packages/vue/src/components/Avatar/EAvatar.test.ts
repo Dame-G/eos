@@ -25,6 +25,49 @@ describe("EAvatar", () => {
     expect(container.textContent!.trim()).toBe("C");
   });
 
+  test("a name written without spaces gives its first whole character", async () => {
+    const cjk = await render(EAvatar, { props: { name: "王小明" } });
+    expect(cjk.container.textContent!.trim()).toBe("王");
+    const astral = await render(EAvatar, { props: { name: "𠮷田 太郎" } });
+    expect(astral.container.textContent!.trim()).toBe("𠮷太");
+    const emoji = await render(EAvatar, { props: { name: "👩‍💻 Dev" } });
+    expect(emoji.container.textContent!.trim()).toBe("👩‍💻D");
+  });
+
+  test("size sm, md and lg match the flags; size wins over them with a warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { class: "e-root" }, [
+            h(EAvatar, { name: "A B", size: "sm" }),
+            h(EAvatar, { name: "A B", size: "md" }),
+            h(EAvatar, { name: "A B", size: "lg" }),
+            h(EAvatar, { name: "A B", size: "sm", large: true }),
+          ]),
+      }),
+    );
+    const sizes = [...container.querySelectorAll(".e-avatar")].map((e) => e.getBoundingClientRect().width);
+    expect(sizes).toEqual([32, 44, 64, 32]);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("EAvatar"));
+    warn.mockRestore();
+  });
+
+  test("status adds a dot and is read with the name", async () => {
+    const { container } = await render(EAvatar, { props: { name: "Ada Lovelace", status: "online" } });
+    await expect.element(page.getByRole("img", { name: "Ada Lovelace, Online" })).toBeVisible();
+    const dot = container.querySelector(".e-avatar-status")!;
+    expect(dot.getAttribute("aria-hidden")).toBe("true");
+    expect(dot.getBoundingClientRect().width).toBeGreaterThan(0);
+    const button = await render(EAvatar, { props: { name: "Ada Lovelace", status: "busy", as: "button" } });
+    await expect.element(page.getByRole("button", { name: "Ada Lovelace, Busy" })).toBeVisible();
+    for (const status of ["away", "offline"] as const) {
+      const r = await render(EAvatar, { props: { name: "Ada", status } });
+      expect(r.container.querySelector(`.e-avatar-status--${status}`)).not.toBeNull();
+    }
+    expect(button.container.querySelector(".e-avatar-status")).not.toBeNull();
+  });
+
   test("a photo replaces the initials and is decorative", async () => {
     const { container } = await render(EAvatar, { props: { name: "Ada Lovelace", src: PIXEL } });
     const img = container.querySelector("img.e-avatar-img")!;
@@ -145,6 +188,8 @@ describe("EAvatar", () => {
             h(EAvatar, { name: "Ada Lovelace", large: true }),
             h(EAvatar, { name: "Ada Lovelace", as: "button" }),
             h(EAvatar, { name: "Ada Lovelace", src: PIXEL, as: "button" }),
+            h(EAvatar, { name: "Ada Lovelace", status: "away" }),
+            h(EAvatar, { name: "Ada Lovelace", status: "offline", as: "button" }),
           ]),
       }),
     );

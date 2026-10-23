@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -7,11 +7,11 @@ import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESpinner", () => {
-  test("without a label it reads Loading but is not a live region", async () => {
+  test("without a label it reads Loading in a status region", async () => {
     const { container } = await render(ESpinner);
     const sr = container.querySelector(".e-sr")!;
     expect(sr.textContent).toBe("Loading");
-    expect(container.querySelector(".e-spinner")!.hasAttribute("role")).toBe(false);
+    expect(container.querySelector(".e-spinner")!.getAttribute("role")).toBe("status");
     expect(container.querySelector(".e-spinner-label")).toBeNull();
   });
 
@@ -39,6 +39,22 @@ describe("ESpinner", () => {
     }
     expect(sizes[0]).toBeLessThan(sizes[1]!);
     expect(sizes[1]).toBeLessThan(sizes[2]!);
+  });
+
+  test("size sm, md and lg match small, default and large; size wins and warns", async () => {
+    const width = async (props: Record<string, unknown>) => {
+      const { container } = await render(ESpinner, { props });
+      return container.querySelector(".e-ring")!.getBoundingClientRect().width;
+    };
+    expect([await width({ size: "sm" }), await width({ size: "md" }), await width({ size: "lg" })]).toEqual([
+      await width({ small: true }),
+      await width({}),
+      await width({ large: true }),
+    ]);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(await width({ size: "sm", large: true })).toBe(await width({ small: true }));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("ESpinner"));
+    warn.mockRestore();
   });
 
   test("block centres it in a panel", async () => {

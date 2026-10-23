@@ -188,6 +188,18 @@ describe("ESearchResults", () => {
     expect(getComputedStyle(container.querySelectorAll("a")[1]!).backgroundColor).not.toBe(rest);
   });
 
+  test("long titles wrap inside a 320px list instead of overflowing it", async () => {
+    const long = [{ label: "A".repeat(20) + " very long result title that keeps going ".repeat(4), href: "/x" }];
+    const { container } = await render(
+      defineComponent({
+        render: () => h("div", { style: { width: "320px" } }, [h(ESearchResults, { items: long, label: "Results" })]),
+      }),
+    );
+    const list = container.querySelector<HTMLElement>(".e-results")!;
+    expect(list.scrollWidth).toBeLessThanOrEqual(list.clientWidth + 1);
+    expect(list.getBoundingClientRect().width).toBeLessThanOrEqual(320);
+  });
+
   test("has no accessibility violations", async () => {
     const { container } = await render(ESearchResults, { props: { items, label: "Search results", query: "dr" } });
     await expectNoViolations(container);

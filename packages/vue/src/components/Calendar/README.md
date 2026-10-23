@@ -43,7 +43,7 @@ A month grid to choose a day or a span, with names, week start and date order fr
 
 - A `role="grid"` with one day in the tab order (roving tabindex), never a disabled day. Each day is named in full, today has `aria-current="date"`, and marked days add `markLabel`.
 - A polite live region announces the month when it changes. `range` mode announces the range and its length.
-- Month and date order, names and the week start follow the configured locale.
+- Month and date order, names and the week start follow the configured locale. Direction is `createEos({ dir })`, else the locale's (right to left mirrors the grid and the arrow keys).
 
 ## Keyboard
 

@@ -39,7 +39,7 @@ Tabs for switching between views of the same record or list. It switches panels 
 | `panel-<id>` | The panel of the tab with that `id` (`<template #panel-open>`). It gets `{ item }`. |
 | `panel`      | Fallback panel for tabs without their own slot. It gets `{ item }`.                 |
 
-A slot named by the bare `id` (`#open`) still works for ids other than `panel` and `default`; use `panel-<id>` in new code. An item with `disabled: true` stays in the row, dimmed.
+A slot named by the bare `id` (`#open`) still works for ids other than `panel` and `default`; use `panel-<id>` in new code. An item with `disabled: true` stays in the row, dimmed. A `v-model` value that is not among the items, or names a disabled one, selects the first tab that can be chosen.
 
 ## Accessibility
 

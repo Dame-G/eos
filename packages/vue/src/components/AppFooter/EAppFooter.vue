@@ -19,7 +19,7 @@ defineSlots<{
 <style>
 @layer e.page {
   .e-appfooter {
-    padding: var(--e-space-6) 0;
+    padding: var(--e-gap-section) 0;
     border-top: var(--e-stroke-hair) solid var(--e-border);
     font: var(--e-weight-regular) var(--e-text-sm) / 1.5 var(--e-font-sans);
     color: var(--e-muted);
@@ -29,7 +29,7 @@ defineSlots<{
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--e-space-2) var(--e-space-6);
+    gap: var(--e-gap-snug) var(--e-gap-section);
   }
 
   .e-appfooter .e-shell-inner > :first-child:not(:last-child) {

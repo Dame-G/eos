@@ -92,4 +92,69 @@ describe("EIconButton", () => {
     );
     await expectNoViolations(container);
   });
+
+  test("variant draws the filled button as a square, quiet is the default", async () => {
+    const { container } = await render(EIconButton, { props: { icon: "plus", label: "Add", variant: "primary" } });
+    const button = container.querySelector("button")!;
+    expect(button.className).toContain("e-btn e-btn--primary e-btn--icon");
+    const box = button.getBoundingClientRect();
+    expect(box.width).toBe(box.height);
+    const quiet = await render(EIconButton, { props: { icon: "plus", label: "Quiet" } });
+    expect(quiet.container.querySelector("button")!.className).toBe("e-icon-btn");
+  });
+
+  test("size changes the square and keeps a 44px target", async () => {
+    const sides: number[] = [];
+    for (const variant of ["quiet", "outline"] as const) {
+      for (const size of ["sm", "lg"] as const) {
+        const { container } = await render(EIconButton, { props: { icon: "plus", label: "Add", variant, size } });
+        const box = container.querySelector("button")!.getBoundingClientRect();
+        expect(box.width).toBe(box.height);
+        sides.push(box.width);
+      }
+    }
+    expect(sides).toEqual([44, 56, 44, 56]);
+  });
+
+  test("loading shows a spinner, marks the button busy, announces it and ignores clicks", async () => {
+    let clicks = 0;
+    const { container } = await render(EIconButton, {
+      props: { icon: "download", label: "Download", loading: true },
+      attrs: { onClick: () => clicks++ },
+    });
+    const button = container.querySelector("button")!;
+    expect(button.getAttribute("aria-busy")).toBe("true");
+    expect(button.querySelector(".e-btn-spinner")).not.toBeNull();
+    expect(button.querySelector("svg.e-icon")).toBeNull();
+    await userEvent.click(button);
+    expect(clicks).toBe(0);
+  });
+
+  test("type submits a form", async () => {
+    let submitted = 0;
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("form", { onSubmit: (e: Event) => (e.preventDefault(), submitted++) }, [
+            h(EIconButton, { icon: "check", label: "Save", type: "submit" }),
+          ]),
+      }),
+    );
+    expect(container.querySelector("button")!.type).toBe("submit");
+    await page.getByRole("button", { name: "Save" }).click();
+    expect(submitted).toBe(1);
+  });
+
+  test("tooltip shows the label on keyboard focus and keeps the button's attributes", async () => {
+    let clicks = 0;
+    await render(EIconButton, {
+      props: { icon: "download", label: "Download receipt", tooltip: true },
+      attrs: { onClick: () => clicks++, "data-x": "1" },
+    });
+    await userEvent.tab();
+    await expect.element(page.getByRole("tooltip")).toHaveTextContent("Download receipt");
+    expect(document.activeElement!.getAttribute("data-x")).toBe("1");
+    await userEvent.keyboard("{Enter}");
+    expect(clicks).toBe(1);
+  });
 });

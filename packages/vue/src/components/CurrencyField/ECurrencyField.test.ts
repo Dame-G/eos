@@ -5,6 +5,7 @@ import { render } from "vitest-browser-vue";
 import ECurrencyField from "./ECurrencyField.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
+import { expectPostingContract } from "../../../test/formPosting.js";
 
 describe("ECurrencyField", () => {
   test("shows the symbol and two decimals", async () => {
@@ -185,5 +186,14 @@ describe("ECurrencyField", () => {
     await page.getByRole("spinbutton", { name: "Amount" }).click();
     await userEvent.keyboard("{ArrowUp}{PageUp}");
     expect(model.value).toBe(5);
+  });
+
+  test("a disabled amount posts nothing, and a named one joins a form it is outside of", async () => {
+    await expectPostingContract(ECurrencyField, { label: "Amount", modelValue: 12.5 });
+  });
+
+  test("size reaches the box", async () => {
+    const { container } = await render(ECurrencyField, { props: { label: "Amount", size: "sm" } });
+    expect(container.querySelector(".e-input-wrap")!.getAttribute("data-size")).toBe("sm");
   });
 });

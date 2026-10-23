@@ -18,7 +18,7 @@ const props = defineProps<{
   hideLabel?: boolean;
   /** Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt as "PDF, JPG" and also applied to dropped files. */
   accept?: string;
-  /** Allows choosing more than one file. New files are added to the list, and a file already in it (same name, size and date) is not added twice. Without it, a choice replaces the file and only the first of several is kept. */
+  /** Allows choosing more than one file. New files are added to the list, and a file already in it (same name, size and date) is not added twice. Without it, a choice replaces the file, and the others of several are rejected with reason `count`. */
   multiple?: boolean;
   /** The largest file allowed, in bytes. A larger one is left out and announced as "1 file is larger than 5 MB". */
   maxSize?: number;
@@ -34,8 +34,10 @@ const props = defineProps<{
   required?: boolean;
   /** Adds a word beside the label. Use it when most fields in the form are required. */
   optional?: boolean;
-  /** Disables the control, so it ignores drops and clicks. */
+  /** Disables the control, so it ignores drops and clicks. A disabled control is not submitted. */
   disabled?: boolean;
+  /** Shows the files but blocks changes: drops and clicks do nothing and the remove buttons are disabled. The input stays focusable and the files are still submitted. */
+  readonly?: boolean;
   /** The id of the file input, which the label points at. @default generated */
   id?: string;
 }>();
@@ -88,7 +90,7 @@ const keyOf = (f: File) => `${f.name}|${f.size}|${f.lastModified}`;
 
 function take(list: FileList | null | undefined) {
   const given = Array.from(list ?? []);
-  if (!given.length) return;
+  if (!given.length || props.readonly) return;
   const rejected: { file: File; reason: "type" | "size" | "count" }[] = [];
   const fresh: File[] = [];
   const known = new Set((props.multiple ? model.value : []).map(keyOf));
@@ -107,15 +109,16 @@ function take(list: FileList | null | undefined) {
     for (const file of fresh.slice(room)) rejected.push({ file, reason: "count" });
     files = [...model.value, ...fresh.slice(0, room)];
   } else {
+    for (const file of fresh.slice(1)) rejected.push({ file, reason: "count" });
     files = fresh.slice(0, 1);
   }
   const added = props.multiple ? files.length - model.value.length : files.length;
   const count = (reason: "type" | "size" | "count") => rejected.filter((r) => r.reason === reason).length;
   const said = [
-    added ? t(added === 1 ? "filesAddedOne" : "filesAddedOther", { n: added }) : "",
-    count("type") ? t(count("type") === 1 ? "filesRejectedOne" : "filesRejectedOther", { n: count("type") }) : "",
+    added ? t("filesAdded", { n: added }) : "",
+    count("type") ? t("filesRejected", { n: count("type") }) : "",
     count("size") ? t("filesTooLarge", { n: count("size"), max: formatSize(props.maxSize ?? 0) }) : "",
-    count("count") ? t("filesTooMany", { n: props.maxFiles ?? 0 }) : "",
+    count("count") ? t("filesTooMany", { n: props.multiple ? (props.maxFiles ?? 0) : 1 }) : "",
   ].filter(Boolean);
   if (added) {
     model.value = files;
@@ -165,13 +168,13 @@ function formatSize(bytes: number): string {
 let depth = 0;
 function onDragEnter(e: DragEvent) {
   e.preventDefault();
-  if (props.disabled) return;
+  if (props.disabled || props.readonly) return;
   depth++;
   over.value = true;
 }
 function onDragOver(e: DragEvent) {
   e.preventDefault();
-  if (!props.disabled) over.value = true;
+  if (!props.disabled && !props.readonly) over.value = true;
 }
 function onDragLeave() {
   depth = Math.max(0, depth - 1);
@@ -182,6 +185,10 @@ function onDrop(e: DragEvent) {
   depth = 0;
   over.value = false;
   if (!props.disabled) take(e.dataTransfer?.files);
+}
+/** A read-only input stays in the tab order, but its picker must not open. */
+function onPick(e: Event) {
+  if (props.readonly) e.preventDefault();
 }
 
 defineExpose({
@@ -202,7 +209,7 @@ defineExpose({
     :optional="optional"
   >
     <template #default="field">
-      <div>
+      <div class="e-upload">
         <input
           :id="field.id"
           ref="input"
@@ -214,14 +221,16 @@ defineExpose({
           :disabled="disabled"
           :required="required"
           :aria-invalid="field.ariaInvalid"
+          :aria-readonly="readonly || undefined"
           v-bind="attrs.input(field.ariaDescribedby)"
+          @click="onPick"
           @change="take(($event.target as HTMLInputElement).files)"
         />
         <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
         <label
           :for="field.id"
           class="e-drop"
-          :class="{ 'e-drop--over': over, 'e-drop--disabled': disabled }"
+          :class="{ 'e-drop--over': over, 'e-drop--disabled': disabled, 'e-drop--readonly': readonly }"
           :data-invalid="field.ariaInvalid ? '' : undefined"
           @dragenter="onDragEnter"
           @dragover="onDragOver"
@@ -243,7 +252,7 @@ defineExpose({
             <EIconButton
               icon="x"
               :label="t('removeItem', { label: f.name })"
-              :disabled="disabled"
+              :disabled="disabled || readonly"
               @click="removeAt(i)"
             />
           </li>
@@ -258,8 +267,8 @@ defineExpose({
   .e-drop {
     display: grid;
     justify-items: center;
-    gap: var(--e-space-1);
-    padding: var(--e-space-6) var(--e-space-4);
+    gap: var(--e-gap-tight);
+    padding: var(--e-pad-panel) var(--e-pad-card);
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
@@ -271,9 +280,18 @@ defineExpose({
       outline-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  .e-drop:hover {
+  .e-upload {
+    display: grid;
+    gap: var(--e-gap-snug);
+  }
+
+  .e-drop:hover:not(.e-drop--readonly) {
     background: var(--e-surface-hover);
     outline-color: var(--e-ink);
+  }
+
+  .e-drop--readonly {
+    cursor: default;
   }
 
   .e-drop--over {
@@ -332,7 +350,7 @@ defineExpose({
   .e-files {
     display: grid;
     gap: 0;
-    margin: var(--e-space-2) 0 0;
+    margin: 0;
     padding: 0;
     list-style: none;
   }
@@ -340,8 +358,8 @@ defineExpose({
   .e-files li {
     display: flex;
     align-items: center;
-    gap: var(--e-space-2);
-    padding: var(--e-space-2) 0;
+    gap: var(--e-gap-snug);
+    padding: var(--e-gap-snug) 0;
     border-top: var(--e-stroke-hair) solid var(--e-border);
     font: var(--e-weight-regular) var(--e-text-md) / 1.3 var(--e-font-sans);
   }

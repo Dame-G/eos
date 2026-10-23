@@ -1,6 +1,6 @@
 # ESwitch
 
-A pill switch for a setting that takes effect the moment it is flipped. Use [`ECheckbox`](../Checkbox/README.md) for a choice submitted later with a form.
+A switch for a setting that takes effect the moment it is flipped. Use [`ECheckbox`](../Checkbox/README.md) for a choice submitted later with a form.
 
 ```vue
 <ESwitch v-model="reminders" label="Text reminders" description="The day before a visit." />
@@ -10,22 +10,28 @@ A pill switch for a setting that takes effect the moment it is flipped. Use [`EC
 
 <!-- props:start -->
 
-| Prop          | Type      | Default      | Notes                                           |
-| ------------- | --------- | ------------ | ----------------------------------------------- |
-| `modelValue`  | `boolean` | `false`      | `v-model`: on or off.                           |
-| `label`       | `string`  | **Required** | The setting, named by what it does.             |
-| `description` | `string`  | None         | A line of detail under the label.               |
-| `disabled`    | `boolean` | `false`      | Disables the switch.                            |
-| `name`        | `string`  | None         | The name submitted with a form.                 |
-| `value`       | `string`  | None         | The value submitted with a form when on.        |
-| `id`          | `string`  | `generated`  | The id of the input, which the label points at. |
+| Prop          | Type      | Default      | Notes                                                                                      |
+| ------------- | --------- | ------------ | ------------------------------------------------------------------------------------------ |
+| `modelValue`  | `boolean` | `false`      | `v-model`: on or off.                                                                      |
+| `label`       | `string`  | **Required** | The setting, named by what it does.                                                        |
+| `description` | `string`  | None         | A line of detail under the label.                                                          |
+| `disabled`    | `boolean` | `false`      | Disables the switch. It cannot take focus and is not submitted.                            |
+| `readonly`    | `boolean` | `false`      | Shows the state but blocks flipping it. The switch stays focusable and is still submitted. |
+| `required`    | `boolean` | `false`      | Sets the `required` attribute and shows "Required" beside the label.                       |
+| `optional`    | `boolean` | `false`      | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.   |
+| `hint`        | `string`  | None         | Help under the row, linked with `aria-describedby`.                                        |
+| `error`       | `string`  | None         | Shows what to fix under the row, in place of the hint, and sets `aria-invalid`.            |
+| `name`        | `string`  | None         | The name submitted with a form.                                                            |
+| `value`       | `string`  | None         | The value submitted with a form when on.                                                   |
+| `id`          | `string`  | `generated`  | The id of the input, which the label points at.                                            |
 
 <!-- props:end -->
 
-`class` and `style` land on the row (the `label` element). Other attributes and listeners land on the `input` element. Exposes `input` and `focus()`.
+`class` and `style` land on the wrapper `div`. Other attributes and listeners land on the `input` element. Exposes `input` and `focus()`.
 
 ## Accessibility
 
+- `description`, `hint` and `error` are linked with `aria-describedby`, not folded into the name. `readonly` sets `aria-readonly` and blocks the flip.
 - A checkbox with `role="switch"`: Space toggles it and the state is announced as on or off.
 - State never depends on colour alone: the knob sits at the end when on.
 

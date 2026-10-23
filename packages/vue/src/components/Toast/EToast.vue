@@ -18,12 +18,14 @@ withDefaults(
     icon?: IconProp;
     /** Shows the dismiss button. */
     closable?: boolean;
+    /** Announces the toast to screen readers as it appears (`alert` for `danger`, `status` for the rest). Turn it off when the host announces it, as `EToastProvider` does. */
+    live?: boolean;
   }>(),
-  { tone: "info", closable: true },
+  { tone: "info", closable: true, live: true },
 );
 
 const emit = defineEmits<{
-  /** The dismiss button was pressed. The button only shows when a listener is attached. */
+  /** The dismiss button was pressed. The button only shows when `closable`. */
   close: [];
 }>();
 
@@ -44,7 +46,7 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
     flush
     class="e-toast"
     :class="[`e-toast--${tone}`, $slots.action && 'e-toast--actions']"
-    :role="tone === 'danger' ? 'alert' : 'status'"
+    :role="live ? (tone === 'danger' ? 'alert' : 'status') : undefined"
   >
     <div class="e-notice-grid">
       <span class="e-notice-icon"><EIcon :name="icon ?? TONE_ICON[tone]" /></span>
@@ -54,7 +56,7 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
       </div>
       <EActions v-if="$slots.action" class="e-notice-actions"><slot name="action" /></EActions>
       <span v-if="closable" class="e-notice-dismiss">
-        <EIconButton icon="x" :label="t('dismiss')" @click="emit('close')" />
+        <EIconButton icon="x" :label="t('closeToast')" @click="emit('close')" />
       </span>
     </div>
   </ESurface>
@@ -62,26 +64,15 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
 
 <style>
 @layer e.containers {
+  /* The slab on the tone's side: the inline-start border, `slab-bold` thick, in the colour of the tone's edge. It flips in a right-to-left page. */
   .e-toast {
     --e-tone: var(--e-info);
 
     position: relative;
     container-type: inline-size;
     width: min(24rem, 100%);
-    padding: var(--e-space-3) var(--e-space-4);
-    padding-inline-start: calc(var(--e-space-4) + var(--e-space-1));
-  }
-
-  /* The slab on the tone's side: a solid edge in the colour of the tone, as on a Notice. */
-  .e-toast::before {
-    content: "";
-    position: absolute;
-    inset-block: 0;
-    inset-inline-start: 0;
-    inline-size: var(--e-space-1);
-    border-start-start-radius: inherit;
-    border-end-start-radius: inherit;
-    background: var(--e-tone);
+    padding: var(--e-gap-base) var(--e-pad-card);
+    border-inline-start: var(--e-slab-bold) solid var(--e-tone);
   }
 
   .e-toast--actions {
@@ -114,11 +105,7 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
   @media (forced-colors: active) {
     .e-toast {
       border: var(--e-stroke-card) solid CanvasText;
-    }
-
-    .e-toast::before {
-      forced-color-adjust: none;
-      background: CanvasText;
+      border-inline-start-width: var(--e-slab-bold);
     }
   }
 }

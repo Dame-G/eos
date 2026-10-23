@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 import EText from "./EText.vue";
@@ -23,9 +23,82 @@ describe("EText", () => {
     );
     const [deck, small] = [...container.querySelectorAll("p")];
     expect(getComputedStyle(deck!).fontSize).toBe("18px");
-    expect(getComputedStyle(deck!).lineHeight).toBe("26px");
+    expect(getComputedStyle(deck!).lineHeight).toBe("27px");
     expect(getComputedStyle(small!).fontSize).toBe("14px");
-    expect(getComputedStyle(small!).lineHeight).toBe("20px");
+    expect(getComputedStyle(small!).lineHeight).toBe("21px");
+  });
+
+  test("size sm and lg match the small and large flags", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () => h("div", [h(EText, { size: "lg" }, () => "D"), h(EText, { size: "sm" }, () => "S")]),
+      }),
+    );
+    const [deck, small] = [...container.querySelectorAll("p")];
+    expect(getComputedStyle(deck!).fontSize).toBe("18px");
+    expect(getComputedStyle(small!).fontSize).toBe("14px");
+  });
+
+  test("size wins over the flags and warns in development", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { container } = await render(EText, { props: { size: "lg", small: true }, slots: { default: "x" } });
+    expect(getComputedStyle(container.querySelector("p")!).fontSize).toBe("18px");
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("EText"));
+    warn.mockRestore();
+  });
+
+  test("tone colours the text, and muted is the muted tone", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(EText, null, () => "A"),
+            h(EText, { tone: "danger" }, () => "B"),
+            h(EText, { tone: "muted" }, () => "C"),
+            h(EText, { muted: true }, () => "D"),
+          ]),
+      }),
+    );
+    const [a, b, c, d] = [...container.querySelectorAll("p")].map((p) => getComputedStyle(p).color);
+    expect(b).not.toBe(a);
+    expect(c).not.toBe(a);
+    expect(d).toBe(c);
+  });
+
+  test("align, weight and mono change the text", async () => {
+    const { container } = await render(EText, {
+      props: { align: "center", weight: "strong", mono: true },
+      slots: { default: "x" },
+    });
+    const style = getComputedStyle(container.querySelector("p")!);
+    expect(style.textAlign).toBe("center");
+    expect(style.fontWeight).toBe("600");
+    expect(style.fontFamily).toContain("mono");
+  });
+
+  test("truncate keeps one line with an ellipsis, and lines cuts after that many", async () => {
+    const long = "word ".repeat(100);
+    const box = (props: Record<string, unknown>) =>
+      render(defineComponent({ render: () => h("div", { style: { width: "200px" } }, [h(EText, props, () => long)]) }));
+    const one = await box({ truncate: true });
+    expect(one.container.querySelector("p")!.getBoundingClientRect().height).toBeLessThan(30);
+    const two = await box({ lines: 2 });
+    const height = two.container.querySelector("p")!.getBoundingClientRect().height;
+    expect(height).toBeGreaterThan(30);
+    expect(height).toBeLessThan(60);
+  });
+
+  test("measure=false lets the text fill a wide cell", async () => {
+    const wide = (props: Record<string, unknown>) =>
+      render(
+        defineComponent({
+          render: () => h("div", { style: { width: "1400px" } }, [h(EText, props, () => "word ".repeat(300))]),
+        }),
+      );
+    const capped = await wide({});
+    expect(capped.container.querySelector("p")!.getBoundingClientRect().width).toBeLessThanOrEqual(62 * 16);
+    const free = await wide({ measure: false });
+    expect(free.container.querySelector("p")!.getBoundingClientRect().width).toBeGreaterThan(1300);
   });
 
   test("muted changes the colour", async () => {

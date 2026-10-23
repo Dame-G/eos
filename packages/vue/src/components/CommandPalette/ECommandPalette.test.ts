@@ -67,10 +67,35 @@ describe("ECommandPalette", () => {
     expect(active()).toContain("Toggle theme");
     await userEvent.keyboard("{ArrowUp}");
     expect(active()).toContain("Open settings");
-    await userEvent.keyboard("{Home}");
+    await userEvent.keyboard("{Control>}{Home}{/Control}");
     expect(active()).toContain("Toggle theme");
-    await userEvent.keyboard("{End}");
+    await userEvent.keyboard("{Control>}{End}{/Control}");
     expect(active()).toContain("Open settings");
+  });
+
+  test("Home and End move the caret in the search box and leave the active option alone", async () => {
+    await mount();
+    await userEvent.type(input(), "refund");
+    const active = () => input().getAttribute("aria-activedescendant");
+    const before = active();
+    await userEvent.keyboard("{Home}");
+    expect(input().selectionStart).toBe(0);
+    await userEvent.keyboard("{End}");
+    expect(input().selectionStart).toBe(6);
+    expect(active()).toBe(before);
+  });
+
+  test("v-model:query reports what is typed and filter=false lists the items as given", async () => {
+    const { emitted } = await mount({ filter: false });
+    await userEvent.type(input(), "zz");
+    expect(emitted()["update:query"]!.at(-1)).toEqual(["zz"]);
+    expect(names()).toHaveLength(items.length);
+  });
+
+  test("close fires when it is dismissed", async () => {
+    const { emitted } = await mount();
+    await userEvent.keyboard("{Escape}");
+    expect(emitted().close).toHaveLength(1);
   });
 
   test("Enter chooses the active command, emits select and closes", async () => {
@@ -157,6 +182,6 @@ describe("ECommandPalette", () => {
 
   test("has no axe violations", async () => {
     await mount();
-    await expectNoViolations(document.body, { disable: ["aria-hidden-focus"] });
+    await expectNoViolations(document.body);
   });
 });
