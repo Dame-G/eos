@@ -8,7 +8,7 @@ const items = [
 ];
 const options = ["Visa", "Bank"];
 
-export const PROPS: Record<string, Record<string, unknown>> = {
+const PROPS: Record<string, Record<string, unknown>> = {
   EAvatar: { name: "Ada Lovelace", presence: "online" },
   EAvatarGroup: { items: [{ name: "Ada Lovelace" }, { name: "Alan Turing" }], label: "Team" },
   EBreadcrumb: { items: [{ label: "Home", href: "/" }, { label: "Bills" }] },
