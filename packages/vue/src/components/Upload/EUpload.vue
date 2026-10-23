@@ -286,7 +286,7 @@ defineExpose({
   }
 
   .e-drop:hover:not(.e-drop--readonly) {
-    background: var(--e-surface-hover);
+    background: var(--e-wash-hover);
     outline-color: var(--e-ink);
   }
 

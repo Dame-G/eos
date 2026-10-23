@@ -56,7 +56,7 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
   .e-xrow {
     --_slab: var(--e-border-strong);
     --_ring: var(--_slab);
-    --_lift: var(--e-slab);
+    --_lift: var(--e-depth);
 
     /* How far a child sits inside the row's rounded edge; each child works its own radius from it. */
     --_inset: var(--e-stroke-edge);
@@ -78,14 +78,14 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
   .e-xrow[open]:not(.e-xrow--disabled):has(> summary:hover) {
     --_slab: var(--e-wash-ring);
 
-    background-color: var(--e-surface-hover);
+    background-color: var(--e-wash-hover);
   }
 
   .e-xrow:not(.e-xrow--disabled):has(> summary:active) {
     --_slab: var(--e-ink);
     --_lift: 0px;
 
-    background-color: var(--e-surface-press);
+    background-color: var(--e-wash-press);
   }
 
   .e-xrow--disabled {

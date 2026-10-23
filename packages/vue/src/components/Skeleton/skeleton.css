@@ -9,7 +9,7 @@
       transparent 0 var(--e-space-2),
       var(--e-wash-hover) var(--e-space-2) var(--e-space-4)
     );
-    animation: e-pulse var(--e-duration-loop) var(--e-easing-standard) infinite;
+    animation: e-pulse var(--e-duration-loop) ease-in-out infinite;
   }
 
   .e-skeleton {

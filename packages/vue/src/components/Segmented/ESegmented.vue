@@ -270,7 +270,7 @@ const groupAttrs = () => ({
 
   .e-seg-input:checked + .e-seg-text {
     --_slab: var(--e-primary-slab);
-    --_lift: var(--e-slab);
+    --_lift: var(--e-depth);
 
     background-color: var(--e-primary);
     color: var(--e-on-primary);

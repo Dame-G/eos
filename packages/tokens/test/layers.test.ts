@@ -18,7 +18,8 @@ describe("evaluating colours", () => {
     expect(resolveColor("var(--e-ink)", get)).toBe("#000000");
     expect(resolveColor("color-mix(in srgb, #ffffff, black 50%)", get)).toBe("#808080");
     expect(resolveColor(t["primary-hover"]!, get)).toMatch(/^#[0-9a-f]{6}$/);
-    expect(resolveColor(t["surface-hover"]!, get)).toBe("#e8e8e8");
+    expect(resolveColor(t["wash-hover"]!, get, "#ffffff")).toBe("#ebebeb");
+    expect(resolveColor(t["surface-hover"]!, get, "#ffffff")).toBe("#ebebeb");
   });
   test("lays a translucent colour over its ground, and gives up without one", () => {
     expect(resolveColor("color-mix(in srgb, #000000 50%, transparent)", get, "#ffffff")).toBe("#808080");
@@ -29,8 +30,8 @@ describe("evaluating colours", () => {
     expect(resolveColor("oklch(0.5 0.1 200)", get)).toBeUndefined();
   });
   test("a mixed token is checked, not skipped", () => {
-    const issues = checkContrast({ ...t, "surface-hover": "color-mix(in srgb, var(--e-surface), var(--e-ink) 70%)" });
-    expect(issues.some((i) => i.pair.join(">") === "muted>surface-hover")).toBe(true);
+    const issues = checkContrast({ ...t, "wash-hover": "color-mix(in srgb, var(--e-ink) 70%, transparent)" });
+    expect(issues.some((i) => i.pair.join(">") === "muted>wash-hover")).toBe(true);
   });
   test("a pair it cannot evaluate is reported, not silently passed", () => {
     const skipped: SkippedPair[] = [];

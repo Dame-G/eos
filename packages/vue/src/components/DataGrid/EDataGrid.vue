@@ -841,7 +841,7 @@ onMounted(() => {
   }
 
   .e-gridtable tbody tr[data-selected]:hover td {
-    background: var(--e-surface-hover);
+    background: var(--e-wash-hover);
     box-shadow: inset 0 0 0 0 transparent;
   }
 
@@ -974,8 +974,9 @@ onMounted(() => {
     background: var(--e-surface);
   }
 
+  /* A sticky cell stays opaque, so the hover wash is laid over the surface. */
   .e-gridtable tbody tr:hover td.e-sticky {
-    background: var(--e-surface-hover);
+    background: linear-gradient(var(--e-wash-hover), var(--e-wash-hover)) var(--e-surface);
   }
 
   .e-gridtable tbody tr[data-selected] td.e-sticky {

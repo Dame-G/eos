@@ -118,9 +118,9 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
   /* Where you are: a washed face with the primary slab, in the voice tabs use. */
   .e-nav-item[aria-current="page"] {
     --_slab: var(--e-primary);
-    --_lift: var(--e-slab);
+    --_lift: var(--e-depth);
 
-    background-color: var(--e-surface-hover);
+    background-color: var(--e-wash-hover);
     background-clip: padding-box;
     color: var(--e-primary);
     font-weight: var(--e-weight-strong);

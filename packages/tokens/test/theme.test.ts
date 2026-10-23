@@ -7,6 +7,7 @@ import {
   defineTheme,
   derivedFrom,
   groups,
+  deprecated,
   inputTokens,
   toOklch,
   type ThemeInput,
@@ -554,7 +555,7 @@ describe("scheme, contrast and density", () => {
       const t = defineTheme(input).tokens;
       for (const name of ["frame", "float", "paper"]) {
         expect(t[name]!.startsWith(ring), `${name} ${JSON.stringify(input)}`).toBe(true);
-        expect(t[name], name).not.toMatch(/0 0 0 d+px #/);
+        expect(t[name], name).not.toMatch(/0 0 0 \d+px #/);
       }
     }
     expect(defaults["frame"]).toBe(ring);
@@ -608,8 +609,8 @@ describe("dtcg", () => {
   });
   test("a CSS expression with no DTCG type keeps its string and has no type", () => {
     expect(tree.shadow!["frame"]!.$type).toBeUndefined();
-    expect(tree.color!["surface-hover"]!.$type).toBeUndefined();
-    expect(typeof tree.color!["surface-hover"]!.$value).toBe("string");
+    expect(tree.color!["wash-hover"]!.$type).toBeUndefined();
+    expect(typeof tree.color!["wash-hover"]!.$value).toBe("string");
   });
   test("carries the usage note as the description, and every token appears once", () => {
     expect(tree.color!["primary"]!.$description).toMatch(/Action blue/);
@@ -619,5 +620,100 @@ describe("dtcg", () => {
   test("follows the theme: a custom brand changes the exported colour", () => {
     const custom = defineTheme({ brand: "#8a2be2" }).dtcg();
     expect(custom.color!["primary"]!.$value).not.toBe(tree.color!["primary"]!.$value);
+  });
+});
+
+const silent = <T>(fn: () => T): T => {
+  const warn = console.warn;
+  console.warn = () => {};
+  try {
+    return fn();
+  } finally {
+    console.warn = warn;
+  }
+};
+
+describe("deprecated and renamed tokens", () => {
+  const t = defineTheme().tokens;
+  test("are still emitted, as aliases of what replaces them", () => {
+    expect(t["brand-blue"]).toBe("var(--e-brand)");
+    expect(t["brand-green"]).toBe("var(--e-brand-accent)");
+    expect(t["surface-hover"]).toBe("var(--e-wash-hover)");
+    expect(t["surface-press"]).toBe("var(--e-wash-press)");
+    expect(t["stroke-ring"]).toBe("var(--e-stroke-edge)");
+    expect(t["slab"]).toBe("var(--e-depth)");
+    const css = defineTheme().css();
+    for (const name of Object.keys(deprecated)) expect(css, name).toContain(`--e-${name}:`);
+  });
+  test("are listed with what to use instead, in explain and in the DTCG export", () => {
+    for (const name of ["brand-blue", "surface-hover", "stroke-ring", "slab", "easing-standard", "space-7", "bp-wide"])
+      expect(deprecated[name], name).toBeTruthy();
+    for (const name of ["brand", "wash-hover", "stroke-edge", "depth", "radius-lg", "space-5", "space-10", "space-16"])
+      expect(deprecated[name], name).toBeUndefined();
+    expect(defineTheme().explain("brand-blue")).toMatch(/deprecated: Use `brand`/);
+    expect(defineTheme().dtcg().color!["brand-blue"]!.$deprecated).toBe("Use `brand`.");
+    expect(defineTheme().dtcg().color!["brand"]!.$deprecated).toBeUndefined();
+  });
+  test("setting one in tokens still works and says what replaces it", () => {
+    const theme = silent(() => defineTheme({ tokens: { "surface-hover": "#eeeeee" } }));
+    expect(theme.tokens["surface-hover"]).toBe("#eeeeee");
+    expect(theme.warnings.join("\n")).toMatch(/tokens\.surface-hover is deprecated: Use `wash-hover`/);
+  });
+  test("the brand inputs set brand and brand-accent, and the old names follow", () => {
+    const b = defineTheme({ brand: "#8a2be2", accent: "#2e7d32" }).tokens;
+    expect(b["brand"]).toBe("#8a2be2");
+    expect(b["brand-accent"]).toBe("#2e7d32");
+    expect(b["brand-blue"]).toBe("var(--e-brand)");
+  });
+  test("the hover and press washes are the one contrast-fitted pair", () => {
+    expect(t["wash-hover"]).toBe("color-mix(in srgb, var(--e-ink) 8%, transparent)");
+    expect(t["wash-press"]).toBe("color-mix(in srgb, var(--e-ink) 15%, transparent)");
+    const grey = defineTheme({ surface: "#808080" });
+    expect(grey.issues).toEqual([]);
+    expect(grey.tokens["surface-hover"]).toBe("var(--e-wash-hover)");
+  });
+  test("each tone is checked once, through the name components use", () => {
+    const issues = checkContrast({ ...t, "warning-strong": "#fdf3dc", secondary: "#e8f5e1" });
+    for (const role of ["Warning notice text", "Success notice text"])
+      expect(issues.filter((i) => i.role === role).length, role).toBe(1);
+  });
+  test("type-button is a sans style and type-meta is a mono one", () => {
+    expect(t["type-button"]).toContain("var(--e-font-sans)");
+    expect(t["type-meta"]).toBe("var(--e-weight-medium) var(--e-text-xs) / var(--e-leading-tight) var(--e-font-mono)");
+    expect(groups.type.indexOf("type-button")).toBeLessThan(groups.type.indexOf("type-kicker"));
+  });
+  test("easing-linear is plain linear, and the shell, underline and row tokens exist", () => {
+    expect(t["easing-linear"]).toBe("linear");
+    expect(t["shell-width"]).toBe("72rem");
+    expect(t["shell-rail"]).toBe("var(--e-border)");
+    expect(t["underline-offset"]).toBe("0.25em");
+    expect(t["radius-row"]).toBe("max(0px, calc(var(--e-radius-md) - var(--e-gap-tight)))");
+  });
+});
+
+describe("theming API shorthands", () => {
+  test("radius takes one base number: sm is half of it and lg double", () => {
+    const t = defineTheme({ radius: 6 }).tokens;
+    expect([t["radius-sm"], t["radius-md"], t["radius-lg"]]).toEqual(["3px", "6px", "12px"]);
+    expect(defineTheme({ radius: 0 }).tokens["radius-md"]).toBe("0px");
+    const bad = silent(() => defineTheme({ radius: -4 }));
+    expect(bad.tokens["radius-md"]).toBe(defaults["radius-md"]);
+    expect(bad.warnings.join("\n")).toMatch(/radius: -4/);
+    expect(defineTheme({ radius: "round" }).tokens["radius-md"]).toBe("14px");
+    expect(defineTheme({ radius: { md: "10px" } }).tokens["radius-md"]).toBe("10px");
+  });
+  test("strokes needs only hair and focus; edge and card still work but say they are derived", () => {
+    const t = defineTheme({ strokes: { hair: 2, focus: 3 } });
+    expect(t.warnings).toEqual([]);
+    expect([t.tokens["stroke-hair"], t.tokens["stroke-edge"], t.tokens["stroke-card"]]).toEqual(["2px", "3px", "2px"]);
+    const old = silent(() => defineTheme({ strokes: { hair: 2, edge: 2, card: 3 } }));
+    expect([old.tokens["stroke-edge"], old.tokens["stroke-card"]]).toEqual(["2px", "3px"]);
+    expect(old.warnings.join("\n")).toMatch(/strokes\.edge is deprecated[\s\S]*strokes\.card is deprecated/);
+    expect(defineTheme({ preset: "ink" }).warnings).toEqual([]);
+  });
+  test('motion "none" still zeroes the durations but is reported as deprecated', () => {
+    const t = silent(() => defineTheme({ motion: "none" }));
+    expect(t.tokens["duration-move"]).toBe("0ms");
+    expect(t.warnings.join("\n")).toMatch(/motion: "none" is deprecated/);
   });
 });

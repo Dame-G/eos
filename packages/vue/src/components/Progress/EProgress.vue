@@ -125,7 +125,7 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     height: auto;
     width: 40%;
     transition: none;
-    animation: e-progress-slide var(--e-duration-loop) var(--e-easing-standard) infinite;
+    animation: e-progress-slide var(--e-duration-loop) ease-in-out infinite;
   }
 
   @keyframes e-progress-stripes {
