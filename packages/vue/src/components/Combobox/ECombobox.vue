@@ -14,6 +14,7 @@ import EField from "../Field/EField.vue";
 import EIcon from "../Icon/EIcon.vue";
 import ETag from "../Tag/ETag.vue";
 import ESpinner from "../Spinner/ESpinner.vue";
+import EHiddenInputs from "../Field/EHiddenInputs.vue";
 import EComboboxOption from "./EComboboxOption.vue";
 import { normalizeOptions, sectionOptions } from "../Select/options.js";
 import { fold } from "./fold.js";
@@ -271,17 +272,12 @@ defineExpose({
                 @keydown.capture="keepCaretKeys"
               />
             </div>
-            <template v-if="name">
-              <input
-                v-for="(v, k) in multiple ? values : [single]"
-                :key="k"
-                type="hidden"
-                :name="name"
-                :value="v"
-                :disabled="disabled || undefined"
-                :form="attrs.form()"
-              />
-            </template>
+            <EHiddenInputs
+              :name="name"
+              :values="multiple ? values : [single]"
+              :disabled="disabled"
+              :form="attrs.form()"
+            />
             <div class="e-combo-tail">
               <button
                 v-if="hasValue && clearable && !disabled && !readonly"

@@ -5,6 +5,7 @@ import { render } from "vitest-browser-vue";
 import EDatePicker from "./EDatePicker.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
+import { expectPostingContract } from "../../../test/formPosting.js";
 
 const d = (y: number, m: number, day: number) => new Date(y, m - 1, day, 12);
 const plugin = (options: Parameters<typeof createEos>[0]) => ({
@@ -133,6 +134,48 @@ describe("EDatePicker", () => {
     expect(late.container.querySelector(".e-field-error")!.textContent).toMatch(
       "Choose a date on or before 12/31/2026.",
     );
+  });
+
+  test("a named field posts its date, nothing while disabled, and joins a form it is outside of", async () => {
+    await expectPostingContract(EDatePicker as Component, { label: "Date", modelValue: d(2026, 10, 22) }, "dob");
+  });
+
+  test("while the typed text cannot be used it posts nothing, not the date it had before", async () => {
+    const posted: string[] = [];
+    const model = ref<Date | null>(d(2026, 10, 22));
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(
+            "form",
+            {
+              onSubmit: (e: Event) => {
+                e.preventDefault();
+                posted.push(String(new FormData(e.target as HTMLFormElement).get("dob")));
+              },
+            },
+            [
+              h(EDatePicker as Component, {
+                label: "Date",
+                name: "dob",
+                modelValue: model.value,
+                "onUpdate:modelValue": (v: Date | null) => (model.value = v),
+              }),
+              h("button", { type: "submit" }, "Send"),
+            ],
+          ),
+      }),
+    );
+    const input = container.querySelector<HTMLInputElement>(".e-combo-input")!;
+    const hidden = container.querySelector<HTMLInputElement>("input[type=hidden]")!;
+    await setText(input, "not a date");
+    await userEvent.keyboard("{Enter}");
+    expect(posted).toEqual([""]);
+    expect(model.value).toEqual(d(2026, 10, 22));
+    expect(hidden.value).toBe("");
+    await setText(input, "10/23/2026");
+    await userEvent.keyboard("{Enter}");
+    expect(posted).toEqual(["", "2026-10-23"]);
   });
 
   test("a disabled field does not submit its hidden input", async () => {

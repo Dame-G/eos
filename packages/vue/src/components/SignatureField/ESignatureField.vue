@@ -20,6 +20,7 @@ import ECheckbox from "../Checkbox/ECheckbox.vue";
 import ESignaturePad from "../SignaturePad/ESignaturePad.vue";
 import { useConfig, useMessages } from "../../config.js";
 import { useUid } from "../../composables/useUid.js";
+import { useFieldControl } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
@@ -58,6 +59,7 @@ const model = defineModel<SignatureValue>({
 const t = useMessages();
 const config = useConfig();
 const id = useUid(() => props.id);
+const control = useFieldControl(props);
 
 const method = computed<"type" | "draw">(() => (props.mode === "both" ? model.value.method : props.mode));
 const dateText = computed(() =>
@@ -130,13 +132,7 @@ function update(patch: Partial<SignatureValue>) {
       :readonly="readonly"
       @update:model-value="update({ agreed: $event })"
     />
-    <input
-      v-if="name"
-      type="hidden"
-      :name="name"
-      :disabled="disabled"
-      :value="method === 'draw' ? model.image : model.name"
-    />
+    <input v-if="name" type="hidden" v-bind="control.hidden(name, method === 'draw' ? model.image : model.name)" />
   </EFieldset>
 </template>
 

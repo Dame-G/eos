@@ -7,7 +7,7 @@ import EIcon from "../Icon/EIcon.vue";
 import { boundsMessage, compareDays, isoDate, parseIso, sameDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
-import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import { useFieldControl } from "../../composables/useFieldControl.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
@@ -63,9 +63,11 @@ const config = useConfig();
 const dir = useDir();
 const loc = useLocale();
 const portal = usePortalTarget();
-const attrs = useFieldAttrs();
+const control = useFieldControl(props);
+const attrs = control.attrs;
 
-const input = ref<HTMLInputElement | null>(null);
+const input = control.input;
+const hidden = ref<HTMLInputElement | null>(null);
 const calendar = ref<InstanceType<typeof ECalendar> | null>(null);
 /** Whether the calendar is open. Setting it moves no focus, and a disabled field never opens. */
 const open = defineModel<boolean>("open", { default: false });
@@ -84,12 +86,20 @@ function write(d: Date | null) {
 
 const text = ref(loc.formatDate(current.value));
 const typedError = ref("");
+/** The typed text could not be used. The field then posts nothing rather than the date it had before. */
+const unusable = ref(false);
+const posted = computed(() => (unusable.value ? "" : isoDate(current.value)));
+/** Enter submits the form before Vue renders, so the posted value is written at once as well. */
+function post() {
+  if (hidden.value) hidden.value.value = posted.value;
+}
 let clickedOutside = false;
 
 // A change from outside (the calendar, the parent) replaces whatever was typed, and so its error.
 watch([() => current.value?.getTime(), () => config.locale], () => {
   text.value = loc.formatDate(current.value);
   typedError.value = "";
+  unusable.value = false;
 });
 watch(open, (isOpen) => {
   if (isOpen) clickedOutside = false;
@@ -101,14 +111,17 @@ function set(d: Date | null) {
   write(d);
   text.value = loc.formatDate(d);
   typedError.value = "";
+  unusable.value = false;
 }
 
 function commit() {
   if (props.readonly) return;
   const raw = text.value.trim();
+  unusable.value = false;
   if (!raw) {
     typedError.value = "";
     if (current.value) write(null);
+    if (hidden.value) hidden.value.value = "";
     return;
   }
   const d = loc.parseDate(raw);
@@ -120,11 +133,14 @@ function commit() {
       : outOfRange
         ? boundsMessage(t, loc.formatDate, props.min, props.max)
         : t("dateUnavailable");
+    unusable.value = true;
+    post();
     return;
   }
   typedError.value = "";
   text.value = loc.formatDate(d);
   if (!sameDay(d, current.value)) write(d);
+  if (hidden.value) hidden.value.value = isoDate(d);
 }
 
 function onKey(e: KeyboardEvent) {
@@ -213,7 +229,7 @@ defineExpose({
                 @blur="commit"
                 @keydown="onKey"
               />
-              <input v-if="name" type="hidden" :name="name" :disabled="disabled" :value="isoDate(current)" />
+              <input v-if="name" ref="hidden" type="hidden" v-bind="control.hidden(name, posted)" />
               <PopoverTrigger as-child v-bind="trigger">
                 <button
                   type="button"

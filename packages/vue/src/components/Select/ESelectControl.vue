@@ -12,6 +12,7 @@ import {
 } from "reka-ui";
 import EIcon from "../Icon/EIcon.vue";
 import ESpinner from "../Spinner/ESpinner.vue";
+import EHiddenInputs from "../Field/EHiddenInputs.vue";
 import ESelectOption from "./ESelectOption.vue";
 import { sectionOptions, type EOption } from "./options.js";
 import { useMessages, usePortalTarget } from "../../config.js";
@@ -180,17 +181,7 @@ defineExpose({
     <button v-if="canClear" type="button" class="e-combo-btn e-sel-clear" :aria-label="t('clear')" @click="clear">
       <EIcon name="x" />
     </button>
-    <template v-if="name">
-      <input
-        v-for="(v, k) in multiple ? values : [values[0] ?? '']"
-        :key="k"
-        type="hidden"
-        :name="name"
-        :value="v"
-        :disabled="disabled || undefined"
-        :form="form"
-      />
-    </template>
+    <EHiddenInputs :name="name" :values="multiple ? values : [values[0]]" :disabled="disabled" :form="form" />
   </div>
 </template>
 

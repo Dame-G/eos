@@ -4,6 +4,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ESignatureField, { type SignatureValue } from "./ESignatureField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { expectPostingContract } from "../../../test/formPosting.js";
 
 const date = new Date(2026, 8, 22);
 
@@ -182,6 +183,12 @@ describe("ESignatureField", () => {
     await mount({ disabled: true, mode: "both" });
     await expect.element(page.getByRole("textbox", { name: /Type your full name/ })).toBeDisabled();
     await expect.element(page.getByRole("checkbox", { name: /I agree/ })).toBeDisabled();
+  });
+
+  test("a named field posts the typed name, nothing while disabled, and joins a form it is outside of", async () => {
+    await expectPostingContract(ESignatureField, {
+      modelValue: { method: "type", name: "Ada Lovelace", image: "", agreed: true },
+    });
   });
 
   test("disabled does not submit the hidden input", async () => {

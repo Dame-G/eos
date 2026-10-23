@@ -9,7 +9,7 @@ import EIcon from "../Icon/EIcon.vue";
 import { addDays, boundsMessage, compareDays, isoDate, parseIso, startOfDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
-import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import { useFieldControl } from "../../composables/useFieldControl.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
@@ -79,7 +79,8 @@ const config = useConfig();
 const dir = useDir();
 const loc = useLocale();
 const portal = usePortalTarget();
-const attrs = useFieldAttrs();
+const control = useFieldControl(props);
+const attrs = control.attrs;
 
 /** Whether the calendar is open. A disabled field never opens. */
 const open = defineModel<boolean>("open", { default: false });
@@ -93,12 +94,23 @@ const typedError = ref("");
 const draft = ref<CalendarRange>({ start: start.value, end: end.value });
 const calendar = ref<InstanceType<typeof ECalendar> | null>(null);
 const startInput = ref<HTMLInputElement | null>(null);
+/** The typed span could not be used. The field then posts nothing rather than the dates it had before. */
+const unusable = ref(false);
+const startHidden = ref<HTMLInputElement | null>(null);
+const endHidden = ref<HTMLInputElement | null>(null);
+const posted = computed(() => (unusable.value ? ["", ""] : [isoDate(start.value), isoDate(end.value)]));
+/** Enter submits the form before Vue renders, so the posted values are written at once as well. */
+function post(values: string[]) {
+  if (startHidden.value) startHidden.value.value = values[0]!;
+  if (endHidden.value) endHidden.value.value = values[1]!;
+}
 
 // A change from outside (the calendar, a preset, the parent) replaces whatever was typed, and so its error.
 watch([() => start.value?.getTime(), () => end.value?.getTime(), () => config.locale], () => {
   startText.value = loc.formatDate(start.value);
   endText.value = loc.formatDate(end.value);
   typedError.value = "";
+  unusable.value = false;
 });
 watch(open, (isOpen) => {
   if (isOpen) draft.value = { start: start.value, end: end.value };
@@ -136,6 +148,8 @@ function setRange(r: { start: Date | null; end: Date | null }) {
   startText.value = loc.formatDate(r.start);
   endText.value = loc.formatDate(r.end);
   typedError.value = "";
+  unusable.value = false;
+  post([isoDate(r.start), isoDate(r.end)]);
 }
 
 const outOfBounds = (d: Date) =>
@@ -143,26 +157,25 @@ const outOfBounds = (d: Date) =>
 
 function commitText() {
   if (props.readonly) return;
+  const error = check();
+  unusable.value = !!error;
+  if (error) {
+    typedError.value = error;
+    post(["", ""]);
+  }
+}
+
+/** Reads the typed span and sets it. Returns what is wrong with it, or nothing. */
+function check(): string | undefined {
   const a = startText.value.trim() ? loc.parseDate(startText.value) : null;
   const b = endText.value.trim() ? loc.parseDate(endText.value) : null;
-  if ((startText.value.trim() && !a) || (endText.value.trim() && !b)) {
-    typedError.value = t("datesError", { format: loc.dateFormatLabel() });
-    return;
-  }
-  const bad = [a, b].find((d) => d && outOfBounds(d));
-  if (bad) {
-    typedError.value = boundsMessage(t, loc.formatDate, props.min, props.max);
-    return;
-  }
-  if ([a, b].some((d) => d && props.disabledDate?.(d))) {
-    typedError.value = t("dateUnavailable");
-    return;
-  }
-  if (a && b && compareDays(b, a) < 0) {
-    typedError.value = t("endBeforeStart");
-    return;
-  }
+  if ((startText.value.trim() && !a) || (endText.value.trim() && !b))
+    return t("datesError", { format: loc.dateFormatLabel() });
+  if ([a, b].some((d) => d && outOfBounds(d))) return boundsMessage(t, loc.formatDate, props.min, props.max);
+  if ([a, b].some((d) => d && props.disabledDate?.(d))) return t("dateUnavailable");
+  if (a && b && compareDays(b, a) < 0) return t("endBeforeStart");
   setRange({ start: a, end: b });
+  return undefined;
 }
 
 function onRange(r: CalendarRange) {
@@ -263,8 +276,13 @@ defineExpose({
                 @blur="commitText"
                 @keydown="onKey"
               />
-              <input v-if="startName" type="hidden" :name="startName" :disabled="disabled" :value="isoDate(start)" />
-              <input v-if="endName" type="hidden" :name="endName" :disabled="disabled" :value="isoDate(end)" />
+              <input
+                v-if="startName"
+                ref="startHidden"
+                type="hidden"
+                v-bind="control.hidden(startName, posted[0])"
+              />
+              <input v-if="endName" ref="endHidden" type="hidden" v-bind="control.hidden(endName, posted[1])" />
               <PopoverTrigger as-child v-bind="trigger">
                 <button
                   type="button"

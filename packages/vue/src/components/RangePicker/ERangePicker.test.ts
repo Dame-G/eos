@@ -169,6 +169,45 @@ describe("ERangePicker", () => {
     ]);
   });
 
+  test("the hidden fields keep the consumer's form attribute", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h("form", { id: "range-form" }),
+            h(ERangePicker as Component, {
+              label: "Dates",
+              startName: "from",
+              endName: "to",
+              start: d(2026, 10, 4),
+              end: d(2026, 10, 18),
+              form: "range-form",
+            }),
+          ]),
+      }),
+    );
+    const form = container.querySelector("form")!;
+    expect([...new FormData(form).entries()]).toEqual([
+      ["from", "2026-10-04"],
+      ["to", "2026-10-18"],
+    ]);
+  });
+
+  test("while the typed span cannot be used it posts nothing, not the dates it had before", async () => {
+    const { container } = await bound(
+      { label: "Dates", startName: "from", endName: "to" },
+      { start: d(2026, 10, 4), end: d(2026, 10, 18) },
+    );
+    const [, b] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
+    const hidden = () => [...container.querySelectorAll<HTMLInputElement>("input[type=hidden]")].map((i) => i.value);
+    await setText(b!, "10/01/2026");
+    await userEvent.keyboard("{Enter}");
+    expect(hidden()).toEqual(["", ""]);
+    await setText(b!, "10/20/2026");
+    await userEvent.keyboard("{Enter}");
+    expect(hidden()).toEqual(["2026-10-04", "2026-10-20"]);
+  });
+
   test("a bad date or an end before the start shows an error and leaves the value alone", async () => {
     const { start, end, container } = await bound({ label: "Dates" }, { start: d(2026, 10, 4), end: d(2026, 10, 18) });
     const [a, b] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
