@@ -354,6 +354,16 @@ describe("derived inputs", () => {
     expect(dark.issues).toEqual([]);
   });
 
+  test("the scrim is a deep shade of the brand, and black on a dark or high-contrast theme", () => {
+    expect(base["scrim"]).toBe("rgb(11 40 52 / 0.55)");
+    const rose = defineTheme({ brand: "#e91e63" }).tokens["scrim"]!;
+    expect(rose).toMatch(/^rgb\(\d+ \d+ \d+ \/ 0\.55\)$/);
+    const [r, , b] = rose.match(/\d+/g)!.map(Number);
+    expect(r).toBeGreaterThan(b!);
+    expect(defineTheme({ brand: "#e91e63", surface: "#10151a" }).tokens["scrim"]).toBe("rgb(0 0 0 / 0.7)");
+    expect(defineTheme({ brand: "#e91e63", contrast: "high" }).tokens["scrim"]).toBe("rgb(0 0 0 / 0.75)");
+  });
+
   test("motion presets set the three motion tokens", () => {
     expect(changed({ motion: "snappy" }).sort()).toEqual(["duration-fade", "duration-move", "duration-tap"]);
     expect(changed({ motion: "none" }).sort()).toEqual(["duration-fade", "duration-move", "duration-tap"]);

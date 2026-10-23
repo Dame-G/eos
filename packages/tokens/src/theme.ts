@@ -308,6 +308,13 @@ function shadowRgb(out: Record<string, string>, dark: boolean) {
   return `${r}, ${g}, ${b}`;
 }
 
+/** The scrim is the deep shade of the brand, as the default teal one is of the logo blue, so it follows a theme instead of tinting every brand teal. */
+function brandScrim(brand: string) {
+  const { c, h } = toOklch(brand);
+  const [r, g, b] = parseHex(fromOklch({ l: 0.2613, c: Math.min(c, 0.0408), h }));
+  return `rgb(${r} ${g} ${b} / 0.55)`;
+}
+
 function layers(set: ShadowLayer[], dark: boolean, base: string) {
   return set
     .map(
@@ -575,6 +582,7 @@ function derive(input: ThemeInput): Record<string, string> {
   const dangerBase = input.danger ?? (dark ? DARK_DANGER : undefined);
   if (dangerBase) out["danger"] = reachContrast(dangerBase, out["on-danger"]!, 7);
   if (input.brand) out["brand-blue"] = input.brand;
+  if (input.brand && !dark) out["scrim"] = brandScrim(input.brand);
   if (input.brand || dark) out["primary"] = reachContrast(out["brand-blue"]!, out["on-primary"]!, 7);
   if (input.accent) out["brand-green"] = input.accent;
   if (input.accent || dark) out["secondary"] = reachContrast(out["brand-green"]!, out["on-secondary"]!, 7);
