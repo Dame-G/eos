@@ -120,7 +120,19 @@ function alternatives(node, src, seen = new Set()) {
       .reduce((acc, alts) => acc.flatMap((a) => alts.map((b) => [...a, ...b])), [[]]);
   }
   if (ts.isUnionTypeNode(node)) return node.types.flatMap((t) => alternatives(t, src, seen));
-  if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName)) return fromName(node.typeName.text, src, seen);
+  if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName)) {
+    const wrap = node.typeName.text;
+    const [target, keys] = node.typeArguments ?? [];
+    if ((wrap === "Pick" || wrap === "Omit") && target && keys) {
+      const names = new Set(
+        (ts.isUnionTypeNode(keys) ? keys.types : [keys])
+          .filter((k) => ts.isLiteralTypeNode(k) && ts.isStringLiteral(k.literal))
+          .map((k) => k.literal.text),
+      );
+      return alternatives(target, src, seen).map((alt) => alt.filter((m) => names.has(m.name) === (wrap === "Pick")));
+    }
+    return fromName(wrap, src, seen);
+  }
   throw new Error(`cannot read props from type ${node.getText(src.sf)}`);
 }
 

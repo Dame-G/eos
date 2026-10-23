@@ -2,10 +2,11 @@ import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import dts from "vite-plugin-dts";
 import { playwright } from "@vitest/browser-playwright";
-import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import layers from "./scripts/postcss-layers.ts";
 import hover from "./scripts/postcss-hover.ts";
+import { LAYER_ORDER } from "@eos-ui/tokens";
 
 const src = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
@@ -63,13 +64,25 @@ export default defineConfig(({ command }) => ({
         copyFileSync(src("./src/styles/fonts.css"), src("./dist/fonts.css"));
       },
     },
+    {
+      // Minifying merges the layer blocks and drops the order statement the cascade depends on.
+      name: "e-layer-order",
+      closeBundle() {
+        const file = src("./dist/style.css");
+        if (!existsSync(file)) return;
+        const css = readFileSync(file, "utf8");
+        const statement = `@layer ${LAYER_ORDER};`;
+        if (!css.startsWith(statement)) writeFileSync(file, statement + css);
+      },
+    },
   ],
   css: { postcss: { plugins: [layers(), hover()] } },
   build: {
     target: "es2022",
     sourcemap: true,
     cssCodeSplit: false,
-    cssMinify: false,
+    cssMinify: "lightningcss",
+    cssTarget: "esnext",
     lib: {
       cssFileName: "style",
       entry: {
@@ -91,7 +104,7 @@ export default defineConfig(({ command }) => ({
     },
   },
   test: {
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "test/**/*.test.ts"],
     setupFiles: ["./test/setup.ts"],
     // A passing assertion returns at once; the longer limit only gives a slow CI runner room to open a popup or settle a layout.
     expect: { poll: { timeout: 5000 } },

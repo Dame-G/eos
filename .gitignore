@@ -10,3 +10,4 @@ __screenshots__/**/actual
 .DS_Store
 .vitest
 .claude/settings.local.json
+.claude/worktrees/
