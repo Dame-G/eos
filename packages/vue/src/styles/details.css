@@ -9,7 +9,7 @@
   :is(.e-details, .e-xrow, .e-nav-group)::details-content {
     block-size: 0;
     overflow: clip;
-    overflow-clip-margin: calc(2 * var(--e-stroke-focus));
+    overflow-clip-margin: var(--e-gap-snug);
     transition:
       block-size var(--e-duration-move) var(--e-easing-out),
       content-visibility var(--e-duration-move) allow-discrete;

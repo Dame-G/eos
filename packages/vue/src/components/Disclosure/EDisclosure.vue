@@ -40,11 +40,11 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     list-style: none;
     cursor: pointer;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: var(--e-gap-base);
     min-height: var(--e-control-height);
-    padding-block: var(--e-pad-control-sm) 0;
+    padding-block: var(--e-gap-snug);
     padding-inline: var(--e-gap-snug);
     border-block-start: var(--e-stroke-hair) solid var(--e-border);
     font: var(--e-type-kicker);
@@ -96,11 +96,11 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 
   .e-details[open] > summary {
     min-height: 0;
-    padding-block-end: var(--e-gap-tight);
   }
 
+  /* The room above the content is for its focus rings and shadows: the opening animation clips what pokes out of the body. */
   .e-details-body {
-    padding-block-end: var(--e-gap-snug);
+    padding-block: var(--e-gap-tight) var(--e-gap-snug);
     padding-inline: var(--e-gap-snug);
   }
 

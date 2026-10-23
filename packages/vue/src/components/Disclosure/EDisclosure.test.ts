@@ -26,6 +26,29 @@ describe("EDisclosure", () => {
     expect(parseFloat(style.borderTopRightRadius)).toBe(0);
   });
 
+  test("the title sits in the middle of its summary, closed and open, so a hover fill is even", async () => {
+    const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
+    container.classList.add("e-root");
+    const details = container.querySelector("details")!;
+    const summary = details.querySelector("summary")!;
+    const gaps = () => {
+      const range = document.createRange();
+      range.selectNodeContents(
+        [...summary.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim())!,
+      );
+      const text = range.getBoundingClientRect();
+      const box = summary.getBoundingClientRect();
+      return { above: text.top - box.top, below: box.bottom - text.bottom };
+    };
+    for (const open of [false, true]) {
+      details.open = open;
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      const { above, below } = gaps();
+      expect(Math.abs(above - below), `open: ${open}`).toBeLessThanOrEqual(1.5);
+      expect(above).toBeGreaterThan(4);
+    }
+  });
+
   test("clicking the summary opens and closes it", async () => {
     const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
     const details = container.querySelector("details")!;

@@ -219,8 +219,21 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     --_slab: var(--e-danger);
   }
 
+  /* Read-only keeps the value in view but is not something to operate: as in a read-only field the well is gone, and the thumb is a flat marker, not a raised button. */
+  .e-slider--readonly .e-slider-track {
+    background: var(--e-surface-tint);
+    box-shadow: none;
+  }
+
   .e-slider--readonly .e-slider-thumb {
+    --_lift: 0px;
+
+    background: var(--e-surface);
     cursor: default;
+  }
+
+  .e-slider--readonly .e-slider-thumb:not([aria-invalid="true"]) {
+    --_slab: var(--e-border-strong);
   }
 
   .e-slider[data-disabled] {

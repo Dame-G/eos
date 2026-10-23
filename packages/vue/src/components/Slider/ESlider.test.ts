@@ -6,6 +6,24 @@ import ESlider from "./ESlider.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESlider", () => {
+  test("read-only is flat and shows no sign of being operable; editable is raised", async () => {
+    const look = async (readonly: boolean) => {
+      const { container, unmount } = await render(ESlider, { props: { label: "Volume", modelValue: 30, readonly } });
+      container.classList.add("e-root");
+      const thumb = container.querySelector(".e-slider-thumb")!;
+      const style = getComputedStyle(thumb);
+      const out = {
+        raised: parseFloat(style.borderBottomWidth) > parseFloat(style.borderTopWidth),
+        cursor: style.cursor,
+        well: getComputedStyle(container.querySelector(".e-slider-track")!).boxShadow !== "none",
+      };
+      unmount();
+      return out;
+    };
+    expect(await look(false)).toEqual({ raised: true, cursor: "grab", well: true });
+    expect(await look(true)).toEqual({ raised: false, cursor: "default", well: false });
+  });
+
   test("the thumb, its tick and the end of the filled range share one centre at every value", async () => {
     const marks = [0, 25, 50, 75, 100];
     for (const value of [0, 25, 50, 75, 100]) {
