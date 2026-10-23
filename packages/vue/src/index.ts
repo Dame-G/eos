@@ -77,6 +77,7 @@ export * from "./components/Inline/index.js";
 export * from "./components/Kbd/index.js";
 export * from "./components/Kicker/index.js";
 export * from "./components/Link/index.js";
+export * from "./components/LinkCard/index.js";
 export * from "./components/Menu/index.js";
 export * from "./components/Metric/index.js";
 export * from "./components/NavList/index.js";

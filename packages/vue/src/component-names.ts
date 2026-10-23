@@ -40,6 +40,7 @@ export const componentNames: ReadonlySet<string> = new Set([
   "EKbd",
   "EKicker",
   "ELink",
+  "ELinkCard",
   "EMenu",
   "EMetric",
   "ENavList",

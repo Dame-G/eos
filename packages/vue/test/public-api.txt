@@ -39,6 +39,7 @@ EInline
 EKbd
 EKicker
 ELink
+ELinkCard
 EMenu
 EMetric
 ENavList

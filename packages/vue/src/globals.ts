@@ -45,6 +45,7 @@ declare module "vue" {
     EKbd: typeof Library.EKbd;
     EKicker: typeof Library.EKicker;
     ELink: typeof Library.ELink;
+    ELinkCard: typeof Library.ELinkCard;
     EMenu: typeof Library.EMenu;
     EMetric: typeof Library.EMetric;
     ENavList: typeof Library.ENavList;
