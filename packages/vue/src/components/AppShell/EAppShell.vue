@@ -57,6 +57,7 @@ const t = useMessages();
   .e-shell-body {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
+    position: relative;
     gap: var(--e-space-6);
     width: 100%;
     max-width: var(--e-shell-width, 72rem);
@@ -64,18 +65,13 @@ const t = useMessages();
     padding: var(--e-space-6) var(--e-space-4);
   }
 
-  /* Hairlines just outside both edges of the page column, drawn over the header and footer. When the column fills the screen they fall off it and nothing shows. */
-  .e-shell::after {
+  /* Hairlines just outside both edges of the page column, from the header to the footer and not through them. When the column fills the screen they fall off it and nothing shows. They are borders, not shadows, so forced colors keeps them. */
+  .e-shell-body::after {
     content: "";
     position: absolute;
     inset-block: 0;
-    inset-inline: 0;
-    z-index: var(--e-z-sticky);
-    width: min(100%, var(--e-shell-width, 72rem));
-    margin-inline: auto;
-    box-shadow:
-      calc(-1 * var(--e-stroke-hair)) 0 0 0 var(--e-shell-rail, var(--e-border)),
-      var(--e-stroke-hair) 0 0 0 var(--e-shell-rail, var(--e-border));
+    inset-inline: calc(-1 * var(--e-stroke-hair));
+    border-inline: var(--e-stroke-hair) solid var(--e-shell-rail, var(--e-border));
     pointer-events: none;
   }
 
@@ -100,7 +96,7 @@ const t = useMessages();
   }
 
   @media print {
-    .e-shell::after,
+    .e-shell-body::after,
     .e-shell-side {
       display: none;
     }

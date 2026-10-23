@@ -114,6 +114,26 @@ describe("EAppShell", () => {
     }
   });
 
+  test("the header and footer run full width, and the rails run beside the content only", async () => {
+    await page.viewport(1600, 900);
+    try {
+      const { container } = await render(EAppShell, { slots: noSide });
+      const header = container.querySelector<HTMLElement>(".e-appheader")!;
+      const footer = container.querySelector<HTMLElement>(".e-appfooter")!;
+      const body = container.querySelector<HTMLElement>(".e-shell-body")!;
+      expect(Math.round(header.getBoundingClientRect().width)).toBe(1600);
+      expect(Math.round(footer.getBoundingClientRect().width)).toBe(1600);
+      expect(getComputedStyle(container.querySelector(".e-shell")!, "::after").content).toBe("none");
+      const rail = getComputedStyle(body, "::after");
+      expect(rail.borderInlineStartStyle).toBe("solid");
+      expect(rail.borderInlineEndStyle).toBe("solid");
+      const inner = container.querySelector<HTMLElement>(".e-appheader .e-shell-inner")!;
+      expect(Math.round(inner.getBoundingClientRect().left)).toBe(Math.round(body.getBoundingClientRect().left));
+    } finally {
+      await page.viewport(1024, 768);
+    }
+  });
+
   test("class, style and attributes fall through to the root", async () => {
     const { container } = await render(EAppShell, { slots, attrs: { class: "mine", "data-x": "1" } });
     const root = container.firstElementChild!;
