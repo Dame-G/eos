@@ -25,7 +25,7 @@ An amount of money: an [`ENumberField`](../NumberField/README.md) with the curre
 | `size`       | `EFieldSize`     | `"md"`                                                       | The height of the box: `sm` and `lg` are a step under and over the control height.                         |
 | `label`      | `string`         | **Required**                                                 | The visible label. The symbol is decoration, so say what the amount is for.                                |
 | `currency`   | `string`         | `configured currency`                                        | ISO 4217 code. An unknown code falls back to the configured currency's symbol.                             |
-| `locale`     | `string`         | `configured locale`                                          | BCP 47 tag used for the symbol.                                                                            |
+| `locale`     | `string`         | `configured locale`                                          | BCP 47 tag for the symbol, the separators the amount is written with and how typed text is read.           |
 | `min`        | `number`         | `0`                                                          | The lowest value. Use a negative number to allow negative amounts.                                         |
 | `max`        | `number`         | None                                                         | The highest value.                                                                                         |
 | `step`       | `number`         | `the currency's smallest unit (0.01 for dollars, 1 for yen)` | The size of one step of the buttons and arrow keys. Decimals shown follow the step.                        |

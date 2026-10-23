@@ -13,7 +13,7 @@ const props = withDefaults(
         label: string;
         /** ISO 4217 code. An unknown code falls back to the configured currency's symbol. @default configured currency */
         currency?: string;
-        /** BCP 47 tag used for the symbol. @default configured locale */
+        /** BCP 47 tag for the symbol, the separators the amount is written with and how typed text is read. @default configured locale */
         locale?: string;
         /** The lowest value. Use a negative number to allow negative amounts. @default 0 */
         min?: number;
@@ -87,6 +87,7 @@ defineExpose({
     :prefix="prefix ?? symbol"
     :suffix="suffix"
     :name="name"
+    :locale="locale"
     :hint="hint"
     :error="error"
     :required="required"
