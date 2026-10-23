@@ -74,7 +74,7 @@
     "test": "pnpm prepare:gen && vitest run",
     "dev": "pnpm prepare:gen && vite build --watch",
     "test:watch": "vitest",
-    "prepare:gen": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs",
+    "prepare:gen": "node scripts/gen-index.mjs",
     "gen:check": "node scripts/gen-index.mjs --check",
     "check": "pnpm gen:check && pnpm check:css && pnpm check:layers && pnpm check:props && pnpm check:docs",
     "check:css": "node scripts/check-css.mjs",

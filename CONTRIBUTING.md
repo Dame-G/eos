@@ -38,7 +38,9 @@ Tests run in Chromium. Locally the Chromium tests use the installed Microsoft Ed
 
 `pnpm check:size` compares the gzipped `style.css`, `index.js` and all JavaScript with the budgets in `scripts/size.mjs` and prints each one's headroom. A budget is the current size plus about 3%. All CSS ships as one file, so every component's CSS is paid for by every consumer: reuse tokens and shared rules, avoid repeating a rule set across components, and do not add a dependency for something small. If a deliberate change needs more, raise the limit in the same pull request and say why in its description. Per-component CSS files are not offered; consumers who need a smaller stylesheet are a reason to revisit that, not to loosen the budget.
 
-While working on one component, run from `packages/vue` (these need `pnpm build` or `pnpm test` to have generated the tokens once):
+The Vue package reads the built tokens (`packages/tokens/dist`). `pnpm build`, `pnpm test` and `pnpm typecheck` build them first, in dependency order, and only once. After changing `tokens.json` while you work inside `packages/vue`, run `pnpm tokens` from the root.
+
+While working on one component, run from `packages/vue` (these need `pnpm build` or `pnpm test` to have built the tokens once):
 
 | Command                                 | Use                                                                      |
 | --------------------------------------- | ------------------------------------------------------------------------ |

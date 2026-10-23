@@ -38,8 +38,8 @@
   "scripts": {
     "generate": "node scripts/generate.mjs",
     "build": "node scripts/build.mjs",
-    "typecheck": "node scripts/generate.mjs && tsc -p tsconfig.json --noEmit",
-    "test": "node scripts/generate.mjs && vitest run"
+    "typecheck": "node scripts/build.mjs && tsc -p tsconfig.json --noEmit",
+    "test": "node scripts/build.mjs && vitest run"
   },
   "devDependencies": {
     "vitest": "^5.0.5"
