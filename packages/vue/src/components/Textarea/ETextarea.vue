@@ -18,6 +18,8 @@ const props = withDefaults(
       placeholder?: string;
       /** Visible lines. The height follows it, down to one. With `autoGrow` it is the least height. @default 4 */
       rows?: number;
+      /** The name submitted with a form. */
+      name?: string;
       /** What the browser may fill in. */
       autocomplete?: string;
       /** The most characters the textarea takes. */
@@ -42,6 +44,7 @@ function inputBind(field: FieldSlot) {
     class: "e-input e-textarea",
     rows: props.rows,
     placeholder: props.placeholder,
+    name: props.name,
     value: model.value,
     autocomplete: props.autocomplete,
     maxlength: props.maxlength,
