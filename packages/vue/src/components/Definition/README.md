@@ -16,16 +16,17 @@ A term that opens a small floating panel with a definition or short explanation.
 
 <!-- props:start -->
 
-| Prop           | Type                         | Default      | Notes                                                                                     |
-| -------------- | ---------------------------- | ------------ | ----------------------------------------------------------------------------------------- |
-| `modelValue`   | `boolean`                    | `false`      | `v-model`: the open state.                                                                |
-| `label`        | `string`                     | **Required** | Names the panel for screen readers (when there is no `title`) and is read after the term. |
-| `title`        | `string`                     | None         | Adds a title row with this title and a Close button.                                      |
-| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `3`          | The level of the title's heading, so it fits the page outline.                            |
+| Prop           | Type                         | Default      | Notes                                                                                                                                                              |
+| -------------- | ---------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `modelValue`   | `boolean`                    | `false`      | `v-model`: the open state.                                                                                                                                         |
+| `label`        | `string`                     | **Required** | Names the panel for screen readers (when there is no `title`) and is read after the term.                                                                          |
+| `title`        | `string`                     | None         | Adds a title row with this title and a Close button.                                                                                                               |
+| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `3`          | The level of the title's heading, so it fits the page outline.                                                                                                     |
+| `inline`       | `boolean`                    | `false`      | Sets the term in the sentence around it, at the sentence's size and on its baseline, without the info icon. For a term inside running text, such as a footer line. |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the term `button` element.
+`class`, `style` and attributes land on the term `button` element. `inline` sets the term inside running text (`Licensed under <EDefinition inline ...>MIT</EDefinition>`): the sentence's font and baseline, and no info icon.
 
 ## Slots
 
