@@ -79,16 +79,13 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     outline-offset: var(--e-stroke-focus);
   }
 
-  /* Hovering lights up the title the way a link does: its colour, and an underline. No fill and no ring. */
+  /* The summary line answers the pointer with the wash every row uses, and keeps its ink text: no colour change, no underline, no ring. */
   .e-details > summary:not([aria-disabled="true"]):hover {
-    color: var(--e-text-link);
-    text-decoration: underline;
-    text-decoration-thickness: var(--e-stroke-edge);
-    text-underline-offset: var(--e-gap-tight);
+    background-color: var(--e-wash-hover);
   }
 
   .e-details > summary:not([aria-disabled="true"]):active {
-    color: var(--e-primary-press);
+    background-color: var(--e-wash-press);
   }
 
   .e-details > summary[aria-disabled="true"] {
