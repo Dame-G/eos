@@ -16,7 +16,7 @@ if (!existsSync(entry)) {
 // Vue as the package resolves it, so the components and the renderer share one copy.
 const fromPkg = createRequire(join(pkg, "package.json"));
 const toUrl = (p) => pathToFileURL(p).href;
-const { createSSRApp, h, markRaw } = await import(toUrl(fromPkg.resolve("vue")));
+const { createSSRApp, h } = await import(toUrl(fromPkg.resolve("vue")));
 const { renderToString } = await import(toUrl(fromPkg.resolve("vue/server-renderer")));
 const eos = await import(toUrl(entry));
 
@@ -27,7 +27,6 @@ console.warn = (...a) => warnings.push(a.map(String).join(" "));
 const results = [];
 const note = (name, ok, detail = "") => results.push({ name, ok, detail });
 
-const Icon = markRaw({ render: () => h("svg", { viewBox: "0 0 24 24" }) });
 const items = [
   { id: "a", label: "Alpha", href: "#a" },
   { id: "b", label: "Beta", href: "#b" },
