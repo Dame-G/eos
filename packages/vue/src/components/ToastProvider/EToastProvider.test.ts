@@ -254,6 +254,18 @@ describe("EToastProvider behaviour", () => {
     hidden.mockRestore();
   });
 
+  test("a toast shown while the tab is already hidden does not start its timer", async () => {
+    await mountApp();
+    const hidden = vi.spyOn(document, "hidden", "get").mockReturnValue(true);
+    api.show({ title: "Saved", duration: 100 });
+    await wait(300);
+    expect(toasts()).toHaveLength(1);
+    hidden.mockReturnValue(false);
+    document.dispatchEvent(new Event("visibilitychange"));
+    await expect.poll(() => toasts().length).toBe(0);
+    hidden.mockRestore();
+  });
+
   test("renders no teleport on the server and hydrates without a warning", async () => {
     const App = defineComponent({ render: () => h(EToastProvider, null, { default: () => h("p", "app") }) });
     const html = await renderToString(createSSRApp(App));

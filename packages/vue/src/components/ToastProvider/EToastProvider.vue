@@ -76,6 +76,9 @@ useEventListener(region, "focusout", (e: FocusEvent) => {
 // A toast nobody can see must not run out, or a message sent while the tab was in the background is lost unread.
 useEventListener(typeof document === "undefined" ? undefined : document, "visibilitychange", settle);
 
+// A toast shown while the tab is hidden, or while the pointer is on the region, must not start its timer: no event
+// fires for it, so the state is applied as the list changes (synchronously, before the new toast's timer arms).
+watch(() => store.items, settle, { flush: "sync" });
 watch(
   () => store.items.length,
   (n) => {
