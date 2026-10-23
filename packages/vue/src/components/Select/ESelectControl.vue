@@ -15,6 +15,7 @@ import ESpinner from "../Spinner/ESpinner.vue";
 import EHiddenInputs from "../Field/EHiddenInputs.vue";
 import ESelectOption from "./ESelectOption.vue";
 import { sectionOptions, type EOption } from "./options.js";
+import type { EFieldSize } from "../Field/fieldProps.js";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
@@ -33,6 +34,7 @@ const props = defineProps<{
   multiple?: boolean | undefined;
   clearable?: boolean | undefined;
   loading?: boolean | undefined;
+  size?: EFieldSize | undefined;
   name?: string | undefined;
   /** The `form` attribute the consumer gave, so the hidden inputs can join a form they are not inside. */
   form?: string | undefined;
@@ -119,7 +121,8 @@ Section.props = ["group"];
 </script>
 
 <template>
-  <div class="e-sel" :class="{ 'e-sel--clear': canClear }">
+  <!-- The size is set on the wrapper, so the trigger and the clear button over it share the height. -->
+  <div class="e-sel" :class="{ 'e-sel--clear': canClear }" :data-size="size && size !== 'md' ? size : undefined">
     <ConfigProvider :dir="dir">
       <SelectRoot
         :model-value="model"
@@ -212,7 +215,9 @@ Section.props = ["group"];
   }
 
   .e-sel--clear .e-sel-trigger {
-    padding-inline-end: calc(var(--_clear) + var(--e-control-height) - var(--e-gap-snug) - var(--e-stroke-edge));
+    padding-inline-end: calc(
+      var(--_clear) + var(--_h, var(--e-control-height)) - var(--e-gap-snug) - var(--e-stroke-edge)
+    );
   }
 
   /* Open, the trigger looks focused: focus moves into the list, so the field's own :focus no longer applies. */

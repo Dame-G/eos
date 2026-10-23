@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends string = string, M extends boolean = false">
 import { computed, ref } from "vue";
 import EField from "../Field/EField.vue";
-import type { EFieldCommonProps } from "../Field/fieldProps.js";
+import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 import type { ELabelProps } from "../Field/labelProps.js";
 import ESelectControl from "./ESelectControl.vue";
 import { normalizeOptions } from "./options.js";
@@ -16,7 +16,9 @@ import "../../styles/base.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<ELabelProps & Omit<EFieldCommonProps, "hideLabel"> & ESelectFields<T, M>>();
+const props = defineProps<
+  ELabelProps & Omit<EFieldCommonProps, "hideLabel"> & Pick<EFieldBoxProps, "size"> & ESelectFields<T, M>
+>();
 
 /** The chosen option's `value`, or an empty string for nothing. With `multiple` it is the array of chosen values, in the order chosen, and `[]` for nothing. */
 const model = defineModel<M extends true ? T[] : T | "">();
@@ -62,6 +64,7 @@ const bind = (field?: FieldSlot) => ({
   multiple: props.multiple,
   clearable: props.clearable,
   loading: props.loading,
+  size: props.size,
   name: props.name,
   form: attrs.form(),
   label: field ? props.label : (props.ariaLabel ?? props.label),

@@ -5,7 +5,7 @@ import EButton from "../Button/EButton.vue";
 import ECalendar from "../Calendar/ECalendar.vue";
 import type { CalendarRange } from "../Calendar/ECalendar.vue";
 import EField from "../Field/EField.vue";
-import type { EFieldCommonProps } from "../Field/fieldProps.js";
+import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 import EIcon from "../Icon/EIcon.vue";
 import { addDays, boundsMessage, compareDays, isoDate, parseIso, startOfDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
@@ -28,26 +28,27 @@ export interface RangePreset {
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<
-  EFieldCommonProps & {
-    /** The visible label above the field. It also names the group. */
-    label: string;
-    /** The earliest date that can be chosen or typed. */
-    min?: Date;
-    /** The latest date that can be chosen or typed. */
-    max?: Date;
-    /** Days that cannot be chosen, in the calendar or by typing. */
-    disabledDate?: (date: Date) => boolean;
-    /** Days that get a dot in the calendar: a list of dates or a function. */
-    marked?: Date[] | ((date: Date) => boolean);
-    /** What `v-model:start` and `v-model:end` hold. `date` is a `Date` (a local day at noon). `iso` is a `YYYY-MM-DD` string, or `null` for no date, which has no time zone to shift. @default "date" */
-    valueFormat?: F;
-    /** Submits the first date as `YYYY-MM-DD` with a form, through a hidden input. */
-    startName?: string;
-    /** Submits the last date as `YYYY-MM-DD` with a form, through a hidden input. */
-    endName?: string;
-    /** Buttons under the calendar. Each sets the span and closes the calendar. A span is cut to `min` and `max`, and a button whose whole span lies outside them is disabled. @default Last 7 days, Last 30 days, This month */
-    presets?: RangePreset[];
-  }
+  EFieldCommonProps &
+    Pick<EFieldBoxProps, "size"> & {
+      /** The visible label above the field. It also names the group. */
+      label: string;
+      /** The earliest date that can be chosen or typed. */
+      min?: Date;
+      /** The latest date that can be chosen or typed. */
+      max?: Date;
+      /** Days that cannot be chosen, in the calendar or by typing. */
+      disabledDate?: (date: Date) => boolean;
+      /** Days that get a dot in the calendar: a list of dates or a function. */
+      marked?: Date[] | ((date: Date) => boolean);
+      /** What `v-model:start` and `v-model:end` hold. `date` is a `Date` (a local day at noon). `iso` is a `YYYY-MM-DD` string, or `null` for no date, which has no time zone to shift. @default "date" */
+      valueFormat?: F;
+      /** Submits the first date as `YYYY-MM-DD` with a form, through a hidden input. */
+      startName?: string;
+      /** Submits the last date as `YYYY-MM-DD` with a form, through a hidden input. */
+      endName?: string;
+      /** Buttons under the calendar. Each sets the span and closes the calendar. A span is cut to `min` and `max`, and a button whose whole span lies outside them is disabled. @default Last 7 days, Last 30 days, This month */
+      presets?: RangePreset[];
+    }
 >();
 
 type Value = F extends "iso" ? string | null : Date | null;
@@ -227,6 +228,7 @@ defineExpose({
               :data-invalid="shownError ? '' : undefined"
               :data-disabled="disabled ? '' : undefined"
               :data-readonly="readonly ? '' : undefined"
+              :data-size="size && size !== 'md' ? size : undefined"
             >
               <input
                 :id="field.id"

@@ -5,12 +5,14 @@
   }
 
   .e-input[data-size="sm"],
-  .e-input-wrap[data-size="sm"] {
+  .e-input-wrap[data-size="sm"],
+  .e-sel[data-size="sm"] {
     --_h: calc(var(--e-control-height) - var(--e-gap-snug));
   }
 
   .e-input[data-size="lg"],
-  .e-input-wrap[data-size="lg"] {
+  .e-input-wrap[data-size="lg"],
+  .e-sel[data-size="lg"] {
     --_h: calc(var(--e-control-height) + var(--e-gap-snug));
   }
 

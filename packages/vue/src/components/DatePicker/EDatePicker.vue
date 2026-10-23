@@ -3,7 +3,7 @@ import { computed, nextTick, ref, watch } from "vue";
 import { ConfigProvider, PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import ECalendar from "../Calendar/ECalendar.vue";
 import EField from "../Field/EField.vue";
-import type { EFieldCommonProps } from "../Field/fieldProps.js";
+import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 import EIcon from "../Icon/EIcon.vue";
 import { boundsMessage, compareDays, isoDate, parseIso, sameDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
@@ -20,24 +20,25 @@ defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
   defineProps<
-    EFieldCommonProps & {
-      /** The visible label. */
-      label: string;
-      /** The earliest date that can be chosen or typed. */
-      min?: Date;
-      /** The latest date that can be chosen or typed. */
-      max?: Date;
-      /** Days that cannot be chosen, in the calendar or by typing, such as days with nothing to book. */
-      disabledDate?: (date: Date) => boolean;
-      /** Days that get a dot in the calendar: a list of dates or a function. */
-      marked?: Date[] | ((date: Date) => boolean);
-      /** Shows the calendar's Today and Clear buttons. */
-      footer?: boolean;
-      /** What `v-model` holds. `date` is a `Date` (a local day at noon). `iso` is a `YYYY-MM-DD` string, or `null` for no date, which has no time zone to shift. @default "date" */
-      valueFormat?: F;
-      /** Submits the date as `YYYY-MM-DD` with a form, through a hidden input. A disabled field is not submitted. */
-      name?: string;
-    }
+    EFieldCommonProps &
+      Pick<EFieldBoxProps, "size"> & {
+        /** The visible label. */
+        label: string;
+        /** The earliest date that can be chosen or typed. */
+        min?: Date;
+        /** The latest date that can be chosen or typed. */
+        max?: Date;
+        /** Days that cannot be chosen, in the calendar or by typing, such as days with nothing to book. */
+        disabledDate?: (date: Date) => boolean;
+        /** Days that get a dot in the calendar: a list of dates or a function. */
+        marked?: Date[] | ((date: Date) => boolean);
+        /** Shows the calendar's Today and Clear buttons. */
+        footer?: boolean;
+        /** What `v-model` holds. `date` is a `Date` (a local day at noon). `iso` is a `YYYY-MM-DD` string, or `null` for no date, which has no time zone to shift. @default "date" */
+        valueFormat?: F;
+        /** Submits the date as `YYYY-MM-DD` with a form, through a hidden input. A disabled field is not submitted. */
+        name?: string;
+      }
   >(),
   { footer: true },
 );
@@ -205,6 +206,7 @@ defineExpose({
               :data-invalid="shownError ? '' : undefined"
               :data-disabled="disabled ? '' : undefined"
               :data-readonly="readonly ? '' : undefined"
+              :data-size="size && size !== 'md' ? size : undefined"
             >
               <input
                 ref="input"
