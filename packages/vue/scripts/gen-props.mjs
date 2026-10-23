@@ -5,9 +5,14 @@
 //   node scripts/gen-props.mjs --check   fail (exit 1) if any README is out of date
 //
 // What is read, from src/components/<Name>/E<Name>.vue:
-//   - defineProps<{ ... }>() members: name, type as written, `?` (optional or Required), JSDoc.
+//   - defineProps<{ ... }>() members: name, type, `?` (optional or Required), JSDoc.
 //     The type may also be a reference (interface, type alias, intersection, union) to something
 //     in the same file or an imported .ts/.vue file; unions are merged (required only if every branch requires it).
+//   - A member's type is written out so a reader needs no other file: an alias of literals (`EFieldSize`,
+//     `Extract<Size, "sm" | "md">`, `NoticeTone`) becomes its values (`"sm" | "md" | "lg"`), an interface's type
+//     parameters are replaced by their arguments, a `boolean` type parameter is `boolean`, and a conditional type
+//     (`M extends true ? T[] : T`) is the union of its branches. Other type parameters keep their name, with a line
+//     under the table saying what they extend. Interfaces and aliases of objects keep their name.
 //   - withDefaults(..., { ... }): the default. A boolean without a default is `false`.
 //   - defineModel<T>(...) / defineModel<T>("name", ...): the v-model props (`modelValue` when unnamed),
 //     described by the JSDoc above the `const x = defineModel` statement.
@@ -111,15 +116,15 @@ const nameOf = (m) => (m.name && (ts.isIdentifier(m.name) || ts.isStringLiteral(
  * Returns a list of alternatives; each alternative is an array of
  * { name, optional, type, doc }. A plain object type is one alternative; a union is several.
  */
-function alternatives(node, src, seen = new Set()) {
-  if (ts.isParenthesizedTypeNode(node)) return alternatives(node.type, src, seen);
-  if (ts.isTypeLiteralNode(node)) return [membersOf(node.members, src)];
+function alternatives(node, src, seen = new Set(), subst = new Map()) {
+  if (ts.isParenthesizedTypeNode(node)) return alternatives(node.type, src, seen, subst);
+  if (ts.isTypeLiteralNode(node)) return [membersOf(node.members, { src, subst })];
   if (ts.isIntersectionTypeNode(node)) {
     return node.types
-      .map((t) => alternatives(t, src, seen))
+      .map((t) => alternatives(t, src, seen, subst))
       .reduce((acc, alts) => acc.flatMap((a) => alts.map((b) => [...a, ...b])), [[]]);
   }
-  if (ts.isUnionTypeNode(node)) return node.types.flatMap((t) => alternatives(t, src, seen));
+  if (ts.isUnionTypeNode(node)) return node.types.flatMap((t) => alternatives(t, src, seen, subst));
   if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName)) {
     const wrap = node.typeName.text;
     const [target, keys] = node.typeArguments ?? [];
@@ -129,14 +134,17 @@ function alternatives(node, src, seen = new Set()) {
           .filter((k) => ts.isLiteralTypeNode(k) && ts.isStringLiteral(k.literal))
           .map((k) => k.literal.text),
       );
-      return alternatives(target, src, seen).map((alt) => alt.filter((m) => names.has(m.name) === (wrap === "Pick")));
+      return alternatives(target, src, seen, subst).map((alt) =>
+        alt.filter((m) => names.has(m.name) === (wrap === "Pick")),
+      );
     }
-    return fromName(wrap, src, seen);
+    const args = (node.typeArguments ?? []).map((a) => ({ node: a, scope: { src, subst } }));
+    return fromName(wrap, src, seen, args);
   }
   throw new Error(`cannot read props from type ${node.getText(src.sf)}`);
 }
 
-function membersOf(members, src) {
+function membersOf(members, scope) {
   const out = [];
   for (const m of members) {
     if (!ts.isPropertySignature(m)) continue;
@@ -145,39 +153,166 @@ function membersOf(members, src) {
     out.push({
       name,
       optional: !!m.questionToken,
-      type: squash(m.type ? m.type.getText(src.sf) : "unknown"),
-      doc: docOf(m, src, name),
-      at: locate(m, src),
+      typeNode: m.type ?? null,
+      scope,
+      doc: docOf(m, scope.src, name),
+      at: locate(m, scope.src),
     });
   }
   return out;
 }
 
-function fromName(name, src, seen) {
-  const key = `${src.file}#${name}`;
-  if (seen.has(key)) return [[]];
-  seen.add(key);
+/** Maps a declaration's type parameters to the arguments of a reference to it (or their defaults). */
+function bind(params, args) {
+  const subst = new Map();
+  (params ?? []).forEach((p, i) => {
+    const a = args[i] ?? (p.default ? { node: p.default, scope: null } : null);
+    if (a) subst.set(p.name.text, a);
+  });
+  return subst;
+}
+
+/** Finds the declaration of a type name in a file, following named imports of relative files. */
+function declOf(name, src) {
   for (const st of src.sf.statements) {
-    if (ts.isInterfaceDeclaration(st) && st.name.text === name) {
-      const own = membersOf(st.members, src);
-      const parents = (st.heritageClauses ?? [])
-        .flatMap((h) => h.types)
-        .map((t) => fromName(t.expression.text, src, seen));
-      const base = parents.reduce((acc, alts) => acc.flatMap((a) => alts.map((b) => [...a, ...b])), [[]]);
-      return base.map((b) => [...b, ...own]);
-    }
-    if (ts.isTypeAliasDeclaration(st) && st.name.text === name) return alternatives(st.type, src, seen);
+    if ((ts.isInterfaceDeclaration(st) || ts.isTypeAliasDeclaration(st)) && st.name.text === name) return { st, src };
     if (ts.isImportDeclaration(st) && st.importClause) {
       const named = st.importClause.namedBindings;
       const hit = named && ts.isNamedImports(named) && named.elements.find((e) => e.name.text === name);
       if (hit) {
         const target = resolveImport(src.file, st.moduleSpecifier.text);
-        if (!target) throw new Error(`cannot resolve import of ${name} from ${st.moduleSpecifier.text}`);
-        return fromName((hit.propertyName ?? hit.name).text, load(target), seen);
+        if (!target) return null;
+        return declOf((hit.propertyName ?? hit.name).text, load(target));
       }
     }
   }
-  throw new Error(`type ${name} not found in ${src.file}`);
+  return null;
+}
+
+function fromName(name, src, seen, args = []) {
+  const found = declOf(name, src);
+  if (!found) throw new Error(`type ${name} not found in ${src.file}`);
+  const { st, src: at } = found;
+  const key = `${at.file}#${name}`;
+  if (seen.has(key)) return [[]];
+  seen.add(key);
+  const subst = bind(st.typeParameters, args);
+  for (const [k, v] of subst) if (!v.scope) subst.set(k, { node: v.node, scope: { src: at, subst } });
+  if (ts.isInterfaceDeclaration(st)) {
+    const own = membersOf(st.members, { src: at, subst });
+    const parents = (st.heritageClauses ?? [])
+      .flatMap((h) => h.types)
+      .map((t) =>
+        fromName(
+          t.expression.text,
+          at,
+          seen,
+          (t.typeArguments ?? []).map((a) => ({ node: a, scope: { src: at, subst } })),
+        ),
+      );
+    const base = parents.reduce((acc, alts) => acc.flatMap((a) => alts.map((b) => [...a, ...b])), [[]]);
+    return base.map((b) => [...b, ...own]);
+  }
+  return alternatives(st.type, at, seen, subst);
+}
+
+// ---------------------------------------------------------------- writing a type out
+
+// The component's own type parameters (`<script setup generic="...">`), by name: { constraint, default }.
+let generics = new Map();
+
+function readGenerics(file) {
+  const out = new Map();
+  if (!file.endsWith(".vue")) return out;
+  const m = /<script\b[^>]*\bgeneric="([^"]*)"/.exec(readFileSync(file, "utf8"));
+  if (!m) return out;
+  const sf = ts.createSourceFile("g.ts", `type G<${m[1]}> = 0;`, ts.ScriptTarget.Latest, true);
+  for (const p of sf.statements[0].typeParameters ?? []) {
+    out.set(p.name.text, {
+      constraint: p.constraint ? squash(p.constraint.getText(sf)).replace(/'/g, '"') : null,
+      default: p.default ? squash(p.default.getText(sf)).replace(/'/g, '"') : null,
+      node: p.constraint ?? null,
+      sf,
+    });
+  }
+  return out;
+}
+
+// A value a reader can read off: a literal, a primitive or a well-known global.
+const plain = (s) => /^(?:"[^"]*"|-?\d+(?:\.\d+)?|true|false|null|undefined|string|number|boolean|Date|File)$/.test(s);
+const uniq = (xs) => [...new Set(xs)];
+
+/** The members of the union a type node stands for, each written out. */
+function parts(node, scope, depth = 0) {
+  const { src, subst } = scope;
+  const text = () => squash(node.getText(src.sf));
+  if (depth > 20) return [text()];
+  const again = (n, s = scope) => parts(n, s, depth + 1);
+  if (ts.isParenthesizedTypeNode(node)) return again(node.type);
+  if (ts.isUnionTypeNode(node)) return uniq(node.types.flatMap((t) => again(t)));
+  if (ts.isLiteralTypeNode(node)) {
+    if (ts.isStringLiteral(node.literal)) return [JSON.stringify(node.literal.text)];
+    return [text()];
+  }
+  if (ts.isConditionalTypeNode(node)) return uniq([...again(node.falseType), ...again(node.trueType)]);
+  if (ts.isArrayTypeNode(node)) {
+    const el = write(node.elementType, scope, depth + 1);
+    return [/[|&]|=>/.test(el) ? `(${el})[]` : `${el}[]`];
+  }
+  if (ts.isTypeOperatorNode(node) && node.operator === ts.SyntaxKind.ReadonlyKeyword) {
+    return [`readonly ${write(node.type, scope, depth + 1)}`];
+  }
+  if (ts.isTypeOperatorNode(node) && node.operator === ts.SyntaxKind.KeyOfKeyword) {
+    // `keyof HTMLElementTagNameMap` (ElementTag): the name of an HTML element.
+    if (node.type.getText(src.sf) === "HTMLElementTagNameMap") return ["string"];
+    return [text()];
+  }
+  if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName)) {
+    const name = node.typeName.text;
+    const args = node.typeArguments ?? [];
+    if (subst?.has(name)) {
+      const s = subst.get(name);
+      return parts(s.node, s.scope, depth + 1);
+    }
+    if ((name === "Extract" || name === "Exclude") && args.length === 2) {
+      const keep = new Set(again(args[1]));
+      return again(args[0]).filter((p) => keep.has(p) === (name === "Extract"));
+    }
+    if (name === "NonNullable" && args.length === 1) return again(args[0]).filter((p) => p !== "null" && p !== "undefined");
+    if (generics.has(name) && !args.length) {
+      // A parameter that only narrows a flag or a few literals (`M extends boolean`, `F extends "date" | "iso"`)
+      // reads best as those values. A wider one (`T extends string`) keeps its name and gets a line under the table.
+      const g = generics.get(name);
+      const values = g.node ? parts(g.node, { src: { sf: g.sf }, subst: new Map() }, depth + 1) : [];
+      if (values.length && values.every((v) => plain(v) && v !== "string" && v !== "number")) return values;
+      return [name];
+    }
+    const found = declOf(name, src);
+    if (found && ts.isTypeAliasDeclaration(found.st) && !found.st.typeParameters) {
+      const values = parts(found.st.type, { src: found.src, subst: new Map() }, depth + 1);
+      if (values.every(plain)) return values;
+    }
+    return [args.length ? `${name}<${args.map((a) => write(a, scope, depth + 1)).join(", ")}>` : name];
+  }
+  return [text().replace(/'/g, '"')];
+}
+
+/** A type node written out as one union. A function type in a union is put in brackets. */
+function write(node, scope, depth = 0) {
+  if (!node) return "unknown";
+  const ps = parts(node, scope, depth);
+  return ps.map((p) => (ps.length > 1 && /^\(.*\) =>/.test(p) ? `(${p})` : p)).join(" | ");
+}
+
+/** A line under the table for each type parameter a row still names (`T`, `Row`). */
+function genericNotes(rows) {
+  const lines = [];
+  for (const [name, g] of generics) {
+    if (!rows.some((r) => new RegExp(`\\b${name}\\b`).test(r.type))) continue;
+    const bound = g.constraint ? ` It extends \`${g.constraint}\`${g.default ? ` (default \`${g.default}\`)` : ""}.` : "";
+    lines.push(`\`${name}\` is a type parameter, inferred from the props you pass.${bound}`);
+  }
+  return lines;
 }
 
 /** Merges alternatives: required only when every alternative requires it. */
@@ -191,7 +326,7 @@ function merge(alts) {
     const reqIn = alts.filter((a, i) => hits[i] && !hits[i].optional).length;
     return {
       name,
-      type: first.type,
+      type: write(first.typeNode, first.scope),
       doc: first.doc,
       at: first.at,
       required: reqIn === alts.length,
@@ -240,6 +375,7 @@ function walk(node, fn) {
 
 function extract(file) {
   const src = load(file);
+  generics = readGenerics(file);
   let propsType = null;
   let defaults = new Map();
   const models = [];
@@ -271,7 +407,7 @@ function extract(file) {
       models.push({
         name,
         model: true,
-        type: n.typeArguments?.length ? squash(n.typeArguments[0].getText(src.sf)) : "unknown",
+        type: n.typeArguments?.length ? write(n.typeArguments[0], { src, subst: new Map() }) : "unknown",
         doc: stmt ? docOf(stmt, src, `model ${name}`) : "",
         at: stmt ? locate(stmt, src) : null,
         required,
@@ -308,8 +444,11 @@ function row(p, defaults) {
   else if (p.type === "boolean") def = "`false`";
   else def = "None";
 
-  // `@deprecated Use x.` is the TypeScript tag, so editors strike the prop through; the table says it in words.
-  let note = doc.replace(/^Required\.\s*/i, "").replace(/(^|\s)@deprecated\s*/, "$1**Deprecated.** ");
+  // `@deprecated Use x.` is the TypeScript tag, so editors strike the prop through. The table leads with
+  // **Deprecated.** and the replacement, then whatever the JSDoc says before the tag.
+  let note = doc.replace(/^Required\.\s*/i, "");
+  const dep = deprecation(note);
+  if (dep) note = [`**Deprecated.**`, dep.use, dep.rest].filter(Boolean).join(" ");
   if (p.model) {
     const prefix = p.name === "modelValue" ? "v-model" : `v-model:${p.name}`;
     // The prefix is code: a bare `v-model:end:` would be turned into an emoji by markdown-it.
@@ -319,13 +458,23 @@ function row(p, defaults) {
   return `| ${code(p.name)} | ${code(p.type)} | ${def} | ${esc(note)} |`;
 }
 
+/** `{ use, rest }` for a JSDoc with an `@deprecated` tag: the replacement, and the text before the tag. */
+function deprecation(doc) {
+  const m = /(?:^|\s)@deprecated(?:\s+|$)/.exec(doc);
+  return m ? { use: doc.slice(m.index + m[0].length).trim(), rest: doc.slice(0, m.index).trim() } : null;
+}
+
 function table(info) {
-  const rows = [...info.models, ...info.props];
+  // Deprecated props go last, so the table reads as the current API first.
+  const all = [...info.models, ...info.props];
+  const rows = [...all.filter((p) => !deprecation(p.doc)), ...all.filter((p) => deprecation(p.doc))];
   const lines = [
     "| Prop | Type | Default | Notes |",
     "| --- | --- | --- | --- |",
     ...rows.map((p) => row(p, info.defaults)),
   ];
+  const notes = genericNotes(rows);
+  if (notes.length) lines.push("", ...notes);
   return { text: lines.join("\n"), count: rows.length };
 }
 

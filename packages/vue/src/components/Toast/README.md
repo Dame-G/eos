@@ -10,13 +10,13 @@ A floating message that confirms or reports something just done. Show toasts thr
 
 <!-- props:start -->
 
-| Prop       | Type        | Default      | Notes                                                                                                                                                                |
-| ---------- | ----------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `title`    | `string`    | **Required** | What happened, in a few words.                                                                                                                                       |
-| `tone`     | `ToastTone` | `"info"`     | `danger` is announced at once and the other tones politely. `neutral` is for news that is neither good nor bad.                                                      |
-| `icon`     | `IconProp`  | None         | Replaces the icon of the tone.                                                                                                                                       |
-| `closable` | `boolean`   | `true`       | Shows the dismiss button.                                                                                                                                            |
-| `live`     | `boolean`   | `true`       | Announces the toast to screen readers as it appears (`alert` for `danger`, `status` for the rest). Turn it off when the host announces it, as `EToastProvider` does. |
+| Prop       | Type                                                        | Default      | Notes                                                                                                                                                                |
+| ---------- | ----------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`    | `string`                                                    | **Required** | What happened, in a few words.                                                                                                                                       |
+| `tone`     | `"neutral" \| "info" \| "success" \| "warning" \| "danger"` | `"info"`     | `danger` is announced at once and the other tones politely. `neutral` is for news that is neither good nor bad.                                                      |
+| `icon`     | `IconProp`                                                  | None         | Replaces the icon of the tone.                                                                                                                                       |
+| `closable` | `boolean`                                                   | `true`       | Shows the dismiss button.                                                                                                                                            |
+| `live`     | `boolean`                                                   | `true`       | Announces the toast to screen readers as it appears (`alert` for `danger`, `status` for the rest). Turn it off when the host announces it, as `EToastProvider` does. |
 
 <!-- props:end -->
 

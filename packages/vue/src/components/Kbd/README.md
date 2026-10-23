@@ -11,10 +11,10 @@ A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to 
 
 <!-- props:start -->
 
-| Prop    | Type                          | Default | Notes                                 |
-| ------- | ----------------------------- | ------- | ------------------------------------- |
-| `size`  | `Extract<Size, "sm" \| "md">` | None    | `sm` is for a hint inside small text. |
-| `small` | `boolean`                     | `false` | **Deprecated.** Use `size="sm"`.      |
+| Prop    | Type           | Default | Notes                                 |
+| ------- | -------------- | ------- | ------------------------------------- |
+| `size`  | `"sm" \| "md"` | None    | `sm` is for a hint inside small text. |
+| `small` | `boolean`      | `false` | **Deprecated.** Use `size="sm"`.      |
 
 <!-- props:end -->
 

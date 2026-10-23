@@ -11,26 +11,26 @@ A number input with decrease and increase buttons, for quantities. Use [`ECurren
 
 <!-- props:start -->
 
-| Prop         | Type             | Default             | Notes                                                                                                                   |
-| ------------ | ---------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `modelValue` | `number \| null` | `null`              | `v-model`: the number, or `null` when empty.                                                                            |
-| `hideLabel`  | `boolean`        | `false`             | Hides the label from the page and keeps it for screen readers.                                                          |
-| `hint`       | `string`         | None                | Help that stays under the control.                                                                                      |
-| `error`      | `string`         | None                | What to fix. Replaces the hint, marks the control invalid and is announced.                                             |
-| `required`   | `boolean`        | `false`             | Sets the `required` attribute and shows "Required" beside the label.                                                    |
-| `optional`   | `boolean`        | `false`             | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.                                |
-| `disabled`   | `boolean`        | `false`             | Disables the control. A disabled control posts nothing.                                                                 |
-| `readonly`   | `boolean`        | `false`             | Shows the value but blocks editing. The control stays focusable and selectable, and still posts its value.              |
-| `id`         | `string`         | `generated`         | The id of the control. The label points at it.                                                                          |
-| `size`       | `EFieldSize`     | `"md"`              | The height of the box: `sm` and `lg` are a step under and over the control height.                                      |
-| `label`      | `string`         | **Required**        | The visible label above the field.                                                                                      |
-| `min`        | `number`         | None                | The lowest value. The value clamps to it and the decrease button dims there (it stays focusable).                       |
-| `max`        | `number`         | None                | The highest value. The value clamps to it and the increase button dims there (it stays focusable).                      |
-| `step`       | `number`         | `1`                 | The amount one step of the buttons and arrow keys changes the value. Decimals shown follow the step (`0.25` shows two). |
-| `prefix`     | `string`         | None                | A unit before the value. Read with the value by screen readers.                                                         |
-| `suffix`     | `string`         | None                | A unit after the value, such as visits. Read with the value by screen readers.                                          |
-| `name`       | `string`         | None                | The name submitted with a form (the number, or empty). Posts nothing while disabled.                                    |
-| `locale`     | `string`         | `configured locale` | BCP 47 tag the number is written and read in: its decimal and group separators.                                         |
+| Prop         | Type                   | Default             | Notes                                                                                                                   |
+| ------------ | ---------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `modelValue` | `number \| null`       | `null`              | `v-model`: the number, or `null` when empty.                                                                            |
+| `hideLabel`  | `boolean`              | `false`             | Hides the label from the page and keeps it for screen readers.                                                          |
+| `hint`       | `string`               | None                | Help that stays under the control.                                                                                      |
+| `error`      | `string`               | None                | What to fix. Replaces the hint, marks the control invalid and is announced.                                             |
+| `required`   | `boolean`              | `false`             | Sets the `required` attribute and shows "Required" beside the label.                                                    |
+| `optional`   | `boolean`              | `false`             | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.                                |
+| `disabled`   | `boolean`              | `false`             | Disables the control. A disabled control posts nothing.                                                                 |
+| `readonly`   | `boolean`              | `false`             | Shows the value but blocks editing. The control stays focusable and selectable, and still posts its value.              |
+| `id`         | `string`               | `generated`         | The id of the control. The label points at it.                                                                          |
+| `size`       | `"sm" \| "md" \| "lg"` | `"md"`              | The height of the box: `sm` and `lg` are a step under and over the control height.                                      |
+| `label`      | `string`               | **Required**        | The visible label above the field.                                                                                      |
+| `min`        | `number`               | None                | The lowest value. The value clamps to it and the decrease button dims there (it stays focusable).                       |
+| `max`        | `number`               | None                | The highest value. The value clamps to it and the increase button dims there (it stays focusable).                      |
+| `step`       | `number`               | `1`                 | The amount one step of the buttons and arrow keys changes the value. Decimals shown follow the step (`0.25` shows two). |
+| `prefix`     | `string`               | None                | A unit before the value. Read with the value by screen readers.                                                         |
+| `suffix`     | `string`               | None                | A unit after the value, such as visits. Read with the value by screen readers.                                          |
+| `name`       | `string`               | None                | The name submitted with a form (the number, or empty). Posts nothing while disabled.                                    |
+| `locale`     | `string`               | `configured locale` | BCP 47 tag the number is written and read in: its decimal and group separators.                                         |
 
 <!-- props:end -->
 

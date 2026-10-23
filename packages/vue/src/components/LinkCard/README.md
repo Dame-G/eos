@@ -14,15 +14,15 @@ A card that is one link: a title that says where it goes and a line or two under
 
 <!-- props:start -->
 
-| Prop            | Type                                  | Default      | Notes                                                                                                     |
-| --------------- | ------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------- |
-| `title`         | `string`                              | **Required** | The link text, at the top of the card. Say where it goes: it is the whole card's name for screen readers. |
-| `href`          | `string`                              | None         | Where the card goes. Give `href` or, with a `linkComponent`, `to`.                                        |
-| `to`            | `unknown`                             | None         | A router location, passed to `linkComponent` as `to` (for `RouterLink`). Use it instead of `href`.        |
-| `linkComponent` | `string \| Component`                 | `"a"`        | What renders the link: `RouterLink` or any component that takes `href` or `to` and a default slot.        |
-| `external`      | `boolean`                             | `false`      | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`) and tells screen readers so.                   |
-| `as`            | `ElementTag`                          | `"div"`      | The element of the card: `li` inside a list (`EGrid as="ul"`), `article` for a block of its own.          |
-| `size`          | `Extract<Size, "sm" \| "md" \| "lg">` | `"md"`       | The padding: `sm` for a dense index, `md` or `lg`.                                                        |
+| Prop            | Type                   | Default      | Notes                                                                                                     |
+| --------------- | ---------------------- | ------------ | --------------------------------------------------------------------------------------------------------- |
+| `title`         | `string`               | **Required** | The link text, at the top of the card. Say where it goes: it is the whole card's name for screen readers. |
+| `href`          | `string`               | None         | Where the card goes. Give `href` or, with a `linkComponent`, `to`.                                        |
+| `to`            | `unknown`              | None         | A router location, passed to `linkComponent` as `to` (for `RouterLink`). Use it instead of `href`.        |
+| `linkComponent` | `string \| Component`  | `"a"`        | What renders the link: `RouterLink` or any component that takes `href` or `to` and a default slot.        |
+| `external`      | `boolean`              | `false`      | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`) and tells screen readers so.                   |
+| `as`            | `string`               | `"div"`      | The element of the card: `li` inside a list (`EGrid as="ul"`), `article` for a block of its own.          |
+| `size`          | `"sm" \| "md" \| "lg"` | `"md"`       | The padding: `sm` for a dense index, `md` or `lg`.                                                        |
 
 <!-- props:end -->
 

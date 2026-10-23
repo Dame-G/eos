@@ -10,9 +10,9 @@ A small label above a value or a section. It is a label, not a heading: use [`EH
 
 <!-- props:start -->
 
-| Prop | Type         | Default | Notes                                                   |
-| ---- | ------------ | ------- | ------------------------------------------------------- |
-| `as` | `ElementTag` | `"p"`   | The element to render, if it should not be a paragraph. |
+| Prop | Type     | Default | Notes                                                   |
+| ---- | -------- | ------- | ------------------------------------------------------- |
+| `as` | `string` | `"p"`   | The element to render, if it should not be a paragraph. |
 
 <!-- props:end -->
 

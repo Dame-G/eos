@@ -37,6 +37,8 @@ Exactly one of five or fewer options. Use [`ESelect`](../Select/README.md) for m
 | `id`          | `string`                     | `generated`  | The id of the group's `fieldset`, which an `EForm` summary links to. The radios are `{id}-1`, `{id}-2` and so on. |
 | `orientation` | `"vertical" \| "horizontal"` | `"vertical"` | Lays the options out in a row that wraps, or one under another.                                                   |
 
+`T` is a type parameter, inferred from the props you pass. It extends `string` (default `string`).
+
 <!-- props:end -->
 
 `class`, `style`, attributes and listeners land on the `fieldset` element. Exposes `input` (the chosen radio, else the first) and `focus()`. `id` is the fieldset's, and the radios are `{id}-1`, `{id}-2` and so on. `orientation="horizontal"` puts the options in a row that wraps; a revealed control takes a line under them.
