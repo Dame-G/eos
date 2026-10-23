@@ -21,7 +21,7 @@ A progress bar. Give it a `value` for a known fraction. Leave `value` out while 
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `div` element. Without a `label` the bar is named "Progress" with a `value` and "Loading" without one.
+`class`, `style` and attributes land on the `div` element. Without a `label` the bar is named "Progress" with a `value` and "Loading" without one. The percentage is written in the configured locale ("40 %" in German), and the indeterminate bar slides from the start edge to the end, so it runs right to left in a right-to-left page.
 
 ## Accessibility
 
