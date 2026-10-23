@@ -326,7 +326,8 @@ describe("EMenu", () => {
       items: [{ type: "submenu", label: "Share", items: [{ label: "Email" }, { label: "Link" }] }],
     });
     await triggerOf(container).click();
-    await expect.poll(() => menu()).not.toBeNull();
+    // The key goes to the focused row, so wait for the menu to have put focus there.
+    await expect.poll(() => document.activeElement?.textContent?.trim()).toBe("Share");
     await userEvent.keyboard("{ArrowRight}");
     await expect.poll(() => document.querySelectorAll("[role=menu]").length).toBe(2);
     await expect.poll(() => document.activeElement?.textContent?.trim()).toBe("Email");
