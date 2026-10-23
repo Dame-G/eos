@@ -20,7 +20,8 @@ pnpm lint                 # eslint and stylelint
 pnpm format:check         # prettier (run `pnpm format` to fix)
 pnpm knip                 # unused files, exports and dependencies
 pnpm typecheck
-pnpm check:built          # package exports and types, size budgets, built stylesheet (needs a build)
+pnpm check:built          # package exports and types, size budgets, server render, built stylesheet (needs a build)
+pnpm ssr                  # renders every component on the server from the build (--verbose lists each check)
 pnpm smoke                # builds, packs and installs both packages in a temporary app
 ```
 

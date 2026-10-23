@@ -20,8 +20,9 @@
     "release": "pnpm build && pnpm check:built && node scripts/publish.mjs",
     "tokens": "node packages/tokens/scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs",
+    "ssr": "node scripts/ssr.mjs",
     "check": "pnpm --filter @eos-ui/vue check",
-    "check:built": "pnpm check:package && pnpm check:size && pnpm --filter @eos-ui/vue check:dist",
+    "check:built": "pnpm check:package && pnpm check:size && pnpm ssr && pnpm --filter @eos-ui/vue check:dist",
     "check:package": "pnpm --filter @eos-ui/vue check:package",
     "check:size": "node scripts/size.mjs",
     "knip": "knip"

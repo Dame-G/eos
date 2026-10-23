@@ -41,6 +41,9 @@ step("build");
 run("node packages/tokens/scripts/build.mjs");
 run("corepack pnpm --filter @eos-ui/vue build");
 
+step("server render of every component, from the build");
+run("node scripts/ssr.mjs");
+
 step("pack");
 const packs = join(work, "packs");
 mkdirSync(packs);
