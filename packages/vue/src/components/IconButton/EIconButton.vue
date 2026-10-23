@@ -33,7 +33,9 @@ defineProps<{
     background: transparent;
     color: var(--e-ink);
     cursor: pointer;
-    transition: background-color var(--e-duration-tap) var(--e-easing-out);
+    transition:
+      background-color var(--e-duration-tap) var(--e-easing-out),
+      box-shadow var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-icon-btn:not(:disabled):hover {
@@ -46,17 +48,18 @@ defineProps<{
     box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ink);
   }
 
+  /* A toggle that is on (`aria-pressed`) sits in the surface, like a pressed slab. */
+  .e-icon-btn[aria-pressed="true"] {
+    background: var(--e-wash-hover);
+    box-shadow: var(--e-slab-sink);
+  }
+
   .e-icon-btn:disabled {
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
-    color: var(--e-muted);
+    background: var(--e-disabled-fill);
+    color: var(--e-disabled-ink);
     cursor: not-allowed;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-icon-btn {
-      transition: none;
-    }
   }
 
   @media print {

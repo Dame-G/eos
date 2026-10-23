@@ -51,3 +51,15 @@ A modal dialog for a short decision. Use [`EDrawer`](../Drawer/README.md) to rea
 - `description` shows a sentence under the title and sets `aria-describedby` to it. Without one the attribute is left off. An `aria-describedby` you pass yourself is kept.
 - Set `role="alertdialog"` for a confirmation that needs an answer, such as a delete. Focus, Escape and the backdrop behave the same.
 - It renders into the portal target inside `e-root`, so scoped themes apply.
+- It fades and scales in over `--e-duration-move`, which the theme sets to near zero under `prefers-reduced-motion`.
+
+## Keyboard
+
+| Key            | Action                                                        |
+| -------------- | ------------------------------------------------------------- |
+| Escape         | Closes the dialog and returns focus to the opener.            |
+| Tab, Shift+Tab | Moves between the controls inside; focus stays in the dialog. |
+
+## Related
+
+[`EDrawer`](../Drawer/README.md) for reading beside the page, [`EDefinition`](../Definition/README.md) for a short explanation.

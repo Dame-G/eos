@@ -13,7 +13,7 @@ import EIcon from "../Icon/EIcon.vue";
 import ESelectOption from "./ESelectOption.vue";
 import { sectionOptions, type EOption } from "./options.js";
 import { useMessages, usePortalTarget } from "../../config.js";
-import { useQuietFocus } from "./quietFocus.js";
+import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
 import "./panel.css";

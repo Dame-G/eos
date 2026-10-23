@@ -24,21 +24,28 @@ A month grid to choose a day or a span, with names, week start and date order fr
 | `min`          | `Date`                                | None                | The earliest day that can be chosen. Earlier days cannot be focused or chosen, and navigation stops there.                                                                                   |
 | `max`          | `Date`                                | None                | The latest day that can be chosen. Later days cannot be focused or chosen, and navigation stops there.                                                                                       |
 | `month`        | `Date`                                | None                | The month to open on, when nothing is chosen. Changing it moves the view.                                                                                                                    |
-| `footer`       | `boolean`                             | `true`              | Shows the Today button and, with `clearable` or a `@clear` listener, the Clear button. `false` hides both.                                                                                   |
-| `clearable`    | `boolean`                             | None                | Forces the Clear button on or off. Left out, it shows when a `@clear` listener is attached.                                                                                                  |
+| `footer`       | `boolean`                             | `true`              | Shows the Today button and, with `clearable`, the Clear button. `false` hides both.                                                                                                          |
+| `clearable`    | `boolean`                             | `false`             | Shows the Clear button in the footer. It emits `clear`.                                                                                                                                      |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `div` element. Dates are local days held at noon. Exposes `view` (`days`, `months`, `years`) and `focusDay()`. The header button steps year, then month, then day (a date of birth is year, month, day).
+`class`, `style` and attributes land on the `div` element. Dates are local days held at noon. Exposes `view` (`days`, `months`, `years`) and `focusDay()`. The header button steps year, then month, then day (a date of birth is year, month, day). "Today" is read again at midnight.
 
 ## Events
 
-| Event         | Payload                                      | Notes                                                  |
-| ------------- | -------------------------------------------- | ------------------------------------------------------ |
-| `rangeChange` | `{ start: Date \| null, end: Date \| null }` | `range` mode, after every click that changes the span. |
-| `clear`       |                                              | The Clear button was pressed.                          |
+| Event          | Payload                                      | Notes                                                                                                                                                                      |
+| -------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rangeChange`  | `{ start: Date \| null, end: Date \| null }` | `range` mode, after every click that changes the span.                                                                                                                     |
+| `clear`        |                                              | The Clear button was pressed.                                                                                                                                              |
+| `update:month` | `Date`                                       | The visible month changed (arrows, keys, pickers or the `month` prop). The payload is its first day: load `marked` or `disabledDate` data for it, or bind `v-model:month`. |
 
 ## Accessibility
+
+- A `role="grid"` with one day in the tab order (roving tabindex), never a disabled day. Each day is named in full, today has `aria-current="date"`, and marked days add `markLabel`.
+- A polite live region announces the month when it changes. `range` mode announces the range and its length.
+- Month and date order, names and the week start follow the configured locale.
+
+## Keyboard
 
 | Key                | Days                                     | Months and years        |
 | ------------------ | ---------------------------------------- | ----------------------- |
@@ -48,5 +55,8 @@ A month grid to choose a day or a span, with names, week start and date order fr
 | Enter, Space       | Choose                                   | Choose                  |
 | Escape             | Left to the caller (a popup closes)      | Back to the days        |
 
-- A `role="grid"` with one day in the tab order (roving tabindex). Each day is named in full, and marked days add `markLabel`.
-- The title is a polite live region. `range` mode announces the range and its length.
+Arrow keys step over disabled days.
+
+## Related
+
+[`EDatePicker`](../DatePicker/README.md) and [`ERangePicker`](../RangePicker/README.md) put it in a field with a popup.

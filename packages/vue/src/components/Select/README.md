@@ -45,3 +45,20 @@ A dropdown for choosing one option from a list, when options need more than a li
 
 - Enter, Space or Arrow keys open the list. Arrow keys, Home and End move, letters jump to a match, Enter or Space chooses, and Escape closes the list and returns focus.
 - Provide `label`, or `bare` with `ariaLabel`. The types require one of them.
+
+## Keyboard
+
+| Key                      | Does                                   |
+| ------------------------ | -------------------------------------- |
+| Enter, Space, Arrow keys | Open the list                          |
+| Arrow Up, Arrow Down     | Move through the options               |
+| Home, End                | First and last option                  |
+| Letters                  | Jump to the next option that starts so |
+| Enter, Space             | Choose the highlighted option          |
+| Escape                   | Closes the list and returns focus      |
+
+With the list closed, letters choose the matching option without opening it.
+
+## Related
+
+[`ECombobox`](../Combobox/README.md) when the list needs searching, [`ERadioGroup`](../RadioGroup/README.md) for a few options.

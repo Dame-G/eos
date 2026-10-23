@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, type Component } from "vue";
+import { computed, ref, watch, type Component } from "vue";
 import EMatchHighlight from "../Combobox/matchHighlight.js";
+import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import "../../styles/base.css";
 import "../Select/panel.css";
 
@@ -13,11 +14,13 @@ export interface SearchResultItem {
   href?: string;
   /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). */
   to?: unknown;
+  /** Identifies the result between updates, so focus stays on it when the list changes. @default href, else the label */
+  id?: string;
 }
 
 const props = withDefaults(
   defineProps<{
-    /** The results, best first: `{ label, description?, href?, to? }`. With no `href` or `to` a link goes to `#`. */
+    /** The results, best first: `{ label, description?, href?, to?, id? }`. A result with no `href` or `to` is a button, so `select` is the only way to open it. */
     items: SearchResultItem[];
     /** The accessible name of the list, such as "Search results". */
     label: string;
@@ -35,13 +38,37 @@ const emit = defineEmits<{
   /** The person opened a result, by click or Enter. Calling `event.preventDefault()` lets the app handle the navigation itself. */
   select: [item: SearchResultItem, event: MouseEvent];
   /** ArrowUp was pressed on the first result. Use it to move focus back to the search box. */
+  "exit-top": [];
+  /** ArrowDown was pressed on the last result. */
+  "exit-bottom": [];
+  /** Deprecated: the same as `exit-top`. */
   edge: [];
 }>();
 
 const root = ref<HTMLElement | null>(null);
 const needle = computed(() => (props.query ?? "").trim().toLowerCase());
 
-const linkAttrs = (item: SearchResultItem) => (item.to !== undefined ? { to: item.to } : { href: item.href ?? "#" });
+const { announce } = useAnnouncer();
+// The empty message is spoken when it appears, since the paragraph is added to the page after the person has typed.
+watch(
+  () => (!props.items.length ? props.emptyText : undefined),
+  (text) => text && announce(text),
+  { immediate: true },
+);
+
+const linkAttrs = (item: SearchResultItem) =>
+  item.to !== undefined ? { to: item.to } : item.href !== undefined ? { href: item.href } : null;
+
+/** A key per result that survives the list changing: its id, href or route, else its label, made unique. */
+const keys = computed(() => {
+  const seen = new Map<string, number>();
+  return props.items.map((item) => {
+    const base = item.id ?? item.href ?? (typeof item.to === "string" ? item.to : item.label);
+    const n = seen.get(base) ?? 0;
+    seen.set(base, n + 1);
+    return n ? `${base}#${n}` : base;
+  });
+});
 
 const links = () => [...(root.value?.querySelectorAll<HTMLElement>(".e-opt") ?? [])];
 
@@ -55,13 +82,19 @@ function focus() {
 }
 
 function onKeydown(e: KeyboardEvent) {
-  if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+  if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)) return;
   const all = links();
   const at = all.findIndex((l) => l === document.activeElement || l.contains(document.activeElement));
   e.preventDefault();
-  if (e.key === "ArrowDown") all[Math.min(at + 1, all.length - 1)]?.focus();
-  else if (at <= 0) emit("edge");
-  else all[at - 1]?.focus();
+  if (e.key === "Home") all[0]?.focus();
+  else if (e.key === "End") all[all.length - 1]?.focus();
+  else if (e.key === "ArrowDown") {
+    if (at >= all.length - 1) emit("exit-bottom");
+    else all[at + 1]?.focus();
+  } else if (at <= 0) {
+    emit("exit-top");
+    emit("edge");
+  } else all[at - 1]?.focus();
 }
 
 function onClick(item: SearchResultItem, e: MouseEvent) {
@@ -76,8 +109,13 @@ defineExpose({ focus, focusFirst });
   <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
   <div v-if="items.length || emptyText" ref="root" class="e-results" @keydown="onKeydown">
     <ul v-if="items.length" class="e-results-list" :aria-label="label">
-      <li v-for="(item, i) in items" :key="i">
-        <component :is="linkComponent" class="e-opt" v-bind="linkAttrs(item)" @click="onClick(item, $event)">
+      <li v-for="(item, i) in items" :key="keys[i]">
+        <component
+          :is="linkAttrs(item) ? linkComponent : 'button'"
+          class="e-opt"
+          v-bind="linkAttrs(item) ?? { type: 'button' }"
+          @click="onClick(item, $event)"
+        >
           <span class="e-opt-text">
             <span class="e-opt-label"><EMatchHighlight :text="item.label" :query="needle" /></span>
             <span v-if="item.description" class="e-opt-desc">
@@ -100,7 +138,7 @@ defineExpose({ focus, focusFirst });
     overscroll-behavior: contain;
     padding: var(--e-space-1);
     border-radius: var(--e-radius-md);
-    box-shadow: var(--e-edge);
+    box-shadow: var(--e-frame);
     color: var(--e-ink);
   }
 
@@ -114,6 +152,14 @@ defineExpose({ focus, focusFirst });
   .e-results .e-opt {
     color: inherit;
     text-decoration: none;
+  }
+
+  /* A result with nowhere to go is a button; it looks like the links around it. */
+  .e-results button.e-opt {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    text-align: start;
   }
 
   .e-results .e-opt:hover,

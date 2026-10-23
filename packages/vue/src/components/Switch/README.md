@@ -28,3 +28,14 @@ A pill switch for a setting that takes effect the moment it is flipped. Use [`EC
 
 - A checkbox with `role="switch"`: Space toggles it and the state is announced as on or off.
 - State never depends on colour alone: the knob sits at the end when on.
+
+## Keyboard
+
+| Key   | Does                          |
+| ----- | ----------------------------- |
+| Tab   | Moves to and from the switch. |
+| Space | Turns it on or off.           |
+
+## Related
+
+[`ECheckbox`](../Checkbox/README.md) for a choice made when the form is submitted, rather than a setting that applies at once.

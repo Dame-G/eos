@@ -22,7 +22,7 @@ export interface EMenuAction {
   label: string;
   /** An icon before the label. */
   icon?: IconProp;
-  /** Called when the row is chosen, after the menu closes. */
+  /** Called when the row is chosen, before the `select` event. */
   onClick?: () => void;
   /** Marks a destructive action. It goes last, after a divider. */
   danger?: boolean;
@@ -48,14 +48,16 @@ withDefaults(
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
     /** An icon before the label. */
     icon?: IconProp;
-    /** Which edge of the trigger the menu lines up with. `end` suits a trigger at the end of a bar. */
-    align?: "start" | "end";
+    /** Which side of the trigger the menu opens on. It flips to the other side when there is no room. */
+    side?: "bottom" | "top";
+    /** Which edge of the trigger the menu's edge lines up with: `start` with the trigger's start, `end` with its end (it suits a trigger at the end of a bar), `center` with its middle. */
+    align?: "start" | "center" | "end";
   }>(),
-  { variant: "outline", align: "start" },
+  { variant: "outline", side: "bottom", align: "start" },
 );
 
 const emit = defineEmits<{
-  /** An action was chosen. Also calls that item's own `onClick`. */
+  /** An action was chosen, after that item's own `onClick` ran. One handler for every row. */
   select: [item: EMenuAction];
 }>();
 
@@ -74,6 +76,14 @@ function choose(item: EMenuAction) {
   emit("select", item);
 }
 
+/*
+ * Focus, in three parts:
+ * - Opening by a click or key (`intent`) moves focus to the first enabled row. Opening from outside (`v-model:open`) moves
+ *   none, so a menu opened by code does not steal focus.
+ * - Reka would focus the content on open; `focusFirst` cancels that and, for a person, focuses the first row instead.
+ * - On close, focus returns to the trigger only if it was inside the menu (`hadFocus`, read just before the open state
+ *   flips). A menu closed by an outside press keeps focus where the person put it.
+ */
 let byPerson = false;
 let hadFocus = false;
 const intent = () => (byPerson = true);
@@ -104,9 +114,9 @@ function returnFocus(event: Event) {
 
 <template>
   <DropdownMenuRoot v-model:open="open" :modal="false">
-    <DropdownMenuTrigger as-child @click="intent" @keydown="intent">
+    <DropdownMenuTrigger as-child v-bind="$attrs" @click="intent" @keydown="intent">
       <slot name="trigger">
-        <EButton :variant="variant" :icon="icon" v-bind="$attrs">
+        <EButton :variant="variant" :icon="icon">
           {{ label }}
           <EIcon name="chevron-down" />
         </EButton>
@@ -115,6 +125,7 @@ function returnFocus(event: Event) {
     <DropdownMenuPortal :to="portal">
       <DropdownMenuContent
         class="e-popover e-menu e-root"
+        :side="side"
         :align="align"
         :side-offset="8"
         :collision-padding="16"
@@ -157,38 +168,41 @@ function returnFocus(event: Event) {
     gap: var(--e-space-2);
     width: 100%;
     height: var(--e-control-height);
-    padding: 0 var(--e-space-3);
+    padding-block: 0;
+    padding-inline: var(--e-space-3);
     border: 0;
     border-radius: var(--e-radius-sm);
     background: transparent;
     color: var(--e-ink);
-    font: 400 var(--e-text-md) / 1 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1 var(--e-font-sans);
     text-align: start;
     cursor: pointer;
   }
 
+  /* The shared recipe: hover and the keyboard highlight wash, press sinks. */
   .e-menu-item:hover,
   .e-menu-item:focus-visible,
   .e-menu-item[data-highlighted] {
-    background: var(--e-surface-hover);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
+    background: var(--e-wash-hover);
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-wash-ring);
+  }
+
+  .e-menu-item:active {
+    background: var(--e-wash-press);
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ink);
   }
 
   .e-menu-item--danger {
     color: var(--e-danger);
   }
 
-  .e-menu-item[disabled] {
-    color: var(--e-muted);
-    cursor: not-allowed;
-  }
-
   .e-menu .e-divider {
-    margin: var(--e-space-1) 0;
+    margin-block: var(--e-space-1);
   }
 
+  .e-menu-item[disabled],
   .e-menu-item[data-disabled] {
-    color: var(--e-muted);
+    color: var(--e-disabled-ink);
     cursor: not-allowed;
   }
 

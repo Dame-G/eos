@@ -10,10 +10,11 @@ const add = (family) => {
   for (const t of family.tokens) flat[t.name] = t.value;
 };
 add(src.color);
-for (const k of ["spacing", "radius", "shadow", "fontSize", "size", "stroke", "duration", "easing", "zIndex"])
+for (const k of ["spacing", "radius", "shadow", "fontSize", "size", "stroke", "duration", "easing", "zIndex", "weight"])
   add(src[k]);
 flat["font-sans"] = src.type.families.sans;
 flat["font-mono"] = src.type.families.mono;
+flat["font-script"] = src.type.families.script;
 
 const colors = new Set(src.color.tokens.map((t) => t.name));
 for (const [k, v] of Object.entries(flat)) {
@@ -32,13 +33,26 @@ const groups = {
   duration: src.duration.tokens.map((t) => t.name),
   easing: src.easing.tokens.map((t) => t.name),
   zIndex: src.zIndex.tokens.map((t) => t.name),
-  font: ["font-sans", "font-mono"],
+  weight: src.weight.tokens.map((t) => t.name),
+  font: ["font-sans", "font-mono", "font-script"],
 };
 const usage = {};
-const derivedFrom = { "font-sans": "fonts", "font-mono": "fonts" };
+const derivedFrom = { "font-sans": "fonts", "font-mono": "fonts", "font-script": "fonts" };
 const constants = [];
-const inputTokens = ["font-sans", "font-mono"];
-for (const k of ["color", "spacing", "radius", "shadow", "fontSize", "size", "stroke", "duration", "easing", "zIndex"])
+const inputTokens = ["font-sans", "font-mono", "font-script"];
+for (const k of [
+  "color",
+  "spacing",
+  "radius",
+  "shadow",
+  "fontSize",
+  "size",
+  "stroke",
+  "duration",
+  "easing",
+  "zIndex",
+  "weight",
+])
   for (const t of src[k].tokens) {
     usage[t.name] = t.usage;
     if (t.from) derivedFrom[t.name] = t.from;

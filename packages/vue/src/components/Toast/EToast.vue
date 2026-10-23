@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { getCurrentInstance } from "vue";
 import EActions from "../Actions/EActions.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
@@ -9,7 +8,7 @@ import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 import "../Notice/notice.css";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     /** What happened, in a few words. */
     title: string;
@@ -17,10 +16,10 @@ const props = withDefaults(
     tone?: "info" | "success" | "warning" | "danger";
     /** Replaces the icon of the tone. */
     icon?: IconProp;
-    /** Forces the dismiss button on or off. Left out, it shows when a `@close` listener is attached. */
+    /** Shows the dismiss button. */
     closable?: boolean;
   }>(),
-  { tone: "info", closable: undefined },
+  { tone: "info", closable: true },
 );
 
 const emit = defineEmits<{
@@ -36,14 +35,13 @@ defineSlots<{
 }>();
 
 const t = useMessages();
-const instance = getCurrentInstance();
 const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "alert" } as const;
-const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
 </script>
 
 <template>
   <ESurface
     raised
+    flush
     class="e-toast"
     :class="[`e-toast--${tone}`, $slots.action && 'e-toast--actions']"
     :role="tone === 'danger' ? 'alert' : 'status'"
@@ -55,7 +53,7 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
         <p v-if="$slots.default" class="e-toast-text"><slot /></p>
       </div>
       <EActions v-if="$slots.action" class="e-notice-actions"><slot name="action" /></EActions>
-      <span v-if="hasClose()" class="e-notice-dismiss">
+      <span v-if="closable" class="e-notice-dismiss">
         <EIconButton icon="x" :label="t('dismiss')" @click="emit('close')" />
       </span>
     </div>
@@ -65,11 +63,25 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
 <style>
 @layer e.containers {
   .e-toast {
-    --e-tone: var(--e-primary);
+    --e-tone: var(--e-info);
 
+    position: relative;
     container-type: inline-size;
     width: min(24rem, 100%);
     padding: var(--e-space-3) var(--e-space-4);
+    padding-inline-start: calc(var(--e-space-4) + var(--e-space-1));
+  }
+
+  /* The slab on the tone's side: a solid edge in the colour of the tone, as on a Notice. */
+  .e-toast::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: var(--e-space-1);
+    border-start-start-radius: inherit;
+    border-end-start-radius: inherit;
+    background: var(--e-tone);
   }
 
   .e-toast--actions {
@@ -77,11 +89,11 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
   }
 
   .e-toast--success {
-    --e-tone: var(--e-secondary);
+    --e-tone: var(--e-success);
   }
 
   .e-toast--warning {
-    --e-tone: var(--e-warning-strong);
+    --e-tone: var(--e-warning);
   }
 
   .e-toast--danger {
@@ -90,18 +102,23 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
 
   .e-toast-title {
     margin: 0;
-    font: 500 var(--e-text-lg) / calc(4 / 3) var(--e-font-sans);
+    font: var(--e-weight-medium) var(--e-text-lg) / calc(4 / 3) var(--e-font-sans);
   }
 
   .e-toast-text {
     margin: 0;
-    font: 400 var(--e-text-sm) / 1.45 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-sm) / 1.45 var(--e-font-sans);
     color: var(--e-muted);
   }
 
   @media (forced-colors: active) {
     .e-toast {
       border: var(--e-stroke-card) solid CanvasText;
+    }
+
+    .e-toast::before {
+      forced-color-adjust: none;
+      background: CanvasText;
     }
   }
 }

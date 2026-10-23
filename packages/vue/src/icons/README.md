@@ -1,6 +1,6 @@
 # Bring your own icons
 
-EOS ships a small built-in set (Phosphor, 41 icons) so every component works with no setup. To use your own set instead, tell `createEos` where to find icons. Anything it cannot find falls back to the built-in icon, so a partial set never leaves a blank.
+EOS ships a small built-in set (Phosphor, 42 icons) so every component works with no setup. To use your own set instead, tell `createEos` where to find icons. Anything it cannot find falls back to the built-in icon, so a partial set never leaves a blank.
 
 Adapters live in `@eos-ui/vue/icons`. They import nothing: you pass the icon library in, so EOS never depends on it.
 
@@ -105,9 +105,9 @@ import { CreditCard } from "lucide-vue-next";
 
 ## Semantic names
 
-These are the 41 names the components ask for. `iconNames` exports the list.
+These are the 42 names the components ask for. `iconNames` exports the list.
 
-`eye`, `eye-slash`, `arrow-left`, `arrow-up`, `arrow-down`, `chevron-left`, `chevron-right`, `chevron-down`, `menu`, `sign-out`, `eraser`, `card`, `receipt`, `signature`, `form`, `download`, `upload`, `print`, `lock`, `pin`, `edit`, `mail`, `phone`, `wallet`, `bell`, `shield`, `trash`, `sort`, `minus`, `plus`, `filter`, `search`, `check`, `x`, `alert`, `info`, `user`, `file`, `clock`, `calendar`, `home`.
+`eye`, `eye-slash`, `arrow-left`, `arrow-up`, `arrow-down`, `chevron-left`, `chevron-right`, `chevron-down`, `menu`, `sign-out`, `eraser`, `card`, `receipt`, `signature`, `form`, `download`, `upload`, `print`, `lock`, `pin`, `edit`, `mail`, `phone`, `wallet`, `bell`, `shield`, `trash`, `sort`, `minus`, `plus`, `filter`, `search`, `check`, `x`, `alert`, `info`, `user`, `file`, `clock`, `calendar`, `home`, `copy`.
 
 Sets with no close match use the nearest icon: Heroicons has no eraser, signature or pushpin (it uses `backspace`, `pencil` and `map-pin`), and Carbon has no payment card or signature (it uses `money` and `pen`). Change any of them with `aliases`.
 

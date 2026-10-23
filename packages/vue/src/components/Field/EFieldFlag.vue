@@ -18,7 +18,7 @@ const t = useMessages();
 <style>
 @layer e.controls {
   .e-field-flag {
-    font: 400 var(--e-text-sm)/1.2 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-sm)/1.2 var(--e-font-sans);
     letter-spacing: 0;
     text-transform: none;
     color: var(--e-muted);

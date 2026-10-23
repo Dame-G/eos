@@ -7,39 +7,36 @@ import "../../styles/base.css";
 const props = defineProps<{
   /** A name (from the built-in list or your icon set, such as `"credit-card"` or `"lucide:credit-card"`), or an icon component. */
   name: IconProp;
-  /** 14px with the bold weight, for chips and stamps. */
+  /** The 14px size, drawn in the bold weight, for chips and stamps. */
   small?: boolean;
-  /** The bold weight at the normal size, where the icon set has one. */
+  /** The bold weight at the normal 20px size, where the icon set has one. */
   bold?: boolean;
+  /** Makes the icon informative: it becomes an image with this name. Without it the icon is decoration and hidden from screen readers. */
+  label?: string;
 }>();
 
 const resolve = useIconResolver();
 const resolved = computed(() => resolve(props.name as string, !!(props.small || props.bold)));
-const directional = computed(() => typeof props.name === "string" && /-(left|right)$/.test(props.name));
+/** An arrow or chevron that points left or right turns around in a right-to-left page. A physical alignment (`text-align-left`) does not. */
+const directional = computed(
+  () => typeof props.name === "string" && /(^|[-:])(left|right)(-|$)/.test(props.name) && !/align/.test(props.name),
+);
+const common = computed(() => ({
+  class: ["e-icon", { "e-icon--s": props.small, "e-icon--dir": directional.value }],
+  role: props.label ? "img" : undefined,
+  "aria-label": props.label || undefined,
+  "aria-hidden": props.label ? undefined : (true as const),
+}));
 </script>
 
 <template>
-  <component
-    :is="resolved.component"
-    v-if="resolved.kind === 'component'"
-    class="e-icon"
-    :class="{ 'e-icon--s': small, 'e-icon--dir': directional }"
-    aria-hidden="true"
-    focusable="false"
-  />
-  <span
-    v-else-if="resolved.kind === 'svg'"
-    class="e-icon e-icon--svg"
-    :class="{ 'e-icon--s': small, 'e-icon--dir': directional }"
-    aria-hidden="true"
-    v-html="resolved.html"
-  />
+  <component :is="resolved.component" v-if="resolved.kind === 'component'" v-bind="common" focusable="false" />
+  <span v-else-if="resolved.kind === 'svg'" v-bind="common" class="e-icon--svg" v-html="resolved.html" />
   <svg
     v-else-if="resolved.kind === 'glyph'"
-    class="e-icon e-icon--glyph"
-    :class="{ 'e-icon--s': small, 'e-icon--dir': directional }"
+    v-bind="common"
+    class="e-icon--glyph"
     :viewBox="resolved.viewBox"
-    aria-hidden="true"
     focusable="false"
     v-html="resolved.html"
   />
@@ -49,8 +46,8 @@ const directional = computed(() => typeof props.name === "string" && /-(left|rig
 @layer e.primitives {
   .e-icon {
     flex: none;
-    width: 20px;
-    height: 20px;
+    width: var(--e-icon-size);
+    height: var(--e-icon-size);
   }
 
   .e-icon--glyph {
@@ -68,8 +65,8 @@ const directional = computed(() => typeof props.name === "string" && /-(left|rig
   }
 
   .e-icon--s {
-    width: 14px;
-    height: 14px;
+    width: var(--e-icon-size-sm);
+    height: var(--e-icon-size-sm);
   }
 
   :dir(rtl) .e-icon--dir {

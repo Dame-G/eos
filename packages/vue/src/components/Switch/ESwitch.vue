@@ -72,22 +72,24 @@ defineExpose({
     height: 1px;
   }
 
+  /* A pressed-in track with a small button face for the thumb. The sizes follow the checkbox, so they grow with the text scale. */
   .e-switch-track {
-    --e-switch-w: 44px;
-    --e-thumb: 16px;
-    --e-thumb-inset: var(--e-space-1);
-    --e-thumb-travel: calc(var(--e-switch-w) - var(--e-thumb) - 2 * var(--e-thumb-inset));
-    --e-ring: var(--e-border-strong);
+    --_w: calc(2 * var(--e-check-size) - var(--e-space-1));
+    --_thumb: calc(var(--e-check-size) - 2 * var(--e-space-1));
+    --_inset: var(--e-space-1);
+    --_travel: calc(var(--_w) - var(--_thumb) - 2 * var(--_inset));
+    --_ring: var(--e-border-strong);
 
     position: relative;
     flex: none;
-    width: var(--e-switch-w);
-    height: 24px;
+    width: var(--_w);
+    height: var(--e-check-size);
     box-sizing: border-box;
-    border: var(--e-stroke-edge) solid var(--e-ring);
+    border: var(--e-stroke-edge) solid var(--_ring);
     border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
     background-clip: padding-box;
+    box-shadow: var(--e-well);
     transition:
       background-color var(--e-duration-tap) var(--e-easing-out),
       border-color var(--e-duration-tap) var(--e-easing-out);
@@ -96,57 +98,58 @@ defineExpose({
   .e-switch-track::after {
     content: "";
     position: absolute;
-    top: 50%;
-    inset-inline-start: calc(var(--e-thumb-inset) - var(--e-stroke-edge));
-    width: var(--e-thumb);
-    height: var(--e-thumb);
-    margin-top: calc(var(--e-thumb) / -2);
+    inset-block-start: 50%;
+    inset-inline-start: calc(var(--_inset) - var(--e-stroke-edge));
+    width: var(--_thumb);
+    height: var(--_thumb);
+    margin-block-start: calc(var(--_thumb) / -2);
     box-sizing: border-box;
 
     /* The thumb is a small button face with a slab under it. */
-    border: var(--e-stroke-edge) solid color-mix(in srgb, var(--e-ink), var(--e-shade-slab));
+    border: var(--e-stroke-edge) solid var(--e-slab-ink);
     border-bottom-width: calc(var(--e-stroke-edge) + 0.6 * var(--e-depth));
     border-radius: var(--e-radius-sm);
     background: var(--e-ink);
-    transition: transform var(--e-duration-move, 160ms) var(--e-easing-out);
+    transition: transform var(--e-duration-move) var(--e-easing-out);
   }
 
   .e-switch:hover .e-switch-input:not(:checked, :disabled) + .e-switch-track {
-    --e-ring: var(--e-ink);
+    --_ring: var(--e-ink);
 
-    background-color: color-mix(in srgb, var(--e-primary) 16%, var(--e-surface));
+    background-color: var(--e-primary-soft);
   }
 
   .e-switch-input:checked + .e-switch-track {
-    --e-ring: var(--e-primary);
+    --_ring: var(--e-primary-slab);
 
     background-color: var(--e-primary);
     background-clip: border-box;
   }
 
   .e-switch:hover .e-switch-input:checked:not(:disabled) + .e-switch-track {
-    --e-ring: color-mix(in srgb, var(--e-primary), var(--e-shade-press));
+    --_ring: var(--e-primary-press);
 
-    background-color: color-mix(in srgb, var(--e-primary), var(--e-shade-press));
+    background-color: var(--e-primary-hover);
   }
 
   .e-switch-input:checked + .e-switch-track::after {
-    border-color: color-mix(in srgb, var(--e-on-primary), var(--e-shade-slab));
+    border-color: var(--e-primary-slab);
     background: var(--e-on-primary);
-    transform: translateX(var(--e-thumb-travel));
+    transform: translateX(var(--_travel));
   }
 
   .e-switch-input:disabled + .e-switch-track {
     border-color: transparent;
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
-    background-color: var(--e-surface-tint);
+    background-color: var(--e-disabled-fill);
+    box-shadow: none;
   }
 
   .e-switch-input:disabled + .e-switch-track::after {
-    border-color: var(--e-muted);
+    border-color: var(--e-disabled-ink);
     border-bottom-width: var(--e-stroke-edge);
-    background: var(--e-muted);
+    background: var(--e-disabled-ink);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -168,7 +171,7 @@ defineExpose({
   }
 
   :dir(rtl) .e-switch-input:checked + .e-switch-track::after {
-    transform: translateX(calc(-1 * var(--e-thumb-travel)));
+    transform: translateX(calc(-1 * var(--_travel)));
   }
 }
 </style>

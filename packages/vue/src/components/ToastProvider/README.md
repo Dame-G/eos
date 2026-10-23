@@ -20,13 +20,15 @@ toast.clear();
 
 The options of `toast.show`.
 
-| Option     | Type                                           | Default | Notes                                                                             |
-| ---------- | ---------------------------------------------- | ------- | --------------------------------------------------------------------------------- |
-| `title`    | `string`                                       |         | Required. What happened, in a few words.                                          |
-| `message`  | `string`                                       |         | One sentence of detail.                                                           |
-| `tone`     | `"info" \| "success" \| "warning" \| "danger"` | `info`  | `danger` is announced at once.                                                    |
-| `action`   | vnode or function returning one                |         | A button, such as `() => h(EButton, { variant: "outline" }, () => "Undo")`.       |
-| `duration` | `number` (ms)                                  | `5000`  | `0` stays until dismissed. That is the default for `danger` and with an `action`. |
+| Option     | Type                                           | Default    | Notes                                                                             |
+| ---------- | ---------------------------------------------- | ---------- | --------------------------------------------------------------------------------- |
+| `title`    | `string`                                       |            | Required. What happened, in a few words.                                          |
+| `message`  | `string`                                       |            | One sentence of detail.                                                           |
+| `tone`     | `"info" \| "success" \| "warning" \| "danger"` | `info`     | `danger` is announced at once.                                                    |
+| `icon`     | icon name                                      | the tone's | Replaces the icon of the tone.                                                    |
+| `closable` | `boolean`                                      | `true`     | Shows the dismiss button.                                                         |
+| `action`   | vnode or function returning one                |            | A button, such as `() => h(EButton, { variant: "outline" }, () => "Undo")`.       |
+| `duration` | `number` (ms)                                  | `5000`     | `0` stays until dismissed. That is the default for `danger` and with an `action`. |
 
 ## Slots
 
@@ -40,3 +42,14 @@ The options of `toast.show`.
 - The region is exempt from the `aria-hidden` that a modal `EDialog` puts on the rest of the page, and takes clicks while the dialog is open, so a toast raised from a dialog is announced and can be dismissed.
 - Timers pause while the pointer or focus is on a toast (WCAG 2.2.1).
 - A message that must stay until dealt with is an `ENotice`, not a toast.
+
+## Keyboard
+
+| Key         | Does                                                        |
+| ----------- | ----------------------------------------------------------- |
+| Tab         | Moves into the region and between a toast's buttons.        |
+| Enter/Space | Presses the focused button. Focus inside pauses the timers. |
+
+## Related
+
+[`EToast`](../Toast/README.md) is the toast itself, [`ENotice`](../Notice/README.md) a message that stays in the page.

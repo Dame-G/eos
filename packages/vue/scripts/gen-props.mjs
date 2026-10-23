@@ -31,9 +31,11 @@ const END = "<!-- props:end -->";
 // Prettier belongs to the repo root, so it is looked up from there. The READMEs are written through it,
 // so the tables are already formatted and `prettier --check` passes right after a run.
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
-const prettier = check
-  ? null
-  : await import(pathToFileURL(createRequire(join(repoRoot, "package.json")).resolve("prettier")).href);
+const loadPrettier = async () => {
+  const mod = await import(pathToFileURL(createRequire(join(repoRoot, "package.json")).resolve("prettier")).href);
+  return mod.default ?? mod;
+};
+const prettier = check ? null : await loadPrettier();
 
 const warnings = [];
 const warn = (m) => warnings.push(m);

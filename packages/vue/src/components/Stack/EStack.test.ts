@@ -9,14 +9,14 @@ const kids = () => [h("p", "One"), h("p", "Two")];
 describe("EStack", () => {
   test("a number gap becomes the space token, default 4", async () => {
     const a = await render(EStack, { props: { gap: 6 }, slots: { default: kids } });
-    expect((a.container.firstElementChild as HTMLElement).style.getPropertyValue("--e-gap")).toBe("var(--e-space-6)");
+    expect((a.container.firstElementChild as HTMLElement).style.getPropertyValue("--_gap")).toBe("var(--e-space-6)");
     const b = await render(EStack, { slots: { default: kids } });
-    expect((b.container.firstElementChild as HTMLElement).style.getPropertyValue("--e-gap")).toBe("var(--e-space-4)");
+    expect((b.container.firstElementChild as HTMLElement).style.getPropertyValue("--_gap")).toBe("var(--e-space-4)");
   });
 
   test("a string gap is used as given", async () => {
     const { container } = await render(EStack, { props: { gap: "10px" }, slots: { default: kids } });
-    expect((container.firstElementChild as HTMLElement).style.getPropertyValue("--e-gap")).toBe("10px");
+    expect((container.firstElementChild as HTMLElement).style.getPropertyValue("--_gap")).toBe("10px");
   });
 
   test("children sit one under another with the gap between them", async () => {
@@ -40,6 +40,24 @@ describe("EStack", () => {
     expect(Math.round(span.right)).toBe(Math.round(stack.right));
   });
 
+  test("every align value is accepted and justify places the children down a taller stack", async () => {
+    for (const align of ["start", "center", "end", "stretch", "baseline"] as const) {
+      const { container } = await render(EStack, { props: { align }, slots: { default: kids } });
+      expect(container.querySelector(`.e-stack--${align}`)).not.toBeNull();
+    }
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: { height: "300px" } }, [
+            h(EStack, { justify: "end", style: { height: "100%" } }, () => h("p", { style: { margin: "0" } }, "x")),
+          ]),
+      }),
+    );
+    const p = container.querySelector("p")!.getBoundingClientRect();
+    const stack = container.querySelector(".e-stack")!.getBoundingClientRect();
+    expect(Math.round(p.bottom)).toBe(Math.round(stack.bottom));
+  });
+
   test("`as` chooses the element; class, style and attributes fall through", async () => {
     const { container } = await render(EStack, {
       props: { as: "ul" },
@@ -50,7 +68,7 @@ describe("EStack", () => {
     expect(el.classList.contains("e-stack")).toBe(true);
     expect(el.classList.contains("mine")).toBe(true);
     expect(el.style.marginTop).toBe("5px");
-    expect(el.style.getPropertyValue("--e-gap")).toBe("var(--e-space-4)");
+    expect(el.style.getPropertyValue("--_gap")).toBe("var(--e-space-4)");
     expect(el.getAttribute("aria-label")).toBe("List");
   });
 

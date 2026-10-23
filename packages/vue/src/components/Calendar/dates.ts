@@ -35,3 +35,32 @@ export function isoDate(d: Date | null | undefined): string {
   const p = (n: number) => (n < 10 ? "0" : "") + n;
   return `${String(d.getFullYear()).padStart(4, "0")}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
+
+const formats = new Map<string, Intl.DateTimeFormat>();
+function format(locale: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  const key = locale + JSON.stringify(options);
+  let f = formats.get(key);
+  if (!f) {
+    f = new Intl.DateTimeFormat(locale, options);
+    formats.set(key, f);
+  }
+  return f;
+}
+
+/** "October 2026", ordered and written the way `locale` does it. `fallback` is used when Intl cannot. */
+export function formatMonthYear(locale: string, d: Date, fallback: string): string {
+  try {
+    return format(locale, { month: "long", year: "numeric" }).format(d);
+  } catch {
+    return fallback;
+  }
+}
+
+/** "Oct 22", ordered the way `locale` does it. */
+export function formatMonthDay(locale: string, d: Date, fallback: string): string {
+  try {
+    return format(locale, { month: "short", day: "numeric" }).format(d);
+  } catch {
+    return fallback;
+  }
+}

@@ -18,7 +18,17 @@ export type TokenValues = Partial<Record<TokenName, string>>;
 
 export type MotionPreset = "default" | "snappy" | "gentle" | "none";
 export type ElevationPreset = "outline" | "lifted" | "bold";
-export type ContrastPreset = "standard" | "high";
+/** `"auto"` follows the visitor: `standard` normally, `high` under `prefers-contrast: more`. */
+export type ContrastPreset = "standard" | "high" | "auto";
+export type DensityPreset = "comfortable" | "compact";
+/** `"auto"` follows `prefers-color-scheme`: the theme is light and the `dark` input applies when the visitor prefers dark. `"light"` and `"dark"` only set the `color-scheme` of native controls, for a theme whose surface does not say. */
+export type SchemePreset = "light" | "dark" | "auto";
+
+/** The inputs a dark variant can change. Anything it leaves out is inherited from the theme, except the grounds (`background`, `surface`, `foreground`), which are never inherited because a light ground makes no sense on a dark page. */
+export type ThemeVariant = Omit<ThemeInput, "name" | "scheme" | "dark" | "strict">;
+
+/** The surface of the dark variant when `scheme: "auto"` gives none. */
+const DARK_SURFACE = "#10151a";
 
 export interface ThemeInput {
   /** Identifies the theme. It becomes the value of `data-e-theme` when the theme is scoped to an element. */
@@ -37,21 +47,27 @@ export interface ThemeInput {
   danger?: string;
   /** The caution colour. Derives `warning-strong` (4.5:1 or more on the surface and on `warning-soft`) and `warning-soft`. */
   warning?: string;
-  /** Font stacks for body and mono text. Fonts are never bundled: load them yourself or import `@eos-ui/vue/fonts.css`. */
-  fonts?: { sans?: string; mono?: string };
+  /** Font stacks for body, mono and signature text. Fonts are never bundled: load them yourself or import `@eos-ui/vue/fonts.css`. */
+  fonts?: { sans?: string; mono?: string; script?: string };
   /** Corner style: a preset or explicit values. */
   radius?: "sharp" | "default" | "round" | { sm?: string; md?: string; lg?: string };
   /** Multiplier for the type scale, `text-xs` to `text-4xl`. 1 is the default scale. Non-finite or non-positive values are ignored. */
   textScale?: number;
   /** Multiplier for the spacing scale, `space-1` to `space-8`. 1 is the default scale. Non-finite or non-positive values are ignored. */
   spaceScale?: number;
-  /** Line weights in px. `hair` sets `stroke-hair`, `stroke-card` and `stroke-edge` (1.5 times it, rounded down to whole pixels). `focus` sets `stroke-focus` and `focus-gap` (the same). `edge` and `card` set `stroke-edge` (controls) and `stroke-card` (containers, chips) outright and win over what `hair` and a bold `elevation` give. `focus-gap-field` always follows `stroke-edge` in CSS (minus the border width), so a field's focus outline sits exactly over its border. */
+  /** Line weights in px. `hair` sets `stroke-hair`, `stroke-card` and `stroke-edge` (1.5 times it, rounded down to whole pixels). `focus` sets `stroke-focus`, which is both the width of the focus outline and its gap. `edge` and `card` set `stroke-edge` (controls) and `stroke-card` (containers, chips) outright and win over what `hair` and a bold `elevation` give. `focus-gap-field` always follows `stroke-edge` in CSS (minus the border width), so a field's focus outline sits exactly over its border. */
   strokes?: { hair?: number; focus?: number; edge?: number; card?: number };
-  /** `"high"` draws every line and secondary text at full strength: `border` and `border-strong` become the foreground colour, `muted` is softened only until it holds 15:1, `surface-tint` is a neutral grey (no brand tint) and `scrim` is darker. Pair it with heavier `strokes`. Default `"standard"`. */
+  /** `"high"` draws every line and secondary text at full strength: `border` and `border-strong` become the foreground colour, `muted` is softened only until it holds 15:1, `surface-tint` is a neutral grey (no brand tint) and `scrim` is darker. Pair it with heavier `strokes`. `"auto"` keeps the standard theme and adds the high one under `prefers-contrast: more`. Default `"standard"`. */
   contrast?: ContrastPreset;
+  /** Opt in to `prefers-color-scheme` with `"auto"`. The theme is the light one; `dark` (default: a dark surface of `#10151a`) is derived the same way and emitted inside `@media (prefers-color-scheme: dark)`. `color-scheme` becomes `light dark`. Without it the theme is fixed: dark when `surface` is dark, light otherwise. */
+  scheme?: SchemePreset;
+  /** What changes on a dark page when `scheme` is `"auto"`: usually `surface`, and `foreground` or `brand` if the light ones do not carry over. */
+  dark?: ThemeVariant;
+  /** `"compact"` tightens the space scale to 0.75 and makes controls exactly the 44px tap target (chips follow at 22px). `"comfortable"` is the default scale. Tap targets never fall under 44px. */
+  density?: DensityPreset;
   /** How state changes feel: sets `duration-tap`, `duration-move` and `easing-out`. */
   motion?: MotionPreset;
-  /** How depth is drawn: sets `edge`, `well` and `float` from the border, ink and hairline. `outline` is flat rings, `lifted` adds soft drops, `bold` uses heavy rings and a hard offset shadow. */
+  /** How depth is drawn: sets `frame`, `well`, `float` and `paper` from the border, ink and hairline. `outline` is flat rings, `lifted` adds soft drops, `bold` uses heavy rings and a hard offset shadow. */
   elevation?: ElevationPreset;
   /** Height in px of every tappable control. Sets `control-height` and derives `chip-height` at half of it, rounded to an even number. */
   controlHeight?: number;
@@ -59,6 +75,15 @@ export interface ThemeInput {
   tokens?: TokenValues;
   /** Throw on a contrast failure instead of reporting it in `issues`. */
   strict?: boolean;
+}
+
+export interface Alternate {
+  /** The media query, such as `(prefers-color-scheme: dark)`. */
+  media: string;
+  /** The `color-scheme` of native controls while it matches. */
+  scheme: "light" | "dark";
+  /** The tokens that differ from the base theme, by name without the leading `--`. */
+  tokens: Record<string, string>;
 }
 
 export interface ContrastIssue {
@@ -81,8 +106,10 @@ export interface Theme {
   name: string;
   /** Every token, by name without the leading `--`. */
   tokens: Record<string, string>;
-  /** Failures of the contrast pairs the system promises (text 4.5, non-text 3). Empty when the theme is sound. */
+  /** Failures of the contrast pairs the system promises (text 4.5, non-text 3). Empty when the theme is sound. With `scheme: "auto"` or `contrast: "auto"` it also lists the failures of every variant, their role ending in the media query. */
   issues: ContrastIssue[];
+  /** Tokens that change under a media query (`scheme: "auto"`, `contrast: "auto"`), in cascade order: the last one that matches wins. Empty for a fixed theme. */
+  alternates: Alternate[];
   /** The theme as CSS custom properties on a selector, in the token layer. Render it into `<head>` on the server. */
   css(options?: CssOptions): string;
   /** The tokens as W3C Design Tokens JSON, for Figma (Tokens Studio), Style Dictionary and other design tools. */
@@ -127,6 +154,21 @@ const PAIRS: { fg: TokenName; bg: TokenName; min: number; role: string }[] = [
   { fg: "muted", bg: "background", min: 4.5, role: "Secondary text on the page" },
   { fg: "primary", bg: "background", min: 4.5, role: "Links on the page" },
   { fg: "border", bg: "background", min: 3, role: "Outline on the page (non-text)" },
+  { fg: "text-link", bg: "surface", min: 4.5, role: "Inline links" },
+  { fg: "text-link", bg: "background", min: 4.5, role: "Inline links on the page" },
+  { fg: "success", bg: "success-soft", min: 4.5, role: "Success notice text" },
+  { fg: "warning", bg: "warning-soft", min: 4.5, role: "Warning notice text" },
+  { fg: "success", bg: "surface", min: 4.5, role: "Success text" },
+  { fg: "warning", bg: "surface", min: 4.5, role: "Warning text" },
+  { fg: "on-success", bg: "success", min: 4.5, role: "Success fill label" },
+  { fg: "on-info", bg: "info", min: 4.5, role: "Information fill label" },
+  { fg: "disabled-ink", bg: "surface", min: 4.5, role: "Disabled text" },
+  { fg: "ink", bg: "surface-paper", min: 7, role: "Text on the paper surface" },
+  { fg: "muted", bg: "surface-paper", min: 4.5, role: "Secondary text on the paper surface" },
+  { fg: "border", bg: "surface-paper", min: 3, role: "Outline on the paper surface (non-text)" },
+  { fg: "ink", bg: "selection", min: 4.5, role: "Selected text" },
+  { fg: "stamp-ink", bg: "surface", min: 4.5, role: "Stamp ink" },
+  { fg: "stamp-ink", bg: "surface-paper", min: 4.5, role: "Stamp ink on the paper surface" },
 ];
 
 const DARK_BELOW = 0.179;
@@ -134,7 +176,20 @@ const BLACK = "#000000";
 const WHITE = "#ffffff";
 const DARK_DANGER = "#d33b30";
 const DARK_WARNING = "#ffc857";
+const COMPACT_SPACE = 0.75;
+const STAMP_INK = "#b23a14";
 const DARK_WELL = "inset 0 2px 0 0 rgba(0, 0, 0, 0.55)";
+
+/** Boxes that belong to the text beside them, so they grow with `textScale` as the type does. */
+const TEXT_SIZED = [
+  "icon-size",
+  "icon-size-sm",
+  "icon-size-lg",
+  "icon-size-md",
+  "check-size",
+  "avatar-size-sm",
+  "avatar-size-lg",
+] as const;
 
 const MOTION: Record<MotionPreset, Record<string, string>> = {
   default: {},
@@ -170,7 +225,6 @@ function deriveStrokes(input: ThemeInput, out: Record<string, string>) {
   }
   if (focus !== undefined) {
     out["stroke-focus"] = px(focus);
-    out["focus-gap"] = px(focus);
   }
   if (edge !== undefined) out["stroke-edge"] = px(edge);
   if (card !== undefined) out["stroke-card"] = px(card);
@@ -225,15 +279,15 @@ function deriveElevation(
   out["stroke-card"] = card;
   const base = shadowRgb(out, dark);
   if (style === "lifted") {
-    out["edge"] = `${ring(card)}, ${layers(CARD, dark, base)}`;
+    out["frame"] = `${ring(card)}, ${layers(CARD, dark, base)}`;
     out["float"] = `${ring(card)}, ${layers(LIFTED, dark, base)}`;
   } else if (style === "bold") {
-    out["edge"] = ring(card);
+    out["frame"] = ring(card);
     out["well"] = `inset 0 3px 0 0 ${dark ? "rgba(0, 0, 0, 0.55)" : "rgba(0, 0, 0, 0.14)"}`;
     out["float"] =
       `${ring(card)}, 4px 4px 0 0 rgba(${base}, ${dark ? 0.75 : 0.32}), 0 14px 28px -10px rgba(${base}, ${dark ? 0.7 : 0.22})`;
   } else {
-    out["edge"] = ring(card);
+    out["frame"] = ring(card);
     out["float"] = `${ring(card)}, ${layers(SOFT, dark, base)}`;
   }
 }
@@ -370,6 +424,30 @@ function deriveGround(input: ThemeInput, out: Record<string, string>, dark: bool
   }
 }
 
+/** Paper, the selection highlight and the stamp ink: three colours that are not part of the ground but have to hold their own contrast on it. */
+function deriveMarks(out: Record<string, string>, dark: boolean) {
+  const surface = out["surface"]!;
+  const ground = toOklch(surface);
+  const paper = fromOklch({
+    l: Math.min(1, Math.max(0, dark ? ground.l + 0.025 : ground.l - 0.008)),
+    c: dark ? 0.01 : 0.008,
+    h: 95,
+  });
+  out["surface-paper"] = paper;
+  fit(out, "surface-paper", paper, [
+    [out["ink"]!, 7],
+    [out["muted"]!, 4.5],
+    [out["border"]!, 3],
+  ]);
+  const selection = withLightness(surface, dark ? ground.l + 0.25 : ground.l - 0.22, 0.06, toOklch(out["primary"]!).h);
+  out["selection"] = selection;
+  fit(out, "selection", selection, [[out["ink"]!, 4.5]]);
+  out["stamp-ink"] = reachAll(STAMP_INK, [
+    [surface, 7],
+    [out["surface-paper"]!, 7],
+  ]).color;
+}
+
 function isDark(input: ThemeInput): boolean {
   return input.surface !== undefined && luminance(input.surface) < DARK_BELOW;
 }
@@ -430,17 +508,21 @@ function derive(input: ThemeInput): Record<string, string> {
   ]);
   if (input.fonts?.sans) out["font-sans"] = input.fonts.sans;
   if (input.fonts?.mono) out["font-mono"] = input.fonts.mono;
+  if (input.fonts?.script) out["font-script"] = input.fonts.script;
   if (input.radius) {
     const r = typeof input.radius === "string" ? RADII[input.radius] : { ...RADII.default, ...input.radius };
     out["radius-sm"] = r.sm;
     out["radius-md"] = r.md;
     out["radius-lg"] = r.lg;
   }
+  const compact = input.density === "compact";
   scaleTokens(out, groups.fontSize, input.textScale);
-  scaleTokens(out, groups.spacing, input.spaceScale);
+  scaleTokens(out, TEXT_SIZED, input.textScale);
+  scaleTokens(out, groups.spacing, (positive(input.spaceScale) ?? 1) * (compact ? COMPACT_SPACE : 1));
   deriveStrokes(input, out);
   Object.assign(out, MOTION[input.motion ?? "default"]);
-  const height = positive(input.controlHeight);
+  const tap = parseFloat(defaults["tap"]);
+  const height = compact ? Math.max(tap, positive(input.controlHeight) ?? tap) : positive(input.controlHeight);
   if (height !== undefined) {
     out["control-height"] = px(height);
     out["chip-height"] = px(Math.max(2, Math.round(height / 4) * 2));
@@ -456,6 +538,8 @@ function derive(input: ThemeInput): Record<string, string> {
   ) {
     deriveElevation(input.elevation ?? "outline", out, dark, input.strokes);
   }
+  deriveMarks(out, dark);
+  out["paper"] = `0 0 0 ${out["stroke-card"]} ${out["border"]}, ${out["well"]}`;
   Object.assign(out, input.tokens);
   return out;
 }
@@ -488,34 +572,97 @@ export function checkContrast(tokens: Record<string, string>): ContrastIssue[] {
   return issues;
 }
 
-const WASHES = [
-  "--e-wash-hover: color-mix(in srgb, var(--e-ink) 8%, transparent);",
-  "--e-wash-press: color-mix(in srgb, var(--e-ink) 15%, transparent);",
-  "--e-wash-ring: color-mix(in srgb, var(--e-ink) 38%, transparent);",
+const MEDIA_DARK = "(prefers-color-scheme: dark)";
+const MEDIA_MORE = "(prefers-contrast: more)";
+const GROUND_INPUTS = ["background", "surface", "foreground"] as const;
+
+/** Under print the page is black on white whatever the theme, so every component prints right without its own fallback. `!important` is what lets it beat the inline tokens `apply()` sets. */
+const PRINT = [
+  "--e-ink: #000000",
+  "--e-muted: #333333",
+  "--e-border: #000000",
+  "--e-border-strong: #000000",
+  "--e-surface: #ffffff",
+  "--e-surface-tint: #ffffff",
+  "--e-surface-paper: #ffffff",
+  "--e-background: #ffffff",
 ];
+
+/** What a reader who asks for less motion gets. `0.01ms` and not `0` so `transitionend` still fires. Loops are not here: a loop at 0.01ms would flicker, so each loader switches itself off. */
+const REDUCED = ["--e-duration-tap: 0.01ms", "--e-duration-move: 0.01ms"];
+
+const scheme = (input: ThemeInput): "light" | "dark" =>
+  input.scheme === "light" || input.scheme === "dark" ? input.scheme : isDark(input) ? "dark" : "light";
+
+function darkInput(input: ThemeInput): ThemeInput {
+  const { dark, ...rest } = input;
+  const own = { ...rest, scheme: undefined } as ThemeInput;
+  for (const k of GROUND_INPUTS) delete own[k];
+  return { surface: DARK_SURFACE, ...own, ...dark, tokens: { ...own.tokens, ...dark?.tokens } };
+}
+
+function diff(base: Record<string, string>, full: Record<string, string>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(full)) if (base[k] !== v) out[k] = v;
+  return out;
+}
+
+/** The media-query variants of a theme: dark for `scheme: "auto"`, high contrast for `contrast: "auto"`, and both together. Each carries only the tokens that differ, and the combined one repeats the tokens of the others it must undo. */
+function variants(input: ThemeInput, base: Record<string, string>) {
+  const auto = input.scheme === "auto";
+  const more = input.contrast === "auto";
+  const list: { media: string; input: ThemeInput }[] = [];
+  const dark = auto ? darkInput(input) : undefined;
+  if (dark) list.push({ media: MEDIA_DARK, input: dark });
+  if (more) list.push({ media: MEDIA_MORE, input: { ...input, contrast: "high" } });
+  if (dark && more) list.push({ media: `${MEDIA_DARK} and ${MEDIA_MORE}`, input: { ...dark, contrast: "high" } });
+  const fulls = list.map((v) => derive(v.input));
+  const changed = new Set(fulls.flatMap((full) => Object.keys(diff(base, full))));
+  const alternates: Alternate[] = list.map((v, i) => {
+    const keys = v.media.includes(" and ") ? changed : new Set(Object.keys(diff(base, fulls[i]!)));
+    return {
+      media: v.media,
+      scheme: scheme(v.input),
+      tokens: Object.fromEntries([...keys].map((k) => [k, fulls[i]![k]!])),
+    };
+  });
+  return { alternates, fulls };
+}
+
+const watchers = new WeakMap<HTMLElement, () => void>();
 
 export function defineTheme(input: ThemeInput = {}): Theme {
   const name = input.name ?? "custom";
   const tokens = derive(input);
   // Tells the browser which way the page leans, so its own controls (scrollbars, colour picker, autofill) match.
-  const scheme = isDark(input) ? "dark" : "light";
+  const colorScheme = scheme(input);
+  const { alternates, fulls } = variants(input, tokens);
   const issues = checkContrast(tokens);
+  alternates.forEach((a, i) => {
+    for (const issue of checkContrast(fulls[i]!)) issues.push({ ...issue, role: `${issue.role} ${a.media}` });
+  });
   if (input.strict && issues.length) {
     throw new Error(
       "Theme fails contrast:\n" +
         issues.map((i) => `  ${i.role}: ${i.pair.join(" on ")} is ${i.ratio}:1, needs ${i.min}:1`).join("\n"),
     );
   }
+  const decls = (map: Record<string, string>, indent: string) =>
+    Object.entries(map)
+      .map(([k, v]) => `${indent}--e-${k}: ${v};`)
+      .join("\n");
   return {
     name,
     tokens,
     issues,
+    alternates,
     css({ selector = ":root", layer = true, header = false }: CssOptions = {}) {
-      const decls = Object.entries(tokens)
-        .map(([k, v]) => `  --e-${k}: ${v};`)
-        .join("\n");
-      const derived = `${selector}, [data-e-theme] {\n${WASHES.map((w) => "  " + w).join("\n")}\n}`;
-      const rules = `${selector} {\n  color-scheme: ${scheme};\n${decls}\n}\n${derived}\n`;
+      const themed = `${selector}, [data-e-theme]`;
+      let rules = `${selector} {\n  color-scheme: ${colorScheme};\n${decls(tokens, "  ")}\n}\n`;
+      for (const a of alternates)
+        rules += `@media ${a.media} {\n  ${selector} {\n    color-scheme: ${a.scheme};\n${decls(a.tokens, "    ")}\n  }\n}\n`;
+      rules += `@media (prefers-reduced-motion: reduce) {\n  ${themed} {\n${REDUCED.map((d) => `    ${d} !important;`).join("\n")}\n  }\n}\n`;
+      rules += `@media print {\n  ${themed} {\n${PRINT.map((d) => `    ${d} !important;`).join("\n")}\n  }\n}\n`;
       const body = layer ? `@layer e.tokens {\n${rules}}\n` : rules;
       return (header ? `/* Generated from tokens.json. Theme: ${name}. */\n@layer ${LAYER_ORDER};\n` : "") + body;
     },
@@ -523,8 +670,23 @@ export function defineTheme(input: ThemeInput = {}): Theme {
       return toDtcg(tokens);
     },
     apply(el = document.documentElement) {
-      for (const [k, v] of Object.entries(tokens)) el.style.setProperty(`--e-${k}`, v);
-      el.style.colorScheme = scheme;
+      watchers.get(el)?.();
+      watchers.delete(el);
+      const paint = () => {
+        for (const [k, v] of Object.entries(tokens)) el.style.setProperty(`--e-${k}`, v);
+        el.style.colorScheme = colorScheme;
+        // The last variant that matches carries every token the earlier ones changed, so it alone is enough.
+        const match = alternates.filter((a) => matchMedia(a.media).matches).at(-1);
+        if (!match) return;
+        for (const [k, v] of Object.entries(match.tokens)) el.style.setProperty(`--e-${k}`, v);
+        el.style.colorScheme = match.scheme;
+      };
+      paint();
+      if (alternates.length && typeof matchMedia === "function") {
+        const lists = alternates.map((a) => matchMedia(a.media));
+        for (const l of lists) l.addEventListener("change", paint);
+        watchers.set(el, () => lists.forEach((l) => l.removeEventListener("change", paint)));
+      }
       el.setAttribute("data-e-theme", name);
     },
   };

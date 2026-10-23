@@ -3,6 +3,7 @@ import { defaultMessages, type MessageKey } from "./messages.js";
 import type { Component } from "vue";
 import { phosphor, ICON_VIEWBOX, type IconMarkup } from "./icons/phosphor.js";
 import type { IconSource, IconsConfig } from "./icons/types.js";
+import { isProduction } from "./env.js";
 
 /** What the app tells the components: language, money, direction, words and icons. Set it once with `createEos()`. */
 export interface EosConfig {
@@ -99,7 +100,7 @@ export function useIconResolver(): (icon: string | Component, bold: boolean) => 
     if (found) return fromSource(found, bold);
     const builtin = set.builtin === false ? undefined : (phosphor as Record<string, IconMarkup>)[icon];
     if (builtin) return fromSource(builtin, bold);
-    if (import.meta.env?.DEV && !warned.has(icon)) {
+    if (!isProduction() && !warned.has(icon)) {
       warned.add(icon);
       console.warn(`[eos] No icon named "${icon}". Add it to createEos({ icons }) or alias it to one your set has.`);
     }

@@ -41,3 +41,14 @@ A list where no item has a `label` renders as a plain list of facts. It has no E
 
 - A `dl` with `dt` and `dd` pairs, so screen readers announce each pair. A plain list is a `ul`.
 - The Edit button is named "Edit" followed by the item's label.
+
+## Keyboard
+
+| Key          | Action                                                                       |
+| ------------ | ---------------------------------------------------------------------------- |
+| Tab          | Moves to each Edit button and any control in an `action` slot, in row order. |
+| Enter, Space | Presses the focused button.                                                  |
+
+## Related
+
+[`EStamp`](../Stamp/README.md) for the badge, [`ETable`](../Table/README.md) when the data has columns.

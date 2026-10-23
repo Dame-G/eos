@@ -10,9 +10,9 @@ const kids = () => [h("span", { style: box }, "One"), h("span", { style: box }, 
 describe("EInline", () => {
   test("a number gap becomes the space token, default 2", async () => {
     const a = await render(EInline, { props: { gap: 3 }, slots: { default: kids } });
-    expect((a.container.firstElementChild as HTMLElement).style.getPropertyValue("--e-gap")).toBe("var(--e-space-3)");
+    expect((a.container.firstElementChild as HTMLElement).style.getPropertyValue("--_gap")).toBe("var(--e-space-3)");
     const b = await render(EInline, { slots: { default: kids } });
-    expect((b.container.firstElementChild as HTMLElement).style.getPropertyValue("--e-gap")).toBe("var(--e-space-2)");
+    expect((b.container.firstElementChild as HTMLElement).style.getPropertyValue("--_gap")).toBe("var(--e-space-2)");
   });
 
   test("justify and align and nowrap add modifier classes", async () => {
@@ -21,8 +21,23 @@ describe("EInline", () => {
       slots: { default: kids },
     });
     expect(container.firstElementChild!.className).toBe(
-      "e-inline e-inline--nowrap e-inline--between e-inline--a-baseline",
+      "e-inline e-inline--nowrap e-inline--j-between e-inline--a-baseline",
     );
+  });
+
+  test("justify and align take the standard values", async () => {
+    const { container } = await render(EInline, {
+      props: { justify: "center", align: "stretch" },
+      slots: { default: kids },
+    });
+    const el = container.firstElementChild as HTMLElement;
+    expect(getComputedStyle(el).justifyContent).toBe("center");
+    expect(getComputedStyle(el).alignItems).toBe("stretch");
+  });
+
+  test("a gap above 8 is a space token", async () => {
+    const { container } = await render(EInline, { props: { gap: 12 }, slots: { default: kids } });
+    expect((container.firstElementChild as HTMLElement).style.getPropertyValue("--_gap")).toBe("var(--e-space-12)");
   });
 
   test("justify between pushes the ends apart", async () => {
@@ -59,7 +74,7 @@ describe("EInline", () => {
     const el = container.querySelector("ul")!;
     expect(el.classList.contains("mine")).toBe(true);
     expect(el.style.marginTop).toBe("5px");
-    expect(el.style.getPropertyValue("--e-gap")).toBe("var(--e-space-2)");
+    expect(el.style.getPropertyValue("--_gap")).toBe("var(--e-space-2)");
     expect(el.getAttribute("aria-label")).toBe("Tags");
   });
 

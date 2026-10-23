@@ -31,3 +31,11 @@ Running text in three sizes (body, `small`, `large`), capped at a readable line 
 ## Accessibility
 
 - Muted text meets contrast but should not carry anything a person must act on.
+
+## Keyboard
+
+Not focusable and takes no keys.
+
+## Related
+
+[`EHeading`](../Heading/README.md) for headings, [`EKicker`](../Kicker/README.md) for a small label above one.

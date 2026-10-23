@@ -3,7 +3,9 @@ import { computed, nextTick, ref, watch } from "vue";
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from "reka-ui";
 import EIcon from "../Icon/EIcon.vue";
 import EKbd from "../Kbd/EKbd.vue";
+import ESpinner from "../Spinner/ESpinner.vue";
 import EMatchHighlight from "../Combobox/matchHighlight.js";
+import { fold } from "../Combobox/fold.js";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
@@ -42,8 +44,12 @@ const props = withDefaults(
     placeholder?: string;
     /** The shortcut that opens and closes it from anywhere on the page, or `false` for none. Read once when the component is created. */
     shortcut?: string | false;
-    /** Your own match: return a score above 0 to include the item (higher lists first), or 0 to leave it out. It replaces the built-in matching. */
-    filter?: (item: CommandItem, query: string) => number;
+    /** Your own match: return a score above 0 to include the item (higher lists first), or 0 to leave it out. It replaces the built-in matching. `query` is trimmed, lower case and without accents. */
+    score?: (item: CommandItem, query: string) => number;
+    /** Shows the Searching spinner in the list in place of the commands while a server answers. */
+    loading?: boolean;
+    /** What the list says when no command matches. @default "No results" */
+    emptyText?: string;
   }>(),
   { shortcut: "mod+k" },
 );
@@ -70,14 +76,14 @@ const query = ref("");
 const activeId = ref<string | null>(null);
 const list = ref<HTMLElement | null>(null);
 
-const needle = computed(() => query.value.trim().toLowerCase());
+const needle = computed(() => fold(query.value.trim()));
 
-function score(item: CommandItem, q: string): number {
-  if (props.filter) return props.filter(item, q);
+function rank(item: CommandItem, q: string): number {
+  if (props.score) return props.score(item, q);
   const tokens = q.split(/\s+/).filter(Boolean);
   if (!tokens.length) return 1;
-  const label = item.label.toLowerCase();
-  const rest = [item.description, item.group, ...(item.keywords ?? [])].join(" ").toLowerCase();
+  const label = fold(item.label);
+  const rest = fold([item.description, item.group, ...(item.keywords ?? [])].join(" "));
   let total = 0;
   for (const token of tokens) {
     if (label.startsWith(token)) total += 4;
@@ -91,7 +97,7 @@ function score(item: CommandItem, q: string): number {
 
 const filtered = computed(() => {
   const q = needle.value;
-  const scored = props.items.map((item, i) => ({ item, i, s: score(item, q) })).filter((x) => x.s > 0);
+  const scored = props.items.map((item, i) => ({ item, i, s: rank(item, q) })).filter((x) => x.s > 0);
   if (q) scored.sort((a, b) => b.s - a.s || a.i - b.i);
   return scored.map((x) => x.item);
 });
@@ -140,10 +146,24 @@ watch(
   { immediate: true },
 );
 
+const emptyMessage = computed(() => props.emptyText || t("noResults"));
+
+function report() {
+  if (!choosable.value.length) announce(props.loading ? t("searching") : emptyMessage.value);
+  else announce(t("resultsCount", { n: choosable.value.length }));
+}
+
 watch(query, () => {
   activeId.value = choosable.value[0]?.id ?? null;
-  announce(choosable.value.length ? t("resultsCount", { n: choosable.value.length }) : t("noResults"));
+  report();
 });
+
+watch(
+  () => props.loading,
+  (busy) => {
+    if (!busy && query.value) report();
+  },
+);
 
 watch(activeId, async () => {
   await nextTick();
@@ -210,7 +230,14 @@ defineExpose({
               @keydown="onKeydown"
             />
           </div>
-          <div :id="`${uid}-list`" ref="list" class="e-cmd-list" role="listbox" :aria-label="label">
+          <div
+            :id="`${uid}-list`"
+            ref="list"
+            class="e-cmd-list"
+            role="listbox"
+            :aria-label="label"
+            :aria-busy="loading ? 'true' : undefined"
+          >
             <template v-for="(section, si) in sections" :key="section.name">
               <div
                 class="e-opt-set"
@@ -220,6 +247,8 @@ defineExpose({
                 <div v-if="section.name" :id="`${uid}-g-${si}`" class="e-opt-group" role="presentation">
                   {{ section.name }}
                 </div>
+                <!-- Focus stays in the search box (aria-activedescendant), so the options are neither focusable nor keyboard targets. -->
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus -->
                 <div
                   v-for="item in section.items"
                   :id="optionId(item)"
@@ -230,16 +259,17 @@ defineExpose({
                   :aria-selected="item.id === activeId"
                   :aria-disabled="item.disabled || undefined"
                   :data-active="item.id === activeId"
-                  tabindex="-1"
+                  @mousedown.prevent
                   @pointermove="!item.disabled && (activeId = item.id)"
                   @click="choose(item)"
-                  @keydown.enter="choose(item)"
                 >
                   <slot name="item" :item="item" :active="item.id === activeId" :query="needle">
                     <EIcon v-if="item.icon" :name="item.icon" />
                     <span class="e-opt-text">
                       <span class="e-opt-label"><EMatchHighlight :text="item.label" :query="needle" /></span>
-                      <span v-if="item.description" class="e-opt-desc">{{ item.description }}</span>
+                      <span v-if="item.description" class="e-opt-desc">
+                        <EMatchHighlight :text="item.description" :query="needle" />
+                      </span>
                     </span>
                     <span v-if="item.shortcut" class="e-cmd-keys" aria-hidden="true">
                       <EKbd v-for="key in formatShortcut(item.shortcut)" :key="key" small>{{ key }}</EKbd>
@@ -248,7 +278,10 @@ defineExpose({
                 </div>
               </div>
             </template>
-            <p v-if="!flat.length" class="e-opt-status">{{ t("noResults") }}</p>
+            <p v-if="!flat.length" class="e-opt-status" aria-hidden="true">
+              <ESpinner v-if="loading" :label="t('searching')" />
+              <template v-else>{{ emptyMessage }}</template>
+            </p>
           </div>
         </DialogContent>
       </div>
@@ -294,7 +327,7 @@ defineExpose({
     outline: 0;
     background: transparent;
     color: var(--e-ink);
-    font: 400 var(--e-text-md) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.3 var(--e-font-sans);
   }
 
   .e-cmd-input::placeholder {

@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import dts from "vite-plugin-dts";
 import { playwright } from "@vitest/browser-playwright";
-import { copyFileSync, mkdirSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import layers from "./scripts/postcss-layers.ts";
 import hover from "./scripts/postcss-hover.ts";
@@ -16,6 +16,25 @@ const pkg = JSON.parse(readFileSync(src("./package.json"), "utf8")) as {
 const external = [...Object.keys(pkg.dependencies ?? {}), ...Object.keys(pkg.peerDependencies ?? {})].map(
   (name) => new RegExp(`^${name.replace(/[/@.-]/g, "\\$&")}(/|$)`),
 );
+
+// Browsers the tests run in. Default: Chromium. EOS_BROWSERS="chromium,firefox,webkit" adds engines (install them with
+// `playwright install firefox webkit`); CI runs them in a separate, non-blocking job.
+const engines = (process.env.EOS_BROWSERS ?? "chromium")
+  .split(",")
+  .map((b) => b.trim())
+  .filter((b): b is "chromium" | "firefox" | "webkit" => ["chromium", "firefox", "webkit"].includes(b));
+
+// Locally Chromium runs as the installed Edge, which needs no download. Without Edge (or in CI) it falls back to
+// Playwright's own Chromium. EOS_BROWSER_CHANNEL overrides: "chrome", "msedge", or "chromium" to force the bundled one.
+const edge = [
+  "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+  "C:/Program Files/Microsoft/Edge/Application/msedge.exe",
+  "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+  "/usr/bin/microsoft-edge",
+  "/opt/microsoft/msedge/msedge",
+].some((path) => existsSync(path));
+const requested = process.env.EOS_BROWSER_CHANNEL ?? (!process.env.CI && edge ? "msedge" : "chromium");
+const channel = requested === "chromium" ? undefined : requested;
 
 export default defineConfig(({ command }) => ({
   plugins: [
@@ -81,8 +100,11 @@ export default defineConfig(({ command }) => ({
     browser: {
       enabled: true,
       headless: true,
-      provider: playwright({ launchOptions: process.env.CI ? {} : { channel: "msedge" } }),
-      instances: [{ browser: "chromium" }],
+      provider: playwright(),
+      instances: engines.map((browser) => ({
+        browser,
+        ...(browser === "chromium" && channel ? { provider: playwright({ launchOptions: { channel } }) } : {}),
+      })),
       viewport: { width: 640, height: 800 },
     },
   },

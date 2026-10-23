@@ -4,7 +4,7 @@ import { groups, usage } from "./generated/defaults.js";
 export interface DtcgToken {
   $value: string | number | number[];
   /** Omitted when the value is a CSS expression no DTCG type can hold (a shadow stack, `color-mix()`). */
-  $type?: "color" | "dimension" | "duration" | "cubicBezier" | "number" | "fontFamily";
+  $type?: "color" | "dimension" | "duration" | "cubicBezier" | "number" | "fontFamily" | "fontWeight";
   $description?: string;
 }
 
@@ -46,6 +46,8 @@ export function toDtcg(tokens: Record<string, string>): DtcgTokens {
     if (HEX.test(value)) put(group, name, { $value: value.toLowerCase(), $type: "color" });
     else if (group === "font") put(group, name, { $value: value, $type: "fontFamily" });
     else if (bezier) put(group, name, { $value: bezier.slice(1, 5).map(Number), $type: "cubicBezier" });
+    else if (group === "weight" && /^\d+$/.test(value))
+      put(group, name, { $value: Number(value), $type: "fontWeight" });
     else if (group === "zIndex" && /^-?\d+$/.test(value)) put(group, name, { $value: Number(value), $type: "number" });
     else if (group === "duration" && DURATION.test(value)) put(group, name, { $value: value, $type: "duration" });
     else if (DIMENSION.test(value) && group !== "duration") put(group, name, { $value: value, $type: "dimension" });

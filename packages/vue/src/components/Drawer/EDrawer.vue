@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import DialogFrame from "../Dialog/DialogFrame.vue";
 import EDrawerBody from "./EDrawerBody.vue";
 
 defineOptions({ inheritAttrs: false });
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     /** The panel's heading and accessible name, such as the statement being read. */
     title: string;
@@ -14,14 +15,14 @@ withDefaults(
     role?: "dialog" | "alertdialog";
     /** The level of the title's heading element, 1 to 6. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
-    /** The edge it slides in from. `bottom` gives a sheet that suits phones. */
-    side?: "right" | "left" | "bottom";
+    /** The edge it slides in from. `end` is the right in a left-to-right page, `start` the left, and both flip in a right-to-left page. `bottom` gives a sheet that suits phones. `right` and `left` are older names for `end` and `start`. */
+    side?: "end" | "start" | "bottom" | "right" | "left";
     /** Closes the drawer when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. */
     dismissible?: boolean;
     /** Shows the drawer in the page, without the backdrop or the focus trap, for a preview. */
     inline?: boolean;
   }>(),
-  { role: "dialog", headingLevel: 2, side: "right" },
+  { role: "dialog", headingLevel: 2, side: "end" },
 );
 
 const emit = defineEmits<{
@@ -38,6 +39,8 @@ defineSlots<{
 
 /** Whether it is open. Without a binding it keeps its own state. */
 const open = defineModel<boolean>("open");
+
+const edge = computed(() => (props.side === "left" ? "start" : props.side === "right" ? "end" : props.side));
 </script>
 
 <template>
@@ -50,7 +53,7 @@ const open = defineModel<boolean>("open");
     :role="role"
     :inline="inline"
     :dismissible="dismissible"
-    :content-class="['e-drawer', side !== 'right' && `e-drawer--${side}`, inline && 'e-drawer--inline']"
+    :content-class="['e-drawer', edge !== 'end' && `e-drawer--${edge}`, inline && 'e-drawer--inline']"
     @close="emit('close')"
   >
     <EDrawerBody><slot /></EDrawerBody>
@@ -60,20 +63,28 @@ const open = defineModel<boolean>("open");
 
 <style>
 @layer e.containers {
+  /* The panel sits against the inline-end edge. `--_slide` is 1 in a left-to-right page and -1 in a right-to-left one, so the slide and the side both flip. */
   .e-drawer {
+    --_slide: 1;
+
     position: fixed;
     inset: 0;
-    width: min(28rem, 100vw);
+    width: min(28rem, 100dvw);
     height: 100dvh;
     max-height: none;
-    margin: 0 0 0 auto;
+    margin-block: 0;
+    margin-inline: auto 0;
     border-radius: 0;
     display: flex;
     flex-direction: column;
   }
 
-  .e-drawer--left {
-    margin: 0 auto 0 0;
+  .e-drawer:dir(rtl) {
+    --_slide: -1;
+  }
+
+  .e-drawer--start {
+    margin-inline: 0 auto;
   }
 
   .e-drawer--bottom {
@@ -82,7 +93,8 @@ const open = defineModel<boolean>("open");
     height: auto;
     max-height: min(32rem, 85dvh);
     margin: 0;
-    border-radius: var(--e-radius-md) var(--e-radius-md) 0 0;
+    border-start-start-radius: var(--e-radius-md);
+    border-start-end-radius: var(--e-radius-md);
   }
 
   .e-drawer[data-state="open"] {
@@ -93,12 +105,12 @@ const open = defineModel<boolean>("open");
     animation: e-drawer-out var(--e-duration-move) var(--e-easing-out) forwards;
   }
 
-  .e-drawer--left[data-state="open"] {
-    animation-name: e-drawer-in-left;
+  .e-drawer--start[data-state="open"] {
+    animation-name: e-drawer-in-start;
   }
 
-  .e-drawer--left[data-state="closed"] {
-    animation-name: e-drawer-out-left;
+  .e-drawer--start[data-state="closed"] {
+    animation-name: e-drawer-out-start;
   }
 
   .e-drawer--bottom[data-state="open"] {
@@ -123,25 +135,25 @@ const open = defineModel<boolean>("open");
 
   @keyframes e-drawer-in {
     from {
-      transform: translateX(100%);
+      transform: translateX(calc(100% * var(--_slide)));
     }
   }
 
   @keyframes e-drawer-out {
     to {
-      transform: translateX(100%);
+      transform: translateX(calc(100% * var(--_slide)));
     }
   }
 
-  @keyframes e-drawer-in-left {
+  @keyframes e-drawer-in-start {
     from {
-      transform: translateX(-100%);
+      transform: translateX(calc(-100% * var(--_slide)));
     }
   }
 
-  @keyframes e-drawer-out-left {
+  @keyframes e-drawer-out-start {
     to {
-      transform: translateX(-100%);
+      transform: translateX(calc(-100% * var(--_slide)));
     }
   }
 
@@ -152,13 +164,12 @@ const open = defineModel<boolean>("open");
   }
 
   .e-drawer .e-dialog-foot {
-    margin-top: auto;
+    margin-block-start: auto;
   }
 
   .e-drawer--inline,
   .e-drawer--inline[data-state] {
     animation: none;
-    transition: none;
     position: static;
     width: 100%;
     max-width: 28rem;
@@ -177,13 +188,6 @@ const open = defineModel<boolean>("open");
   .e-drawer-body:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: calc(-1 * var(--e-stroke-focus));
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-drawer {
-      animation: none;
-      transition: none;
-    }
   }
 }
 </style>

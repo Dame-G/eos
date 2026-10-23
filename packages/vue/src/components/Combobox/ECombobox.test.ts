@@ -179,7 +179,9 @@ describe("ECombobox", () => {
     await box("Practitioner").fill("zzz");
     await expect.poll(() => document.querySelector(".e-opt-status")?.textContent?.trim()).toBe("No matches");
     expect(optionEls().filter((o) => !o.classList.contains("e-opt-status")).length).toBe(0);
-    expect(document.querySelector(".e-opt-status")!.getAttribute("aria-disabled")).toBe("true");
+    // Announced once, by the live region: the visible row is hidden from assistive technology.
+    expect(document.querySelector(".e-opt-status")!.getAttribute("aria-hidden")).toBe("true");
+    expect(document.querySelectorAll("[role=option]").length).toBe(0);
     expect(document.querySelector("[role=status].e-sr")!.textContent).toBe("No matches");
     await (rerender as (p: Record<string, unknown>) => Promise<void>)({
       label: "Practitioner",
@@ -187,6 +189,33 @@ describe("ECombobox", () => {
       emptyText: "Nobody by that name",
     });
     await expect.poll(() => document.querySelector(".e-opt-status")?.textContent?.trim()).toBe("Nobody by that name");
+  });
+
+  test("matching ignores accents and case, and marks the match in the original text", async () => {
+    await render(ECombobox, { props: { label: "City", options: ["Zürich", "Zagreb", "Café du Monde"] } });
+    await box("City").fill("ZURI");
+    await expect.poll(() => optionEls().map((o) => o.textContent?.trim())).toEqual(["Zürich"]);
+    expect(document.querySelector("[role=option] mark")!.textContent).toBe("Züri");
+    await box("City").fill("cafe");
+    await expect.poll(() => optionEls().map((o) => o.textContent?.trim())).toEqual(["Café du Monde"]);
+  });
+
+  test("readonly keeps the value, stays focusable, never opens and offers no edit buttons", async () => {
+    const { container } = await render(ECombobox, {
+      props: { label: "Practitioner", options: PEOPLE, modelValue: "Marcus Webb", readonly: true, name: "who" },
+    });
+    const input = inputOf(container);
+    expect(input.readOnly).toBe(true);
+    expect(input.value).toBe("Marcus Webb");
+    expect(container.querySelector("input[type=hidden]")!.getAttribute("value")).toBe("Marcus Webb");
+    expect(container.querySelector(".e-combo-btn")).toBeNull();
+    await userEvent.tab();
+    expect(document.activeElement).toBe(input);
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("zz");
+    expect(input.getAttribute("aria-expanded")).toBe("false");
+    expect(listbox()).toBeNull();
+    expect(input.value).toBe("Marcus Webb");
   });
 
   test("loading shows a Searching spinner in the list; inputChange lets a server answer", async () => {

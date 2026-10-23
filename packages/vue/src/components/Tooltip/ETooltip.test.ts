@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { h } from "vue";
+import { defineComponent, h } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ETooltip from "./ETooltip.vue";
@@ -50,6 +50,7 @@ describe("ETooltip", () => {
   });
 
   test("shows on hover after a short delay, and hides when the pointer leaves", async () => {
+    await wait(350); // a tooltip that closed a moment ago would let this one skip its delay
     await mount();
     const button = page.getByRole("button", { name: "Download" });
     await button.hover();
@@ -105,6 +106,69 @@ describe("ETooltip", () => {
     expect(bubble()!.dataset["test"]).toBe("x");
     await userEvent.keyboard("{Escape}");
     target.remove();
+  });
+
+  test("side puts the bubble on that edge of the control", async () => {
+    const places: Record<string, (b: DOMRect, c: DOMRect) => boolean> = {
+      bottom: (b, c) => b.top >= c.bottom - 1,
+      top: (b, c) => b.bottom <= c.top + 1,
+      end: (b, c) => b.left >= c.right - 1,
+      start: (b, c) => b.right <= c.left + 1,
+    };
+    for (const side of Object.keys(places) as (keyof typeof places)[]) {
+      const { container, unmount } = await render(
+        defineComponent({
+          render: () =>
+            h("div", { style: { padding: "160px 300px" } }, [
+              h(ETooltip, { label: "Side", side: side as "top" }, () =>
+                h(EIconButton, { icon: "download", label: "Download" }),
+              ),
+            ]),
+        }),
+      );
+      await userEvent.tab();
+      await expect.poll(() => bubble()).not.toBeNull();
+      expect(
+        places[side]!(bubble()!.getBoundingClientRect(), container.querySelector("button")!.getBoundingClientRect()),
+      ).toBe(true);
+      await userEvent.keyboard("{Escape}");
+      await expect.poll(() => bubble()).toBeNull();
+      unmount();
+    }
+  });
+
+  test("after one tooltip closes the next opens without waiting out the delay", async () => {
+    await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(ETooltip, { label: "First", delay: 600 }, () => h(EIconButton, { icon: "download", label: "One" })),
+            h(ETooltip, { label: "Second", delay: 600 }, () => h(EIconButton, { icon: "download", label: "Two" })),
+          ]),
+      }),
+    );
+    const one = page.getByRole("button", { name: "One" });
+    const two = page.getByRole("button", { name: "Two" });
+    await one.hover();
+    await expect.poll(() => bubble()?.textContent?.trim(), { timeout: 3000 }).toContain("First");
+    await userEvent.unhover(one);
+    await two.hover();
+    const started = Date.now();
+    await expect
+      .poll(() => [...document.querySelectorAll(".e-tip-bubble")].some((b) => b.textContent?.includes("Second")))
+      .toBe(true);
+    expect(Date.now() - started).toBeLessThan(500);
+  });
+
+  test("unmounting while a finger is held leaves no timer behind", async () => {
+    const { container, unmount } = await mount();
+    const button = container.querySelector("button")!;
+    button.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" }));
+    await expect.poll(() => bubble()).not.toBeNull();
+    button.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, pointerType: "touch" }));
+    unmount();
+    await wait(1700);
+    expect(bubble()).toBeNull();
   });
 
   test("axe: closed and open", async () => {

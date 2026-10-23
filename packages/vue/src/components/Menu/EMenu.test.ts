@@ -224,4 +224,37 @@ describe("EMenu", () => {
     await expect.poll(() => menu()).not.toBeNull();
     expect(rows().length).toBe(4);
   });
+
+  test("attributes land on a custom trigger too", async () => {
+    await render(EMenu, {
+      props: { label: "Account", items: ITEMS },
+      attrs: { "data-test": "x" },
+      slots: { trigger: () => h("button", { type: "button", "aria-label": "Account menu" }, "A") },
+    });
+    expect(page.getByRole("button", { name: "Account menu" }).element().dataset["test"]).toBe("x");
+  });
+
+  test("item onClick runs before the select event", async () => {
+    const order: string[] = [];
+    const { container } = await render(EMenu, {
+      props: {
+        label: "More",
+        items: [{ label: "Edit", onClick: () => order.push("click") }],
+        onSelect: () => order.push("select"),
+      },
+    });
+    await triggerOf(container).click();
+    await page.getByRole("menuitem", { name: "Edit" }).click();
+    expect(order).toEqual(["click", "select"]);
+  });
+
+  test("side top opens the menu above the trigger", async () => {
+    const { container } = await mount({ side: "top" });
+    container.style.marginTop = "20rem";
+    await triggerOf(container).click();
+    await expect.poll(() => menu()).not.toBeNull();
+    await expect
+      .poll(() => menu()!.getBoundingClientRect().bottom <= triggerOf(container).getBoundingClientRect().top + 1)
+      .toBe(true);
+  });
 });

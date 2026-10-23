@@ -23,8 +23,13 @@ const props = defineProps<{
 }>();
 
 defineSlots<{
-  /** The control. It must carry `id`, `aria-invalid` and `aria-describedby` from the slot scope. */
-  default(props: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }): unknown;
+  /** The control. It must carry `id`, `aria-invalid` and `aria-describedby` from the slot scope. `required` says whether to set the `required` attribute on it. */
+  default(props: {
+    id: string;
+    ariaInvalid: "true" | undefined;
+    ariaDescribedby: string | undefined;
+    required: boolean;
+  }): unknown;
 }>();
 
 const id = useUid(() => props.id);
@@ -37,7 +42,12 @@ const hintId = computed(() => `${id.value}-hint`);
       {{ label }}
       <EFieldFlag :required="required" :optional="optional" />
     </label>
-    <slot :id="id" :aria-invalid="error ? 'true' : undefined" :aria-describedby="error || hint ? hintId : undefined" />
+    <slot
+      :id="id"
+      :aria-invalid="error ? 'true' : undefined"
+      :aria-describedby="error || hint ? hintId : undefined"
+      :required="!!required"
+    />
     <EFieldMessage :id="hintId" :error="error" :hint="hint" />
   </div>
 </template>

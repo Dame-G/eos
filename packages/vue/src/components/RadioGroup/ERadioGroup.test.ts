@@ -115,7 +115,7 @@ describe("ERadioGroup", () => {
     });
     expect(bad.container.querySelector(".e-field-hint")).toBeNull();
     expect(bad.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
-    expect(bad.container.querySelector("fieldset")!.getAttribute("aria-invalid")).toBe("true");
+    expect(bad.container.querySelector("input")!.getAttribute("aria-invalid")).toBe("true");
   });
 
   test("Required and Optional show beside the legend; required reaches every radio", async () => {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h, ref } from "vue";
+import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ESearchResults from "./ESearchResults.vue";
@@ -112,6 +112,60 @@ describe("ESearchResults", () => {
     await userEvent.keyboard("{Enter}");
     links[0]!.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, ctrlKey: true }));
     expect(picked).toEqual(["Drawer", "Disclosure"]);
+  });
+
+  test("a result with nowhere to go is a button, never a link to #", async () => {
+    const picked: string[] = [];
+    const { container } = await render(ESearchResults, {
+      props: {
+        items: [{ label: "Run the tour" }, { label: "Docs", href: "/docs" }],
+        label: "Results",
+        onSelect: (item: { label: string }) => picked.push(item.label),
+      },
+    });
+    expect(container.querySelectorAll('a[href="#"]').length).toBe(0);
+    expect(container.querySelectorAll("button.e-opt").length).toBe(1);
+    expect(container.querySelectorAll("a.e-opt").length).toBe(1);
+    await page.getByRole("button", { name: "Run the tour" }).click();
+    expect(picked).toEqual(["Run the tour"]);
+  });
+
+  test("Home and End jump to the first and last result, and ArrowDown on the last emits exit-bottom", async () => {
+    let top = 0;
+    let bottom = 0;
+    let edge = 0;
+    const { container } = await render(ESearchResults, {
+      props: { items, label: "Results", onExitTop: () => top++, onExitBottom: () => bottom++, onEdge: () => edge++ },
+    });
+    const links = [...container.querySelectorAll<HTMLElement>("a")];
+    links[1]!.focus();
+    await userEvent.keyboard("{End}");
+    expect(document.activeElement).toBe(links[2]);
+    await userEvent.keyboard("{ArrowDown}");
+    expect(bottom).toBe(1);
+    expect(document.activeElement).toBe(links[2]);
+    await userEvent.keyboard("{Home}");
+    expect(document.activeElement).toBe(links[0]);
+    await userEvent.keyboard("{ArrowUp}");
+    expect([top, edge]).toEqual([1, 1]);
+  });
+
+  test("the empty message is announced when it appears", async () => {
+    await render(ESearchResults, { props: { items: [], label: "Results", emptyText: "Nothing found for tax." } });
+    await expect
+      .poll(() => document.querySelector("[data-e-announcer=polite]")?.textContent?.replace(/\u00a0/g, ""))
+      .toBe("Nothing found for tax.");
+  });
+
+  test("keys follow the result, so reordering keeps its element", async () => {
+    const list = ref([...items]);
+    const { container } = await render(
+      defineComponent({ render: () => h(ESearchResults, { items: list.value, label: "Results" }) }),
+    );
+    const first = container.querySelector("a")!;
+    list.value = [items[2]!, items[0]!, items[1]!];
+    await nextTick();
+    expect([...container.querySelectorAll("a")].find((a) => a === first)).toBeDefined();
   });
 
   test("linkComponent renders router links from `to`", async () => {

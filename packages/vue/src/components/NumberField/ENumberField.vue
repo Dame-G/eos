@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EField from "../Field/EField.vue";
+import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
 import { useLocale } from "../../composables/useLocale.js";
 import { focusInside } from "../../composables/focusInside.js";
@@ -11,38 +12,28 @@ import "../TextField/input.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<{
-  /** The visible label above the field. */
-  label: string;
-  /** Hides the label from the page and keeps it for screen readers. */
-  hideLabel?: boolean;
-  /** The lowest value. The value clamps to it and the decrease button disables there. */
-  min?: number;
-  /** The highest value. The value clamps to it and the increase button disables there. */
-  max?: number;
-  /** The amount one step of the buttons and arrow keys changes the value. Decimals shown follow the step (`0.25` shows two). @default 1 */
-  step?: number;
-  /** A unit before the value. */
-  prefix?: string;
-  /** A unit after the value, such as visits. */
-  suffix?: string;
-  /** The name submitted with a form (the number, or empty). */
-  name?: string;
-  /** Help that stays under the field. */
-  hint?: string;
-  /** What to fix. Replaces the hint, marks the field invalid and is announced. */
-  error?: string;
-  /** Sets the `required` attribute and shows "Required" beside the label. */
-  required?: boolean;
-  /** Shows "Optional" beside the label. Only the rarer of required and optional needs a flag. */
-  optional?: boolean;
-  /** Disables the input and both buttons. */
-  disabled?: boolean;
-  /** Shows the value but blocks editing. The input stays focusable and selectable. Both buttons and the keys that change the value do nothing. */
-  readonly?: boolean;
-  /** The id of the input. The label points at it. @default generated */
-  id?: string;
-}>();
+const props = defineProps<
+  EFieldCommonProps & {
+    /** The visible label above the field. */
+    label: string;
+    /** The lowest value. The value clamps to it and the decrease button dims there (it stays focusable). */
+    min?: number;
+    /** The highest value. The value clamps to it and the increase button dims there (it stays focusable). */
+    max?: number;
+    /** The amount one step of the buttons and arrow keys changes the value. Decimals shown follow the step (`0.25` shows two). @default 1 */
+    step?: number;
+    /** A unit before the value. Read with the value by screen readers. */
+    prefix?: string;
+    /** A unit after the value, such as visits. Read with the value by screen readers. */
+    suffix?: string;
+    /** The name submitted with a form (the number, or empty). */
+    name?: string;
+    /** Disables the input and both buttons. */
+    disabled?: boolean;
+    /** Shows the value but blocks editing. The input stays focusable and selectable. Both buttons and the keys that change the value do nothing. */
+    readonly?: boolean;
+  }
+>();
 
 /** The number, or `null` when empty. */
 const model = defineModel<number | null>({ default: null });
@@ -67,8 +58,20 @@ const separators = computed(() => {
     return { decimal: ".", group: "," };
   }
 });
-const format = (n: number | null | undefined) =>
-  n == null ? "" : Number(n).toFixed(decimals.value).replace(".", separators.value.decimal);
+/** Shows every decimal the number has, and at least as many as the step. Groups thousands in the configured locale. */
+function format(n: number | null | undefined): string {
+  if (n == null) return "";
+  const own = (String(n).split(".")[1] || "").length;
+  const digits = Math.max(decimals.value, Math.min(own, 10));
+  try {
+    return new Intl.NumberFormat(loc.locale.value, {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    }).format(n);
+  } catch {
+    return n.toFixed(digits);
+  }
+}
 /**
  * Reads typed text with the locale's separators. Spaces and the group separator are dropped. A `.` reads as the
  * decimal point unless the locale uses it for grouping (German, Spanish), where `1.5` means 15.
@@ -81,7 +84,12 @@ function parse(raw: string): number {
   return /^-?(\d+\.?\d*|\.\d+)$/.test(s) ? parseFloat(s) : NaN;
 }
 const text = ref(format(model.value));
-watch([model, separators], () => (text.value = format(model.value)));
+// A number that came from the text being typed must not rewrite that text (typing "1." must stay "1.").
+watch([model, separators], () => {
+  if (model.value != null && parse(text.value) === model.value) return;
+  if (model.value == null && text.value === "") return;
+  text.value = format(model.value);
+});
 
 const num = computed(() => (model.value == null ? undefined : Number(model.value)));
 
@@ -95,10 +103,24 @@ function set(n: number) {
   model.value = n;
   text.value = format(n);
 }
+const atMin = computed(() => props.min != null && num.value != null && num.value <= props.min);
+const atMax = computed(() => props.max != null && num.value != null && num.value >= props.max);
+
 function bump(dir: 1 | -1, mult = 1) {
-  if (props.readonly) return;
+  if (props.readonly || props.disabled) return;
   const base = num.value == null ? (props.min != null ? props.min - stepBy.value * (dir > 0 ? 1 : 0) : 0) : num.value;
   set(Math.round((base + dir * stepBy.value * mult) * 1e6) / 1e6);
+}
+/** Emits as soon as the text reads as a number inside the range, so a form sees the value without a blur. */
+function onInput(e: Event) {
+  text.value = (e.target as HTMLInputElement).value;
+  if (props.readonly) return;
+  if (text.value.trim() === "") {
+    model.value = null;
+    return;
+  }
+  const n = parse(text.value);
+  if (!isNaN(n) && n === clamp(n)) model.value = n;
 }
 function commit() {
   if (props.readonly) return;
@@ -131,6 +153,35 @@ function onKeydown(e: KeyboardEvent) {
   } else if (e.key === "Enter") commit();
 }
 
+/** Press and hold on a button repeats the step after a short pause. The click that follows a hold is swallowed. */
+let holdDelay: ReturnType<typeof setTimeout> | undefined;
+let holdTick: ReturnType<typeof setInterval> | undefined;
+let held = false;
+function startHold(dir: 1 | -1, e: PointerEvent) {
+  if (e.button !== 0 || props.readonly || props.disabled) return;
+  held = false;
+  stopHold();
+  holdDelay = setTimeout(() => {
+    held = true;
+    holdTick = setInterval(() => bump(dir), 70);
+  }, 450);
+}
+function stopHold() {
+  clearTimeout(holdDelay);
+  clearInterval(holdTick);
+  holdDelay = holdTick = undefined;
+  // The click after a hold fires right after pointerup; forget the hold once it has passed.
+  if (held) setTimeout(() => (held = false), 0);
+}
+function press(dir: 1 | -1) {
+  if (held) {
+    held = false;
+    return;
+  }
+  bump(dir);
+}
+onBeforeUnmount(stopHold);
+
 function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }) {
   return {
     id: field.id,
@@ -145,6 +196,10 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
     readonly: props.readonly,
     required: props.required,
     "aria-valuenow": num.value,
+    "aria-valuetext":
+      num.value != null && (props.prefix || props.suffix)
+        ? [props.prefix, text.value, props.suffix].filter(Boolean).join(" ")
+        : undefined,
     "aria-valuemin": props.min,
     "aria-valuemax": props.max,
     "aria-invalid": field.ariaInvalid,
@@ -183,26 +238,30 @@ defineExpose({
           type="button"
           class="e-numbtn"
           :aria-label="t('decrease')"
-          :disabled="disabled || readonly || (min != null && num != null && num <= min)"
-          @click="bump(-1)"
+          :disabled="disabled || readonly"
+          :aria-disabled="atMin || undefined"
+          @pointerdown="startHold(-1, $event)"
+          @pointerup="stopHold"
+          @pointerleave="stopHold"
+          @pointercancel="stopHold"
+          @click="press(-1)"
         >
           <EIcon name="minus" bold />
         </button>
         <span v-if="prefix" class="e-affix e-affix--pre e-numfield-first" aria-hidden="true">{{ prefix }}</span>
-        <input
-          ref="input"
-          v-bind="inputBind(field)"
-          @input="text = ($event.target as HTMLInputElement).value"
-          @blur="commit"
-          @keydown="onKeydown"
-        />
+        <input ref="input" v-bind="inputBind(field)" @input="onInput" @blur="commit" @keydown="onKeydown" />
         <span v-if="suffix" class="e-affix e-affix--post e-numfield-last" aria-hidden="true">{{ suffix }}</span>
         <button
           type="button"
           class="e-numbtn"
           :aria-label="t('increase')"
-          :disabled="disabled || readonly || (max != null && num != null && num >= max)"
-          @click="bump(1)"
+          :disabled="disabled || readonly"
+          :aria-disabled="atMax || undefined"
+          @pointerdown="startHold(1, $event)"
+          @pointerup="stopHold"
+          @pointerleave="stopHold"
+          @pointercancel="stopHold"
+          @click="press(1)"
         >
           <EIcon name="plus" bold />
         </button>
@@ -221,7 +280,7 @@ defineExpose({
 
   .e-numfield .e-numinput {
     text-align: center;
-    font: 500 var(--e-text-md)/1 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-md)/1 var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     height: auto;
     padding-inline: var(--e-space-2);
@@ -252,11 +311,11 @@ defineExpose({
     border-end-end-radius: var(--e-radius-md);
   }
 
-  .e-numbtn:hover:not(:disabled) {
+  .e-numbtn:hover:not(:disabled, [aria-disabled="true"]) {
     background: var(--e-wash-hover);
   }
 
-  .e-numbtn:active:not(:disabled) {
+  .e-numbtn:active:not(:disabled, [aria-disabled="true"]) {
     background: var(--e-wash-press);
   }
 
@@ -265,8 +324,9 @@ defineExpose({
     outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
-  .e-numbtn:disabled {
-    color: var(--e-muted);
+  .e-numbtn:disabled,
+  .e-numbtn[aria-disabled="true"] {
+    color: var(--e-disabled-ink);
     cursor: not-allowed;
     background: transparent;
   }
@@ -316,12 +376,6 @@ defineExpose({
 
     .e-numfield--affix .e-numfield-last {
       margin-inline-end: 0;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-numbtn {
-      transition: none;
     }
   }
 }

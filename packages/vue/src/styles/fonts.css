@@ -1,1 +1,33 @@
+/*
+ * Demo fonts, opt-in: import `@eos-ui/vue/fonts.css` only to try the library with its intended typefaces.
+ *
+ * The @import below is render-blocking and sends every visitor's IP address to Google Fonts. Production apps should
+ * self-host instead: download Bricolage Grotesque (400, 500, 600, variable optical size) and Geist Mono (500, 600) as
+ * woff2, serve them from your own origin with `@font-face { font-display: swap; }`, and drop this file. That also lets
+ * a strict CSP keep `style-src` and `font-src` to 'self'. Keep the two `* Fallback` faces below: they are what the
+ * browser shows while the real font loads, scaled to the real font's metrics so the swap moves almost nothing.
+ *
+ * Metrics are from @capsizecss/metrics: Bricolage Grotesque (ascent 930, descent 270, xWidthAvg 470 of 1000) against
+ * Arial (xWidthAvg 913 of 2048), and Geist Mono (ascent 1005, descent 295, xWidthAvg 600 of 1000) against Courier New
+ * (xWidthAvg 1229 of 2048). The default `--e-font-sans` and `--e-font-mono` stacks list the fallbacks right after the
+ * real family, so they cost nothing when this file is not loaded.
+ */
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600&family=Geist+Mono:wght@500;600&display=swap");
+
+@font-face {
+  font-family: "Bricolage Grotesque Fallback";
+  src: local("Arial"), local("Helvetica"), local("Liberation Sans");
+  size-adjust: 105.4%;
+  ascent-override: 88.2%;
+  descent-override: 25.6%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Geist Mono Fallback";
+  src: local("Courier New"), local("Courier"), local("Liberation Mono");
+  size-adjust: 100%;
+  ascent-override: 100.5%;
+  descent-override: 29.5%;
+  line-gap-override: 0%;
+}

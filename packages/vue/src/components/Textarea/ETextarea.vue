@@ -19,7 +19,7 @@ const props = withDefaults(
     error?: string;
     /** An example, never the label. */
     placeholder?: string;
-    /** Visible lines. */
+    /** Visible lines. The height follows it, down to one. */
     rows?: number;
     /** Sets the `required` attribute and adds a word beside the label. */
     required?: boolean;
@@ -81,8 +81,8 @@ defineExpose({
 <style>
 @layer e.controls {
   .e-textarea {
+    /* The height comes from `rows` (a line is 1.5 tall), so 2 rows is shorter than 4. */
     height: auto;
-    min-height: 6.5rem;
     padding: calc(var(--e-space-3) - var(--e-stroke-edge)) calc(var(--e-space-4) - var(--e-stroke-edge));
     line-height: 1.5;
     resize: vertical;

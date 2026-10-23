@@ -1,24 +1,54 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import EButton from "../Button/EButton.vue";
 import EIcon from "../Icon/EIcon.vue";
 import { useMessages } from "../../config.js";
+import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
-  /** How many pages there are. */
+  /** How many pages there are. With 0 there is nothing to page and both steps dim. */
   pageCount: number;
+  /** Makes each page, Previous and Next a link to this address, for pages the server renders. The current page still updates `v-model`. */
+  href?: (page: number) => string;
+  /** Names the navigation. Give each pager on a page its own name. @default "Pagination" */
+  label?: string;
 }>();
 
-/** The current page, from 1. */
+/** The current page, from 1. A value outside 1 to `pageCount` is moved to the nearest page. */
 const page = defineModel<number>({ default: 1 });
 
 const t = useMessages();
+const { announce } = useAnnouncer();
+
+const count = computed(() => Math.max(0, Math.floor(props.pageCount) || 0));
+const current = computed(() => Math.min(Math.max(1, Math.floor(page.value) || 1), Math.max(count.value, 1)));
+
+watch(
+  [current, page],
+  () => {
+    if (page.value !== current.value) page.value = current.value;
+  },
+  { immediate: true },
+);
+
+watch(current, (n) => {
+  if (count.value) announce(t("pageOf", { n, total: count.value }));
+});
+
+const atStart = computed(() => current.value <= 1);
+const atEnd = computed(() => current.value >= count.value);
+
+/** A dimmed step stays focusable (`aria-disabled`), so pressing it on the last page does not drop focus to the page. */
+function go(n: number) {
+  if (n < 1 || n > count.value) return;
+  page.value = n;
+}
 
 const items = computed<(number | "gap")[]>(() => {
   const list: (number | "gap")[] = [];
-  for (let i = 1; i <= props.pageCount; i++) {
-    if (i === 1 || i === props.pageCount || Math.abs(i - page.value) <= 1) list.push(i);
+  for (let i = 1; i <= count.value; i++) {
+    if (i === 1 || i === count.value || Math.abs(i - current.value) <= 1) list.push(i);
     else if (list[list.length - 1] !== "gap") list.push("gap");
   }
   return list.map((n, k) => {
@@ -32,26 +62,41 @@ const items = computed<(number | "gap")[]>(() => {
 </script>
 
 <template>
-  <nav class="e-pager" :aria-label="t('pagination')">
-    <EButton variant="outline" icon="chevron-left" :disabled="page <= 1" @click="page = page - 1">
+  <nav class="e-pager" :aria-label="label ?? t('pagination')">
+    <EButton
+      variant="outline"
+      icon="chevron-left"
+      :href="href && !atStart ? href(current - 1) : undefined"
+      :aria-disabled="atStart ? 'true' : undefined"
+      @click="go(current - 1)"
+    >
       {{ t("previous") }}
     </EButton>
     <ul class="e-pages">
       <li v-for="(n, i) in items" :key="i">
         <span v-if="n === 'gap'" class="e-page-gap" aria-hidden="true">&hellip;</span>
-        <button
+        <component
+          :is="href ? 'a' : 'button'"
           v-else
-          type="button"
+          :type="href ? undefined : 'button'"
+          :href="href ? href(n) : undefined"
           class="e-page"
-          :aria-current="n === page ? 'page' : undefined"
+          :aria-current="n === current ? 'page' : undefined"
           :aria-label="t('pageN', { n })"
-          @click="page = n"
+          @click="go(n)"
         >
           {{ n }}
-        </button>
+        </component>
       </li>
     </ul>
-    <EButton variant="outline" :disabled="page >= pageCount" @click="page = page + 1">
+    <!-- Shown in place of the page list when the pager is narrow. -->
+    <p v-if="count" class="e-pager-status">{{ t("pageOf", { n: current, total: count }) }}</p>
+    <EButton
+      variant="outline"
+      :href="href && !atEnd ? href(current + 1) : undefined"
+      :aria-disabled="atEnd ? 'true' : undefined"
+      @click="go(current + 1)"
+    >
       {{ t("next") }}
       <EIcon name="chevron-right" />
     </EButton>
@@ -66,15 +111,24 @@ const items = computed<(number | "gap")[]>(() => {
     align-items: center;
     justify-content: center;
     gap: var(--e-space-3);
+    container-type: inline-size;
   }
 
   .e-pages {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--e-space-1);
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  .e-pager-status {
+    display: none;
+    margin: 0;
+    font: var(--e-weight-medium) var(--e-text-sm) / 1.2 var(--e-font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--e-muted);
   }
 
   .e-page {
@@ -82,34 +136,46 @@ const items = computed<(number | "gap")[]>(() => {
     place-items: center;
     min-width: var(--e-control-height);
     height: var(--e-control-height);
-    padding: 0 var(--e-space-2);
+    padding-block: 0;
+    padding-inline: var(--e-space-2);
     border: 0;
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
-    font: 500 var(--e-text-sm)/1 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-sm) / 1 var(--e-font-mono);
     font-variant-numeric: tabular-nums;
+    text-decoration: none;
     cursor: pointer;
     transition:
       background-color var(--e-duration-tap) var(--e-easing-out),
       box-shadow var(--e-duration-tap) var(--e-easing-out);
   }
 
+  /* The shared recipe: hover washes, press sinks. */
   .e-page:hover {
-    background: var(--e-surface-hover);
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
+    background: var(--e-wash-hover);
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-wash-ring);
+  }
+
+  .e-page:active {
+    background: var(--e-wash-press);
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ink);
   }
 
   .e-page:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-focus-gap);
+    outline-offset: var(--e-stroke-focus);
   }
 
-  .e-page[aria-current="page"] {
+  /* The current page is a slab: a face shorter by the depth, on an offset edge. */
+  .e-page[aria-current="page"],
+  .e-page[aria-current="page"]:hover,
+  .e-page[aria-current="page"]:active {
+    height: calc(var(--e-control-height) - var(--e-depth));
     background: var(--e-primary);
-    box-shadow: none;
+    box-shadow: 0 var(--e-depth) 0 0 var(--e-primary-slab);
     color: var(--e-on-primary);
-    font-weight: 600;
+    font-weight: var(--e-weight-strong);
     cursor: default;
   }
 
@@ -117,22 +183,17 @@ const items = computed<(number | "gap")[]>(() => {
     display: inline-grid;
     place-items: center;
     min-width: calc(var(--e-space-6) + var(--e-space-1));
+    height: var(--e-control-height);
     color: var(--e-muted);
   }
 
-  @media (max-width: 32rem) {
+  @container (max-width: 26rem) {
     .e-pages {
       display: none;
     }
 
-    .e-pager {
-      justify-content: space-between;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-page {
-      transition: none;
+    .e-pager-status {
+      display: block;
     }
   }
 

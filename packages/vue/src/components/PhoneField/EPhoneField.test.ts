@@ -50,6 +50,41 @@ describe("EPhoneField", () => {
     expect(container.querySelector("input")!.value).toBe("(555) 123-4567");
   });
 
+  test("editing in the middle keeps the caret next to the digit just typed", async () => {
+    const { container } = await render(EPhoneField, { props: { label: "Mobile" } });
+    const input = container.querySelector("input")!;
+    await page.getByRole("textbox", { name: "Mobile" }).fill("5551234567");
+    input.focus();
+    input.setSelectionRange(4, 4);
+    await userEvent.keyboard("9");
+    expect(input.value).toBe("(555) 912-3456");
+    expect(input.selectionStart).toBe(7);
+  });
+
+  test("a leading 1 is dropped as soon as it is typed, so the text never shifts later", async () => {
+    const { container } = await render(EPhoneField, { props: { label: "Mobile" } });
+    await userEvent.tab();
+    await userEvent.keyboard("15");
+    expect(container.querySelector("input")!.value).toBe("5");
+    await userEvent.keyboard("551234567");
+    expect(container.querySelector("input")!.value).toBe("(555) 123-4567");
+  });
+
+  test("format e164 keeps a plus and up to 15 digits", async () => {
+    const { container } = await render(EPhoneField, { props: { label: "Mobile", format: "e164" } });
+    await page.getByRole("textbox", { name: "Mobile" }).fill("+44 20 7946 0958");
+    expect(container.querySelector("input")!.value).toBe("+442079460958");
+  });
+
+  test("readonly shows the number and blocks editing", async () => {
+    const { container } = await render(EPhoneField, {
+      props: { label: "Mobile", readonly: true, modelValue: "5551234567" },
+    });
+    const input = container.querySelector("input")!;
+    expect(input.readOnly).toBe(true);
+    expect(input.value).toBe("(555) 123-4567");
+  });
+
   test("format none leaves the text alone", async () => {
     const { container } = await render(EPhoneField, { props: { label: "Mobile", format: "none" } });
     await page.getByRole("textbox", { name: "Mobile" }).fill("+44 20 7946 0958");

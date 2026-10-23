@@ -3,6 +3,10 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Nightly: the same tests in Firefox and WebKit, which the pull request jobs skip to stay fast.
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -11,47 +15,112 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      CI: "true"
-    steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - run: pnpm --filter @eos-ui/vue exec playwright install --with-deps chromium
-      - run: pnpm lint
-      - run: pnpm format:check
-      - run: pnpm build
-      - run: pnpm knip
-      - run: pnpm check:package
-      - run: pnpm check:size
-      - run: pnpm typecheck
-      - run: pnpm --filter @eos-ui/vue check:css
-      - run: pnpm --filter @eos-ui/vue check:layers
-      - run: pnpm --filter @eos-ui/vue check:props
-      - run: pnpm --filter @eos-ui/vue check:docs
-      - run: pnpm test
+env:
+  CI: "true"
 
-  smoke:
+jobs:
+  # Lint, formatting, types and the source checks (CSS rules, layers, props tables, README links).
+  static:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm typecheck
+      # After typecheck: the vue typecheck builds the tokens package, which the checks import.
+      - run: pnpm check
+
+  # Builds once. The package job downloads the result instead of building again.
+  build:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm build
+      - uses: actions/upload-artifact@v4
         with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+          name: dist
+          path: |
+            packages/tokens/dist
+            packages/vue/dist
+          if-no-files-found: error
+          retention-days: 3
+
+  # What gets published: exports and types, size budgets, the built stylesheet, unused code.
+  package:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: packages
+      - run: pnpm check:built
+      - run: pnpm knip
+
+  # Real-browser tests on the supported Node versions (Node runs the test runner, the build and the plugin code).
+  test:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-chromium-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: pnpm --filter @eos-ui/vue exec playwright install --with-deps chromium
+      - run: pnpm test
+
+  smoke:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
       - run: pnpm smoke
+
+  # A change under packages/ needs a changeset, unless the pull request carries the `no-changeset` label (docs wording, tests, internal refactors).
+  changeset:
+    if: >-
+      github.event_name == 'pull_request' &&
+      !contains(github.event.pull_request.labels.*.name, 'no-changeset') &&
+      github.head_ref != 'changeset-release/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - run: pnpm changeset status --since=origin/${{ github.base_ref }}
+
+  # Nightly and on demand. Never blocks a pull request: engines differ in small ways, and a failure here is read, not gated.
+  browsers:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    env:
+      EOS_BROWSERS: chromium,firefox,webkit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm --filter @eos-ui/vue exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test

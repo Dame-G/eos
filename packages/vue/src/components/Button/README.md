@@ -38,3 +38,15 @@ A button for an action: one `primary` per screen, the other variants rank below 
 
 - The label is the accessible name, and the icon is hidden. For an icon alone use `EIconButton`.
 - For repeated labels (several "Download" buttons), add hidden text with `EVisuallyHidden`.
+
+## Keyboard
+
+| Key   | Action                                                                                  |
+| ----- | --------------------------------------------------------------------------------------- |
+| Enter | Presses a button or follows a link.                                                     |
+| Space | Presses a button. A link (`href`) does not activate on Space, like a native link.       |
+| Tab   | Moves focus to the button. A disabled button is skipped, a loading one stays focusable. |
+
+## Related
+
+[`EIconButton`](../IconButton/README.md) when the button is only an icon, [`ELink`](../Link/README.md) for a link inside text, [`EActions`](../Actions/README.md) to group several.

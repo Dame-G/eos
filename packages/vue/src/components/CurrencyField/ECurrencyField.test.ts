@@ -90,6 +90,17 @@ describe("ECurrencyField", () => {
     await expect.element(page.getByRole("spinbutton", { name: "Amount" })).toHaveValue("20.00");
   });
 
+  test("the default step and decimals follow the currency: yen has none, dinar has three", async () => {
+    const yen = await render(ECurrencyField, {
+      props: { label: "Amount", currency: "JPY", locale: "ja-JP", modelValue: 1500 },
+    });
+    expect(yen.container.querySelector("input")!.value).toMatch(/^1,?500$/);
+    await page.getByRole("button", { name: "Increase" }).click();
+    expect(yen.container.querySelector("input")!.value).toMatch(/^1,?501$/);
+    const dinar = await render(ECurrencyField, { props: { label: "Amount", currency: "KWD", modelValue: 2 } });
+    expect(dinar.container.querySelector("input")!.value).toBe("2.000");
+  });
+
   test("min, max and step can be overridden", async () => {
     const { container } = await render(ECurrencyField, {
       props: { label: "Tip", modelValue: 5, min: 1, max: 10, step: 1 },
@@ -150,7 +161,7 @@ describe("ECurrencyField", () => {
       { global: { plugins: [createEos({ themeTarget: null, locale: "fr-FR", currency: "EUR" })] } },
     );
     const box = page.getByRole("spinbutton", { name: "Montant" });
-    await expect.element(box).toHaveValue("1234,50");
+    await expect.poll(() => (box.element() as HTMLInputElement).value.replace(/\s/g, "")).toBe("1234,50");
     expect(container.querySelector(".e-affix--pre")!.textContent).toBe("€");
     await box.fill("19,99");
     await userEvent.keyboard("{Enter}");

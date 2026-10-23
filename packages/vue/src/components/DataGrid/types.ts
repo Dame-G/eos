@@ -11,6 +11,9 @@ export type DataGridFilter =
 /** What a filter holds: text for `text` and `select`, `{ min, max }` (strings, either may be empty) for `number`. */
 export type DataGridFilterValue = string | { min: string; max: string };
 
+/** How a column writes its values: a preset, or a function from the value to the text shown. */
+export type DataGridFormat<Row = DataGridRow> = "number" | "currency" | "date" | ((value: unknown, row: Row) => string);
+
 /** One column of a DataGrid. */
 export interface DataGridColumn<Row = DataGridRow> {
   /** Identifies the column. The default cell shows `row[key]`. */
@@ -27,8 +30,12 @@ export interface DataGridColumn<Row = DataGridRow> {
   width?: number | string;
   /** The least width, in pixels, the column can be dragged to. Default 72. */
   minWidth?: number;
+  /** The most width, in pixels, the column can be dragged to. Default 960. */
+  maxWidth?: number;
   /** `false` excludes the column from resizing. */
   resizable?: boolean;
+  /** How the default cell writes its value, in the configured locale: `"number"`, `"currency"` (the configured currency), `"date"`, or a function. Left out, a `Date` shows as a date and a number in a `numeric` column as a number; anything else shows as it is. A cell slot overrides it. */
+  format?: DataGridFormat<Row>;
   /** What the column sorts, filters and searches on, when it is not `row[key]` (a cell that shows a node, a date). */
   value?: (row: Row) => string | number | Date | null | undefined;
   /** A filter in the filter row (shown when the grid is `filterable`). */

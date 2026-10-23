@@ -23,11 +23,40 @@ function draw(cv: HTMLCanvasElement) {
   ev("pointerup", 110, 40);
 }
 
+function inkBounds(cv: HTMLCanvasElement) {
+  const data = cv.getContext("2d")!.getImageData(0, 0, cv.width, cv.height).data;
+  let max = 0;
+  let min = cv.width;
+  for (let y = 0; y < cv.height; y++) {
+    for (let x = 0; x < cv.width; x++) {
+      if (data[(y * cv.width + x) * 4 + 3]! > 0) {
+        min = Math.min(min, x);
+        max = Math.max(max, x);
+      }
+    }
+  }
+  return { min: min / cv.width, max: max / cv.width };
+}
+
+function inked(cv: HTMLCanvasElement) {
+  return inkBounds(cv).max > 0;
+}
+
+function dataUrl(): string {
+  const c = document.createElement("canvas");
+  c.width = 200;
+  c.height = 80;
+  const ctx = c.getContext("2d")!;
+  ctx.fillStyle = "black";
+  ctx.fillRect(20, 30, 160, 20);
+  return c.toDataURL("image/png");
+}
+
 describe("ESignaturePad", () => {
   test("is a labelled drawing area with a hint and a Clear button", async () => {
     const { container } = await render(ESignaturePad);
     const canvas = container.querySelector("canvas")!;
-    await expect.element(page.getByRole("img", { name: "Draw your signature" })).toBeVisible();
+    await expect.element(page.getByRole("group", { name: "Draw your signature" })).toBeVisible();
     const hint = container.querySelector(".e-field-hint")!;
     expect(canvas.getAttribute("aria-describedby")).toBe(hint.id);
     expect(hint.textContent).toContain("choose Type");
@@ -112,6 +141,51 @@ describe("ESignaturePad", () => {
     await nextTick();
     expect(container.querySelector(".e-pad-placeholder")).not.toBeNull();
     await expect.element(page.getByRole("button", { name: "Clear signature" })).toBeDisabled();
+  });
+
+  test("a data URL set through v-model is drawn on the pad, and the pad stops looking empty", async () => {
+    const { container } = await render(ESignaturePad, { props: { modelValue: dataUrl() } });
+    const cv = container.querySelector("canvas")!;
+    await expect.poll(() => inked(cv)).toBe(true);
+    expect(container.querySelector(".e-pad-placeholder")).toBeNull();
+    await expect.element(page.getByRole("button", { name: "Clear signature" })).not.toBeDisabled();
+  });
+
+  test("a data URL that arrives later is drawn too", async () => {
+    const model = ref("");
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(ESignaturePad, { modelValue: model.value, "onUpdate:modelValue": (v: string) => (model.value = v) }),
+      }),
+    );
+    const cv = container.querySelector("canvas")!;
+    expect(inked(cv)).toBe(false);
+    model.value = dataUrl();
+    await expect.poll(() => inked(cv)).toBe(true);
+  });
+
+  test("the strokes keep their place when the pad is resized", async () => {
+    const { container } = await render(
+      defineComponent({ render: () => h("div", { id: "box", style: { width: "400px" } }, [h(ESignaturePad)]) }),
+    );
+    const cv = container.querySelector("canvas")!;
+    draw(cv);
+    await nextTick();
+    const before = inkBounds(cv);
+    container.querySelector<HTMLElement>("#box")!.style.width = "200px";
+    await expect.poll(() => Math.round(cv.getBoundingClientRect().width)).toBeLessThan(250);
+    await expect.poll(() => inked(cv)).toBe(true);
+    const after = inkBounds(cv);
+    expect(Math.abs(after.max - before.max)).toBeLessThan(0.03);
+    expect(Math.abs(after.min - before.min)).toBeLessThan(0.03);
+  });
+
+  test("a drawing is a group while it can be drawn on and an image when disabled", async () => {
+    const live = await render(ESignaturePad);
+    expect(live.container.querySelector("canvas")!.getAttribute("role")).toBe("group");
+    const off = await render(ESignaturePad, { props: { disabled: true } });
+    expect(off.container.querySelector("canvas")!.getAttribute("role")).toBe("img");
   });
 
   test("disabled ignores drawing and disables Clear", async () => {

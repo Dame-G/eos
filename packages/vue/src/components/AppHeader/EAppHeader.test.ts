@@ -41,7 +41,7 @@ describe("EAppHeader", () => {
     expect(bar.height).toBeGreaterThanOrEqual(64);
   });
 
-  test("on a phone the navigation scrolls sideways instead of collapsing", async () => {
+  test("on a phone, navigation that cannot wrap scrolls sideways instead of collapsing", async () => {
     await page.viewport(320, 700);
     try {
       const { container } = await render(EAppHeader, {

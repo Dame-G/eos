@@ -11,9 +11,10 @@ A hairline between sections of a form or list, optionally with a centred label.
 
 <!-- props:start -->
 
-| Prop    | Type     | Default | Notes                                                                     |
-| ------- | -------- | ------- | ------------------------------------------------------------------------- |
-| `label` | `string` | None    | Text shown between two rules. Without it the divider is a plain hairline. |
+| Prop       | Type      | Default | Notes                                                                                                                                              |
+| ---------- | --------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `label`    | `string`  | None    | Text shown between two rules. Without it the divider is a plain hairline. It also names the separator for screen readers. Ignored when `vertical`. |
+| `vertical` | `boolean` | `false` | A vertical rule between items in a row. It stretches to the height of the row.                                                                     |
 
 <!-- props:end -->
 
@@ -21,4 +22,15 @@ A hairline between sections of a form or list, optionally with a centred label.
 
 ## Accessibility
 
-- Without a label it is an `hr`. With one it is a `div` with `role="separator"` and visible text.
+- Without a label it is an `hr`. With one it is a `div` with `role="separator"` named by the label, and the visible text is hidden from screen readers so it is not read twice.
+- `vertical` sets `aria-orientation="vertical"`.
+
+## Keyboard
+
+| Key | Action                      |
+| --- | --------------------------- |
+| Tab | A divider is not focusable. |
+
+## Related
+
+[`EStack`](../Stack/README.md) and [`EInline`](../Inline/README.md) space items without a rule.

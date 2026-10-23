@@ -37,7 +37,7 @@ const sizes = computed(() => [
   .e-text {
     margin: 0;
     max-width: var(--e-measure);
-    font: 400 var(--e-text-md) / 1.5 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.5 var(--e-font-sans);
     color: var(--e-ink);
     text-wrap: pretty;
   }

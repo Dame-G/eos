@@ -3,7 +3,7 @@
   .e-table {
     width: 100%;
     border-collapse: collapse;
-    font: 400 var(--e-text-md) / 1.4 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.4 var(--e-font-sans);
   }
 
   .e-table th {
@@ -15,7 +15,7 @@
     background: var(--e-surface-tint);
     text-align: start;
     white-space: nowrap;
-    font: 600 var(--e-text-xs) / 1.2 var(--e-font-mono);
+    font: var(--e-weight-strong) var(--e-text-xs) / 1.2 var(--e-font-mono);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--e-muted);
@@ -28,7 +28,7 @@
     border-bottom: 0;
     box-shadow: none;
     background: transparent;
-    font: 600 var(--e-text-md) / 1.4 var(--e-font-sans);
+    font: var(--e-weight-strong) var(--e-text-md) / 1.4 var(--e-font-sans);
     letter-spacing: normal;
     text-transform: none;
     color: var(--e-ink);

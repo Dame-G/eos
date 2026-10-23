@@ -41,6 +41,19 @@ describe("ECopyButton", () => {
     vi.unstubAllGlobals();
   });
 
+  test("shows a visible failure and announces it when nothing reaches the clipboard", async () => {
+    const writeText = vi.fn().mockRejectedValue(new Error("denied"));
+    vi.stubGlobal("navigator", { ...navigator, clipboard: { writeText } });
+    const exec = vi.spyOn(document, "execCommand").mockReturnValue(false);
+    const { emitted, container } = await render(ECopyButton, { props: { text: "x" } });
+    await page.getByRole("button", { name: "Copy" }).click();
+    expect(emitted().copy).toEqual([[false]]);
+    await expect.poll(() => container.querySelector(".e-copy--failed")).not.toBeNull();
+    await expect.poll(() => document.querySelector("[data-e-announcer=assertive]")?.textContent).toBe("Couldn't copy");
+    exec.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
   test("has no axe violations", async () => {
     const { container } = await render(ECopyButton, { props: { text: "x" } });
     await expectNoViolations(container);

@@ -10,13 +10,15 @@ export interface NavItem extends LinkItem {
   icon?: IconProp;
   /** A count of things waiting on the person (bills to pay, forms to sign). */
   count?: number;
+  /** What the count counts, as the phrase a screen reader reads after the label ("2 bills to pay"). Without it the number is read bare. */
+  countLabel?: string;
 }
 
 export type NavSection = LinkSection<NavItem>;
 
 const props = withDefaults(
   defineProps<{
-    /** The destinations, in order: `{ label, href?, to?, icon?, count?, current? }`. With no `href` or `to` a link goes to `#`. `current` marks the current page and is never set for you. */
+    /** The destinations, in order: `{ label, href?, to?, icon?, count?, countLabel?, current? }`. With no `href` or `to` the item is plain text, not a link. `current` marks the current page and is never set for you. */
     items?: NavItem[];
     /** Destinations in labelled groups, instead of `items`: `{ label?, items }`. A label is needed only when there is more than one section. */
     sections?: NavSection[];
@@ -46,7 +48,10 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     <template #item="{ item }">
       <EIcon v-if="item.icon" :name="item.icon" />
       <span class="e-nav-label">{{ item.label }}</span>
-      <span v-if="item.count != null" class="e-nav-count">{{ item.count }}</span>
+      <span v-if="item.count != null" class="e-nav-count" :aria-hidden="item.countLabel ? 'true' : undefined">{{
+        item.count
+      }}</span>
+      <span v-if="item.count != null && item.countLabel" class="e-sr">, {{ item.countLabel }}</span>
     </template>
   </LinkNav>
 </template>
@@ -70,7 +75,7 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     display: block;
     height: var(--e-stroke-hair);
     margin-block: var(--e-space-2);
-    background: color-mix(in srgb, var(--e-border) 60%, transparent);
+    background: var(--e-border);
   }
 
   .e-nav-item {
@@ -79,45 +84,46 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
     gap: var(--e-space-3);
     height: var(--e-control-height);
     box-sizing: border-box;
-    padding: 0 calc(var(--e-space-3) - var(--e-stroke-edge));
+    padding-block: 0;
+    padding-inline: calc(var(--e-space-3) - var(--e-stroke-edge));
 
-    --e-lift: 0px;
+    --_lift: 0px;
 
     /* The current page is outlined with a border and its fill stops inside it, so the corner carries the edge colour alone. The other items have no edge and fill to the box. */
     border: var(--e-stroke-edge) solid transparent;
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-lift));
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-radius: var(--e-radius-md);
     color: var(--e-ink);
-    font: 400 var(--e-text-md) / 1 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1 var(--e-font-sans);
     text-decoration: none;
     transition:
       background-color var(--e-duration-tap) var(--e-easing-out),
       border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  .e-nav-item:hover {
+  .e-nav-item:is(a, button):hover {
     background-color: var(--e-surface-hover);
+  }
+
+  .e-nav-item:is(a, button):active {
+    background-color: var(--e-surface-press);
   }
 
   .e-nav-item:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-focus-gap);
+    outline-offset: var(--e-stroke-focus);
   }
 
   .e-nav-item[aria-current="page"] {
-    background-color: color-mix(in srgb, var(--e-surface-tint), var(--e-ink) 3%);
-    font-weight: 600;
+    background-color: var(--e-surface-hover);
+    font-weight: var(--e-weight-strong);
 
-    --e-lift: var(--e-depth);
-    --e-slab: var(--e-primary);
+    --_lift: var(--e-depth);
+    --_slab: var(--e-primary-slab);
 
     border-color: var(--e-primary);
-    border-bottom-color: var(--e-slab);
+    border-bottom-color: var(--_slab);
     background-clip: padding-box;
-  }
-
-  .e-nav-item[aria-current="page"]:hover {
-    --e-slab: color-mix(in srgb, var(--e-primary), var(--e-shade-slab));
   }
 
   .e-nav-label {
@@ -147,9 +153,9 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
   .e-nav--horizontal li + li::before {
     content: "";
     width: var(--e-stroke-hair);
-    height: 1.75rem;
+    height: var(--e-icon-size-md);
     margin-inline: var(--e-space-2);
-    background: color-mix(in srgb, var(--e-border) 60%, transparent);
+    background: var(--e-border);
   }
 
   .e-nav--horizontal .e-nav-heading {
@@ -159,18 +165,14 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
 
   .e-nav-count {
     min-width: var(--e-space-6);
-    padding: 0 var(--e-space-2);
+    padding-block: 0;
+    padding-inline: var(--e-space-2);
     border-radius: var(--e-radius-pill);
-    background: color-mix(in srgb, var(--e-primary) 12%, var(--e-surface));
-    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-primary);
-    font: 600 var(--e-text-xs) / calc(5 / 3) var(--e-font-mono);
+    background: var(--e-primary-soft);
+    border: var(--e-stroke-hair) solid var(--e-primary);
+    background-clip: padding-box;
+    font: var(--e-weight-strong) var(--e-text-xs) / calc(5 / 3) var(--e-font-mono);
     text-align: center;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-nav-item {
-      transition: none;
-    }
   }
 
   @media (forced-colors: active) {

@@ -4,6 +4,7 @@ import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EDataGrid from "./EDataGrid.vue";
+import { createEos } from "../../plugin.js";
 import type { DataGridColumn, DataGridSort } from "./types.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
@@ -258,7 +259,7 @@ describe("EDataGrid", () => {
   });
 
   test("selection: v-model:selected, count with bulk actions, page select-all with a mixed state", async () => {
-    const selected = ref<string[]>(["2"]);
+    const selected = ref<(string | number)[]>([2]);
     const { container } = await render(
       defineComponent({
         render: () =>
@@ -270,7 +271,7 @@ describe("EDataGrid", () => {
               rows: ROWS,
               selectable: true,
               selected: selected.value,
-              "onUpdate:selected": (v: string[]) => (selected.value = v),
+              "onUpdate:selected": (v: (string | number)[]) => (selected.value = v),
             },
             { "bulk-actions": () => h("button", { type: "button" }, "Download") },
           ),
@@ -286,10 +287,10 @@ describe("EDataGrid", () => {
     expect(all.closest("label")!.textContent).toContain("Select all rows on this page");
     (rows[0]!.querySelector(".e-check") as HTMLInputElement).click();
     await wait(30);
-    expect(selected.value.sort()).toEqual(["1", "2"]);
+    expect(selected.value.sort()).toEqual([1, 2]);
     all.click();
     await wait(30);
-    expect(selected.value.sort()).toEqual(["1", "2", "3"]);
+    expect(selected.value.sort()).toEqual([1, 2, 3]);
     expect(all.checked).toBe(true);
     all.click();
     await wait(30);
@@ -339,7 +340,8 @@ describe("EDataGrid", () => {
     );
     expect(container.querySelector(".e-grid-range")!.textContent).toMatch(/^Showing 1\D+10 of 25$/);
     expect(bodyRows(container).length).toBe(10);
-    await page.getByRole("navigation", { name: "Pagination" }).getByRole("button", { name: "Page 3" }).click();
+    // The page list may be hidden when the pager is narrow, so press the button itself.
+    container.querySelector<HTMLElement>('.e-pager [aria-label="Page 3"]')!.click();
     await wait(30);
     expect(pageNo.value).toBe(3);
     expect(names(container)).toHaveLength(5);
@@ -369,7 +371,7 @@ describe("EDataGrid", () => {
     });
     expect(container.querySelectorAll("thead th").length).toBe(2);
     await page.getByRole("button", { name: "Choose columns" }).click();
-    await expect.element(page.getByRole("dialog", { name: "Show columns" })).toBeVisible();
+    await expect.element(page.getByRole("dialog", { name: "Choose columns" })).toBeVisible();
     await page.getByRole("checkbox", { name: "Amount" }).click();
     await expect.poll(() => container.querySelectorAll("thead th").length).toBe(1);
     expect(container.querySelectorAll("tbody tr:first-child td").length).toBe(1);
@@ -385,7 +387,7 @@ describe("EDataGrid", () => {
     });
     const sticky = [...container.querySelectorAll(".e-sticky")] as HTMLElement[];
     expect(sticky.length).toBe(4);
-    expect(sticky.every((c) => c.style.insetInlineStart === "52px")).toBe(true);
+    expect(sticky.every((c) => getComputedStyle(c).insetInlineStart === "52px")).toBe(true);
     expect(getComputedStyle(sticky[0]!).position).toBe("sticky");
     expect(container.querySelectorAll("tbody tr:first-child td")[1]!.classList.contains("e-sticky")).toBe(true);
   });
@@ -450,7 +452,8 @@ describe("EDataGrid", () => {
     window.dispatchEvent(new PointerEvent("pointermove", { clientX: x + 300 }));
     await wait(30);
     expect(colWidth()).toBe("100px");
-    expect(container.querySelector("table")!.style.tableLayout).toBe("fixed");
+    expect(container.querySelector("table")!.classList.contains("e-gridtable--fixed")).toBe(true);
+    expect(getComputedStyle(container.querySelector("table")!).tableLayout).toBe("fixed");
     expect(container.querySelector(".e-grid--cards")).toBeNull();
   });
 
@@ -619,13 +622,18 @@ describe("EDataGrid", () => {
     });
     expect(names(container)).toEqual(["Beta", "Alpha"]);
     expect(container.querySelector(".e-grid-range")!.textContent).toMatch(/^Showing 1\D+2 of 47$/);
-    await page.getByRole("navigation", { name: "Pagination" }).getByRole("button", { name: "Next" }).click();
-    await expect.poll(() => queries.length).toBe(1);
-    expect(queries[0]).toEqual({ sort: null, page: 2, pageSize: 2, search: "", filters: {} });
+    // The first fetch: manual grids report their starting query once, on mount.
+    expect(queries).toEqual([{ sort: null, page: 1, pageSize: 2, search: "", filters: {} }]);
+    await page
+      .getByRole("navigation", { name: /^Pagination/ })
+      .getByRole("button", { name: "Next" })
+      .click();
+    await expect.poll(() => queries.length).toBe(2);
+    expect(queries[1]).toEqual({ sort: null, page: 2, pageSize: 2, search: "", filters: {} });
     expect(names(container)).toEqual(["Beta", "Alpha"]);
     (container.querySelectorAll("th")[1]!.querySelector("button") as HTMLButtonElement).click();
-    await expect.poll(() => queries.length).toBe(2);
-    expect(queries[1]).toMatchObject({ sort: { key: "a", dir: "asc" }, page: 1 });
+    await expect.poll(() => queries.length).toBe(3);
+    expect(queries[2]).toMatchObject({ sort: { key: "a", dir: "asc" }, page: 1 });
     await typeInto(input(container.querySelector(".e-grid-search input")), "x");
     expect(queries.at(-1)).toMatchObject({ search: "x", page: 1 });
     expect(names(container)).toEqual(["Beta", "Alpha"]);
@@ -723,8 +731,278 @@ describe("EDataGrid", () => {
     test("the open column menu", async () => {
       await grid({ props: { caption: "T", columns: COLS, rows: ROWS, columnToggle: true } });
       await page.getByRole("button", { name: "Choose columns" }).click();
-      await expect.element(page.getByRole("dialog", { name: "Show columns" })).toBeVisible();
+      await expect.element(page.getByRole("dialog", { name: "Choose columns" })).toBeVisible();
       await expectNoViolations(document.querySelector("[role=dialog]")!);
     });
+  });
+
+  test("a client-side grid does not report a query on mount", async () => {
+    const queries: unknown[] = [];
+    await grid({ props: { caption: "T", columns: COLS, rows: ROWS, onQueryChange: (q: unknown) => queries.push(q) } });
+    await wait(30);
+    expect(queries).toEqual([]);
+  });
+
+  test("manual: searchDebounce waits for a pause in typing, other changes go at once", async () => {
+    const queries: any[] = [];
+    const { container } = await grid({
+      props: {
+        caption: "T",
+        columns: COLS,
+        rows: ROWS,
+        manual: true,
+        searchable: true,
+        searchDebounce: 120,
+        onQueryChange: (q: unknown) => queries.push(q),
+      },
+    });
+    expect(queries).toHaveLength(1);
+    const box = input(container.querySelector(".e-grid-search input"));
+    await typeInto(box, "a");
+    await typeInto(box, "al");
+    await typeInto(box, "alp");
+    expect(queries).toHaveLength(1);
+    await expect.poll(() => queries.length).toBe(2);
+    expect(queries[1]).toMatchObject({ search: "alp", page: 1 });
+    (container.querySelectorAll("th")[1]!.querySelector("button") as HTMLButtonElement).click();
+    await expect.poll(() => queries.length).toBe(3);
+    expect(queries[2]).toMatchObject({ sort: { key: "a", dir: "asc" }, search: "alp" });
+  });
+
+  test("selected keeps the id type of the rows: numbers stay numbers", async () => {
+    const picked: unknown[][] = [];
+    const { container } = await grid({
+      props: {
+        caption: "T",
+        columns: COLS,
+        rows: ROWS.slice(0, 2),
+        selectable: true,
+        selected: [2],
+        "onUpdate:selected": (ids: unknown[]) => picked.push(ids),
+      },
+    });
+    const boxes = () => [...container.querySelectorAll<HTMLInputElement>("tbody input[type=checkbox]")];
+    expect(boxes().map((b) => b.checked)).toEqual([false, true]);
+    boxes()[0]!.click();
+    await wait(30);
+    expect([...picked.at(-1)!].sort()).toEqual([1, 2]);
+    expect(picked.at(-1)!.every((id) => typeof id === "number")).toBe(true);
+  });
+
+  test("selected ids that are not among the rows (another page, a server) are kept", async () => {
+    const picked: unknown[][] = [];
+    const { container } = await grid({
+      props: {
+        caption: "T",
+        columns: COLS,
+        rows: ROWS.slice(0, 2),
+        selectable: true,
+        selected: [99],
+        "onUpdate:selected": (ids: unknown[]) => picked.push(ids),
+      },
+    });
+    container.querySelector<HTMLInputElement>("tbody input[type=checkbox]")!.click();
+    await wait(30);
+    expect([...picked.at(-1)!].sort()).toEqual([1, 99]);
+  });
+
+  test("default cells write dates, numbers and currency in the configured locale; format overrides", async () => {
+    const rows = [{ id: 1, when: new Date(2026, 9, 22, 12), amount: 1234567.5, price: 12.5, plain: 2026, own: 3 }];
+    const { container } = await render(
+      EDataGrid as any,
+      {
+        props: {
+          cards: false,
+          caption: "T",
+          rows,
+          columns: [
+            { key: "when", label: "When" },
+            { key: "amount", label: "Amount", numeric: true },
+            { key: "price", label: "Price", numeric: true, format: "currency" },
+            { key: "plain", label: "Year" },
+            { key: "own", label: "Own", format: (v: number) => `#${v}` },
+          ],
+        },
+        global: { plugins: [createEos({ themeTarget: null, locale: "de-DE", currency: "EUR" })] },
+      } as any,
+    );
+    const cells = [...container.querySelectorAll("tbody tr:first-child td")].map((td) => td.textContent!.trim());
+    expect(cells[0]).toBe("22.10.2026");
+    expect(cells[1]).toBe("1.234.567,5");
+    expect(cells[2]).toMatch(/^12,50\s€$/);
+    expect(cells[3]).toBe("2026");
+    expect(cells[4]).toBe("#3");
+  });
+
+  test("sorting follows the configured locale, not the browser's", async () => {
+    const rows = [
+      { id: 1, n: "Zebra" },
+      { id: 2, n: "Äpfel" },
+      { id: 3, n: "Apfel" },
+      { id: 4, n: "Ödem" },
+      { id: 5, n: "Ozon" },
+    ];
+    const sv = await render(
+      EDataGrid as any,
+      {
+        props: {
+          cards: false,
+          caption: "T",
+          rows,
+          columns: [{ key: "n", label: "N", sortable: true }],
+          sort: { key: "n", dir: "asc" },
+        },
+        global: { plugins: [createEos({ themeTarget: null, locale: "sv-SE" })] },
+      } as any,
+    );
+    // In Swedish Ä and Ö sort after Z.
+    expect(names(sv.container)).toEqual(["Apfel", "Ozon", "Zebra", "Äpfel", "Ödem"]);
+  });
+
+  test("the number filter does not treat an empty cell as zero", async () => {
+    const rows = [
+      { id: 1, n: "A", a: 0 },
+      { id: 2, n: "B", a: null },
+      { id: 3, n: "C", a: "" },
+      { id: 4, n: "D", a: 5 },
+    ];
+    const { container } = await grid({
+      props: {
+        caption: "T",
+        rows,
+        filterable: true,
+        filters: { a: { min: "", max: "3" } },
+        columns: [
+          { key: "n", label: "N" },
+          { key: "a", label: "A", numeric: true, filter: { type: "number" } },
+        ],
+      },
+    });
+    expect(names(container)).toEqual(["A"]);
+  });
+
+  test("search and text filters ignore accents and case", async () => {
+    const rows = [
+      { id: 1, n: "Café Zoë" },
+      { id: 2, n: "Tea" },
+    ];
+    const { container } = await grid({
+      props: {
+        caption: "T",
+        rows,
+        searchable: true,
+        filterable: true,
+        columns: [{ key: "n", label: "N", filter: { type: "text" } }],
+      },
+    });
+    await typeInto(input(container.querySelector(".e-grid-search input")), "cafe zoe");
+    expect(names(container)).toEqual(["Café Zoë"]);
+    await typeInto(input(container.querySelector(".e-grid-search input")), "");
+    await typeInto(input(container.querySelector(".e-filterrow input")), "CAFÉ");
+    expect(names(container)).toEqual(["Café Zoë"]);
+  });
+
+  test("search matches the text a date or number cell shows", async () => {
+    const rows = [
+      { id: 1, n: "A", when: new Date(2026, 9, 22, 12) },
+      { id: 2, n: "B", when: new Date(2025, 0, 3, 12) },
+    ];
+    const { container } = await grid({
+      props: {
+        caption: "T",
+        rows,
+        searchable: true,
+        columns: [
+          { key: "n", label: "N" },
+          { key: "when", label: "When" },
+        ],
+      },
+    });
+    await typeInto(input(container.querySelector(".e-grid-search input")), "10/22/2026");
+    expect(names(container)).toEqual(["A"]);
+  });
+
+  test("skeletonRows sets how many placeholder rows loading shows", async () => {
+    const { container } = await grid({
+      props: { caption: "T", columns: COLS, rows: [], loading: true, skeletonRows: 3 },
+    });
+    expect(container.querySelectorAll("tbody tr").length).toBe(3);
+  });
+
+  test("the status line is one live region", async () => {
+    const { container } = await grid({ props: { caption: "T", columns: COLS, rows: ROWS } });
+    const status = container.querySelector("[role=status]")!;
+    expect(status.hasAttribute("aria-live")).toBe(false);
+  });
+
+  test("the Columns menu is a dialog named by its trigger, with no patched attributes", async () => {
+    await grid({ props: { caption: "T", columns: COLS, rows: ROWS, columnToggle: true } });
+    await page.getByRole("button", { name: "Choose columns" }).click();
+    await wait(80);
+    await expect.element(page.getByRole("dialog", { name: "Choose columns" })).toBeVisible();
+  });
+
+  test("the filter row sticks right under a heading row of any height", async () => {
+    const { container } = await grid({
+      props: { caption: "T", columns: FILTER_COLS, rows: ROWS, filterable: true, maxHeight: "200px" },
+    });
+    await wait(60);
+    const head = container.querySelector<HTMLElement>("thead tr")!.getBoundingClientRect().height;
+    const filter = container.querySelector<HTMLElement>(".e-filterrow td")!;
+    expect(parseFloat(getComputedStyle(filter).top)).toBeCloseTo(head, 0);
+  });
+
+  test("resizer: aria-valuemax, Escape restores the starting width, pointercancel ends a drag, unmount lets go", async () => {
+    const shown = ref(true);
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          shown.value
+            ? h(EDataGrid as any, {
+                cards: false,
+                caption: "T",
+                rows: ROWS,
+                resizable: true,
+                columns: [{ key: "n", label: "Name", width: 2000, minWidth: 100, maxWidth: 2200 }],
+              })
+            : h("div"),
+      }),
+    );
+    const sep = container.querySelector<HTMLElement>("[role=separator]")!;
+    const colWidth = () => (container.querySelector("col") as HTMLElement | null)?.style.width;
+    expect(sep.getAttribute("aria-valuemax")).toBe("2200");
+    const x = sep.getBoundingClientRect().left;
+    // Escape during a drag goes back to where it started.
+    sep.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, clientX: x }));
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: x + 80 }));
+    await expect.poll(() => colWidth()).toBe("2080px");
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: x + 5000 }));
+    await expect.poll(() => colWidth()).toBe("2200px");
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+    await expect.poll(() => colWidth()).toBe("2000px");
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: x + 50 }));
+    await wait(30);
+    expect(colWidth()).toBe("2000px");
+    expect(document.body.style.cursor).toBe("");
+    // A cancelled pointer (a touch taken over by scrolling) stops the drag where it is... and back at the start.
+    sep.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, clientX: x }));
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: x + 40 }));
+    await expect.poll(() => colWidth()).toBe("2040px");
+    window.dispatchEvent(new PointerEvent("pointercancel"));
+    await expect.poll(() => colWidth()).toBe("2000px");
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: x + 90 }));
+    await wait(30);
+    expect(colWidth()).toBe("2000px");
+    // Escape on the focused edge goes back to the width it had when focused.
+    sep.focus();
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}");
+    await expect.poll(() => colWidth()).toBe("2020px");
+    await userEvent.keyboard("{Escape}");
+    await expect.poll(() => colWidth()).toBe("2000px");
+    // Unmounting mid-drag removes the listeners and the cursor.
+    sep.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, clientX: x }));
+    expect(document.body.style.cursor).toBe("col-resize");
+    shown.value = false;
+    await expect.poll(() => document.body.style.cursor).toBe("");
   });
 });

@@ -69,6 +69,21 @@ describe("ESearchBar", () => {
     await expect.element(box).toHaveValue("zed");
   });
 
+  test("the mobile keyboard offers a search key", async () => {
+    const { container } = await render(ESearchBar);
+    expect(container.querySelector("input")!.getAttribute("enterkeyhint")).toBe("search");
+  });
+
+  test("the clear button empties the box, emits clear and returns focus to the box", async () => {
+    let cleared = 0;
+    const { container } = await render(ESearchBar, {
+      props: { modelValue: "abc", onClear: () => cleared++ },
+    });
+    await page.getByRole("button", { name: "Clear" }).click();
+    expect(cleared).toBe(1);
+    expect(document.activeElement).toBe(container.querySelector("input"));
+  });
+
   test("without v-model it keeps its own text", async () => {
     await render(ESearchBar);
     await page.getByRole("textbox", { name: "Search" }).fill("local");

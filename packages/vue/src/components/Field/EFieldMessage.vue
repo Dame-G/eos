@@ -22,7 +22,7 @@ defineProps<{
 <style>
 @layer e.controls {
   .e-field-hint {
-    font: 400 var(--e-text-sm)/1.4 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-sm)/1.4 var(--e-font-sans);
     color: var(--e-muted);
     margin: 0;
   }
@@ -31,15 +31,15 @@ defineProps<{
     display: flex;
     align-items: flex-start;
     gap: var(--e-space-1);
-    font: 500 var(--e-text-sm)/1.4 var(--e-font-sans);
+    font: var(--e-weight-medium) var(--e-text-sm)/1.4 var(--e-font-sans);
     color: var(--e-danger);
     margin: 0;
   }
 
   .e-field-error .e-icon {
-    width: 16px;
-    height: 16px;
-    margin-top: 2px;
+    width: var(--e-icon-size-sm);
+    height: var(--e-icon-size-sm);
+    margin-block-start: var(--e-stroke-focus);
   }
 }
 </style>

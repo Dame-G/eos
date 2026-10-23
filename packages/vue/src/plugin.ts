@@ -2,14 +2,16 @@ import "./styles/base.css";
 import { reactive, watchEffect, type App } from "vue";
 import { defineTheme, type Theme, type ThemeInput } from "@eos-ui/tokens";
 import { TOAST_KEY, createToasts } from "./composables/useToast.js";
+import { TOOLTIP_KEY, createTooltipGroup } from "./components/Tooltip/group.js";
 import { CONFIG_KEY, type EosConfig } from "./config.js";
+import { isProduction } from "./env.js";
 
 export interface EosOptions extends Partial<EosConfig> {
   /** A theme from `defineTheme()`, or the same options. Applied to `<html>` unless `themeTarget` says otherwise. */
   theme?: Theme | ThemeInput;
   /** Element the theme is applied to. Default `document.documentElement`. Pass an element to theme one part of the page. */
   themeTarget?: HTMLElement | null;
-  /** Warn in the console when the theme fails a contrast pair. Default true outside production. */
+  /** Warn in the console when the theme fails a contrast pair. Default true unless `NODE_ENV` is `production`. */
   warnOnContrast?: boolean;
 }
 
@@ -66,9 +68,10 @@ export function createEos(options: EosOptions = {}): Eos {
     install(app: App) {
       app.provide(CONFIG_KEY, config);
       app.provide(TOAST_KEY, createToasts());
+      app.provide(TOOLTIP_KEY, createTooltipGroup());
       app.config.globalProperties.$e = config;
       if (typeof document === "undefined") return;
-      if (options.warnOnContrast !== false && theme.issues.length && !import.meta.env?.PROD) {
+      if (options.warnOnContrast !== false && theme.issues.length && !isProduction()) {
         console.warn(
           "[eos] The theme fails these contrast pairs:\n" +
             theme.issues.map((i) => `  ${i.role}: ${i.pair.join(" on ")} is ${i.ratio}:1, needs ${i.min}:1`).join("\n"),

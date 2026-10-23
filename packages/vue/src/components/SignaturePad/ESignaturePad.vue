@@ -27,14 +27,37 @@ const id = useUid(() => props.id);
 const canvas = ref<HTMLCanvasElement | null>(null);
 const empty = ref(!model.value);
 
+/** A point on the pad as a share of its width and height, so the strokes scale when the pad is resized. */
 interface Point {
   x: number;
   y: number;
 }
 const strokes: Point[][] = [];
 let current: Point[] | null = null;
+/** A signature that came in through `v-model`: it cannot be replayed as strokes, so it is drawn beneath them. */
+let base: HTMLImageElement | null = null;
+/** The ink colour, read once when a stroke starts rather than on every move. */
+let ink = "";
+/** The last value this pad produced or took in, so the watcher can tell an outside change from its own. */
+let known = model.value;
 
-function paint(ctx: CanvasRenderingContext2D, color: string) {
+const width = () => canvas.value?.clientWidth || 320;
+
+/** The image in one colour: the exported PNG is black, and the pad shows it in the ink of the page. */
+function tinted(img: HTMLImageElement, color: string): HTMLCanvasElement {
+  const out = document.createElement("canvas");
+  out.width = img.naturalWidth;
+  out.height = img.naturalHeight;
+  const ctx = out.getContext("2d")!;
+  ctx.drawImage(img, 0, 0);
+  ctx.globalCompositeOperation = "source-in";
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, out.width, out.height);
+  return out;
+}
+
+function paint(ctx: CanvasRenderingContext2D, color: string, w: number, h: number) {
+  if (base) ctx.drawImage(tinted(base, color), 0, 0, w, h);
   ctx.lineWidth = 2.5;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
@@ -44,32 +67,52 @@ function paint(ctx: CanvasRenderingContext2D, color: string) {
     const [first, ...rest] = stroke;
     if (!first) continue;
     ctx.beginPath();
-    ctx.arc(first.x, first.y, 1.2, 0, 6.3);
+    ctx.arc(first.x * w, first.y * h, 1.2, 0, 6.3);
     ctx.fill();
     ctx.beginPath();
-    ctx.moveTo(first.x, first.y);
-    for (const p of rest) ctx.lineTo(p.x, p.y);
+    ctx.moveTo(first.x * w, first.y * h);
+    for (const p of rest) ctx.lineTo(p.x * w, p.y * h);
     ctx.stroke();
   }
 }
 
+/** Sizes the bitmap to the element and draws everything again. */
 function setup() {
   const cv = canvas.value;
   if (!cv) return;
   const dpr = window.devicePixelRatio || 1;
-  cv.width = Math.round((cv.clientWidth || 320) * dpr);
+  cv.width = Math.round(width() * dpr);
   cv.height = Math.round(props.height * dpr);
   const ctx = cv.getContext("2d");
   if (!ctx) return;
   ctx.scale(dpr, dpr);
-  paint(ctx, getComputedStyle(cv).color);
+  paint(ctx, getComputedStyle(cv).color, width(), props.height);
 }
-onMounted(setup);
+
+async function load(url: string) {
+  const img = new Image();
+  img.src = url;
+  try {
+    await img.decode();
+  } catch {
+    return;
+  }
+  if (model.value !== url) return;
+  strokes.length = 0;
+  base = img;
+  empty.value = false;
+  setup();
+}
+
+onMounted(() => {
+  setup();
+  if (model.value) load(model.value);
+});
 useResizeObserver(canvas, setup);
 
 function point(e: PointerEvent): Point {
   const r = canvas.value!.getBoundingClientRect();
-  return { x: e.clientX - r.left, y: e.clientY - r.top };
+  return { x: (e.clientX - r.left) / (r.width || 1), y: (e.clientY - r.top) / (r.height || 1) };
 }
 
 function down(e: PointerEvent) {
@@ -78,13 +121,14 @@ function down(e: PointerEvent) {
   try {
     canvas.value!.setPointerCapture(e.pointerId);
   } catch {}
+  ink = getComputedStyle(canvas.value!).color;
   const p = point(e);
   current = [p];
   strokes.push(current);
   const ctx = canvas.value!.getContext("2d")!;
-  ctx.fillStyle = getComputedStyle(canvas.value!).color;
+  ctx.fillStyle = ink;
   ctx.beginPath();
-  ctx.arc(p.x, p.y, 1.2, 0, 6.3);
+  ctx.arc(p.x * width(), p.y * props.height, 1.2, 0, 6.3);
   ctx.fill();
 }
 
@@ -94,10 +138,10 @@ function move(e: PointerEvent) {
   const p = point(e);
   current.push(p);
   const ctx = canvas.value!.getContext("2d")!;
-  ctx.strokeStyle = getComputedStyle(canvas.value!).color;
+  ctx.strokeStyle = ink;
   ctx.beginPath();
-  ctx.moveTo(from.x, from.y);
-  ctx.lineTo(p.x, p.y);
+  ctx.moveTo(from.x * width(), from.y * props.height);
+  ctx.lineTo(p.x * width(), p.y * props.height);
   ctx.stroke();
 }
 
@@ -107,8 +151,8 @@ function exportImage(): string {
   out.width = cv.width;
   out.height = cv.height;
   const ctx = out.getContext("2d")!;
-  ctx.scale(cv.width / (cv.clientWidth || 320), cv.height / props.height);
-  paint(ctx, "black");
+  ctx.scale(cv.width / width(), cv.height / props.height);
+  paint(ctx, "black", width(), props.height);
   return out.toDataURL("image/png");
 }
 
@@ -116,12 +160,14 @@ function up() {
   if (!current) return;
   current = null;
   empty.value = false;
-  model.value = exportImage();
+  known = exportImage();
+  model.value = known;
 }
 
 function wipe() {
   strokes.length = 0;
   current = null;
+  base = null;
   empty.value = true;
   const cv = canvas.value;
   const ctx = cv?.getContext("2d");
@@ -135,11 +181,16 @@ function wipe() {
 
 function clear() {
   wipe();
+  known = "";
   model.value = "";
 }
 
+// A value set from outside is drawn on the pad; an empty one clears it.
 watch(model, (v) => {
-  if (!v && !empty.value) wipe();
+  if (v === known) return;
+  known = v;
+  if (!v) wipe();
+  else load(v);
 });
 
 defineExpose({
@@ -155,7 +206,7 @@ defineExpose({
         :id="id"
         ref="canvas"
         class="e-pad-canvas"
-        role="img"
+        :role="disabled ? 'img' : 'group'"
         :style="{ height: `${height}px`, color: 'var(--e-ink)' }"
         :aria-label="t('drawSignature')"
         :aria-describedby="`${id}-hint`"
@@ -199,7 +250,7 @@ defineExpose({
     content: "";
     position: absolute;
     inset-inline: var(--e-space-4);
-    bottom: 36px;
+    bottom: calc(var(--e-space-8) + var(--e-space-1));
     border-bottom: var(--e-stroke-edge) solid var(--e-ink);
     pointer-events: none;
   }
@@ -219,7 +270,7 @@ defineExpose({
     justify-items: center;
     gap: var(--e-space-2);
     color: var(--e-muted);
-    font: 400 var(--e-text-sm)/1.4 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-sm) / 1.4 var(--e-font-sans);
     pointer-events: none;
   }
 

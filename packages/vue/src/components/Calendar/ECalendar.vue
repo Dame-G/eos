@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, getCurrentInstance, nextTick, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import EActions from "../Actions/EActions.vue";
 import EButton from "../Button/EButton.vue";
 import EIcon from "../Icon/EIcon.vue";
@@ -7,7 +7,16 @@ import EIconButton from "../IconButton/EIconButton.vue";
 import { useConfig, useMessages } from "../../config.js";
 import { useLocale } from "../../composables/useLocale.js";
 import { useUid } from "../../composables/useUid.js";
-import { addDays, addMonths, compareDays, dayKey, sameDay, startOfDay } from "./dates.js";
+import {
+  addDays,
+  addMonths,
+  compareDays,
+  dayKey,
+  formatMonthDay,
+  formatMonthYear,
+  sameDay,
+  startOfDay,
+} from "./dates.js";
 import "../../styles/base.css";
 
 export interface CalendarRange {
@@ -31,12 +40,12 @@ const props = withDefaults(
     max?: Date;
     /** The month to open on, when nothing is chosen. Changing it moves the view. */
     month?: Date;
-    /** Shows the Today button and, with `clearable` or a `@clear` listener, the Clear button. `false` hides both. */
+    /** Shows the Today button and, with `clearable`, the Clear button. `false` hides both. */
     footer?: boolean;
-    /** Forces the Clear button on or off. Left out, it shows when a `@clear` listener is attached. */
+    /** Shows the Clear button in the footer. It emits `clear`. */
     clearable?: boolean;
   }>(),
-  { mode: "single", footer: true, clearable: undefined },
+  { mode: "single", footer: true, clearable: false },
 );
 
 const emit = defineEmits<{
@@ -44,6 +53,8 @@ const emit = defineEmits<{
   rangeChange: [range: CalendarRange];
   /** The Clear button was pressed. */
   clear: [];
+  /** The visible month changed (arrows, keys, the month and year pickers, or the `month` prop). The payload is the first day of that month: load `marked` or `disabledDate` data for it here. */
+  "update:month": [month: Date];
 }>();
 
 /** The chosen day (`single` mode). */
@@ -61,10 +72,22 @@ const loc = useLocale();
 const uid = useUid();
 const root = ref<HTMLElement | null>(null);
 const range = computed(() => props.mode === "range");
-const instance = getCurrentInstance();
-const hasClear = () => props.clearable ?? !!instance?.vnode.props?.onClear;
 
-const today = startOfDay(new Date());
+// Set again on mount (a server render may be a day off) and at midnight, so "today" never goes stale.
+const today = ref(startOfDay(new Date()));
+let midnight: ReturnType<typeof setTimeout> | undefined;
+function refreshToday() {
+  today.value = startOfDay(new Date());
+  const next = new Date();
+  next.setHours(24, 0, 5, 0);
+  midnight = setTimeout(refreshToday, Math.max(1000, next.getTime() - Date.now()));
+}
+onMounted(() => {
+  clearTimeout(midnight);
+  refreshToday();
+});
+onBeforeUnmount(() => clearTimeout(midnight));
+
 const focus = ref(startOfDay((range.value ? start.value : value.value) || props.month || new Date()));
 const hover = ref<Date | null>(null);
 const view = ref<View>("days");
@@ -72,8 +95,12 @@ const pick = ref(0);
 
 const cy = computed(() => focus.value.getFullYear());
 const cm = computed(() => focus.value.getMonth());
-const yearLow = computed(() => Math.min(cy.value, props.min ? props.min.getFullYear() : today.getFullYear() - 120));
-const yearHigh = computed(() => Math.max(cy.value, props.max ? props.max.getFullYear() : today.getFullYear() + 20));
+const yearLow = computed(() =>
+  Math.min(cy.value, props.min ? props.min.getFullYear() : today.value.getFullYear() - 120),
+);
+const yearHigh = computed(() =>
+  Math.max(cy.value, props.max ? props.max.getFullYear() : today.value.getFullYear() + 20),
+);
 const years = computed(() => Array.from({ length: yearHigh.value - yearLow.value + 1 }, (_, i) => yearLow.value + i));
 
 function off(d: Date): boolean {
@@ -83,10 +110,15 @@ function off(d: Date): boolean {
     !!props.disabledDate?.(d)
   );
 }
+/** The marked days of a list, by key, so a month of cells costs one pass instead of one scan each. */
+const markedKeys = computed(() => {
+  const m = props.marked;
+  return Array.isArray(m) ? new Set(m.map((x) => dayKey(x))) : null;
+});
 function isMarked(d: Date): boolean {
   const m = props.marked;
   if (!m) return false;
-  return typeof m === "function" ? !!m(d) : m.some((x) => sameDay(x, d));
+  return typeof m === "function" ? !!m(d) : !!markedKeys.value?.has(dayKey(d));
 }
 function monthOff(y: number, m: number): boolean {
   return (
@@ -106,21 +138,37 @@ function settle(d: Date, step: number): Date | null {
   for (let i = 0; i < 400 && off(n); i++) n = addDays(n, step);
   return off(n) ? null : n;
 }
+/** The nearest enabled day at or after `d`, else before it, within `d`'s month. `d` itself when the month has none. */
+function enabledNear(d: Date, dir = 1): Date {
+  const sameMonth = (x: Date | null): x is Date =>
+    !!x && x.getMonth() === d.getMonth() && x.getFullYear() === d.getFullYear();
+  const forward = settle(d, dir);
+  if (sameMonth(forward)) return forward;
+  const backward = settle(d, -dir);
+  return sameMonth(backward) ? backward : d;
+}
 function withMonthYear(y: number, m: number): Date {
   const last = new Date(y, m + 1, 0, 12).getDate();
-  return clamp(new Date(y, m, Math.min(focus.value.getDate(), last), 12));
+  return enabledNear(clamp(new Date(y, m, Math.min(focus.value.getDate(), last), 12)));
 }
 
-if (off(focus.value)) focus.value = settle(focus.value, 1) ?? settle(focus.value, -1) ?? focus.value;
+if (off(focus.value)) {
+  const near = enabledNear(focus.value);
+  focus.value = !off(near) ? near : (settle(near, 1) ?? settle(near, -1) ?? near);
+}
 
 let want: string | null = null;
 async function focusWanted() {
-  await nextTick();
-  if (!want) return;
-  const el = root.value?.querySelector<HTMLElement>(`[id="${want}"]`);
-  if (!el) return;
-  el.focus();
-  if (want.includes("-y-")) el.scrollIntoView?.({ block: "center" });
+  // The target may render a tick later (the year list after the view changes), so look twice, then give up.
+  for (let tries = 0; tries < 2 && want; tries++) {
+    await nextTick();
+    const id = want;
+    const el = id ? root.value?.querySelector<HTMLElement>(`[id="${id}"]`) : null;
+    if (!el || !id) continue;
+    el.focus();
+    if (id.includes("-y-")) el.scrollIntoView?.({ block: "center" });
+    break;
+  }
   want = null;
 }
 function focusId(id: string) {
@@ -132,8 +180,20 @@ const dayId = (d: Date) => `${uid.value}-${dayKey(d)}`;
 watch(
   () => props.month?.getTime(),
   () => {
-    if (props.month) focus.value = clamp(startOfDay(props.month));
+    if (!props.month) return;
+    const next = clamp(startOfDay(props.month));
+    // A parent that echoes `update:month` back would otherwise reset the focused day to the 1st.
+    if (next.getFullYear() === cy.value && next.getMonth() === cm.value) return;
+    focus.value = enabledNear(next);
   },
+);
+// The roving tab stop must never sit on a disabled day, whatever moved it or changed the rules.
+watch([() => props.min?.getTime(), () => props.max?.getTime(), () => props.disabledDate], () => {
+  if (off(focus.value)) focus.value = enabledNear(clamp(focus.value));
+});
+watch(
+  () => cy.value * 12 + cm.value,
+  () => emit("update:month", new Date(cy.value, cm.value, 1, 12)),
 );
 watch(
   () => (range.value ? start.value : value.value)?.getTime(),
@@ -143,11 +203,27 @@ watch(
   },
 );
 
-const weeks = computed(() => {
+interface Cell {
+  d: Date;
+  key: string;
+  off: boolean;
+  marked: boolean;
+}
+// Disabled and marked are worked out once per visible day, not once per render of each cell.
+const weeks = computed<Cell[][]>(() => {
   const first = new Date(cy.value, cm.value, 1, 12);
   const from = addDays(first, -((first.getDay() - loc.weekStart.value + 7) % 7));
-  return Array.from({ length: 6 }, (_, w) => Array.from({ length: 7 }, (_, i) => addDays(from, w * 7 + i)));
+  return Array.from({ length: 6 }, (_, w) =>
+    Array.from({ length: 7 }, (_, i) => {
+      const d = addDays(from, w * 7 + i);
+      const disabled = off(d);
+      return { d, key: dayKey(d), off: disabled, marked: !disabled && isMarked(d) };
+    }),
+  );
 });
+const monthName = (y: number, m: number) =>
+  formatMonthYear(loc.locale.value, new Date(y, m, 1, 12), `${loc.months.value[m]} ${y}`);
+const monthTitle = computed(() => monthName(cy.value, cm.value));
 const columns = computed(() => Array.from({ length: 7 }, (_, k) => (loc.weekStart.value + k) % 7));
 const rangeEnd = computed(() => {
   if (!range.value) return null;
@@ -169,7 +245,7 @@ function inRange(d: Date): boolean {
 function dayLabel(d: Date, marked: boolean): string {
   return (
     loc.formatLong(d) +
-    (sameDay(d, today) ? ", " + t("todaySuffix") : "") +
+    (sameDay(d, today.value) ? ", " + t("todaySuffix") : "") +
     (marked ? ", " + (props.markLabel || t("timesAvailable")) : "")
   );
 }
@@ -230,7 +306,7 @@ function chooseYear(y: number) {
   focusId(`${uid.value}-m-${nd.getMonth()}`);
 }
 function step(n: number) {
-  focus.value = clamp(addMonths(focus.value, n));
+  focus.value = enabledNear(clamp(addMonths(focus.value, n)), n);
 }
 
 function sign(): number {
@@ -335,13 +411,15 @@ function onRootKey(e: KeyboardEvent) {
 }
 
 function goToday() {
-  const tc = clamp(today);
+  const now = today.value;
+  const tc = enabledNear(clamp(now));
   focus.value = tc;
   focusId(dayId(tc));
-  if (!range.value && !off(today)) pickDay(today);
+  if (!range.value && !off(now)) pickDay(now);
 }
 
-const shortDate = (d: Date) => `${loc.monthsShort.value[d.getMonth()]} ${d.getDate()}`;
+const shortDate = (d: Date) =>
+  formatMonthDay(loc.locale.value, d, `${loc.monthsShort.value[d.getMonth()]} ${d.getDate()}`);
 const help = computed(() => {
   if (!range.value || view.value !== "days") return "";
   if (!start.value) return t("rangeStart");
@@ -359,8 +437,9 @@ const help = computed(() => {
 const picking = computed(() => view.value !== "days");
 const prevOff = computed(() => !!props.min && compareDays(new Date(cy.value, cm.value, 0, 12), props.min) < 0);
 const nextOff = computed(() => !!props.max && compareDays(new Date(cy.value, cm.value + 1, 1, 12), props.max) > 0);
-const nowYear = today.getFullYear();
-const nowMonth = today.getMonth();
+const monthIndexes = Array.from({ length: 12 }, (_, i) => i);
+const nowYear = computed(() => today.value.getFullYear());
+const nowMonth = computed(() => today.value.getMonth());
 
 defineExpose({
   view,
@@ -379,19 +458,21 @@ defineExpose({
         @click="back"
       />
       <EIconButton v-else icon="chevron-left" :label="t('prevMonth')" :disabled="prevOff" @click="step(-1)" />
-      <div class="e-cal-title" aria-live="polite">
-        <span v-if="picking" class="e-cal-range">{{
+      <div class="e-cal-title">
+        <span class="e-sr" aria-live="polite" aria-atomic="true">{{
+          picking ? t(view === "months" ? "chooseAMonth" : "chooseAYear", { year: cy }) : monthTitle
+        }}</span>
+        <span v-if="picking" class="e-cal-range" aria-hidden="true">{{
           t(view === "months" ? "chooseAMonth" : "chooseAYear", { year: cy })
         }}</span>
         <button
           v-else
           type="button"
           class="e-cal-pick"
-          aria-expanded="false"
           :aria-label="t('chooseDateNow', { month: loc.months.value[cm] ?? '', year: cy })"
           @click="openView('years')"
         >
-          {{ loc.months.value[cm] }} {{ cy }}
+          {{ monthTitle }}
           <EIcon name="chevron-down" small />
         </button>
       </div>
@@ -400,13 +481,7 @@ defineExpose({
     </div>
 
     <!-- eslint-disable-next-line vuejs-accessibility/interactive-supports-focus -- the day buttons carry the roving tabindex -->
-    <table
-      v-if="view === 'days'"
-      class="e-cal-grid"
-      role="grid"
-      :aria-label="`${loc.months.value[cm]} ${cy}`"
-      @keydown="onDayKey"
-    >
+    <table v-if="view === 'days'" class="e-cal-grid" role="grid" :aria-label="monthTitle" @keydown="onDayKey">
       <thead>
         <tr>
           <th v-for="ix in columns" :key="ix" scope="col" :abbr="loc.weekdays.value[ix]">
@@ -417,30 +492,31 @@ defineExpose({
       <tbody>
         <tr v-for="(row, w) in weeks" :key="w">
           <td
-            v-for="d in row"
-            :key="dayKey(d)"
+            v-for="cell in row"
+            :key="cell.key"
             role="gridcell"
-            :aria-selected="isSelected(d) || inRange(d) ? 'true' : 'false'"
-            :class="inRange(d) && 'e-cal-in'"
+            :aria-selected="isSelected(cell.d) || inRange(cell.d) ? 'true' : 'false'"
+            :class="inRange(cell.d) && 'e-cal-in'"
           >
             <button
-              :id="dayId(d)"
+              :id="dayId(cell.d)"
               type="button"
               class="e-day"
               :class="[
-                d.getMonth() !== cm && 'e-day--out',
-                sameDay(d, today) && 'e-day--today',
-                isSelected(d) && 'e-day--sel',
-                !off(d) && isMarked(d) && 'e-day--mark',
+                cell.d.getMonth() !== cm && 'e-day--out',
+                sameDay(cell.d, today) && 'e-day--today',
+                isSelected(cell.d) && 'e-day--sel',
+                cell.marked && 'e-day--mark',
               ]"
-              :tabindex="sameDay(d, focus) ? 0 : -1"
-              :disabled="off(d)"
-              :aria-label="dayLabel(d, !off(d) && isMarked(d))"
-              @click="clickDay(d)"
-              @mouseenter="range && start && !end && (hover = d)"
-              @focus="range && start && !end && (hover = d)"
+              :tabindex="sameDay(cell.d, focus) ? 0 : -1"
+              :disabled="cell.off"
+              :aria-current="sameDay(cell.d, today) ? 'date' : undefined"
+              :aria-label="dayLabel(cell.d, cell.marked)"
+              @click="clickDay(cell.d)"
+              @mouseenter="range && start && !end && (hover = cell.d)"
+              @focus="range && start && !end && (hover = cell.d)"
             >
-              {{ d.getDate() }}
+              {{ cell.d.getDate() }}
             </button>
           </td>
         </tr>
@@ -456,7 +532,7 @@ defineExpose({
       @keydown="onPickKey"
     >
       <button
-        v-for="(name, m) in loc.months.value"
+        v-for="m in monthIndexes"
         :id="`${uid}-m-${m}`"
         :key="m"
         type="button"
@@ -469,7 +545,7 @@ defineExpose({
         @click="chooseMonth(m)"
       >
         <span aria-hidden="true">{{ loc.monthsShort.value[m] }}</span>
-        <span class="e-sr">{{ name }} {{ cy }}</span>
+        <span class="e-sr">{{ monthName(cy, m) }}</span>
       </button>
     </div>
 
@@ -502,7 +578,7 @@ defineExpose({
 
     <EActions v-if="footer" class="e-cal-foot" :class="view !== 'days' && 'e-cal-foot--idle'" :inert="view !== 'days'">
       <EButton variant="quiet" @click="goToday">{{ t("today") }}</EButton>
-      <EButton v-if="hasClear()" variant="quiet" @click="emit('clear')">{{ t("clear") }}</EButton>
+      <EButton v-if="clearable" variant="quiet" @click="emit('clear')">{{ t("clear") }}</EButton>
     </EActions>
   </div>
 </template>
@@ -533,7 +609,7 @@ defineExpose({
     flex: 1;
     min-width: 0;
     margin: 0;
-    font: 600 var(--e-text-lg) / 1.2 var(--e-font-sans);
+    font: var(--e-weight-strong) var(--e-text-lg) / 1.2 var(--e-font-sans);
     text-align: center;
   }
 
@@ -547,31 +623,27 @@ defineExpose({
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
-    font: 600 var(--e-text-lg) / 1 var(--e-font-sans);
+    font: var(--e-weight-strong) var(--e-text-lg) / 1 var(--e-font-sans);
     cursor: pointer;
     transition: background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-cal-pick:hover {
-    background: var(--e-surface-hover);
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
+    background: var(--e-wash-hover);
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-wash-ring);
+  }
+
+  .e-cal-pick:active {
+    background: var(--e-wash-press);
   }
 
   .e-cal-pick:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-focus-gap);
-  }
-
-  .e-cal-pick .e-icon {
-    transition: transform var(--e-duration-tap) var(--e-easing-out);
-  }
-
-  .e-cal-pick[aria-expanded="true"] .e-icon {
-    transform: rotate(180deg);
+    outline-offset: var(--e-stroke-focus);
   }
 
   .e-cal-range {
-    font: 600 var(--e-text-lg) / 1.2 var(--e-font-sans);
+    font: var(--e-weight-strong) var(--e-text-lg) / 1.2 var(--e-font-sans);
     font-variant-numeric: tabular-nums;
   }
 
@@ -582,7 +654,7 @@ defineExpose({
   }
 
   .e-cal-head .e-icon-btn:disabled {
-    color: var(--e-muted);
+    color: var(--e-disabled-ink);
     cursor: not-allowed;
   }
 
@@ -592,26 +664,28 @@ defineExpose({
   }
 
   .e-cal-grid {
+    --_body-h: calc(6 * var(--e-tap) + var(--e-space-8) + var(--e-space-4));
+
     width: 100%;
-    height: calc(6 * var(--e-tap) + var(--e-space-8) + var(--e-space-4));
+    height: var(--_body-h);
     border-collapse: collapse;
     table-layout: fixed;
   }
 
   .e-cal-grid th {
     height: var(--e-space-8);
-    font: 600 var(--e-text-sm) / 1 var(--e-font-sans);
+    font: var(--e-weight-strong) var(--e-text-sm) / 1 var(--e-font-sans);
     color: var(--e-muted);
     text-align: center;
   }
 
   .e-cal-grid td {
-    padding: 1px 3px;
+    padding: var(--e-stroke-hair) var(--e-space-1);
     text-align: center;
   }
 
   .e-cal-in {
-    background: color-mix(in srgb, var(--e-primary) 12%, var(--e-surface));
+    background: var(--e-primary-soft);
   }
 
   .e-day {
@@ -623,42 +697,64 @@ defineExpose({
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
-    font: 500 var(--e-text-sm) / 1 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-sm) / 1 var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     cursor: pointer;
     transition: background-color var(--e-duration-tap) var(--e-easing-out);
   }
 
-  /* stylelint-disable-next-line selector-not-notation -- the selector stays in this form */
-  .e-day:hover:not(:disabled):not(.e-day--sel) {
-    background: var(--e-surface-hover);
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
+  .e-day:hover:not(:disabled, .e-day--sel),
+  .e-cal-cell:hover:not(:disabled, .e-day--sel) {
+    background: var(--e-wash-hover);
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-wash-ring);
   }
 
-  .e-day:focus-visible {
+  .e-day:active:not(:disabled, .e-day--sel),
+  .e-cal-cell:active:not(:disabled, .e-day--sel) {
+    background: var(--e-wash-press);
+  }
+
+  .e-day:focus-visible,
+  .e-cal-cell:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-day--out {
     color: var(--e-muted);
-    font-weight: 400;
+    font-weight: var(--e-weight-regular);
   }
 
   .e-day--today {
     box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-primary);
   }
 
-  .e-day--sel {
+  /* The chosen day is a small button face, like a checked box: the primary colour with a slab under it that sinks when pressed. */
+  .e-day--sel,
+  .e-cal-cell.e-day--sel {
+    border-bottom: var(--e-depth) solid var(--e-primary-slab);
     background: var(--e-primary);
     box-shadow: none;
-    font-weight: 700;
+    font-weight: var(--e-weight-strong);
     color: var(--e-on-primary);
   }
 
-  .e-day:disabled {
-    color: var(--e-border-strong);
-    font-weight: 400;
+  .e-day--sel:hover,
+  .e-cal-cell.e-day--sel:hover {
+    background: var(--e-primary-hover);
+  }
+
+  .e-day--sel:active,
+  .e-cal-cell.e-day--sel:active {
+    border-bottom-width: 0;
+    background: var(--e-primary-press);
+  }
+
+  .e-day:disabled,
+  .e-cal-cell:disabled {
+    background: var(--e-disabled-fill);
+    color: var(--e-disabled-ink);
+    font-weight: var(--e-weight-regular);
     cursor: not-allowed;
     opacity: 1;
   }
@@ -667,10 +763,10 @@ defineExpose({
     content: "";
     position: absolute;
     inset-inline-start: 50%;
-    bottom: 5px;
-    width: 5px;
-    height: 5px;
-    margin-inline-start: -2.5px;
+    bottom: var(--e-space-1);
+    width: var(--e-space-1);
+    height: var(--e-space-1);
+    margin-inline-start: calc(var(--e-space-1) / -2);
     border-radius: 50%;
     background: var(--e-primary);
   }
@@ -683,7 +779,7 @@ defineExpose({
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-auto-rows: 1fr;
-    gap: 6px;
+    gap: var(--e-space-1);
     height: calc(6 * var(--e-tap) + var(--e-space-8) + var(--e-space-4));
     padding-top: var(--e-space-1);
   }
@@ -692,7 +788,7 @@ defineExpose({
     overflow-y: auto;
     overscroll-behavior: contain;
     grid-auto-rows: var(--e-tap);
-    padding-inline-end: 2px;
+    padding-inline-end: var(--e-space-1);
     align-content: start;
   }
 
@@ -705,7 +801,7 @@ defineExpose({
     border-radius: var(--e-radius-md);
     background: transparent;
     color: var(--e-ink);
-    font: 500 var(--e-text-md) / 1 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-md) / 1 var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     cursor: pointer;
     transition: background-color var(--e-duration-tap) var(--e-easing-out);
@@ -715,34 +811,10 @@ defineExpose({
     height: var(--e-tap);
   }
 
-  /* stylelint-disable-next-line selector-not-notation -- the selector stays in this form */
-  .e-cal-cell:hover:not(:disabled):not(.e-day--sel) {
-    background: var(--e-surface-hover);
-    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
-  }
-
-  .e-cal-cell:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
-  }
-
-  .e-cal-cell:disabled {
-    color: var(--e-border-strong);
-    font-weight: 400;
-    cursor: not-allowed;
-  }
-
-  .e-cal-cell.e-day--sel {
-    background: var(--e-primary);
-    box-shadow: none;
-    font-weight: 700;
-    color: var(--e-on-primary);
-  }
-
   .e-cal-help {
     min-height: calc(var(--e-text-sm) * 1.4);
     margin: var(--e-space-2) 0 0;
-    font: 500 var(--e-text-sm) / 1.4 var(--e-font-sans);
+    font: var(--e-weight-medium) var(--e-text-sm) / 1.4 var(--e-font-sans);
     color: var(--e-muted);
     text-align: center;
   }
@@ -761,21 +833,24 @@ defineExpose({
     visibility: hidden;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .e-day,
-    .e-cal-pick,
-    .e-cal-cell,
-    .e-cal-pick .e-icon {
-      transition: none;
-    }
-  }
-
+  /* Box-shadows are removed in forced colours, so the today ring and the range band are drawn with outlines. */
   @media (forced-colors: active) {
     .e-day--sel,
     .e-cal-cell.e-day--sel {
       forced-color-adjust: none;
+      border-bottom-color: ButtonText;
       background: Highlight;
       color: HighlightText;
+    }
+
+    .e-day--today {
+      outline: var(--e-stroke-edge) solid CanvasText;
+      outline-offset: calc(-1 * var(--e-stroke-edge));
+    }
+
+    .e-cal-in {
+      outline: var(--e-stroke-edge) dashed Highlight;
+      outline-offset: calc(-1 * var(--e-stroke-edge));
     }
 
     .e-day--mark::after {
@@ -784,6 +859,11 @@ defineExpose({
 
     .e-day--sel.e-day--mark::after {
       background: HighlightText;
+    }
+
+    .e-day:disabled,
+    .e-cal-cell:disabled {
+      color: GrayText;
     }
   }
 }

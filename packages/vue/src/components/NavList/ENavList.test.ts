@@ -58,9 +58,17 @@ describe("ENavList", () => {
     expect(container.querySelectorAll(".e-nav-item .e-icon").length).toBe(2);
   });
 
-  test("a link without an href goes to #", async () => {
+  test("an item without a destination is plain text, not a link to #", async () => {
     const { container } = await render(ENavList, { props: { items: [{ label: "Home" }] } });
-    expect(container.querySelector("a")!.getAttribute("href")).toBe("#");
+    expect(container.querySelector("a")).toBeNull();
+    expect(container.querySelector("li > span.e-nav-item")!.textContent).toBe("Home");
+  });
+
+  test("countLabel gives the count its meaning for screen readers", async () => {
+    await render(ENavList, {
+      props: { items: [{ label: "Pay a bill", href: "/pay", count: 2, countLabel: "2 bills to pay" }] },
+    });
+    await expect.element(page.getByRole("link", { name: /Pay a bill\s*,\s*2 bills to pay/ })).toBeVisible();
   });
 
   test("keyboard: Tab visits each link in order", async () => {

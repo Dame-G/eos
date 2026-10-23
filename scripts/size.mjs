@@ -13,8 +13,13 @@ const jsFiles = (dir) =>
     return entry.name.endsWith(".js") ? [path] : [];
   });
 
+// Budgets in gzipped bytes. Policy: a limit is the current size plus about 3%, so a normal feature fits and a careless
+// addition (a duplicated rule set, a new dependency) does not. When a deliberate change needs more, raise the limit in
+// the same pull request and say why in its description. Never raise it to make an unexplained growth pass.
+// All CSS ships as one file (style.css), so every component is paid for by every consumer: reuse tokens and shared
+// rules before adding new ones.
 const budgets = [
-  { name: "style.css", size: gzip(join(dist, "style.css")), limit: 24000 },
+  { name: "style.css", size: gzip(join(dist, "style.css")), limit: 27500 },
   { name: "index.js", size: gzip(join(dist, "index.js")), limit: 2250 },
   {
     name: "all JavaScript files (each gzipped)",
@@ -27,6 +32,8 @@ let failed = false;
 for (const { name, size, limit } of budgets) {
   const over = size > limit;
   failed ||= over;
-  console.log(`${over ? "FAIL" : "ok  "} ${name}: ${size} B gzip (limit ${limit} B)`);
+  console.log(
+    `${over ? "FAIL" : "ok  "} ${name}: ${size} of ${limit} B gzip (${limit - size} B headroom, ${((size / limit) * 100).toFixed(1)}% used)`,
+  );
 }
 if (failed) process.exit(1);

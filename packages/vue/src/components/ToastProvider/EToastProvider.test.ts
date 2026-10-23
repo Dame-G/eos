@@ -53,6 +53,15 @@ describe("EToastProvider", () => {
     expect(toasts()[0]!.getAttribute("role")).toBe("alert");
   });
 
+  test("icon and closable pass through to the toast", async () => {
+    await mountApp();
+    api.show({ title: "Quiet", closable: false, duration: 0 });
+    api.show({ title: "Loud", icon: "pin", duration: 0 });
+    await expect.poll(() => toasts().length).toBe(2);
+    expect(toasts()[0]!.querySelector(".e-notice-dismiss")).toBeNull();
+    expect(toasts()[1]!.querySelector(".e-notice-dismiss")).not.toBeNull();
+  });
+
   test("a toast with an action stays and shows the action", async () => {
     await mountApp();
     let undone = 0;

@@ -30,7 +30,21 @@ The single search box for a page: an outlined field with a submit button inside.
 | Event    | Payload  | Notes                                                       |
 | -------- | -------- | ----------------------------------------------------------- |
 | `submit` | `string` | The text, on Enter or the button. The page does not reload. |
+| `clear`  |          | The clear button was pressed. The model is already empty.   |
 
 ## Accessibility
 
 - The form is a `search` landmark named by `label`. Give each search on a page a distinct label.
+- On a phone the keyboard's Enter key reads "search" (`enterkeyhint`).
+
+## Keyboard
+
+| Key         | Does                                                            |
+| ----------- | --------------------------------------------------------------- |
+| Tab         | Moves from the box to the clear button, then the search button. |
+| Enter       | Submits the text.                                               |
+| Enter/Space | On the clear button, empties the box and returns focus to it.   |
+
+## Related
+
+[`ESearchResults`](../SearchResults/README.md) lists matches under it, [`ETextField`](../TextField/README.md) for a plain input, [`ECommandPalette`](../CommandPalette/README.md) to search commands.

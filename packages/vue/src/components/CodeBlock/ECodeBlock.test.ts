@@ -1,18 +1,48 @@
 import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ECodeBlock from "./ECodeBlock.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ECodeBlock", () => {
-  test("shows the code in a focusable pre named by the language, with a copy button beside it", async () => {
+  test("shows the code in a focusable group named by the language, with a copy button beside it", async () => {
     const { container } = await render(ECodeBlock, { props: { code: "npm install @eos-ui/vue", lang: "bash" } });
     const pre = container.querySelector("pre")!;
     expect(pre.textContent).toBe("npm install @eos-ui/vue");
-    expect(pre.getAttribute("aria-label")).toBe("bash");
-    expect(pre.tabIndex).toBe(0);
+    expect(pre.hasAttribute("aria-label")).toBe(false);
+    expect(pre.tabIndex).toBe(-1);
+    const region = container.querySelector(".e-code-body") as HTMLElement;
+    expect(region.getAttribute("role")).toBe("group");
+    expect(region.tabIndex).toBe(0);
+    await expect.element(page.getByRole("group", { name: "bash" })).toBeVisible();
     await expect.element(page.getByRole("button", { name: "Copy code" })).toBeVisible();
+  });
+
+  test("without a language the group is named Code, and the keyboard reaches it with Tab", async () => {
+    await render(ECodeBlock, { props: { code: "x".repeat(400) } });
+    await userEvent.tab();
+    await expect.element(page.getByRole("group", { name: "Code" })).toHaveFocus();
+  });
+
+  test("custom slot content scrolls inside the same focusable group", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(ECodeBlock, { style: "width: 200px" }, { default: () => h("pre", [h("code", "x".repeat(300))]) }),
+      }),
+    );
+    const region = container.querySelector<HTMLElement>(".e-code-body")!;
+    expect(region.scrollWidth).toBeGreaterThan(region.clientWidth);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(region);
+  });
+
+  test("blocks stacked back to back add no margin", async () => {
+    const { container } = await render(
+      defineComponent({ render: () => h("div", [h(ECodeBlock, { code: "a" }), h(ECodeBlock, { code: "b" })]) }),
+    );
+    expect(getComputedStyle(container.querySelectorAll(".e-code")[1]!).marginTop).toBe("0px");
   });
 
   test("the button sits beside the code, not over it", async () => {

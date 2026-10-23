@@ -34,3 +34,11 @@ A group of buttons in the order of the content, main action first, left-aligned,
 - Source order is tab order: put the main action first.
 - `label` adds no keyboard behaviour: every button stays its own tab stop.
 - To mark a button as a toggle, pass `aria-pressed` to [`EButton`](../Button/README.md) (see [Recipes](https://eos.dame.gg/guide/recipes)).
+
+## Keyboard
+
+No custom keyboard behavior. Each button is its own tab stop, in source order.
+
+## Related
+
+[`EButton`](../Button/README.md) for a single action, [`EInline`](../Inline/README.md) to lay out anything that is not a button.

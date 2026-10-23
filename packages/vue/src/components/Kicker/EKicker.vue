@@ -20,6 +20,7 @@ defineSlots<{
 </template>
 
 <style>
+/* The `.e-kicker` rules live in styles/base.css because every field label and chip carries the class without rendering EKicker. */
 /* stylelint-disable-next-line block-no-empty -- the layer declaration is the point */
 @layer e.primitives {
 }

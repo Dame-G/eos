@@ -101,7 +101,77 @@ describe("EUpload", () => {
     expect(names()).toEqual(["a.PDF", "pic", "song"]);
     choose(container.querySelector("input")!, file("b.exe", 10, "application/x-msdownload"));
     await new Promise((r) => setTimeout(r, 0));
-    expect(names()).toEqual([]);
+    expect(names()).toEqual(["a.PDF", "pic", "song"]);
+  });
+
+  test("a choice that is entirely rejected leaves the list as it was, tells the person, and restores the input", async () => {
+    const rejected: { reason: string }[][] = [];
+    const { container } = await render(EUpload, {
+      props: { label: "Card", accept: ".pdf", onReject: (r: { reason: string }[]) => rejected.push(r) },
+    });
+    const input = container.querySelector("input")!;
+    choose(input, file("keep.pdf"));
+    await new Promise((r) => setTimeout(r, 0));
+    choose(input, file("bad.exe", 10, "x/y"));
+    await new Promise((r) => setTimeout(r, 0));
+    expect([...container.querySelectorAll(".e-file-name")].map((n) => n.textContent)).toEqual(["keep.pdf"]);
+    expect([...input.files!].map((f) => f.name)).toEqual(["keep.pdf"]);
+    expect(rejected).toEqual([[expect.objectContaining({ reason: "type" })]]);
+    await expect
+      .poll(() => document.querySelector("[data-e-announcer=assertive]")?.textContent?.replace(/\u00a0/g, ""))
+      .toBe("1 file was not accepted");
+  });
+
+  test("with multiple, new files are added to the list and a file already in it is not added twice", async () => {
+    const { container } = await render(EUpload, { props: { label: "Card", multiple: true } });
+    const names = () => [...container.querySelectorAll(".e-file-name")].map((n) => n.textContent);
+    const a = file("a.pdf");
+    drop(container.querySelector(".e-drop")!, a, file("b.pdf"));
+    await new Promise((r) => setTimeout(r, 0));
+    drop(container.querySelector(".e-drop")!, a, file("c.pdf"));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(names()).toEqual(["a.pdf", "b.pdf", "c.pdf"]);
+    expect(container.querySelector("input")!.files!.length).toBe(3);
+  });
+
+  test("without multiple a new choice replaces the file", async () => {
+    const { container } = await render(EUpload, { props: { label: "Card" } });
+    drop(container.querySelector(".e-drop")!, file("one.pdf"));
+    await new Promise((r) => setTimeout(r, 0));
+    drop(container.querySelector(".e-drop")!, file("two.pdf"));
+    await new Promise((r) => setTimeout(r, 0));
+    expect([...container.querySelectorAll(".e-file-name")].map((n) => n.textContent)).toEqual(["two.pdf"]);
+  });
+
+  test("maxSize leaves out a larger file and says so", async () => {
+    const rejected: { reason: string }[][] = [];
+    const { container } = await render(EUpload, {
+      props: {
+        label: "Card",
+        multiple: true,
+        maxSize: 1024 * 1024,
+        onReject: (r: { reason: string }[]) => rejected.push(r),
+      },
+    });
+    drop(container.querySelector(".e-drop")!, file("small.pdf", 1000), file("huge.pdf", 2 * 1024 * 1024));
+    await new Promise((r) => setTimeout(r, 0));
+    expect([...container.querySelectorAll(".e-file-name")].map((n) => n.textContent)).toEqual(["small.pdf"]);
+    expect(rejected[0]![0]!.reason).toBe("size");
+    await expect
+      .poll(() => document.querySelector("[data-e-announcer=assertive]")?.textContent?.replace(/\u00a0/g, ""))
+      .toMatch(/1 file added. 1 file is larger than 1 MB/);
+  });
+
+  test("maxFiles caps the list with multiple, counting the files already there", async () => {
+    const { container } = await render(EUpload, { props: { label: "Card", multiple: true, maxFiles: 2 } });
+    drop(container.querySelector(".e-drop")!, file("a.pdf"));
+    await new Promise((r) => setTimeout(r, 0));
+    drop(container.querySelector(".e-drop")!, file("b.pdf"), file("c.pdf"));
+    await new Promise((r) => setTimeout(r, 0));
+    expect([...container.querySelectorAll(".e-file-name")].map((n) => n.textContent)).toEqual(["a.pdf", "b.pdf"]);
+    await expect
+      .poll(() => document.querySelector("[data-e-announcer=assertive]")?.textContent?.replace(/\u00a0/g, ""))
+      .toMatch(/Only 2 files can be added/);
   });
 
   test("announces how many files were added and how many were not accepted", async () => {
@@ -197,6 +267,20 @@ describe("EUpload", () => {
     expect(zone.classList.contains("e-drop--over")).toBe(false);
   });
 
+  test("dragging across the zone's children does not drop the highlight", async () => {
+    const { container } = await render(EUpload, { props: { label: "Card" } });
+    const zone = container.querySelector(".e-drop")!;
+    const main = zone.querySelector(".e-drop-main")!;
+    zone.dispatchEvent(new DragEvent("dragenter", { bubbles: true, cancelable: true }));
+    main.dispatchEvent(new DragEvent("dragenter", { bubbles: true, cancelable: true }));
+    zone.dispatchEvent(new DragEvent("dragleave", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(zone.classList.contains("e-drop--over")).toBe(true);
+    main.dispatchEvent(new DragEvent("dragleave", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(zone.classList.contains("e-drop--over")).toBe(false);
+  });
+
   test("a disabled upload ignores drops and dims its edge", async () => {
     const emitted: File[][] = [];
     const { container } = await render(EUpload, {
@@ -217,6 +301,16 @@ describe("EUpload", () => {
     await userEvent.tab();
     expect(document.activeElement).toBe(container.querySelector("input"));
     expect(getComputedStyle(container.querySelector(".e-drop")!).outlineStyle).toBe("solid");
+  });
+
+  test("with files listed the focus ring is on the zone, not the list", async () => {
+    const { container } = await render(EUpload, { props: { label: "Card", multiple: true } });
+    choose(container.querySelector("input")!, file("a.pdf"));
+    await new Promise((r) => setTimeout(r, 0));
+    await userEvent.tab();
+    expect(document.activeElement).toBe(container.querySelector("input"));
+    expect(getComputedStyle(container.querySelector(".e-drop")!).outlineStyle).toBe("solid");
+    expect(getComputedStyle(container.querySelector(".e-files")!).outlineStyle).toBe("none");
   });
 
   test("multiple, name and required reach the input", async () => {

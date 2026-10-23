@@ -19,9 +19,22 @@ A signature drawn with a finger, stylus or mouse. Most forms should use [`ESigna
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `div` element. A non-empty value set from outside is not drawn onto the pad. Exposes `clear()` and `canvas`.
+`class`, `style` and attributes land on the `div` element. A PNG data URL set from outside is drawn onto the pad, in the ink of the page, and later strokes are added to it. The strokes scale with the pad when it is resized. Exposes `clear()` and `canvas`.
 
 ## Accessibility
 
-- The canvas is labelled "Draw your signature" and the Clear button works from a keyboard.
+- The canvas is a `group` labelled "Draw your signature" and described by the hint. When `disabled` it is an `img`. The Clear button works from a keyboard.
 - Drawing cannot be done from a keyboard, so always offer a typed signature too.
+
+## Keyboard
+
+| Key         | Does                       |
+| ----------- | -------------------------- |
+| Tab         | Moves to the Clear button. |
+| Enter/Space | Clears the signature.      |
+
+Drawing needs a pointer. Offer a typed signature as well.
+
+## Related
+
+[`ESignatureField`](../SignatureField/README.md) adds a typed alternative and an agreement, [`EUpload`](../Upload/README.md) takes a scanned signature as a file.

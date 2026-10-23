@@ -22,7 +22,6 @@ withDefaults(
   }>(),
   { headingLevel: 3 },
 );
-
 defineSlots<{
   /** The term that opens the panel. */
   trigger(): unknown;
@@ -39,15 +38,15 @@ const t = useMessages();
 const portal = usePortalTarget();
 const id = useUid();
 
-const trigger = ref<HTMLElement | null>(null);
+/* Reka names the panel by its trigger and sets that after any attribute passed in, so a bound `aria-labelledby` is overwritten. The panel is named by its title (or `label`) once it is in the page. */
+const content = ref<{ $el: HTMLElement } | null>(null);
 watch(
   open,
   async (isOpen) => {
     if (!isOpen) return;
     await nextTick();
-    document
-      .getElementById(trigger.value?.getAttribute("aria-controls") ?? "")
-      ?.setAttribute("aria-labelledby", `${id.value}-title`);
+    const panel = content.value?.$el?.closest("[role=dialog]") ?? content.value?.$el?.querySelector("[role=dialog]");
+    panel?.setAttribute("aria-labelledby", `${id.value}-title`);
   },
   { flush: "post" },
 );
@@ -56,14 +55,21 @@ watch(
 <template>
   <PopoverRoot v-model:open="open">
     <PopoverTrigger as-child>
-      <button ref="trigger" type="button" class="e-linkbtn" v-bind="$attrs">
+      <button type="button" class="e-definition-term" v-bind="$attrs">
         <EIcon name="info" small />
         <slot name="trigger" />
         <span class="e-sr">, {{ label }}</span>
       </button>
     </PopoverTrigger>
     <PopoverPortal :to="portal">
-      <PopoverContent class="e-popover e-root" side="bottom" align="start" :side-offset="8" :collision-padding="16">
+      <PopoverContent
+        ref="content"
+        class="e-popover e-root"
+        side="bottom"
+        align="start"
+        :side-offset="8"
+        :collision-padding="16"
+      >
         <div v-if="title" class="e-pop-head">
           <component :is="`h${headingLevel}`" :id="`${id}-title`" class="e-pop-title">{{ title }}</component>
           <PopoverClose as-child>
@@ -80,54 +86,57 @@ watch(
 
 <style>
 @layer e.containers {
-  .e-linkbtn {
+  .e-definition-term {
     display: inline-flex;
     align-items: center;
     gap: var(--e-space-1);
     position: relative;
-    min-height: 28px;
+    min-height: var(--e-icon-size-md);
     padding: 0;
     border: 0;
     background: transparent;
     color: var(--e-primary);
-    font: 500 var(--e-text-sm) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-medium) var(--e-text-sm) / 1.3 var(--e-font-sans);
     text-decoration: underline dotted;
     text-decoration-color: currentcolor;
-    text-underline-offset: 4px;
+    text-underline-offset: var(--e-space-1);
     text-decoration-thickness: var(--e-stroke-edge);
     cursor: help;
   }
 
-  .e-linkbtn::after {
+  .e-definition-term::after {
     content: "";
     position: absolute;
     inset: calc(-1 * var(--e-space-2)) calc(-1 * var(--e-space-1));
   }
 
-  .e-linkbtn:hover,
-  .e-linkbtn:active {
+  .e-definition-term:hover,
+  .e-definition-term:active {
     color: var(--e-ink);
   }
 
+  /* .e-pop-head, .e-pop-title and .e-pop-body are also the popover frame of EDataGrid's column chooser. */
   .e-pop-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--e-space-2);
-    padding: var(--e-space-1) var(--e-space-1) 0 var(--e-space-4);
+    padding-block: var(--e-space-1) 0;
+    padding-inline: var(--e-space-4) var(--e-space-1);
   }
 
   .e-pop-title {
     margin: 0;
-    font: 600 var(--e-text-xs) / 1.2 var(--e-font-mono);
+    font: var(--e-weight-strong) var(--e-text-xs) / 1.2 var(--e-font-mono);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--e-muted);
   }
 
   .e-pop-body {
-    padding: var(--e-space-3) var(--e-space-4) var(--e-space-4);
-    font: 400 var(--e-text-md) / 1.5 var(--e-font-sans);
+    padding-block: var(--e-space-3) var(--e-space-4);
+    padding-inline: var(--e-space-4);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.5 var(--e-font-sans);
   }
 
   .e-pop-head + .e-pop-body {
@@ -135,7 +144,7 @@ watch(
   }
 
   @media print {
-    .e-linkbtn {
+    .e-definition-term {
       display: none;
     }
   }

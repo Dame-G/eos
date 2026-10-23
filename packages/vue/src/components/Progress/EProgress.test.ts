@@ -100,6 +100,16 @@ describe("EProgress", () => {
     expect(container.querySelector(".e-progress--indeterminate")).toBeNull();
   });
 
+  test("the stripes stop moving once it is complete", async () => {
+    const part = await render(EProgress, { props: { label: "A", value: 40 } });
+    expect(getComputedStyle(part.container.querySelector(".e-progress-track")!).animationName).toBe(
+      "e-progress-stripes",
+    );
+    const full = await render(EProgress, { props: { label: "B", value: 100 } });
+    expect(full.container.querySelector(".e-progress--complete")).not.toBeNull();
+    expect(getComputedStyle(full.container.querySelector(".e-progress-track")!).animationName).toBe("none");
+  });
+
   test("has no accessibility violations at empty, partial and full", async () => {
     const { container } = await render(
       defineComponent({

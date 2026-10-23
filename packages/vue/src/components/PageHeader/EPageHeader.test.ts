@@ -24,7 +24,7 @@ describe("EPageHeader", () => {
     });
     await expect.element(page.getByRole("heading", { level: 1, name: "Visit on Oct 2" })).toBeVisible();
     expect(container.querySelectorAll("h1").length).toBe(1);
-    expect(container.querySelector("h1")!.className).toBe("e-pagehead-title");
+    expect(container.querySelector("h1")!.classList.contains("e-pagehead-title")).toBe(true);
     expect(container.querySelector("p.e-pagehead-desc")!.textContent).toBe("Statement 4471 · Main office");
   });
 

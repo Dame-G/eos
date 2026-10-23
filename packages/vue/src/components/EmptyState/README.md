@@ -34,3 +34,13 @@ The panel shown when a list, search or table has no content. Never leave a list 
 ## Accessibility
 
 - The title is a heading. Set `headingLevel` to keep the outline correct.
+
+## Keyboard
+
+| Key | Action                                    |
+| --- | ----------------------------------------- |
+| Tab | Moves to the action in the `action` slot. |
+
+## Related
+
+[`ENotice`](../Notice/README.md) for a message about a problem, [`ESkeleton`](../Skeleton/README.md) while content is loading.

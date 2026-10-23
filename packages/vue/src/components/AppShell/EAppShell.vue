@@ -79,6 +79,7 @@ const t = useMessages();
     pointer-events: none;
   }
 
+  /* A viewport query on purpose: the shell is the page frame, so its two-column layout follows the window (48rem, the page-frame breakpoint), not a container. */
   @media (min-width: 48rem) {
     .e-shell--side .e-shell-body {
       grid-template-columns: 15rem minmax(0, 1fr);
@@ -99,12 +100,6 @@ const t = useMessages();
   }
 
   @media print {
-    .e-root,
-    body {
-      background: var(--e-print-paper, #fff);
-      color: var(--e-print-ink, #000);
-    }
-
     .e-shell::after,
     .e-shell-side {
       display: none;

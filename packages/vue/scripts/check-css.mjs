@@ -9,7 +9,7 @@ for (const { file, css } of sourceStyles()) {
   const root = postcss.parse(css, { from: file });
   root.each((n) => {
     if (n.type === "comment") return;
-    if (n.type === "atrule" && n.name === "import") return;
+    if (n.type === "atrule" && (n.name === "import" || n.name === "font-face")) return;
     if (n.type === "atrule" && n.name === "layer") {
       if (!n.nodes) return;
       if (!layers.has(n.params.trim()))

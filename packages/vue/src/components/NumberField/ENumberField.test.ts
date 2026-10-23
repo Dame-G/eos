@@ -58,16 +58,64 @@ describe("ENumberField", () => {
     expect(got.at(-1)).toBe(15);
   });
 
-  test("the buttons step and disable at the limits", async () => {
+  test("the buttons step and go aria-disabled at the limits, keeping focus", async () => {
     const { got } = await bound({ label: "Visits", min: 0, max: 2 }, 1);
-    await page.getByRole("button", { name: "Increase" }).click();
+    const inc = page.getByRole("button", { name: "Increase" });
+    await inc.click();
     expect(got.at(-1)).toBe(2);
-    await expect.element(page.getByRole("button", { name: "Increase" })).toBeDisabled();
+    await expect.element(inc).toHaveAttribute("aria-disabled", "true");
+    expect((inc.element() as HTMLButtonElement).disabled).toBe(false);
+    (inc.element() as HTMLButtonElement).click();
+    expect(got.length).toBe(1);
     await page.getByRole("button", { name: "Decrease" }).click();
     await page.getByRole("button", { name: "Decrease" }).click();
     expect(got.at(-1)).toBe(0);
-    await expect.element(page.getByRole("button", { name: "Decrease" })).toBeDisabled();
-    await expect.element(page.getByRole("button", { name: "Increase" })).toBeEnabled();
+    await expect.element(page.getByRole("button", { name: "Decrease" })).toHaveAttribute("aria-disabled", "true");
+    await expect.element(inc).not.toHaveAttribute("aria-disabled");
+  });
+
+  test("the focused button keeps focus when it reaches the limit", async () => {
+    await bound({ label: "Visits", min: 0, max: 1 }, 0);
+    const inc = page.getByRole("button", { name: "Increase" }).element() as HTMLButtonElement;
+    inc.focus();
+    await userEvent.keyboard("{Enter}");
+    expect(document.activeElement).toBe(inc);
+  });
+
+  test("the model updates as soon as the text reads as a number in range", async () => {
+    const { got } = await bound({ label: "Visits", min: 0, max: 100 }, null);
+    const box = page.getByRole("spinbutton", { name: "Visits" });
+    await box.click();
+    await userEvent.keyboard("4");
+    expect(got.at(-1)).toBe(4);
+    await userEvent.keyboard("2.");
+    expect(got.at(-1)).toBe(42);
+    await expect.element(box).toHaveValue("42.");
+    await userEvent.keyboard("{Backspace}{Backspace}{Backspace}");
+    expect(got.at(-1)).toBeNull();
+  });
+
+  test("a prefix or suffix is part of the value text for screen readers", async () => {
+    await render(ENumberField, { props: { label: "Hours", suffix: "h", modelValue: 2, step: 0.5 } });
+    await expect.element(page.getByRole("spinbutton", { name: "Hours" })).toHaveAttribute("aria-valuetext", "2.0 h");
+  });
+
+  test("holding a button repeats the step", async () => {
+    const { got } = await bound({ label: "Visits" }, 0);
+    const inc = page.getByRole("button", { name: "Increase" }).element() as HTMLButtonElement;
+    inc.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0 }));
+    await new Promise((r) => setTimeout(r, 800));
+    inc.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, button: 0 }));
+    inc.click();
+    const n = got.length;
+    expect(n).toBeGreaterThan(2);
+    await new Promise((r) => setTimeout(r, 200));
+    expect(got.length).toBe(n);
+  });
+
+  test("a value with more decimals than the step is shown whole, and thousands are grouped", async () => {
+    const { container } = await render(ENumberField, { props: { label: "Weight", modelValue: 1234.5 } });
+    expect(container.querySelector<HTMLInputElement>(".e-numinput")!.value).toBe("1,234.5");
   });
 
   test("the buttons are reachable by keyboard", async () => {

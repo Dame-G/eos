@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
@@ -12,7 +11,6 @@ const props = defineProps<{
   circle?: boolean;
 }>();
 
-const t = useMessages();
 const px = (v: number | string) => (typeof v === "number" ? `${v}px` : v);
 const size = computed(() => ({
   height: px(props.height ?? 96),
@@ -21,28 +19,32 @@ const size = computed(() => ({
 </script>
 
 <template>
-  <div class="e-skeleton" :class="{ 'e-skeleton--circle': circle }" :style="size" role="status" aria-busy="true">
-    <span class="e-sr">{{ t("loading") }}</span>
-  </div>
+  <div class="e-skeleton" :class="{ 'e-skeleton--circle': circle }" :style="size" aria-hidden="true"></div>
 </template>
 
 <style>
 @layer e.primitives {
-  /* No container or outline: a faint neutral tint that pulses. */
-  .e-skeleton {
+  /* The one owner of the loading placeholder: `.e-skeleton` is the block and `.e-skel` the line of text a table cell or list row uses. No container or outline: a faint neutral tint with the same diagonal stripes as a busy button and the progress bar, pulsing. */
+  .e-skeleton,
+  .e-skel {
     display: block;
+    background-color: var(--e-skeleton);
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 var(--e-space-2),
+      var(--e-wash-hover) var(--e-space-2) var(--e-space-4)
+    );
+    animation: e-pulse var(--e-duration-loop) var(--e-easing-standard) infinite;
+  }
+
+  .e-skeleton {
     width: 100%;
     border-radius: var(--e-radius-md);
-    background-color: color-mix(in srgb, var(--e-ink) 6%, var(--e-surface));
-    animation: e-pulse 1.4s ease-in-out infinite;
   }
 
   .e-skel {
-    display: block;
-    height: 14px;
+    height: var(--e-space-4);
     border-radius: var(--e-radius-sm);
-    background-color: color-mix(in srgb, var(--e-ink) 6%, var(--e-surface));
-    animation: e-pulse 1.4s ease-in-out infinite;
   }
 
   .e-skeleton--circle {

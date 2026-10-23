@@ -42,9 +42,9 @@ function onToggle(e: Event) {
     justify-content: space-between;
     gap: var(--e-space-3);
     min-height: var(--e-control-height);
-    padding: var(--e-space-3) 0 0;
-    border-top: var(--e-stroke-hair) solid var(--e-border);
-    font: 600 var(--e-text-xs) / 1 var(--e-font-mono);
+    padding-block: var(--e-space-3) 0;
+    border-block-start: var(--e-stroke-hair) solid var(--e-border);
+    font: var(--e-weight-strong) var(--e-text-xs) / 1 var(--e-font-mono);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--e-ink);
@@ -53,9 +53,9 @@ function onToggle(e: Event) {
   .e-details > summary::after {
     content: "";
     flex: none;
-    width: 8px;
-    height: 8px;
-    margin-inline-end: 3px;
+    width: var(--e-space-2);
+    height: var(--e-space-2);
+    margin-inline-end: var(--e-space-1);
     border-inline-end: var(--e-stroke-card) solid currentcolor;
     border-bottom: var(--e-stroke-card) solid currentcolor;
     transform: translateY(-2px) rotate(45deg);
@@ -72,7 +72,7 @@ function onToggle(e: Event) {
 
   .e-details > summary:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-focus-gap);
+    outline-offset: var(--e-stroke-focus);
   }
 
   .e-details > summary:hover {
@@ -81,11 +81,11 @@ function onToggle(e: Event) {
 
   .e-details[open] > summary {
     min-height: 0;
-    padding-bottom: var(--e-space-3);
+    padding-block-end: var(--e-space-3);
   }
 
   .e-details-body {
-    padding-bottom: var(--e-space-2);
+    padding-block-end: var(--e-space-2);
   }
 
   @media (forced-colors: active) {
@@ -100,12 +100,6 @@ function onToggle(e: Event) {
 
     .e-details > summary:focus-visible {
       outline-color: Highlight;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-details > summary::after {
-      transition: none;
     }
   }
 }

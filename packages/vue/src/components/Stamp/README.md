@@ -12,14 +12,15 @@ A small non-interactive mark with a word that says where something stands, such 
 
 <!-- props:start -->
 
-| Prop     | Type          | Default                      | Notes                                                                                                                                           |
-| -------- | ------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `status` | `StampStatus` | None                         | A preset: sets the tone and the word (message `status.<name>`).                                                                                 |
-| `tone`   | `StampTone`   | None                         | Overrides the preset's tone. Without a `status` the stamp is `neutral`, the same as `ink`. `success`, `info`, `warning` and `danger` colour it. |
-| `label`  | `string`      | `preset's word, else Status` | The word. It overrides the preset's, and the default slot overrides both.                                                                       |
-| `icon`   | `IconProp`    | None                         | A glyph before the word.                                                                                                                        |
-| `detail` | `string`      | None                         | A date or day count, set after the word.                                                                                                        |
-| `small`  | `boolean`     | `false`                      | Shorter, for rows and tables.                                                                                                                   |
+| Prop     | Type          | Default                      | Notes                                                                                                                                                       |
+| -------- | ------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `status` | `StampStatus` | None                         | A preset: sets the tone and the word (message `status.<name>`).                                                                                             |
+| `tone`   | `StampTone`   | None                         | Overrides the preset's tone. Without a `status` the stamp is `neutral` (`ink` is another name for it). `success`, `info`, `warning` and `danger` colour it. |
+| `label`  | `string`      | `preset's word, else Status` | The word. It overrides the preset's, and the default slot overrides both.                                                                                   |
+| `icon`   | `IconProp`    | None                         | A glyph before the word.                                                                                                                                    |
+| `detail` | `string`      | None                         | A date or day count, set after the word.                                                                                                                    |
+| `small`  | `boolean`     | `false`                      | Shorter, for rows and tables.                                                                                                                               |
+| `final`  | `boolean`     | `false`                      | Rubber-stamp ink for the one mark on a page that says a thing is final, such as PAID or VOID. Outlined, in `stamp-ink`. Use it once per screen.             |
 
 <!-- props:end -->
 
@@ -34,3 +35,12 @@ Presets: `paid`, `confirmed`, `signed` and `complete` are success. `due`, `sched
 ## Accessibility
 
 - A `span` of plain text, read in flow: the word (and detail) carry the meaning, colour only backs it up. It has no role, so the text is not flattened into an image label.
+- `final` is for the one mark on a page that says a thing is final. It draws an outline in the stamp ink instead of a fill, so use it once per screen.
+
+## Keyboard
+
+Not focusable and takes no keys.
+
+## Related
+
+[`ENotice`](../Notice/README.md) for a message that needs a sentence, [`EButton`](../Button/README.md) for anything pressable.

@@ -44,9 +44,12 @@ defineSlots<{
     padding: var(--e-space-3) var(--e-space-4);
     border-top: var(--e-stroke-hair) solid var(--e-border);
     background: var(--e-surface-tint);
+
+    /* The bar's own width decides when its buttons stack, not the viewport. */
+    container-type: inline-size;
   }
 
-  @media (max-width: 32rem) {
+  @container (max-width: 32rem) {
     .e-actions--bar > .e-btn {
       flex: 1 1 100%;
     }

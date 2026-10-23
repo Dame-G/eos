@@ -48,3 +48,15 @@ Exactly one of five or fewer options. Use [`ESelect`](../Select/README.md) for m
 
 - A `fieldset` whose legend, hint and error are announced with the group.
 - Native radios sharing one `name`: arrow keys move between options.
+
+## Keyboard
+
+| Key                  | Does                                                       |
+| -------------------- | ---------------------------------------------------------- |
+| Tab                  | Moves into the group (to the chosen option) and out of it. |
+| Arrow Up, Arrow Down | Moves to the previous or next option and chooses it.       |
+| Space                | Chooses the focused option.                                |
+
+## Related
+
+[`ESegmented`](../Segmented/README.md) for two to five short options as a switch, [`ESelect`](../Select/README.md) for more, [`ECheckbox`](../Checkbox/README.md) for several at once.

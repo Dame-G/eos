@@ -7,12 +7,12 @@ import { expectNoViolations } from "../../../test/axe.js";
 const cell = (text: string, style: Record<string, string> = {}) => h("div", { class: "cell", style }, text);
 
 describe("EGrid", () => {
-  test("sets --e-gap (default space 4) and --e-min (default 16rem)", async () => {
+  test("sets --_gap (default space 4) and --_min (default 16rem)", async () => {
     const { container } = await render(EGrid, { slots: { default: () => cell("a") } });
     const el = container.firstElementChild as HTMLElement;
     expect(el.className).toBe("e-grid-layout");
-    expect(el.style.getPropertyValue("--e-gap")).toBe("var(--e-space-4)");
-    expect(el.style.getPropertyValue("--e-min")).toBe("16rem");
+    expect(el.style.getPropertyValue("--_gap")).toBe("var(--e-space-4)");
+    expect(el.style.getPropertyValue("--_min")).toBe("16rem");
   });
 
   test("gap and min are taken from the props", async () => {
@@ -21,8 +21,18 @@ describe("EGrid", () => {
       slots: { default: () => cell("a") },
     });
     const el = container.firstElementChild as HTMLElement;
-    expect(el.style.getPropertyValue("--e-gap")).toBe("var(--e-space-3)");
-    expect(el.style.getPropertyValue("--e-min")).toBe("10rem");
+    expect(el.style.getPropertyValue("--_gap")).toBe("var(--e-space-3)");
+    expect(el.style.getPropertyValue("--_min")).toBe("10rem");
+  });
+
+  test("align and justify place the items", async () => {
+    const { container } = await render(EGrid, {
+      props: { align: "start", justify: "center" },
+      slots: { default: () => cell("a") },
+    });
+    const style = getComputedStyle(container.firstElementChild!);
+    expect(style.alignItems).toBe("start");
+    expect(style.justifyItems).toBe("center");
   });
 
   test("makes as many equal columns as fit, and one below the minimum", async () => {
@@ -93,7 +103,7 @@ describe("EGrid", () => {
     expect(el.classList.contains("e-grid-layout")).toBe(true);
     expect(el.classList.contains("mine")).toBe(true);
     expect(el.style.marginTop).toBe("5px");
-    expect(el.style.getPropertyValue("--e-min")).toBe("16rem");
+    expect(el.style.getPropertyValue("--_min")).toBe("16rem");
     expect(el.getAttribute("aria-label")).toBe("Cards");
   });
 

@@ -2,16 +2,18 @@
 import { computed } from "vue";
 import "../../styles/base.css";
 
+export type InlineGap = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 10 | 12 | 16;
+
 const props = withDefaults(
   defineProps<{
     /** The element to render, for example `ul`. */
     as?: string;
-    /** A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string. */
-    gap?: number | string;
-    /** Main-axis placement. `between` spreads the children apart and `end` packs them at the end. Left out, they sit at the start. */
-    justify?: "between" | "end";
+    /** A space token number (1 to 8, 10, 12 or 16) becomes `var(--e-space-N)`. A string is used as given, so any CSS length works. */
+    gap?: InlineGap | string;
+    /** Main-axis placement. `between` spreads the children apart. Left out, they sit at the start. */
+    justify?: "start" | "center" | "end" | "between";
     /** Cross-axis alignment. `start` aligns the top edges and `baseline` aligns the text baselines. Left out, the children are centred. */
-    align?: "start" | "baseline";
+    align?: "start" | "center" | "end" | "stretch" | "baseline";
     /** Keeps the children on one line instead of wrapping. */
     nowrap?: boolean;
   }>(),
@@ -30,8 +32,8 @@ const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-
   <component
     :is="as"
     class="e-inline"
-    :class="[nowrap && 'e-inline--nowrap', justify && `e-inline--${justify}`, align && `e-inline--a-${align}`]"
-    :style="{ '--e-gap': gapValue }"
+    :class="[nowrap && 'e-inline--nowrap', justify && `e-inline--j-${justify}`, align && `e-inline--a-${align}`]"
+    :style="{ '--_gap': gapValue }"
   >
     <slot />
   </component>
@@ -43,7 +45,7 @@ const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--e-gap, var(--e-space-2));
+    gap: var(--_gap, var(--e-space-2));
     min-width: 0;
   }
 
@@ -51,16 +53,36 @@ const gapValue = computed(() => (typeof props.gap === "number" ? `var(--e-space-
     flex-wrap: nowrap;
   }
 
-  .e-inline--between {
+  .e-inline--j-start {
+    justify-content: flex-start;
+  }
+
+  .e-inline--j-center {
+    justify-content: center;
+  }
+
+  .e-inline--j-between {
     justify-content: space-between;
   }
 
-  .e-inline--end {
+  .e-inline--j-end {
     justify-content: flex-end;
   }
 
   .e-inline--a-start {
     align-items: flex-start;
+  }
+
+  .e-inline--a-center {
+    align-items: center;
+  }
+
+  .e-inline--a-end {
+    align-items: flex-end;
+  }
+
+  .e-inline--a-stretch {
+    align-items: stretch;
   }
 
   .e-inline--a-baseline {

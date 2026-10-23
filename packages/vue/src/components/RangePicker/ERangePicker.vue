@@ -9,7 +9,7 @@ import EIcon from "../Icon/EIcon.vue";
 import { addDays, compareDays, isoDate, startOfDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
-import { useQuietFocus } from "../Select/quietFocus.js";
+import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
@@ -44,11 +44,15 @@ const props = defineProps<{
   min?: Date;
   /** The latest date that can be chosen or typed. */
   max?: Date;
+  /** Days that cannot be chosen, in the calendar or by typing. */
+  disabledDate?: (date: Date) => boolean;
+  /** Days that get a dot in the calendar: a list of dates or a function. */
+  marked?: Date[] | ((date: Date) => boolean);
   /** Submits the first date as `YYYY-MM-DD` with a form, through a hidden input. */
   startName?: string;
   /** Submits the last date as `YYYY-MM-DD` with a form, through a hidden input. */
   endName?: string;
-  /** Buttons under the calendar. Each sets the span and closes the calendar. @default Last 7 days, Last 30 days, This month */
+  /** Buttons under the calendar. Each sets the span and closes the calendar. A span is cut to `min` and `max`, and a button whose whole span lies outside them is disabled. @default Last 7 days, Last 30 days, This month */
   presets?: RangePreset[];
   /** The id of the start box, which the label points at. @default generated */
   id?: string;
@@ -78,9 +82,11 @@ const draft = ref<CalendarRange>({ start: start.value, end: end.value });
 const calendar = ref<InstanceType<typeof ECalendar> | null>(null);
 const startInput = ref<HTMLInputElement | null>(null);
 
+// A change from outside (the calendar, a preset, the parent) replaces whatever was typed, and so its error.
 watch([() => start.value?.getTime(), () => end.value?.getTime(), () => config.locale], () => {
   startText.value = loc.formatDate(start.value);
   endText.value = loc.formatDate(end.value);
+  typedError.value = "";
 });
 watch(open, (isOpen) => {
   if (isOpen) draft.value = { start: start.value, end: end.value };
@@ -88,8 +94,7 @@ watch(open, (isOpen) => {
 
 const shownError = computed(() => props.error || typedError.value);
 
-const presets = computed<RangePreset[]>(() => {
-  if (props.presets) return props.presets;
+const defaultPresets = (): RangePreset[] => {
   const today = startOfDay(new Date());
   return [
     { label: t("last7"), get: () => ({ start: addDays(today, -6), end: today }) },
@@ -99,6 +104,18 @@ const presets = computed<RangePreset[]>(() => {
       get: () => ({ start: new Date(today.getFullYear(), today.getMonth(), 1, 12), end: today }),
     },
   ];
+};
+
+/** A preset's span cut to `min` and `max`; null when nothing of it is left. Worked out each time the calendar opens. */
+function fit(p: RangePreset): { start: Date; end: Date } | null {
+  const span = p.get();
+  const s = props.min && compareDays(span.start, props.min) < 0 ? startOfDay(props.min) : span.start;
+  const e = props.max && compareDays(span.end, props.max) > 0 ? startOfDay(props.max) : span.end;
+  return compareDays(e, s) < 0 ? null : { start: s, end: e };
+}
+const presets = computed(() => {
+  void open.value;
+  return (props.presets ?? defaultPresets()).map((preset) => ({ preset, span: fit(preset) }));
 });
 
 function setRange(r: { start: Date | null; end: Date | null }) {
@@ -127,6 +144,10 @@ function commitText() {
     });
     return;
   }
+  if ([a, b].some((d) => d && props.disabledDate?.(d))) {
+    typedError.value = t("dateUnavailable");
+    return;
+  }
   if (a && b && compareDays(b, a) < 0) {
     typedError.value = t("endBeforeStart");
     return;
@@ -141,8 +162,9 @@ function onRange(r: CalendarRange) {
     open.value = false;
   }
 }
-function applyPreset(p: RangePreset) {
-  setRange(p.get());
+function applyPreset(span: { start: Date; end: Date } | null) {
+  if (!span) return;
+  setRange(span);
   open.value = false;
 }
 
@@ -200,7 +222,6 @@ defineExpose({
               v-model="startText"
               class="e-input e-combo-input"
               type="text"
-              inputmode="numeric"
               autocomplete="off"
               :placeholder="t('startDate')"
               :aria-label="t('startDate')"
@@ -217,7 +238,6 @@ defineExpose({
               v-model="endText"
               class="e-input e-combo-input"
               type="text"
-              inputmode="numeric"
               autocomplete="off"
               :placeholder="t('endDate')"
               :aria-label="t('endDate')"
@@ -258,12 +278,20 @@ defineExpose({
               :end="draft.end"
               :min="min"
               :max="max"
+              :disabled-date="disabledDate"
+              :marked="marked"
               :footer="false"
               @range-change="onRange"
             />
             <div class="e-cal-presets">
-              <EButton v-for="p in presets" :key="p.label" variant="outline" @click="applyPreset(p)">
-                {{ p.label }}
+              <EButton
+                v-for="{ preset, span } in presets"
+                :key="preset.label"
+                variant="outline"
+                :disabled="!span"
+                @click="applyPreset(span)"
+              >
+                {{ preset.label }}
               </EButton>
             </div>
           </PopoverContent>

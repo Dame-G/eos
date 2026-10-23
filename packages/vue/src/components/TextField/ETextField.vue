@@ -21,9 +21,9 @@ const props = defineProps<{
   placeholder?: string;
   /** The input type. @default "text" */
   type?: string;
-  /** A unit before the value, such as `$`. Hidden from screen readers. */
+  /** A unit before the value, such as `$`. Read as part of the input's description. */
   prefix?: string;
-  /** A unit after the value, such as `USD`. Hidden from screen readers. */
+  /** A unit after the value, such as `USD`. Read as part of the input's description. */
   suffix?: string;
   /** Sets the `required` attribute and adds a word beside the label. */
   required?: boolean;
@@ -42,6 +42,11 @@ const model = defineModel<string>({ default: "" });
 
 const input = ref<HTMLInputElement | null>(null);
 const attrs = useFieldAttrs();
+/** The units, then the hint or error: a screen reader says "$" after the label, so the number is not a bare amount. */
+function describedBy(field: { id: string; ariaDescribedby: string | undefined }) {
+  const ids = [props.prefix && `${field.id}-prefix`, props.suffix && `${field.id}-suffix`, field.ariaDescribedby];
+  return ids.filter(Boolean).join(" ") || undefined;
+}
 function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }) {
   return {
     id: field.id,
@@ -53,7 +58,7 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
     readonly: props.readonly,
     required: props.required,
     "aria-invalid": field.ariaInvalid,
-    ...attrs.input(field.ariaDescribedby),
+    ...attrs.input(describedBy(field)),
   };
 }
 defineExpose({
@@ -83,9 +88,9 @@ defineExpose({
         :data-readonly="readonly ? '' : undefined"
         @click="focusInside"
       >
-        <span v-if="prefix" class="e-affix e-affix--pre" aria-hidden="true">{{ prefix }}</span>
+        <span v-if="prefix" :id="`${field.id}-prefix`" class="e-affix e-affix--pre">{{ prefix }}</span>
         <input ref="input" v-bind="inputBind(field)" @input="model = ($event.target as HTMLInputElement).value" />
-        <span v-if="suffix" class="e-affix e-affix--post" aria-hidden="true">{{ suffix }}</span>
+        <span v-if="suffix" :id="`${field.id}-suffix`" class="e-affix e-affix--post">{{ suffix }}</span>
       </div>
       <input v-else ref="input" v-bind="inputBind(field)" @input="model = ($event.target as HTMLInputElement).value" />
     </template>

@@ -20,7 +20,7 @@ A list of search results as links, with a title and a muted line under it, arrow
   ]"
   empty-text="Nothing found."
   @select="open"
-  @edge="bar?.focus()"
+  @exit-top="bar?.focus()"
 />
 ```
 
@@ -30,7 +30,7 @@ A list of search results as links, with a title and a muted line under it, arrow
 
 | Prop            | Type                  | Default      | Notes                                                                                                                                                                                          |
 | --------------- | --------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `items`         | `SearchResultItem[]`  | **Required** | The results, best first: `{ label, description?, href?, to? }`. With no `href` or `to` a link goes to `#`.                                                                                     |
+| `items`         | `SearchResultItem[]`  | **Required** | The results, best first: `{ label, description?, href?, to?, id? }`. A result with no `href` or `to` is a button, so `select` is the only way to open it.                                      |
 | `label`         | `string`              | **Required** | The accessible name of the list, such as "Search results".                                                                                                                                     |
 | `emptyText`     | `string`              | None         | Shown when there are no results, such as `Nothing found for "tax"`. Without it nothing shows, for example before anyone has typed.                                                             |
 | `query`         | `string`              | None         | The text that was searched for: its first match in each title and description is marked, as in `ECombobox` options.                                                                            |
@@ -42,12 +42,28 @@ A list of search results as links, with a title and a muted line under it, arrow
 
 ## Events
 
-| Event    | Payload                                     | Notes                                                                                                                                                                                                              |
-| -------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `select` | `item: SearchResultItem, event: MouseEvent` | A result was opened by click or Enter. A click with Ctrl, Meta, Shift or Alt, or with a non-primary button, does not emit, so "open in a new tab" still works. Call `event.preventDefault()` to navigate yourself. |
-| `edge`   |                                             | ArrowUp was pressed on the first result. Move focus back to your search box.                                                                                                                                       |
+| Event         | Payload                                     | Notes                                                                                                                                                                                                              |
+| ------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `select`      | `item: SearchResultItem, event: MouseEvent` | A result was opened by click or Enter. A click with Ctrl, Meta, Shift or Alt, or with a non-primary button, does not emit, so "open in a new tab" still works. Call `event.preventDefault()` to navigate yourself. |
+| `exit-top`    |                                             | ArrowUp was pressed on the first result. Move focus back to your search box.                                                                                                                                       |
+| `exit-bottom` |                                             | ArrowDown was pressed on the last result.                                                                                                                                                                          |
+| `edge`        |                                             | Deprecated: the same as `exit-top`, still emitted.                                                                                                                                                                 |
 
 ## Accessibility
 
-- A list of links named by `label`. Tab reaches each one. ArrowDown and ArrowUp move between them. Wire ArrowDown from the search box to `focusFirst()`.
-- It does not announce the result count. Put a polite live region (`role="status"`) beside it that says "3 results" or "No results".
+- A list of links named by `label`. Tab reaches each one. ArrowDown and ArrowUp move between them, Home and End jump to the first and last. Wire ArrowDown from the search box to `focusFirst()`.
+- `emptyText` is announced politely when it appears. The result count is not: put a polite live region (`role="status"`) beside the list that says "3 results".
+- A result with no `href` or `to` is a real `button`, not a link to `#`.
+
+## Keyboard
+
+| Key                  | Does                                                                          |
+| -------------------- | ----------------------------------------------------------------------------- |
+| Tab                  | Moves to and from the results.                                                |
+| Arrow Down, Arrow Up | Move between results. Past either end they emit `exit-bottom` and `exit-top`. |
+| Home, End            | Focus the first or last result.                                               |
+| Enter                | Opens the focused result (`select`).                                          |
+
+## Related
+
+[`ESearchBar`](../SearchBar/README.md) takes the query, [`ECombobox`](../Combobox/README.md) when the choice belongs to a form.

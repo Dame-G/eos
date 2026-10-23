@@ -10,12 +10,12 @@ A floating message that confirms or reports something just done. Show toasts thr
 
 <!-- props:start -->
 
-| Prop       | Type                                           | Default      | Notes                                                                                         |
-| ---------- | ---------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------- |
-| `title`    | `string`                                       | **Required** | What happened, in a few words.                                                                |
-| `tone`     | `"info" \| "success" \| "warning" \| "danger"` | `"info"`     | `danger` is announced at once and the other tones politely.                                   |
-| `icon`     | `IconProp`                                     | None         | Replaces the icon of the tone.                                                                |
-| `closable` | `boolean`                                      | None         | Forces the dismiss button on or off. Left out, it shows when a `@close` listener is attached. |
+| Prop       | Type                                           | Default      | Notes                                                       |
+| ---------- | ---------------------------------------------- | ------------ | ----------------------------------------------------------- |
+| `title`    | `string`                                       | **Required** | What happened, in a few words.                              |
+| `tone`     | `"info" \| "success" \| "warning" \| "danger"` | `"info"`     | `danger` is announced at once and the other tones politely. |
+| `icon`     | `IconProp`                                     | None         | Replaces the icon of the tone.                              |
+| `closable` | `boolean`                                      | `true`       | Shows the dismiss button.                                   |
 
 <!-- props:end -->
 
@@ -30,11 +30,22 @@ A floating message that confirms or reports something just done. Show toasts thr
 
 ## Events
 
-| Event   | Payload | Notes                                                                              |
-| ------- | ------- | ---------------------------------------------------------------------------------- |
-| `close` |         | The dismiss button was pressed. The button shows only when a listener is attached. |
+| Event   | Payload | Notes                           |
+| ------- | ------- | ------------------------------- |
+| `close` |         | The dismiss button was pressed. |
 
 ## Accessibility
 
 - `role="alert"` for danger, `role="status"` for the other tones.
-- The dismiss button is named by the `dismiss` message.
+- The dismiss button is named by the `dismiss` message. Turn it off with `closable="false"` only for a toast that goes by itself.
+
+## Keyboard
+
+| Key         | Does                                             |
+| ----------- | ------------------------------------------------ |
+| Tab         | Moves between the action and the dismiss button. |
+| Enter/Space | Presses the focused button.                      |
+
+## Related
+
+[`ENotice`](../Notice/README.md) for a message that stays in the page, [`EToastProvider`](../ToastProvider/README.md) to show toasts.

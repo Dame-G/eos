@@ -7,11 +7,11 @@ import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESpinner", () => {
-  test("is a status that reads out Loading when it has no label", async () => {
+  test("without a label it reads Loading but is not a live region", async () => {
     const { container } = await render(ESpinner);
-    await expect.element(page.getByRole("status")).toHaveTextContent("Loading");
     const sr = container.querySelector(".e-sr")!;
     expect(sr.textContent).toBe("Loading");
+    expect(container.querySelector(".e-spinner")!.hasAttribute("role")).toBe(false);
     expect(container.querySelector(".e-spinner-label")).toBeNull();
   });
 
@@ -19,6 +19,7 @@ describe("ESpinner", () => {
     const { container } = await render(ESpinner, { props: { label: "Processing your payment" } });
     expect(container.querySelector(".e-spinner-label")!.textContent).toBe("Processing your payment");
     expect(container.querySelector(".e-sr")).toBeNull();
+    expect(container.querySelector(".e-spinner")!.getAttribute("role")).toBe("status");
     await expect.element(page.getByText("Processing your payment")).toBeVisible();
   });
 
@@ -28,6 +29,16 @@ describe("ESpinner", () => {
     expect(ring.getAttribute("aria-hidden")).toBe("true");
     expect(getComputedStyle(ring.querySelector(".e-ring-arc")!).animationName).toBe("e-spin");
     expect(getComputedStyle(ring.querySelector(".e-ring-track")!).animationName).toBe("none");
+  });
+
+  test("small and large size the ring from the icon tokens", async () => {
+    const sizes: number[] = [];
+    for (const props of [{ small: true }, {}, { large: true }] as Record<string, boolean>[]) {
+      const { container } = await render(ESpinner, { props });
+      sizes.push(container.querySelector(".e-ring")!.getBoundingClientRect().width);
+    }
+    expect(sizes[0]).toBeLessThan(sizes[1]!);
+    expect(sizes[1]).toBeLessThan(sizes[2]!);
   });
 
   test("block centres it in a panel", async () => {

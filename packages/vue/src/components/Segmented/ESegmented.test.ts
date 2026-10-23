@@ -30,6 +30,39 @@ describe("ESegmented", () => {
     await expect.element(page.getByRole("radio", { name: "Day" })).toBeChecked();
   });
 
+  test("an unset v-model is told the first option, so the model matches what is shown", async () => {
+    const model = ref<string | undefined>(undefined);
+    await render(
+      defineComponent({
+        render: () =>
+          h(ESegmented, {
+            label: "View",
+            options,
+            modelValue: model.value,
+            "onUpdate:modelValue": (v?: string) => (model.value = v),
+          }),
+      }),
+    );
+    await expect.poll(() => model.value).toBe("Day");
+    await expect.element(page.getByRole("radio", { name: "Day" })).toBeChecked();
+  });
+
+  test("the first option that can be chosen is the default", async () => {
+    const model = ref<string | undefined>(undefined);
+    await render(
+      defineComponent({
+        render: () =>
+          h(ESegmented, {
+            label: "View",
+            options: [{ value: "a", label: "A", disabled: true }, "B"],
+            modelValue: model.value,
+            "onUpdate:modelValue": (v?: string) => (model.value = v),
+          }),
+      }),
+    );
+    await expect.poll(() => model.value).toBe("B");
+  });
+
   test("v-model gets the value, and the model picks the option", async () => {
     const model = ref("Week");
     const got: string[] = [];

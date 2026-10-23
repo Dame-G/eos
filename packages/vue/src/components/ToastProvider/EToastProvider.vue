@@ -68,6 +68,8 @@ Render.props = ["content"];
         :key="item.id"
         :tone="item.tone"
         :title="item.title"
+        :icon="item.icon"
+        :closable="item.closable ?? true"
         @close="store.dismiss(item.id)"
       >
         <template v-if="item.message" #default>{{ item.message }}</template>

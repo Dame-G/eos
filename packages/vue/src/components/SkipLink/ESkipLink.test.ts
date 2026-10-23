@@ -75,4 +75,28 @@ describe("ESkipLink", () => {
     await userEvent.tab();
     await expectNoViolations(container);
   });
+  test("a target without tabindex still receives focus, and is left clean after", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () => h("div", [h(ESkipLink, { href: "#plain" }), h("main", { id: "plain" }, [h("button", "Inside")])]),
+      }),
+    );
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    const main = container.querySelector("main")!;
+    expect(document.activeElement).toBe(main);
+    await userEvent.tab();
+    expect(main.hasAttribute("tabindex")).toBe(false);
+  });
+
+  test("a malformed escape in the href does not throw", async () => {
+    const { container } = await render(ESkipLink, { props: { href: "#bad%E0%A4%A" } });
+    const errors: unknown[] = [];
+    const onError = (e: ErrorEvent) => errors.push(e);
+    window.addEventListener("error", onError);
+    container.querySelector("a")!.click();
+    await new Promise((r) => setTimeout(r, 20));
+    window.removeEventListener("error", onError);
+    expect(errors).toHaveLength(0);
+  });
 });

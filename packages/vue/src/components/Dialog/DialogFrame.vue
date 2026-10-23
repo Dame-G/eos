@@ -13,6 +13,7 @@ import EActions from "../Actions/EActions.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages, usePortalTarget } from "../../config.js";
 import "../../styles/base.css";
+import "../Heading/scale.css";
 import "./dialog.css";
 
 defineOptions({ inheritAttrs: false });
@@ -76,7 +77,7 @@ function setOpen(value: boolean) {
           @close-auto-focus="keepFocus"
         >
           <header class="e-dialog-head">
-            <DialogTitle :as="`h${headingLevel}`" class="e-dialog-title">{{ title }}</DialogTitle>
+            <DialogTitle :as="`h${headingLevel}`" class="e-dialog-title e-h e-h2">{{ title }}</DialogTitle>
             <DialogClose as-child>
               <EIconButton icon="x" :label="t('close')" />
             </DialogClose>

@@ -87,7 +87,7 @@ describe("ESignatureField", () => {
     expect(got.at(-1)).toEqual({ method: "type", name: "Maria Okafor", image: "", agreed: true });
     expect(model.value.name).toBe("Maria Okafor");
     expect(container.querySelector(".e-sign-line")!.textContent).toContain("Maria Okafor");
-    expect(container.querySelector(".e-sign-line")!.getAttribute("aria-live")).toBe("polite");
+    expect(container.querySelector(".e-sign-line")!.hasAttribute("aria-live")).toBe(false);
   });
 
   test("the name uses a handwriting face on the signature line", async () => {
@@ -116,7 +116,7 @@ describe("ESignatureField", () => {
     const { container, got } = await mount({ mode: "both" });
     await expect.element(page.getByRole("radio", { name: "Type" })).toBeChecked();
     await page.getByRole("radio", { name: "Draw" }).click({ force: true });
-    await expect.element(page.getByRole("img", { name: "Draw your signature" })).toBeVisible();
+    await expect.element(page.getByRole("group", { name: "Draw your signature" })).toBeVisible();
     expect(container.querySelector("input[type=text]")).toBeNull();
     expect(container.querySelector(".e-sign-date--solo")!.textContent).toBe("September 22, 2026");
     expect(got.at(-1)!.method).toBe("draw");

@@ -1,12 +1,13 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignore": [".claude/**"],
   "workspaces": {
     "packages/tokens": {
       "entry": ["src/index.ts", "scripts/*.mjs"],
       "ignore": ["src/generated/**"]
     },
     "packages/vue": {
-      "entry": ["src/index.ts", "src/resolver.ts", "src/icons/index.ts", "src/icons/iconify.ts", "scripts/*.mjs"],
+      "entry": ["scripts/*.mjs"],
       "ignoreDependencies": ["@iconify/vue"]
     }
   }

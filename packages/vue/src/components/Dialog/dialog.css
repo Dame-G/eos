@@ -17,10 +17,31 @@
     background: var(--e-scrim);
   }
 
+  .e-dialog-overlay[data-state="open"] {
+    animation: e-fade-in var(--e-duration-move) var(--e-easing-out);
+  }
+
+  .e-dialog-overlay[data-state="closed"] {
+    animation: e-fade-out var(--e-duration-move) var(--e-easing-out) forwards;
+  }
+
+  @keyframes e-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes e-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
   .e-dialog-body,
   .e-drawer-body {
-    padding: var(--e-space-3) var(--e-space-6) var(--e-space-6);
-    font: 400 var(--e-text-md) / 1.5 var(--e-font-sans);
+    padding-block: var(--e-space-3) var(--e-space-6);
+    padding-inline: var(--e-space-6);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.5 var(--e-font-sans);
   }
 
   .e-dialog-head {
@@ -28,20 +49,21 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: var(--e-space-3);
-    padding: var(--e-space-4) var(--e-space-2) 0 var(--e-space-6);
+    padding-block: var(--e-space-4) 0;
+    padding-inline: var(--e-space-6) var(--e-space-2);
   }
 
+  /* The size and weight come from the type scale (`e-h e-h2`). */
   .e-dialog-title {
-    margin: var(--e-space-2) 0 0;
-    font: 500 var(--e-text-2xl) / 1.25 var(--e-font-sans);
-    text-wrap: balance;
+    margin-block-start: var(--e-space-2);
   }
 
   .e-dialog-description {
     margin: 0;
-    padding: var(--e-space-2) var(--e-space-6) 0;
+    padding-block: var(--e-space-2) 0;
+    padding-inline: var(--e-space-6);
     color: var(--e-muted);
-    font: 400 var(--e-text-md) / 1.5 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.5 var(--e-font-sans);
   }
 
   .e-dialog-foot {

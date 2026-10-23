@@ -21,3 +21,11 @@ The bottom of the page: small print, privacy and terms links, contact.
 
 - Renders the `contentinfo` landmark: use one per page, last, in the `footer` slot of `EAppShell`.
 - No primary actions here.
+
+## Keyboard
+
+No custom keyboard behavior.
+
+## Related
+
+[`EAppShell`](../AppShell/README.md) holds it in its `footer` slot, and [`EAppHeader`](../AppHeader/README.md) is the bar at the top.

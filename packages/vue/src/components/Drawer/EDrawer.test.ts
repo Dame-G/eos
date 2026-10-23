@@ -39,19 +39,41 @@ function host(props: Record<string, unknown> = {}, withActions = true) {
 const drawer = () => document.querySelector<HTMLElement>(".e-drawer")!;
 
 describe("EDrawer", () => {
-  test("is a modal dialog named by its title, with a Close button and a scrolling region", async () => {
+  test("is a modal dialog named by its title, with a Close button", async () => {
     const { Host, open } = host();
     await render(Host);
     open.value = true;
     await expect.element(page.getByRole("dialog", { name: "October statement" })).toBeVisible();
     await expect.element(page.getByRole("button", { name: "Close" })).toBeVisible();
     const body = drawer().querySelector<HTMLElement>(".e-drawer-body")!;
-    expect(body.getAttribute("role")).toBe("region");
-    expect(body.tabIndex).toBe(0);
-    await expect.element(page.getByRole("region", { name: "October statement" })).toBeVisible();
+    expect(body.hasAttribute("role")).toBe(false);
   });
 
-  test("is 28rem wide on the right by default, the full height, and left on request", async () => {
+  test("the body is a tab stop only when its content scrolls", async () => {
+    const short = host();
+    await render(short.Host);
+    short.open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    const body = () => drawer().querySelector<HTMLElement>(".e-drawer-body")!;
+    await expect.poll(() => body().hasAttribute("tabindex")).toBe(false);
+    short.open.value = false;
+    await expect.poll(() => document.querySelector(".e-drawer")).toBeNull();
+
+    const open = ref(true);
+    await render(
+      defineComponent({
+        render: () =>
+          h(
+            EDrawer,
+            { title: "Long", open: open.value, "onUpdate:open": (v?: boolean) => (open.value = !!v) },
+            { default: () => h("div", { style: { height: "3000px" } }, "tall") },
+          ),
+      }),
+    );
+    await expect.poll(() => body().tabIndex).toBe(0);
+  });
+
+  test("is 28rem wide at the end by default, the full height, and at the start on request", async () => {
     const { Host, open } = host();
     await render(Host);
     open.value = true;
@@ -63,12 +85,27 @@ describe("EDrawer", () => {
     expect(Math.round(drawer().getBoundingClientRect().height)).toBe(window.innerHeight);
     open.value = false;
     await expect.poll(() => document.querySelector(".e-drawer")).toBeNull();
+    const left = host({ side: "start" });
+    await render(left.Host);
+    left.open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    expect(drawer().classList.contains("e-drawer--start")).toBe(true);
+    await expect.poll(() => Math.round(drawer().getBoundingClientRect().left)).toBe(0);
+  });
+
+  test("left and right are accepted as aliases for start and end", async () => {
     const left = host({ side: "left" });
     await render(left.Host);
     left.open.value = true;
     await expect.element(page.getByRole("dialog")).toBeVisible();
-    expect(drawer().classList.contains("e-drawer--left")).toBe(true);
-    await expect.poll(() => Math.round(drawer().getBoundingClientRect().left)).toBe(0);
+    expect(drawer().classList.contains("e-drawer--start")).toBe(true);
+    left.open.value = false;
+    await expect.poll(() => document.querySelector(".e-drawer")).toBeNull();
+    const right = host({ side: "right" });
+    await render(right.Host);
+    right.open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    expect(drawer().className).not.toContain("e-drawer--");
   });
 
   test("focus is trapped, Escape closes it and focus returns to the trigger", async () => {
@@ -90,11 +127,20 @@ describe("EDrawer", () => {
   });
 
   test("the scrolling body can be reached with Tab", async () => {
-    const { Host, open } = host();
-    await render(Host);
-    open.value = true;
+    const open = ref(true);
+    await render(
+      defineComponent({
+        render: () =>
+          h(
+            EDrawer,
+            { title: "Long", open: open.value, "onUpdate:open": (v?: boolean) => (open.value = !!v) },
+            { default: () => h("div", { style: { height: "3000px" } }, "tall") },
+          ),
+      }),
+    );
     await expect.element(page.getByRole("dialog")).toBeVisible();
     const body = drawer().querySelector<HTMLElement>(".e-drawer-body")!;
+    await expect.poll(() => body.tabIndex).toBe(0);
     let reached = false;
     for (let i = 0; i < 4 && !reached; i++) {
       await userEvent.tab();

@@ -98,7 +98,7 @@ function update(patch: Partial<SignatureValue>) {
         :hint="t('signHint')"
         @update:model-value="update({ name: $event })"
       />
-      <div class="e-sign-line" aria-live="polite">
+      <div class="e-sign-line">
         <span v-if="model.name" class="e-sign-name">{{ model.name }}</span>
         <span v-else class="e-sign-empty">{{ t("signAppears") }}</span>
         <span class="e-sign-date">{{ dateText }}</span>
@@ -142,29 +142,25 @@ function update(patch: Partial<SignatureValue>) {
     gap: var(--e-space-3);
     min-height: calc(var(--e-control-height) + var(--e-space-1));
     padding: var(--e-space-2) var(--e-space-4);
-    border-bottom: var(--e-stroke-edge) solid var(--e-secondary);
-    background: var(--e-secondary-soft);
+    border-bottom: var(--e-stroke-edge) solid var(--e-success);
+    background: var(--e-success-soft);
     border-radius: var(--e-radius-md) var(--e-radius-md) 0 0;
   }
 
   .e-sign-name {
-    font:
-      italic 500 28px/1.1 "Segoe Script",
-      "Snell Roundhand",
-      "Brush Script MT",
-      cursive;
+    font: italic var(--e-weight-medium) var(--e-text-3xl) / 1.1 var(--e-font-script);
     min-width: 0;
     overflow-wrap: anywhere;
   }
 
   .e-sign-empty {
-    font: 400 var(--e-text-md)/1.4 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.4 var(--e-font-sans);
     color: var(--e-muted);
   }
 
   .e-sign-date {
     flex: none;
-    font: 500 var(--e-text-xs)/1.2 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-xs) / 1.2 var(--e-font-mono);
     color: var(--e-muted);
   }
 

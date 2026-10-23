@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from "vue";
 import EField from "../Field/EField.vue";
+import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import "../../styles/base.css";
@@ -9,34 +10,22 @@ import "../TextField/input.css";
 defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
-  defineProps<{
-    /** The field's label. @default "Verification code" */
-    label?: string;
-    /** Hides the label from the page and keeps it for screen readers. */
-    hideLabel?: boolean;
-    /** How many characters: the number of boxes. */
-    length?: number;
-    /** `numeric` opens the number pad and `text` takes letters and digits, upper-cased. */
-    inputmode?: "numeric" | "text";
-    /** The number of boxes in each group, with a gap between groups. A `length` of 6 with 3 reads 123 456. */
-    groupSize?: number;
-    /** The name submitted with a form (the whole code), through a hidden input. */
-    name?: string;
-    /** Focuses the first empty box when the field mounts. */
-    autoFocus?: boolean;
-    /** Help under the boxes, read with each box. */
-    hint?: string;
-    /** What to fix. Replaces the hint, marks every box invalid and is announced. */
-    error?: string;
-    /** Sets the `required` attribute on every box and shows "Required" beside the label. */
-    required?: boolean;
-    /** Shows "Optional" beside the label. Only the rarer of required and optional needs a flag. */
-    optional?: boolean;
-    /** Disables every box. */
-    disabled?: boolean;
-    /** The id of the first box. The label and hint ids are built from it. @default generated */
-    id?: string;
-  }>(),
+  defineProps<
+    EFieldCommonProps & {
+      /** The field's label. @default "Verification code" */
+      label?: string;
+      /** How many characters: the number of boxes. */
+      length?: number;
+      /** `numeric` opens the number pad and `text` takes letters and digits, upper-cased. */
+      inputmode?: "numeric" | "text";
+      /** The number of boxes in each group, with a gap between groups. A `length` of 6 with 3 reads 123 456. */
+      groupSize?: number;
+      /** The name submitted with a form (the whole code), through a hidden input. */
+      name?: string;
+      /** Focuses the first empty box when the field mounts. */
+      autoFocus?: boolean;
+    }
+  >(),
   { length: 6, inputmode: "numeric", groupSize: 0 },
 );
 
@@ -135,9 +124,8 @@ function onKey(i: number, e: KeyboardEvent) {
     focusAt(v.length);
   }
 }
-function onFocus(i: number) {
-  if (i > live.length) focusAt(live.length);
-}
+/** The one box in the tab order: the first empty box, or the last when the code is full. Tab leaves the field from it. */
+const entry = computed(() => Math.min(value.value.length, props.length - 1));
 function onPaste(i: number, e: ClipboardEvent) {
   e.preventDefault();
   put(i, e.clipboardData?.getData("text") ?? "");
@@ -178,7 +166,8 @@ defineExpose({
             type="text"
             :inputmode="numeric ? 'numeric' : 'text'"
             :autocomplete="i === 1 ? 'one-time-code' : 'off'"
-            autocapitalize="characters"
+            :autocapitalize="numeric ? undefined : 'characters'"
+            :tabindex="i - 1 === entry ? 0 : -1"
             :spellcheck="false"
             :value="value[i - 1] || ''"
             :disabled="disabled"
@@ -189,7 +178,6 @@ defineExpose({
             :aria-describedby="field.ariaDescribedby"
             @input="onInput(i - 1, $event)"
             @keydown="onKey(i - 1, $event)"
-            @focus="onFocus(i - 1)"
             @paste="onPaste(i - 1, $event)"
           />
         </template>
@@ -216,11 +204,11 @@ defineExpose({
   .e-otp .e-otp-box {
     flex: 1 1 0;
     width: 0;
-    min-width: 30px;
+    min-width: var(--e-space-8);
     max-width: var(--e-control-height);
     padding: 0;
     text-align: center;
-    font: 500 var(--e-text-xl)/1 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-xl)/1 var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     text-transform: uppercase;
     caret-color: var(--e-primary);

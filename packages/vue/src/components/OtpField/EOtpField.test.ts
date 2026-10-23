@@ -154,11 +154,39 @@ describe("EOtpField", () => {
     expect(got.at(-1)).toBe("134");
   });
 
-  test("focus cannot skip past the last filled box", async () => {
+  test("only the first empty box is in the tab order", async () => {
     const { container } = await render(EOtpField, { props: { label: "Code", modelValue: "12" } });
-    boxesOf(container)[5]!.focus();
-    await nextTick();
-    expect(boxesOf(container).indexOf(document.activeElement as HTMLInputElement)).toBe(2);
+    const tabbable = boxesOf(container).filter((b) => b.tabIndex === 0);
+    expect(tabbable).toEqual([boxesOf(container)[2]]);
+    const full = await render(EOtpField, { props: { label: "Code", modelValue: "123456" } });
+    expect(boxesOf(full.container).findIndex((b) => b.tabIndex === 0)).toBe(5);
+  });
+
+  test("Tab leaves the field instead of stepping through the boxes", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h("button", { id: "before" }, "before"),
+            h(EOtpField, { label: "Code", modelValue: "12" }),
+            h("button", { id: "after" }, "after"),
+          ]),
+      }),
+    );
+    boxesOf(container)[2]!.focus();
+    await userEvent.tab();
+    expect(document.activeElement!.id).toBe("after");
+    await userEvent.tab({ shift: true });
+    expect(document.activeElement).toBe(boxesOf(container)[2]);
+    await userEvent.tab({ shift: true });
+    expect(document.activeElement!.id).toBe("before");
+  });
+
+  test("autocapitalize applies only to text codes", async () => {
+    const numeric = await render(EOtpField, { props: { label: "Code" } });
+    expect(boxesOf(numeric.container)[0]!.hasAttribute("autocapitalize")).toBe(false);
+    const text = await render(EOtpField, { props: { label: "Code", inputmode: "text" } });
+    expect(boxesOf(text.container)[0]!.getAttribute("autocapitalize")).toBe("characters");
   });
 
   test("a code from outside the component shows in the boxes", async () => {

@@ -40,3 +40,15 @@ A term that opens a small floating panel with a definition or short explanation.
 - The term is a button with `aria-haspopup="dialog"`, and its name is the visible term followed by `label`.
 - The panel is a non-modal `role="dialog"` named by its title, or by `label` without one.
 - Enter or Space opens it and moves focus in. Escape, an outside press or Close closes it and returns focus to the term.
+
+## Keyboard
+
+| Key          | Action                                                                   |
+| ------------ | ------------------------------------------------------------------------ |
+| Enter, Space | Opens the panel and moves focus into it.                                 |
+| Escape       | Closes the panel and returns focus to the term.                          |
+| Tab          | Moves through the panel's buttons and out of it; the panel is not modal. |
+
+## Related
+
+[`EDialog`](../Dialog/README.md) when the reader must decide something, [`ETooltip`](../Tooltip/README.md) for a one-line hint.

@@ -26,9 +26,21 @@ A single yes/no choice. Use [`ESwitch`](../Switch/README.md) for a setting that 
 
 <!-- props:end -->
 
-`class` and `style` land on the row (the `label`, or the wrapper `div` when there is an error). Other attributes and listeners land on the `input` element. Exposes `input` and `focus()`.
+`class` and `style` land on the wrapper `div`, which holds the `label` row and the error. It stays the same element when `error` comes and goes, so focus is not lost. Other attributes and listeners land on the `input` element. Exposes `input` and `focus()`.
 
 ## Accessibility
 
 - The label is required. With `bare` it stays for screen readers.
-- `error` is linked to the input with `aria-describedby`.
+- `error` and `description` are linked to the input with `aria-describedby`. The description is not part of the checkbox's name.
+- `indeterminate` is the prop's to set: a click checks the box, and the mixed state stays until the prop changes.
+
+## Keyboard
+
+| Key   | Action                                             |
+| ----- | -------------------------------------------------- |
+| Space | Checks or unchecks the box.                        |
+| Tab   | Moves focus to the box. A disabled box is skipped. |
+
+## Related
+
+[`ESwitch`](../Switch/README.md) for a setting that applies at once, [`ERadioGroup`](../RadioGroup/README.md) to choose one of several.

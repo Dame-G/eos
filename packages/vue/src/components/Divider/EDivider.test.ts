@@ -32,6 +32,29 @@ describe("EDivider", () => {
     expect(getComputedStyle(el).display).toBe("flex");
   });
 
+  test("a labelled divider is a separator named by its label", async () => {
+    await render(EDivider, { props: { label: "Or" } });
+    await expect.element(page.getByRole("separator", { name: "Or" })).toBeInTheDocument();
+  });
+
+  test("vertical is a vertical separator that stretches across a row", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: { display: "flex", height: "60px" } }, [
+            h("span", "a"),
+            h(EDivider, { vertical: true }),
+            h("span", "b"),
+          ]),
+      }),
+    );
+    const hr = container.querySelector("hr")!;
+    expect(hr.getAttribute("aria-orientation")).toBe("vertical");
+    expect(hr.getBoundingClientRect().height).toBe(60);
+    expect(hr.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+    expect(getComputedStyle(hr).borderInlineStartStyle).toBe("solid");
+  });
+
   test("attributes fall through to the root, in both forms", async () => {
     const plain = await render(EDivider, { attrs: { "data-testid": "d" } });
     expect(plain.container.querySelector("hr")!.getAttribute("data-testid")).toBe("d");

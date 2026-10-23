@@ -21,7 +21,7 @@ An inline message that stays until it is dealt with. Use [`EToast`](../Toast/REA
 | `titleId`      | `string`                     | None         | The id of the title element, for a parent that labels itself by it.                                                              |
 | `role`         | `string \| false`            | None         | The ARIA role. `danger` uses `alert`, the others `status`. `false` removes it, for a parent that announces the notice.           |
 | `icon`         | `IconProp`                   | None         | Replaces the icon of the tone.                                                                                                   |
-| `closable`     | `boolean`                    | None         | Forces the close button on or off. Left out, it shows when a `@close` listener is attached.                                      |
+| `closable`     | `boolean`                    | `false`      | Shows the close button. Handle `@close` to remove the notice.                                                                    |
 
 <!-- props:end -->
 
@@ -36,11 +36,23 @@ An inline message that stays until it is dealt with. Use [`EToast`](../Toast/REA
 
 ## Events
 
-| Event   | Payload | Notes                                                                            |
-| ------- | ------- | -------------------------------------------------------------------------------- |
-| `close` |         | The close button was pressed. The button only shows when a listener is attached. |
+| Event   | Payload | Notes                         |
+| ------- | ------- | ----------------------------- |
+| `close` |         | The close button was pressed. |
 
 ## Accessibility
 
 - A live region, with `role="alert"` for `danger` and `role="status"` otherwise. Set `role` to `false` when a parent already announces it.
-- The close button is named "Dismiss".
+- The close button is named "Dismiss". It shows when `closable` is set; handle `@close` to remove the notice.
+- The coloured edge sits on the inline start, so it flips in a right-to-left page.
+
+## Keyboard
+
+| Key          | Action                                          |
+| ------------ | ----------------------------------------------- |
+| Tab          | Moves to the actions, then to the close button. |
+| Enter, Space | Presses the focused button.                     |
+
+## Related
+
+[`EToast`](../Toast/README.md) for a message that goes by itself, [`EEmptyState`](../EmptyState/README.md) for nothing to show.

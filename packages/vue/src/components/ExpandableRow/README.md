@@ -15,14 +15,16 @@ A one-line row that opens to more: a leading item, a title with a subtitle, and 
 
 <!-- props:start -->
 
-| Prop       | Type     | Default      | Notes                                          |
-| ---------- | -------- | ------------ | ---------------------------------------------- |
-| `title`    | `string` | **Required** | The row's name, always visible in the summary. |
-| `subtitle` | `string` | None         | A muted line under the title.                  |
+| Prop       | Type      | Default      | Notes                                                                          |
+| ---------- | --------- | ------------ | ------------------------------------------------------------------------------ |
+| `open`     | `boolean` | `false`      | `v-model:open`: whether it is open. Without a binding it keeps its own state.  |
+| `title`    | `string`  | **Required** | The row's name, always visible in the summary.                                 |
+| `subtitle` | `string`  | None         | A muted line under the title.                                                  |
+| `group`    | `string`  | None         | Rows that share a `group` open one at a time (the native `name` of `details`). |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `details` element. `open` starts it open, and rows that share a `name` open one at a time.
+`class`, `style` and attributes land on the `details` element. Bind `v-model:open` to read or set the state. Rows that share a `group` open one at a time.
 
 Rows in a list line their leading items up when the lead column has a fixed width: set `--e-xrow-lead` (for example `8.75rem`) on the rows or their parent.
 
@@ -38,4 +40,15 @@ Rows in a list line their leading items up when the lead column has a fixed widt
 ## Accessibility
 
 - A native `details` with a `summary`. Tab focuses the summary, and Enter or Space toggles it.
-- The summary holds only the title, subtitle, leading and trailing content. Put interactive controls in the body.
+- The summary holds only the title, subtitle, leading and trailing content, all as text (`span`s), because a summary may not contain a button or link. Put interactive controls in the body or the `actions` slot.
+
+## Keyboard
+
+| Key          | Action                                           |
+| ------------ | ------------------------------------------------ |
+| Tab          | Moves to the summary, then into the opened body. |
+| Enter, Space | Opens or closes the focused row.                 |
+
+## Related
+
+[`EDisclosure`](../Disclosure/README.md) for a section of a page, [`ETable`](../Table/README.md) for rows with columns.

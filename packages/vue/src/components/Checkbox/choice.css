@@ -5,24 +5,24 @@
     align-items: flex-start;
     gap: var(--e-space-3);
     min-height: var(--e-control-height);
-    padding: calc(var(--e-space-2) + var(--e-focus-gap)) 0;
+    padding: calc(var(--e-space-2) + var(--e-stroke-focus)) 0;
     cursor: pointer;
   }
 
   .e-choice--disabled {
     cursor: not-allowed;
-    color: var(--e-muted);
+    color: var(--e-disabled-ink);
   }
 
   .e-choice-text {
     display: grid;
     gap: calc(var(--e-space-1) / 2);
     min-width: 0;
-    font: 400 var(--e-text-md)/1.5 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md)/1.5 var(--e-font-sans);
   }
 
   .e-choice-desc {
-    font: 400 var(--e-text-sm)/1.4 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-sm)/1.4 var(--e-font-sans);
     color: var(--e-muted);
   }
 
@@ -30,14 +30,14 @@
   .e-radio {
     appearance: none;
     flex: none;
-    width: 24px;
-    height: 24px;
+    width: var(--e-check-size);
+    height: var(--e-check-size);
     margin: 0;
 
-    --e-ring: var(--e-border-strong);
+    --_ring: var(--e-border-strong);
 
     box-sizing: border-box;
-    border: var(--e-stroke-edge) solid var(--e-ring);
+    border: var(--e-stroke-edge) solid var(--_ring);
     background: var(--e-surface);
     background-clip: padding-box;
     box-shadow: var(--e-well);
@@ -55,21 +55,21 @@
     border-radius: 50%;
   }
 
-  /* Pointing at the label counts as pointing at the box: the outline darkens and the face takes a tint of the primary colour. */
+  /* Pointing at the label counts as pointing at the box: the outline darkens and the face takes the soft primary wash. */
   .e-choice:hover .e-check:not(:checked, :disabled),
   .e-choice:hover .e-radio:not(:checked, :disabled) {
-    --e-ring: var(--e-ink);
+    --_ring: var(--e-ink);
 
-    background-color: color-mix(in srgb, var(--e-primary) 16%, var(--e-surface));
+    background-color: var(--e-primary-soft);
   }
 
   /* Checked, it is a small button face: the primary colour with a slab under it, which sinks away when pressed. */
   .e-check:checked,
   .e-check:indeterminate,
   .e-radio:checked {
-    --e-slab: color-mix(in srgb, var(--e-primary), var(--e-shade-slab));
+    --_slab: var(--e-primary-slab);
 
-    border-color: var(--e-slab);
+    border-color: var(--_slab);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
     background-color: var(--e-primary);
     background-clip: border-box;
@@ -84,7 +84,7 @@
     height: 100%;
     background: var(--e-on-primary);
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M232.49,80.49l-128,128a12,12,0,0,1-17,0l-56-56a12,12,0,1,1,17-17L96,183,215.51,63.51a12,12,0,0,1,17,17Z'/%3E%3C/svg%3E")
-      center / 16px no-repeat;
+      center / calc(var(--e-check-size) * 2 / 3) no-repeat;
   }
 
   .e-check:indeterminate::after {
@@ -93,18 +93,20 @@
 
   .e-check:checked:disabled::after,
   .e-check:indeterminate:disabled::after {
-    background: var(--e-muted);
+    background: var(--e-disabled-ink);
   }
 
   .e-radio:checked {
-    background-image: radial-gradient(circle, var(--e-on-primary) 0 4px, transparent 5px);
+    background-image: radial-gradient(
+      circle,
+      var(--e-on-primary) 0 calc(var(--e-check-size) / 6),
+      transparent calc(var(--e-check-size) / 6 + 1px)
+    );
   }
 
   .e-choice:hover .e-check:is(:checked, :indeterminate):not(:disabled),
   .e-choice:hover .e-radio:checked:not(:disabled) {
-    --e-slab: color-mix(in srgb, color-mix(in srgb, var(--e-primary), var(--e-shade-press)), var(--e-shade-slab));
-
-    background-color: color-mix(in srgb, var(--e-primary), var(--e-shade-press));
+    background-color: var(--e-primary-press);
   }
 
   .e-check:is(:checked, :indeterminate):active,
@@ -116,18 +118,18 @@
   .e-radio:focus-visible,
   .e-switch-input:focus-visible + .e-switch-track {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-focus-gap);
+    outline-offset: var(--e-stroke-focus);
   }
 
   /* Invalid: the edge turns danger and pointing at it tints the face danger-soft. A chosen box keeps its primary fill, so the danger shows as a ring just outside it. Disabled comes after and stays neutral. */
   .e-check[aria-invalid="true"],
   .e-radio[aria-invalid="true"] {
-    --e-ring: var(--e-danger);
+    --_ring: var(--e-danger);
   }
 
   .e-choice:hover .e-check[aria-invalid="true"]:not(:checked, :indeterminate, :disabled),
   .e-choice:hover .e-radio[aria-invalid="true"]:not(:checked, :disabled) {
-    --e-ring: var(--e-danger);
+    --_ring: var(--e-danger);
 
     background-color: var(--e-danger-soft);
   }
@@ -155,13 +157,6 @@
     border-bottom-width: var(--e-stroke-edge);
     background-color: var(--e-surface-tint);
     box-shadow: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-check,
-    .e-radio {
-      transition: none;
-    }
   }
 
   @media (forced-colors: active) {

@@ -2,6 +2,15 @@
 
 Functions to call inside `setup()`. Each is exported from `@eos-ui/vue`.
 
+## Conventions
+
+- One composable per file: `useThing.ts` exports `useThing` (and its types). A helper that is not a composable (`focusInside`) lives here too when components share it. The file is exported from the package automatically by `scripts/gen-index.mjs`.
+- Each has a test next to it (`useThing.test.ts`) that runs in a real browser.
+- Safe for the server: touch `window`, `document` and the clipboard only inside `onMounted` or an event handler, and do nothing when they are missing.
+- Take reactive input as `MaybeRefOrGetter`, read it with `toValue`, and return refs or computeds, so callers can pass props directly.
+- Clean up what you start (`onScopeDispose` or `onBeforeUnmount`). Ids come from `useUid`, never a module counter. Words come from `useMessages()`.
+- Read configuration with `useConfig()`, which works without the plugin.
+
 ## `useAnnouncer()`
 
 Says something to screen reader users without showing it. One hidden live region per politeness is shared by the whole page and created on first use. On the server it does nothing.
@@ -63,6 +72,23 @@ A stable id for wiring a label, hint and error to a control. It matches between 
 
 Everything date and money components need from the configured locale: month and weekday names, the first day of the week, date order and separator, and formatting and parsing of dates and money.
 
+## `focusInside(event)`
+
+A click handler for a boxed input: a click on the padding or an icon puts the cursor in the input, while a button or link inside keeps its own click. Bind it with `@click="focusInside"` on the wrapper.
+
 ## `useFieldAttrs()`
 
 For a form control built on `EField`: keeps `class` and `style` on the wrapper and sends every other attribute to the real input. Use it with `defineOptions({ inheritAttrs: false })`.
+
+## `useQuietFocus(open, inside)`
+
+Keeps a popup from taking focus when it is opened from outside (`v-model:open`, or open from the first render). `ESelect`, `EDatePicker` and `ERangePicker` use it. `inside(el)` says whether an element belongs to the popup.
+
+```ts
+const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel"));
+// on the trigger: @click="quiet.intent"
+// in onOpenAutoFocus: if (!quiet.personOpened()) return;  // opened from outside: leave focus alone
+// in onCloseAutoFocus: if (!quiet.returnsFocus()) e.preventDefault();
+```
+
+`intent()` marks the next open as a person's. `personOpened()` and `returnsFocus()` answer once. `undoFocusSteal()` hands focus back to the element that had it when a popup that opened from outside pulls it in anyway (a Reka select does), for 400 ms.

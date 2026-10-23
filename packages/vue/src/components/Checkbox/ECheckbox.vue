@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import EFieldMessage from "../Field/EFieldMessage.vue";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useUid } from "../../composables/useUid.js";
@@ -36,7 +36,13 @@ const model = defineModel<boolean>({ default: false });
 
 const id = useUid(() => props.id);
 const errorId = computed(() => `${id.value}-hint`);
-const wrapped = computed(() => !!props.error && !props.bare);
+const descId = computed(() => `${id.value}-desc`);
+const shownError = computed(() => (props.bare ? undefined : props.error));
+const shownDescription = computed(() => (props.bare ? undefined : props.description));
+const describedBy = computed(
+  () =>
+    [shownError.value && errorId.value, shownDescription.value && descId.value].filter(Boolean).join(" ") || undefined,
+);
 const input = ref<HTMLInputElement | null>(null);
 const attrs = useFieldAttrs();
 
@@ -58,9 +64,18 @@ const inputBind = () => ({
   disabled: props.disabled,
   name: props.name,
   "aria-invalid": props.error ? ("true" as const) : undefined,
-  ...attrs.input(wrapped.value ? errorId.value : undefined),
+  ...attrs.input(describedBy.value),
 });
-const onChange = (e: Event) => (model.value = (e.target as HTMLInputElement).checked);
+
+// A click clears the native mixed state and checks the box. The props stay the truth: put both back once the parent has answered.
+function onChange(e: Event) {
+  const el = e.target as HTMLInputElement;
+  model.value = el.checked;
+  void nextTick(() => {
+    el.checked = model.value;
+    el.indeterminate = !!props.indeterminate;
+  });
+}
 
 defineExpose({
   input,
@@ -69,30 +84,18 @@ defineExpose({
 </script>
 
 <template>
-  <div v-if="wrapped" class="e-choice-wrap" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
-    <label class="e-choice" :class="{ 'e-choice--disabled': disabled }" :for="id">
+  <div class="e-choice-wrap" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
+    <label class="e-choice" :class="{ 'e-choice--bare': bare, 'e-choice--disabled': disabled }" :for="id">
       <input ref="input" v-bind="inputBind()" @change="onChange" />
-      <span class="e-choice-text">
+      <span v-if="bare" class="e-sr">{{ label }}</span>
+      <span v-else class="e-choice-text">
         {{ label }}
-        <span v-if="description" class="e-choice-desc">{{ description }}</span>
+        <!-- Visible under the label, but kept out of its accessible name: the input points at it with aria-describedby. -->
+        <span v-if="shownDescription" :id="descId" class="e-choice-desc" aria-hidden="true">{{ description }}</span>
       </span>
     </label>
-    <EFieldMessage :id="errorId" :error="error" />
+    <EFieldMessage v-if="shownError" :id="errorId" :error="shownError" />
   </div>
-  <label
-    v-else
-    class="e-choice"
-    :class="[{ 'e-choice--bare': bare, 'e-choice--disabled': disabled }, attrs.wrapper().class]"
-    :style="attrs.wrapper().style"
-    :for="id"
-  >
-    <input ref="input" v-bind="inputBind()" @change="onChange" />
-    <span v-if="bare" class="e-sr">{{ label }}</span>
-    <span v-else class="e-choice-text">
-      {{ label }}
-      <span v-if="description" class="e-choice-desc">{{ description }}</span>
-    </span>
-  </label>
 </template>
 
 <style>
@@ -109,7 +112,7 @@ defineExpose({
   }
 
   .e-choice-wrap > .e-field-error {
-    margin-top: calc(var(--e-space-1) - var(--e-space-2) - var(--e-focus-gap));
+    margin-top: calc(var(--e-space-1) - var(--e-space-2) - var(--e-stroke-focus));
   }
 }
 </style>

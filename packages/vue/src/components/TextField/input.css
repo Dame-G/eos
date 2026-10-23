@@ -15,7 +15,7 @@
     background-clip: padding-box;
     box-shadow: var(--e-well);
     color: var(--e-ink);
-    font: 400 var(--e-text-md)/1 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1 var(--e-font-sans);
     transition:
       border-color var(--e-duration-tap) var(--e-easing-out),
       background-color var(--e-duration-tap) var(--e-easing-out);
@@ -27,8 +27,7 @@
 
   /* The hover fill is laid over the well, so it runs unbroken to the top edge. */
   .e-input:hover,
-  .e-input-wrap:hover,
-  .e-search:not([data-disabled]):hover {
+  .e-input-wrap:hover {
     box-shadow: inset 0 0 0 100vmax var(--e-over, var(--e-surface-hover));
   }
 
@@ -71,9 +70,9 @@
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     border-color: transparent;
-    background-color: var(--e-surface-tint);
+    background-color: var(--e-disabled-fill);
     box-shadow: none;
-    color: var(--e-muted);
+    color: var(--e-disabled-ink);
   }
 
   .e-input[readonly]:not(:disabled) {
@@ -120,14 +119,13 @@
     outline-color: var(--e-danger);
   }
 
-  .e-input-wrap[data-disabled],
-  .e-search[data-disabled] {
+  .e-input-wrap[data-disabled] {
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     border-color: transparent;
-    background: var(--e-surface-tint);
+    background: var(--e-disabled-fill);
     box-shadow: none;
-    color: var(--e-muted);
+    color: var(--e-disabled-ink);
   }
 
   /* A readonly wrap matches a bare readonly input: tinted, no well, still focusable. It stays solid, unlike disabled. */
@@ -165,7 +163,7 @@
     flex: none;
     padding: 0 var(--e-space-3);
     color: var(--e-muted);
-    font: 500 var(--e-text-sm)/1 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-sm) / 1 var(--e-font-mono);
     font-variant-numeric: tabular-nums;
   }
 
@@ -177,24 +175,16 @@
     padding-inline-start: 0;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .e-input {
-      transition: none;
-    }
-  }
-
   @media (forced-colors: active) {
     .e-input:disabled,
     .e-input-wrap[data-disabled],
-    .e-search[data-disabled],
     .e-input::placeholder,
     .e-affix {
       color: GrayText;
     }
 
     .e-input:disabled,
-    .e-input-wrap[data-disabled],
-    .e-search[data-disabled] {
+    .e-input-wrap[data-disabled] {
       outline-color: GrayText;
     }
 

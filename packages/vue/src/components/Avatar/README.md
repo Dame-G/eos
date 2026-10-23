@@ -30,3 +30,14 @@ A person, as a photo or as their initials on a rounded tile.
 
 - The `span` root is `role="img"` with `aria-label` set to `name`. The photo has no alt text of its own.
 - As a `button` the root has no role and is named by hidden text set to `name`. The initials are hidden from screen readers.
+
+## Keyboard
+
+| Key          | Action                                                                         |
+| ------------ | ------------------------------------------------------------------------------ |
+| Tab          | Moves focus to an avatar with `as="button"`. A `span` avatar is not focusable. |
+| Enter, Space | Press an avatar with `as="button"`.                                            |
+
+## Related
+
+[`EMenu`](../Menu/README.md) takes an avatar button as its trigger, and [`EIconButton`](../IconButton/README.md) is the button for an icon action.
