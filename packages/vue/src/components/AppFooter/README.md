@@ -1,6 +1,6 @@
 # EAppFooter
 
-The bottom of the page: small print, privacy and terms links, contact.
+The bottom of the page: small print, privacy and terms links, contact. Put it in the `footer` slot of [`EAppShell`](../AppShell/README.md).
 
 ```vue
 <EAppFooter>

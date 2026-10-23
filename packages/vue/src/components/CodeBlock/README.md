@@ -1,6 +1,6 @@
 # ECodeBlock
 
-A block of code with a copy button. For a short word inside a sentence use plain `<code>`.
+A block of code with a copy button. For a short word inside a sentence use plain `<code>`, and [`ECopyButton`](../CopyButton/README.md) to copy a value without showing it as code.
 
 ```vue
 <ECodeBlock lang="ts" code="npm install @eos-ui/vue" />

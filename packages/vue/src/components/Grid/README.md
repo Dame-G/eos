@@ -1,6 +1,6 @@
 # EGrid
 
-Cards in as many equal columns as fit, responding to its container's width rather than the screen.
+Cards in as many equal columns as fit, responding to its container's width rather than the screen. Use [`EStack`](../Stack/README.md) for one column and [`EInline`](../Inline/README.md) for a row.
 
 ```vue
 <EGrid min="15rem" :gap="3">

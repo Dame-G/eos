@@ -1,6 +1,6 @@
 # EKbd
 
-A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to search".
+A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to search". Use [`EHighlight`](../Highlight/README.md) for other words set off in a sentence.
 
 ```vue
 <ESearchBar label="Search" />

@@ -1,6 +1,6 @@
 # EMenu
 
-A button that opens a short list of actions. Use it when there are three or more actions and no room for buttons.
+A button that opens a short list of actions. Use it when there are three or more actions and no room for buttons, and [`EActions`](../Actions/README.md) when there is.
 
 ```vue
 <EMenu

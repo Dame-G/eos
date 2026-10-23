@@ -1,6 +1,6 @@
 # EPasswordField
 
-A password input with a Show and Hide toggle and an optional live checklist of rules.
+A password input with a Show and Hide toggle and an optional live checklist of rules. Use it for every password, in place of an [`ETextField`](../TextField/README.md).
 
 ```vue
 <EPasswordField v-model="password" label="Choose a password" mode="new" :rules="rules" />

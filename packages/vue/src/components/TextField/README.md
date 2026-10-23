@@ -1,6 +1,6 @@
 # ETextField
 
-A labelled single-line text input with hint, error and optional unit.
+A labelled single-line text input with hint, error and optional unit. Use [`ETextarea`](../Textarea/README.md) for more than a line, [`ENumberField`](../NumberField/README.md) for a number and [`EPasswordField`](../PasswordField/README.md) for a password.
 
 ```vue
 <ETextField v-model="email" label="Email" type="email" required autocomplete="email" hint="We send receipts here." />

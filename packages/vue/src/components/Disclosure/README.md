@@ -1,6 +1,6 @@
 # EDisclosure
 
-A section that opens and closes, for secondary detail. Give several the same `group` for an accordion that keeps one open at a time.
+A section that opens and closes, for secondary detail. Give several the same `group` for an accordion that keeps one open at a time. Use [`EExpandableRow`](../ExpandableRow/README.md) for a row of a list, and [`ETabs`](../Tabs/README.md) to switch between views.
 
 ```vue
 <EDisclosure title="History (4)">

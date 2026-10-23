@@ -51,3 +51,5 @@ Changes the theme, colour scheme, language, currency, direction, words or icons 
 ## Related
 
 [`ESurface`](../Surface/README.md) for a themed block's ground, [`EToastProvider`](../ToastProvider/README.md) for toasts in a part of the page.
+
+<!-- lede: no sibling -->

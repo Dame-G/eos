@@ -1,6 +1,6 @@
 # EDatePicker
 
-A date field with a text box in the locale's order and a button that opens an [`ECalendar`](../Calendar/README.md) popup. There is no native date input.
+A date field with a text box in the locale's order and a button that opens an [`ECalendar`](../Calendar/README.md) popup. There is no native date input. Use [`ERangePicker`](../RangePicker/README.md) for a span of dates.
 
 ```vue
 <EDatePicker v-model="born" label="Date of birth" name="dob" required :max="today" />

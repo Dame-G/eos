@@ -1,6 +1,6 @@
 # EFieldset
 
-Related controls in a bordered box. Use it, not a bare label, whenever two or more controls answer one question.
+Related controls in a bordered box. Use it, not a bare label, whenever two or more controls answer one question. [`ECheckboxGroup`](../CheckboxGroup/README.md) and [`ERadioGroup`](../RadioGroup/README.md) bring their own.
 
 ```vue
 <EFieldset legend="Home address" required hint="Where we send statements.">

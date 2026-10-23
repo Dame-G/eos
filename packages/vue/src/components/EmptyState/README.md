@@ -1,6 +1,6 @@
 # EEmptyState
 
-The panel shown when a list, search or table has no content. Never leave a list silently blank.
+The panel shown when a list, search or table has no content. Never leave a list silently blank. Use [`ESkeleton`](../Skeleton/README.md) while the content is still loading.
 
 ```vue
 <EEmptyState icon="file" title="No statements yet">

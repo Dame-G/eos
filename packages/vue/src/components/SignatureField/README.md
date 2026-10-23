@@ -1,6 +1,6 @@
 # ESignatureField
 
-Signing a form by typing a name, drawing it, or either, plus an agreement checkbox.
+Signing a form by typing a name, drawing it, or either, plus an agreement checkbox. Use [`ESignaturePad`](../SignaturePad/README.md) alone only when the signature must be drawn.
 
 ```vue
 <ESignatureField v-model="signed" mode="both" label="Sign the consent form" />

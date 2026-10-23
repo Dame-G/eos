@@ -38,3 +38,5 @@ Not focusable and takes no keys.
 ## Related
 
 [`EText`](../Text/README.md) for text everyone sees.
+
+<!-- lede: no sibling -->

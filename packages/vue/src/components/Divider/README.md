@@ -1,6 +1,6 @@
 # EDivider
 
-A hairline between sections of a form or list, optionally with a centred label.
+A hairline between sections of a form or list, optionally with a centred label. Between blocks of a page, the gap of [`EStack`](../Stack/README.md) is enough.
 
 ```vue
 <EDivider />

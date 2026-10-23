@@ -1,6 +1,6 @@
 # EColorField
 
-A colour input as `#rrggbb`: a swatch that opens the native picker plus a text box for typing a hex value, for theme and brand settings.
+A colour input as `#rrggbb`: a swatch that opens the native picker plus a text box for typing a hex value, for theme and brand settings. For a fixed set of colours use [`ERadioGroup`](../RadioGroup/README.md) or [`ESegmented`](../Segmented/README.md).
 
 ```vue
 <EColorField v-model="brand" label="Brand colour" hint="The deep action colours are derived from it." />

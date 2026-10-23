@@ -1,6 +1,6 @@
 # EAvatar
 
-A person, as a photo or as their initials on a rounded tile.
+A person, as a photo or as their initials on a rounded tile. Use [`EAvatarGroup`](../AvatarGroup/README.md) for several people.
 
 ```vue
 <EAvatar name="Ada Lovelace" />

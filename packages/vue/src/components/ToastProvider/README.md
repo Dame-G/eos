@@ -1,6 +1,6 @@
 # EToastProvider
 
-Renders the toast region once at the app root and provides `useToast()`, so any component inside can show a toast.
+Renders the toast region once at the app root and provides `useToast()`, so any component inside can show a toast. Use [`ENotice`](../Notice/README.md) for a message that stays on the page.
 
 ```vue
 <!-- App.vue -->

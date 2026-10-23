@@ -1,6 +1,6 @@
 # EActions
 
-A group of buttons in the order of the content, main action first, left-aligned, wrapping when there is no room. Hidden in print.
+A group of buttons in the order of the content, main action first, left-aligned, wrapping when there is no room. Hidden in print. Use [`EMenu`](../Menu/README.md) when three or more actions have no room, and [`EInline`](../Inline/README.md) for a row of other things.
 
 ```vue
 <EActions bar as="footer">

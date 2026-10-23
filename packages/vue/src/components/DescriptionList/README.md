@@ -1,6 +1,6 @@
 # EDescriptionList
 
-Label and text rows, ruled apart, for facts such as what a statement covers or when it is due.
+Label and text rows, ruled apart, for facts such as what a statement covers or when it is due. Use [`ETable`](../Table/README.md) when the data has columns, and [`EMetric`](../Metric/README.md) for a figure a page leads with.
 
 ```vue
 <EDescriptionList

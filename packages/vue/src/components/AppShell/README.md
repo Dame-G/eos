@@ -1,6 +1,6 @@
 # EAppShell
 
-The frame of a whole page: skip link, header, optional side navigation, main content and footer.
+The frame of a whole page: skip link, header, optional side navigation, main content and footer. Use it once per app, with [`EAppHeader`](../AppHeader/README.md) and [`EAppFooter`](../AppFooter/README.md) in its slots.
 
 ```vue
 <EAppShell sidebar-label="Account">

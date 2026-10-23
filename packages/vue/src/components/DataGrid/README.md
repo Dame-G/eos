@@ -1,6 +1,6 @@
 # EDataGrid
 
-A `table` with sorting, per-column filters, search, resizing, column toggling, row selection, and paging or virtual scrolling for thousands of rows.
+A `table` with sorting, per-column filters, search, resizing, column toggling, row selection, and paging or virtual scrolling for thousands of rows. Use [`ETable`](../Table/README.md) for a short list that is only read.
 
 ```vue
 <EDataGrid

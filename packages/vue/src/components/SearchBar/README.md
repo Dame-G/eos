@@ -1,6 +1,6 @@
 # ESearchBar
 
-The single search box for a page: an outlined field with a submit button inside.
+The single search box for a page: an outlined field with a submit button inside. Show what it finds in [`ESearchResults`](../SearchResults/README.md), and use [`ECombobox`](../Combobox/README.md) to pick a value in a form.
 
 ```vue
 <ESearchBar v-model="query" placeholder="Search statements and visits" clearable @submit="search" />

@@ -1,6 +1,6 @@
 # ESearchResults
 
-A list of search results as links, with a title and a muted line under it, arrow-key movement between them and the matched text marked.
+A list of search results as links, with a title and a muted line under it, arrow-key movement between them and the matched text marked. Pair it with [`ESearchBar`](../SearchBar/README.md), and use [`ECommandPalette`](../CommandPalette/README.md) for commands.
 
 ```vue
 <ESearchBar

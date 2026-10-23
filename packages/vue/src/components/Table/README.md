@@ -1,6 +1,6 @@
 # ETable
 
-A plain table for facts that are read, not worked: specifications, prices, comparisons, reference lists. It is a native `table` in an outlined, scrollable frame.
+A plain table for facts that are read, not worked: specifications, prices, comparisons, reference lists. It is a native `table` in an outlined, scrollable frame. Use [`EDataGrid`](../DataGrid/README.md) for a table people sort, filter or select in.
 
 ```vue
 <ETable caption="Plans" striped>

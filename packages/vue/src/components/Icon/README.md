@@ -1,6 +1,6 @@
 # EIcon
 
-One icon, 20px by default, in the colour of the surrounding text, for putting a glyph beside text.
+One icon, 20px by default, in the colour of the surrounding text, for putting a glyph beside text. Use [`EIconButton`](../IconButton/README.md) when the icon is pressed.
 
 ```vue
 <EIcon name="download" />

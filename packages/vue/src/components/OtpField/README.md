@@ -1,6 +1,6 @@
 # EOtpField
 
-A one-time code entered one character per box, with paste and SMS autofill support.
+A one-time code entered one character per box, with paste and SMS autofill support. Use [`ETextField`](../TextField/README.md) for a longer code, such as a coupon.
 
 ```vue
 <EOtpField v-model="code" label="Sign-in code" hint="We texted you a code." @complete="verify" />

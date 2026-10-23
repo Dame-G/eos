@@ -1,6 +1,6 @@
 # EHeading
 
-The six heading levels, with an optional kicker label above.
+The six heading levels, with an optional kicker label above. Use [`EPageHeader`](../PageHeader/README.md) for the title of a page, and [`EKicker`](../Kicker/README.md) alone for a small label that is not a heading.
 
 ```vue
 <EHeading :level="1" kicker="Statement 8842">Your visit on October 22</EHeading>

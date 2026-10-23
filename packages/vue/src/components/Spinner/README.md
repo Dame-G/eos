@@ -1,6 +1,6 @@
 # ESpinner
 
-A ring that shows a single action is in progress. Say what is being waited for.
+A ring that shows a single action is in progress. Say what is being waited for. Use [`ESkeleton`](../Skeleton/README.md) while a block loads and [`EProgress`](../Progress/README.md) for a known length.
 
 ```vue
 <ESpinner label="Processing your payment" />

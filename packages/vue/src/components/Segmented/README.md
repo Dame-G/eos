@@ -1,6 +1,6 @@
 # ESegmented
 
-A joined set of two to five options where exactly one is active. Use it to change how a list is filtered or shown, not to switch content.
+A joined set of two to five options where exactly one is active. Use it to change how a list is filtered or shown, not to switch content: that is [`ETabs`](../Tabs/README.md).
 
 ```vue
 <ESegmented

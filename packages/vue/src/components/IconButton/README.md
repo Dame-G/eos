@@ -1,6 +1,6 @@
 # EIconButton
 
-An icon-only button with a target as tall as the control height, for rows where a text button would crowd. Never use it for the main action.
+An icon-only button with a target as tall as the control height, for rows where a text button would crowd. Never use it for the main action: that is an [`EButton`](../Button/README.md).
 
 ```vue
 <EIconButton icon="download" label="Download receipt" @click="download" />

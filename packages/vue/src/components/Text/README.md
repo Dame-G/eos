@@ -1,6 +1,6 @@
 # EText
 
-Running text in three sizes (body, `sm`, `lg`), capped at a readable line length.
+Running text in three sizes (body, `sm`, `lg`), capped at a readable line length. Use [`EHeading`](../Heading/README.md) for titles and [`EKicker`](../Kicker/README.md) for a small label above a value.
 
 ```vue
 <EText size="lg">You paid in full on 3 September.</EText>

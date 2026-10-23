@@ -1,6 +1,6 @@
 # EUpload
 
-A dropzone for attaching files, clickable and droppable, listing the chosen files with their size.
+A dropzone for attaching files, clickable and droppable, listing the chosen files with their size. Use [`ESignatureField`](../SignatureField/README.md) for a signature rather than an uploaded image.
 
 ```vue
 <EUpload v-model="files" label="Insurance card" accept=".pdf,.jpg,.png" multiple hint="Up to 5 MB each." />
