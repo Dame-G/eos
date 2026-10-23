@@ -70,10 +70,17 @@ useFormField({ id: () => id.value, label: () => props.label, error: () => props.
     min-width: 0;
   }
 
+  /* The hint or error takes the room beside the counter and wraps in it. The counter holds its place at the end of the row, and where there is no room for both it drops below the hint, still at the end. */
   .e-field-foot {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     gap: var(--e-gap-snug);
+  }
+
+  .e-field-foot > :is(.e-field-hint, .e-field-error) {
+    flex: 1 1 12rem;
+    min-width: 0;
   }
 
   .e-field-label {

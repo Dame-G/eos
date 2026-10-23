@@ -92,6 +92,34 @@ describe("ETextarea", () => {
     await expectNoViolations(container);
   });
 
+  test("the counter sits on one line at the right edge of the field, with or without a long hint", async () => {
+    const hint =
+      "A longer hint that goes on and on and on to see whether it pushes the counter under it at this width.";
+    for (const props of [{}, { hint }, { hint, error: undefined }]) {
+      const { container } = await render(ETextarea, {
+        props: { label: "Notes", counter: true, modelValue: "hi", ...props },
+      });
+      container.classList.add("e-root");
+      const field = container.querySelector("textarea")!.getBoundingClientRect();
+      const count = container.querySelector(".e-field-count")!.getBoundingClientRect();
+      expect(Math.abs(count.right - field.right), JSON.stringify(props)).toBeLessThanOrEqual(1);
+      expect(count.height, JSON.stringify(props)).toBeLessThan(30);
+    }
+  });
+
+  test("on a narrow field the counter drops below the hint and stays at the right edge", async () => {
+    const { container } = await render(ETextarea, {
+      props: { label: "Notes", counter: true, hint: "Anything the clinic should know.", modelValue: "hi" },
+    });
+    container.classList.add("e-root");
+    (container as HTMLElement).style.width = "200px";
+    const field = container.querySelector("textarea")!.getBoundingClientRect();
+    const count = container.querySelector(".e-field-count")!.getBoundingClientRect();
+    const hintBox = container.querySelector(".e-field-hint")!.getBoundingClientRect();
+    expect(count.top).toBeGreaterThanOrEqual(hintBox.bottom - 1);
+    expect(Math.abs(count.right - field.right)).toBeLessThanOrEqual(1);
+  });
+
   test("autocomplete and maxlength land on the textarea, and the counter reads the length", async () => {
     const { container } = await render(ETextarea, {
       props: { label: "Notes", autocomplete: "off", maxlength: 10, counter: true, modelValue: "hello" },

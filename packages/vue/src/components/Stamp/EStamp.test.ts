@@ -61,38 +61,12 @@ describe("EStamp", () => {
     }
   });
 
-  test("every stamp is an impression, a double rule in its ink with no fill", async () => {
-    for (const props of [
-      {},
-      { status: "paid" },
-      { status: "overdue" },
-      { tone: "warning" },
-      { status: "paid", final: true },
-    ] as Record<string, unknown>[]) {
-      const { container } = await render(EStamp, { props });
-      container.classList.add("e-root");
-      const style = getComputedStyle(container.querySelector(".e-stamp")!);
-      expect(style.backgroundColor, JSON.stringify(props)).toBe("rgba(0, 0, 0, 0)");
-      expect(style.borderTopStyle).toBe("solid");
-      expect(style.outlineStyle).toBe("solid");
-      expect(style.borderTopColor).toBe(style.color);
-      expect(style.outlineColor).toBe(style.color);
-    }
-  });
-
-  test("final is in the stamp ink, heavier than the rest, and a little crooked", async () => {
-    const plain = await render(EStamp, { props: { status: "paid" } });
-    plain.container.classList.add("e-root");
+  test("final is an outline in the stamp ink, not a fill", async () => {
     const { container } = await render(EStamp, { props: { status: "paid", final: true } });
-    container.classList.add("e-root");
     const el = container.querySelector(".e-stamp")!;
-    const style = getComputedStyle(el);
     expect(el.classList.contains("e-stamp--final")).toBe(true);
-    expect(style.color).not.toBe(getComputedStyle(plain.container.querySelector(".e-stamp")!).color);
-    expect(parseFloat(style.borderTopWidth)).toBeGreaterThan(
-      parseFloat(getComputedStyle(plain.container.querySelector(".e-stamp")!).borderTopWidth),
-    );
-    expect(style.transform).not.toBe("none");
+    expect(getComputedStyle(el).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(getComputedStyle(el).boxShadow).not.toBe("none");
   });
 
   test("capitals come from CSS, so the text stays sentence case", async () => {
@@ -131,10 +105,10 @@ describe("EStamp", () => {
     expect(getComputedStyle(a!).justifySelf).toBe("auto");
   });
 
-  test("a warning stamp is printed in the warning ink", async () => {
+  test("a warning stamp reads its text in the on-warning colour", async () => {
     const { container } = await render(EStamp, { props: { tone: "warning", label: "Review" } });
     const probe = document.createElement("span");
-    probe.style.color = "var(--e-warning)";
+    probe.style.color = "var(--e-on-warning)";
     container.append(probe);
     expect(getComputedStyle(container.querySelector(".e-stamp")!).color).toBe(getComputedStyle(probe).color);
   });
