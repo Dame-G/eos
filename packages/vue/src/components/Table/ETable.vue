@@ -37,7 +37,7 @@ const props = withDefaults(
     /** The icon above the empty title. @default "search" */
     emptyIcon?: IconProp;
   }>(),
-  { skeletonRows: 3 },
+  { skeletonRows: 5 },
 );
 
 defineSlots<{
@@ -86,7 +86,6 @@ const scrollable = computed(() => overflows.value || !!props.maxHeight);
       </table>
       <div v-if="loading" class="e-table-loading">
         <span v-for="n in skeletonRows" :key="n" class="e-skel" />
-        <span class="e-sr" role="status">{{ t("loading") }}</span>
       </div>
       <div v-else-if="empty" class="e-table-empty">
         <slot name="empty">
@@ -96,6 +95,8 @@ const scrollable = computed(() => overflows.value || !!props.maxHeight);
         </slot>
       </div>
     </div>
+    <!-- Always in the page, so a screen reader hears the text change; a live region that arrives with its text is missed. -->
+    <span class="e-sr" role="status">{{ loading ? t("loading") : "" }}</span>
   </div>
 </template>
 
