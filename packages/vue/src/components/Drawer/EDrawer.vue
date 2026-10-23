@@ -22,9 +22,9 @@ const props = withDefaults(
     size?: "sm" | "md" | "lg";
     /** A CSS selector for the element that takes focus when it opens. Without it, an element marked `data-autofocus` does; an `alertdialog` falls back to its least destructive action and any other drawer to its first control. */
     initialFocus?: string;
-    /** Closes the drawer when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. */
+    /** Closes the drawer when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. A press on a toast does not count. */
     dismissible?: boolean;
-    /** Shows the drawer in the page, without the backdrop or the focus trap, for a preview. */
+    /** Shows the drawer in the page, without the backdrop or the focus trap, for a preview. Escape and presses outside leave it open. */
     inline?: boolean;
   }>(),
   { role: "dialog", headingLevel: 2, side: "end", size: "sm" },

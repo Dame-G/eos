@@ -59,7 +59,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   /** The person chose a command, by Enter or click. The palette closes after this. */
   select: [item: CommandItem];
-  /** It closed, by a choice, Escape or the backdrop. `open` is already false. */
+  /** The person closed it, by a choice, the shortcut, Escape or the backdrop. `open` is already false. */
   close: [];
 }>();
 
