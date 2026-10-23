@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { useMessages } from "../../config.js";
-import { useSize, type Size } from "../../composables/useSize.js";
+import { useConfig, useMessages } from "../../config.js";
+import { useDeprecated, useSize, type Size } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
@@ -11,12 +11,14 @@ const props = withDefaults(
     /** A photo URL. The initials show if it fails to load. */
     src?: string;
     /** `sm` (32px) for rows and bars, `md` (44px), `lg` (64px) for a profile or a practitioner on an appointment card. */
-    size?: Size;
-    /** Makes the avatar smaller. Same as `size="sm"`. */
+    size?: Extract<Size, "sm" | "md" | "lg">;
+    /** @deprecated Use `size="sm"`. */
     small?: boolean;
-    /** Makes the avatar larger. Same as `size="lg"`. */
+    /** @deprecated Use `size="lg"`. */
     large?: boolean;
     /** A presence dot at the corner. The name is read with it, as "Ada Lovelace, Online". */
+    presence?: "online" | "away" | "busy" | "offline";
+    /** @deprecated Use `presence`. */
     status?: "online" | "away" | "busy" | "offline";
     /** `button` renders a `button` with `type="button"`, named by `name`, for use as the `trigger` of an `EMenu`, for example. */
     as?: "span" | "button";
@@ -25,7 +27,10 @@ const props = withDefaults(
 );
 
 const t = useMessages();
+const config = useConfig();
 const size = useSize(props, "EAvatar");
+useDeprecated("EAvatar", props, { status: "presence" });
+const presence = computed(() => props.presence ?? props.status);
 const failed = ref(false);
 watch(
   () => props.src,
@@ -47,10 +52,15 @@ const initials = computed(() => {
     .filter(Boolean);
   const head = first(parts[0] ?? "?");
   const tail = parts.length > 1 ? first(parts[parts.length - 1]!) : "";
-  return (head + tail).toLocaleUpperCase();
+  // Capitals in the configured language, so a Turkish i becomes İ.
+  try {
+    return (head + tail).toLocaleUpperCase(config.locale);
+  } catch {
+    return (head + tail).toLocaleUpperCase();
+  }
 });
 const label = computed(() =>
-  props.status ? t("avatarStatus", { name: props.name, status: t(`status.${props.status}`) }) : props.name,
+  presence.value ? t("avatarStatus", { name: props.name, status: t(`status.${presence.value}`) }) : props.name,
 );
 </script>
 
@@ -66,7 +76,7 @@ const label = computed(() =>
     <img v-if="src && !failed" class="e-avatar-img" :src="src" alt="" @error="failed = true" />
     <span v-else-if="as === 'button'" aria-hidden="true">{{ initials }}</span>
     <template v-else>{{ initials }}</template>
-    <span v-if="status" class="e-avatar-status" :class="`e-avatar-status--${status}`" aria-hidden="true"></span>
+    <span v-if="presence" class="e-avatar-status" :class="`e-avatar-status--${presence}`" aria-hidden="true"></span>
     <span v-if="as === 'button'" class="e-sr">{{ label }}</span>
   </component>
 </template>
