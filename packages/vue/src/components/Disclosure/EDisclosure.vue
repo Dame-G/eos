@@ -81,7 +81,7 @@ function onToggle(e: Event) {
 
   .e-details[open] > summary {
     min-height: 0;
-    padding-block-end: var(--e-space-3);
+    padding-block-end: var(--e-space-1);
   }
 
   .e-details-body {
