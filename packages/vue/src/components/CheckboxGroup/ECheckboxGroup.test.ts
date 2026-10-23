@@ -87,6 +87,21 @@ describe("ECheckboxGroup", () => {
     expect(got).toEqual([]);
   });
 
+  test("a disabled group's rows look disabled, not only the boxes", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { class: "e-root" }, [
+            h(ECheckboxGroup, { label: "Off", options, disabled: true }),
+            h(ECheckboxGroup, { label: "On", options }),
+          ]),
+      }),
+    );
+    const [off, on] = [...container.querySelectorAll("fieldset")].map((f) => f.querySelector(".e-choice")!);
+    expect(getComputedStyle(off!).cursor).toBe("not-allowed");
+    expect(getComputedStyle(off!).color).not.toBe(getComputedStyle(on!).color);
+  });
+
   test("name is shared, so a form submits one entry per checked box", async () => {
     const { container } = await render(ECheckboxGroup, {
       props: { label: "Reach me by", options, name: "channels", modelValue: ["Email", "post"] },

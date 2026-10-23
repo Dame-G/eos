@@ -108,6 +108,21 @@ describe("ERadioGroup", () => {
     expect(container.querySelectorAll(".e-choice--disabled").length).toBe(1);
   });
 
+  test("a disabled group's rows look disabled, not only the radios", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { class: "e-root" }, [
+            h(ERadioGroup, { label: "Off", options: ["Text", "Email"], disabled: true }),
+            h(ERadioGroup, { label: "On", options: ["Text", "Email"] }),
+          ]),
+      }),
+    );
+    const [off, on] = [...container.querySelectorAll("fieldset")].map((f) => f.querySelector(".e-choice")!);
+    expect(getComputedStyle(off!).cursor).toBe("not-allowed");
+    expect(getComputedStyle(off!).color).not.toBe(getComputedStyle(on!).color);
+  });
+
   test("the legend, hint and error describe the group", async () => {
     const { container } = await render(ERadioGroup, {
       props: { label: "Reminder", hint: "Pick one", options: ["Text", "Email"] },

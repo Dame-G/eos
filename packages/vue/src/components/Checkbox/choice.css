@@ -9,7 +9,9 @@
     cursor: pointer;
   }
 
-  .e-choice--disabled {
+  /* A row whose input is disabled, by itself or by a disabled fieldset around a group. */
+  .e-choice--disabled,
+  .e-choice:has(:disabled) {
     cursor: not-allowed;
     color: var(--e-disabled-ink);
   }
