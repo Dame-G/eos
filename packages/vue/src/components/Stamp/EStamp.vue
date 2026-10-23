@@ -123,8 +123,10 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-stamp-ink);
   }
 
+  /* The word and the detail share one line height, so their baselines meet and the text sits on one line whichever way the row is centred. */
   .e-stamp-word {
     font: var(--e-type-kicker);
+    line-height: var(--e-leading-none);
     letter-spacing: var(--e-tracking-label);
     text-transform: uppercase;
   }

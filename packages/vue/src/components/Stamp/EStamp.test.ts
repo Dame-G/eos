@@ -118,6 +118,24 @@ describe("EStamp", () => {
     expect(container.querySelector(".e-stamp")!.textContent).toContain("in 3 days");
   });
 
+  test("the word, the detail and the icon are centred on one line", async () => {
+    for (const size of ["md", "sm"] as const) {
+      const { container } = await render(EStamp, { props: { status: "due", detail: "Oct 22", icon: "pin", size } });
+      container.classList.add("e-root");
+      const mid = (sel: string) => {
+        const r = container.querySelector(sel)!.getBoundingClientRect();
+        return (r.top + r.bottom) / 2;
+      };
+      const box = mid(".e-stamp");
+      for (const sel of [".e-stamp-word", ".e-stamp-detail", "svg"])
+        expect(Math.abs(mid(sel) - box), sel).toBeLessThanOrEqual(0.5);
+      // The word and the detail share a line height, so their text sits at the same height.
+      expect(container.querySelector(".e-stamp-word")!.getBoundingClientRect().height).toBe(
+        container.querySelector(".e-stamp-detail")!.getBoundingClientRect().height,
+      );
+    }
+  });
+
   test("size sm is shorter", async () => {
     const { container } = await render(
       defineComponent({
