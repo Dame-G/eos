@@ -37,6 +37,17 @@ describe("createEos", () => {
     expect(contrast(primary, "#ffffff")).toBeGreaterThanOrEqual(7);
   });
 
+  test("applyTheme: false leaves the theme to the page's own CSS, and still sets lang and dir", () => {
+    const eos = createEos({ theme: { name: "mine", brand: "#8a2be2" }, applyTheme: false, locale: "ar" });
+    mountApp(defineComponent({ render: () => h("div") }), eos);
+    const root = document.documentElement;
+    expect(root.style.getPropertyValue("--e-primary")).toBe("");
+    expect(root.hasAttribute("data-e-theme")).toBe(false);
+    expect(root.getAttribute("lang")).toBe("ar");
+    expect(root.getAttribute("dir")).toBe("rtl");
+    expect(themeCss(eos.theme)).toContain("--e-primary");
+  });
+
   test("a theme can be scoped to one element instead of the page", async () => {
     const scope = document.createElement("section");
     document.body.append(scope);

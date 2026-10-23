@@ -29,6 +29,7 @@ expectTypeOf<EosOptions["locale"]>().toEqualTypeOf<string | undefined>();
 expectTypeOf<EosOptions["dir"]>().toEqualTypeOf<"ltr" | "rtl" | null | undefined>();
 expectTypeOf<EosOptions["themeTarget"]>().toEqualTypeOf<HTMLElement | null | undefined>();
 expectTypeOf<EosOptions["warnOnContrast"]>().toEqualTypeOf<boolean | undefined>();
+expectTypeOf<EosOptions["applyTheme"]>().toEqualTypeOf<boolean | undefined>();
 expectTypeOf(themeCss).returns.toEqualTypeOf<string>();
 
 // Props and emits.

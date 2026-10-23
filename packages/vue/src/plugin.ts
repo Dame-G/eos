@@ -28,6 +28,12 @@ export interface EosOptions extends Partial<EosConfig> {
   themeTarget?: HTMLElement | null;
   /** Warn in the console when the theme fails a contrast pair. Default true unless `NODE_ENV` is `production`. */
   warnOnContrast?: boolean;
+  /**
+   * Set the theme's tokens on `themeTarget` as inline custom properties. Default true. Turn it off when the page ships the
+   * theme as CSS itself (`themeCss()` in a `<style>`, or a stylesheet of its own with a dark variant), so the inline
+   * tokens never override it. `lang` and `dir` are still set, and `theme` still names the theme for `themeCss`.
+   */
+  applyTheme?: boolean;
 }
 
 declare module "vue" {
@@ -110,7 +116,7 @@ export function createEos(options: EosOptions = {}): Eos {
         );
       }
       const target = options.themeTarget ?? document.documentElement;
-      theme.apply(target);
+      if (options.applyTheme !== false) theme.apply(target);
       watchEffect(() => {
         if (explicitLocale) target.setAttribute("lang", config.locale);
         const dir = config.dir ?? (explicitLocale ? localeDirection(config.locale) : null);
