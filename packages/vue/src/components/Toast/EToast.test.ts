@@ -5,6 +5,7 @@ import { render } from "vitest-browser-vue";
 import * as Vue from "vue";
 import EToast from "./EToast.vue";
 import EButton from "../Button/EButton.vue";
+import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 async function inBox(width: number, props: Record<string, unknown>, slots: Record<string, () => unknown>) {
@@ -62,10 +63,23 @@ describe("EToast", () => {
   test("the dismiss button shows by default, emits close, and closable turns it off", async () => {
     let got = 0;
     await render(EToast, { props: { title: "x", onClose: () => got++ } });
-    await page.getByRole("button", { name: "Close notification" }).click();
+    await page.getByRole("button", { name: "Dismiss" }).click();
     expect(got).toBe(1);
     const off = await render(EToast, { props: { title: "x", closable: false } });
     expect(off.container.querySelector(".e-notice-dismiss")).toBeNull();
+  });
+
+  test("the dismiss button takes the dismiss message, as ENotice's does; a closeToast set before still wins", async () => {
+    const own = await render(EToast, {
+      props: { title: "x" },
+      global: { plugins: [createEos({ themeTarget: null, messages: { dismiss: "Hide" } })] },
+    });
+    expect(own.container.querySelector(".e-notice-dismiss button")!.getAttribute("aria-label")).toBe("Hide");
+    const old = await render(EToast, {
+      props: { title: "x" },
+      global: { plugins: [createEos({ themeTarget: null, messages: { closeToast: "Close message" } })] },
+    });
+    expect(old.container.querySelector(".e-notice-dismiss button")!.getAttribute("aria-label")).toBe("Close message");
   });
 
   test("a custom icon replaces the icon of the tone", async () => {

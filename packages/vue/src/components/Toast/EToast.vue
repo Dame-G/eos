@@ -3,7 +3,7 @@ import EActions from "../Actions/EActions.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import ESurface from "../Surface/ESurface.vue";
-import { useMessages } from "../../config.js";
+import { useConfig, useMessages } from "../../config.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 import "../Notice/notice.css";
@@ -37,6 +37,9 @@ defineSlots<{
 }>();
 
 const t = useMessages();
+const config = useConfig();
+/** Toasts and notices share the `dismiss` message. A `closeToast` set before that still names the toast's button. */
+const dismissLabel = () => (config.messages.closeToast as string | undefined) ?? t("dismiss");
 const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "alert" } as const;
 </script>
 
@@ -56,7 +59,7 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
       </div>
       <EActions v-if="$slots.action" class="e-notice-actions"><slot name="action" /></EActions>
       <span v-if="closable" class="e-notice-dismiss">
-        <EIconButton icon="x" :label="t('closeToast')" @click="emit('close')" />
+        <EIconButton icon="x" :label="dismissLabel()" @click="emit('close')" />
       </span>
     </div>
   </ESurface>

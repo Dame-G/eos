@@ -52,7 +52,7 @@ describe("live regions while a modal dialog is open", () => {
     const region = document.querySelector<HTMLElement>(".e-toast-region")!;
     expect(hiddenAncestor(region)).toBeNull();
     expect(getComputedStyle(region).pointerEvents).not.toBe("none");
-    await page.getByRole("button", { name: "Close notification" }).click();
+    await page.getByRole("button", { name: "Dismiss" }).click();
     await expect.poll(() => document.querySelectorAll(".e-toast-region .e-toast").length).toBe(0);
     // The dialog is still open: the click was on the toast, not the backdrop.
     expect(document.querySelector(".e-dialog")).not.toBeNull();
@@ -63,7 +63,7 @@ describe("live regions while a modal dialog is open", () => {
     await openDialog({ dismissible: true, onClose: () => closed.push(1) });
     toast.show({ title: "Saved", tone: "success", duration: 0 });
     await expect.poll(() => document.querySelectorAll(".e-toast-region .e-toast").length).toBe(1);
-    await page.getByRole("button", { name: "Close notification" }).click();
+    await page.getByRole("button", { name: "Dismiss" }).click();
     await expect.poll(() => document.querySelectorAll(".e-toast-region .e-toast").length).toBe(0);
     await new Promise((r) => setTimeout(r, 50));
     expect(document.querySelector(".e-dialog")).not.toBeNull();

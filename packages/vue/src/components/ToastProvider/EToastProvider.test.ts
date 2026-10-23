@@ -92,7 +92,7 @@ describe("EToastProvider", () => {
     api.show({ title: "b", tone: "danger" });
     api.show({ title: "c", tone: "danger" });
     await expect.poll(() => toasts().length).toBe(3);
-    await page.getByRole("button", { name: "Close notification" }).first().click();
+    await page.getByRole("button", { name: "Dismiss" }).first().click();
     await expect.poll(() => toasts().length).toBe(2);
     api.dismiss(a);
     expect(toasts()).toHaveLength(2);
@@ -222,7 +222,7 @@ describe("EToastProvider behaviour", () => {
     const region = document.querySelector<HTMLElement>(".e-toast-region")!;
     expect(document.activeElement).toBe(region);
     await userEvent.tab();
-    expect(document.activeElement?.getAttribute("aria-label")).toBe("Close notification");
+    expect(document.activeElement?.getAttribute("aria-label")).toBe("Dismiss");
     await userEvent.keyboard("{Escape}");
     await expect.poll(() => toasts().length).toBe(0);
     await expect.poll(() => document.activeElement).toBe(app);
@@ -239,7 +239,7 @@ describe("EToastProvider behaviour", () => {
     await userEvent.tab();
     await userEvent.keyboard("{Enter}");
     await expect.poll(() => toasts().length).toBe(1);
-    await expect.poll(() => document.activeElement?.getAttribute("aria-label")).toBe("Close notification");
+    await expect.poll(() => document.activeElement?.getAttribute("aria-label")).toBe("Dismiss");
     await userEvent.keyboard("{Enter}");
     await expect.poll(() => toasts().length).toBe(0);
     await expect.poll(() => document.activeElement).toBe(app);

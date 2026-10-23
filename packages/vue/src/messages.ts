@@ -165,6 +165,7 @@ export const defaultMessages = {
   editItem: "Edit {label}",
   phone: "Phone number",
   toastRegion: "Notifications",
+  /** @deprecated Toasts use `dismiss`, as notices do. A `closeToast` you set still names a toast's dismiss button. */
   closeToast: "Close notification",
   sidebar: "Sidebar",
 } as const;
