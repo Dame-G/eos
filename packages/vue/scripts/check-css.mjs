@@ -5,6 +5,22 @@ import { LAYER_ORDER } from "@eos-ui/tokens";
 const layers = new Set(LAYER_ORDER.split(",").map((s) => s.trim()));
 const problems = [];
 
+// `--spacing` lists, per file, the gap, padding and margin values written as raw lengths instead of tokens, then exits. Migrate them to the `gap-*` and `pad-*` tokens (CONTRIBUTING, Design conventions).
+if (process.argv.includes("--spacing")) {
+  const raw = /(?<![\w-])-?\d*\.?\d+(?:px|rem|em)\b/;
+  const found = new Map();
+  for (const { file, css } of sourceStyles()) {
+    postcss.parse(css, { from: file }).walkDecls(/^(gap|row-gap|column-gap|padding|margin)(-|$)/, (d) => {
+      if (!raw.test(d.value.replace(/var\(--e-[a-z0-9-]+\)/g, ""))) return;
+      if (!found.has(file)) found.set(file, []);
+      found.get(file).push(`${d.source?.start?.line}: ${d.prop}: ${d.value}`);
+    });
+  }
+  for (const [file, list] of [...found].sort((a, b) => b[1].length - a[1].length))
+    console.log(`${list.length}  ${file}\n    ${list.join("\n    ")}`);
+  process.exit(0);
+}
+
 for (const { file, css } of sourceStyles()) {
   const root = postcss.parse(css, { from: file });
   root.each((n) => {
@@ -38,7 +54,7 @@ for (const { file, css } of sourceStyles()) {
   root.walkDecls((d) => {
     if (d.important) problems.push(`${file}:${d.source?.start?.line}: !important on ${d.prop}`);
     if (d.prop === "z-index" && /^\d+$/.test(d.value.trim()) && d.value.trim() !== "0")
-      problems.push(`${file}:${d.source?.start?.line}: raw z-index ${d.value}; use a --z-* token`);
+      problems.push(`${file}:${d.source?.start?.line}: raw z-index ${d.value}; use an --e-z-* token`);
   });
 }
 

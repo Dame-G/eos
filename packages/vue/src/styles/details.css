@@ -1,0 +1,21 @@
+@layer e.containers {
+  /* Opening and closing slide, where the browser can animate to the content's own height. Elsewhere it simply switches. */
+  .e-details,
+  .e-nav-group,
+  .e-xrow {
+    interpolate-size: allow-keywords;
+  }
+
+  :is(.e-details, .e-xrow, .e-nav-group)::details-content {
+    block-size: 0;
+    overflow: clip;
+    overflow-clip-margin: calc(2 * var(--e-stroke-focus));
+    transition:
+      block-size var(--e-duration-move) var(--e-easing-out),
+      content-visibility var(--e-duration-move) allow-discrete;
+  }
+
+  :is(.e-details, .e-xrow, .e-nav-group)[open]::details-content {
+    block-size: auto;
+  }
+}

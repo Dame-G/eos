@@ -50,23 +50,137 @@
   }
 
   .e-kicker {
-    font: var(--e-weight-strong) var(--e-text-xs) / 1.2 var(--e-font-mono);
-    letter-spacing: 0.08em;
+    font: var(--e-type-kicker);
+    letter-spacing: var(--e-tracking-label);
     text-transform: uppercase;
     color: var(--e-muted);
   }
 
   /* Amounts, counts and dates in a row: mono, with tabular figures so columns line up. */
   .e-numeral {
-    font: var(--e-weight-medium) var(--e-text-sm) / 1.3 var(--e-font-mono);
+    font: var(--e-type-numeral);
     font-variant-numeric: tabular-nums;
   }
 
   /* The one amount a statement leads with. */
   .e-numeral-l {
-    font: var(--e-weight-medium) var(--e-text-3xl) / 1 var(--e-font-mono);
+    font: var(--e-type-numeral-l);
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
+    letter-spacing: var(--e-tracking-tight);
+  }
+
+  /*
+   * The slab: a raised bottom edge under a face. One construction for every component, so a button, a selected tab, a checked box and a current page all stand out the same way.
+   *   --_slab  the colour of the edge (a tone's `-slab` colour, or `--e-slab-ink` on a neutral face)
+   *   --_ring  the colour of the border on the other three sides; follows --_slab
+   *   --_lift  how far the edge reaches; `--e-slab` (the default), `--e-slab-thin` or `--e-slab-bold`
+   * The edge is the bottom border made thicker by --_lift, so the box is the same height raised or pressed. Pressing sets --_lift to 0 and the face sinks over the edge. Never draw it as a thicker border on one side only, a shadow, a gradient band or a ::before bar. Where a border would shift the layout, `.e-slab--shadow` is the one exception.
+   */
+  .e-slab {
+    --_lift: var(--e-slab);
+    --_slab: var(--e-slab-ink);
+    --_ring: var(--_slab);
+
+    border: var(--e-stroke-edge) solid var(--_ring);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
+  }
+
+  .e-slab--thin {
+    --_lift: var(--e-slab-thin);
+  }
+
+  .e-slab--bold {
+    --_lift: var(--e-slab-bold);
+  }
+
+  .e-slab:active,
+  .e-slab:is(:disabled, [aria-disabled="true"]) {
+    --_lift: 0px;
+  }
+
+  /* The slab as a shadow, for a face that cannot grow a border. Make the face shorter by --e-slab. */
+  .e-slab--shadow {
+    box-shadow: var(--e-slab-edge);
+  }
+
+  /* The slab pressed in: a quiet control that is toggled on. */
+  .e-slab--sink {
+    box-shadow: var(--e-slab-sink);
+  }
+
+  /*
+   * How anything that can be pressed answers the pointer. Add `.e-interact` to a row, tile, menu item or quiet button that has no fill of its own.
+   *   hover  a wash and a hairline ring (`--e-wash-hover`, `--e-ring-hover`)
+   *   press  a stronger wash and an ink ring: the ring darkens (`--e-wash-press`, `--e-ring-press`)
+   *   focus  a solid 2px outline, 2px off the box
+   * Filled controls (a button, a selected segment) keep their own `-hover` and `-press` fills and use the same `--e-transition-state`.
+   * --inset draws the focus outline inside the box, for rows that touch their neighbours or sit in a clipped list. --field is for text inputs and what is built on them: the primary colour, laid over the border.
+   */
+  .e-interact {
+    transition: var(--e-transition-state);
+  }
+
+  .e-interact:not(:disabled, [aria-disabled="true"]):hover {
+    background-color: var(--e-wash-hover);
+    box-shadow: var(--e-ring-hover);
+  }
+
+  .e-interact:not(:disabled, [aria-disabled="true"]):active {
+    background-color: var(--e-wash-press);
+    box-shadow: var(--e-ring-press);
+  }
+
+  .e-interact:focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: var(--e-stroke-focus);
+  }
+
+  .e-interact--inset:focus-visible {
+    outline-offset: calc(-1 * var(--e-stroke-focus));
+  }
+
+  .e-interact--field:focus-visible {
+    outline-color: var(--e-focus-field);
+    outline-offset: var(--e-focus-gap-field);
+  }
+
+  /*
+   * Selected, in two voices. A value you set (a toggle, a check, a segment, a page) is filled primary. Where you are (a tab, a nav item) is outlined with a primary slab on a washed face. Never mix them in one component.
+   * Both set --_slab, so they sit on `.e-slab`.
+   */
+  .e-selected--value {
+    --_slab: var(--e-primary-slab);
+
+    background-color: var(--e-primary);
+    color: var(--e-on-primary);
+  }
+
+  .e-selected--place {
+    --_slab: var(--e-primary);
+
+    background-color: var(--e-surface-hover);
+    color: var(--e-primary);
+  }
+
+  /*
+   * Disabled, in two voices. A control keeps its box and draws a dashed edge, so the colour is never the only cue. A list row (a menu item, an option, a nav item) only dims its text: a dashed box around every unavailable row would be noise. Both stop answering the pointer.
+   */
+  .e-disabled {
+    --_lift: 0px;
+
+    cursor: not-allowed;
+    background: var(--e-disabled-fill);
+    color: var(--e-disabled-ink);
+    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
+    box-shadow: none;
+  }
+
+  .e-disabled-row {
+    cursor: not-allowed;
+    background: transparent;
+    color: var(--e-disabled-ink);
+    box-shadow: none;
   }
 
   /* The one visually-hidden rule: `EVisuallyHidden` renders this class, and so does every component that hides a label. */
@@ -163,6 +277,8 @@
     .e-calpanel,
     .e-surface,
     .e-menu,
+    .e-code,
+    .e-results,
     .e-tip-bubble {
       outline: 1px solid CanvasText;
     }

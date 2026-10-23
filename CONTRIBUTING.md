@@ -129,14 +129,14 @@ There are no look variants. A component has one good default. If two looks are b
   A component uses only components of its own layer or an earlier one.
 
 - `import "../../styles/base.css";` at the top of the script.
-- Draw a stroke once. A `border`, or a `box-shadow` ring (`var(--e-frame)`, `var(--e-float)`, `inset 0 0 0 <width> <colour>`), is the whole stroke: do not lay an identical `outline` over it, because the antialiased pixels on the curve are then painted twice and every rounded corner looks heavier than its straight edges. Keep `--e-stroke-edge` a whole pixel so border and ring agree in every browser. Depth (a raised slab) is an offset `box-shadow: 0 var(--e-depth) 0 0 <colour>` under a face that is shorter by the same amount, never a thicker border on one side, which tapers round the corner.
+- Draw a stroke once. A `border`, or a `box-shadow` ring (`var(--e-frame)`, `var(--e-float)`, `inset 0 0 0 <width> <colour>`), is the whole stroke: do not lay an identical `outline` over it, because the antialiased pixels on the curve are then painted twice and every rounded corner looks heavier than its straight edges. Keep `--e-stroke-edge` a whole pixel so border and ring agree in every browser. A raised slab is the one construction in Design conventions (The slab).
 - Values come from tokens (`var(--e-space-4)`). A raw colour, size or duration means a missing token, which you add to `packages/tokens/src/tokens.json` with a usage note. Logical properties only (`margin-inline-start`).
 - Space belongs to the parent: a component sets no outer margin. Layout that depends on the component's own width uses container queries, not viewport media queries.
 - **Private custom properties are `--_name`.** `--e-*` is the public contract: tokens from `tokens.json`, which a theme or a consumer may set. A property a component uses to pass a value between its own rules (a fill, a gap, a slab colour) starts with an underscore: `--_fill`, `--_slab`, `--_gap`. It is declared on the component's own selector, never on `:root`, and nothing outside the component reads it. Some older components still use `--e-gap`, `--e-min`, `--e-over`, `--e-chars`, `--e-swatch`, `--e-xrow-lead`, `--e-row-h`, `--e-grid-*`, `--e-table-max-h` and `--e-shell-*`; rename them to `--_*` when you touch the component.
-- **Motion.** Use `--e-duration-tap` and `--e-duration-move` for state changes: the theme CSS sets both to 0.01ms under `prefers-reduced-motion`, so a transition needs no media query of its own. A looping animation (a skeleton pulse, a spinner, an indeterminate bar) uses `--e-duration-loop` or `--e-duration-spin` with `--e-easing-standard` or `--e-easing-linear`, and sets `animation: none` itself under `prefers-reduced-motion`, because a loop at 0.01ms would flicker.
+- **Motion.** Use `--e-duration-tap`, `--e-duration-fade` and `--e-duration-move` for state changes: the theme CSS sets all three to 0.01ms under `prefers-reduced-motion`, so a transition needs no media query of its own. A looping animation (a skeleton pulse, a spinner, an indeterminate bar) uses `--e-duration-loop` or `--e-duration-spin` with `--e-easing-standard` or `--e-easing-linear`, and sets `animation: none` itself under `prefers-reduced-motion`, because a loop at 0.01ms would flicker.
 - **Print.** The theme CSS makes `ink`, the borders and the grounds black and white under `@media print`. A component only hides what should not print and drops its shadow; it does not write print colours.
 - **Weights and sizes.** `font-weight` is `var(--e-weight-regular | medium | strong)` (400, 500, 600; there is no 700). An icon, a checkbox or an avatar is sized with `--e-icon-size`, `--e-icon-size-sm`, `--e-icon-size-md`, `--e-icon-size-lg`, `--e-check-size`, `--e-avatar-size-sm` or `--e-avatar-size-lg`, so it grows with `textScale`.
-- **A fill and its states** use the tone tokens, not a `color-mix()` of your own: `--e-<tone>`, `--e-<tone>-hover`, `--e-<tone>-press`, `--e-<tone>-slab` for `primary`, `secondary` and `danger`; `--e-<tone>-soft` for the backdrop of `success`, `info`, `warning` and `danger`; `--e-wash-hover`, `--e-wash-press` and `--e-wash-ring` for something without a fill; `--e-skeleton` for a loading placeholder; `--e-disabled-ink` and `--e-disabled-fill` for a disabled control. A raised face with no colour of its own uses `var(--e-slab-edge)` (pressed: `var(--e-slab-sink)`), the slab recipe in one token.
+- **A fill and its states** use the tone tokens, not a `color-mix()` of your own: `--e-<tone>`, `--e-<tone>-hover`, `--e-<tone>-press`, `--e-<tone>-slab` for `primary`, `secondary` and `danger`; `--e-<tone>-soft` for the backdrop of `success`, `info`, `warning` and `danger`; `--e-wash-hover`, `--e-wash-press` and `--e-wash-ring` for something without a fill; `--e-skeleton` for a loading placeholder; `--e-disabled-ink` and `--e-disabled-fill` for a disabled control. A raised face with no colour of its own uses `.e-slab` (see Design conventions).
 - **Breakpoints** are written as literals, because a custom property cannot be read inside `@media` or `@container`: `26rem` (a phone column), `36rem` (two columns) and `48rem` (the page frame shows its navigation). `--e-bp-narrow`, `--e-bp-medium` and `--e-bp-wide` record them for design tools. Query the component's own container (`@container`) except for the page frame.
 
 ### Documentation
@@ -162,6 +162,103 @@ A README says what the consumer provides, what the component does and the rules.
 
 A pull request that changes `packages/**` also runs the `Site check` workflow, which builds the docs site (`Dame-G/eos-site`, `main`) against your branch. It is not a required check, but a failure means the change breaks the site. If the site needs a matching change, open the site pull request first or at the same time, link the two, and re-run the job once the site change is merged. The site repo is private, so the job needs a `SITE_REPO_TOKEN` secret (a fine-grained token with read access to the contents of `Dame-G/eos-site`). Without it, and on pull requests from forks, the job skips.
 
+## Design conventions
+
+What every component shares: spacing, type, the slab, how a control answers the pointer, how it shows it is selected or disabled, and its focus ring. Each is a token in `packages/tokens/src/tokens.json` (read its usage note) or a utility class in `packages/vue/src/styles/base.css`. A component uses them. A value that is missing is a token to add, not a number to write.
+
+### Spacing
+
+Spacing has a semantic layer on top of the `space-N` scale (4, 8, 12, 16, 20, 24, 28, 32, 40, 48, 64px; `space-5`, `-7`, `-10` and `-16` are public scale steps for one-off needs). Components read the semantic tokens, which are references to `space-N`, so `spaceScale` and `density: "compact"` reach them with no code in the component.
+
+| Need                                                                                    | Token            | Value |
+| --------------------------------------------------------------------------------------- | ---------------- | ----- |
+| Icon and label, inside a chip, label and hint                                           | `gap-tight`      | 4     |
+| Siblings in a row or cluster: toolbar controls, button groups, form actions             | `gap-snug`       | 8     |
+| Blocks in a stack, a label and its control, a pager (the `EStack` default)              | `gap-base`       | 12    |
+| Field to field in a form, cards in a grid, the parts of a dialog                        | `gap-loose`      | 16    |
+| Groups of related blocks, sections of a page                                            | `gap-section`    | 24    |
+| Inline padding of a text control (button, input, select, tab), less its border          | `pad-control`    | 16    |
+| Inline padding of a quiet or compact control, a menu item, a list row                   | `pad-control-sm` | 12    |
+| Chip, stamp, tag                                                                        | `pad-chip`       | 12    |
+| Table and grid cells (block, then inline)                                               | `pad-cell`       | 12 16 |
+| Card, summary, notice, any bordered container                                           | `pad-card`       | 16    |
+| Dialog, drawer, popover section                                                         | `pad-panel`      | 24    |
+| Side gutter of a page: `gutter-min` on a phone, growing with the viewport to `space-12` | `gutter`         | fluid |
+
+- **The parent owns the space.** Siblings are separated by the parent's `gap`, never by a child's `margin-bottom`. Two blocks of the same kind that sit one after the other (two code blocks, two notices) are separated by `gap-base`, not by nothing. A component sets no outer margin and uses logical properties.
+- **Block size is never padding.** A control is `control-height` tall. Padding is inline only (`padding: 0 calc(var(--e-pad-control) - var(--e-stroke-edge))`).
+- **A toolbar is a wrapping cluster.** `display: flex; flex-wrap: wrap; gap: var(--e-gap-snug)`, row gap included. Below `26rem` of the component's own container, inputs and selects take the full row (`flex: 1 1 100%`) and a pager stacks above its range text, so nothing is squeezed and everything stays aligned to one left edge.
+- **Tap spacing.** Every target is at least `--e-tap` (44px) square and at least `gap-snug` from the next one.
+- **Phones.** The page gutter is `gutter-min`; a container keeps its `pad-card`. Never go below `pad-control-sm` to fit something in; wrap or stack it.
+- **No literals.** `node scripts/check-css.mjs --spacing` (in `packages/vue`) lists raw lengths in `gap`, `padding` and `margin`.
+
+### Type
+
+A style is a token: `font: var(--e-type-kicker)` sets weight, size, line-height and family. `letter-spacing` is separate (`var(--e-tracking-label)` for uppercase labels, `var(--e-tracking-tight)` for large figures). `.e-kicker`, `.e-numeral` and `.e-numeral-l` in `base.css` are built from them. Styles: `type-h1`..`type-h6`, `type-deck`, `type-body`, `type-small`, `type-kicker`, `type-button`, `type-numeral`, `type-numeral-l`.
+
+Sizes are rem (`text-xs` to `text-4xl`, `control-height`, `chip-height`, the icon, check and avatar boxes), so the visitor's browser font size scales text and the controls around it. `textScale` multiplies on top. Line heights are unitless: `leading-none` 1, `-tight` 1.15 (titles, kickers, buttons), `-snug` 1.3 (section titles, numerals), `-normal` 1.5 (copy), `-loose` 1.7. Never a line-height under 1, and never a pixel line-height.
+
+### The slab
+
+The slab is the raised bottom edge under a face. There is one construction, the Button's: a border on all four sides in the slab colour, the bottom one thicker by the lift.
+
+```css
+.e-thing {
+  --_slab: var(--e-primary-slab); /* the edge colour */
+  --_ring: var(--_slab); /* the other three sides; a state may set it apart */
+  --_lift: var(--e-slab); /* how far the edge reaches */
+
+  border: var(--e-stroke-edge) solid var(--_ring);
+  border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
+}
+
+.e-thing:active {
+  --_lift: 0px; /* pressed: the face sinks over the edge */
+}
+```
+
+`.e-slab` in `base.css` is exactly this, with `--_slab` defaulting to `--e-slab-ink` for a face with no colour of its own. Thickness comes from three tokens and nothing else (no `0.6 *`, `1.5 *`, `space-1`): `slab-thin` (a small part: a switch thumb, a key), `slab` (everything else), `slab-bold` (a side edge that marks a tone, as on a Notice or Toast). A tone's edge colour is its `*-slab` token. Do not draw the slab as a gradient band, a `::before` bar or an inset shadow. The one exception is a face that cannot grow a border: `.e-slab--shadow` / `--e-slab-edge` (the face is shorter by `--e-slab`), and `.e-slab--sink` / `--e-slab-sink` for a quiet control toggled on.
+
+### Hover, press and focus
+
+One recipe for anything that can be pressed. `.e-interact` in `base.css` is the reference; a component that needs its own selectors copies these declarations.
+
+| State      | Quiet item (no fill)                                                               | Filled control                          |
+| ---------- | ---------------------------------------------------------------------------------- | --------------------------------------- |
+| rest       | none                                                                               | its fill                                |
+| hover      | `--e-wash-hover` and `box-shadow: var(--e-ring-hover)`                             | `--e-<tone>-hover` fill                 |
+| press      | `--e-wash-press` and `box-shadow: var(--e-ring-press)`                             | `--e-<tone>-press` fill, `--_lift: 0px` |
+| transition | `transition: var(--e-transition-state)`                                            | the same                                |
+| focus      | solid `--e-stroke-focus` outline in `--e-focus-ring`, offset by `--e-stroke-focus` | the same                                |
+
+- The ring is `--e-stroke-ring` wide, one value for every hover (not `stroke-card`, `stroke-hair` or `stroke-edge` as the case may be). Hover darkens the edge to `wash-ring`, press to `ink`, so a pressed item reads as sunk.
+- Focus has three variants. **Default:** outline 2px, offset 2px (buttons, links, tabs, rows). **Inset** (`.e-interact--inset`): offset `-2px`, for rows that touch their neighbours or sit in a clipped list. **Field** (`.e-interact--field`): `--e-focus-field` (primary), offset `--e-focus-gap-field`, laid exactly over the border of a text input. An invalid input keeps `danger`.
+- Never gate a state on colour alone: hover, press and disabled also change a ring, a slab or an outline.
+- Hover styles are held back for devices that can hover by the build (`postcss-hover`); write `:hover` plainly.
+
+### Selected
+
+There are two voices, and a component uses one.
+
+| Voice     | Means           | Look                                                                                   | Used by                                                                               |
+| --------- | --------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| **Value** | a value you set | filled `--e-primary` with `--e-on-primary`, `primary-slab` edge (`.e-selected--value`) | toggle button, checkbox, radio, switch, segmented control, current page, selected day |
+| **Place** | where you are   | `surface-hover` face, `primary` text and a `primary` slab (`.e-selected--place`)       | tab, nav item                                                                         |
+
+### Disabled
+
+A control keeps its box, drops its lift, dims to `--e-disabled-ink` and draws a dashed `border-strong` outline inside its edge, so colour is never the only cue (`.e-disabled`). A list row (menu item, option, nav item) only dims its text and stops answering the pointer (`.e-disabled-row`): a dashed box on every unavailable row is noise. Both use `aria-disabled` or `disabled`, not just a class.
+
+### Motion
+
+`duration-tap` (80ms) for hover and press, `duration-fade` (140ms) for things that fade, `duration-move` (220ms) for things that move. Arriving uses `easing-enter`, leaving `easing-exit`, every state change `easing-out`. The theme CSS collapses the three durations under `prefers-reduced-motion`.
+
+### Layers and theme
+
+`e.reset` is declared in the layer order and has no rules in this package. It is public: a site puts its own resets (for example a documentation theme's defaults) in `@layer e.reset` and the library overrides them. Do not remove it.
+
+`tokens.css` is the light theme with `prefers-contrast: more` handled. `tokens.auto.css` also follows `prefers-color-scheme`; use it only when the page ground follows the scheme too, otherwise dark components sit on a white page.
+
 ## Releases
 
-Run `pnpm changeset` for each user-facing change: anything that changes behaviour, the API, the CSS a consumer receives, or the published README. CI fails a pull request that changes `packages/**` without a changeset. Docs-only wording changes, tests and internal refactors do not need one: add the `no-changeset` label to the pull request to skip the check. Do not delete or edit other people's pending changesets. Merging to `main` opens a version PR. Merging that PR publishes both packages to npm at one shared version.
+Run `pnpm changeset` for each user-facing change: anything that changes behaviour, the API, the CSS a consumer receives, or the published README. CI fails a pull request that changes `packages/**` without a changeset. Docs-only wording changes, tests and internal refactors do not need one: add the `no-changeset` label to the pull request to skip the check. Do not delete or edit other people's pending changesets. Merging to `main` opens a version PR. Merging that PR publishes both packages to npm at one shared version, but only after CI has passed on `main`; the release also runs the built-package checks (`pnpm check:built`) before it publishes.
