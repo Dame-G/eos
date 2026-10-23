@@ -7,6 +7,7 @@ import ESelectControl from "./ESelectControl.vue";
 import { normalizeOptions } from "./options.js";
 import type { ESelectFields } from "./selectProps.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
+import type { FieldSlot } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
 
 defineOptions({ inheritAttrs: false });
@@ -27,7 +28,6 @@ const current = computed<string | string[]>(() => {
   return props.multiple ? (Array.isArray(v) ? v : []) : typeof v === "string" ? v : "";
 });
 
-type FieldSlot = { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined };
 function triggerAttrs(field?: FieldSlot) {
   return {
     id: field?.id ?? props.id,

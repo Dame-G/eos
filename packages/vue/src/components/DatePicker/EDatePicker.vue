@@ -7,7 +7,7 @@ import EIcon from "../Icon/EIcon.vue";
 import { boundsMessage, compareDays, isoDate, parseIso, sameDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
-import { useFieldControl } from "../../composables/useFieldControl.js";
+import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
@@ -176,7 +176,7 @@ function onEscape(e: KeyboardEvent) {
   if (calendar.value && calendar.value.view !== "days") e.preventDefault();
 }
 
-function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }) {
+function inputBind(field: FieldSlot) {
   return {
     id: field.id,
     class: "e-input e-combo-input",

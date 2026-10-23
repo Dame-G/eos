@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, h, ref, watch, type FunctionalComponent } from "vue";
 import {
   ConfigProvider,
   SelectContent,
@@ -106,6 +106,16 @@ function typeahead(e: KeyboardEvent) {
 defineExpose({
   trigger: computed(() => trigger.value?.$el ?? null),
 });
+
+/** A run of options: under its heading in a group when it has one, else as they are. One path for both. */
+const Section: FunctionalComponent<{ group?: string | undefined }> = (p, { slots }) =>
+  p.group
+    ? h(SelectGroup, { class: "e-opt-set" }, () => [
+        h(SelectLabel, { class: "e-opt-group" }, () => p.group),
+        slots.default?.(),
+      ])
+    : slots.default?.();
+Section.props = ["group"];
 </script>
 
 <template>
@@ -155,25 +165,14 @@ defineExpose({
             @close-auto-focus="closeFocus"
           >
             <SelectViewport>
-              <template v-for="(section, i) in sections" :key="i">
-                <SelectGroup v-if="section.group" class="e-opt-set">
-                  <SelectLabel class="e-opt-group">{{ section.group }}</SelectLabel>
-                  <ESelectOption
-                    v-for="o in section.options"
-                    :key="o.value"
-                    :option="o"
-                    :selected="values.includes(o.value)"
-                  />
-                </SelectGroup>
-                <template v-else>
-                  <ESelectOption
-                    v-for="o in section.options"
-                    :key="o.value"
-                    :option="o"
-                    :selected="values.includes(o.value)"
-                  />
-                </template>
-              </template>
+              <Section v-for="(section, i) in sections" :key="i" :group="section.group">
+                <ESelectOption
+                  v-for="o in section.options"
+                  :key="o.value"
+                  :option="o"
+                  :selected="values.includes(o.value)"
+                />
+              </Section>
             </SelectViewport>
           </SelectContent>
         </SelectPortal>

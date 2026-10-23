@@ -24,6 +24,7 @@ import { useDir } from "../../composables/useDir.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useUid } from "../../composables/useUid.js";
+import type { FieldSlot } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
 import "../Select/panel.css";
@@ -53,7 +54,26 @@ const groupId = useUid();
 const bareId = useUid(() => props.id);
 
 const Bare: FunctionalComponent = (_, { slots }) =>
-  h("div", attrs.wrapper(), slots.default?.({ id: bareId.value, ariaInvalid: undefined, ariaDescribedby: undefined }));
+  h(
+    "div",
+    attrs.wrapper(),
+    slots.default?.({
+      id: bareId.value,
+      ariaInvalid: undefined,
+      ariaDescribedby: undefined,
+      required: !!props.required,
+    }),
+  );
+
+/** A run of options: under its heading in a group when it has one, else as they are. One path for both. */
+const Section: FunctionalComponent<{ group?: string | undefined; id: string }> = (p, { slots }) =>
+  p.group
+    ? h("div", { class: "e-opt-set", role: "group", "aria-labelledby": p.id }, [
+        h("div", { id: p.id, class: "e-opt-group" }, p.group),
+        slots.default?.(),
+      ])
+    : slots.default?.();
+Section.props = ["group", "id"];
 const frame = computed(() =>
   props.bare
     ? {}
@@ -210,7 +230,6 @@ function onWrapDown(e: MouseEvent) {
   }
 }
 
-type FieldSlot = { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined };
 function inputBind(field: FieldSlot) {
   return {
     id: field.id,
@@ -322,29 +341,16 @@ defineExpose({
             >
               <ComboboxViewport>
                 <template v-if="shown.length">
-                  <template v-for="(section, i) in sections" :key="i">
-                    <div v-if="section.group" class="e-opt-set" role="group" :aria-labelledby="`${groupId}-g${i}`">
-                      <div :id="`${groupId}-g${i}`" class="e-opt-group">{{ section.group }}</div>
-                      <EComboboxOption
-                        v-for="o in section.options"
-                        :key="o.value"
-                        :option="o"
-                        :value="itemValue(o)"
-                        :selected="isSelected(itemValue(o))"
-                        :query="query"
-                      />
-                    </div>
-                    <template v-else>
-                      <EComboboxOption
-                        v-for="o in section.options"
-                        :key="o.value"
-                        :option="o"
-                        :value="itemValue(o)"
-                        :selected="isSelected(itemValue(o))"
-                        :query="query"
-                      />
-                    </template>
-                  </template>
+                  <Section v-for="(section, i) in sections" :id="`${groupId}-g${i}`" :key="i" :group="section.group">
+                    <EComboboxOption
+                      v-for="o in section.options"
+                      :key="o.value"
+                      :option="o"
+                      :value="itemValue(o)"
+                      :selected="isSelected(itemValue(o))"
+                      :query="query"
+                    />
+                  </Section>
                 </template>
                 <div v-else class="e-opt-status" aria-hidden="true">
                   <ESpinner v-if="loading" :label="t('searching')" />
