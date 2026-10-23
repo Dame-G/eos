@@ -22,12 +22,12 @@ afterEach(() => {
 
 const hiddenAncestor = (el: Element | null) => el?.closest("[aria-hidden='true'], [inert]") ?? null;
 
-async function openDialog() {
+async function openDialog(extra: Record<string, unknown> = {}) {
   await render(
     defineComponent({
       render: () =>
         h(EToastProvider, null, {
-          default: () => [h(Grab), h(EDialog, { open: true, title: "Cancel it?" }, { default: () => "Body" })],
+          default: () => [h(Grab), h(EDialog, { open: true, title: "Cancel it?", ...extra }, { default: () => "Body" })],
         }),
     }),
   );
@@ -56,6 +56,18 @@ describe("live regions while a modal dialog is open", () => {
     await expect.poll(() => document.querySelectorAll(".e-toast-region .e-toast").length).toBe(0);
     // The dialog is still open: the click was on the toast, not the backdrop.
     expect(document.querySelector(".e-dialog")).not.toBeNull();
+  });
+
+  test("closing a toast does not count as a press outside a dismissible dialog", async () => {
+    const closed: number[] = [];
+    await openDialog({ dismissible: true, onClose: () => closed.push(1) });
+    toast.show({ title: "Saved", tone: "success", duration: 0 });
+    await expect.poll(() => document.querySelectorAll(".e-toast-region .e-toast").length).toBe(1);
+    await page.getByRole("button", { name: "Close notification" }).click();
+    await expect.poll(() => document.querySelectorAll(".e-toast-region .e-toast").length).toBe(0);
+    await new Promise((r) => setTimeout(r, 50));
+    expect(document.querySelector(".e-dialog")).not.toBeNull();
+    expect(closed).toEqual([]);
   });
 });
 

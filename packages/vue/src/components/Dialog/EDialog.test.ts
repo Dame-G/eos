@@ -217,6 +217,39 @@ describe("EDialog", () => {
     expect(document.activeElement).toBe(outside);
   });
 
+  test("an inline preview stays open on Escape, a press elsewhere, and focus moving out", async () => {
+    const open = ref(true);
+    const closed = ref(0);
+    const Host = defineComponent({
+      render: () =>
+        h("div", [
+          h("button", { id: "elsewhere" }, "Elsewhere"),
+          h(
+            EDialog,
+            {
+              title: "Preview",
+              inline: true,
+              dismissible: true,
+              open: open.value,
+              "onUpdate:open": (v?: boolean) => (open.value = !!v),
+              onClose: () => closed.value++,
+            },
+            { default: () => "Body" },
+          ),
+        ]),
+    });
+    await render(Host);
+    await expect.poll(() => document.querySelector(".e-dialog")).not.toBeNull();
+    (document.querySelector(".e-dialog button") as HTMLElement).focus();
+    await userEvent.keyboard("{Escape}");
+    await userEvent.click(document.getElementById("elsewhere")!);
+    await userEvent.tab();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(open.value).toBe(true);
+    expect(closed.value).toBe(0);
+    expect(document.querySelector(".e-dialog")).not.toBeNull();
+  });
+
   test("renders into the portal target (the body by default)", async () => {
     const { Host, open } = host();
     await render(Host);
