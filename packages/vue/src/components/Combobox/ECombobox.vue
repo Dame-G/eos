@@ -12,6 +12,7 @@ import {
 } from "reka-ui";
 import EField from "../Field/EField.vue";
 import EIcon from "../Icon/EIcon.vue";
+import ETag from "../Tag/ETag.vue";
 import ESpinner from "../Spinner/ESpinner.vue";
 import EComboboxOption from "./EComboboxOption.vue";
 import { normalizeOptions, sectionOptions } from "../Select/options.js";
@@ -251,18 +252,13 @@ defineExpose({
           >
             <div class="e-combo-main">
               <template v-if="multiple">
-                <span v-for="v in values" :key="v" class="e-chip">
-                  {{ labelOf(v) }}
-                  <button
-                    v-if="!disabled && !readonly"
-                    type="button"
-                    class="e-chip-x"
-                    :aria-label="t('removeItem', { label: labelOf(v) })"
-                    @click="remove(v)"
-                  >
-                    <EIcon name="x" small />
-                  </button>
-                </span>
+                <ETag
+                  v-for="v in values"
+                  :key="v"
+                  :label="labelOf(v)"
+                  :removable="!disabled && !readonly"
+                  @remove="remove(v)"
+                />
               </template>
               <ComboboxInput
                 class="e-input e-combo-input"
@@ -391,67 +387,9 @@ defineExpose({
     padding-inline: var(--e-space-2);
   }
 
-  .e-combo-main .e-chip:not(:has(.e-chip-x)) {
-    padding-inline-end: var(--e-space-3);
-  }
-
-  .e-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--e-gap-tight);
-    height: var(--e-space-8);
-    padding: 0 var(--e-gap-tight) 0 var(--e-space-3);
-    border-radius: var(--e-radius-pill);
-    background: var(--e-surface-tint);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-primary);
-    color: var(--e-ink);
-    font: var(--e-weight-medium) var(--e-text-sm)/1 var(--e-font-sans);
-  }
-
-  /* A disabled field's chips are plain, not primary. */
-  .e-input-wrap[data-disabled] .e-chip {
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
-    color: var(--e-muted);
-  }
-
-  .e-chip-x::after {
-    content: "";
-    position: absolute;
-    inset: calc((var(--e-tap) - var(--e-space-6)) / -2);
-  }
-
-  .e-chip-x {
-    position: relative;
-    display: inline-grid;
-    place-items: center;
-    width: var(--e-space-6);
-    height: var(--e-space-6);
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: transparent;
-    color: var(--e-primary);
-    cursor: pointer;
-  }
-
-  .e-chip-x:hover {
-    background: var(--e-wash-hover);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-primary);
-  }
-
-  .e-chip-x:active {
-    background: var(--e-wash-press);
-  }
-
-  .e-chip-x:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
-  }
-
-  @media (forced-colors: active) {
-    .e-chip {
-      outline: var(--e-stroke-card) solid CanvasText;
-    }
+  /* A disabled field's tags are plain, not primary. */
+  .e-input-wrap[data-disabled] .e-tag {
+    --_ink: var(--e-muted);
   }
 }
 </style>

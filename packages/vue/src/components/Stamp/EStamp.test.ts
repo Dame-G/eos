@@ -68,7 +68,7 @@ describe("EStamp", () => {
       { status: "overdue" },
       { tone: "warning" },
       { status: "paid", final: true },
-    ]) {
+    ] as Record<string, unknown>[]) {
       const { container } = await render(EStamp, { props });
       container.classList.add("e-root");
       const style = getComputedStyle(container.querySelector(".e-stamp")!);

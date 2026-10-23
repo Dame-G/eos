@@ -10,7 +10,7 @@ import { expectNoViolations } from "../../../test/axe.js";
 const WAYS = ["Text", "Email", "Call"];
 const optionEls = () => Array.from(document.querySelectorAll<HTMLElement>("[role=option]"));
 const inputOf = (c: Element) => c.querySelector<HTMLInputElement>("input.e-combo-input")!;
-const tags = (c: Element) => Array.from(c.querySelectorAll(".e-chip")).map((t) => t.textContent?.trim());
+const tags = (c: Element) => Array.from(c.querySelectorAll(".e-tag")).map((t) => t.textContent?.trim());
 const spoken = () => document.querySelector("[data-e-announcer=polite]")?.textContent?.replace(/\u00a0/g, "");
 const box = (name: string) => page.getByRole("combobox", { name });
 const expanded = (el: Element, v: "true" | "false") => expect.poll(() => el.getAttribute("aria-expanded")).toBe(v);
@@ -25,6 +25,23 @@ describe("ECombobox multiple", () => {
     await expect.element(page.getByRole("button", { name: "Remove Email" })).toBeVisible();
     expect(container.querySelector(".e-combo")!.classList.contains("e-combo--multi")).toBe(true);
     expect(inputOf(container).placeholder).toBe("");
+  });
+
+  test("the tags are the library's own ETag, and sit in the middle of a field that keeps its height", async () => {
+    const empty = await render(ECombobox, { props: { multiple: true, label: "Empty", options: WAYS } });
+    empty.container.classList.add("e-root");
+    const emptyHeight = empty.container.querySelector(".e-input-wrap")!.getBoundingClientRect().height;
+    const { container } = await render(ECombobox, {
+      props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text", "Email"] },
+    });
+    container.classList.add("e-root");
+    const wrap = container.querySelector(".e-input-wrap")!.getBoundingClientRect();
+    expect(wrap.height).toBe(emptyHeight);
+    for (const tag of container.querySelectorAll(".e-tag")) {
+      expect(tag.querySelector(".e-tag-eyelet")).not.toBeNull();
+      const box = tag.getBoundingClientRect();
+      expect(Math.abs(box.top - wrap.top - (wrap.bottom - box.bottom))).toBeLessThanOrEqual(1.5);
+    }
   });
 
   test("bare: just the field, named by ariaLabel", async () => {
@@ -296,8 +313,8 @@ describe("ECombobox multiple", () => {
       props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text"], disabled: true },
     });
     expect(inputOf(container).disabled).toBe(true);
-    expect(container.querySelector(".e-chip")!.textContent).toContain("Text");
-    expect(container.querySelector(".e-chip-x")).toBeNull();
+    expect(container.querySelector(".e-tag")!.textContent).toContain("Text");
+    expect(container.querySelector(".e-tag-remove")).toBeNull();
     expect(container.querySelector("[aria-label=Clear]")).toBeNull();
     expect(container.querySelector(".e-combo-btn")).toBeNull();
   });
