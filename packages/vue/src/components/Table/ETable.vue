@@ -26,7 +26,7 @@ const props = withDefaults(
     cards?: boolean;
     /** Marks the data as loading: the rows are dimmed, `aria-busy` is set and placeholder lines show under the table. */
     loading?: boolean;
-    /** How many placeholder lines `loading` shows. */
+    /** How many placeholder lines `loading` shows, 5 as in `EDataGrid`. */
     skeletonRows?: number;
     /** Shows the empty state under the headings. Set it when the table has no rows. */
     empty?: boolean;

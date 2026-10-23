@@ -67,7 +67,7 @@ const props = withDefaults(
     total?: number;
     /** Marks the data as loading, with `aria-busy`. With no rows yet it shows placeholder rows; with rows (the previous page) they stay, dimmed, until the new ones arrive. */
     loading?: boolean;
-    /** How many placeholder rows `loading` shows. */
+    /** How many placeholder rows `loading` shows, 5 as in `ETable`. As cards each placeholder is a whole card, so a phone shows fewer of them at once. */
     skeletonRows?: number;
     /** The title when there are no rows. @default "No results" */
     emptyTitle?: string;
