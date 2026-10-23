@@ -1,5 +1,41 @@
 # @eos-ui/vue
 
+## 0.12.0
+
+### Minor Changes
+
+- a0043d5: `ETag` is a paper tag: a small square-cornered label with a thin slab edge, in place of the pill. A tag names a category, so its tones are quiet: they colour the text, and the tag keeps the neutral surface and edge. Use `EStamp` for a status.
+
+  `ECombobox` draws its chosen options with `ETag`, so they match tags everywhere else. Its own chip styles are gone.
+
+  The character counter under `ETextField` and `ETextarea` stays on one line at the right edge of the field. A long hint wraps beside it instead of squeezing it, and on a narrow field the counter drops below the hint, still at the right.
+
+  `EStamp` is a soft tint of its tone, as a Notice is: the word in the tone's colour, an edge in the same colour and a thick side on the inline-start edge, which flips in a right-to-left page. The `final` stamp, which is a ring, has none of this.
+
+  `EStamp`: the word and the detail share a line height, so their text sits on one line (the capitals no longer ride above the detail).
+
+### Patch Changes
+
+- a0043d5: `EAppShell`: the ground beside the page column is tinted (`surface-tint`), and the column keeps the page background. `EAppFooter` has the same `surface` background as `EAppHeader`.
+- a0043d5: Corners are concentric: a rounded element inside a rounded, bordered one now has the container's radius less the distance between their edges, so the curves share a centre (a thumb on a track, a picture in an avatar ring, an option in a panel). It holds under every `radius` setting and in a scoped theme. The rule is in `CONTRIBUTING.md`, "Corners".
+- a0043d5: `EDisclosure`: hovering or pressing the summary line washes it like a row, and the title keeps its ink. The link-style colour change and underline are gone.
+- a0043d5: `EFieldset` with `bare`: the controls are spaced like the boxed and section groups. They had no gap between them.
+- a0043d5: New token `pad-inset` (half of `space-1`): the distance the corner maths assumes between a nested child and its container's edge. The rows of a list panel (`ESelect`, `ECombobox`, `ECommandPalette`, `ESearchResults`, `EMenu`) and the `EColorField` swatch keep their padding, but their corners are the container's radius less this (and the border), so a row's corner is 6px in an 8px panel instead of 4px and the two read as one shape.
+
+  `ESegmented`: the hover and press ring is the piece's own border, so no strip of bare wash lies between it and the next piece. A chosen option in a disabled track is a flat tint with no edge of its own, inside the track's dashed edge.
+
+  The `well` shadow is lighter on every control that has one (checkbox, switch and slider tracks, text fields, segmented track): 6% black instead of 10% in the default look, and softer in the bold and dark looks.
+
+- a0043d5: ELink: hover and press only turn the text to ink. The background wash is gone, since the underline and the colour change already answer the pointer.
+- a0043d5: `EStamp`: the capitals sit in the middle of the stamp. A line box centres capitals high, so the word and the detail have a little space above the text. `ETabs`: the selected tab's edges are as thick as a focused field's outline (2px by default) instead of the slab depth, on all four sides.
+
+  `ECheckbox` and `ERadioGroup`: an unchecked box or radio has no well (the inset top shadow); the fill and edge are unchanged. `ESwitch`: the thumb is plain (no border or slab), and the track is flat on or off, so the thumb sits at the same height. `ESegmented`: every option draws its own edge and the track draws none, so corners are drawn once; the track clips only when it scrolls.
+
+  `ETabs` and `ESegmented`: an inactive tab or option answers the pointer the same way: ink text, a wash and a darker edge of the same width (no ring is added, so the edge never gets thicker).
+
+- Updated dependencies [a0043d5]
+  - @eos-ui/tokens@0.12.0
+
 ## 0.11.0
 
 ### Minor Changes
