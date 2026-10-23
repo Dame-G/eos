@@ -107,7 +107,7 @@ A `DataGridColumn` has:
 
 - A `table` with `caption`, `th scope="col"` and `aria-sort`. Sort changes and the number of rows are announced, and so is each change of selection ("3 selected"). The scroller becomes a focusable region named by `caption` only while it scrolls.
 - Each row checkbox is named "Select <first column's text>". Set `rowLabel` when the first column is not a good name.
-- Below 40rem, with `cards`, the heading row is `inert` (the Sort by menu replaces its buttons), so no hidden control takes focus.
+- Below 40rem, with `cards`, the heading row is `inert` (the Sort by menu replaces its buttons, and with `filterable` the filters move above the cards as fields labelled by their column), so no hidden control takes focus.
 - While `loading` with rows already shown (the previous page), the rows stay, dimmed, and the table is `aria-busy`. With no rows, placeholder rows show.
 - `error` replaces the rows with a message and a Try again button, which emits `retry`.
 - Column edges are focusable separators with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`. Dragging, or Arrow Left and Arrow Right (10px, Shift 40px), changes the width within `minWidth` and `maxWidth`.

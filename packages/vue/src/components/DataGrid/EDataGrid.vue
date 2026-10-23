@@ -452,6 +452,16 @@ onMounted(() => {
         <template #bulk-actions><slot name="bulk-actions" /></template>
         <template v-if="hasToolbar" #toolbar><slot name="toolbar" /></template>
       </EDataGridToolbar>
+      <!-- As cards the heading row is hidden, so the filters move above the rows, as the sort moves to a menu. -->
+      <EDataGridFilterRow
+        v-if="hasFilterRow && headInert"
+        stacked
+        :columns="cols"
+        :filters="filters"
+        :sticky-style="() => undefined"
+        :role="() => undefined"
+        @filter="setFilter"
+      />
       <div
         ref="scrollEl"
         class="e-grid-scroll"
@@ -531,7 +541,7 @@ onMounted(() => {
               </th>
             </tr>
             <EDataGridFilterRow
-              v-if="hasFilterRow"
+              v-if="hasFilterRow && !headInert"
               :columns="cols"
               :filters="filters"
               :selectable="selectable"
@@ -839,6 +849,18 @@ onMounted(() => {
   .e-filterrow .e-sel-trigger {
     height: var(--e-control-height);
     padding-inline-end: calc(var(--e-gap-snug) - var(--e-stroke-edge));
+  }
+
+  .e-grid-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
+    gap: var(--e-gap-snug);
+    align-items: end;
+    padding-block: var(--e-gap-base);
+  }
+
+  .e-grid-filters > .e-filter-range {
+    grid-column: 1 / -1;
   }
 
   .e-filter-range {

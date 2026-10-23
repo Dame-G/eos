@@ -566,6 +566,21 @@ describe("EDataGrid", () => {
     }
   });
 
+  test("cards: filterable shows labelled filters above the cards, and they filter", async () => {
+    const { container } = await render(
+      boxed(320, { caption: "T", columns: FILTER_COLS, rows: ROWS, filterable: true }),
+    );
+    await expect.poll(() => container.querySelector(".e-grid-filters")).not.toBeNull();
+    expect(container.querySelector(".e-filterrow")).toBeNull();
+    expect(container.querySelector(".e-grid-filters")!.closest("thead")).toBeNull();
+    await expect.element(page.getByRole("searchbox", { name: "Name" })).toBeVisible();
+    await expect.element(page.getByRole("combobox", { name: "Status" })).toBeVisible();
+    await expect.element(page.getByRole("textbox", { name: "Amount minimum" })).toBeVisible();
+    await typeInto(input(container.querySelector(".e-grid-filters input[type=search]")), "alp");
+    expect(names(container)).toEqual(["Alpha"]);
+    await expectNoViolations(container);
+  });
+
   test("cards: a fixed column width does not hold the card wider than its container", async () => {
     const { container } = await render(
       boxed(320, { caption: "T", columns: [{ key: "n", label: "Name", width: 500 }], rows: ROWS }),
