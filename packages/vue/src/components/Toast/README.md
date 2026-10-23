@@ -38,7 +38,7 @@ A floating message that confirms or reports something just done. Show toasts thr
 ## Accessibility
 
 - `role="alert"` for danger, `role="status"` for the other tones (`neutral`, `info`, `success`, `warning`), unless `live` is off.
-- The dismiss button is named by the `dismiss` message, as `ENotice`'s is ("Dismiss"). The older `closeToast` message is deprecated; when you set it, it still names the button. Turn it off with `closable="false"` only for a toast that goes by itself.
+- The dismiss button is named by the `dismiss` message, as `ENotice`'s is ("Dismiss"). The older `closeToast` message is deprecated; when you set it, it still names the button. Turn it off with `:closable="false"` only for a toast that goes by itself.
 
 ## Keyboard
 
