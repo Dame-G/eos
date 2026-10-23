@@ -76,7 +76,10 @@ describe("ESignatureField", () => {
 
   test("in draw mode the error marks the pad", async () => {
     const { container } = await mount({ mode: "draw", error: "Sign the form" });
-    expect(container.querySelector("canvas")!.getAttribute("aria-invalid")).toBe("true");
+    expect(container.querySelector(".e-pad-surface")!.hasAttribute("data-invalid")).toBe(true);
+    expect(container.querySelector("canvas")!.getAttribute("aria-describedby")).toContain(
+      container.querySelector("[role=alert]")!.id,
+    );
     expect(container.querySelectorAll("[role=alert]")).toHaveLength(1);
   });
 

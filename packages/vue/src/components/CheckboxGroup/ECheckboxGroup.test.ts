@@ -80,7 +80,9 @@ describe("ECheckboxGroup", () => {
         "onUpdate:modelValue": (v: string[]) => got.push(v),
       },
     });
-    expect(container.querySelector("fieldset")!.getAttribute("aria-readonly")).toBe("true");
+    // A plain group does not take aria-readonly: each box carries it.
+    expect(container.querySelector("fieldset")!.hasAttribute("aria-readonly")).toBe(false);
+    for (const box of container.querySelectorAll("input")) expect(box.getAttribute("aria-readonly")).toBe("true");
     await container.querySelectorAll<HTMLInputElement>("input")[1]!.click();
     expect(got).toEqual([]);
   });

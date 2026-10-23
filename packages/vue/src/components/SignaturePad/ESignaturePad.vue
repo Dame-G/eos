@@ -14,7 +14,7 @@ const props = withDefaults(
     height?: number;
     /** Help that stays under the pad. */
     hint?: string;
-    /** What to fix. Replaces the hint, marks the pad invalid (`aria-invalid`, a danger edge) and is announced. */
+    /** What to fix. Replaces the hint, gives the pad a danger edge, is announced and describes the pad. An image has no `aria-invalid`. */
     error?: string;
     /** Adds "Required" to what screen readers hear with the pad. Nothing stops an empty pad from being submitted: check the value. */
     required?: boolean;
@@ -223,7 +223,6 @@ defineExpose({
         role="img"
         :style="{ height: `${height}px`, color: 'var(--e-ink)' }"
         :aria-label="t('drawSignature')"
-        :aria-invalid="error ? 'true' : undefined"
         :aria-describedby="[`${id}-hint`, error || hint ? `${id}-msg` : ''].filter(Boolean).join(' ')"
         @pointerdown="down"
         @pointermove="move"

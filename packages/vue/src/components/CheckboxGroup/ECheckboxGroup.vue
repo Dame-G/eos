@@ -77,7 +77,6 @@ defineExpose({
     :required="required"
     :optional="optional"
     :disabled="disabled"
-    :aria-readonly="readonly ? 'true' : undefined"
   >
     <div class="e-checkgroup-items" :class="{ 'e-checkgroup-items--row': orientation === 'horizontal' }">
       <ECheckbox
