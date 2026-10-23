@@ -2,7 +2,7 @@
 "@eos-ui/vue": minor
 ---
 
-`ETag` is a paper tag: a small square-cornered label with a punched eyelet at the start, in place of the pill. A tag with an `icon` shows the icon where the eyelet would be. A tag names a category, so its tones are quiet: they colour the eyelet and the text, and the tag keeps the neutral surface and edge. Use `EStamp` for a status.
+`ETag` is a paper tag: a small square-cornered label with a thin slab edge, in place of the pill. A tag names a category, so its tones are quiet: they colour the text, and the tag keeps the neutral surface and edge. Use `EStamp` for a status.
 
 `ECombobox` draws its chosen options with `ETag`, so they match tags everywhere else. Its own chip styles are gone.
 

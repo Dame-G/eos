@@ -38,7 +38,6 @@ describe("ECombobox multiple", () => {
     const wrap = container.querySelector(".e-input-wrap")!.getBoundingClientRect();
     expect(wrap.height).toBe(emptyHeight);
     for (const tag of container.querySelectorAll(".e-tag")) {
-      expect(tag.querySelector(".e-tag-eyelet")).not.toBeNull();
       const box = tag.getBoundingClientRect();
       expect(Math.abs(box.top - wrap.top - (wrap.bottom - box.bottom))).toBeLessThanOrEqual(1.5);
     }

@@ -12,11 +12,11 @@ withDefaults(
   defineProps<{
     /** The text of the tag. It also names the Remove button, as "Remove Cardiology". */
     label: string;
-    /** `neutral` has no colour. The others colour the eyelet and the text, and leave the tag on the neutral surface: a tag names a category, and `EStamp` is the status mark. */
+    /** `neutral` has no colour. The others colour the text, and leave the tag on the neutral surface: a tag names a category, and `EStamp` is the status mark. */
     tone?: TagTone;
     /** `sm` is shorter, for a dense list. */
     size?: "sm" | "md";
-    /** A decorative icon before the text, in place of the eyelet. */
+    /** A decorative icon before the text. */
     icon?: IconProp;
     /** Adds a Remove button that emits `remove`. The tag does not remove itself. */
     removable?: boolean;
@@ -40,7 +40,6 @@ const t = useMessages();
 <template>
   <span class="e-tag" :class="[tone !== 'neutral' && `e-tag--${tone}`, size === 'sm' && 'e-tag--sm']">
     <EIcon v-if="icon" :name="icon" size="sm" />
-    <span v-else class="e-tag-eyelet" aria-hidden="true" />
     <span class="e-tag-text"
       ><slot>{{ label }}</slot></span
     >
@@ -63,56 +62,42 @@ const t = useMessages();
     --_ink: var(--e-ink);
     --_edge: var(--e-border-strong);
     --_bg: var(--e-surface-tint);
-    --_hole: var(--e-border-strong);
+    --_lift: var(--e-slab-thin);
 
     display: inline-flex;
     align-items: center;
     gap: var(--e-gap-tight);
     max-inline-size: 100%;
     min-block-size: calc(var(--e-chip-height) + var(--e-gap-tight));
-    padding-inline: var(--e-gap-snug) calc(var(--e-pad-chip) - var(--e-stroke-hair));
+    padding-inline: calc(var(--e-pad-chip) - var(--e-stroke-hair));
+    padding-block-start: var(--_lift);
     border: var(--e-stroke-hair) solid var(--_edge);
+    border-bottom-width: calc(var(--e-stroke-hair) + var(--_lift));
     border-radius: var(--e-radius-sm);
     background: var(--_bg);
     color: var(--_ink);
     font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-tight) var(--e-font-sans);
   }
 
-  /* The hole a paper tag is strung through, punched out of it: it shows the page behind and is pressed in like a well. A tag with an icon has the icon in its place. */
-  .e-tag-eyelet {
-    flex: none;
-    box-sizing: border-box;
-    width: var(--e-gap-snug);
-    height: var(--e-gap-snug);
-    border: var(--e-stroke-hair) solid var(--_hole);
-    border-radius: var(--e-radius-round);
-    background: var(--e-surface);
-    box-shadow: var(--e-well);
-  }
-
   .e-tag--sm {
     min-block-size: var(--e-chip-height);
   }
 
-  /* A tag is a category, not a status, so a tone is quiet: it colours the eyelet and the text, and the tag keeps the neutral surface and edge. A Stamp is the loud mark. */
+  /* A tag is a category, not a status, so a tone is quiet: it colours the text, and the tag keeps the neutral surface and edge. A Stamp is the loud mark. */
   .e-tag--info {
     --_ink: var(--e-info);
-    --_hole: var(--e-info);
   }
 
   .e-tag--success {
     --_ink: var(--e-success);
-    --_hole: var(--e-success);
   }
 
   .e-tag--warning {
     --_ink: var(--e-warning);
-    --_hole: var(--e-warning);
   }
 
   .e-tag--danger {
     --_ink: var(--e-danger);
-    --_hole: var(--e-danger);
   }
 
   .e-tag-text {

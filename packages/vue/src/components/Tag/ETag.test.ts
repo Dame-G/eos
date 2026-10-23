@@ -8,37 +8,30 @@ import "../Combobox/ECombobox.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ETag", () => {
-  test("shows its label on a paper tag with an eyelet, and has no button by default", async () => {
+  test("shows its label on a paper tag, and has no button by default", async () => {
     const { container } = await render(ETag, { props: { label: "Cardiology" } });
     container.classList.add("e-root");
     const tag = container.querySelector(".e-tag")!;
     expect(tag.textContent!.trim()).toBe("Cardiology");
     expect(container.querySelector("button")).toBeNull();
-    // A tag, not a pill: a small corner radius, with a punched eyelet in place of an icon.
+    // A tag, not a pill: a small corner radius, with a thin slab edge under it.
     expect(parseFloat(getComputedStyle(tag).borderTopLeftRadius)).toBeLessThan(10);
-    expect(container.querySelector(".e-tag-eyelet")).not.toBeNull();
-    expect(getComputedStyle(container.querySelector(".e-tag-eyelet")!).borderTopLeftRadius).toBe("50%");
   });
 
-  test("is drawn by its own rules only: one border, the eyelet and text centred", async () => {
+  test("is drawn by its own rules only: a slab edge, the text centred", async () => {
     const { container } = await render(ETag, { props: { label: "Cardiology" } });
     container.classList.add("e-root");
     const tag = container.querySelector(".e-tag")! as HTMLElement;
     const style = getComputedStyle(tag);
     expect(style.boxShadow).toBe("none");
-    // The eyelet side is tighter, as a hole sits near the edge of a tag.
-    expect(parseFloat(style.paddingLeft)).toBeLessThan(parseFloat(style.paddingRight));
-    const eyelet = tag.querySelector(".e-tag-eyelet")!.getBoundingClientRect();
-    const middle = tag.getBoundingClientRect();
-    expect(Math.abs(eyelet.top - middle.top - (middle.bottom - eyelet.bottom))).toBeLessThanOrEqual(1);
+    expect(parseFloat(style.borderBottomWidth)).toBeGreaterThan(parseFloat(style.borderTopWidth));
     const text = tag.querySelector(".e-tag-text")!.getBoundingClientRect();
     const box = tag.getBoundingClientRect();
     expect(Math.abs(text.top - box.top - (box.bottom - text.bottom))).toBeLessThanOrEqual(1);
   });
 
-  test("an icon takes the place of the eyelet", async () => {
+  test("an icon is shown before the text", async () => {
     const { container } = await render(ETag, { props: { label: "Overdue", icon: "alert" } });
-    expect(container.querySelector(".e-tag-eyelet")).toBeNull();
     expect(container.querySelector(".e-tag svg")).not.toBeNull();
   });
 
@@ -50,7 +43,7 @@ describe("ETag", () => {
     expect(container.querySelector(".e-tag-text")!.textContent).toBe("Heart");
   });
 
-  test("tone adds its modifier and colours only the text and the eyelet; the tag stays on the neutral surface", async () => {
+  test("tone adds its modifier and colours only the text; the tag stays on the neutral surface", async () => {
     const look = async (tone: "neutral" | "info" | "success" | "warning" | "danger") => {
       const { container } = await render(ETag, { props: { label: "x", tone } });
       container.classList.add("e-root");
@@ -59,7 +52,6 @@ describe("ETag", () => {
       return {
         cls: tag.className,
         text: style.color,
-        hole: getComputedStyle(tag.querySelector(".e-tag-eyelet")!).borderTopColor,
         bg: style.backgroundColor,
         edge: style.borderTopColor,
       };
@@ -70,8 +62,6 @@ describe("ETag", () => {
       const toned = await look(tone);
       expect(toned.cls).toBe(`e-tag e-tag--${tone}`);
       expect(toned.text, tone).not.toBe(neutral.text);
-      expect(toned.hole, tone).not.toBe(neutral.hole);
-      expect(toned.text, tone).toBe(toned.hole);
       expect(toned.bg, tone).toBe(neutral.bg);
       expect(toned.edge, tone).toBe(neutral.edge);
     }
