@@ -3,6 +3,8 @@ import { defineComponent, h } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ETag from "./ETag.vue";
+// Loaded for its styles: the combobox draws its own chips and must not restyle a tag.
+import "../Combobox/ECombobox.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ETag", () => {
@@ -12,7 +14,20 @@ describe("ETag", () => {
     const tag = container.querySelector(".e-tag")!;
     expect(tag.textContent!.trim()).toBe("Cardiology");
     expect(container.querySelector("button")).toBeNull();
-    expect(getComputedStyle(tag).borderTopLeftRadius).toBe("50%");
+    // A pill, not an ellipse: the radius is the pill token, far larger than half the height.
+    expect(parseFloat(getComputedStyle(tag).borderTopLeftRadius)).toBeGreaterThan(100);
+  });
+
+  test("is drawn by its own rules only: one border, even padding, text centred", async () => {
+    const { container } = await render(ETag, { props: { label: "Cardiology" } });
+    container.classList.add("e-root");
+    const tag = container.querySelector(".e-tag")! as HTMLElement;
+    const style = getComputedStyle(tag);
+    expect(style.boxShadow).toBe("none");
+    expect(style.paddingLeft).toBe(style.paddingRight);
+    const text = tag.querySelector(".e-tag-text")!.getBoundingClientRect();
+    const box = tag.getBoundingClientRect();
+    expect(Math.abs(text.top - box.top - (box.bottom - text.bottom))).toBeLessThanOrEqual(1);
   });
 
   test("the default slot replaces the label", async () => {

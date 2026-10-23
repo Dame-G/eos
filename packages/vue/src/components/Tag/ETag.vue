@@ -70,7 +70,7 @@ const t = useMessages();
     min-block-size: calc(var(--e-chip-height) + var(--e-gap-tight));
     padding-inline: calc(var(--e-pad-chip) - var(--e-stroke-hair));
     border: var(--e-stroke-hair) solid var(--_edge);
-    border-radius: var(--e-radius-round);
+    border-radius: var(--e-radius-pill);
     background: var(--_bg);
     color: var(--_ink);
     font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-tight) var(--e-font-sans);

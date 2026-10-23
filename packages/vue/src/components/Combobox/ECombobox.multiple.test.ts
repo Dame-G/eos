@@ -10,7 +10,7 @@ import { expectNoViolations } from "../../../test/axe.js";
 const WAYS = ["Text", "Email", "Call"];
 const optionEls = () => Array.from(document.querySelectorAll<HTMLElement>("[role=option]"));
 const inputOf = (c: Element) => c.querySelector<HTMLInputElement>("input.e-combo-input")!;
-const tags = (c: Element) => Array.from(c.querySelectorAll(".e-tag")).map((t) => t.textContent?.trim());
+const tags = (c: Element) => Array.from(c.querySelectorAll(".e-chip")).map((t) => t.textContent?.trim());
 const spoken = () => document.querySelector("[data-e-announcer=polite]")?.textContent?.replace(/\u00a0/g, "");
 const box = (name: string) => page.getByRole("combobox", { name });
 const expanded = (el: Element, v: "true" | "false") => expect.poll(() => el.getAttribute("aria-expanded")).toBe(v);
@@ -296,8 +296,8 @@ describe("ECombobox multiple", () => {
       props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text"], disabled: true },
     });
     expect(inputOf(container).disabled).toBe(true);
-    expect(container.querySelector(".e-tag")!.textContent).toContain("Text");
-    expect(container.querySelector(".e-tag-x")).toBeNull();
+    expect(container.querySelector(".e-chip")!.textContent).toContain("Text");
+    expect(container.querySelector(".e-chip-x")).toBeNull();
     expect(container.querySelector("[aria-label=Clear]")).toBeNull();
     expect(container.querySelector(".e-combo-btn")).toBeNull();
   });

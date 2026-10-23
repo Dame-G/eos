@@ -251,12 +251,12 @@ defineExpose({
           >
             <div class="e-combo-main">
               <template v-if="multiple">
-                <span v-for="v in values" :key="v" class="e-tag">
+                <span v-for="v in values" :key="v" class="e-chip">
                   {{ labelOf(v) }}
                   <button
                     v-if="!disabled && !readonly"
                     type="button"
-                    class="e-tag-x"
+                    class="e-chip-x"
                     :aria-label="t('removeItem', { label: labelOf(v) })"
                     @click="remove(v)"
                   >
@@ -391,11 +391,11 @@ defineExpose({
     padding-inline: var(--e-space-2);
   }
 
-  .e-combo-main .e-tag:not(:has(.e-tag-x)) {
+  .e-combo-main .e-chip:not(:has(.e-chip-x)) {
     padding-inline-end: var(--e-space-3);
   }
 
-  .e-tag {
+  .e-chip {
     display: inline-flex;
     align-items: center;
     gap: var(--e-gap-tight);
@@ -409,18 +409,18 @@ defineExpose({
   }
 
   /* A disabled field's chips are plain, not primary. */
-  .e-input-wrap[data-disabled] .e-tag {
+  .e-input-wrap[data-disabled] .e-chip {
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
     color: var(--e-muted);
   }
 
-  .e-tag-x::after {
+  .e-chip-x::after {
     content: "";
     position: absolute;
     inset: calc((var(--e-tap) - var(--e-space-6)) / -2);
   }
 
-  .e-tag-x {
+  .e-chip-x {
     position: relative;
     display: inline-grid;
     place-items: center;
@@ -434,22 +434,22 @@ defineExpose({
     cursor: pointer;
   }
 
-  .e-tag-x:hover {
+  .e-chip-x:hover {
     background: var(--e-wash-hover);
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-primary);
   }
 
-  .e-tag-x:active {
+  .e-chip-x:active {
     background: var(--e-wash-press);
   }
 
-  .e-tag-x:focus-visible {
+  .e-chip-x:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: var(--e-stroke-focus);
   }
 
   @media (forced-colors: active) {
-    .e-tag {
+    .e-chip {
       outline: var(--e-stroke-card) solid CanvasText;
     }
   }

@@ -179,11 +179,6 @@ watch(current, () => reveal(true));
     font-weight: var(--e-weight-strong);
   }
 
-  /* In a vertical list the slab down the outer edge answers the pointer: it darkens under the cursor. In a horizontal list the slab faces the panel, so it holds its colour. */
-  .e-tabs--vertical > .e-tablist > .e-tab[aria-selected="true"]:hover {
-    --_slab: var(--e-primary-slab);
-  }
-
   .e-tab:focus-visible {
     z-index: var(--e-z-focus);
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
