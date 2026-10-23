@@ -6,6 +6,9 @@ import * as Vue from "vue";
 import ESearchBar from "./ESearchBar.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
+/** The top-left corner radius in px. */
+const corner = (el: Element) => parseFloat(getComputedStyle(el).borderTopLeftRadius);
+
 describe("ESearchBar", () => {
   test("is a search landmark with a named box and a submit button", async () => {
     const { container } = await render(ESearchBar);
@@ -234,5 +237,18 @@ describe("ESearchBar", () => {
     api!.focus();
     expect(document.activeElement).toBe(container.querySelector("input"));
     expect(api!.input).toBe(container.querySelector("input"));
+  });
+
+  test("corners are concentric: the action button is inset by the edge and a tight gap at any theme", async () => {
+    const { container } = await render(ESearchBar);
+    const root = container as HTMLElement;
+    root.classList.add("e-root");
+    const wrap = root.querySelector(".e-input-wrap")!;
+    const btn = wrap.querySelector(".e-btn")!;
+
+    for (const md of [null, "14px", "2px"]) {
+      if (md) root.style.setProperty("--e-radius-md", md);
+      expect(corner(btn)).toBeCloseTo(Math.max(0, corner(wrap) - 5), 0);
+    }
   });
 });

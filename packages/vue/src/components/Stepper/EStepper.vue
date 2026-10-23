@@ -165,7 +165,9 @@ function choose(index: number, step: Step) {
     height: var(--_dot);
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid transparent;
-    border-radius: var(--e-radius-md);
+
+    /* The dot sits `--_inset` inside the step's rounded hover face. */
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     background: var(--e-surface);

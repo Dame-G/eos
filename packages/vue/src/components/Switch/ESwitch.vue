@@ -131,7 +131,9 @@ defineExpose({
     /* The thumb is a small button face with a slab under it. */
     border: var(--e-stroke-edge) solid var(--e-slab-ink);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-sm);
+
+    /* Concentric with the track: the thumb's edge is `--_inset` inside the track's outer edge, border included. */
+    border-radius: max(0px, calc(var(--e-radius-sm) - var(--_inset)));
     background: var(--e-ink);
     transition:
       transform var(--e-duration-move) var(--e-easing-out),

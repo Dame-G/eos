@@ -202,4 +202,17 @@ describe("EStepper", () => {
     });
     await expectNoViolations(container);
   });
+
+  test("the dot's corners are concentric with the step's face, inset by the step's padding", async () => {
+    const { container } = await render(EStepper, { props: { steps } });
+    container.classList.add("e-root");
+    const body = container.querySelector(".e-step-body")!;
+    const dot = container.querySelector(".e-step-dot")!;
+    const inset = parseFloat(getComputedStyle(body).paddingTop);
+    for (const md of ["2px", "8px", "14px"]) {
+      container.style.setProperty("--e-radius-md", md);
+      const outer = parseFloat(getComputedStyle(body).borderTopLeftRadius);
+      expect(parseFloat(getComputedStyle(dot).borderTopLeftRadius)).toBeCloseTo(Math.max(0, outer - inset), 0);
+    }
+  });
 });

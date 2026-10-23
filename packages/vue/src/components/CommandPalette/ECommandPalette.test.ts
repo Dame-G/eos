@@ -185,3 +185,15 @@ describe("ECommandPalette", () => {
     await expectNoViolations(document.body);
   });
 });
+
+describe("ECommandPalette corners", () => {
+  test.each(["", "2px", "14px"])("an option's corner is the palette's less the list padding (md %s)", async (md) => {
+    await mount();
+    const dialog = document.querySelector<HTMLElement>(".e-cmd")!;
+    if (md) dialog.style.setProperty("--e-radius-md", md);
+    const outer = parseFloat(getComputedStyle(dialog).borderTopLeftRadius);
+    const inset = parseFloat(getComputedStyle(dialog.querySelector(".e-cmd-list")!).paddingTop);
+    const inner = parseFloat(getComputedStyle(options()[0]!).borderTopLeftRadius);
+    expect(Math.abs(inner - Math.max(0, outer - inset))).toBeLessThan(0.5);
+  });
+});

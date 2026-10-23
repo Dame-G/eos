@@ -104,6 +104,9 @@ defineExpose(control.exposed);
     position: relative;
     height: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--e-gap-tight)));
     padding: 0 calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
+
+    /* Inset by the field's edge and a tight gap, like the clear button. */
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
     font: var(--e-type-button);
   }
 

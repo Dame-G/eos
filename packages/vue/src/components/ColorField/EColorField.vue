@@ -117,6 +117,7 @@ defineExpose(control.exposed);
 
 <style>
 @layer e.composites {
+  /* The swatch is inset by the field's edge and a tight gap, so its corners are the field's nested radius. */
   .e-colorfield {
     align-items: center;
     gap: var(--e-gap-snug);
@@ -134,7 +135,7 @@ defineExpose(control.exposed);
 
   /* No colour yet: a neutral struck-through chip over the picker's black, which still opens on click. */
   .e-color-empty {
-    border-radius: var(--e-radius-sm);
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
     background:
       linear-gradient(
         to top right,
@@ -153,7 +154,7 @@ defineExpose(control.exposed);
     height: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--e-gap-tight)));
     padding: 0;
     border: 0;
-    border-radius: var(--e-radius-sm);
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
     background: none;
     cursor: pointer;
   }
@@ -164,13 +165,13 @@ defineExpose(control.exposed);
 
   .e-color-swatch::-webkit-color-swatch {
     border: 0;
-    border-radius: var(--e-radius-sm);
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 
   .e-color-swatch::-moz-color-swatch {
     border: 0;
-    border-radius: var(--e-radius-sm);
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 

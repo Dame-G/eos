@@ -15,6 +15,9 @@ const spoken = () => document.querySelector("[data-e-announcer=polite]")?.textCo
 const box = (name: string) => page.getByRole("combobox", { name });
 const expanded = (el: Element, v: "true" | "false") => expect.poll(() => el.getAttribute("aria-expanded")).toBe(v);
 
+/** The top-left corner radius in px. */
+const corner = (el: Element) => parseFloat(getComputedStyle(el).borderTopLeftRadius);
+
 describe("ECombobox multiple", () => {
   test("shows chosen options as tags in the field, each with its own labelled Remove button", async () => {
     const { container } = await render(ECombobox, {
@@ -353,5 +356,23 @@ describe("ECombobox multiple", () => {
       props: { multiple: true, label: "Remind me by", options: WAYS, disabled: true, modelValue: ["Text"] },
     });
     await expectNoViolations(d.container);
+  });
+
+  test("corners are concentric: chosen tags (a tight gap) and the buttons ((snug + edge) / 2) follow the wrap's radius at any theme", async () => {
+    const { container } = await render(ECombobox, {
+      props: { multiple: true, label: "Remind me by", options: WAYS, modelValue: ["Text", "Email"], clearable: true },
+    });
+    const root = container as HTMLElement;
+    root.classList.add("e-root");
+    const wrap = root.querySelector(".e-input-wrap")!;
+    const tag = wrap.querySelector(".e-tag")!;
+    const btn = wrap.querySelector(".e-combo-btn")!;
+
+    for (const md of [null, "14px", "2px"]) {
+      if (md) root.style.setProperty("--e-radius-md", md);
+      const outer = corner(wrap);
+      expect(corner(tag)).toBeCloseTo(Math.max(0, outer - 4), 0);
+      expect(corner(btn)).toBeCloseTo(Math.max(0, outer - 4.5), 0);
+    }
   });
 });

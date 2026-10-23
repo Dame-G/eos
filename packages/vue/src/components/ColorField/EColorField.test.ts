@@ -6,6 +6,9 @@ import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 import { expectPostingContract } from "../../../test/formPosting.js";
 
+/** The top-left corner radius in px. */
+const corner = (el: Element) => parseFloat(getComputedStyle(el).borderTopLeftRadius);
+
 describe("EColorField", () => {
   test("is a labelled text box with a swatch beside it", async () => {
     const { container } = await render(EColorField, { props: { label: "Brand colour", modelValue: "#2c95b4" } });
@@ -131,5 +134,21 @@ describe("EColorField", () => {
     (document.activeElement as HTMLElement).blur();
     (container.querySelector(".e-color-swatch") as HTMLElement).click();
     expect(document.activeElement).not.toBe(container.querySelector("input[type=text]"));
+  });
+
+  test("corners are concentric: the swatch and the empty chip are inset by the edge and a tight gap at any theme", async () => {
+    const { container } = await render(EColorField, { props: { label: "Brand colour", modelValue: "" } });
+    const root = container as HTMLElement;
+    root.classList.add("e-root");
+    const wrap = root.querySelector(".e-input-wrap")!;
+    const swatch = wrap.querySelector(".e-color-swatch")!;
+    const chip = wrap.querySelector(".e-color-empty")!;
+
+    for (const md of [null, "14px", "2px"]) {
+      if (md) root.style.setProperty("--e-radius-md", md);
+      const want = Math.max(0, corner(wrap) - 5);
+      expect(corner(swatch)).toBeCloseTo(want, 0);
+      expect(corner(chip)).toBeCloseTo(want, 0);
+    }
   });
 });

@@ -182,7 +182,9 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
   .e-slider-range {
     position: absolute;
     height: 100%;
-    border-radius: inherit;
+
+    /* Fills the track's padding edge, so it takes the track's inner radius, not the outer one. */
+    border-radius: max(0px, calc(var(--e-radius-sm) - var(--e-stroke-edge)));
     background: var(--e-primary);
   }
 

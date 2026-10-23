@@ -295,16 +295,17 @@ defineExpose(control.exposed);
     cursor: pointer;
   }
 
+  /* The steppers sit flush in the field's border, so their outer corners are its inner radius. */
   .e-numbtn:first-of-type {
     border-inline-end: var(--e-stroke-hair) solid var(--e-border-strong);
-    border-start-start-radius: var(--e-radius-md);
-    border-end-start-radius: var(--e-radius-md);
+    border-start-start-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge)));
+    border-end-start-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge)));
   }
 
   .e-numbtn:last-of-type {
     border-inline-start: var(--e-stroke-hair) solid var(--e-border-strong);
-    border-start-end-radius: var(--e-radius-md);
-    border-end-end-radius: var(--e-radius-md);
+    border-start-end-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge)));
+    border-end-end-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge)));
   }
 
   .e-numbtn:disabled,

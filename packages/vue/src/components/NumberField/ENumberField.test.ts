@@ -27,6 +27,9 @@ async function bound(props: Record<string, unknown>, initial: number | null, glo
   return { model, got, ...result };
 }
 
+/** The top-left corner radius in px. */
+const corner = (el: Element) => parseFloat(getComputedStyle(el).borderTopLeftRadius);
+
 describe("ENumberField", () => {
   test("is a spinbutton named by its label, between a decrease and an increase button", async () => {
     const { container } = await render(ENumberField, { props: { label: "Visits" } });
@@ -423,5 +426,18 @@ describe("ENumberField", () => {
     await userEvent.keyboard("{ArrowUp}{PageUp}{Home}{End}7{Enter}");
     expect(got).toEqual([]);
     await expect.element(box).toHaveValue("5");
+  });
+
+  test("corners are concentric: the steppers' outer corners are the field's inner radius at any theme", async () => {
+    const { container } = await render(ENumberField, { props: { label: "Qty", modelValue: 1 } });
+    const root = container as HTMLElement;
+    root.classList.add("e-root");
+    const wrap = root.querySelector(".e-input-wrap")!;
+    const first = wrap.querySelector(".e-numbtn:first-of-type")!;
+
+    for (const md of [null, "14px", "2px"]) {
+      if (md) root.style.setProperty("--e-radius-md", md);
+      expect(corner(first)).toBeCloseTo(Math.max(0, corner(wrap) - 1), 0);
+    }
   });
 });

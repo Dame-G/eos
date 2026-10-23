@@ -387,6 +387,11 @@ defineExpose({
     padding-inline: var(--e-space-2);
   }
 
+  /* A tag sits a tight gap inside the wrap's edge, edge included, on a wrapped row. */
+  .e-combo--multi .e-tag {
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-gap-tight)));
+  }
+
   /* A disabled field's tags are plain, not primary. */
   .e-input-wrap[data-disabled] .e-tag {
     --_ink: var(--e-muted);

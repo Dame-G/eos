@@ -132,4 +132,15 @@ describe("ESwitch", () => {
     expect(got).toEqual([]);
     expect(input.checked).toBe(false);
   });
+
+  test("the thumb's corners are concentric with the track's, 4px in, under any radius", async () => {
+    const { container } = await render(ESwitch, { props: { label: "Reminders" } });
+    container.classList.add("e-root");
+    const track = container.querySelector(".e-switch-track") as HTMLElement;
+    const corner = (el: Element, pseudo?: string) => parseFloat(getComputedStyle(el, pseudo).borderTopLeftRadius);
+    for (const sm of ["0px", "4px", "8px"]) {
+      container.style.setProperty("--e-radius-sm", sm);
+      expect(corner(track, "::after")).toBeCloseTo(Math.max(0, corner(track) - 4), 0);
+    }
+  });
 });

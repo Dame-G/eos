@@ -219,6 +219,19 @@ The slab is the raised bottom edge under a face. There is one construction, the 
 
 `.e-slab` in `base.css` is exactly this, with `--_slab` defaulting to `--e-slab-ink` for a face with no colour of its own. Thickness comes from three tokens and nothing else (no `0.6 *`, `1.5 *`, `space-1`): `slab-thin` (a small part: a switch thumb, a key), `slab` (everything else), `slab-bold` (a side edge that marks a tone, as on a Notice or Toast). A tone's edge colour is its `*-slab` token. Do not draw the slab as a gradient band, a `::before` bar or an inset shadow. The one exception is a face that cannot grow a border: `.e-slab--shadow` / `--e-slab-edge` (the face is shorter by `--e-slab`), and `.e-slab--sink` / `--e-slab-sink` for a quiet control toggled on.
 
+### Corners
+
+A rounded thing inside a rounded, bordered thing has a smaller radius, so the two curves share a centre: the child's radius is the container's radius less the distance between their outer edges. Never give both the same token, and never use `border-radius: inherit` to fill a parent that has a border.
+
+```css
+.e-thing-child {
+  /* inside the container's border (stroke-edge, or stroke-card for a card, panel or table) and a gap-tight of padding */
+  border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
+}
+```
+
+Write the sum where the child is styled, with the container's real border and padding: a custom property built from `var(--e-radius-md)` is resolved where it is declared, so a scoped theme that sets `--e-radius-md` on a container would not reach it. A component that needs the sum twice keeps the inset in a private `--_inset` and computes `max(0px, calc(var(--e-radius-md) - var(--_inset)))` on the element itself. The maths follows every `radius` setting (`sharp`, `default`, `round`). A circle or pill (`radius-round`, `radius-pill`) is left alone.
+
 ### Hover, press and focus
 
 One recipe for anything that can be pressed. `.e-interact` in `base.css` is the reference; a component that needs its own selectors copies these declarations.

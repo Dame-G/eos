@@ -182,3 +182,24 @@ describe("EExpandableRow", () => {
     await expect.poll(() => getComputedStyle(row).borderBottomWidth).toBe(getComputedStyle(row).borderTopWidth);
   });
 });
+
+describe("EExpandableRow corners", () => {
+  test.each(["", "2px", "14px"])("summary and body corners are the row's less its border (md %s)", async (md) => {
+    const { container } = await render(EExpandableRow, { props: { title: "Visit" }, slots });
+    container.classList.add("e-root");
+    if (md) container.style.setProperty("--e-radius-md", md);
+    const details = container.querySelector("details")!;
+    const r = (el: Element, c: string) => parseFloat((getComputedStyle(el) as unknown as Record<string, string>)[c]!);
+    const row = getComputedStyle(details);
+    const outer = parseFloat(row.borderTopLeftRadius);
+    const edge = parseFloat(row.borderTopWidth);
+    const lift = parseFloat(row.borderBottomWidth) - edge;
+    const close = (a: number, b: number) => expect(Math.abs(a - Math.max(0, b))).toBeLessThan(0.5);
+    const summary = details.querySelector("summary")!;
+    close(r(summary, "borderTopLeftRadius"), outer - edge);
+    close(r(summary, "borderBottomLeftRadius"), outer - edge - lift);
+    details.open = true;
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    close(r(details.querySelector(".e-xrow-body")!, "borderBottomLeftRadius"), outer - edge);
+  });
+});
