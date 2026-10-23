@@ -70,6 +70,22 @@ describe("ETooltip open", () => {
     expect(document.activeElement).toBe(before);
   });
 
+  test("close fires when the person hides it, not when the consumer sets open to false", async () => {
+    const closes: number[] = [];
+    const { state } = await bound(false, { onClose: () => closes.push(1) });
+    state.value = true;
+    await expect.poll(() => panel()).not.toBeNull();
+    state.value = false;
+    await expect.poll(() => panel()).toBeNull();
+    await nextTick();
+    expect(closes).toEqual([]);
+    await openIt();
+    await expect.poll(() => panel()).not.toBeNull();
+    await userEvent.keyboard("{Escape}");
+    await expect.poll(() => panel()).toBeNull();
+    expect(closes).toEqual([1]);
+  });
+
   test("the person opening it and closing it with Escape update the model", async () => {
     const { state, seen } = await bound(false);
     await openIt();
