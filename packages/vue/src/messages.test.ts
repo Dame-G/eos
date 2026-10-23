@@ -1,8 +1,8 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, expectTypeOf, test } from "vitest";
 import { createApp, defineComponent, h } from "vue";
 import { createEos } from "./plugin.js";
 import { useMessages, type Translate } from "./config.js";
-import { defaultMessages } from "./messages.js";
+import { defaultMessages, type MessageVars } from "./messages.js";
 
 function translator(options: Parameters<typeof createEos>[0] = {}): Translate {
   let t!: Translate;
@@ -64,5 +64,74 @@ describe("plural messages", () => {
     for (const value of Object.values(defaultMessages)) {
       if (typeof value !== "string") expect(typeof value.other).toBe("string");
     }
+  });
+});
+
+describe("selection and file counts", () => {
+  test("selected, filesAdded and filesRejected follow the plural rules", () => {
+    const t = translator();
+    expect(t("selected", { n: 1 })).toBe("1 selected");
+    expect(t("selected", { n: 3 })).toBe("3 selected");
+    expect(t("filesAdded", { n: 1 })).toBe("1 file added");
+    expect(t("filesAdded", { n: 4 })).toBe("4 files added");
+    expect(t("filesRejected", { n: 1 })).toBe("1 file was not accepted");
+    expect(t("filesRejected", { n: 2 })).toBe("2 files were not accepted");
+  });
+
+  test("whole-sentence messages keep word order in the translator's hands", () => {
+    const t = translator({ messages: { paginationFor: "{caption} : pagination", dayToday: "aujourd'hui, {date}" } });
+    expect(t("paginationFor", { caption: "Orders" })).toBe("Orders : pagination");
+    expect(t("dayToday", { date: "lundi 3" })).toBe("aujourd'hui, lundi 3");
+    expect(translator()("sortedAsc", { col: "Name" })).toBe("Sorted by Name, ascending.");
+    expect(translator()("dayTodayMarked", { date: "Mon", mark: "times available" })).toBe(
+      "Mon, today, times available",
+    );
+    expect(translator()("dateRange", { start: "A", end: "B" })).toBe("A to B");
+  });
+});
+
+describe("message catalogue", () => {
+  const sources = import.meta.glob(
+    ["./**/*.vue", "./**/*.ts", "!./**/*.test.ts", "!./**/*.stories.ts", "!./messages.ts"],
+    {
+      query: "?raw",
+      import: "default",
+      eager: true,
+    },
+  ) as Record<string, string>;
+  const code = Object.values(sources).join("\n");
+
+  // Keys read dynamically (status.*), or waiting for their component to move to them.
+  const allowUnused = new Set<string>([
+    ...Object.keys(defaultMessages).filter((k) => k.startsWith("status.")),
+    "dateRange",
+    "sidebar",
+  ]);
+
+  test("every message is used by a component, or is allowed to be public only", () => {
+    const unused = Object.keys(defaultMessages).filter(
+      (key) => !allowUnused.has(key) && !new RegExp(`["'\`]${key.replaceAll(".", String.raw`\.`)}["'\`]`).test(code),
+    );
+    expect(unused).toEqual([]);
+  });
+
+  test("placeholders are simple names, and every plural form uses only those of its other form", () => {
+    const names = (text: string) => [...text.matchAll(/\{([^}]*)\}/g)].map((m) => m[1]!);
+    for (const [key, value] of Object.entries(defaultMessages)) {
+      const forms: Record<string, string> = typeof value === "string" ? { other: value } : value;
+      const known = new Set(names(forms.other!));
+      for (const [form, text] of Object.entries(forms)) {
+        for (const name of names(text)) {
+          expect(name, `${key}.${form}`).toMatch(/^[A-Za-z]\w*$/);
+          expect(known.has(name), `${key}.${form} uses {${name}} that other does not`).toBe(true);
+        }
+      }
+    }
+  });
+
+  test("the variables of a built-in message are typed from its text", () => {
+    expectTypeOf<MessageVars<"pageOf">>().toEqualTypeOf<"n" | "total">();
+    expectTypeOf<MessageVars<"filesTooLarge">>().toEqualTypeOf<"n" | "max">();
+    expectTypeOf<MessageVars<"required">>().toEqualTypeOf<never>();
   });
 });

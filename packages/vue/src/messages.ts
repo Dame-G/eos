@@ -1,3 +1,9 @@
+/**
+ * Every word the components say. Conventions:
+ * - A sentence is one message with `{name}` variables, never pieces joined in code, because word order differs by language.
+ * - A message that takes a count `n` is a plural object (`{ one, other }`); the form comes from the locale's plural rules.
+ * - Keys are camelCase; `status.*` are the status words.
+ */
 export const defaultMessages = {
   required: "Required",
   optional: "Optional",
@@ -11,12 +17,17 @@ export const defaultMessages = {
   previous: "Previous",
   next: "Next",
   pagination: "Pagination",
+  paginationFor: "Pagination: {caption}",
   pageN: "Page {n}",
   pageOf: "Page {n} of {total}",
-  opensInNewTab: "opens in a new tab",
+  opensNewTab: "(opens in a new tab)",
   breadcrumb: "Breadcrumb",
+  showFullPath: "Show full path",
+  menu: "Menu",
+  stepError: "has an error",
   mainNav: "Main",
   progress: "Progress",
+  progressLabel: "Progress",
   done: "done",
   status: "Status",
   "status.paid": "Paid",
@@ -29,6 +40,15 @@ export const defaultMessages = {
   "status.signed": "Signed",
   "status.pending": "Pending",
   "status.complete": "Complete",
+  "status.online": "Online",
+  "status.away": "Away",
+  "status.busy": "Busy",
+  "status.offline": "Offline",
+  avatarStatus: "{name}, {status}",
+  nMore: "{n} more",
+  trendUp: "Up {delta}",
+  trendDown: "Down {delta}",
+  trendFlat: "No change",
   dragHere: "Drag a file here or",
   chooseOne: "choose one",
   signature: "Signature",
@@ -51,10 +71,8 @@ export const defaultMessages = {
   showOptions: "Show options",
   removeItem: "Remove {label}",
   removedItem: "Removed {label}",
-  filesAddedOne: "1 file added",
-  filesAddedOther: "{n} files added",
-  filesRejectedOne: "1 file was not accepted",
-  filesRejectedOther: "{n} files were not accepted",
+  filesAdded: { one: "{n} file added", other: "{n} files added" },
+  filesRejected: { one: "{n} file was not accepted", other: "{n} files were not accepted" },
   filesTooLarge: { one: "{n} file is larger than {max}", other: "{n} files are larger than {max}" },
   filesTooMany: { one: "Only {n} file can be added", other: "Only {n} files can be added" },
   searching: "Searching",
@@ -62,6 +80,7 @@ export const defaultMessages = {
   startDate: "Start date",
   endDate: "End date",
   to: "to",
+  dateRange: "{start} to {end}",
   chooseDate: "Choose date",
   chooseDates: "Choose dates",
   pickColor: "Pick a colour",
@@ -78,12 +97,17 @@ export const defaultMessages = {
   dateError: "Enter a date as {format}.",
   datesError: "Enter dates as {format}.",
   dateBetween: "Choose a date between {min} and {max}.",
+  dateAfter: "Choose a date on or after {min}.",
+  dateBefore: "Choose a date on or before {max}.",
   dateUnavailable: "That date is not available.",
   endBeforeStart: "The end date is before the start date.",
   last7: "Last 7 days",
   last30: "Last 30 days",
   thisMonth: "This month",
   timesAvailable: "times available",
+  dayToday: "{date}, today",
+  dayMarked: "{date}, {mark}",
+  dayTodayMarked: "{date}, today, {mark}",
   prevMonth: "Previous month",
   chooseAMonth: "Choose a month in {year}",
   nextMonth: "Next month",
@@ -93,7 +117,6 @@ export const defaultMessages = {
   backToYears: "Back to the years",
   monthsOf: "Months of {year}",
   yearsRange: "Years {from} to {to}",
-  todaySuffix: "today",
   rangeStart: "Choose a start date",
   rangeEnd: "Starts {start}. Now choose an end date",
   rangeDone: { one: "{start} to {end} ({n} day)", other: "{start} to {end} ({n} days)" },
@@ -111,32 +134,52 @@ export const defaultMessages = {
   maxOf: "{col} maximum",
   selectAll: "Select all rows",
   selectAllPage: "Select all rows on this page",
-  selectRow: "Select row",
+  selectRowNamed: "Select {label}",
   noResults: "No results",
   noMatchesFilters: "Nothing matches these filters.",
   nothingYet: "There is nothing to show yet.",
   rows: { one: "{n} row", other: "{n} rows" },
   showing: "Showing {from} to {to} of {total}",
-  sortedBy: "Sorted by {col}, {dir}.",
-  ascending: "ascending",
-  descending: "descending",
+  sortedAsc: "Sorted by {col}, ascending.",
+  sortedDesc: "Sorted by {col}, descending.",
+  sortOptionAsc: "{col}, ascending",
+  sortOptionDesc: "{col}, descending",
+  loadFailed: "The data could not be loaded.",
+  retry: "Try again",
   rowsAnnounce: { one: "{n} row.", other: "{n} rows." },
   resizeCol: "Resize {col} column",
   sortBy: "Sort by",
-  selected: "{n} selected",
+  selected: { one: "{n} selected", other: "{n} selected" },
   showPassword: "Show password",
-  hidePassword: "Hide password",
   password: "Password",
   passwordRules: "Your password needs:",
   ruleMet: "met",
   ruleNotMet: "not met yet",
   errorSummary: "There is a problem",
+  formIssue: "{label}: {message}",
+  charCount: "{n} of {max} characters",
+  charCountOnly: { one: "{n} character", other: "{n} characters" },
   skipToMain: "Skip to main content",
   back: "Back",
   edit: "Edit",
   editItem: "Edit {label}",
   phone: "Phone number",
   toastRegion: "Notifications",
+  closeToast: "Close notification",
+  sidebar: "Sidebar",
 } as const;
 
 export type MessageKey = keyof typeof defaultMessages;
+
+type VarsIn<S> = S extends `${string}{${infer V}}${infer R}` ? V | VarsIn<R> : never;
+
+type MessageText<K extends MessageKey> = (typeof defaultMessages)[K] extends infer V
+  ? V extends string
+    ? V
+    : V extends { readonly other: infer O extends string }
+      ? O
+      : never
+  : never;
+
+/** The `{variables}` a built-in message takes, read from its default text. `MessageVars<"pageOf">` is `"n" | "total"`. */
+export type MessageVars<K extends MessageKey> = VarsIn<MessageText<K>>;

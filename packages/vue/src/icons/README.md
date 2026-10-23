@@ -4,6 +4,17 @@ EOS ships a small built-in set (Phosphor, 42 icons) so every component works wit
 
 Adapters live in `@eos-ui/vue/icons`. They import nothing: you pass the icon library in, so EOS never depends on it.
 
+## Which source wins
+
+An icon name is looked up in this order, and the first hit is drawn:
+
+1. A component passed straight to the `icon` prop.
+2. `icons[name]`: an explicit map of names to sources.
+3. `resolve(aliases[name] ?? name, { bold })`: your function, after `aliases` has renamed the EOS name.
+4. The built-in Phosphor icon of that name, unless `builtin: false`.
+
+Nothing found draws nothing and warns once in development. Adapters (`lucide()`, `tabler()`...) fill `resolve` and `aliases` for you, so an `icons` map you spread after them still wins.
+
 ## Lucide
 
 Install `lucide-vue-next` or `@lucide/vue`, then:
@@ -88,6 +99,10 @@ createEos({
 ```
 
 A source is a Vue component, a complete `<svg>` string, or a `[regular, bold]` pair of path markup in a 256 by 256 box.
+
+## Security: markup sources are trusted
+
+A source that is a string, whether from `icons` or returned by `resolve`, is drawn with `v-html`, and so are `[regular, bold]` path pairs. It is markup your app ships, not user input. Never return SVG built from user data, a request, or a database a user can write to: a `<script>` or an `onload` attribute in it would run. Components are not injected as markup, so prefer them when the icon name could come from outside.
 
 ## One icon at a time
 
