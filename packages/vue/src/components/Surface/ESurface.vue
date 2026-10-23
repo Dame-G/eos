@@ -7,8 +7,16 @@ const props = withDefaults(
   defineProps<{
     /** The element to render, such as `article`, `section` or `aside` for a real block. */
     as?: string;
-    /** Padding inside the card: `sm`, `md` or `lg`. */
+    /** Tighter padding. */
+    small?: boolean;
+    /** Roomier padding. */
+    large?: boolean;
+    /** No padding, so a table, an image or a list can run edge to edge. */
+    flush?: boolean;
+    /** Deprecated: use `small`, `large` or `flush`. `sm`, `md` and `lg` still work. */
     pad?: "sm" | "md" | "lg";
+    /** Warm paper ground and a pressed edge, for a statement or receipt. */
+    paper?: boolean;
     /** The lifted shadow of something floating above the page, such as a Toast. */
     raised?: boolean;
     /** Hides what overflows the rounded corners. Ignored when there is an `actions` slot. */
@@ -24,7 +32,11 @@ defineSlots<{
   actions(): unknown;
 }>();
 
-const pad = computed(() => (props.pad ? `e-surface--pad-${props.pad}` : null));
+const pad = computed(() => {
+  if (props.flush) return null;
+  const size = props.pad ?? (props.small ? "sm" : props.large ? "lg" : "md");
+  return `e-surface--pad-${size}`;
+});
 const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? "footer" : "div"));
 </script>
 
@@ -32,7 +44,11 @@ const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? 
   <component
     :is="as"
     class="e-surface"
-    :class="[raised && 'e-surface--raised', $slots.actions ? 'e-surface--actions' : [pad, clip && 'e-surface--clip']]"
+    :class="[
+      paper && 'e-surface--paper',
+      raised && 'e-surface--raised',
+      $slots.actions ? 'e-surface--actions' : [pad, clip && 'e-surface--clip'],
+    ]"
   >
     <template v-if="$slots.actions">
       <div class="e-surface-body" :class="pad">
@@ -52,7 +68,7 @@ const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? 
     min-width: 0;
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
-    box-shadow: var(--e-edge);
+    box-shadow: var(--e-frame);
   }
 
   .e-surface--clip {
@@ -75,6 +91,11 @@ const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? 
     border-end-end-radius: var(--e-radius-md);
   }
 
+  .e-surface--paper {
+    background: var(--e-surface-paper);
+    box-shadow: var(--e-paper);
+  }
+
   .e-surface--raised {
     box-shadow: var(--e-float);
   }
@@ -89,15 +110,6 @@ const barElement = computed(() => (/^(article|section|aside)$/.test(props.as) ? 
 
   .e-surface--pad-lg {
     padding: var(--e-space-6);
-  }
-
-  @media print {
-    .e-surface {
-      box-shadow: none;
-      outline: 0;
-      border: var(--e-stroke-hair) solid var(--e-print-ink, #000);
-      break-inside: avoid;
-    }
   }
 
   @media (forced-colors: active) {

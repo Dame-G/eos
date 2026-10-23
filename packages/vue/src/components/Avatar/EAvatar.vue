@@ -53,22 +53,22 @@ const initials = computed(() => {
 <style>
 @layer e.primitives {
   .e-avatar {
-    --e-ring: var(--e-border-strong);
+    --_ring: var(--e-border-strong);
 
     position: relative;
     display: inline-grid;
     place-items: center;
     flex: none;
     box-sizing: border-box;
-    width: var(--e-tap, 44px);
-    height: var(--e-tap, 44px);
+    width: var(--e-tap);
+    height: var(--e-tap);
     overflow: hidden;
-    border: var(--e-stroke-edge) solid var(--e-ring);
+    border: var(--e-stroke-edge) solid var(--_ring);
     border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
     background-clip: padding-box;
     color: var(--e-primary);
-    font: 600 var(--e-text-sm) / 1 var(--e-font-mono);
+    font: var(--e-weight-strong) var(--e-text-sm) / 1 var(--e-font-mono);
     letter-spacing: 0.02em;
     transition:
       border-color var(--e-duration-tap) var(--e-easing-out),
@@ -88,32 +88,26 @@ const initials = computed(() => {
   }
 
   .e-avatar--button:hover {
-    --e-ring: var(--e-ink);
+    --_ring: var(--e-ink);
 
-    background-color: color-mix(in srgb, var(--e-surface-tint), var(--e-shade-hover));
+    background-color: var(--e-surface-hover);
   }
 
   .e-avatar--button:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-focus-gap);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-avatar--button {
-      transition: none;
-    }
+    outline-offset: var(--e-stroke-focus);
   }
 
   .e-avatar--s {
-    width: 32px;
-    height: 32px;
+    width: var(--e-avatar-size-sm);
+    height: var(--e-avatar-size-sm);
     font-size: var(--e-text-xs);
     border-radius: var(--e-radius-sm);
   }
 
   .e-avatar--l {
-    width: 64px;
-    height: 64px;
+    width: var(--e-avatar-size-lg);
+    height: var(--e-avatar-size-lg);
     font-size: var(--e-text-lg);
   }
 

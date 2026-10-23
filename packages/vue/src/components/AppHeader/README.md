@@ -1,6 +1,6 @@
 # EAppHeader
 
-The bar across the top of the page, with logo, actions and a navigation row that scrolls sideways on narrow screens.
+The bar across the top of the page, with logo, actions and a navigation row that wraps its links when they do not fit.
 
 ```vue
 <EAppHeader sticky>
@@ -35,3 +35,11 @@ The bar across the top of the page, with logo, actions and a navigation row that
 - Renders the `banner` landmark: use one per page.
 - Give the navigation a `label` (on `ENavList`) so it differs from other navigations.
 - The navigation row is hidden in print.
+
+## Keyboard
+
+No custom keyboard behavior. The logo, the navigation links and the actions are reached with Tab in that order.
+
+## Related
+
+[`ENavList`](../NavList/README.md) for the navigation inside it, [`EAppShell`](../AppShell/README.md) for the whole page frame.

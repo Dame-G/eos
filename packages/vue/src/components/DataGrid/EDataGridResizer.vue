@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useMessages } from "../../config.js";
 import "../../styles/base.css";
 
@@ -10,6 +10,8 @@ const props = defineProps<{
   width: number | undefined;
   /** The least width in pixels. */
   min: number;
+  /** The most width in pixels. */
+  max: number;
 }>();
 
 const emit = defineEmits<{
@@ -22,29 +24,64 @@ const emit = defineEmits<{
 const t = useMessages();
 const el = ref<HTMLElement | null>(null);
 const measured = ref(props.min);
+/** The width when the edge was picked up or focused: Escape goes back to it. `undefined` is the automatic width. */
+let origin: number | undefined;
+let stopDrag: (() => void) | undefined;
 
 const cellWidth = () => el.value?.parentElement?.getBoundingClientRect().width ?? props.min;
 const sign = () => (el.value && getComputedStyle(el.value).direction === "rtl" ? -1 : 1);
+const bounded = (px: number) => Math.min(props.max, Math.max(props.min, Math.round(px)));
 
 onMounted(() => (measured.value = Math.round(cellWidth())));
+onBeforeUnmount(() => stopDrag?.());
+
+function restore() {
+  if (origin === undefined) emit("reset");
+  else emit("resize", origin);
+  measured.value = Math.round(origin ?? cellWidth());
+}
 
 function onDown(e: PointerEvent) {
   e.preventDefault();
+  stopDrag?.();
   const startX = e.clientX;
   const startW = cellWidth();
   const dir = sign();
+  origin = props.width;
   function move(ev: PointerEvent) {
-    emit("resize", Math.max(props.min, Math.round(startW + (ev.clientX - startX) * dir)));
+    emit("resize", bounded(startW + (ev.clientX - startX) * dir));
   }
-  function up() {
-    window.removeEventListener("pointermove", move);
-    window.removeEventListener("pointerup", up);
-    document.body.style.cursor = "";
+  function end() {
+    stopDrag?.();
     measured.value = Math.round(cellWidth());
+  }
+  function cancel() {
+    stopDrag?.();
+    restore();
+  }
+  function key(ev: KeyboardEvent) {
+    if (ev.key !== "Escape") return;
+    ev.preventDefault();
+    cancel();
   }
   document.body.style.cursor = "col-resize";
   window.addEventListener("pointermove", move);
-  window.addEventListener("pointerup", up);
+  window.addEventListener("pointerup", end);
+  window.addEventListener("pointercancel", cancel);
+  window.addEventListener("keydown", key, true);
+  stopDrag = () => {
+    window.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", end);
+    window.removeEventListener("pointercancel", cancel);
+    window.removeEventListener("keydown", key, true);
+    document.body.style.cursor = "";
+    stopDrag = undefined;
+  };
+}
+
+function onFocus() {
+  origin = props.width;
+  measured.value = Math.round(cellWidth());
 }
 
 function onKey(e: KeyboardEvent) {
@@ -53,12 +90,15 @@ function onKey(e: KeyboardEvent) {
   if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
     e.preventDefault();
     const grow = (e.key === "ArrowRight" ? 1 : -1) * dir;
-    const next = Math.max(props.min, Math.round(cellWidth()) + grow * step);
+    const next = bounded(cellWidth() + grow * step);
     measured.value = next;
     emit("resize", next);
-  } else if (e.key === "Home" || e.key === "Escape") {
+  } else if (e.key === "Home") {
     e.preventDefault();
     emit("reset");
+  } else if (e.key === "Escape") {
+    e.preventDefault();
+    restore();
   }
 }
 
@@ -78,9 +118,10 @@ function onReset() {
     :aria-label="t('resizeCol', { col: label })"
     :aria-valuenow="Math.round(width ?? measured)"
     :aria-valuemin="min"
+    :aria-valuemax="max"
     @pointerdown="onDown"
     @keydown="onKey"
-    @focus="measured = Math.round(cellWidth())"
+    @focus="onFocus"
     @dblclick="onReset"
   />
 </template>

@@ -8,7 +8,7 @@ import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 const panel = () => document.querySelector<HTMLElement>(".e-popover");
-const triggerOf = (c: Element) => c.querySelector<HTMLButtonElement>("button.e-linkbtn")!;
+const triggerOf = (c: Element) => c.querySelector<HTMLButtonElement>("button.e-definition-term")!;
 
 function mount(props: Record<string, unknown> = {}, extra: Record<string, unknown> = {}) {
   return render(EDefinition, {
@@ -170,7 +170,7 @@ describe("EDefinition", () => {
     });
     const trigger = triggerOf(container);
     expect(trigger.classList.contains("mine")).toBe(true);
-    expect(trigger.classList.contains("e-linkbtn")).toBe(true);
+    expect(trigger.classList.contains("e-definition-term")).toBe(true);
     expect(trigger.dataset["test"]).toBe("x");
   });
 

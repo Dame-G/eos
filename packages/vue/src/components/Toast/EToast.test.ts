@@ -59,13 +59,29 @@ describe("EToast", () => {
     expect(a2.top).toBeGreaterThanOrEqual(b2.bottom - 2);
   });
 
-  test("the dismiss button shows only when someone listens, and emits close", async () => {
-    const none = await render(EToast, { props: { title: "x" } });
-    expect(none.container.querySelector(".e-notice-dismiss")).toBeNull();
+  test("the dismiss button shows by default, emits close, and closable turns it off", async () => {
     let got = 0;
     await render(EToast, { props: { title: "x", onClose: () => got++ } });
     await page.getByRole("button", { name: "Dismiss" }).click();
     expect(got).toBe(1);
+    const off = await render(EToast, { props: { title: "x", closable: false } });
+    expect(off.container.querySelector(".e-notice-dismiss")).toBeNull();
+  });
+
+  test("a custom icon replaces the icon of the tone", async () => {
+    const a = await render(EToast, { props: { title: "x", tone: "success" } });
+    const b = await render(EToast, { props: { title: "x", tone: "success", icon: "pin" } });
+    expect(a.container.querySelector(".e-notice-icon")!.innerHTML).not.toBe(
+      b.container.querySelector(".e-notice-icon")!.innerHTML,
+    );
+  });
+
+  test("the tone colours a slab on the inline-start edge", async () => {
+    const { container } = await render(EToast, { props: { title: "x", tone: "danger" } });
+    const el = container.querySelector(".e-toast")!;
+    const stripe = getComputedStyle(el, "::before");
+    expect(stripe.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(parseFloat(stripe.width)).toBeGreaterThan(0);
   });
 
   test("class and data attributes fall through to the root", async () => {
@@ -86,21 +102,17 @@ describe("EToast", () => {
     }
   });
 
-  test("Close: a listener added after mount makes the button appear; the prop forces it", async () => {
-    const on = Vue.ref(false);
-    const forced = Vue.ref<boolean | undefined>(undefined);
+  test("closable follows the prop, not whether anyone listens", async () => {
+    const closable = Vue.ref<boolean | undefined>(undefined);
     const { container } = await render(
       Vue.defineComponent({
-        render: () => Vue.h(EToast, { title: "x", closable: forced.value, ...(on.value ? { onClose: () => {} } : {}) }),
+        render: () => Vue.h(EToast, { title: "x", closable: closable.value }),
       }),
     );
-    expect(container.querySelector(".e-notice-dismiss")).toBeNull();
-    on.value = true;
-    await expect.poll(() => container.querySelector(".e-notice-dismiss")).not.toBeNull();
-    forced.value = false;
+    expect(container.querySelector(".e-notice-dismiss")).not.toBeNull();
+    closable.value = false;
     await expect.poll(() => container.querySelector(".e-notice-dismiss")).toBeNull();
-    on.value = false;
-    forced.value = true;
+    closable.value = true;
     await expect.poll(() => container.querySelector(".e-notice-dismiss")).not.toBeNull();
   });
 });

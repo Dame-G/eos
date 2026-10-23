@@ -74,15 +74,15 @@ function blockWhenDisabled(event: Event) {
 <style>
 @layer e.primitives {
   .e-btn {
-    --e-fill: var(--e-primary);
-    --e-on-fill: var(--e-on-primary);
-    --e-slab: color-mix(in srgb, var(--e-fill), var(--e-shade-slab));
-    --e-hover: color-mix(in srgb, var(--e-fill), var(--e-shade-hover));
-    --e-press: color-mix(in srgb, var(--e-fill), var(--e-shade-press));
+    --_fill: var(--e-primary);
+    --_on: var(--e-on-primary);
+    --_hover: var(--e-primary-hover);
+    --_press: var(--e-primary-press);
+    --_slab: var(--e-primary-slab);
 
     /* One border, one control height tall. The slab is the bottom edge made thicker by the lift, and the radius tapers it up the corners. Pressing sinks the face over it. */
-    --e-lift: var(--e-depth);
-    --e-ring: var(--e-slab);
+    --_lift: var(--e-depth);
+    --_ring: var(--_slab);
 
     position: relative;
     display: inline-flex;
@@ -92,15 +92,15 @@ function blockWhenDisabled(event: Event) {
     height: var(--e-control-height);
     padding: 0 calc(var(--e-space-4) - var(--e-stroke-edge));
     box-sizing: border-box;
-    border: var(--e-stroke-edge) solid var(--e-ring);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-lift));
+    border: var(--e-stroke-edge) solid var(--_ring);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-radius: var(--e-radius-md);
-    background-color: var(--e-fill);
+    background-color: var(--_fill);
 
     /* A solid face runs under its border so no page colour shows between them. */
     background-clip: border-box;
-    color: var(--e-on-fill);
-    font: 500 var(--e-text-md) / 1 var(--e-font-sans);
+    color: var(--_on);
+    font: var(--e-weight-medium) var(--e-text-md) / 1 var(--e-font-sans);
     letter-spacing: 0.01em;
     white-space: nowrap;
     text-decoration: none;
@@ -111,52 +111,50 @@ function blockWhenDisabled(event: Event) {
   }
 
   .e-btn:hover {
-    --e-slab: color-mix(in srgb, var(--e-hover), var(--e-shade-slab));
-
-    background-color: var(--e-hover);
+    background-color: var(--_hover);
   }
 
   .e-btn:active {
-    --e-lift: 0px;
+    --_lift: 0px;
 
-    background-color: var(--e-press);
+    background-color: var(--_press);
   }
 
   .e-btn--secondary {
-    --e-fill: var(--e-secondary);
-    --e-on-fill: var(--e-on-secondary);
+    --_fill: var(--e-secondary);
+    --_on: var(--e-on-secondary);
+    --_hover: var(--e-secondary-hover);
+    --_press: var(--e-secondary-press);
+    --_slab: var(--e-secondary-slab);
   }
 
   .e-btn--danger {
-    --e-fill: var(--e-danger);
-    --e-on-fill: var(--e-on-danger);
+    --_fill: var(--e-danger);
+    --_on: var(--e-on-danger);
+    --_hover: var(--e-danger-hover);
+    --_press: var(--e-danger-press);
+    --_slab: var(--e-danger-slab);
   }
 
   .e-btn--outline {
-    --e-fill: var(--e-surface);
-    --e-on-fill: var(--e-ink);
-    --e-slab: var(--e-border-strong);
+    --_fill: var(--e-surface);
+    --_on: var(--e-ink);
+    --_hover: var(--e-surface-hover);
+    --_press: var(--e-surface-press);
+    --_slab: var(--e-border-strong);
 
     background-clip: padding-box;
   }
 
-  .e-btn--outline:hover {
-    --e-ring: var(--e-ink);
-    --e-slab: var(--e-ink);
-
-    background-color: color-mix(in srgb, var(--e-surface), var(--e-shade-hover));
-  }
-
+  .e-btn--outline:hover,
   .e-btn--outline:active {
-    --e-ring: var(--e-ink);
-    --e-slab: var(--e-ink);
-
-    background-color: color-mix(in srgb, var(--e-surface), var(--e-shade-press));
+    --_ring: var(--e-ink);
+    --_slab: var(--e-ink);
   }
 
   .e-btn--quiet {
-    --e-ring: transparent;
-    --e-lift: 0px;
+    --_ring: transparent;
+    --_lift: 0px;
 
     background: transparent;
     color: var(--e-ink);
@@ -168,17 +166,16 @@ function blockWhenDisabled(event: Event) {
   }
 
   .e-btn--quiet:not([disabled], [aria-disabled="true"]):hover {
-    --e-ring: var(--e-wash-ring);
+    --_ring: var(--e-wash-ring);
 
     background: var(--e-wash-hover);
     text-decoration-color: currentcolor;
   }
 
   .e-btn--quiet:not([disabled], [aria-disabled="true"]):active {
-    --e-ring: var(--e-ink);
+    --_ring: var(--e-ink);
 
     background: var(--e-wash-press);
-    transform: none;
   }
 
   .e-btn .e-icon,
@@ -193,23 +190,22 @@ function blockWhenDisabled(event: Event) {
 
   /* Busy reads as unavailable and in progress: a soft tint of the button's colour with a dashed edge like a disabled button, and the spinner. The edge is a pseudo-element, so a page's focus reset cannot remove it. */
   .e-btn--loading {
-    --e-lift: 0px;
-    --e-tint: var(--e-fill);
-    --e-busy: color-mix(in srgb, var(--e-tint) 80%, var(--e-ink));
+    --_lift: 0px;
+    --_tint: var(--_fill);
+    --_busy: color-mix(in srgb, var(--_tint) 80%, var(--e-ink));
   }
 
   .e-btn--outline.e-btn--loading {
-    --e-tint: var(--e-border-strong);
+    --_tint: var(--e-border-strong);
   }
 
   .e-btn--loading,
   .e-btn--loading:hover,
   .e-btn--loading:active {
-    background-color: color-mix(in srgb, var(--e-tint) 14%, var(--e-surface));
+    background-color: color-mix(in srgb, var(--_tint) 14%, var(--e-surface));
     background-clip: padding-box;
     border-color: transparent;
-    color: var(--e-busy);
-    transform: none;
+    color: var(--_busy);
     cursor: not-allowed;
   }
 
@@ -217,7 +213,7 @@ function blockWhenDisabled(event: Event) {
     content: "";
     position: absolute;
     inset: calc(-1 * var(--e-stroke-edge));
-    border: var(--e-stroke-edge) dashed var(--e-busy);
+    border: var(--e-stroke-edge) dashed var(--_busy);
     border-radius: inherit;
     pointer-events: none;
   }
@@ -226,12 +222,12 @@ function blockWhenDisabled(event: Event) {
     width: 100%;
   }
 
-  /* A toggle: any button with aria-pressed="true" reads as selected. */
+  /* A toggle: any button with aria-pressed="true" reads as selected, a primary slab under a washed face. */
   .e-btn[aria-pressed="true"],
   .e-btn[aria-pressed="true"]:hover,
   .e-btn[aria-pressed="true"]:active {
-    --e-slab: var(--e-primary);
-    --e-ring: var(--e-primary);
+    --_slab: var(--e-primary);
+    --_ring: var(--e-primary);
 
     background-color: var(--e-surface-hover);
     color: var(--e-primary);
@@ -239,21 +235,14 @@ function blockWhenDisabled(event: Event) {
 
   .e-btn[disabled],
   .e-btn[aria-disabled="true"] {
-    --e-lift: 0px;
+    --_lift: 0px;
 
     cursor: not-allowed;
-    background: transparent;
-    color: var(--e-muted);
+    background: var(--e-disabled-fill);
+    color: var(--e-disabled-ink);
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     border-color: transparent;
-    transform: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-btn {
-      transition: none;
-    }
   }
 
   @media print {

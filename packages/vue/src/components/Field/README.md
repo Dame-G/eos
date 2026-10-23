@@ -28,12 +28,22 @@ The label, hint and error wrapper for a control the system does not wrap itself.
 
 ## Slots
 
-| Slot      | Use                                                                                                                                                                                                         |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `default` | The control. The scope is `{ id, ariaInvalid, ariaDescribedby }` and the control must carry all three. `ariaInvalid` is `"true"` or `undefined`. `ariaDescribedby` is the hint or error id, or `undefined`. |
+| Slot      | Use                                                                                                                                                                                                                                                                                |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `default` | The control. The scope is `{ id, ariaInvalid, ariaDescribedby, required }` and the control must carry the first three. `ariaInvalid` is `"true"` or `undefined`. `ariaDescribedby` is the hint or error id, or `undefined`. `required` is whether to set the `required` attribute. |
 
 ## Accessibility
 
 - The control must carry `id`, `aria-invalid` and `aria-describedby` from the slot scope.
 - The error is announced with `role="alert"` and has an icon, so colour is not the only signal.
 - The label element has the id `<id>-label`, for a group named by it.
+
+## Keyboard
+
+| Key | Action                                                           |
+| --- | ---------------------------------------------------------------- |
+| Tab | Moves to the control. The field adds no key handling of its own. |
+
+## Related
+
+[`ETextField`](../TextField/README.md) and the other `*Field` components are built on it; [`EFieldset`](../Fieldset/README.md) groups several.

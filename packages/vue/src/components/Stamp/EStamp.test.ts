@@ -61,6 +61,14 @@ describe("EStamp", () => {
     }
   });
 
+  test("final is an outline in the stamp ink, not a fill", async () => {
+    const { container } = await render(EStamp, { props: { status: "paid", final: true } });
+    const el = container.querySelector(".e-stamp")!;
+    expect(el.classList.contains("e-stamp--final")).toBe(true);
+    expect(getComputedStyle(el).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(getComputedStyle(el).boxShadow).not.toBe("none");
+  });
+
   test("capitals come from CSS, so the text stays sentence case", async () => {
     const { container } = await render(EStamp, { slots: { default: "Paid in full" } });
     expect(container.querySelector(".e-stamp-word")!.textContent).toBe("Paid in full");

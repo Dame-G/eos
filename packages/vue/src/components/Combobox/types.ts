@@ -24,6 +24,8 @@ export interface EComboboxFields {
   optional?: boolean;
   /** Disables the field. A disabled field never opens. */
   disabled?: boolean;
+  /** Shows the value but blocks editing. The input stays focusable and selectable, the list never opens and the clear and remove buttons are gone. The value is still submitted. */
+  readonly?: boolean;
   /** Submits the value with a form, through a hidden input. */
   name?: string;
   /** Shows the Searching spinner in the list in place of the options while a server answers. */
@@ -32,7 +34,7 @@ export interface EComboboxFields {
   emptyText?: string;
   /** Shows a clear button when there is something to clear. */
   clearable?: boolean;
-  /** Replaces the default match. `query` is trimmed and lower case. Return `true` when the server filters. @default label or description contains query */
+  /** Replaces the default match, which ignores case and accents. `query` is trimmed, lower case and without accents. Return `true` when the server filters. @default label or description contains query */
   filter?: (option: EOption, query: string) => boolean;
   /** The `id` of the input, which the label points at. @default generated */
   id?: string;

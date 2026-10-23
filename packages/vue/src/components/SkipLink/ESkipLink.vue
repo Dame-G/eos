@@ -18,11 +18,25 @@ defineSlots<{
 
 const t = useMessages();
 
+function decode(id: string) {
+  try {
+    return decodeURIComponent(id);
+  } catch {
+    return id;
+  }
+}
+
 async function go(event: MouseEvent) {
   if (event.defaultPrevented || !props.href.startsWith("#") || props.href.length < 2) return;
   await nextTick();
-  const target = document.getElementById(decodeURIComponent(props.href.slice(1)));
-  if (target && document.activeElement !== target) target.focus();
+  const target = document.getElementById(decode(props.href.slice(1)));
+  if (!target || document.activeElement === target) return;
+  // A target with no tabindex cannot take focus, so give it one only for as long as focus is there.
+  if (!target.hasAttribute("tabindex")) {
+    target.setAttribute("tabindex", "-1");
+    target.addEventListener("blur", () => target.removeAttribute("tabindex"), { once: true });
+  }
+  target.focus();
 }
 </script>
 
@@ -37,8 +51,9 @@ async function go(event: MouseEvent) {
   .e-skip {
     position: absolute;
     inset-inline-start: var(--e-space-4);
-    top: -100px;
-    z-index: var(--e-z-toast);
+    inset-block-start: var(--e-space-2);
+    transform: translateY(calc(-100% - var(--e-space-4)));
+    z-index: var(--e-z-skip);
     display: inline-flex;
     align-items: center;
     height: var(--e-control-height);
@@ -46,14 +61,14 @@ async function go(event: MouseEvent) {
     border-radius: var(--e-radius-md);
     background: var(--e-primary);
     color: var(--e-on-primary);
-    font: 600 var(--e-text-md) / 1 var(--e-font-sans);
+    font: var(--e-weight-strong) var(--e-text-md) / 1 var(--e-font-sans);
     text-decoration: none;
   }
 
   .e-skip:focus {
-    top: var(--e-space-2);
+    transform: none;
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-focus-gap);
+    outline-offset: var(--e-stroke-focus);
   }
 
   @media print {

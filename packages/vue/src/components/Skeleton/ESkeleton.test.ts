@@ -1,17 +1,16 @@
 import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
-import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ESkeleton from "./ESkeleton.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESkeleton", () => {
-  test("is a busy status that screen readers hear as Loading", async () => {
+  test("is hidden from assistive technology and adds no live region", async () => {
     const { container } = await render(ESkeleton);
-    await expect.element(page.getByRole("status")).toHaveTextContent("Loading");
     const el = container.querySelector(".e-skeleton")!;
-    expect(el.getAttribute("aria-busy")).toBe("true");
-    expect(el.querySelector(".e-sr")!.textContent).toBe("Loading");
+    expect(el.getAttribute("aria-hidden")).toBe("true");
+    expect(el.hasAttribute("role")).toBe(false);
+    expect(el.textContent).toBe("");
   });
 
   test("is 96px tall and the full width by default", async () => {
@@ -49,6 +48,13 @@ describe("ESkeleton", () => {
   test("pulses", async () => {
     const { container } = await render(ESkeleton);
     expect(getComputedStyle(container.querySelector(".e-skeleton")!).animationName).toBe("e-pulse");
+  });
+
+  test("the line variant shares the placeholder styling", async () => {
+    const { container } = await render(defineComponent({ render: () => h("span", { class: "e-skel" }) }));
+    const el = container.querySelector(".e-skel")!;
+    expect(getComputedStyle(el).animationName).toBe("e-pulse");
+    expect(el.getBoundingClientRect().height).toBe(16);
   });
 
   test("attributes and styles fall through to the root", async () => {

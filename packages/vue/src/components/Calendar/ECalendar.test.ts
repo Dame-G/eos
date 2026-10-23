@@ -267,12 +267,24 @@ describe("ECalendar", () => {
     expect(seen).toEqual([false]);
   });
 
-  test("the title announces politely, so a changed month is heard", async () => {
+  test("a changed month is announced politely, from a region that holds no button", async () => {
     const { container } = await render(ECalendar, { props: { modelValue: d(2026, 10, 22) } });
-    expect(container.querySelector(".e-cal-title")!.getAttribute("aria-live")).toBe("polite");
+    const live = container.querySelector(".e-cal-title [aria-live]")!;
+    expect(live.getAttribute("aria-live")).toBe("polite");
+    expect(live.textContent!.trim()).toBe("October 2026");
+    expect(live.querySelector("button")).toBeNull();
+    expect(container.querySelector(".e-cal-title")!.hasAttribute("aria-live")).toBe(false);
+    expect(container.querySelector(".e-cal-pick")!.hasAttribute("aria-expanded")).toBe(false);
   });
 
-  test("Today moves to and chooses today; Clear shows only with a listener", async () => {
+  test("today's day button carries aria-current=date", async () => {
+    const { container } = await render(ECalendar);
+    const current = container.querySelectorAll('.e-day[aria-current="date"]');
+    expect(current).toHaveLength(1);
+    expect(current[0]!.classList.contains("e-day--today")).toBe(true);
+  });
+
+  test("Today moves to and chooses today; Clear shows only when clearable", async () => {
     const { model, container } = await bound({}, d(2020, 1, 15));
     expect(container.querySelector(".e-cal-foot")!.textContent).toMatch(/Today/);
     expect(container.querySelector(".e-cal-foot")!.textContent).not.toMatch(/Clear/);
@@ -282,13 +294,13 @@ describe("ECalendar", () => {
     expect(model.value!.getDate()).toBe(now.getDate());
 
     let cleared = 0;
-    await render(ECalendar, { props: { modelValue: d(2026, 10, 22), onClear: () => cleared++ } });
+    await render(ECalendar, { props: { modelValue: d(2026, 10, 22), clearable: true, onClear: () => cleared++ } });
     await page.getByRole("button", { name: "Clear" }).click();
     expect(cleared).toBe(1);
   });
 
   test("footer false hides Today and Clear", async () => {
-    const { container } = await render(ECalendar, { props: { footer: false, onClear: () => {} } });
+    const { container } = await render(ECalendar, { props: { footer: false, clearable: true } });
     expect(container.querySelector(".e-cal-foot")).toBeNull();
   });
 
@@ -436,21 +448,142 @@ describe("ECalendar", () => {
     await expectNoViolations(years.container);
   });
 
-  test("Clear: a listener added after mount makes the button appear; the prop forces it", async () => {
-    const on = Vue.ref(false);
-    const forced = Vue.ref<boolean | undefined>(undefined);
+  test("Clear follows the clearable prop, not a listener", async () => {
+    const clearable = Vue.ref(false);
     const { container } = await render(
       Vue.defineComponent({
-        render: () => Vue.h(ECalendar, { clearable: forced.value, ...(on.value ? { onClear: () => {} } : {}) }),
+        render: () => Vue.h(ECalendar, { clearable: clearable.value, onClear: () => {} }),
       }),
     );
     expect(container.querySelector(".e-cal-foot .e-btn:nth-of-type(2)")).toBeNull();
-    on.value = true;
+    clearable.value = true;
     await expect.poll(() => container.querySelector(".e-cal-foot .e-btn:nth-of-type(2)")).not.toBeNull();
-    forced.value = false;
-    await expect.poll(() => container.querySelector(".e-cal-foot .e-btn:nth-of-type(2)")).toBeNull();
-    on.value = false;
-    forced.value = true;
-    await expect.poll(() => container.querySelector(".e-cal-foot .e-btn:nth-of-type(2)")).not.toBeNull();
+  });
+
+  test("the tab stop never lands on a disabled day after a month step, Today or a year change", async () => {
+    // Weekends are off, and the 31st of a month is a Saturday here: stepping from Jan 30 to Feb lands on a weekday.
+    const { container } = await render(ECalendar, {
+      props: {
+        modelValue: d(2026, 1, 31),
+        month: d(2026, 1, 31),
+        disabledDate: (x: Date) => x.getDay() === 0 || x.getDay() === 6,
+      },
+    });
+    const stop = () => container.querySelector<HTMLButtonElement>('.e-day[tabindex="0"]')!;
+    expect(stop().disabled).toBe(false);
+    await page.getByRole("button", { name: /Next month/ }).click();
+    expect(stop().disabled).toBe(false);
+    expect(stop().getAttribute("aria-label")).toMatch(/February/);
+    await page.getByRole("button", { name: /Previous month/ }).click();
+    expect(stop().disabled).toBe(false);
+    container.querySelector<HTMLElement>(".e-cal-pick")!.click();
+    await sleep(30);
+    container.querySelector<HTMLElement>('[id$="-y-2027"]')!.click();
+    await sleep(30);
+    container.querySelector<HTMLElement>('[id$="-m-5"]')!.click();
+    await sleep(30);
+    expect(stop().disabled).toBe(false);
+    await page.getByRole("button", { name: "Today" }).click();
+    expect(stop().disabled).toBe(false);
+  });
+
+  test("the tab stop moves off a day that becomes disabled", async () => {
+    const off = Vue.ref<(x: Date) => boolean>(() => false);
+    const { container } = await render(
+      Vue.defineComponent({
+        render: () => Vue.h(ECalendar, { modelValue: d(2026, 10, 22), disabledDate: off.value }),
+      }),
+    );
+    off.value = (x) => x.getDate() === 22;
+    await expect.poll(() => container.querySelector<HTMLButtonElement>('.e-day[tabindex="0"]')!.disabled).toBe(false);
+    expect(container.querySelector('.e-day[tabindex="0"]')!.getAttribute("aria-label")).not.toMatch(/October 22/);
+  });
+
+  test("month and date order follow the locale, not English", async () => {
+    const { container } = await render(ECalendar, {
+      props: { mode: "range", start: d(2026, 10, 10), end: d(2026, 10, 18), footer: false },
+      global: plugin({ locale: "ja-JP" }),
+    });
+    expect(container.querySelector(".e-cal-pick")!.textContent!.trim()).toBe("2026年10月");
+    expect(container.querySelector(".e-cal-help")!.textContent).toMatch(/10月10日/);
+    expect(container.querySelector("table")!.getAttribute("aria-label")).toBe("2026年10月");
+  });
+
+  test("update:month fires on every visible month change, with the first day of the month", async () => {
+    const seen: Date[] = [];
+    const { container } = await render(ECalendar, {
+      props: { modelValue: d(2026, 10, 22), "onUpdate:month": (m: Date) => seen.push(m) },
+    });
+    await page.getByRole("button", { name: /Next month/ }).click();
+    await page.getByRole("button", { name: /Previous month/ }).click();
+    await page.getByRole("button", { name: /Previous month/ }).click();
+    expect(seen.map((m) => [m.getFullYear(), m.getMonth() + 1, m.getDate()])).toEqual([
+      [2026, 11, 1],
+      [2026, 10, 1],
+      [2026, 9, 1],
+    ]);
+    // Moving within the month is silent.
+    container.querySelector<HTMLElement>('.e-day[tabindex="0"]')!.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    expect(seen).toHaveLength(3);
+  });
+
+  test("a parent that echoes update:month keeps the focused day", async () => {
+    const month = Vue.ref<Date>(d(2026, 10, 1));
+    const { container } = await render(
+      Vue.defineComponent({
+        render: () =>
+          Vue.h(ECalendar, {
+            modelValue: null,
+            month: month.value,
+            "onUpdate:month": (m: Date) => (month.value = m),
+          }),
+      }),
+    );
+    container.querySelector<HTMLElement>('.e-day[tabindex="0"]')!.focus();
+    await userEvent.keyboard("{PageDown}");
+    await sleep(30);
+    expect(container.querySelector('.e-day[tabindex="0"]')!.getAttribute("aria-label")).toMatch(/November \d+/);
+    expect(month.value.getMonth()).toBe(10);
+  });
+
+  test("a day list passed to marked is matched by day, whatever the time of day", async () => {
+    const { container } = await render(ECalendar, {
+      props: { modelValue: d(2026, 10, 22), marked: [new Date(2026, 9, 5, 3, 30), d(2026, 10, 6)], footer: false },
+    });
+    expect(container.querySelectorAll(".e-day--mark")).toHaveLength(2);
+  });
+
+  test("today and the range band stay visible in forced colours (outlines, not shadows)", async () => {
+    const { container } = await render(ECalendar, {
+      props: { mode: "range", start: d(2026, 10, 10), end: d(2026, 10, 18), footer: false },
+    });
+    const sheets = [...document.styleSheets].flatMap((sheet) => {
+      try {
+        return [...sheet.cssRules];
+      } catch {
+        return [];
+      }
+    });
+    const forced = sheets.flatMap((r) => {
+      const found: string[] = [];
+      const walk = (rule: CSSRule) => {
+        if (rule instanceof CSSMediaRule && rule.conditionText.includes("forced-colors")) found.push(rule.cssText);
+        else if ("cssRules" in rule) [...(rule as CSSGroupingRule).cssRules].forEach(walk);
+      };
+      walk(r);
+      return found;
+    });
+    const css = forced.join("\n");
+    expect(css).toMatch(/\.e-day--today[^}]*outline/);
+    expect(css).toMatch(/\.e-cal-in[^}]*outline/);
+    expect(container.querySelector(".e-cal-in")).not.toBeNull();
+  });
+
+  test("the chosen day is a slab face like a checked box", async () => {
+    const { container } = await render(ECalendar, { props: { modelValue: d(2026, 10, 22), footer: false } });
+    const style = getComputedStyle(container.querySelector(".e-day--sel")!);
+    expect(parseFloat(style.borderBottomWidth)).toBeGreaterThan(0);
+    expect(style.boxShadow).toBe("none");
   });
 });

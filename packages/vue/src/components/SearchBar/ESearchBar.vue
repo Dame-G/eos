@@ -32,6 +32,8 @@ withDefaults(
 const emit = defineEmits<{
   /** The person pressed Enter or the button. */
   submit: [value: string];
+  /** The person pressed the clear button. The model is already empty. */
+  clear: [];
 }>();
 
 /** The text. */
@@ -43,6 +45,7 @@ const box = ref<HTMLInputElement | null>(null);
 
 function clear() {
   model.value = "";
+  emit("clear");
   box.value?.focus();
 }
 
@@ -64,6 +67,7 @@ defineExpose({
     <span class="e-search-lead"><EIcon name="search" /></span>
     <input
       ref="box"
+      enterkeyhint="search"
       v-bind="attrs.input()"
       class="e-input"
       :name="name || 'q'"
@@ -90,7 +94,7 @@ defineExpose({
 <style>
 @layer e.controls {
   .e-search {
-    --e-ring: var(--e-border-strong);
+    --_ring: var(--e-border-strong);
 
     display: flex;
     align-items: center;
@@ -98,7 +102,7 @@ defineExpose({
     height: var(--e-control-height);
     padding: 0 calc(var(--e-space-1) - var(--e-stroke-edge)) 0 calc(var(--e-space-2) - var(--e-stroke-edge));
     box-sizing: border-box;
-    border: var(--e-stroke-edge) solid var(--e-ring);
+    border: var(--e-stroke-edge) solid var(--_ring);
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     background-clip: padding-box;
@@ -106,9 +110,23 @@ defineExpose({
     transition: border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
+  /* The hover fill is laid over the well, so it runs unbroken to the top edge. */
+  .e-search:not([data-disabled]):hover {
+    box-shadow: inset 0 0 0 100vmax var(--e-surface-hover);
+  }
+
+  .e-search[data-disabled] {
+    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
+    outline-offset: calc(-1 * var(--e-stroke-edge));
+    border-color: transparent;
+    background: var(--e-disabled-fill);
+    box-shadow: none;
+    color: var(--e-disabled-ink);
+  }
+
   .e-search .e-btn {
     position: relative;
-    height: calc(var(--e-control-height) - 6px);
+    height: calc(var(--e-control-height) - 2 * var(--e-space-1));
     padding: 0 calc(var(--e-space-3) - var(--e-stroke-edge));
     font-size: var(--e-text-md);
   }
@@ -116,7 +134,7 @@ defineExpose({
   .e-search .e-btn::after {
     content: "";
     position: absolute;
-    inset: -3px;
+    inset: calc(-1 * var(--e-space-1));
   }
 
   .e-search-clear {
@@ -124,8 +142,8 @@ defineExpose({
     place-items: center;
     position: relative;
     flex: none;
-    width: calc(var(--e-control-height) - 9px);
-    height: calc(var(--e-control-height) - 9px);
+    width: calc(var(--e-control-height) - var(--e-space-3));
+    height: calc(var(--e-control-height) - var(--e-space-3));
     padding: 0;
     border: 0;
     border-radius: var(--e-radius-sm);
@@ -138,7 +156,7 @@ defineExpose({
   .e-search-clear::after {
     content: "";
     position: absolute;
-    inset: -5px;
+    inset: calc(-1 * var(--e-space-1));
   }
 
   .e-search-clear:hover {
@@ -188,16 +206,17 @@ defineExpose({
   }
 
   .e-search:focus-within {
-    --e-ring: var(--e-focus-field);
+    --_ring: var(--e-focus-field);
 
     background: var(--e-surface);
     outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
     outline-offset: var(--e-focus-gap-field);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .e-search {
-      transition: none;
+  @media (forced-colors: active) {
+    .e-search[data-disabled] {
+      outline-color: GrayText;
+      color: GrayText;
     }
   }
 

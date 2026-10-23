@@ -23,4 +23,15 @@ describe("EosResolver", () => {
   test("the import source can be changed", () => {
     expect(EosResolver({ from: "@my/ui" }).resolve("EButton")).toEqual({ name: "EButton", from: "@my/ui" });
   });
+
+  test("the stylesheet is imported only when asked for", () => {
+    expect(EosResolver().resolve("EButton")).not.toHaveProperty("sideEffects");
+    expect(EosResolver({ css: true }).resolve("EButton")).toEqual({
+      name: "EButton",
+      from: "@eos-ui/vue",
+      sideEffects: "@eos-ui/vue/style.css",
+    });
+    expect(EosResolver({ css: "./my.css" }).resolve("EButton")).toMatchObject({ sideEffects: "./my.css" });
+    expect(EosResolver({ css: true }).resolve("EventCard")).toBeUndefined();
+  });
 });

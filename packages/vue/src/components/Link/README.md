@@ -17,11 +17,13 @@ An icon before the text:
 
 <!-- props:start -->
 
-| Prop       | Type       | Default      | Notes                                                                                                                                                    |
-| ---------- | ---------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `href`     | `string`   | **Required** | Where the link goes.                                                                                                                                     |
-| `external` | `boolean`  | `false`      | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`).                                                                                              |
-| `icon`     | `IconProp` | None         | An icon before the text: a built-in name, a name from your icon set, or an icon component. It is hidden from screen readers, so the text names the link. |
+| Prop            | Type                  | Default | Notes                                                                                                                                                    |
+| --------------- | --------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `href`          | `string`              | None    | Where the link goes. Give `href` or, with a `linkComponent`, `to`.                                                                                       |
+| `to`            | `unknown`             | None    | A router location, passed to `linkComponent` as `to` (for `RouterLink`). Use it instead of `href`.                                                       |
+| `linkComponent` | `string \| Component` | `"a"`   | What renders the link: `RouterLink` or any component that takes `href` or `to` and a default slot. It receives `to` or `href` and the class `e-link`.    |
+| `external`      | `boolean`             | `false` | Opens in a new tab (`target="_blank"`, `rel="noreferrer"`) and tells screen readers so.                                                                  |
+| `icon`          | `IconProp`            | None    | An icon before the text: a built-in name, a name from your icon set, or an icon component. It is hidden from screen readers, so the text names the link. |
 
 <!-- props:end -->
 
@@ -35,4 +37,17 @@ An icon before the text:
 
 ## Accessibility
 
-- An `a` with `href`. For an external link, say in the text that it opens a new tab.
+- An `a` with `href`. An `external` link adds hidden text "(opens in a new tab)" to its name.
+- With an `icon` the underline covers the text only, not the icon.
+- In print the address follows the text, except for in-page anchors, `mailto:` and `tel:` links.
+
+## Keyboard
+
+| Key   | Action                                               |
+| ----- | ---------------------------------------------------- |
+| Enter | Follows the link. A link does not activate on Space. |
+| Tab   | Moves focus to the link.                             |
+
+## Related
+
+[`EButton`](../Button/README.md) with `href` for a call to action, [`ENavList`](../NavList/README.md) for a list of destinations.

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -47,7 +47,7 @@ describe("EFieldset", () => {
       slots: { default: street },
     });
     const legend = container.querySelector("legend")!;
-    expect(legend.classList.contains("e-fieldset-legend--hidden")).toBe(true);
+    expect(legend.classList.contains("e-sr")).toBe(true);
     expect(legend.getBoundingClientRect().width).toBeLessThanOrEqual(1);
     await expect.element(page.getByRole("group", { name: "Hidden" })).toBeInTheDocument();
   });
@@ -113,8 +113,21 @@ describe("EFieldset", () => {
     const errorEl = bad.container.querySelector(".e-field-error")!;
     expect(bad.container.querySelector(".e-field-hint")).toBeNull();
     expect(errorEl.getAttribute("role")).toBe("alert");
-    expect(bad.container.querySelector("fieldset")!.getAttribute("aria-invalid")).toBe("true");
+    expect(bad.container.querySelector("fieldset")!.hasAttribute("aria-invalid")).toBe(false);
     expect(bad.container.querySelector("fieldset")!.getAttribute("aria-describedby")).toBe(errorEl.id);
+  });
+
+  test("a group with no legend and no label warns in development", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      await render(EFieldset, { slots: { default: street } });
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("EFieldset has no name"));
+      warn.mockClear();
+      await render(EFieldset, { attrs: { "aria-label": "Named" }, slots: { default: street } });
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   test("disabled disables everything inside", async () => {

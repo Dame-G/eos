@@ -15,11 +15,17 @@ describe("ETextarea", () => {
     expect(getComputedStyle(el).resize).toBe("vertical");
   });
 
-  test("is at least 6.5rem tall, taller than a one-line input", async () => {
-    const { container } = await render(ETextarea, { props: { label: "Note", rows: 2 } });
-    const el = container.querySelector("textarea")!;
-    expect(el.rows).toBe(2);
-    expect(el.getBoundingClientRect().height).toBeGreaterThanOrEqual(104);
+  test("the height follows rows: fewer rows is shorter, more is taller", async () => {
+    const heights: number[] = [];
+    for (const rows of [2, 4, 8]) {
+      const { container } = await render(ETextarea, { props: { label: "Note", rows } });
+      const el = container.querySelector("textarea")!;
+      expect(el.rows).toBe(rows);
+      heights.push(el.getBoundingClientRect().height);
+    }
+    expect(heights[0]!).toBeLessThan(heights[1]!);
+    expect(heights[1]!).toBeLessThan(heights[2]!);
+    expect(heights[0]!).toBeGreaterThan(48);
   });
 
   test("v-model round trip", async () => {

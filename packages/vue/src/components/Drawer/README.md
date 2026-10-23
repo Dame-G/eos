@@ -13,16 +13,16 @@ A side panel that slides in from an edge, for reading something beside the list,
 
 <!-- props:start -->
 
-| Prop           | Type                            | Default      | Notes                                                                                                                           |
-| -------------- | ------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| `open`         | `boolean`                       | `false`      | `v-model:open`: whether it is open. Without a binding it keeps its own state.                                                   |
-| `title`        | `string`                        | **Required** | The panel's heading and accessible name, such as the statement being read.                                                      |
-| `description`  | `string`                        | None         | A sentence under the title that says what the drawer is for. It is shown, and read out as the description.                      |
-| `role`         | `"dialog" \| "alertdialog"`     | `"dialog"`   | `alertdialog` for a confirmation that needs an answer, such as a delete. Every other drawer uses `dialog`.                      |
-| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6`    | `2`          | The level of the title's heading element, 1 to 6.                                                                               |
-| `side`         | `"right" \| "left" \| "bottom"` | `"right"`    | The edge it slides in from. `bottom` gives a sheet that suits phones.                                                           |
-| `dismissible`  | `boolean`                       | `false`      | Closes the drawer when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. |
-| `inline`       | `boolean`                       | `false`      | Shows the drawer in the page, without the backdrop or the focus trap, for a preview.                                            |
+| Prop           | Type                                                | Default      | Notes                                                                                                                                                                                                                                |
+| -------------- | --------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `open`         | `boolean`                                           | `false`      | `v-model:open`: whether it is open. Without a binding it keeps its own state.                                                                                                                                                        |
+| `title`        | `string`                                            | **Required** | The panel's heading and accessible name, such as the statement being read.                                                                                                                                                           |
+| `description`  | `string`                                            | None         | A sentence under the title that says what the drawer is for. It is shown, and read out as the description.                                                                                                                           |
+| `role`         | `"dialog" \| "alertdialog"`                         | `"dialog"`   | `alertdialog` for a confirmation that needs an answer, such as a delete. Every other drawer uses `dialog`.                                                                                                                           |
+| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6`                        | `2`          | The level of the title's heading element, 1 to 6.                                                                                                                                                                                    |
+| `side`         | `"end" \| "start" \| "bottom" \| "right" \| "left"` | `"end"`      | The edge it slides in from. `end` is the right in a left-to-right page, `start` the left, and both flip in a right-to-left page. `bottom` gives a sheet that suits phones. `right` and `left` are older names for `end` and `start`. |
+| `dismissible`  | `boolean`                                           | `false`      | Closes the drawer when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work.                                                                                                      |
+| `inline`       | `boolean`                                           | `false`      | Shows the drawer in the page, without the backdrop or the focus trap, for a preview.                                                                                                                                                 |
 
 <!-- props:end -->
 
@@ -48,4 +48,17 @@ A side panel that slides in from an edge, for reading something beside the list,
 - `description` shows a sentence under the title and sets `aria-describedby` to it. Without one the attribute is left off. An `aria-describedby` you pass yourself is kept.
 - `role="alertdialog"` is available as on [`EDialog`](../Dialog/README.md).
 - The slide takes its length from the `--e-duration-move` token, so the `motion` presets apply, and it stops moving under `prefers-reduced-motion`.
-- The scrolling body is a focusable region, so it scrolls with the arrow keys.
+- The body takes a tab stop only while its content scrolls, so it can be scrolled with the arrow keys. A body that fits is not a tab stop.
+- `side` is logical: `start` and `end` flip in a right-to-left page, and so does the slide. `left` and `right` are older names for `start` and `end`.
+
+## Keyboard
+
+| Key                  | Action                                                                                         |
+| -------------------- | ---------------------------------------------------------------------------------------------- |
+| Escape               | Closes the drawer and returns focus to the opener.                                             |
+| Tab, Shift+Tab       | Moves between the controls inside, and to the body when it scrolls; focus stays in the drawer. |
+| Arrow Up, Arrow Down | Scrolls the focused body.                                                                      |
+
+## Related
+
+[`EDialog`](../Dialog/README.md) for a short decision, [`EDefinition`](../Definition/README.md) for a small floating note.

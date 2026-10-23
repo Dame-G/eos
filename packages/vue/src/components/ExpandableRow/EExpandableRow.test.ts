@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EExpandableRow from "./EExpandableRow.vue";
@@ -64,10 +64,10 @@ describe("EExpandableRow", () => {
     expect(parseFloat(getComputedStyle(bar).borderEndStartRadius)).toBeGreaterThan(0);
   });
 
-  test("class, id, data attributes, open and name fall through to the details", async () => {
+  test("class, id and data attributes fall through to the details; open and group are props", async () => {
     const { container } = await render(EExpandableRow, {
-      props: { title: "Row" },
-      attrs: { class: "mine", id: "r1", "data-x": "1", open: true, name: "grp" },
+      props: { title: "Row", open: true, group: "grp" },
+      attrs: { class: "mine", id: "r1", "data-x": "1" },
     });
     const row = container.querySelector<HTMLDetailsElement>("details")!;
     expect(row.className).toBe("e-xrow mine");
@@ -75,6 +75,47 @@ describe("EExpandableRow", () => {
     expect(row.dataset.x).toBe("1");
     expect(row.open).toBe(true);
     expect(row.name).toBe("grp");
+  });
+
+  test("v-model:open follows the row both ways", async () => {
+    const open = ref(false);
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(
+            EExpandableRow,
+            { title: "Row", open: open.value, "onUpdate:open": (v?: boolean) => (open.value = !!v) },
+            slots,
+          ),
+      }),
+    );
+    const row = container.querySelector<HTMLDetailsElement>("details")!;
+    await page.getByText("Row").click();
+    await expect.poll(() => open.value).toBe(true);
+    open.value = false;
+    await expect.poll(() => row.open).toBe(false);
+  });
+
+  test("rows with the same group open one at a time", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(EExpandableRow, { title: "One", group: "g" }, slots),
+            h(EExpandableRow, { title: "Two", group: "g" }, slots),
+          ]),
+      }),
+    );
+    const rows = [...container.querySelectorAll<HTMLDetailsElement>("details")];
+    rows[0]!.open = true;
+    await expect.poll(() => rows[0]!.open).toBe(true);
+    rows[1]!.open = true;
+    await expect.poll(() => rows[0]!.open).toBe(false);
+  });
+
+  test("the summary holds phrasing content only", async () => {
+    const { container } = await render(EExpandableRow, { props: { title: "Row", subtitle: "Sub" }, slots });
+    expect(container.querySelector("summary div, summary p")).toBeNull();
   });
 
   test("rows in a list share their title and trailing columns when the lead width is set", async () => {

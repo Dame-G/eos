@@ -44,9 +44,18 @@ const email = ref("");
 </template>
 ```
 
-The stylesheet is one file (about 24 kB gzipped). The JavaScript has no CSS imports, so server rendering works in plain Node without bundler setup. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. Components also work without the plugin, in English and US dollars.
+The stylesheet is mandatory: import `@eos-ui/vue/style.css` once in your entry file, even if you skip the plugin and register components yourself. The JavaScript has no CSS imports, so server rendering works in plain Node without bundler setup, and the stylesheet is the only thing you have to wire. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. Components also work without the plugin, in English and US dollars.
 
 `createEos()` takes `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget` (theme one element instead of `<html>`), `portalTarget` (where menus, dialogs and toasts render) and `warnOnContrast`.
+
+## Requirements and packaging
+
+- **ESM only.** There is no CommonJS build. Use a bundler (Vite, Nuxt, webpack, Rollup) or Node ESM (`import`, or `require()` of ESM on Node 22 and later).
+- **Node 22 or later** for tooling and server rendering. Vue 3.5 or later.
+- **One stylesheet, about 27 kB gzipped.** All component CSS ships in `style.css`: there are no per-component CSS files, so importing one component still needs the whole file. It is cached across pages and sits in cascade layers, so it costs one request. Keep it small in your app by using the tokens instead of adding your own rules for the same thing.
+- **Tree-shaking is your bundler's job.** The package is marked side-effect free apart from CSS and exports each component by name, so `import { EButton } from "@eos-ui/vue"` keeps only what you use in a production build. Import from the package root, not from `dist` paths.
+- **Fonts are opt-in.** `@eos-ui/vue/fonts.css` loads Bricolage Grotesque and Geist Mono from Google Fonts. That sends visitors' IP addresses to Google, so leave it out if that matters (self-host the fonts, or set `defineTheme({ fonts })` to fonts you already load). Without it the theme falls back to system fonts.
+- **Editor types.** Importing `@eos-ui/vue` also gives Volar and `vue-tsc` the types of globally registered components (`<EButton>` after `app.component` or a resolver) and of `$e` (the config) in templates.
 
 For template auto-import, use the resolver:
 
@@ -55,9 +64,11 @@ import { EosResolver } from "@eos-ui/vue/resolver";
 Components({ resolvers: [EosResolver()] }); // unplugin-vue-components
 ```
 
+The resolver imports components only, not the stylesheet. Pass `EosResolver({ css: true })` to have it add `import "@eos-ui/vue/style.css"` along with the first auto-imported component, or import the stylesheet in your entry file.
+
 ## Theming
 
-A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes 16 design inputs: `brand`, `accent`, `danger`, `warning`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `contrast`, `textScale`, `spaceScale`, `controlHeight` and `motion`.
+A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes 18 design inputs: `brand`, `accent`, `danger`, `warning`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `contrast`, `textScale`, `spaceScale`, `controlHeight`, `motion`, `density` and `scheme` (with its `dark` variant).
 
 ```ts
 import { defineTheme } from "@eos-ui/vue";

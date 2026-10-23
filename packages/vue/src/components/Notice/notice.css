@@ -22,8 +22,8 @@
   }
 
   .e-notice-icon .e-icon {
-    width: 28px;
-    height: 28px;
+    width: var(--e-icon-size-md);
+    height: var(--e-icon-size-md);
   }
 
   .e-notice-body {
@@ -53,6 +53,7 @@
 
   .e-notice-dismiss {
     grid-area: dismiss;
-    margin: -10px -14px -10px 0;
+    margin-block: calc(-1 * var(--e-space-2));
+    margin-inline: 0 calc(-1 * var(--e-space-3));
   }
 }

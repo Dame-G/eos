@@ -30,7 +30,7 @@ The frame of a whole page: skip link, header, optional side navigation, main con
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `div` element. Content is capped at 72rem. With a sidebar the page is two columns from 48rem wide, and below that the sidebar sits above the content. Printing hides the sidebar. The shell has no links of its own: put `RouterView` in the default slot and pass `linkComponent` to your `ENavList`s.
+`class`, `style` and attributes land on the `div` element. The header and footer run the full width of the page and their content lines up with the content column. Content is capped at 72rem. With a sidebar the page is two columns from 48rem wide, and below that the sidebar sits above the content. Printing hides the sidebar. Two CSS custom properties are public: `--e-shell-width` sets the column width (72rem by default) and `--e-shell-rail` sets the colour of the line down each edge of the column, which runs beside the content only and not through the header or footer (`transparent` turns it off). The two-column layout follows the window width, not the shell's own width, because the shell is the page frame. The shell has no links of its own: put `RouterView` in the default slot and pass `linkComponent` to your `ENavList`s.
 
 ## Slots
 
@@ -45,3 +45,13 @@ The frame of a whole page: skip link, header, optional side navigation, main con
 
 - Landmarks: `banner`, `complementary` (named by `sidebarLabel`), `main`, `contentinfo`. Use one shell per page.
 - The skip link is the first tab stop and moves focus to `main`.
+
+## Keyboard
+
+| Key | Action                                                              |
+| --- | ------------------------------------------------------------------- |
+| Tab | The first stop is the skip link. Enter on it moves focus to `main`. |
+
+## Related
+
+[`EAppHeader`](../AppHeader/README.md) and [`EAppFooter`](../AppFooter/README.md) fill its slots, [`ENavList`](../NavList/README.md) is the sidebar, and [`EPageHeader`](../PageHeader/README.md) starts the page.

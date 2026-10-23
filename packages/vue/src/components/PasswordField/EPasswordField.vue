@@ -8,60 +8,67 @@ export interface PasswordRule {
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EField from "../Field/EField.vue";
+import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
 import { focusInside } from "../../composables/focusInside.js";
+import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
-import "../Combobox/combo.css";
+import "./reveal.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<{
-  /** The visible label above the field. @default "Password" */
-  label?: string;
-  /** Hides the label from the page and keeps it for screen readers. */
-  hideLabel?: boolean;
-  /** `current` for signing in, `new` for choosing one. Sets `autocomplete` (`current-password` or `new-password`) so a password manager can fill or suggest. */
-  mode?: "current" | "new";
-  /** The rules, as `{ label, test(value) }`. They form a checklist under the field that updates as the person types. Each rule is announced as "met" or "not met yet". */
-  rules?: PasswordRule[];
-  /** Help that stays under the field. */
-  hint?: string;
-  /** What to fix. Replaces the hint, marks the input invalid and is announced. */
-  error?: string;
-  /** Sets the `required` attribute and shows "Required" beside the label. */
-  required?: boolean;
-  /** Shows "Optional" beside the label. Only the rarer of required and optional needs a flag. */
-  optional?: boolean;
-  /** Disables the input and the toggle. */
-  disabled?: boolean;
-  /** Shows the value but blocks editing. The input stays focusable and selectable. The show toggle still works. */
-  readonly?: boolean;
-  /** The id of the input. The label points at it. @default generated */
-  id?: string;
-}>();
+const props = defineProps<
+  EFieldCommonProps & {
+    /** The visible label above the field. @default "Password" */
+    label?: string;
+    /** `current` for signing in, `new` for choosing one. Sets `autocomplete` (`current-password` or `new-password`) so a password manager can fill or suggest. */
+    mode?: "current" | "new";
+    /** The rules, as `{ label, test(value) }`. They form a checklist under the field that updates as the person types. Each rule is announced as "met" or "not met yet", and a rule that changes is announced. */
+    rules?: PasswordRule[];
+    /** An example, never the label. */
+    placeholder?: string;
+    /** The name submitted with a form. */
+    name?: string;
+    /** Shows the value but blocks editing. The input stays focusable and selectable. The show toggle still works. */
+    readonly?: boolean;
+  }
+>();
 
 /** The password. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
 const attrs = useFieldAttrs();
+const { announce } = useAnnouncer();
 const input = ref<HTMLInputElement | null>(null);
 const shown = ref(false);
 
-const list = computed(() => props.rules ?? []);
+/** Each rule with its result, computed once per change. */
+const results = computed(() => (props.rules ?? []).map((rule) => ({ rule, met: rule.test(model.value) })));
+
+watch(results, (next, prev) => {
+  const changed = next.filter((r, i) => prev[i] && prev[i]!.rule === r.rule && prev[i]!.met !== r.met);
+  if (changed.length) {
+    announce(changed.map((r) => `${r.rule.label}: ${t(r.met ? "ruleMet" : "ruleNotMet")}`).join(". "));
+  }
+});
 
 function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined }) {
-  const describedby = [field.ariaDescribedby, list.value.length ? `${field.id}-rules` : ""].filter(Boolean).join(" ");
+  const describedby = [field.ariaDescribedby, results.value.length ? `${field.id}-rules` : ""]
+    .filter(Boolean)
+    .join(" ");
   return {
     id: field.id,
     class: "e-input",
     type: shown.value ? "text" : "password",
     value: model.value,
+    name: props.name,
+    placeholder: props.placeholder,
     disabled: props.disabled,
     readonly: props.readonly,
     required: props.required,
@@ -102,21 +109,21 @@ defineExpose({
         <input ref="input" v-bind="inputBind(field)" @input="model = ($event.target as HTMLInputElement).value" />
         <button
           type="button"
-          class="e-combo-btn"
-          :aria-pressed="shown ? 'true' : 'false'"
-          :aria-label="shown ? t('hidePassword') : t('showPassword')"
+          class="e-reveal"
+          :aria-pressed="shown"
+          :aria-label="t('showPassword')"
           :disabled="disabled"
           @click="shown = !shown"
         >
           <EIcon :name="shown ? 'eye-slash' : 'eye'" />
         </button>
       </div>
-      <ul v-if="list.length" :id="`${field.id}-rules`" class="e-rules" :aria-label="t('passwordRules')">
-        <li v-for="r in list" :key="r.label" class="e-rule" :data-met="r.test(model) ? '' : undefined">
-          <EIcon v-if="r.test(model)" name="check" small />
+      <ul v-if="results.length" :id="`${field.id}-rules`" class="e-rules" :aria-label="t('passwordRules')">
+        <li v-for="r in results" :key="r.rule.label" class="e-rule" :data-met="r.met ? '' : undefined">
+          <EIcon v-if="r.met" name="check" small />
           <span v-else class="e-rule-dot" aria-hidden="true" />
-          {{ r.label }}
-          <span class="e-sr"> ({{ t(r.test(model) ? "ruleMet" : "ruleNotMet") }})</span>
+          {{ r.rule.label }}
+          <span class="e-sr"> ({{ t(r.met ? "ruleMet" : "ruleNotMet") }})</span>
         </li>
       </ul>
     </template>
@@ -136,7 +143,7 @@ defineExpose({
     margin: 0;
     padding: 0;
     list-style: none;
-    font: 400 var(--e-text-sm)/1.4 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-sm)/1.4 var(--e-font-sans);
   }
 
   .e-rule {
@@ -147,7 +154,7 @@ defineExpose({
   }
 
   .e-rule[data-met] {
-    color: var(--e-secondary);
+    color: var(--e-success);
   }
 
   .e-rule .e-icon {
@@ -156,9 +163,9 @@ defineExpose({
 
   .e-rule-dot {
     flex: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
+    width: var(--e-icon-size-sm);
+    height: var(--e-icon-size-sm);
+    border-radius: var(--e-radius-pill);
     box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-border-strong);
   }
 }

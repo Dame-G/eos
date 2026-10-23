@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import "../../styles/base.css";
 import "./table.css";
 
@@ -21,13 +21,42 @@ defineSlots<{
   default(): unknown;
 }>();
 
-const style = computed(() => (props.maxHeight ? { "--e-table-max-h": props.maxHeight } : undefined));
+const style = computed(() => (props.maxHeight ? { "--_max-h": props.maxHeight } : undefined));
+
+// The frame is a focusable, named region only while it scrolls (wider or taller than its space), because a tab stop
+// that scrolls nothing is noise. The first render never scrolls, so the server and the client agree.
+const scroller = ref<HTMLElement | null>(null);
+const table = ref<HTMLTableElement | null>(null);
+const overflows = ref(false);
+const scrollable = computed(() => overflows.value || !!props.maxHeight);
+let watcher: ResizeObserver | undefined;
+
+function measure() {
+  const el = scroller.value;
+  overflows.value = !!el && (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1);
+}
+
+onMounted(() => {
+  measure();
+  if (typeof ResizeObserver === "undefined") return;
+  watcher = new ResizeObserver(measure);
+  if (scroller.value) watcher.observe(scroller.value);
+  if (table.value) watcher.observe(table.value);
+});
+onBeforeUnmount(() => watcher?.disconnect());
 </script>
 
 <template>
   <div class="e-table-wrap" :class="[striped && 'e-table-wrap--striped', dense && 'e-table-wrap--dense']">
-    <div class="e-table-scroll" tabindex="0" role="region" :aria-label="caption" :style="style">
-      <table class="e-table">
+    <div
+      ref="scroller"
+      class="e-table-scroll"
+      :tabindex="scrollable ? 0 : undefined"
+      :role="scrollable ? 'region' : undefined"
+      :aria-label="scrollable ? caption : undefined"
+      :style="style"
+    >
+      <table ref="table" class="e-table">
         <caption :class="hideCaption ? 'e-sr' : 'e-table-caption'">
           {{
             caption
@@ -61,7 +90,7 @@ const style = computed(() => (props.maxHeight ? { "--e-table-max-h": props.maxHe
 
   .e-table-scroll {
     overflow: auto;
-    max-height: var(--e-table-max-h, none);
+    max-height: var(--_max-h, none);
     border-radius: inherit;
   }
 
@@ -78,7 +107,7 @@ const style = computed(() => (props.maxHeight ? { "--e-table-max-h": props.maxHe
     padding: var(--e-space-3) var(--e-space-4);
     border-bottom: var(--e-stroke-hair) solid var(--e-border);
     text-align: start;
-    font: 600 var(--e-text-md) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-strong) var(--e-text-md) / 1.3 var(--e-font-sans);
     color: var(--e-ink);
   }
 

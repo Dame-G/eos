@@ -61,10 +61,4 @@
     align-self: center;
     margin-inline-end: var(--e-space-1);
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-combo-btn {
-      transition: none;
-    }
-  }
 }

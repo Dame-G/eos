@@ -61,7 +61,7 @@ const linkAttrs = (item: BreadcrumbItem) => ({
     margin: 0;
     padding: 0;
     list-style: none;
-    font: 400 var(--e-text-sm) / calc(10 / 7) var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-sm) / calc(10 / 7) var(--e-font-sans);
   }
 
   .e-crumbs li {
@@ -79,16 +79,16 @@ const linkAttrs = (item: BreadcrumbItem) => ({
 
   .e-crumb {
     position: relative;
-    color: var(--e-primary);
+    color: var(--e-text-link);
     text-decoration: underline;
-    text-decoration-color: var(--e-primary);
+    text-decoration-color: var(--e-text-link);
     text-underline-offset: 3px;
   }
 
   .e-crumb::after {
     content: "";
     position: absolute;
-    inset: calc((var(--e-tap, 44px) - 20px) / -2) calc(-1 * var(--e-space-1));
+    inset: calc((var(--e-tap) - var(--e-icon-size)) / -2) calc(-1 * var(--e-space-1));
   }
 
   .e-crumb:hover {
@@ -98,13 +98,13 @@ const linkAttrs = (item: BreadcrumbItem) => ({
 
   .e-crumb:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-focus-gap);
+    outline-offset: var(--e-stroke-focus);
     border-radius: var(--e-radius-sm);
   }
 
   .e-crumb-current {
     color: var(--e-ink);
-    font-weight: 500;
+    font-weight: var(--e-weight-medium);
   }
 }
 </style>

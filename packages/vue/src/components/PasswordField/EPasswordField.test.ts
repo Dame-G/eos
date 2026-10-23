@@ -46,11 +46,35 @@ describe("EPasswordField", () => {
     await expect.element(toggle).toHaveAttribute("aria-pressed", "false");
     await toggle.click();
     expect(container.querySelector("input")!.type).toBe("text");
-    const hide = page.getByRole("button", { name: "Hide password" });
-    await expect.element(hide).toHaveAttribute("aria-pressed", "true");
-    expect(container.querySelector(".e-combo-btn")).not.toBeNull();
-    await hide.click();
+    await expect.element(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(container.querySelector(".e-reveal")!.getAttribute("aria-label")).toBe("Show password");
+    await toggle.click();
     expect(container.querySelector("input")!.type).toBe("password");
+  });
+
+  test("name and placeholder reach the input", async () => {
+    const { container } = await render(EPasswordField, { props: { name: "pw", placeholder: "••••" } });
+    const input = container.querySelector("input")!;
+    expect(input.name).toBe("pw");
+    expect(input.placeholder).toBe("••••");
+  });
+
+  test("a rule that flips is announced", async () => {
+    const model = ref("");
+    await render(
+      defineComponent({
+        render: () =>
+          h(EPasswordField, {
+            rules: [rules[1]!],
+            modelValue: model.value,
+            "onUpdate:modelValue": (v: string) => (model.value = v),
+          }),
+      }),
+    );
+    await userEvent.type(page.getByLabelText("Password"), "a1");
+    await nextTick();
+    const live = document.querySelector("[data-e-announcer=polite]")!;
+    await expect.poll(() => live.textContent).toContain("A number: met");
   });
 
   test("the toggle works from the keyboard", async () => {

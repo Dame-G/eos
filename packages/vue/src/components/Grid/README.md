@@ -13,16 +13,18 @@ Cards in as many equal columns as fit, responding to its container's width rathe
 
 <!-- props:start -->
 
-| Prop      | Type               | Default   | Notes                                                                                                                     |
-| --------- | ------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `as`      | `string`           | `"div"`   | The element to render, for example `ul` with `li` children.                                                               |
-| `min`     | `string`           | `"16rem"` | The narrowest a column may be, as a CSS length. One column below that.                                                    |
-| `gap`     | `number \| string` | `4`       | A space token number (1, 2, 3, 4, 6, 8), or any CSS length as a string.                                                   |
-| `masonry` | `boolean`          | `false`   | Packs cards of uneven height into columns with no gaps under the short ones. Items flow top to bottom within each column. |
+| Prop      | Type                                                      | Default   | Notes                                                                                                                              |
+| --------- | --------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `as`      | `string`                                                  | `"div"`   | The element to render, for example `ul` with `li` children.                                                                        |
+| `min`     | `string`                                                  | `"16rem"` | The narrowest a column may be, as a CSS length. One column below that.                                                             |
+| `gap`     | `GridGap \| string`                                       | `4`       | A space token number (1 to 8, 10, 12 or 16) becomes `var(--e-space-N)`. A string is used as given, so any CSS length works.        |
+| `align`   | `"start" \| "center" \| "end" \| "stretch" \| "baseline"` | None      | Aligns each item inside its row. Items stretch to the tallest by default. Not used with `masonry`.                                 |
+| `justify` | `"start" \| "center" \| "end" \| "stretch"`               | None      | Places each item inside its column when it is narrower than the column. Items fill the column by default. Not used with `masonry`. |
+| `masonry` | `boolean`                                                 | `false`   | Packs cards of uneven height into columns with no gaps under the short ones. Items flow top to bottom within each column.          |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the rendered element.
+`class`, `style` and attributes land on the rendered element. `align` and `justify` place each item inside its cell and are ignored with `masonry`.
 
 With `masonry` the grid is CSS multi-column: `min` is the column width, the gap applies between columns and between rows, and items keep their own height. Items flow top to bottom within each column, then on to the next, so the visual order is column by column, not row by row. Put the most important cards first.
 
@@ -37,3 +39,13 @@ With `masonry` the grid is CSS multi-column: `min` is the column width, the gap 
 - Layout only, with no role. The DOM order is the reading and focus order, so do not rely on visual position to convey sequence.
 - Give each card its own heading or accessible name.
 - For a list of items use `as="ul"` with `li` children so the count is announced.
+
+## Keyboard
+
+| Key | Action                                                                         |
+| --- | ------------------------------------------------------------------------------ |
+| Tab | The grid is layout only and adds no tab stops; focus follows the source order. |
+
+## Related
+
+[`EStack`](../Stack/README.md) for a column, [`EInline`](../Inline/README.md) for a row.

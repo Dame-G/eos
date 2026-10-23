@@ -21,14 +21,19 @@ const t = useMessages();
 const indeterminate = computed(() => props.value === undefined);
 const limit = computed(() => props.max || 100);
 const clamped = computed(() => Math.max(0, Math.min(limit.value, props.value ?? 0)));
-const percent = computed(() => Math.max(0, Math.min(100, ((props.value ?? 0) / (props.max || 100)) * 100)));
+const percent = computed(() => (clamped.value / limit.value) * 100);
+const complete = computed(() => !indeterminate.value && percent.value >= 100);
 const showHead = computed(() => !!props.label || !indeterminate.value || !!props.valueText);
 </script>
 
 <template>
   <div
     class="e-progress"
-    :class="[indeterminate && 'e-progress--indeterminate', !indeterminate && percent === 0 && 'e-progress--empty']"
+    :class="[
+      indeterminate && 'e-progress--indeterminate',
+      !indeterminate && percent === 0 && 'e-progress--empty',
+      complete && 'e-progress--complete',
+    ]"
   >
     <div v-if="showHead" class="e-progress-head">
       <span class="e-progress-label">{{ label || t("loading") }}</span>
@@ -52,6 +57,8 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
 <style>
 @layer e.primitives {
   .e-progress {
+    --_period: calc(var(--e-space-4) * 1.4142);
+
     display: grid;
     gap: var(--e-space-2);
   }
@@ -64,32 +71,34 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   }
 
   .e-progress-label {
-    font: 500 var(--e-text-md) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-medium) var(--e-text-md) / 1.3 var(--e-font-sans);
   }
 
   .e-progress-value {
-    font: 500 var(--e-text-sm) / 1.3 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-sm) / 1.3 var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     color: var(--e-muted);
   }
 
-  /* No container: the bar is a button face, the primary colour with the button's corner radius, flat. What is left of the track is the same shape in a faint tint of that colour, to read as empty. */
+  /* No container: the bar is a button face, the primary colour with the button's corner radius, flat. What is left of the track is the same shape in a faint tint of that colour, striped like a busy button, to read as still to do. */
   .e-progress-track {
     position: relative;
-    height: 12px;
+    height: var(--e-space-3);
     box-sizing: border-box;
     border-radius: var(--e-radius-md);
-    background-color: color-mix(in srgb, var(--e-primary) 30%, var(--e-surface));
-
-    /* The stripes of a busy button run across what is still to do. */
+    background-color: var(--e-primary-soft);
     background-image: repeating-linear-gradient(
       135deg,
-      transparent 0 8px,
-      color-mix(in srgb, var(--e-primary) 22%, transparent) 8px 16px
+      transparent 0 var(--e-space-2),
+      var(--e-wash-hover) var(--e-space-2) var(--e-space-4)
     );
-    background-size: 22.63px 22.63px;
-    animation: e-progress-stripes 0.8s linear infinite;
+    background-size: var(--_period) var(--_period);
+    animation: e-progress-stripes var(--e-duration-spin) var(--e-easing-linear) infinite;
     overflow: hidden;
+  }
+
+  .e-progress--complete .e-progress-track {
+    animation: none;
   }
 
   .e-progress-fill {
@@ -111,12 +120,12 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     height: auto;
     width: 40%;
     transition: none;
-    animation: e-progress-slide 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation: e-progress-slide var(--e-duration-loop) var(--e-easing-standard) infinite;
   }
 
   @keyframes e-progress-stripes {
     to {
-      background-position-x: 22.63px;
+      background-position-x: var(--_period);
     }
   }
 
@@ -135,10 +144,6 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
       animation: none;
     }
 
-    .e-progress-fill {
-      transition: none;
-    }
-
     .e-progress--indeterminate .e-progress-fill {
       width: 100%;
       animation: none;
@@ -146,7 +151,7 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
       background: repeating-linear-gradient(
         135deg,
         var(--e-primary) 0 var(--e-space-2),
-        transparent var(--e-space-2) calc(2 * var(--e-space-2))
+        transparent var(--e-space-2) var(--e-space-4)
       );
     }
   }
@@ -156,12 +161,9 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
       border: var(--e-stroke-edge) solid CanvasText;
     }
 
-    .e-progress-fill {
-      forced-color-adjust: none;
-      background: Highlight;
-    }
-
+    .e-progress-fill,
     .e-progress--indeterminate .e-progress-fill {
+      forced-color-adjust: none;
       background: Highlight;
     }
   }

@@ -93,6 +93,34 @@ describe("ECommandPalette", () => {
     expect(emitted().select![0]).toEqual([expect.objectContaining({ id: "settings" })]);
   });
 
+  test("clicking a disabled command keeps focus in the search box", async () => {
+    await mount();
+    await expect.poll(() => document.activeElement).toBe(input());
+    const disabled = options().find((o) => o.textContent?.includes("Restore archive"))!;
+    const down = new MouseEvent("mousedown", { bubbles: true, cancelable: true });
+    disabled.dispatchEvent(down);
+    expect(down.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(input());
+  });
+
+  test("matching ignores accents, and the description is highlighted", async () => {
+    await mount({ items: [...items, { id: "cafe", label: "Café menu" }] });
+    await userEvent.type(input(), "cafe");
+    await expect.poll(() => names()).toEqual(["Café menu"]);
+    await userEvent.clear(input());
+    await userEvent.type(input(), "payment");
+    await expect.poll(() => names()).toEqual(["Issue refund"]);
+    expect(document.querySelector(".e-opt-desc mark")!.textContent).toBe("payment");
+  });
+
+  test("loading shows the spinner in place of the empty text, and emptyText replaces No results", async () => {
+    const view = await mount({ loading: true, items: [] });
+    expect(document.querySelector(".e-opt-status .e-spinner")).not.toBeNull();
+    expect(document.querySelector("[role=listbox]")!.getAttribute("aria-busy")).toBe("true");
+    await view.rerender({ loading: false, emptyText: "Nothing to run" });
+    await expect.poll(() => document.querySelector(".e-opt-status")?.textContent?.trim()).toBe("Nothing to run");
+  });
+
   test("Escape closes it", async () => {
     const { emitted } = await mount();
     await userEvent.keyboard("{Escape}");
@@ -113,8 +141,8 @@ describe("ECommandPalette", () => {
     expect(caps.at(-1)).toBe("I");
   });
 
-  test("a custom filter replaces the built-in matching", async () => {
-    await mount({ filter: (item: CommandItem, q: string) => (item.id === q ? 1 : 0) });
+  test("a custom score replaces the built-in matching", async () => {
+    await mount({ score: (item: CommandItem, q: string) => (item.id === q ? 1 : 0) });
     await userEvent.type(input(), "theme");
     await expect.poll(() => names()).toEqual(["Toggle theme"]);
   });

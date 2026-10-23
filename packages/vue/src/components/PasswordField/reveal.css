@@ -1,0 +1,54 @@
+@layer e.composites {
+  /* The show/hide toggle at the end of a password input. */
+  .e-reveal {
+    display: inline-grid;
+    place-items: center;
+    position: relative;
+    flex: none;
+    align-self: center;
+    width: calc(var(--e-control-height) - 9px);
+    height: calc(var(--e-control-height) - 9px);
+    margin-inline-end: var(--e-space-1);
+    padding: 0;
+    border: 0;
+    border-radius: var(--e-radius-sm);
+    background: transparent;
+    color: var(--e-ink);
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--e-duration-tap) var(--e-easing-out);
+  }
+
+  /* A larger touch target than the glyph. */
+  .e-reveal::after {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--e-space-1));
+  }
+
+  .e-reveal:hover:not(:disabled) {
+    background: var(--e-wash-hover);
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-wash-ring);
+  }
+
+  .e-reveal:active:not(:disabled) {
+    background: var(--e-wash-press);
+    box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-ink);
+  }
+
+  .e-reveal[aria-pressed="true"] {
+    box-shadow: var(--e-slab-sink);
+  }
+
+  .e-reveal:focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: calc(-1 * var(--e-stroke-focus));
+  }
+
+  .e-reveal:disabled {
+    color: var(--e-disabled-ink);
+    cursor: not-allowed;
+  }
+}

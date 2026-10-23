@@ -25,7 +25,7 @@ The top of a page: title, optional breadcrumb, description, status and main acti
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `div` element.
+`class`, `style` and attributes land on the `div` element. It has no outer margin, and the title shrinks when the header is narrow.
 
 ## Slots
 
@@ -38,3 +38,13 @@ The top of a page: title, optional breadcrumb, description, status and main acti
 ## Accessibility
 
 - The title is a heading. Keep one `h1` per page.
+
+## Keyboard
+
+| Key | Action                                        |
+| --- | --------------------------------------------- |
+| Tab | Moves through the breadcrumb and the actions. |
+
+## Related
+
+[`EHeading`](../Heading/README.md) for a title inside the page, [`EBreadcrumb`](../Breadcrumb/README.md) for the trail.

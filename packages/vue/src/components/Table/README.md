@@ -40,7 +40,18 @@ Use [`EDataGrid`](../DataGrid/README.md) when people need to sort, filter, selec
 
 ## Accessibility
 
-- The `caption` is the table's accessible name and the name of its scrolling region, which can be focused and scrolled with the arrow keys when the table is wider than its space.
+- The `caption` is the table's accessible name. When the table is wider than its space, or `maxHeight` is set, the frame becomes a named, focusable `region` that scrolls with the arrow keys. Otherwise it is not a tab stop.
 - Use `th` with `scope="col"` for column headings and `scope="row"` for row headings, so screen readers can announce them with each cell.
 - Striping and the hover row are decoration: no information depends on them.
 - In forced-colors mode the frame is drawn in the system text colour.
+
+## Keyboard
+
+| Key        | Does                                     |
+| ---------- | ---------------------------------------- |
+| Tab        | Focuses the frame only while it scrolls. |
+| Arrow keys | Scroll the frame when it has focus.      |
+
+## Related
+
+[`EDataGrid`](../DataGrid/README.md) for sorting, filtering and selecting, [`EDescriptionList`](../DescriptionList/README.md) for label and value pairs.

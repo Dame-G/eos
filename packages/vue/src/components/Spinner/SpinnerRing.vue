@@ -30,7 +30,7 @@ import "../../styles/base.css";
     stroke-linecap: round;
     stroke-dasharray: 11 25;
     transform-origin: center;
-    animation: e-spin 0.9s linear infinite;
+    animation: e-spin var(--e-duration-spin) var(--e-easing-linear) infinite;
   }
 
   @keyframes e-spin {
@@ -41,7 +41,7 @@ import "../../styles/base.css";
 
   @media (prefers-reduced-motion: reduce) {
     .e-ring-arc {
-      animation-duration: 3s;
+      animation: none;
     }
   }
 

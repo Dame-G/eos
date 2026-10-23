@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import EActions from "../Actions/EActions.vue";
+import EHeading from "../Heading/EHeading.vue";
 import "../../styles/base.css";
 
 withDefaults(
@@ -30,7 +31,7 @@ defineSlots<{
     <div class="e-pagehead-row">
       <div class="e-pagehead-text">
         <div class="e-pagehead-titlerow">
-          <component :is="`h${headingLevel}`" class="e-pagehead-title">{{ title }}</component>
+          <EHeading :level="1" :as="`h${headingLevel}`" class="e-pagehead-title">{{ title }}</EHeading>
           <slot name="status" />
         </div>
         <p v-if="description" class="e-pagehead-desc">{{ description }}</p>
@@ -45,7 +46,7 @@ defineSlots<{
   .e-pagehead {
     display: grid;
     gap: var(--e-space-3);
-    margin-bottom: var(--e-space-6);
+    container-type: inline-size;
   }
 
   .e-pagehead-row {
@@ -62,19 +63,17 @@ defineSlots<{
   }
 
   .e-pagehead-title {
-    margin: 0;
-    font: 500 var(--e-text-4xl) / 1.1 var(--e-font-sans);
-    text-wrap: balance;
+    line-height: 1.1;
   }
 
   .e-pagehead-desc {
     margin: var(--e-space-2) 0 0;
     max-width: var(--e-measure);
-    font: 400 var(--e-text-lg) / 1.45 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-lg) / 1.45 var(--e-font-sans);
     color: var(--e-muted);
   }
 
-  @media (max-width: 32rem) {
+  @container (max-width: 26rem) {
     .e-pagehead-title {
       font-size: var(--e-text-2xl);
     }

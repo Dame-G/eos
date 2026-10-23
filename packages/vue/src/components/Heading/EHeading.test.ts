@@ -48,14 +48,37 @@ describe("EHeading", () => {
     expect(container.querySelector(".e-kicker")).toBeNull();
   });
 
-  test("attributes fall through to the wrapper", async () => {
+  test("without a kicker there is no wrapper and attributes land on the heading", async () => {
     const { container } = await render(EHeading, {
-      attrs: { "data-testid": "h", class: "mine" },
+      attrs: { "data-testid": "h", class: "mine", id: "t" },
       slots: { default: "Visit" },
     });
-    const el = container.querySelector(".e-heading")!;
+    expect(container.querySelector(".e-heading")).toBeNull();
+    const el = container.firstElementChild!;
+    expect(el.tagName).toBe("H2");
     expect(el.getAttribute("data-testid")).toBe("h");
+    expect(el.id).toBe("t");
     expect(el.classList.contains("mine")).toBe(true);
+  });
+
+  test("with a kicker class and style go to the wrapper and other attributes to the heading", async () => {
+    const { container } = await render(EHeading, {
+      props: { kicker: "Portal" },
+      attrs: { class: "mine", id: "t" },
+      slots: { default: "Visit" },
+    });
+    expect(container.querySelector(".e-heading")!.classList.contains("mine")).toBe(true);
+    expect(container.querySelector("h2")!.id).toBe("t");
+    expect(container.querySelector("h2")!.classList.contains("mine")).toBe(false);
+  });
+
+  test("as sets the element and level keeps the size", async () => {
+    const { container } = await render(EHeading, { props: { level: 2, as: "h4" }, slots: { default: "Visit" } });
+    const el = container.querySelector("h4")!;
+    expect(el.classList.contains("e-h2")).toBe(true);
+    expect(getComputedStyle(el).fontSize).toBe("24px");
+    const p = await render(EHeading, { props: { level: 3, as: "p" }, slots: { default: "Visit" } });
+    expect(p.container.querySelector("p.e-h3")).not.toBeNull();
   });
 
   test("has no accessibility violations in any level", async () => {

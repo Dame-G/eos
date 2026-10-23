@@ -12,11 +12,13 @@ export type { IconProp, IconSource, IconsConfig, IconContext } from "./icons/typ
 export type { ResolvedIcon } from "./config.js";
 export { defineTheme } from "@eos-ui/tokens";
 export type { Theme, ThemeInput } from "@eos-ui/tokens";
+export type * from "./globals.js"; // no exports: loads the "vue" augmentation (GlobalComponents, $e) into the types
 export * from "./composables/focusInside.js";
 export * from "./composables/useAnnouncer.js";
 export * from "./composables/useCopy.js";
 export * from "./composables/useFieldAttrs.js";
 export * from "./composables/useLocale.js";
+export * from "./composables/useQuietFocus.js";
 export * from "./composables/useShortcuts.js";
 export * from "./composables/useToast.js";
 export * from "./composables/useUid.js";

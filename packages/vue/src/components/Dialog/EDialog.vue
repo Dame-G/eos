@@ -60,7 +60,7 @@ const open = defineModel<boolean>("open");
   .e-dialog {
     position: fixed;
     inset: 0;
-    width: min(32rem, calc(100vw - var(--e-space-8)));
+    width: min(32rem, calc(100dvw - var(--e-space-8)));
     height: fit-content;
     max-height: calc(100dvh - var(--e-space-8));
     margin: auto;
@@ -69,7 +69,32 @@ const open = defineModel<boolean>("open");
     overscroll-behavior: contain;
   }
 
-  .e-dialog--inline {
+  /* A short scale and fade in, the counterpart of the drawer's slide. The motion tokens go to ~0 under reduced motion. */
+  .e-dialog[data-state="open"] {
+    animation: e-dialog-in var(--e-duration-move) var(--e-easing-out);
+  }
+
+  .e-dialog[data-state="closed"] {
+    animation: e-dialog-out var(--e-duration-move) var(--e-easing-out) forwards;
+  }
+
+  @keyframes e-dialog-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes e-dialog-out {
+    to {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  .e-dialog--inline,
+  .e-dialog--inline[data-state] {
+    animation: none;
     position: static;
     margin: 0;
     width: 100%;

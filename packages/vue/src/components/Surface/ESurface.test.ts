@@ -8,16 +8,39 @@ import EGrid from "../Grid/EGrid.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESurface", () => {
-  test("is a plain card with the slot inside; pad adds a modifier class", async () => {
-    const { container } = await render(ESurface, { props: { pad: "md" }, slots: { default: "x" } });
+  test("is a padded card with the slot inside", async () => {
+    const { container } = await render(ESurface, { slots: { default: "x" } });
     const el = container.querySelector("div")!;
     expect(el.className).toBe("e-surface e-surface--pad-md");
     expect(el.textContent).toBe("x");
+    expect(getComputedStyle(el).paddingTop).toBe("16px");
+  });
+
+  test("small, large and flush set the padding from the space scale", async () => {
+    const pads: string[] = [];
+    for (const props of [{ small: true }, { large: true }, { flush: true }] as Record<string, boolean>[]) {
+      const { container } = await render(ESurface, { props, slots: { default: "x" } });
+      pads.push(getComputedStyle(container.querySelector(".e-surface")!).paddingTop);
+    }
+    expect(pads).toEqual(["12px", "24px", "0px"]);
+  });
+
+  test("pad still works as a deprecated alias", async () => {
+    const { container } = await render(ESurface, { props: { pad: "lg" }, slots: { default: "x" } });
+    expect(container.querySelector(".e-surface")!.classList.contains("e-surface--pad-lg")).toBe(true);
+  });
+
+  test("paper switches to the paper ground", async () => {
+    const plain = await render(ESurface, { slots: { default: "x" } });
+    const paper = await render(ESurface, { props: { paper: true }, slots: { default: "x" } });
+    expect(getComputedStyle(paper.container.querySelector(".e-surface")!).backgroundColor).not.toBe(
+      getComputedStyle(plain.container.querySelector(".e-surface")!).backgroundColor,
+    );
   });
 
   test("clip adds a class", async () => {
     const { container } = await render(ESurface, { props: { clip: true }, slots: { default: "x" } });
-    expect(container.querySelector("div")!.className).toBe("e-surface e-surface--clip");
+    expect(container.querySelector("div")!.className).toBe("e-surface e-surface--pad-md e-surface--clip");
   });
 
   test("raised adds its class", async () => {
@@ -55,7 +78,7 @@ describe("ESurface", () => {
 
   test("actions render as a bar after the body, edge to edge", async () => {
     const { container } = await render(ESurface, {
-      props: { pad: "md" },
+      props: {},
       slots: { default: "Body", actions: () => h(EButton, null, () => "Pay") },
     });
     const root = container.querySelector(".e-surface")!;
@@ -93,7 +116,7 @@ describe("ESurface", () => {
 
   test("in a Grid every card takes the tallest height, with the bar level at the foot", async () => {
     const Card = (text: string) =>
-      h(ESurface, { as: "article", pad: "md" }, { default: () => text, actions: () => h(EButton, null, () => "Pay") });
+      h(ESurface, { as: "article" }, { default: () => text, actions: () => h(EButton, null, () => "Pay") });
     const { container } = await render(
       defineComponent({
         render: () =>
@@ -137,9 +160,10 @@ describe("ESurface", () => {
       defineComponent({
         render: () =>
           h("div", [
-            h(ESurface, { pad: "sm" }, () => h("h2", "Plain")),
-            h(ESurface, { pad: "lg", clip: true, as: "section", "aria-label": "Padded" }, () => "Padded"),
+            h(ESurface, { small: true }, () => h("h2", "Plain")),
+            h(ESurface, { large: true, clip: true, as: "section", "aria-label": "Padded" }, () => "Padded"),
             h(ESurface, { raised: true }, () => "Raised"),
+            h(ESurface, { paper: true, flush: true }, () => "Statement"),
             h(
               ESurface,
               { as: "article", "aria-label": "With bar" },

@@ -32,3 +32,14 @@ A section that opens and closes, for secondary detail. Give several the same `gr
 ## Accessibility
 
 - A native `details`. The summary is keyboard operable (Enter, Space) and the open state is announced.
+
+## Keyboard
+
+| Key          | Action                                |
+| ------------ | ------------------------------------- |
+| Enter, Space | Opens or closes the focused summary.  |
+| Tab          | Moves to the next summary or control. |
+
+## Related
+
+[`EExpandableRow`](../ExpandableRow/README.md) for a row in a list that opens to more, [`ETabs`](../Tabs/README.md) to switch between panels.

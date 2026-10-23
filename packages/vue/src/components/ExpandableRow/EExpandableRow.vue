@@ -7,28 +7,38 @@ defineProps<{
   title: string;
   /** A muted line under the title. */
   subtitle?: string;
+  /** Rows that share a `group` open one at a time (the native `name` of `details`). */
+  group?: string;
 }>();
 
 defineSlots<{
   /** Before the title, such as an `EStamp`, an icon or a date tile. */
   leading?(): unknown;
-  /** The value at the end of the summary, such as an amount. */
+  /** The value at the end of the summary, such as an amount. It is inside the `summary`, so keep it to text: a button or link here is invalid HTML. */
   trailing?(): unknown;
   /** What the row opens to. */
   default?(): unknown;
   /** Buttons for the bar at the foot of the opened row. */
   actions?(): unknown;
 }>();
+
+/** Whether it is open. Without a binding it keeps its own state. */
+const open = defineModel<boolean>("open");
+
+function onToggle(e: Event) {
+  open.value = (e.target as HTMLDetailsElement).open;
+}
 </script>
 
 <template>
-  <details class="e-xrow">
+  <details class="e-xrow" :name="group" :open="open || undefined" @toggle="onToggle">
+    <!-- A summary holds phrasing content only, so the parts are spans that CSS lays out as blocks. -->
     <summary :class="{ 'e-xrow-summary--lead': $slots.leading }">
-      <div v-if="$slots.leading" class="e-xrow-lead"><slot name="leading" /></div>
-      <div class="e-xrow-main">
-        <p class="e-xrow-title">{{ title }}</p>
-        <p v-if="subtitle" class="e-xrow-sub">{{ subtitle }}</p>
-      </div>
+      <span v-if="$slots.leading" class="e-xrow-lead"><slot name="leading" /></span>
+      <span class="e-xrow-main">
+        <span class="e-xrow-title">{{ title }}</span>
+        <span v-if="subtitle" class="e-xrow-sub">{{ subtitle }}</span>
+      </span>
       <span v-if="$slots.trailing" class="e-xrow-trail"><slot name="trailing" /></span>
     </summary>
     <div class="e-xrow-body">
@@ -41,22 +51,23 @@ defineSlots<{
 <style>
 @layer e.containers {
   .e-xrow {
-    --e-band-c: var(--e-border);
+    --_band: var(--e-border);
 
+    container-type: inline-size;
     border-bottom: var(--e-depth) solid transparent;
     border-radius: var(--e-radius-md);
     background-color: var(--e-surface);
-    background-image: linear-gradient(to top, var(--e-band-c) var(--e-depth), transparent var(--e-depth));
+    background-image: linear-gradient(to top, var(--_band) var(--e-depth), transparent var(--e-depth));
     background-origin: border-box;
     background-repeat: no-repeat;
-    box-shadow: var(--e-edge);
+    box-shadow: var(--e-frame);
     transition:
       background-color var(--e-duration-tap) var(--e-easing-out),
       box-shadow var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-xrow:not([open]):hover {
-    --e-band-c: var(--e-border-strong);
+    --_band: var(--e-border-strong);
 
     background-color: var(--e-surface-hover);
     box-shadow: 0 0 0 var(--e-stroke-card) var(--e-border-strong);
@@ -65,7 +76,7 @@ defineSlots<{
   .e-xrow[open] {
     border-bottom-width: 0;
     background-image: none;
-    box-shadow: var(--e-edge);
+    box-shadow: var(--e-frame);
   }
 
   .e-xrow[open]:has(> summary:hover) {
@@ -83,7 +94,8 @@ defineSlots<{
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--e-space-3);
-    padding: var(--e-space-3) var(--e-space-4);
+    padding-block: var(--e-space-3);
+    padding-inline: var(--e-space-4);
     list-style: none;
     cursor: pointer;
   }
@@ -99,10 +111,12 @@ defineSlots<{
 
   .e-xrow > summary:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-focus-gap);
+    outline-offset: var(--e-stroke-focus);
   }
 
   .e-xrow-lead {
+    display: block;
+
     /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties -- two longhands */
     justify-self: start;
     align-self: center;
@@ -110,39 +124,43 @@ defineSlots<{
   }
 
   .e-xrow-main {
+    display: block;
     min-width: 0;
   }
 
   .e-xrow-title {
-    margin: 0;
-    font: 500 var(--e-text-md) / 1.3 var(--e-font-sans);
+    display: block;
+    font: var(--e-weight-medium) var(--e-text-md) / 1.3 var(--e-font-sans);
     overflow-wrap: anywhere;
     text-wrap: balance;
   }
 
   .e-xrow-sub {
-    margin: var(--e-space-1) 0 0;
-    font: 400 var(--e-text-sm) / 1.4 var(--e-font-sans);
+    display: block;
+    margin-block-start: var(--e-space-1);
+    font: var(--e-weight-regular) var(--e-text-sm) / 1.4 var(--e-font-sans);
     color: var(--e-muted);
     overflow-wrap: anywhere;
   }
 
   .e-xrow-trail {
     min-width: 5.5rem;
-    font: 500 var(--e-text-md) / 1.3 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-md) / 1.3 var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     text-align: end;
   }
 
   .e-xrow[open] > summary {
-    border-radius: var(--e-radius-md) var(--e-radius-md) 0 0;
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
     border-bottom: var(--e-stroke-hair) solid var(--e-border);
   }
 
   .e-xrow-body {
     container-type: inline-size;
-    border-radius: 0 0 var(--e-radius-md) var(--e-radius-md);
+    border-end-start-radius: var(--e-radius-md);
+    border-end-end-radius: var(--e-radius-md);
   }
 
   .e-xrow-content {
@@ -156,7 +174,7 @@ defineSlots<{
     border-end-end-radius: var(--e-radius-md);
   }
 
-  @media (max-width: 32rem) {
+  @container (max-width: 26rem) {
     .e-xrow > .e-xrow-summary--lead {
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: start;
@@ -167,17 +185,11 @@ defineSlots<{
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .e-xrow {
-      transition: none;
-    }
-  }
-
   @media print {
     .e-xrow {
       box-shadow: none;
       outline: 0;
-      border: var(--e-stroke-hair) solid var(--e-print-ink, #000);
+      border: var(--e-stroke-hair) solid var(--e-ink);
       break-inside: avoid;
     }
   }

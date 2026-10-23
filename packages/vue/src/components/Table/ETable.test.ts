@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { h } from "vue";
+import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 import ETable from "./ETable.vue";
 import { expectNoViolations } from "../../../test/axe.js";
@@ -14,16 +14,39 @@ const rows = () => [
 ];
 
 describe("ETable", () => {
-  test("is a native table in a named, focusable scroll region with a visible caption", async () => {
+  test("is a native table with a visible caption, and no tab stop while nothing scrolls", async () => {
     const { container } = await render(ETable, { props: { caption: "Plans" }, slots: { default: rows } });
     const region = container.querySelector(".e-table-scroll")!;
-    expect(region.getAttribute("role")).toBe("region");
-    expect(region.getAttribute("aria-label")).toBe("Plans");
-    expect(region.getAttribute("tabindex")).toBe("0");
+    expect(region.hasAttribute("role")).toBe(false);
+    expect(region.hasAttribute("tabindex")).toBe(false);
+    expect(region.hasAttribute("aria-label")).toBe(false);
     const caption = container.querySelector("table.e-table > caption")!;
     expect(caption.textContent).toBe("Plans");
     expect(caption.className).toBe("e-table-caption");
     expect(container.querySelectorAll("tbody tr").length).toBe(3);
+  });
+
+  test("it becomes a named, focusable region once the table is wider than its space", async () => {
+    const wide = () => [
+      h("tbody", [
+        h(
+          "tr",
+          Array.from({ length: 12 }, (_, i) => h("td", { style: "min-width: 120px" }, `Cell ${i}`)),
+        ),
+      ]),
+    ];
+    const { container } = await render(
+      defineComponent({
+        render: () => h("div", { id: "box", style: { width: "800px" } }, [h(ETable, { caption: "Wide" }, wide)]),
+      }),
+    );
+    const region = container.querySelector(".e-table-scroll")!;
+    await expect.poll(() => region.getAttribute("role")).toBe("region");
+    expect(region.getAttribute("aria-label")).toBe("Wide");
+    expect(region.getAttribute("tabindex")).toBe("0");
+    container.querySelector<HTMLElement>("#box")!.style.width = "2400px";
+    await expect.poll(() => region.hasAttribute("role")).toBe(false);
+    expect(region.hasAttribute("tabindex")).toBe(false);
   });
 
   test("hideCaption keeps the caption for screen readers only", async () => {
@@ -64,6 +87,8 @@ describe("ETable", () => {
     });
     container.classList.add("e-root");
     const region = container.querySelector<HTMLElement>(".e-table-scroll")!;
+    expect(region.getAttribute("role")).toBe("region");
+    expect(region.getAttribute("tabindex")).toBe("0");
     expect(region.getBoundingClientRect().height).toBeLessThanOrEqual(200);
     expect(region.scrollHeight).toBeGreaterThan(200);
     expect(getComputedStyle(container.querySelector("th")!).position).toBe("sticky");

@@ -24,8 +24,16 @@ Shows where a person is in a multi-step flow such as registration. It displays p
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `ol` element. The steps stack vertically on narrow screens.
+`class`, `style` and attributes land on the `ol` element. The steps stack in one column when the container is narrower than 32rem.
 
 ## Accessibility
 
 - An ordered list. The current step has `aria-current="step"` and done steps are read as "(done)".
+
+## Keyboard
+
+Not focusable and takes no keys. It shows progress and does not navigate.
+
+## Related
+
+[`EProgress`](../Progress/README.md) for a bar, [`ETabs`](../Tabs/README.md) to move between views.

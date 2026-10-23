@@ -1,4 +1,5 @@
 import { defineComponent, h } from "vue";
+import { foldedRange } from "./fold.js";
 
 export default defineComponent({
   name: "EMatchHighlight",
@@ -8,12 +9,12 @@ export default defineComponent({
   },
   setup(props) {
     return () => {
-      const i = props.query ? props.text.toLowerCase().indexOf(props.query) : -1;
-      if (i < 0) return props.text;
+      const range = foldedRange(props.text, props.query);
+      if (!range) return props.text;
       return [
-        props.text.slice(0, i),
-        h("mark", props.text.slice(i, i + props.query.length)),
-        props.text.slice(i + props.query.length),
+        props.text.slice(0, range[0]),
+        h("mark", props.text.slice(range[0], range[1])),
+        props.text.slice(range[1]),
       ];
     };
   },

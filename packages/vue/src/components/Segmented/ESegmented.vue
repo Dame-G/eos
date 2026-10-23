@@ -1,20 +1,14 @@
 <script lang="ts">
-import type { IconProp } from "../../icons/types.js";
-
-export interface SegmentedOption {
-  value: string;
-  label: string;
-  /** An icon before the label. */
-  icon?: IconProp;
-  disabled?: boolean;
-}
+export type { SegmentedOption } from "../RadioGroup/options.js";
 </script>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from "vue";
+import { computed, h, nextTick, onMounted, ref, watch, type FunctionalComponent } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EFieldMessage from "../Field/EFieldMessage.vue";
 import { useMessages } from "../../config.js";
+import { normalizeChoices } from "../RadioGroup/options.js";
+import type { SegmentedOption } from "../RadioGroup/options.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
@@ -38,16 +32,16 @@ const props = defineProps<{
   name?: string;
 }>();
 
-/** The active value. @default first option */
+/** The active value. Left unset, the first option that can be chosen is chosen and `v-model` is told. @default first option */
 const model = defineModel<string>();
 
 const t = useMessages();
 const name = useUid(() => props.name);
 const hintId = computed(() => `${name.value}-hint`);
-const options = computed<SegmentedOption[]>(() =>
-  props.options.map((o) => (typeof o === "string" ? { value: o, label: o } : o)),
-);
-const current = computed(() => model.value ?? options.value[0]?.value);
+const options = computed(() => normalizeChoices<SegmentedOption>(props.options));
+/** What is shown as chosen while the model has no value: the first option that can be chosen. */
+const fallback = computed(() => options.value.find((o) => !o.disabled && !props.disabled) ?? options.value[0]);
+const current = computed(() => model.value ?? fallback.value?.value);
 const attrs = useFieldAttrs();
 
 const track = ref<HTMLElement | null>(null);
@@ -64,7 +58,16 @@ async function reveal(smooth: boolean) {
   el.scrollBy({ left: a.left + a.width / 2 - (b.left + b.width / 2), behavior: smooth && !calm ? "smooth" : "auto" });
 }
 
-onMounted(() => reveal(false));
+// The track shows an option as chosen, so the model has to agree with it.
+function settle() {
+  if (model.value === undefined && fallback.value) model.value = fallback.value.value;
+}
+
+onMounted(() => {
+  settle();
+  reveal(false);
+});
+watch([model, options], settle);
 watch(current, () => reveal(true));
 const pick = () =>
   track.value?.querySelector<HTMLInputElement>(".e-seg-input:checked") ??
@@ -79,6 +82,28 @@ defineExpose({
   focus: () => pick()?.focus(),
 });
 
+/** The radios, once for both layouts (with and without a message under the track). */
+const Choices: FunctionalComponent<
+  { options: SegmentedOption[]; name: string; current?: string; disabled?: boolean },
+  { pick: [value: string] }
+> = (p, { emit }) =>
+  p.options.map((o) =>
+    h("label", { key: o.value, class: "e-seg-opt" }, [
+      h("input", {
+        type: "radio",
+        class: "e-seg-input",
+        name: p.name,
+        value: o.value,
+        checked: p.current === o.value,
+        disabled: o.disabled || p.disabled,
+        onChange: () => emit("pick", o.value),
+      }),
+      h("span", { class: "e-seg-text" }, [o.icon ? h(EIcon, { name: o.icon }) : null, o.label]),
+    ]),
+  );
+Choices.props = ["options", "name", "current", "disabled"];
+Choices.emits = ["pick"];
+
 const groupAttrs = () => ({
   role: "radiogroup",
   "aria-label": props.optional ? `${props.label}, ${t("optional")}` : props.label,
@@ -90,18 +115,7 @@ const groupAttrs = () => ({
 <template>
   <div v-if="hint || error" class="e-seg-field" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
     <div ref="track" class="e-seg" v-bind="groupAttrs()">
-      <label v-for="o in options" :key="o.value" class="e-seg-opt">
-        <input
-          type="radio"
-          class="e-seg-input"
-          :name="name"
-          :value="o.value"
-          :checked="current === o.value"
-          :disabled="o.disabled || disabled"
-          @change="model = o.value"
-        />
-        <span class="e-seg-text"><EIcon v-if="o.icon" :name="o.icon" />{{ o.label }}</span>
-      </label>
+      <Choices :options="options" :name="name" :current="current" :disabled="disabled" @pick="model = $event" />
     </div>
     <EFieldMessage :id="hintId" :error="error" :hint="hint" />
   </div>
@@ -113,18 +127,7 @@ const groupAttrs = () => ({
     :style="attrs.wrapper().style"
     v-bind="groupAttrs()"
   >
-    <label v-for="o in options" :key="o.value" class="e-seg-opt">
-      <input
-        type="radio"
-        class="e-seg-input"
-        :name="name"
-        :value="o.value"
-        :checked="current === o.value"
-        :disabled="o.disabled || disabled"
-        @change="model = o.value"
-      />
-      <span class="e-seg-text"><EIcon v-if="o.icon" :name="o.icon" />{{ o.label }}</span>
-    </label>
+    <Choices :options="options" :name="name" :current="current" :disabled="disabled" @pick="model = $event" />
   </div>
 </template>
 
@@ -179,7 +182,7 @@ const groupAttrs = () => ({
     padding: 0 var(--e-space-4);
     background: transparent;
     color: var(--e-ink);
-    font: 500 var(--e-text-md)/1 var(--e-font-sans);
+    font: var(--e-weight-medium) var(--e-text-md) / 1 var(--e-font-sans);
     white-space: nowrap;
     transition: background-color var(--e-duration-tap) var(--e-easing-out);
   }
@@ -195,11 +198,11 @@ const groupAttrs = () => ({
     /* The darker band along the bottom is the slab, drawn inside the piece and the track clips it to the corners. */
     background-image: linear-gradient(
       to top,
-      color-mix(in srgb, var(--e-primary), var(--e-shade-slab)) calc(1.5 * var(--e-depth)),
+      var(--e-primary-slab) calc(1.5 * var(--e-depth)),
       transparent calc(1.5 * var(--e-depth))
     );
     color: var(--e-on-primary);
-    font-weight: 600;
+    font-weight: var(--e-weight-strong);
   }
 
   .e-seg-input:focus-visible + .e-seg-text {

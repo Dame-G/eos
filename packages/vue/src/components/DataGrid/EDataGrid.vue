@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="Row extends DataGridRow">
-import { computed, nextTick, ref, watch, type CSSProperties } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch, type CSSProperties } from "vue";
 import { PopoverClose, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import {
   columnFilteringFeature,
@@ -17,6 +17,7 @@ import {
   useTable,
   type ColumnDef,
   type FilterFn,
+  type RowSelectionState,
   type SortFn,
 } from "@tanstack/vue-table";
 import { useVirtualizer } from "@tanstack/vue-virtual";
@@ -26,6 +27,7 @@ import EEmptyState from "../EmptyState/EEmptyState.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import EPagination from "../Pagination/EPagination.vue";
+import "../Skeleton/ESkeleton.vue";
 import ESelect from "../Select/ESelect.vue";
 import ETextField from "../TextField/ETextField.vue";
 import EDataGridResizer from "./EDataGridResizer.vue";
@@ -33,8 +35,8 @@ import "../Definition/EDefinition.vue";
 import { normalizeOptions, type EOption } from "../Select/options.js";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages, usePortalTarget } from "../../config.js";
-import { useUid } from "../../composables/useUid.js";
-import { cellValue, compareValues, filterActive, parsePx, passesFilter } from "./grid.js";
+import { useLocale } from "../../composables/useLocale.js";
+import { cellValue, compareValues, filterActive, foldText, parsePx, passesFilter } from "./grid.js";
 import type {
   DataGridColumn,
   DataGridFilterValue,
@@ -78,12 +80,16 @@ const props = withDefaults(
     virtual?: boolean | DataGridVirtual;
     /** Turns rows into cards below 40rem of the grid's own width. `virtual` and `resizable` grids keep the table. */
     cards?: boolean;
-    /** Marks the data as living on a server. The grid shows the rows given, in the order given, and reports every change through `queryChange`. */
+    /** Marks the data as living on a server. The grid shows the rows given, in the order given, and reports every change through `queryChange`, once on mount too, so the first fetch needs no code of its own. */
     manual?: boolean;
+    /** With `manual`, how many milliseconds to wait after the last keystroke in the search box before `queryChange`. Other changes report at once. */
+    searchDebounce?: number;
     /** With `manual`, how many rows there are in all. */
     total?: number;
     /** Shows placeholder rows while data loads, with `aria-busy`. */
     loading?: boolean;
+    /** How many placeholder rows `loading` shows. */
+    skeletonRows?: number;
     /** The title when there are no rows. @default "No results" */
     emptyTitle?: string;
     /** The sentence under the empty title, when there are no rows. */
@@ -93,7 +99,7 @@ const props = withDefaults(
     /** Renders a bare table for a short static list, with no toolbar, filters, paging or footer. */
     bare?: boolean;
   }>(),
-  { pageSize: 10, cards: true },
+  { pageSize: 10, cards: true, searchDebounce: 0, skeletonRows: 5 },
 );
 
 const emit = defineEmits<{
@@ -118,25 +124,14 @@ const page = defineModel<number>("page", { default: 1 });
 const search = defineModel<string>("search", { default: "" });
 /** The column filters, by column `key`: text, or `{ min, max }` strings for `number`. */
 const filters = defineModel<Record<string, DataGridFilterValue>>("filters", { default: () => ({}) });
-/** The selected row ids, kept across pages and filters. */
-const selected = defineModel<string[]>("selected", { default: () => [] });
+/** The selected row ids, as they are on the rows (numbers stay numbers), kept across pages and filters. */
+const selected = defineModel<Row["id"][]>("selected", { default: () => [] });
 
 const t = useMessages();
+const loc = useLocale();
 const portal = usePortalTarget();
 
-const uid = useUid();
 const menuOpen = ref(false);
-const menuTrigger = ref<{ $el: HTMLElement } | null>(null);
-watch(
-  menuOpen,
-  async (open) => {
-    if (!open) return;
-    await nextTick();
-    const panel = document.getElementById(menuTrigger.value?.$el?.getAttribute("aria-controls") ?? "");
-    panel?.setAttribute("aria-labelledby", `${uid.value}-columns`);
-  },
-  { flush: "post" },
-);
 
 const ALL = "__e-all__";
 const NONE = "__e-none__";
@@ -157,15 +152,42 @@ const features = tableFeatures({
 const columnVisibility = ref<Record<string, boolean>>({});
 const columnSizing = ref<Record<string, number>>({});
 
-const sortFn: SortFn<typeof features, Row> = (a, b, id) => compareValues(a.getValue(id), b.getValue(id));
+const sortFn: SortFn<typeof features, Row> = (a, b, id) =>
+  compareValues(a.getValue(id), b.getValue(id), loc.locale.value);
 type GlobalFilter = { q: string; cols: string[] };
 const globalFilterFn: FilterFn<typeof features, Row> = (row, id, f: GlobalFilter) => {
   if (!f.cols.includes(id)) return false;
   const v = row.getValue(id);
-  return v != null && String(v).toLowerCase().includes(f.q);
+  const col = colByKey.value.get(id);
+  return v != null && (foldText(v).includes(f.q) || (!!col && foldText(show(row.original, col)).includes(f.q)));
 };
 
 const colByKey = computed(() => new Map(props.columns.map((c) => [c.key, c])));
+
+// What a default cell writes: a column's `format`, else a date or a figure in the configured locale.
+const numberFormat = computed(() => {
+  try {
+    return new Intl.NumberFormat(loc.locale.value);
+  } catch {
+    return new Intl.NumberFormat();
+  }
+});
+function show(row: Row, c: DataGridColumn<Row>): string {
+  const v = cellValue(row, c);
+  if (v == null) return "";
+  const f = c.format;
+  if (typeof f === "function") return f(v, row);
+  const isNumber = typeof v === "number" && Number.isFinite(v);
+  if (f === "date" || (!f && v instanceof Date))
+    return v instanceof Date || typeof v === "string" ? fmtDate(v) : String(v);
+  if (f === "currency") return isNumber ? loc.formatMoney(v) : String(v);
+  if (f === "number" || (!f && c.numeric && isNumber)) return isNumber ? numberFormat.value.format(v) : String(v);
+  return String(v);
+}
+function fmtDate(v: Date | string): string {
+  const d = v instanceof Date ? v : new Date(v);
+  return Number.isNaN(d.getTime()) ? String(v) : loc.formatDate(d);
+}
 const columnDefs = computed<ColumnDef<typeof features, Row>[]>(() =>
   props.columns.map((c) => ({
     id: c.key,
@@ -175,7 +197,10 @@ const columnDefs = computed<ColumnDef<typeof features, Row>[]>(() =>
     sortDescFirst: false,
     sortFn,
     enableColumnFilter: !!c.filter,
-    filterFn: ((row, id, f) => passesFilter(c, row.getValue(id), f)) as FilterFn<typeof features, Row>,
+    filterFn: ((row, id, f) => passesFilter(c, row.getValue(id), f, show(row.original, c))) as FilterFn<
+      typeof features,
+      Row
+    >,
     enableResizing: c.resizable !== false,
   })),
 );
@@ -187,8 +212,16 @@ const pageSize = computed(() => (vopt.value || props.bare ? 0 : (props.pageSize 
 const paging = computed(() => pageSize.value > 0 && !props.manual);
 const resizable = computed(() => !!props.resizable && !props.bare);
 const cards = computed(() => props.cards !== false && !vopt.value && !resizable.value);
-const q = computed(() => search.value.trim().toLowerCase());
+const q = computed(() => foldText(search.value.trim()));
 const anyFilter = computed(() => Object.values(filters.value).some(filterActive));
+
+// TanStack keys selection by string. The model holds the ids as the rows have them.
+const idByKey = computed(() => new Map(props.rows.map((r) => [String(r.id), r.id as Row["id"]])));
+const selectionKeys = computed<RowSelectionState>(() =>
+  Object.fromEntries(selected.value.map((id) => [String(id), true])),
+);
+const toId = (key: string): Row["id"] =>
+  idByKey.value.get(key) ?? selected.value.find((id) => String(id) === key) ?? key;
 
 const table = useTable({
   features,
@@ -197,6 +230,8 @@ const table = useTable({
   getRowId: (row: Row) => String(row.id),
   enableMultiSort: false,
   enableSubRowSelection: false,
+  // The default asks only columns whose first value is a string or a number; a date cell is searched too.
+  getColumnCanGlobalFilter: () => true,
   autoResetPageIndex: false,
   manualSorting: computed(() => !!props.manual),
   manualFiltering: computed(() => !!props.manual),
@@ -214,7 +249,7 @@ const table = useTable({
           cols: props.columns.filter((c) => columnVisibility.value[c.key] !== false).map((c) => c.key),
         } satisfies GlobalFilter)
       : undefined,
-    rowSelection: Object.fromEntries(selected.value.map((id) => [id, true])),
+    rowSelection: selectionKeys.value,
     columnVisibility: columnVisibility.value,
     columnSizing: columnSizing.value,
     pagination: { pageIndex: Math.max(0, page.value - 1), pageSize: pageSize.value || 1 },
@@ -226,8 +261,10 @@ const table = useTable({
     page.value = 1;
   },
   onRowSelectionChange: (updater) => {
-    const next = functionalUpdate(updater, Object.fromEntries(selected.value.map((id) => [id, true])));
-    selected.value = Object.keys(next).filter((k) => next[k]);
+    const next = functionalUpdate(updater, selectionKeys.value);
+    selected.value = Object.keys(next)
+      .filter((k) => next[k])
+      .map(toId);
   },
   onColumnVisibilityChange: (updater) => {
     columnVisibility.value = functionalUpdate(updater, columnVisibility.value);
@@ -293,29 +330,43 @@ const cellProps = (row: (typeof view.value)[number], c: DataGridColumn<Row>) => 
 });
 
 const fixedLayout = computed(() => resizable.value || !!vopt.value || cols.value.some((c) => c.width));
-const stickyLeft = computed(() => (props.selectable ? 52 : 0));
 const widthOf = (c: DataGridColumn<Row>) => columnSizing.value[c.key] || parsePx(c.width) || undefined;
+const maxOf = (c: DataGridColumn<Row>) => c.maxWidth ?? Math.max(960, (parsePx(c.width) ?? 0) * 2);
+// The checkbox column is as wide as its box (which grows with the text size) plus its padding.
 const minTable = computed(
-  () => (props.selectable ? 52 : 0) + cols.value.reduce((s, c) => s + (widthOf(c) || c.minWidth || 96), 0),
+  () =>
+    `calc(${props.selectable ? "var(--_check-w)" : "0px"} + ${cols.value.reduce((s, c) => s + (widthOf(c) || c.minWidth || 96), 0)}px)`,
 );
 const stick = (i: number) => !!props.stickyFirst && i === 0;
 const stickStyle = (i: number): CSSProperties | undefined =>
-  stick(i) ? { insetInlineStart: `${stickyLeft.value}px` } : undefined;
+  stick(i) ? { insetInlineStart: props.selectable ? "var(--_check-w)" : "0px" } : undefined;
 const tableStyle = computed(
   () =>
     ({
-      tableLayout: fixedLayout.value ? "fixed" : undefined,
-      "--e-grid-min-w": fixedLayout.value ? `${minTable.value}px` : undefined,
-      "--e-row-h": vopt.value ? `${vopt.value.rowHeight}px` : undefined,
+      "--_min-w": fixedLayout.value ? minTable.value : undefined,
+      "--_row-h": vopt.value ? `${vopt.value.rowHeight}px` : undefined,
     }) as CSSProperties,
 );
+// The filter row sticks under the heading row, whatever height the text size gives it.
+const headRow = ref<HTMLElement | null>(null);
+const headH = ref<number | undefined>(undefined);
+let headObserver: ResizeObserver | undefined;
+onMounted(() => {
+  if (typeof ResizeObserver === "undefined" || !headRow.value) return;
+  headObserver = new ResizeObserver(() => (headH.value = headRow.value?.getBoundingClientRect().height));
+  headObserver.observe(headRow.value);
+});
+onBeforeUnmount(() => {
+  headObserver?.disconnect();
+  clearTimeout(queryTimer);
+});
 const scrollStyle = computed(
   () =>
-    (vopt.value
-      ? { height: `${vopt.value.height}px` }
-      : props.maxHeight
-        ? { "--e-grid-max-h": props.maxHeight }
-        : undefined) as CSSProperties | undefined,
+    ({
+      height: vopt.value ? `${vopt.value.height}px` : undefined,
+      "--_max-h": !vopt.value && props.maxHeight ? props.maxHeight : undefined,
+      "--_head-h": headH.value ? `${headH.value}px` : undefined,
+    }) as CSSProperties,
 );
 const role = (r: string) => (cards.value ? r : undefined);
 
@@ -381,7 +432,11 @@ const selectOptions = (c: DataGridColumn<Row>): EOption[] => [
   ...normalizeOptions(c.filter?.type === "select" ? c.filter.options : []),
 ];
 
-watch([sort, page, search, filters], () => {
+let queryTimer: ReturnType<typeof setTimeout> | undefined;
+let reportedSearch = search.value;
+function report() {
+  clearTimeout(queryTimer);
+  reportedSearch = search.value;
   emit("queryChange", {
     sort: sort.value,
     page: page.value,
@@ -389,6 +444,16 @@ watch([sort, page, search, filters], () => {
     search: search.value,
     filters: filters.value,
   });
+}
+watch([sort, page, search, filters], () => {
+  // Typing in the search box waits for a pause; a click on a heading or a page goes at once.
+  if (props.manual && props.searchDebounce > 0 && search.value !== reportedSearch) {
+    clearTimeout(queryTimer);
+    queryTimer = setTimeout(report, props.searchDebounce);
+  } else report();
+});
+onMounted(() => {
+  if (props.manual) report();
 });
 </script>
 
@@ -425,7 +490,7 @@ watch([sort, page, search, filters], () => {
           <EButton v-if="anyFilter || q" variant="quiet" @click="clearFilters">{{ t("clearFilters") }}</EButton>
           <PopoverRoot v-if="columnToggle" v-model:open="menuOpen">
             <PopoverTrigger as-child>
-              <EButton ref="menuTrigger" variant="outline" :aria-label="t('chooseColumns')">{{ t("columns") }}</EButton>
+              <EButton variant="outline" :aria-label="t('chooseColumns')">{{ t("columns") }}</EButton>
             </PopoverTrigger>
             <PopoverPortal :to="portal">
               <PopoverContent
@@ -436,7 +501,7 @@ watch([sort, page, search, filters], () => {
                 :collision-padding="16"
               >
                 <header class="e-pop-head">
-                  <h3 :id="`${uid}-columns`" class="e-pop-title">{{ t("showColumns") }}</h3>
+                  <h3 class="e-pop-title">{{ t("showColumns") }}</h3>
                   <PopoverClose as-child>
                     <EIconButton icon="x" :label="t('close')" />
                   </PopoverClose>
@@ -459,7 +524,7 @@ watch([sort, page, search, filters], () => {
       <div ref="scrollEl" class="e-grid-scroll" :style="scrollStyle" tabindex="0" role="region" :aria-label="caption">
         <table
           class="e-table e-gridtable"
-          :class="{ 'e-gridtable--virtual': vopt }"
+          :class="{ 'e-gridtable--virtual': vopt, 'e-gridtable--fixed': fixedLayout }"
           :style="tableStyle"
           :role="role('table')"
           :aria-busy="loading ? 'true' : undefined"
@@ -471,11 +536,11 @@ watch([sort, page, search, filters], () => {
             }}
           </caption>
           <colgroup v-if="fixedLayout">
-            <col v-if="selectable" style="width: 52px" />
+            <col v-if="selectable" style="width: var(--_check-w)" />
             <col v-for="c in cols" :key="c.key" :style="widthOf(c) ? { width: `${widthOf(c)}px` } : undefined" />
           </colgroup>
           <thead :role="role('rowgroup')">
-            <tr :role="role('row')">
+            <tr ref="headRow" :role="role('row')">
               <th v-if="selectable" scope="col" class="e-cell-check" :role="role('columnheader')">
                 <ECheckbox
                   bare
@@ -520,6 +585,7 @@ watch([sort, page, search, filters], () => {
                   :label="c.label"
                   :width="widthOf(c)"
                   :min="c.minWidth || 72"
+                  :max="maxOf(c)"
                   @resize="setWidth(c.key, $event)"
                   @reset="resetWidth(c.key)"
                 />
@@ -577,7 +643,7 @@ watch([sort, page, search, filters], () => {
           </thead>
           <tbody :role="role('rowgroup')">
             <template v-if="loading">
-              <tr v-for="n in 5" :key="`s${n}`" :role="role('row')">
+              <tr v-for="n in skeletonRows" :key="`s${n}`" :role="role('row')">
                 <td v-if="selectable" class="e-cell-check" :role="role('cell')" />
                 <td v-for="c in cols" :key="c.key" :role="role('cell')"><span class="e-skel" /></td>
               </tr>
@@ -619,7 +685,7 @@ watch([sort, page, search, filters], () => {
                   :class="{ 'e-num': c.numeric, 'e-center': c.align === 'center', 'e-sticky': stick(i) }"
                   :style="stickStyle(i)"
                 >
-                  <slot :name="`cell-${c.key}`" v-bind="cellProps(row, c)">{{ row.original[c.key] }}</slot>
+                  <slot :name="`cell-${c.key}`" v-bind="cellProps(row, c)">{{ show(row.original, c) }}</slot>
                 </td>
               </tr>
               <tr
@@ -646,10 +712,11 @@ watch([sort, page, search, filters], () => {
           v-if="pageSize > 0 && pages > 1"
           :model-value="cur"
           :page-count="pages"
+          :label="`${t('pagination')}: ${caption}`"
           @update:model-value="page = $event"
         />
       </div>
-      <span class="e-sr" role="status" aria-live="polite">{{
+      <span class="e-sr" role="status">{{
         loading
           ? t("loading")
           : (sortedCol
@@ -662,28 +729,9 @@ watch([sort, page, search, filters], () => {
 
 <style>
 @layer e.containers {
-  .e-skel {
-    display: block;
-    height: 14px;
-    border-radius: var(--e-radius-sm);
-    background-color: color-mix(in srgb, var(--e-ink) 6%, var(--e-surface));
-    animation: e-pulse 1.4s ease-in-out infinite;
-  }
-
-  @keyframes e-pulse {
-    50% {
-      opacity: 0.5;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-skel {
-      animation: none;
-    }
-  }
-
   .e-grid {
-    --e-grid-head-h: 45px;
+    --_check-w: calc(var(--e-check-size) + var(--e-space-4) + var(--e-space-3));
+    --_head-h: var(--e-control-height);
 
     isolation: isolate;
     border-radius: var(--e-radius-md);
@@ -732,7 +780,7 @@ watch([sort, page, search, filters], () => {
   }
 
   .e-grid-count {
-    font: 600 var(--e-text-xs) / 1 var(--e-font-mono);
+    font: var(--e-weight-strong) var(--e-text-xs) / 1 var(--e-font-mono);
     letter-spacing: 0.04em;
   }
 
@@ -744,7 +792,7 @@ watch([sort, page, search, filters], () => {
 
   .e-grid-scroll {
     overflow: auto;
-    max-height: var(--e-grid-max-h, none);
+    max-height: var(--_max-h, none);
   }
 
   .e-grid-scroll:focus-visible {
@@ -752,17 +800,21 @@ watch([sort, page, search, filters], () => {
     outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
+  .e-gridtable--fixed {
+    table-layout: fixed;
+  }
+
   .e-gridtable {
     border-radius: 0;
     box-shadow: none;
-    min-width: var(--e-grid-min-w, 0);
+    min-width: var(--_min-w, 0);
   }
 
   .e-gridtable thead th {
     position: sticky;
     top: 0;
     z-index: var(--e-z-raised);
-    height: var(--e-grid-head-h);
+    height: var(--_head-h);
     box-sizing: border-box;
   }
 
@@ -792,12 +844,12 @@ watch([sort, page, search, filters], () => {
 
   .e-sortbtn:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-focus-gap);
+    outline-offset: var(--e-stroke-focus);
     border-radius: var(--e-radius-sm);
   }
 
   .e-gridtable .e-cell-check {
-    width: 52px;
+    width: var(--_check-w);
     padding-inline-end: 0;
     vertical-align: middle;
   }
@@ -826,7 +878,7 @@ watch([sort, page, search, filters], () => {
   }
 
   .e-grid-range {
-    font: 500 var(--e-text-xs) / 1.2 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-xs) / 1.2 var(--e-font-mono);
     color: var(--e-muted);
     font-variant-numeric: tabular-nums;
   }
@@ -841,7 +893,7 @@ watch([sort, page, search, filters], () => {
     box-shadow: inset 0 calc(-1 * var(--e-stroke-card)) 0 var(--e-border-strong);
     border-top: 0;
     position: sticky;
-    top: var(--e-grid-head-h);
+    top: var(--_head-h);
     z-index: var(--e-z-raised);
   }
 
@@ -876,30 +928,37 @@ watch([sort, page, search, filters], () => {
     height: 100%;
     cursor: col-resize;
     touch-action: none;
+
+    --_bar-w: var(--e-stroke-hair);
+  }
+
+  .e-resizer:hover,
+  .e-resizer:focus-visible {
+    --_bar-w: calc(var(--e-stroke-focus) + var(--e-stroke-hair));
   }
 
   .e-resizer::before {
     content: "";
     position: absolute;
     inset-block: 0;
-    inset-inline: -10px;
+    inset-inline: calc(-1 * var(--e-space-2));
   }
 
   .e-resizer::after {
     content: "";
     position: absolute;
     top: 22%;
-    inset-inline-start: 11px;
-    width: var(--e-stroke-hair);
+    inset-inline-start: calc(50% - var(--_bar-w) / 2);
+    width: var(--_bar-w);
     height: 56%;
     background: var(--e-border-strong);
-    transition: width var(--e-duration-tap) var(--e-easing-out);
+    transition:
+      width var(--e-duration-tap) var(--e-easing-out),
+      inset-inline-start var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-resizer:hover::after,
   .e-resizer:focus-visible::after {
-    inset-inline-start: 10px;
-    width: 3px;
     background: var(--e-primary);
     border-radius: var(--e-radius-sm);
   }
@@ -910,8 +969,8 @@ watch([sort, page, search, filters], () => {
     border-radius: var(--e-radius-sm);
   }
 
-  .e-gridtable[style*="table-layout"] td,
-  .e-gridtable[style*="table-layout"] th {
+  .e-gridtable--fixed td,
+  .e-gridtable--fixed th {
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -940,7 +999,7 @@ watch([sort, page, search, filters], () => {
   }
 
   .e-gridtable--virtual td {
-    height: var(--e-row-h);
+    height: var(--_row-h);
     padding-block: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -950,12 +1009,6 @@ watch([sort, page, search, filters], () => {
   .e-spacer td {
     padding: 0;
     border: 0;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-resizer::after {
-      transition: none;
-    }
   }
 
   @media (forced-colors: active) {
@@ -972,10 +1025,6 @@ watch([sort, page, search, filters], () => {
     .e-resizer:hover::after,
     .e-resizer:focus-visible::after {
       background: Highlight;
-    }
-
-    .e-skel {
-      background: GrayText;
     }
   }
 
@@ -1051,7 +1100,7 @@ watch([sort, page, search, filters], () => {
       padding: var(--e-space-1) var(--e-space-4);
       border-radius: var(--e-radius-md);
       background: var(--e-surface);
-      box-shadow: var(--e-edge);
+      box-shadow: var(--e-frame);
     }
 
     .e-grid--cards .e-gridtable tbody tr:hover td {
@@ -1088,7 +1137,7 @@ watch([sort, page, search, filters], () => {
 
     .e-grid--cards .e-gridtable td::before {
       content: attr(data-label);
-      font: 600 var(--e-text-xs) / 1.3 var(--e-font-mono);
+      font: var(--e-weight-strong) var(--e-text-xs) / 1.3 var(--e-font-mono);
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--e-muted);
@@ -1125,7 +1174,7 @@ watch([sort, page, search, filters], () => {
       display: none;
     }
 
-    .e-grid--cards .e-gridtable[style*="table-layout"] td {
+    .e-grid--cards .e-gridtable--fixed td {
       overflow: visible;
       text-overflow: clip;
     }

@@ -72,6 +72,40 @@ describe("ECheckbox", () => {
     expect(container.querySelector(".e-choice-text .e-choice-desc")!.textContent).toBe("Standard rates apply");
   });
 
+  test("the description is the input's description, not part of its name", async () => {
+    await render(ECheckbox, { props: { label: "Text me", description: "Standard rates apply" } });
+    const box = page.getByRole("checkbox", { name: "Text me", exact: true });
+    await expect.element(box).toBeVisible();
+    await expect.element(box).toHaveAccessibleDescription("Standard rates apply");
+  });
+
+  test("toggling error keeps the same root and input, and focus", async () => {
+    const error = ref<string | undefined>(undefined);
+    const { container } = await render(
+      defineComponent({ render: () => h(ECheckbox, { label: "Agree", error: error.value }) }),
+    );
+    const root = container.firstElementChild;
+    const input = container.querySelector("input")!;
+    input.focus();
+    error.value = "You must agree";
+    await nextTick();
+    await expect.element(page.getByRole("alert")).toBeVisible();
+    expect(container.firstElementChild).toBe(root);
+    expect(container.querySelector("input")).toBe(input);
+    expect(document.activeElement).toBe(input);
+    error.value = undefined;
+    await nextTick();
+    expect(container.querySelector("input")).toBe(input);
+    expect(input.hasAttribute("aria-describedby")).toBe(false);
+  });
+
+  test("an indeterminate box that is clicked stays mixed while the prop says so", async () => {
+    const { container } = await render(ECheckbox, { props: { label: "All rows", indeterminate: true } });
+    await page.getByRole("checkbox", { name: "All rows" }).click();
+    await nextTick();
+    expect(container.querySelector("input")!.indeterminate).toBe(true);
+  });
+
   test("an error is linked, marks the box invalid, is announced and sits 8px under the box", async () => {
     const { container } = await render(ECheckbox, { props: { label: "Agree", error: "You must agree" } });
     container.classList.add("e-root");
@@ -121,7 +155,7 @@ describe("ECheckbox", () => {
     });
     const input = container.querySelector("input")!;
     expect(input.dataset["x"]).toBe("1");
-    expect(container.querySelector("label")!.className).toBe("e-choice mine");
+    expect(container.firstElementChild!.className).toBe("e-choice-wrap mine");
     await userEvent.tab();
     expect(events).toEqual(["focus"]);
   });

@@ -24,7 +24,17 @@ Text that is read out but not shown, for context sighted people get from layout,
 | --------- | ------------------------------------- |
 | `default` | The text that is read out, not shown. |
 
+For text outside a Vue template, or on an element you already have, use the `e-sr` class: this component renders exactly that.
+
 ## Accessibility
 
 - Never hide text a sighted person also needs, or repeat visible text.
 - Leave a space where it joins visible words (" (done)").
+
+## Keyboard
+
+Not focusable and takes no keys.
+
+## Related
+
+[`EText`](../Text/README.md) for text everyone sees.

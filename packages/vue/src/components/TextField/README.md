@@ -20,8 +20,8 @@ A labelled single-line text input with hint, error and optional unit.
 | `error`       | `string`  | None         | What to fix. Replaces the hint, marks the input invalid and is announced.       |
 | `placeholder` | `string`  | None         | An example, never the label.                                                    |
 | `type`        | `string`  | `"text"`     | The input type.                                                                 |
-| `prefix`      | `string`  | None         | A unit before the value, such as `$`. Hidden from screen readers.               |
-| `suffix`      | `string`  | None         | A unit after the value, such as `USD`. Hidden from screen readers.              |
+| `prefix`      | `string`  | None         | A unit before the value, such as `$`. Read as part of the input's description.  |
+| `suffix`      | `string`  | None         | A unit after the value, such as `USD`. Read as part of the input's description. |
 | `required`    | `boolean` | `false`      | Sets the `required` attribute and adds a word beside the label.                 |
 | `optional`    | `boolean` | `false`      | Adds a word beside the label. Use it when most fields in the form are required. |
 | `disabled`    | `boolean` | `false`      | Disables the field.                                                             |
@@ -35,4 +35,13 @@ A labelled single-line text input with hint, error and optional unit.
 ## Accessibility
 
 - Set `autocomplete` on every personal detail (`given-name`, `email`, `tel`, `postal-code`) so browsers can fill it (WCAG 1.3.5).
+- `prefix` and `suffix` are part of the input's description, so a screen reader hears "$" or "USD" after the label.
 - An `aria-describedby` of your own is joined to the hint or error id.
+
+## Keyboard
+
+Native text input keys. A click on the padding or a unit puts the cursor in the input.
+
+## Related
+
+[`ETextarea`](../Textarea/README.md) for several lines, [`ENumberField`](../NumberField/README.md) for amounts, [`ESearchBar`](../SearchBar/README.md) for searching.

@@ -3,13 +3,14 @@ export type NoticeTone = "info" | "success" | "warning" | "danger";
 </script>
 
 <script setup lang="ts">
-import { computed, getCurrentInstance } from "vue";
+import { computed } from "vue";
 import EActions from "../Actions/EActions.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages } from "../../config.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
+import "../Heading/scale.css";
 import "./notice.css";
 
 const props = withDefaults(
@@ -26,14 +27,14 @@ const props = withDefaults(
     role?: string | false;
     /** Replaces the icon of the tone. */
     icon?: IconProp;
-    /** Forces the close button on or off. Left out, it shows when a `@close` listener is attached. */
+    /** Shows the close button. Handle `@close` to remove the notice. */
     closable?: boolean;
   }>(),
-  { tone: "info", role: undefined, closable: undefined },
+  { tone: "info", role: undefined },
 );
 
 const emit = defineEmits<{
-  /** The close button was pressed. The button only shows when a listener is attached. */
+  /** The close button was pressed. */
   close: [];
 }>();
 
@@ -45,12 +46,10 @@ defineSlots<{
 }>();
 
 const t = useMessages();
-const instance = getCurrentInstance();
 const TONE_ICON: Record<NoticeTone, string> = { info: "info", success: "check", warning: "alert", danger: "alert" };
 const role = computed(() =>
   props.role === false ? undefined : props.role || (props.tone === "danger" ? "alert" : "status"),
 );
-const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
 </script>
 
 <template>
@@ -62,13 +61,13 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
     <div class="e-notice-grid">
       <span class="e-notice-icon"><EIcon :name="icon ?? TONE_ICON[tone]" /></span>
       <div class="e-notice-body">
-        <component :is="headingLevel ? `h${headingLevel}` : 'p'" :id="titleId" class="e-notice-title">
+        <component :is="headingLevel ? `h${headingLevel}` : 'p'" :id="titleId" class="e-notice-title e-h e-h4">
           {{ title }}
         </component>
         <div v-if="$slots.default" class="e-notice-text"><slot /></div>
       </div>
       <EActions v-if="$slots.actions" class="e-notice-actions"><slot name="actions" /></EActions>
-      <span v-if="hasClose()" class="e-notice-close">
+      <span v-if="closable" class="e-notice-dismiss">
         <EIconButton icon="x" :label="t('dismiss')" @click="emit('close')" />
       </span>
     </div>
@@ -78,54 +77,67 @@ const hasClose = () => props.closable ?? !!instance?.vnode.props?.onClose;
 <style>
 @layer e.containers {
   .e-notice {
-    --e-tone: var(--e-primary);
-    --e-bg: var(--e-surface-tint);
+    --e-tone: var(--e-info);
+    --_bg: var(--e-info-soft);
 
+    position: relative;
     container-type: inline-size;
-    padding: calc(var(--e-space-3) - var(--e-stroke-edge)) calc(var(--e-space-4) - var(--e-stroke-edge));
-    padding-left: calc(var(--e-space-4) - var(--e-stroke-edge) + 2 * var(--e-depth));
+    padding-block: calc(var(--e-space-3) - var(--e-stroke-edge));
+    padding-inline: calc(var(--e-space-4) - var(--e-stroke-edge) + 2 * var(--e-depth))
+      calc(var(--e-space-4) - var(--e-stroke-edge));
     border: var(--e-stroke-edge) solid var(--e-tone);
     border-radius: var(--e-radius-md);
-    background-color: var(--e-bg);
-    background-image: linear-gradient(
-      to right,
-      var(--e-tone) calc(2 * var(--e-depth)),
-      transparent calc(2 * var(--e-depth))
-    );
-    background-repeat: no-repeat;
+    background-color: var(--_bg);
     background-clip: padding-box;
     color: var(--e-ink);
   }
 
+  /* The slab on the tone's side: a solid edge in the colour of the tone. It follows the inline start, so it flips in a right-to-left page. */
+  .e-notice::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: calc(2 * var(--e-depth));
+    border-start-start-radius: calc(var(--e-radius-md) - var(--e-stroke-edge));
+    border-end-start-radius: calc(var(--e-radius-md) - var(--e-stroke-edge));
+    background: var(--e-tone);
+  }
+
   .e-notice--success {
-    --e-tone: var(--e-secondary);
-    --e-bg: var(--e-secondary-soft);
+    --e-tone: var(--e-success);
+    --_bg: var(--e-success-soft);
   }
 
   .e-notice--warning {
-    --e-tone: var(--e-warning-strong);
-    --e-bg: var(--e-warning-soft);
+    --e-tone: var(--e-warning);
+    --_bg: var(--e-warning-soft);
   }
 
   .e-notice--danger {
     --e-tone: var(--e-danger);
-    --e-bg: var(--e-danger-soft);
+    --_bg: var(--e-danger-soft);
   }
 
+  /* The size and weight come from the type scale (`e-h e-h4`). */
   .e-notice-title {
-    margin: 0;
-    font: 500 var(--e-text-lg) / calc(4 / 3) var(--e-font-sans);
+    line-height: calc(4 / 3);
   }
 
   .e-notice-text {
     margin: 0;
-    font: 400 var(--e-text-sm) / 1.45 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-sm) / 1.45 var(--e-font-sans);
     color: var(--e-ink);
   }
 
   @media (forced-colors: active) {
     .e-notice {
       border: var(--e-stroke-edge) solid CanvasText;
+    }
+
+    .e-notice::before {
+      forced-color-adjust: none;
+      background: CanvasText;
     }
   }
 }

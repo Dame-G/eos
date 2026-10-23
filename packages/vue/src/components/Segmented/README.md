@@ -20,7 +20,7 @@ A joined set of two to five options where exactly one is active. Use it to chang
 
 | Prop         | Type                            | Default        | Notes                                                                                                                        |
 | ------------ | ------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `modelValue` | `string`                        | `first option` | `v-model`: the active value.                                                                                                 |
+| `modelValue` | `string`                        | `first option` | `v-model`: the active value. Left unset, the first option that can be chosen is chosen and `v-model` is told.                |
 | `label`      | `string`                        | **Required**   | Read by screen readers as the name of the group.                                                                             |
 | `options`    | `(string \| SegmentedOption)[]` | **Required**   | Two to five. A string is both value and label. `SegmentedOption` is `{ value, label, icon?, disabled? }`.                    |
 | `hint`       | `string`                        | None           | Help under the control, linked with `aria-describedby`.                                                                      |
@@ -37,3 +37,15 @@ A joined set of two to five options where exactly one is active. Use it to chang
 
 - A radio group: arrow keys move between options.
 - `label` is the group's accessible name.
+- With no value bound it shows the first option as active and tells `v-model` so, so the model and the screen agree.
+
+## Keyboard
+
+| Key                     | Does                                                 |
+| ----------------------- | ---------------------------------------------------- |
+| Tab                     | Moves into and out of the group.                     |
+| Arrow Left, Arrow Right | Moves to the previous or next option and chooses it. |
+
+## Related
+
+[`ERadioGroup`](../RadioGroup/README.md) for options that need descriptions, [`ETabs`](../Tabs/README.md) for switching content.

@@ -1,9 +1,16 @@
-import { watch, type Ref } from "vue";
+import { onScopeDispose, watch, type Ref } from "vue";
+
+/** How long after an outside open focus is handed back, in milliseconds. */
+const STEAL_WINDOW_MS = 400;
 
 /**
  * Keeps a popup from moving focus when it is opened or closed from outside (`v-model:open`, or open from the first
  * render). A person's pointer or key on the trigger (`intent`) keeps the component's own focus management.
  * `inside` says whether an element is part of the popup's content.
+ *
+ * `undoFocusSteal` is for a popup that opens from the first render or from outside: Reka's select content takes
+ * focus on mount even when `onOpenAutoFocus` is cancelled, so for a short window any focus that lands inside the
+ * popup is handed back to the element that had it.
  */
 export function useQuietFocus(open: Ref<boolean>, inside: (el: Element) => boolean) {
   let byPerson = false;
@@ -43,13 +50,15 @@ export function useQuietFocus(open: Ref<boolean>, inside: (el: Element) => boole
       else (target as HTMLElement).blur();
     };
     document.addEventListener("focusin", onFocusIn, true);
-    const timer = setTimeout(() => stop?.(), 400);
+    const timer = setTimeout(() => stop?.(), STEAL_WINDOW_MS);
     stop = () => {
       document.removeEventListener("focusin", onFocusIn, true);
       clearTimeout(timer);
       stop = undefined;
     };
   }
+
+  onScopeDispose(() => stop?.());
 
   return { intent, personOpened, returnsFocus, undoFocusSteal };
 }

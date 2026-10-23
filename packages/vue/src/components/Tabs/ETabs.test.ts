@@ -3,6 +3,7 @@ import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ETabs from "./ETabs.vue";
+import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 const items = [
@@ -55,7 +56,7 @@ describe("ETabs", () => {
 
   test("side=end puts a vertical list on the far side of its panel, and does nothing to a horizontal row", async () => {
     const { container } = await render(ETabs, {
-      props: { items, orientation: "vertical", side: "end", framed: true },
+      props: { items, orientation: "vertical", side: "end" },
       slots,
     });
     const tab = container.querySelector("[role=tab]")!.getBoundingClientRect();
@@ -66,7 +67,7 @@ describe("ETabs", () => {
     expect(row.container.querySelector(".e-tabs")!.classList.contains("e-tabs--end")).toBe(false);
   });
 
-  test("tabs inside a vertical, framed panel keep their own plain horizontal look", async () => {
+  test("tabs inside a vertical panel keep their own horizontal look", async () => {
     const inner = () =>
       h(
         ETabs,
@@ -79,7 +80,7 @@ describe("ETabs", () => {
         { x: () => "X", y: () => "Y" },
       );
     const { container } = await render(ETabs, {
-      props: { items: [{ id: "a", label: "Outer" }], orientation: "vertical", framed: true },
+      props: { items: [{ id: "a", label: "Outer" }], orientation: "vertical" },
       slots: { a: inner },
     });
     const lists = container.querySelectorAll<HTMLElement>(".e-tablist");
@@ -211,19 +212,73 @@ describe("ETabs", () => {
     expect(root.dataset.x).toBe("1");
   });
 
-  test("a framed panel squares its top corner at the end of a row that scrolls", async () => {
-    const many = Array.from({ length: 8 }, (_, i) => ({ id: `t${i}`, label: `Section number ${i}` }));
-    const { container } = await render(ETabs, { props: { items: many, framed: true }, slots: { t0: "x" } });
-    container.classList.add("e-root");
-    const root = container.querySelector<HTMLElement>(".e-tabs")!;
-    root.style.width = "20rem";
-    await expect.poll(() => root.classList.contains("e-tabs--scrolls")).toBe(true);
-    expect(getComputedStyle(container.querySelector(".e-tabpanel")!).borderStartEndRadius).toBe("0px");
-    root.style.width = "100rem";
-    await expect.poll(() => root.classList.contains("e-tabs--scrolls")).toBe(false);
-    expect(parseFloat(getComputedStyle(container.querySelector(".e-tabpanel")!).borderStartEndRadius)).toBeGreaterThan(
-      0,
+  test("panel-<id> slots name each panel, and an id that is also a slot name does not collide", async () => {
+    const odd = [
+      { id: "panel", label: "Panel" },
+      { id: "default", label: "Default" },
+    ];
+    await render(ETabs, {
+      props: { items: odd },
+      slots: { "panel-panel": () => "Own panel", "panel-default": () => "Own default", panel: () => "Fallback" },
+    });
+    await expect.element(page.getByRole("tabpanel")).toHaveTextContent("Own panel");
+    await page.getByRole("tab", { name: "Default" }).click();
+    await expect.element(page.getByRole("tabpanel")).toHaveTextContent("Own default");
+  });
+
+  test("a disabled item is dimmed, cannot be chosen and is skipped by the arrow keys", async () => {
+    const withOff = [
+      { id: "a", label: "One" },
+      { id: "b", label: "Two", disabled: true },
+      { id: "c", label: "Three" },
+    ];
+    const model = ref("a");
+    await render(
+      defineComponent({
+        render: () =>
+          h(
+            ETabs,
+            { items: withOff, modelValue: model.value, "onUpdate:modelValue": (v?: string) => (model.value = v!) },
+            slots,
+          ),
+      }),
     );
+    const two = page.getByRole("tab", { name: "Two" });
+    await expect.element(two).toBeDisabled();
+    await page.getByRole("tab", { name: "One" }).click();
+    await userEvent.keyboard("{ArrowRight}");
+    expect(model.value).toBe("c");
+  });
+
+  test("the first tab that can be chosen is selected when the first is disabled", async () => {
+    await render(ETabs, {
+      props: {
+        items: [
+          { id: "a", label: "One", disabled: true },
+          { id: "b", label: "Two" },
+        ],
+      },
+      slots: { "panel-a": () => "A", "panel-b": () => "B" },
+    });
+    await expect.element(page.getByRole("tabpanel")).toHaveTextContent("B");
+  });
+
+  test("a configured right-to-left direction reverses the arrow keys without reading the document", async () => {
+    const model = ref("a");
+    await render(
+      defineComponent({
+        render: () =>
+          h(
+            ETabs,
+            { items, modelValue: model.value, "onUpdate:modelValue": (v?: string) => (model.value = v!) },
+            slots,
+          ),
+      }),
+      { global: { plugins: [createEos({ dir: "rtl", themeTarget: null })] } },
+    );
+    await page.getByRole("tab", { name: "One" }).click();
+    await userEvent.keyboard("{ArrowLeft}");
+    expect(model.value).toBe("b");
   });
 
   test("axe finds nothing, with the first and another tab selected", async () => {

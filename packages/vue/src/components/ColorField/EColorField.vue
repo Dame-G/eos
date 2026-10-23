@@ -23,11 +23,15 @@ const props = defineProps<{
   optional?: boolean;
   /** Disables the field. */
   disabled?: boolean;
+  /** Keeps the value but stops it being changed. The text box can still be focused and selected. */
+  readonly?: boolean;
+  /** The name submitted with a form: the normalised `#rrggbb`, or empty when the text is not a colour. */
+  name?: string;
   /** The `id` of the text input, which the label points at. @default generated */
   id?: string;
 }>();
 
-/** `#rrggbb`, lower case. Only complete, valid colours are written. `#abc` expands to `#aabbcc`. */
+/** `#rrggbb`, lower case. Only complete, valid colours are written, and clearing the text writes an empty string. `#abc` expands to `#aabbcc`. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
@@ -52,12 +56,17 @@ const invalid = computed(() => touched.value && text.value.trim() !== "" && norm
 const shownError = computed(
   () => props.error || (invalid.value ? t("colorInvalid", { example: t("colorPlaceholder") }) : undefined),
 );
+// An <input type="color"> always has a value, so an empty field gives it black and an overlay hides that.
 const swatch = computed(() => normalize(model.value) ?? "#000000");
+const empty = computed(() => normalize(model.value) === null);
+const submitted = computed(() => normalize(text.value) ?? "");
 
 function onText(e: Event) {
+  if (props.readonly) return;
   text.value = (e.target as HTMLInputElement).value;
   const hex = normalize(text.value);
   if (hex) model.value = hex;
+  else if (text.value.trim() === "") model.value = "";
 }
 
 function onBlur() {
@@ -67,7 +76,7 @@ function onBlur() {
 }
 
 function onWrapClick(e: MouseEvent) {
-  if (e.target !== swatchEl.value && !props.disabled) input.value?.focus();
+  if (!(e.target as Element).closest(".e-color-swatch-box") && !props.disabled) input.value?.focus();
 }
 
 function onPick(e: Event) {
@@ -98,17 +107,22 @@ defineExpose({
         class="e-input-wrap e-colorfield"
         :data-invalid="shownError ? '' : undefined"
         :data-disabled="disabled ? '' : undefined"
+        :data-readonly="readonly ? '' : undefined"
         @click="onWrapClick"
       >
-        <input
-          ref="swatchEl"
-          class="e-color-swatch"
-          type="color"
-          :value="swatch"
-          :disabled="disabled"
-          :aria-label="t('pickColor')"
-          @input="onPick"
-        />
+        <span class="e-color-swatch-box">
+          <input
+            ref="swatchEl"
+            class="e-color-swatch"
+            type="color"
+            :value="swatch"
+            :disabled="disabled || readonly"
+            :aria-label="t('pickColor')"
+            @input="onPick"
+          />
+          <span v-if="empty" class="e-color-empty" aria-hidden="true"></span>
+        </span>
+        <input v-if="name" type="hidden" :name="name" :value="submitted" :disabled="disabled" />
         <input
           :id="field.id"
           ref="input"
@@ -121,6 +135,7 @@ defineExpose({
           :value="text"
           :disabled="disabled"
           :required="required"
+          :readonly="readonly"
           :aria-invalid="field.ariaInvalid"
           v-bind="attrs.input(field.ariaDescribedby)"
           @input="onText"
@@ -137,6 +152,30 @@ defineExpose({
     align-items: center;
     gap: var(--e-space-2);
     padding-inline-start: var(--e-space-1);
+  }
+
+  .e-color-swatch-box {
+    display: inline-grid;
+    flex: none;
+  }
+
+  .e-color-swatch-box > * {
+    grid-area: 1 / 1;
+  }
+
+  /* No colour yet: a neutral struck-through chip over the picker's black, which still opens on click. */
+  .e-color-empty {
+    border-radius: var(--e-radius-sm);
+    background:
+      linear-gradient(
+        to top right,
+        transparent calc(50% - var(--e-stroke-hair)),
+        var(--e-border-strong) 50%,
+        transparent calc(50% + var(--e-stroke-hair))
+      ),
+      var(--e-skeleton);
+    box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
+    pointer-events: none;
   }
 
   .e-color-swatch {
@@ -166,7 +205,11 @@ defineExpose({
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 
-  .e-color-swatch:disabled {
+  .e-colorfield[data-readonly] .e-color-swatch {
+    cursor: default;
+  }
+
+  .e-colorfield:not([data-readonly]) .e-color-swatch:disabled {
     cursor: not-allowed;
     outline: var(--e-stroke-hair) dashed var(--e-muted);
     outline-offset: calc(-1 * var(--e-stroke-hair));

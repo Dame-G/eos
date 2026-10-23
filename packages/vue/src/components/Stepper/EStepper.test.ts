@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { defineComponent, h } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EStepper from "./EStepper.vue";
@@ -61,19 +62,21 @@ describe("EStepper", () => {
     expect(dots[0]!.backgroundColor).not.toBe(dots[3]!.backgroundColor);
   });
 
-  test("steps sit in a row on a wide container and stack with connector lines on a phone", async () => {
-    await page.viewport(1024, 768);
-    try {
-      const { container } = await render(EStepper, { props: { steps } });
-      const lis = [...container.querySelectorAll<HTMLElement>("li")];
-      expect(lis[1]!.getBoundingClientRect().top).toBe(lis[0]!.getBoundingClientRect().top);
-      await page.viewport(375, 700);
-      expect(lis[1]!.getBoundingClientRect().top).toBeGreaterThan(lis[0]!.getBoundingClientRect().bottom - 1);
-      expect(getComputedStyle(lis[1]!, "::before").display).toBe("block");
-      expect(getComputedStyle(lis[0]!, "::before").display).toBe("none");
-    } finally {
-      await page.viewport(1024, 768);
-    }
+  test("steps sit in a row in a wide container and stack with connector lines in a narrow one, whatever the viewport", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () => h("div", { id: "box", style: { width: "600px" } }, [h(EStepper, { steps })]),
+      }),
+    );
+    const box = container.querySelector<HTMLElement>("#box")!;
+    const lis = [...container.querySelectorAll<HTMLElement>("li")];
+    expect(lis[1]!.getBoundingClientRect().top).toBe(lis[0]!.getBoundingClientRect().top);
+    box.style.width = "300px";
+    await expect
+      .poll(() => lis[1]!.getBoundingClientRect().top > lis[0]!.getBoundingClientRect().bottom - 1)
+      .toBe(true);
+    expect(getComputedStyle(lis[1]!, "::before").display).toBe("block");
+    expect(getComputedStyle(lis[0]!, "::before").display).toBe("none");
   });
 
   test("class and attributes fall through to the list", async () => {

@@ -29,3 +29,11 @@ The path to the current page, two or more levels deep. It is never the only way 
 
 - A `nav` landmark named "Breadcrumb" (message `breadcrumb`) holding an ordered list.
 - The last item has `aria-current="page"`.
+
+## Keyboard
+
+No custom keyboard behavior. Each link is a tab stop, and the current page is plain text.
+
+## Related
+
+[`ENavList`](../NavList/README.md) for the navigation of a whole site, [`EPagination`](../Pagination/README.md) for moving through pages of one list.

@@ -23,4 +23,13 @@ A placeholder block shown while content loads. Size it like what is coming.
 
 ## Accessibility
 
-- `role="status"` and `aria-busy="true"`, with screen-reader text "Loading".
+- Hidden from assistive technology (`aria-hidden="true"`), so a page of placeholders adds no live-region noise. Mark the region that is loading with `aria-busy="true"` or announce the result with `useAnnouncer()`.
+- The pulse stops under reduced motion.
+
+## Keyboard
+
+Not focusable and takes no keys.
+
+## Related
+
+[`ESpinner`](../Spinner/README.md) for a single wait, [`EProgress`](../Progress/README.md) for a known fraction.

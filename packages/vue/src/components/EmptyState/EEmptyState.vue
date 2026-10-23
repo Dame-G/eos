@@ -2,6 +2,7 @@
 import EIcon from "../Icon/EIcon.vue";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
+import "../Heading/scale.css";
 
 withDefaults(
   defineProps<{
@@ -28,7 +29,7 @@ defineSlots<{
 <template>
   <div class="e-empty" :class="bare && 'e-empty--bare'">
     <span v-if="icon" class="e-empty-icon"><EIcon :name="icon" /></span>
-    <component :is="`h${headingLevel}`" class="e-empty-title">{{ title }}</component>
+    <component :is="`h${headingLevel}`" class="e-empty-title e-h e-h3">{{ title }}</component>
     <p v-if="$slots.default" class="e-empty-text"><slot /></p>
     <slot name="action" />
   </div>
@@ -40,7 +41,8 @@ defineSlots<{
     display: grid;
     justify-items: center;
     gap: var(--e-space-2);
-    padding: var(--e-space-8) var(--e-space-4);
+    padding-block: var(--e-space-8);
+    padding-inline: var(--e-space-4);
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     border-radius: var(--e-radius-md);
@@ -59,19 +61,15 @@ defineSlots<{
   }
 
   .e-empty-icon .e-icon {
-    width: 40px;
-    height: 40px;
-  }
-
-  .e-empty-title {
-    margin: 0;
-    font: 500 var(--e-text-xl) / 1.25 var(--e-font-sans);
+    width: var(--e-icon-size-lg);
+    height: var(--e-icon-size-lg);
   }
 
   .e-empty-text {
-    margin: 0 0 var(--e-space-2);
+    margin: 0;
+    margin-block-end: var(--e-space-2);
     max-width: 38ch;
-    font: 400 var(--e-text-md) / 1.5 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.5 var(--e-font-sans);
     color: var(--e-muted);
   }
 

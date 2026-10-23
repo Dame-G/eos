@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import "../../styles/base.css";
 
-const props = defineProps<{
+defineProps<{
   /** Renders a `code` element in the mono font, for a name, value or snippet inside a sentence. Without it the element is a `mark`, for a word worth noticing. */
   code?: boolean;
   /** A CSS colour drawn as a square after the text, for a colour value such as `#2c95b4`. The square is decoration, so put the value itself in the text. */
@@ -15,20 +15,12 @@ defineSlots<{
 </script>
 
 <template>
-  <code v-if="code" class="e-highlight e-highlight--code"
-    ><slot /><span
-      v-if="props.swatch"
-      class="e-highlight-swatch"
-      :style="{ '--e-swatch': props.swatch }"
-      aria-hidden="true"
-  /></code>
-  <mark v-else class="e-highlight"
-    ><slot /><span
-      v-if="props.swatch"
-      class="e-highlight-swatch"
-      :style="{ '--e-swatch': props.swatch }"
-      aria-hidden="true"
-  /></mark>
+  <!-- The text and the swatch touch the tags: any whitespace would show as a space in the sentence. -->
+  <!-- eslint-disable vue/multiline-html-element-content-newline -->
+  <component :is="code ? 'code' : 'mark'" class="e-highlight" :class="code && 'e-highlight--code'"
+    ><slot /><span v-if="swatch" class="e-highlight-swatch" :style="{ '--_swatch': swatch }" aria-hidden="true"
+  /></component>
+  <!-- eslint-enable vue/multiline-html-element-content-newline -->
 </template>
 
 <style>
@@ -38,7 +30,7 @@ defineSlots<{
     background: color-mix(in srgb, var(--e-secondary) 12%, transparent);
     box-decoration-break: clone;
     color: var(--e-secondary);
-    font-weight: 600;
+    font-weight: var(--e-weight-strong);
   }
 
   /* Inside a link the highlight gives way to the link: its colour, an underline, no tint. */
@@ -59,8 +51,8 @@ defineSlots<{
     margin-inline-start: 0.4em;
     border-radius: 0.2em;
     box-sizing: border-box;
-    border: var(--e-stroke-hair) solid color-mix(in srgb, var(--e-ink) 30%, transparent);
-    background: var(--e-swatch);
+    border: var(--e-stroke-hair) solid var(--e-wash-ring);
+    background: var(--_swatch);
     background-clip: padding-box;
     vertical-align: -0.08em;
   }
@@ -72,9 +64,13 @@ defineSlots<{
 
   @media (forced-colors: active) {
     .e-highlight {
-      forced-color-adjust: none;
+      background: Mark;
+      color: MarkText;
+    }
+
+    .e-highlight--code {
       background: transparent;
-      color: Highlight;
+      color: CanvasText;
     }
 
     .e-highlight-swatch {

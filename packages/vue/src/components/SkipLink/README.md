@@ -29,5 +29,16 @@ A link, hidden until focused, that lets keyboard users jump past navigation to t
 ## Accessibility
 
 - Make it the first tab stop on the page. Use one per page.
-- Give the target `tabindex="-1"` so it can take focus. The link moves focus there on click.
+- The link moves focus to the target on click. A target without a `tabindex` gets `tabindex="-1"` until it loses focus, but give it one anyway so the in-page jump works before scripts run.
 - Do not hide it with `display: none` or `visibility: hidden`, which remove it from the tab order.
+
+## Keyboard
+
+| Key   | Does                                          |
+| ----- | --------------------------------------------- |
+| Tab   | Shows the link when it is the first tab stop. |
+| Enter | Moves focus to the target.                    |
+
+## Related
+
+[`EAppShell`](../AppShell/README.md) renders one for you.

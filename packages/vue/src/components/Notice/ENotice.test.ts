@@ -65,7 +65,7 @@ describe("ENotice", () => {
     const { container } = await render(ENotice, { props: { title: "Closure", headingLevel: 3, titleId: "closure" } });
     const h3 = container.querySelector("h3")!;
     expect(h3.id).toBe("closure");
-    expect(h3.className).toBe("e-notice-title");
+    expect(h3.classList.contains("e-notice-title")).toBe(true);
     await expect.element(page.getByRole("heading", { level: 3, name: "Closure" })).toBeVisible();
   });
 
@@ -75,18 +75,18 @@ describe("ENotice", () => {
     expect(container.querySelector("h1,h2,h3,h4,h5,h6")).toBeNull();
   });
 
-  test("the close button shows only when someone listens, and emits close", async () => {
-    const none = await render(ENotice, { props: { title: "x" } });
-    expect(none.container.querySelector(".e-notice-close")).toBeNull();
+  test("the close button shows only when closable, and emits close", async () => {
+    const none = await render(ENotice, { props: { title: "x", onClose: () => {} } });
+    expect(none.container.querySelector(".e-notice-dismiss")).toBeNull();
     let got = 0;
-    await render(ENotice, { props: { title: "x", onClose: () => got++ } });
+    await render(ENotice, { props: { title: "x", closable: true, onClose: () => got++ } });
     await page.getByRole("button", { name: "Dismiss" }).click();
     expect(got).toBe(1);
   });
 
   test("the close button works from the keyboard", async () => {
     let got = 0;
-    await render(ENotice, { props: { title: "x", onClose: () => got++ } });
+    await render(ENotice, { props: { title: "x", closable: true, onClose: () => got++ } });
     await userEvent.tab();
     await userEvent.keyboard("{Enter}");
     expect(got).toBe(1);
@@ -124,7 +124,7 @@ describe("ENotice", () => {
   });
 
   test("actions follow the message in reading and tab order", async () => {
-    await render(ENotice, { props: { title: "x", onClose: () => {} }, slots: { actions } });
+    await render(ENotice, { props: { title: "x", closable: true }, slots: { actions } });
     await userEvent.tab();
     expect(document.activeElement!.textContent).toBe("Sign");
     await userEvent.tab();
@@ -146,7 +146,7 @@ describe("ENotice", () => {
   test("axe finds nothing in any tone, with actions and a close button", async () => {
     for (const tone of ["info", "success", "warning", "danger"] as const) {
       const { container } = await render(ENotice, {
-        props: { title: "Heads up", tone, onClose: () => {}, headingLevel: 2 },
+        props: { title: "Heads up", tone, closable: true, headingLevel: 2 },
         slots: { default: "Something to know.", actions },
       });
       container.classList.add("e-root");
@@ -154,22 +154,31 @@ describe("ENotice", () => {
     }
   });
 
-  test("Dismiss: a listener added after mount makes the button appear; the prop forces it", async () => {
-    const on = Vue.ref(false);
-    const forced = Vue.ref<boolean | undefined>(undefined);
+  test("closable is reactive and the button sits in the dismiss slot", async () => {
+    const closable = Vue.ref(false);
     const { container } = await render(
       Vue.defineComponent({
-        render: () =>
-          Vue.h(ENotice, { title: "x", closable: forced.value, ...(on.value ? { onClose: () => {} } : {}) }),
+        render: () => Vue.h(ENotice, { title: "x", closable: closable.value }),
       }),
     );
-    expect(container.querySelector(".e-notice-close")).toBeNull();
-    on.value = true;
-    await expect.poll(() => container.querySelector(".e-notice-close")).not.toBeNull();
-    forced.value = false;
-    await expect.poll(() => container.querySelector(".e-notice-close")).toBeNull();
-    on.value = false;
-    forced.value = true;
-    await expect.poll(() => container.querySelector(".e-notice-close")).not.toBeNull();
+    expect(container.querySelector(".e-notice-dismiss")).toBeNull();
+    closable.value = true;
+    await expect.poll(() => container.querySelector(".e-notice-dismiss")).not.toBeNull();
+    closable.value = false;
+    await expect.poll(() => container.querySelector(".e-notice-dismiss")).toBeNull();
+  });
+
+  test("the accent stripe sits on the inline start and flips in a right-to-left page", async () => {
+    const { container } = await render(ENotice, { props: { title: "x", tone: "success" } });
+    container.classList.add("e-root");
+    const notice = container.querySelector<HTMLElement>(".e-notice")!;
+    const stripe = () => getComputedStyle(notice, "::before");
+    expect(stripe().insetInlineStart).toBe("0px");
+    const body = notice.getBoundingClientRect();
+    const ltrIcon = container.querySelector(".e-notice-icon")!.getBoundingClientRect();
+    notice.dir = "rtl";
+    const rtlIcon = container.querySelector(".e-notice-icon")!.getBoundingClientRect();
+    expect(ltrIcon.left - body.left).toBeLessThan(body.right - ltrIcon.right);
+    expect(body.right - rtlIcon.right).toBeLessThan(rtlIcon.left - body.left);
   });
 });

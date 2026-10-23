@@ -53,12 +53,15 @@
     "build": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vite build && node scripts/gen-llms.mjs",
     "typecheck": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vue-tsc --noEmit -p tsconfig.json",
     "test": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vitest run",
+    "dev": "node ../tokens/scripts/build.mjs && node scripts/gen-index.mjs && vite build --watch",
     "test:watch": "vitest",
+    "check": "pnpm check:css && pnpm check:layers && pnpm check:props && pnpm check:docs",
     "check:css": "node scripts/check-css.mjs",
     "check:layers": "node scripts/check-layers.mjs",
     "gen:props": "node scripts/gen-props.mjs",
     "check:props": "node scripts/gen-props.mjs --check",
     "check:docs": "node scripts/check-docs.mjs",
+    "check:dist": "node scripts/check-dist.mjs",
     "check:package": "publint --pack npm --strict && attw --pack . --profile esm-only --entrypoints . ./resolver ./icons ./icons/iconify"
   },
   "peerDependencies": {

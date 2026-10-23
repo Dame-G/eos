@@ -67,17 +67,83 @@ describe("EPagination", () => {
 
   test("without v-model it keeps its own page, starting at 1", async () => {
     const { container } = await render(EPagination, { props: { pageCount: 3 } });
-    await expect.element(page.getByRole("button", { name: "Previous" })).toBeDisabled();
+    await expect.element(page.getByRole("button", { name: "Previous" })).toHaveAttribute("aria-disabled", "true");
     await page.getByRole("button", { name: "Next" }).click();
     expect(container.querySelector(".e-page[aria-current=page]")!.textContent!.trim()).toBe("2");
   });
 
-  test("Previous is disabled on the first page and Next on the last", async () => {
+  test("Previous is aria-disabled on the first page and Next on the last", async () => {
     await render(EPagination, { props: { modelValue: 1, pageCount: 3 } });
-    await expect.element(page.getByRole("button", { name: "Previous" })).toBeDisabled();
-    await expect.element(page.getByRole("button", { name: "Next" })).not.toBeDisabled();
+    await expect.element(page.getByRole("button", { name: "Previous" })).toHaveAttribute("aria-disabled", "true");
+    await expect.element(page.getByRole("button", { name: "Next" })).not.toHaveAttribute("aria-disabled");
     await render(EPagination, { props: { modelValue: 3, pageCount: 3 } });
-    await expect.element(page.getByRole("button", { name: "Next" }).last()).toBeDisabled();
+    await expect.element(page.getByRole("button", { name: "Next" }).last()).toHaveAttribute("aria-disabled", "true");
+  });
+
+  test("pressing Next on the way to the last page keeps focus on Next", async () => {
+    const { container } = await render(EPagination, { props: { pageCount: 2 } });
+    const next = container.querySelectorAll<HTMLButtonElement>(".e-btn")[1]!;
+    next.focus();
+    await userEvent.keyboard("{Enter}");
+    expect(container.querySelector(".e-page[aria-current=page]")!.textContent!.trim()).toBe("2");
+    expect(next.getAttribute("aria-disabled")).toBe("true");
+    expect(document.activeElement).toBe(next);
+    await userEvent.keyboard("{Enter}");
+    expect(container.querySelector(".e-page[aria-current=page]")!.textContent!.trim()).toBe("2");
+  });
+
+  test("a page outside the range is moved to the nearest page", async () => {
+    const model = ref(99);
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(EPagination, {
+            modelValue: model.value,
+            pageCount: 5,
+            "onUpdate:modelValue": (p: number) => (model.value = p),
+          }),
+      }),
+    );
+    expect(model.value).toBe(5);
+    model.value = -3;
+    await expect.poll(() => model.value).toBe(1);
+    expect(container.querySelector(".e-page[aria-current=page]")!.textContent!.trim()).toBe("1");
+  });
+
+  test("with no pages both steps dim and there is no page list", async () => {
+    const { container } = await render(EPagination, { props: { pageCount: 0 } });
+    expect(container.querySelectorAll(".e-pages li").length).toBe(0);
+    expect(container.querySelector(".e-pager-status")).toBeNull();
+    for (const b of container.querySelectorAll(".e-btn")) expect(b.getAttribute("aria-disabled")).toBe("true");
+  });
+
+  test("a narrow pager shows Page X of N instead of the page list", async () => {
+    const { container } = await render(EPagination, { props: { modelValue: 3, pageCount: 12 } });
+    container.classList.add("e-root");
+    container.style.width = "20rem";
+    const status = container.querySelector<HTMLElement>(".e-pager-status")!;
+    expect(status.textContent).toBe("Page 3 of 12");
+    expect(getComputedStyle(status).display).not.toBe("none");
+    expect(getComputedStyle(container.querySelector(".e-pages")!).display).toBe("none");
+    container.style.width = "40rem";
+    expect(getComputedStyle(status).display).toBe("none");
+    expect(getComputedStyle(container.querySelector(".e-pages")!).display).toBe("flex");
+  });
+
+  test("a page change is announced", async () => {
+    await render(EPagination, { props: { pageCount: 5 } });
+    await page.getByRole("button", { name: "Page 2" }).click();
+    const live = document.querySelector("[data-e-announcer=polite]")!;
+    await expect.poll(() => live.textContent).toContain("Page 2 of 5");
+  });
+
+  test("href makes the pages and steps links", async () => {
+    const { container } = await render(EPagination, {
+      props: { modelValue: 2, pageCount: 3, href: (n: number) => `/list?page=${n}` },
+    });
+    expect(container.querySelector<HTMLAnchorElement>("a.e-page")!.getAttribute("href")).toBe("/list?page=1");
+    const links = [...container.querySelectorAll("a.e-btn")].map((a) => a.getAttribute("href"));
+    expect(links).toEqual(["/list?page=1", "/list?page=3"]);
   });
 
   test("shows the first, last and neighbouring pages with gaps", async () => {
@@ -109,6 +175,8 @@ describe("EPagination", () => {
           }),
       }),
     );
+    await userEvent.tab();
+    await expect.element(page.getByRole("button", { name: "Previous" })).toHaveFocus();
     await userEvent.tab();
     await expect.element(page.getByRole("button", { name: "Page 1" })).toHaveFocus();
     await userEvent.tab();

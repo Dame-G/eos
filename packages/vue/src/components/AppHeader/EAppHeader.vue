@@ -12,7 +12,7 @@ defineSlots<{
   logo?(): unknown;
   /** The person's menu or a sign-in Button, at the end of the bar. */
   actions?(): unknown;
-  /** The navigation, such as an `ENavList`. It sits on its own row and scrolls sideways when it does not fit. */
+  /** The navigation, such as an `ENavList`. It sits on its own row. A list of links wraps when it does not fit, and anything that cannot wrap scrolls sideways. */
   default?(): unknown;
 }>();
 </script>
@@ -55,7 +55,7 @@ defineSlots<{
     display: flex;
     align-items: center;
     min-width: 0;
-    font: 600 var(--e-text-xl) / 1.2 var(--e-font-sans);
+    font: var(--e-weight-strong) var(--e-text-xl) / 1.2 var(--e-font-sans);
   }
 
   .e-appheader-logo a {
@@ -65,7 +65,7 @@ defineSlots<{
 
   .e-appheader-logo a:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-focus-gap);
+    outline-offset: var(--e-stroke-focus);
     border-radius: var(--e-radius-sm);
   }
 
@@ -76,11 +76,9 @@ defineSlots<{
   }
 
   .e-appheader-nav {
-    padding: 0 var(--e-space-4);
     border-top: var(--e-stroke-hair) solid var(--e-border);
     overflow-x: auto;
     padding-block: var(--e-space-2);
-    padding-inline: 0;
   }
 
   @media print {

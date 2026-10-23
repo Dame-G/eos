@@ -13,17 +13,30 @@ packages/vue      @eos-ui/vue      components, plugin, composables
 corepack enable           # or install pnpm 12
 pnpm install
 pnpm build                # builds tokens, then the Vue package
-pnpm test                 # real-browser tests (Chromium in CI, Edge locally)
+pnpm dev                  # watch-builds the library (see Developing against the docs site)
+pnpm test                 # real-browser tests (Chromium in CI; Edge locally if installed, else Chromium)
+pnpm check                # CSS rules, layers, props tables, README links (CI runs it)
 pnpm lint                 # eslint and stylelint
 pnpm format:check         # prettier (run `pnpm format` to fix)
 pnpm knip                 # unused files, exports and dependencies
 pnpm typecheck
-pnpm check:package        # package exports and types (needs a build)
-pnpm check:size           # stylesheet and JavaScript size budgets (needs a build)
+pnpm check:built          # package exports and types, size budgets, built stylesheet (needs a build)
 pnpm smoke                # builds, packs and installs both packages in a temporary app
 ```
 
-Node 22 or later is required.
+Node 22 or later is required. CI runs the tests on Node 22 and 24.
+
+### Developing against the docs site
+
+There is no playground in this repository: the docs site (`Dame-G/eos-site`, checked out beside this repo, or anywhere with `EOS_DIR` set to this checkout) is the playground. It links `@eos-ui/vue` to `packages/vue`, so it reads the built `dist`. Run `pnpm dev` here (it builds the tokens, regenerates `src/index.ts` and runs `vite build --watch`), and run the site's dev server beside it. Edits to a component rebuild `dist` and the site reloads. After adding or removing a component folder, restart `pnpm dev` so `index.ts` is regenerated.
+
+### Browsers
+
+Tests run in Chromium. Locally the Chromium tests use the installed Microsoft Edge when there is one (no download) and Playwright's Chromium otherwise (`pnpm --filter @eos-ui/vue exec playwright install chromium`). Set `EOS_BROWSER_CHANNEL` to `chrome`, `msedge` or `chromium` to choose. `EOS_BROWSERS=chromium,firefox,webkit pnpm test` runs the suite in all three engines (install them with `playwright install firefox webkit`). CI runs that nightly and on demand in a job that does not block pull requests.
+
+### Size
+
+`pnpm check:size` compares the gzipped `style.css`, `index.js` and all JavaScript with the budgets in `scripts/size.mjs` and prints each one's headroom. A budget is the current size plus about 3%. All CSS ships as one file, so every component's CSS is paid for by every consumer: reuse tokens and shared rules, avoid repeating a rule set across components, and do not add a dependency for something small. If a deliberate change needs more, raise the limit in the same pull request and say why in its description. Per-component CSS files are not offered; consumers who need a smaller stylesheet are a reason to revisit that, not to loosen the budget.
 
 While working on one component, run from `packages/vue` (these need `pnpm build` or `pnpm test` to have generated the tokens once):
 
@@ -116,9 +129,15 @@ There are no look variants. A component has one good default. If two looks are b
   A component uses only components of its own layer or an earlier one.
 
 - `import "../../styles/base.css";` at the top of the script.
-- Draw a stroke once. A `border`, or a `box-shadow` ring (`var(--e-edge)`, `var(--e-float)`, `inset 0 0 0 <width> <colour>`), is the whole stroke: do not lay an identical `outline` over it, because the antialiased pixels on the curve are then painted twice and every rounded corner looks heavier than its straight edges. Keep `--e-stroke-edge` a whole pixel so border and ring agree in every browser. Depth (a raised slab) is an offset `box-shadow: 0 var(--e-depth) 0 0 <colour>` under a face that is shorter by the same amount, never a thicker border on one side, which tapers round the corner.
+- Draw a stroke once. A `border`, or a `box-shadow` ring (`var(--e-frame)`, `var(--e-float)`, `inset 0 0 0 <width> <colour>`), is the whole stroke: do not lay an identical `outline` over it, because the antialiased pixels on the curve are then painted twice and every rounded corner looks heavier than its straight edges. Keep `--e-stroke-edge` a whole pixel so border and ring agree in every browser. Depth (a raised slab) is an offset `box-shadow: 0 var(--e-depth) 0 0 <colour>` under a face that is shorter by the same amount, never a thicker border on one side, which tapers round the corner.
 - Values come from tokens (`var(--e-space-4)`). A raw colour, size or duration means a missing token, which you add to `packages/tokens/src/tokens.json` with a usage note. Logical properties only (`margin-inline-start`).
 - Space belongs to the parent: a component sets no outer margin. Layout that depends on the component's own width uses container queries, not viewport media queries.
+- **Private custom properties are `--_name`.** `--e-*` is the public contract: tokens from `tokens.json`, which a theme or a consumer may set. A property a component uses to pass a value between its own rules (a fill, a gap, a slab colour) starts with an underscore: `--_fill`, `--_slab`, `--_gap`. It is declared on the component's own selector, never on `:root`, and nothing outside the component reads it. Some older components still use `--e-gap`, `--e-min`, `--e-over`, `--e-chars`, `--e-swatch`, `--e-xrow-lead`, `--e-row-h`, `--e-grid-*`, `--e-table-max-h` and `--e-shell-*`; rename them to `--_*` when you touch the component.
+- **Motion.** Use `--e-duration-tap` and `--e-duration-move` for state changes: the theme CSS sets both to 0.01ms under `prefers-reduced-motion`, so a transition needs no media query of its own. A looping animation (a skeleton pulse, a spinner, an indeterminate bar) uses `--e-duration-loop` or `--e-duration-spin` with `--e-easing-standard` or `--e-easing-linear`, and sets `animation: none` itself under `prefers-reduced-motion`, because a loop at 0.01ms would flicker.
+- **Print.** The theme CSS makes `ink`, the borders and the grounds black and white under `@media print`. A component only hides what should not print and drops its shadow; it does not write print colours.
+- **Weights and sizes.** `font-weight` is `var(--e-weight-regular | medium | strong)` (400, 500, 600; there is no 700). An icon, a checkbox or an avatar is sized with `--e-icon-size`, `--e-icon-size-sm`, `--e-icon-size-md`, `--e-icon-size-lg`, `--e-check-size`, `--e-avatar-size-sm` or `--e-avatar-size-lg`, so it grows with `textScale`.
+- **A fill and its states** use the tone tokens, not a `color-mix()` of your own: `--e-<tone>`, `--e-<tone>-hover`, `--e-<tone>-press`, `--e-<tone>-slab` for `primary`, `secondary` and `danger`; `--e-<tone>-soft` for the backdrop of `success`, `info`, `warning` and `danger`; `--e-wash-hover`, `--e-wash-press` and `--e-wash-ring` for something without a fill; `--e-skeleton` for a loading placeholder; `--e-disabled-ink` and `--e-disabled-fill` for a disabled control. A raised face with no colour of its own uses `var(--e-slab-edge)` (pressed: `var(--e-slab-sink)`), the slab recipe in one token.
+- **Breakpoints** are written as literals, because a custom property cannot be read inside `@media` or `@container`: `26rem` (a phone column), `36rem` (two columns) and `48rem` (the page frame shows its navigation). `--e-bp-narrow`, `--e-bp-medium` and `--e-bp-wide` record them for design tools. Query the component's own container (`@container`) except for the page frame.
 
 ### Documentation
 
@@ -132,12 +151,12 @@ A README says what the consumer provides, what the component does and the rules.
 - **Examples** use only values that work: icon names from the built-in set (`iconNames`), real props, no `size` enum.
 - **Tables.** Escape `|` inside a cell as `\|`. Props tables are generated, so edit the source comment (see above).
 
-`pnpm --filter @eos-ui/vue check:docs` checks links, bare URLs, table pipes, sibling links in the intro and icon names in examples. CI runs it.
+`pnpm check` (its `check:docs` part) checks links, bare URLs, table pipes, sibling links in the intro and icon names in examples. CI runs it.
 
 ### Definition of done
 
 1. Tests pass, including keyboard and axe.
-2. `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm knip`, `pnpm check:package`, `pnpm check:size` and the four `@eos-ui/vue` checks (`check:css`, `check:layers`, `check:props`, `check:docs`) pass. CI runs all of them.
+2. `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm knip`, `pnpm check` (CSS rules, layers, props tables, README links) and, after a build, `pnpm check:built` (package exports, size, built stylesheet) pass. CI runs all of them.
 3. README (following Documentation above), `index.ts` and exported prop types exist.
 4. The component works without the plugin installed and with a custom theme applied.
 
@@ -145,4 +164,4 @@ A pull request that changes `packages/**` also runs the `Site check` workflow, w
 
 ## Releases
 
-Run `pnpm changeset` for each user-facing change. Merging to `main` opens a version PR. Merging that PR publishes both packages to npm at one shared version.
+Run `pnpm changeset` for each user-facing change: anything that changes behaviour, the API, the CSS a consumer receives, or the published README. CI fails a pull request that changes `packages/**` without a changeset. Docs-only wording changes, tests and internal refactors do not need one: add the `no-changeset` label to the pull request to skip the check. Do not delete or edit other people's pending changesets. Merging to `main` opens a version PR. Merging that PR publishes both packages to npm at one shared version.

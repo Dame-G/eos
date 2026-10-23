@@ -18,7 +18,7 @@ A labelled multi-line text input that resizes vertically. It takes the props of 
 | `hint`        | `string`  | None         | Help that stays under the textarea.                                             |
 | `error`       | `string`  | None         | What to fix. Replaces the hint, marks the textarea invalid and is announced.    |
 | `placeholder` | `string`  | None         | An example, never the label.                                                    |
-| `rows`        | `number`  | `4`          | Visible lines.                                                                  |
+| `rows`        | `number`  | `4`          | Visible lines. The height follows it, down to one.                              |
 | `required`    | `boolean` | `false`      | Sets the `required` attribute and adds a word beside the label.                 |
 | `optional`    | `boolean` | `false`      | Adds a word beside the label. Use it when most fields in the form are required. |
 | `disabled`    | `boolean` | `false`      | Disables the field.                                                             |
@@ -32,3 +32,11 @@ A labelled multi-line text input that resizes vertically. It takes the props of 
 ## Accessibility
 
 - The label, hint and error are linked to the textarea, and an `error` is announced.
+
+## Keyboard
+
+Native textarea keys. Enter adds a line break. The resize handle is a pointer control, so give people room with `rows` instead of relying on it.
+
+## Related
+
+[`ETextField`](../TextField/README.md) for one line.

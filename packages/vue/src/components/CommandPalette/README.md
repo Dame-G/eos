@@ -20,18 +20,20 @@ const commands = [
 
 <!-- props:start -->
 
-| Prop          | Type                                           | Default                      | Notes                                                                                                                                     |
-| ------------- | ---------------------------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `open`        | `boolean`                                      | `false`                      | `v-model:open`: whether it is open. Without a binding it keeps its own state.                                                             |
-| `items`       | `CommandItem[]`                                | **Required**                 | The commands, in the order to list them when nothing is typed.                                                                            |
-| `label`       | `string`                                       | **Required**                 | The palette's accessible name, such as "Command palette".                                                                                 |
-| `placeholder` | `string`                                       | `"Type a command or search"` | Placeholder in the search box.                                                                                                            |
-| `shortcut`    | `string \| false`                              | `"mod+k"`                    | The shortcut that opens and closes it from anywhere on the page, or `false` for none. Read once when the component is created.            |
-| `filter`      | `(item: CommandItem, query: string) => number` | None                         | Your own match: return a score above 0 to include the item (higher lists first), or 0 to leave it out. It replaces the built-in matching. |
+| Prop          | Type                                           | Default                      | Notes                                                                                                                                                                                         |
+| ------------- | ---------------------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `open`        | `boolean`                                      | `false`                      | `v-model:open`: whether it is open. Without a binding it keeps its own state.                                                                                                                 |
+| `items`       | `CommandItem[]`                                | **Required**                 | The commands, in the order to list them when nothing is typed.                                                                                                                                |
+| `label`       | `string`                                       | **Required**                 | The palette's accessible name, such as "Command palette".                                                                                                                                     |
+| `placeholder` | `string`                                       | `"Type a command or search"` | Placeholder in the search box.                                                                                                                                                                |
+| `shortcut`    | `string \| false`                              | `"mod+k"`                    | The shortcut that opens and closes it from anywhere on the page, or `false` for none. Read once when the component is created.                                                                |
+| `score`       | `(item: CommandItem, query: string) => number` | None                         | Your own match: return a score above 0 to include the item (higher lists first), or 0 to leave it out. It replaces the built-in matching. `query` is trimmed, lower case and without accents. |
+| `loading`     | `boolean`                                      | `false`                      | Shows the Searching spinner in the list in place of the commands while a server answers.                                                                                                      |
+| `emptyText`   | `string`                                       | `"No results"`               | What the list says when no command matches.                                                                                                                                                   |
 
 <!-- props:end -->
 
-The `CommandItem` type (`id`, `label`, `description`, `group`, `icon`, `shortcut`, `keywords`, `disabled`) is exported. Matching needs every typed word to appear in a command's label, description, group or keywords. Label-start matches list first. Pass `filter` for your own (fuzzy matching, say).
+The `CommandItem` type (`id`, `label`, `description`, `group`, `icon`, `shortcut`, `keywords`, `disabled`) is exported. Matching needs every typed word to appear in a command's label, description, group or keywords. Label-start matches list first. Matching ignores case and accents. Pass `score` for your own (fuzzy matching, say).
 
 `shortcut` is read once. `item.shortcut` only displays keycaps (`formatShortcut`). Bind the keys yourself with `useShortcuts`.
 
@@ -52,3 +54,17 @@ The `CommandItem` type (`id`, `label`, `description`, `group`, `icon`, `shortcut
 - A modal dialog named by `label`, with focus on a `combobox` input that controls a `listbox`. The active option is `aria-activedescendant`, and focus stays in the input.
 - Arrow Up and Down move (wrapping, skipping disabled commands), Home and End jump, Enter chooses, Escape closes. Focus returns to what had it.
 - The number of results, or "No results", is announced politely as the person types. Messages `resultsCount`, `noResults` and `commandPlaceholder` are configurable.
+
+## Keyboard
+
+| Key                  | Action                                                        |
+| -------------------- | ------------------------------------------------------------- |
+| Mod + K              | Opens and closes it from anywhere (`shortcut`).               |
+| Arrow Down, Arrow Up | Move the active command, wrapping and skipping disabled ones. |
+| Home, End            | Jump to the first or last command.                            |
+| Enter                | Choose the active command.                                    |
+| Escape               | Close it. Focus returns to what had it.                       |
+
+## Related
+
+[`ECombobox`](../Combobox/README.md) to choose a value in a form, [`ESearchResults`](../SearchResults/README.md) for results that navigate.

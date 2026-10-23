@@ -28,7 +28,7 @@ defineSlots<{
     background: var(--e-surface-tint);
     background-clip: padding-box;
     color: var(--e-muted);
-    font: 500 var(--e-text-sm) / 1.5 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-sm) / 1.5 var(--e-font-mono);
     text-align: center;
     white-space: nowrap;
   }

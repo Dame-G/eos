@@ -29,6 +29,34 @@ describe("ELink", () => {
     expect(a.rel).toBe("noreferrer");
   });
 
+  test("external adds a hidden hint that it opens in a new tab", async () => {
+    await render(ELink, { props: { href: "https://example.com", external: true }, slots: { default: "Help" } });
+    await expect.element(page.getByRole("link", { name: "Help (opens in a new tab)" })).toBeVisible();
+  });
+
+  test("linkComponent renders the link and gets to or href", async () => {
+    const Router = defineComponent({
+      props: { to: String },
+      render() {
+        return h("a", { href: "/r" + this.to, "data-router": "" }, this.$slots.default?.());
+      },
+    });
+    const { container } = await render(ELink, {
+      props: { to: "/pay", linkComponent: Router },
+      slots: { default: "Pay" },
+    });
+    const a = container.querySelector("a")!;
+    expect(a.hasAttribute("data-router")).toBe(true);
+    expect(a.getAttribute("href")).toBe("/r/pay");
+    expect(a.classList.contains("e-link")).toBe(true);
+  });
+
+  test("with an icon only the text is underlined", async () => {
+    const { container } = await render(ELink, { props: { href: "#x", icon: "search" }, slots: { default: "Find" } });
+    expect(getComputedStyle(container.querySelector("a")!).textDecorationLine).toBe("none");
+    expect(getComputedStyle(container.querySelector(".e-link-text")!).textDecorationLine).toBe("underline");
+  });
+
   test("is underlined and turns ink on hover", async () => {
     const { container } = await render(ELink, { props: { href: "#x" }, slots: { default: "Go" } });
     const a = container.querySelector("a")!;

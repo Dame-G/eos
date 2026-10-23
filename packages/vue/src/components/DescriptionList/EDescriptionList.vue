@@ -44,11 +44,6 @@ const shown = computed(() => props.items.filter((it): it is DescriptionItem => B
 const plain = computed(() => shown.value.length > 0 && shown.value.every((it) => !it.label));
 
 const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["value"] });
-
-function say(key: string, fallback: string, vars?: Record<string, string>) {
-  const text = t(key, vars);
-  return text === key ? fallback.replace(/\{(\w+)\}/g, (m, k: string) => vars?.[k] ?? m) : text;
-}
 </script>
 
 <template>
@@ -70,10 +65,10 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
         <EButton
           v-if="item.editable"
           variant="quiet"
-          :aria-label="say('editItem', 'Edit {label}', { label: item.label ?? '' })"
+          :aria-label="t('editItem', { label: item.label ?? '' })"
           @click="emit('edit', item, i)"
         >
-          {{ say("edit", "Edit") }}
+          {{ t("edit") }}
         </EButton>
       </dd>
     </div>
@@ -83,6 +78,7 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
 <style>
 @layer e.blocks {
   .e-facts {
+    container-type: inline-size;
     display: grid;
     margin: 0;
     padding: 0;
@@ -94,7 +90,7 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
     grid-template-columns: 8rem minmax(0, 1fr);
     gap: var(--e-space-1) var(--e-space-4);
     align-items: baseline;
-    padding: var(--e-space-3) 0;
+    padding-block: var(--e-space-3);
     border-top: var(--e-stroke-hair) solid var(--e-border);
     min-width: 0;
   }
@@ -111,8 +107,8 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
 
   .e-fact > .e-kicker .e-icon {
     flex: none;
-    width: 1.125rem;
-    height: 1.125rem;
+    width: var(--e-icon-size);
+    height: var(--e-icon-size);
   }
 
   .e-fact-text {
@@ -121,7 +117,7 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
     gap: var(--e-space-3);
     margin: 0;
     min-width: 0;
-    font: 400 var(--e-text-md) / 1.45 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.45 var(--e-font-sans);
   }
 
   .e-fact-value {
@@ -149,9 +145,9 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
 
   .e-facts--plain > .e-fact > .e-icon {
     flex: none;
-    width: 1.125rem;
-    height: 1.125rem;
-    margin-top: var(--e-space-1);
+    width: var(--e-icon-size);
+    height: var(--e-icon-size);
+    margin-block-start: var(--e-space-1);
   }
 
   .e-facts--plain > .e-fact > .e-fact-text {
@@ -160,7 +156,7 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
     line-height: 1.4;
   }
 
-  @media (max-width: 26rem) {
+  @container (max-width: 26rem) {
     .e-fact {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -170,7 +166,7 @@ function say(key: string, fallback: string, vars?: Record<string, string>) {
     .e-fact {
       box-shadow: none;
       outline: 0;
-      border: 0 solid var(--e-print-ink);
+      border: 0 solid var(--e-ink);
       border-width: 0 0 var(--e-stroke-hair);
       break-inside: avoid;
     }

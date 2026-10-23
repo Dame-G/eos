@@ -18,8 +18,12 @@ const props = defineProps<{
   hideLabel?: boolean;
   /** Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt as "PDF, JPG" and also applied to dropped files. */
   accept?: string;
-  /** Allows choosing more than one file. Without it only the first file of a choice or drop is kept. */
+  /** Allows choosing more than one file. New files are added to the list, and a file already in it (same name, size and date) is not added twice. Without it, a choice replaces the file and only the first of several is kept. */
   multiple?: boolean;
+  /** The largest file allowed, in bytes. A larger one is left out and announced as "1 file is larger than 5 MB". */
+  maxSize?: number;
+  /** The most files the list can hold with `multiple`. Further files are left out and announced. */
+  maxFiles?: number;
   /** The name submitted with a form. */
   name?: string;
   /** Help that says which files are accepted and how large, shown before the person tries. */
@@ -39,6 +43,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   /** The chosen or dropped files, the same list as the model. */
   files: [files: File[]];
+  /** Files left out, each with why: `type` (not in `accept`), `size` (over `maxSize`) or `count` (over `maxFiles`). A choice that is entirely rejected leaves the list as it was. */
+  reject: [rejected: { file: File; reason: "type" | "size" | "count" }[]];
 }>();
 
 /** The chosen files. */
@@ -78,20 +84,47 @@ function syncInput(files: File[]) {
   }
 }
 
+const keyOf = (f: File) => `${f.name}|${f.size}|${f.lastModified}`;
+
 function take(list: FileList | null | undefined) {
   const given = Array.from(list ?? []);
   if (!given.length) return;
-  const fits = given.filter(accepts);
-  const files = props.multiple ? fits : fits.slice(0, 1);
-  const rejected = given.length - files.length;
-  model.value = files;
-  syncInput(files);
-  emit("files", files);
+  const rejected: { file: File; reason: "type" | "size" | "count" }[] = [];
+  const fresh: File[] = [];
+  const known = new Set((props.multiple ? model.value : []).map(keyOf));
+  for (const file of given) {
+    if (!accepts(file)) rejected.push({ file, reason: "type" });
+    else if (props.maxSize != null && file.size > props.maxSize) rejected.push({ file, reason: "size" });
+    else if (known.has(keyOf(file))) continue;
+    else {
+      known.add(keyOf(file));
+      fresh.push(file);
+    }
+  }
+  let files: File[];
+  if (props.multiple) {
+    const room = props.maxFiles != null ? Math.max(0, props.maxFiles - model.value.length) : fresh.length;
+    for (const file of fresh.slice(room)) rejected.push({ file, reason: "count" });
+    files = [...model.value, ...fresh.slice(0, room)];
+  } else {
+    files = fresh.slice(0, 1);
+  }
+  const added = props.multiple ? files.length - model.value.length : files.length;
+  const count = (reason: "type" | "size" | "count") => rejected.filter((r) => r.reason === reason).length;
   const said = [
-    files.length ? t(files.length === 1 ? "filesAddedOne" : "filesAddedOther", { n: files.length }) : "",
-    rejected ? t(rejected === 1 ? "filesRejectedOne" : "filesRejectedOther", { n: rejected }) : "",
+    added ? t(added === 1 ? "filesAddedOne" : "filesAddedOther", { n: added }) : "",
+    count("type") ? t(count("type") === 1 ? "filesRejectedOne" : "filesRejectedOther", { n: count("type") }) : "",
+    count("size") ? t("filesTooLarge", { n: count("size"), max: formatSize(props.maxSize ?? 0) }) : "",
+    count("count") ? t("filesTooMany", { n: props.maxFiles ?? 0 }) : "",
   ].filter(Boolean);
-  announce(said.join(". "), { assertive: rejected > 0 });
+  if (added) {
+    model.value = files;
+    emit("files", files);
+  }
+  // The input holds whatever was just chosen. A choice that was turned away must not replace what the list shows.
+  syncInput(added ? files : model.value);
+  if (rejected.length) emit("reject", rejected);
+  if (said.length) announce(said.join(". "), { assertive: rejected.length > 0 });
 }
 
 function removeAt(index: number) {
@@ -128,12 +161,25 @@ function formatSize(bytes: number): string {
   }
   return format.format(bytes / divisor);
 }
+// Dragging across the zone's children fires dragleave on the zone, so the highlight follows a count of enters.
+let depth = 0;
+function onDragEnter(e: DragEvent) {
+  e.preventDefault();
+  if (props.disabled) return;
+  depth++;
+  over.value = true;
+}
 function onDragOver(e: DragEvent) {
   e.preventDefault();
   if (!props.disabled) over.value = true;
 }
+function onDragLeave() {
+  depth = Math.max(0, depth - 1);
+  if (depth === 0) over.value = false;
+}
 function onDrop(e: DragEvent) {
   e.preventDefault();
+  depth = 0;
   over.value = false;
   if (!props.disabled) take(e.dataTransfer?.files);
 }
@@ -157,23 +203,6 @@ defineExpose({
   >
     <template #default="field">
       <div>
-        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
-        <label
-          :for="field.id"
-          class="e-drop"
-          :class="{ 'e-drop--over': over, 'e-drop--disabled': disabled }"
-          :data-invalid="field.ariaInvalid ? '' : undefined"
-          @dragover="onDragOver"
-          @dragleave="over = false"
-          @drop="onDrop"
-        >
-          <EIcon name="upload" />
-          <span class="e-drop-main">
-            {{ t("dragHere") }}
-            <span class="e-drop-pick">{{ t("chooseOne") }}</span>
-          </span>
-          <span v-if="acceptHint" class="e-drop-hint">{{ acceptHint }}</span>
-        </label>
         <input
           :id="field.id"
           ref="input"
@@ -188,8 +217,26 @@ defineExpose({
           v-bind="attrs.input(field.ariaDescribedby)"
           @change="take(($event.target as HTMLInputElement).files)"
         />
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
+        <label
+          :for="field.id"
+          class="e-drop"
+          :class="{ 'e-drop--over': over, 'e-drop--disabled': disabled }"
+          :data-invalid="field.ariaInvalid ? '' : undefined"
+          @dragenter="onDragEnter"
+          @dragover="onDragOver"
+          @dragleave="onDragLeave"
+          @drop="onDrop"
+        >
+          <EIcon name="upload" />
+          <span class="e-drop-main">
+            {{ t("dragHere") }}
+            <span class="e-drop-pick">{{ t("chooseOne") }}</span>
+          </span>
+          <span v-if="acceptHint" class="e-drop-hint">{{ acceptHint }}</span>
+        </label>
         <ul v-if="model.length" class="e-files">
-          <li v-for="(f, i) in model" :key="i + f.name">
+          <li v-for="(f, i) in model" :key="keyOf(f) + i">
             <EIcon name="file" />
             <span class="e-file-name">{{ f.name }}</span>
             <span class="e-file-size">{{ formatSize(f.size) }}</span>
@@ -230,25 +277,25 @@ defineExpose({
   }
 
   .e-drop--over {
-    background: var(--e-secondary-soft);
-    outline-color: var(--e-secondary);
+    background: var(--e-success-soft);
+    outline-color: var(--e-success);
   }
 
   .e-drop-main {
-    font: 400 var(--e-text-md)/1.4 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.4 var(--e-font-sans);
   }
 
   .e-drop-pick {
     color: var(--e-primary);
-    font-weight: 500;
+    font-weight: var(--e-weight-medium);
     text-decoration: underline;
-    text-underline-offset: 3px;
+    text-underline-offset: 0.2em;
   }
 
   .e-drop--disabled {
-    background: var(--e-surface-tint);
+    background: var(--e-disabled-fill);
     outline-color: var(--e-border-strong);
-    color: var(--e-muted);
+    color: var(--e-disabled-ink);
     cursor: not-allowed;
   }
 
@@ -265,7 +312,7 @@ defineExpose({
   }
 
   .e-drop-hint {
-    font: 500 var(--e-text-xs)/1.2 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-xs) / 1.2 var(--e-font-mono);
     letter-spacing: 0.06em;
     color: var(--e-muted);
   }
@@ -277,8 +324,7 @@ defineExpose({
     height: 1px;
   }
 
-  .e-drop-input:focus-visible + .e-files,
-  .e-field:focus-within .e-drop {
+  .e-drop-input:focus-visible + .e-drop {
     outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
     outline-offset: var(--e-focus-gap-field);
   }
@@ -297,7 +343,7 @@ defineExpose({
     gap: var(--e-space-2);
     padding: var(--e-space-2) 0;
     border-top: var(--e-stroke-hair) solid var(--e-border);
-    font: 400 var(--e-text-md)/1.3 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.3 var(--e-font-sans);
   }
 
   .e-file-name {
@@ -307,14 +353,8 @@ defineExpose({
   }
 
   .e-file-size {
-    font: 500 var(--e-text-xs)/1 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-xs) / 1 var(--e-font-mono);
     color: var(--e-muted);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-drop {
-      transition: none;
-    }
   }
 
   @media (forced-colors: active) {

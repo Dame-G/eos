@@ -7,7 +7,7 @@ import EIcon from "../Icon/EIcon.vue";
 import { compareDays, isoDate, sameDay } from "../Calendar/dates.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
-import { useQuietFocus } from "../Select/quietFocus.js";
+import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
@@ -16,32 +16,41 @@ import "./picker.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<{
-  /** The visible label. */
-  label: string;
-  /** Keeps the label for screen readers and hides it from the page. */
-  hideLabel?: boolean;
-  /** Shows help text under the field. */
-  hint?: string;
-  /** Shows what to fix in place of the hint and marks the field invalid. A typed date that cannot be used shows its own error (`dateError`, `dateBetween`). */
-  error?: string;
-  /** Sets the `required` attribute and shows a word beside the label. */
-  required?: boolean;
-  /** Shows a word beside the label. Use it on whichever of required and optional is rarer. */
-  optional?: boolean;
-  /** Disables the field and its calendar button. */
-  disabled?: boolean;
-  /** Shows the date but blocks editing. The input stays focusable and selectable. The calendar button is disabled and the calendar does not open. */
-  readonly?: boolean;
-  /** The earliest date that can be chosen or typed. */
-  min?: Date;
-  /** The latest date that can be chosen or typed. */
-  max?: Date;
-  /** Submits the date as `YYYY-MM-DD` with a form, through a hidden input. */
-  name?: string;
-  /** The `id` of the text box, which the label points at. @default generated */
-  id?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    /** The visible label. */
+    label: string;
+    /** Keeps the label for screen readers and hides it from the page. */
+    hideLabel?: boolean;
+    /** Shows help text under the field. */
+    hint?: string;
+    /** Shows what to fix in place of the hint and marks the field invalid. A typed date that cannot be used shows its own error (`dateError`, `dateBetween`). */
+    error?: string;
+    /** Sets the `required` attribute and shows a word beside the label. */
+    required?: boolean;
+    /** Shows a word beside the label. Use it on whichever of required and optional is rarer. */
+    optional?: boolean;
+    /** Disables the field and its calendar button. */
+    disabled?: boolean;
+    /** Shows the date but blocks editing. The input stays focusable and selectable. The calendar button is disabled and the calendar does not open. */
+    readonly?: boolean;
+    /** The earliest date that can be chosen or typed. */
+    min?: Date;
+    /** The latest date that can be chosen or typed. */
+    max?: Date;
+    /** Days that cannot be chosen, in the calendar or by typing, such as days with nothing to book. */
+    disabledDate?: (date: Date) => boolean;
+    /** Days that get a dot in the calendar: a list of dates or a function. */
+    marked?: Date[] | ((date: Date) => boolean);
+    /** Shows the calendar's Today and Clear buttons. */
+    footer?: boolean;
+    /** Submits the date as `YYYY-MM-DD` with a form, through a hidden input. */
+    name?: string;
+    /** The `id` of the text box, which the label points at. @default generated */
+    id?: string;
+  }>(),
+  { footer: true },
+);
 
 /** The chosen date. */
 const model = defineModel<Date | null>({ default: null });
@@ -64,8 +73,10 @@ const text = ref(loc.formatDate(model.value));
 const typedError = ref("");
 let outside = false;
 
+// A change from outside (the calendar, the parent) replaces whatever was typed, and so its error.
 watch([() => model.value?.getTime(), () => config.locale], () => {
   text.value = loc.formatDate(model.value);
+  typedError.value = "";
 });
 watch(open, (isOpen) => {
   if (isOpen) outside = false;
@@ -88,10 +99,13 @@ function commit() {
     return;
   }
   const d = loc.parseDate(raw);
-  if (!d || (props.min && compareDays(d, props.min) < 0) || (props.max && compareDays(d, props.max) > 0)) {
-    typedError.value = d
-      ? t("dateBetween", { min: loc.formatDate(props.min || d), max: loc.formatDate(props.max || d) })
-      : t("dateError", { format: loc.dateFormatLabel() });
+  const outside = !!d && ((props.min && compareDays(d, props.min) < 0) || (props.max && compareDays(d, props.max) > 0));
+  if (!d || outside || props.disabledDate?.(d)) {
+    typedError.value = !d
+      ? t("dateError", { format: loc.dateFormatLabel() })
+      : outside
+        ? t("dateBetween", { min: loc.formatDate(props.min || d), max: loc.formatDate(props.max || d) })
+        : t("dateUnavailable");
     return;
   }
   typedError.value = "";
@@ -137,7 +151,6 @@ function inputBind(field: { id: string; ariaInvalid: "true" | undefined; ariaDes
     id: field.id,
     class: "e-input e-combo-input",
     type: "text",
-    inputmode: "numeric" as const,
     autocomplete: "off",
     placeholder: loc.dateFormatLabel(),
     value: text.value,
@@ -212,6 +225,10 @@ defineExpose({
               :model-value="model"
               :min="min"
               :max="max"
+              :disabled-date="disabledDate"
+              :marked="marked"
+              :footer="footer"
+              clearable
               @update:model-value="choose"
               @clear="clear"
             />

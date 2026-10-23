@@ -1,16 +1,11 @@
 <script lang="ts">
-export interface RadioOption {
-  value: string;
-  label: string;
-  /** A line of detail under the label. */
-  description?: string;
-  disabled?: boolean;
-}
+export type { RadioOption } from "./options.js";
 </script>
 
 <script setup lang="ts">
 import { Comment, Fragment, ref, useSlots, type FunctionalComponent, type VNode } from "vue";
 import EFieldset from "../Fieldset/EFieldset.vue";
+import { normalizeChoices, type RadioOption } from "./options.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
 import "../Checkbox/choice.css";
@@ -47,8 +42,6 @@ const model = defineModel<string>();
 const name = useUid(() => props.name);
 const slots = useSlots();
 
-const normalised = (): RadioOption[] => props.options.map((o) => (typeof o === "string" ? { value: o, label: o } : o));
-
 function hasContent(nodes: VNode[]): boolean {
   return nodes.some((n) =>
     n.type === Comment ? false : n.type === Fragment ? hasContent((n.children as VNode[] | null) ?? []) : true,
@@ -56,7 +49,7 @@ function hasContent(nodes: VNode[]): boolean {
 }
 
 function rows() {
-  return normalised().map((option) => {
+  return normalizeChoices<RadioOption>(props.options).map((option) => {
     const chosen = model.value === option.value;
     const nodes = chosen ? slots.reveal?.({ option }) : undefined;
     return { option, chosen, reveal: nodes && hasContent(nodes) ? nodes : null };
@@ -136,7 +129,7 @@ Nodes.props = ["nodes"];
 
   .e-radiogroup > .e-field-hint,
   .e-radiogroup > .e-field-error {
-    margin-top: calc(var(--e-space-1) - var(--e-space-2) - var(--e-focus-gap));
+    margin-top: calc(var(--e-space-1) - var(--e-space-2) - var(--e-stroke-focus));
   }
 
   .e-choice--open {

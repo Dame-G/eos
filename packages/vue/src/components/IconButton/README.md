@@ -23,3 +23,15 @@ An icon-only button with a target as tall as the control height, for rows where 
 ## Accessibility
 
 - A `button` named by `label`. Pair it with `ETooltip` when the icon is not obvious.
+- Hover washes the button, press sinks it, and `aria-pressed="true"` draws it sunk for a toggle.
+
+## Keyboard
+
+| Key          | Action                                                |
+| ------------ | ----------------------------------------------------- |
+| Enter, Space | Presses the button.                                   |
+| Tab          | Moves focus to the button. A disabled one is skipped. |
+
+## Related
+
+[`EButton`](../Button/README.md) when the action needs words, [`EMenu`](../Menu/README.md) for a list of actions.

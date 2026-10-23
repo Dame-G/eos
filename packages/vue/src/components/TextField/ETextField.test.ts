@@ -176,11 +176,15 @@ describe("ETextField", () => {
     expect(container.querySelector("input")!.id).toBe("mine");
   });
 
-  test("prefix and suffix sit inside one well, hidden from screen readers, and a click on them focuses the input", async () => {
+  test("prefix and suffix sit inside one well, are part of the input description, and a click on them focuses the input", async () => {
     const { container } = await render(ETextField, { props: { label: "Payment amount", prefix: "$", suffix: "USD" } });
     const wrap = container.querySelector(".e-input-wrap")!;
     const pre = wrap.querySelector(".e-affix--pre")!;
-    expect(pre.getAttribute("aria-hidden")).toBe("true");
+    expect(pre.hasAttribute("aria-hidden")).toBe(false);
+    expect(wrap.querySelector("input")!.getAttribute("aria-describedby")).toContain(pre.id);
+    expect(wrap.querySelector("input")!.getAttribute("aria-describedby")).toContain(
+      wrap.querySelector(".e-affix--post")!.id,
+    );
     expect(wrap.querySelector(".e-affix--post")!.textContent).toBe("USD");
     await expect.element(page.getByRole("textbox", { name: "Payment amount" })).toBeVisible();
     (pre as HTMLElement).click();

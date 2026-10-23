@@ -34,4 +34,17 @@ const signed = ref<SignatureValue>({ method: "type", name: "", image: "", agreed
 ## Accessibility
 
 - A drawn signature cannot be made from a keyboard, so use `mode="both"`.
+- The typed-name preview beside the date is not a live region: it repeats what the person is typing, which the input already announces.
 - Signing needs a signature and the checked agreement: validate both before accepting the form.
+
+## Keyboard
+
+| Key        | Does                                                             |
+| ---------- | ---------------------------------------------------------------- |
+| Tab        | Moves through the Type/Draw switch, the name, and the agreement. |
+| Arrow keys | Switch between Type and Draw.                                    |
+| Space      | Ticks the agreement.                                             |
+
+## Related
+
+[`ESignaturePad`](../SignaturePad/README.md) is the drawing area on its own, [`ECheckbox`](../Checkbox/README.md) for a plain agreement.

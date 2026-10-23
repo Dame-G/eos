@@ -57,6 +57,54 @@ describe("EColorField", () => {
     expect(updates.at(-1)).toBe("#ff0000");
   });
 
+  test("an empty value shows a neutral chip, not black", async () => {
+    const { container } = await render(EColorField, { props: { label: "Brand colour", modelValue: "" } });
+    expect(container.querySelector(".e-color-empty")).not.toBeNull();
+    const filled = await render(EColorField, { props: { label: "Brand colour", modelValue: "#2c95b4" } });
+    expect(filled.container.querySelector(".e-color-empty")).toBeNull();
+  });
+
+  test("clearing the text writes an empty value", async () => {
+    const updates: string[] = [];
+    await render(EColorField, {
+      props: { label: "Brand colour", modelValue: "#2c95b4", "onUpdate:modelValue": (v: string) => updates.push(v) },
+    });
+    await page.getByRole("textbox", { name: "Brand colour" }).fill("");
+    expect(updates.at(-1)).toBe("");
+  });
+
+  test("name submits the normalised hex through a hidden input", async () => {
+    const { container } = await render(EColorField, { props: { label: "Brand colour", name: "brand" } });
+    const hidden = container.querySelector<HTMLInputElement>("input[type=hidden]")!;
+    expect(hidden.name).toBe("brand");
+    expect(hidden.value).toBe("");
+    await page.getByRole("textbox", { name: "Brand colour" }).fill("#ABC");
+    expect(hidden.value).toBe("#aabbcc");
+    await page.getByRole("textbox", { name: "Brand colour" }).fill("#12");
+    expect(hidden.value).toBe("");
+    expect(container.querySelector<HTMLInputElement>("input[type=text]")!.hasAttribute("name")).toBe(false);
+  });
+
+  test("readonly keeps the value, stays focusable and locks the picker", async () => {
+    const updates: string[] = [];
+    const { container } = await render(EColorField, {
+      props: {
+        label: "Brand colour",
+        modelValue: "#2c95b4",
+        readonly: true,
+        "onUpdate:modelValue": (v: string) => updates.push(v),
+      },
+    });
+    const box = container.querySelector<HTMLInputElement>("input[type=text]")!;
+    expect(box.readOnly).toBe(true);
+    expect(container.querySelector<HTMLInputElement>("input[type=color]")!.disabled).toBe(true);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(box);
+    await userEvent.keyboard("abc");
+    expect(updates).toEqual([]);
+    expect(box.value).toBe("#2c95b4");
+  });
+
   test("an error from outside replaces the hint", async () => {
     await render(EColorField, {
       props: { label: "Brand colour", modelValue: "#2c95b4", hint: "A hint", error: "Too pale" },

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -117,6 +117,17 @@ describe("EAvatar", () => {
     await expect.poll(() => document.querySelector("[role=menu]")).not.toBeNull();
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
     await expect.element(page.getByRole("menuitem", { name: "Sign out" })).toBeVisible();
+  });
+
+  test("a button avatar is reached with Tab and pressed with Enter or Space", async () => {
+    const onClick = vi.fn();
+    await render(EAvatar, { props: { name: "Ada Lovelace", as: "button" }, attrs: { onClick } });
+    await userEvent.tab();
+    await expect.element(page.getByRole("button", { name: "Ada Lovelace" })).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    expect(onClick).toHaveBeenCalledTimes(1);
+    await userEvent.keyboard(" ");
+    expect(onClick).toHaveBeenCalledTimes(2);
   });
 
   test("attributes fall through to the root", async () => {

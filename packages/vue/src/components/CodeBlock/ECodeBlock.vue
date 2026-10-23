@@ -7,7 +7,7 @@ import "../../styles/base.css";
 const props = defineProps<{
   /** The text to show, as plain text. Leave it out to use the slot and put your own highlighted markup there. */
   code?: string;
-  /** The language, named for screen readers (the code's accessible name). */
+  /** The language, named for screen readers (the name of the scrollable code group). @default "Code" */
   lang?: string;
   /** The copy button's name. Say what is copied when a page has several. @default "Copy code" */
   copyLabel?: string;
@@ -25,9 +25,10 @@ const text = () => props.code ?? root.value?.querySelector("pre")?.textContent ?
 
 <template>
   <div ref="root" class="e-code">
-    <div class="e-code-body">
+    <!-- The body scrolls, so it takes focus: the keys scroll it, with the built-in pre or your own markup. -->
+    <div class="e-code-body" role="group" tabindex="0" :aria-label="lang || t('codeBlock')">
       <slot>
-        <pre tabindex="0" :aria-label="lang"><code>{{ code }}</code></pre>
+        <pre><code>{{ code }}</code></pre>
       </slot>
     </div>
     <div class="e-code-side">
@@ -58,7 +59,7 @@ const text = () => props.code ?? root.value?.querySelector("pre")?.textContent ?
     overflow: hidden;
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
-    box-shadow: var(--e-edge);
+    box-shadow: var(--e-frame);
   }
 
   /* Code blocks stacked back to back share one seam: the rings overlap into a single line. */
@@ -68,7 +69,6 @@ const text = () => props.code ?? root.value?.querySelector("pre")?.textContent ?
   }
 
   .e-code + .e-code {
-    margin-top: max(var(--e-stroke-card), 1px);
     border-start-start-radius: 0;
     border-start-end-radius: 0;
   }
@@ -85,11 +85,11 @@ const text = () => props.code ?? root.value?.querySelector("pre")?.textContent ?
     margin: 0;
     padding: var(--e-space-3) var(--e-space-4);
     background: transparent;
-    font: 400 var(--e-text-sm) / 1.6 var(--e-font-mono);
+    font: var(--e-weight-regular) var(--e-text-sm) / 1.6 var(--e-font-mono);
     color: var(--e-ink);
   }
 
-  .e-code pre:focus-visible {
+  .e-code-body:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: calc(-1 * var(--e-stroke-focus));
     border-radius: var(--e-radius-md);

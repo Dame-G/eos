@@ -9,11 +9,24 @@
   .e-root {
     font-family: var(--e-font-sans);
     color: var(--e-ink);
+
+    /* Native checkboxes, radios, ranges and progress bars take the action colour. `color-scheme` comes from the theme. */
+    accent-color: var(--e-primary);
   }
 
-  :where(.e-btn, .e-icon-btn, .e-input, .e-linkbtn):focus-visible {
+  .e-root ::selection {
+    background: var(--e-selection);
+    color: var(--e-ink);
+  }
+
+  /* A heading that wraps breaks into even lines, never a lone word. */
+  .e-root :where(h1, h2, h3, h4, h5, h6) {
+    text-wrap: balance;
+  }
+
+  :where(.e-btn, .e-icon-btn, .e-input, .e-definition-term):focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-focus-gap);
+    outline-offset: var(--e-stroke-focus);
   }
 
   :where(
@@ -29,7 +42,7 @@
     .e-combo-btn,
     .e-menu-item,
     .e-nav-item,
-    .e-linkbtn
+    .e-definition-term
   ) {
     user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -37,12 +50,26 @@
   }
 
   .e-kicker {
-    font: 600 var(--e-text-xs) / 1.2 var(--e-font-mono);
+    font: var(--e-weight-strong) var(--e-text-xs) / 1.2 var(--e-font-mono);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--e-muted);
   }
 
+  /* Amounts, counts and dates in a row: mono, with tabular figures so columns line up. */
+  .e-numeral {
+    font: var(--e-weight-medium) var(--e-text-sm) / 1.3 var(--e-font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The one amount a statement leads with. */
+  .e-numeral-l {
+    font: var(--e-weight-medium) var(--e-text-3xl) / 1 var(--e-font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* The one visually-hidden rule: `EVisuallyHidden` renders this class, and so does every component that hides a label. */
   .e-sr {
     position: absolute;
     width: 1px;

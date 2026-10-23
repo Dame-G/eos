@@ -21,7 +21,7 @@ defineSlots<{
   .e-appfooter {
     padding: var(--e-space-6) 0;
     border-top: var(--e-stroke-hair) solid var(--e-border);
-    font: 400 var(--e-text-sm) / 1.5 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-sm) / 1.5 var(--e-font-sans);
     color: var(--e-muted);
   }
 

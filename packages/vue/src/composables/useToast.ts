@@ -1,4 +1,5 @@
 import { inject, shallowRef, type InjectionKey, type VNodeChild } from "vue";
+import type { IconProp } from "../icons/types.js";
 
 export type ToastTone = "info" | "success" | "warning" | "danger";
 
@@ -9,6 +10,10 @@ export interface ToastOptions {
   message?: string;
   /** `info` by default. `danger` is announced at once and stays until dismissed. */
   tone?: ToastTone;
+  /** Replaces the icon of the tone. */
+  icon?: IconProp;
+  /** Shows the dismiss button. `true` by default. */
+  closable?: boolean;
   /** A Button, as a vnode or a function that returns one. A toast with an action stays until dismissed. */
   action?: VNodeChild | (() => VNodeChild);
   /** Milliseconds before it goes. 5000 for success and info. `0` for none, the default for danger and for a toast with an action. */

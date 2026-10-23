@@ -35,9 +35,9 @@
     align-items: center;
     gap: var(--e-space-2);
     min-height: var(--e-control-height);
-    padding: 6px var(--e-space-3);
+    padding: var(--e-space-2) var(--e-space-3);
     border-radius: var(--e-radius-sm);
-    font: 400 var(--e-text-md) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.3 var(--e-font-sans);
     cursor: pointer;
   }
 
@@ -48,12 +48,12 @@
   .e-opt-text {
     display: grid;
     flex: 1;
-    gap: 2px;
+    gap: calc(var(--e-space-1) / 2);
     min-width: 0;
   }
 
   .e-opt-desc {
-    font: 400 var(--e-text-sm) / 1.35 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-sm) / 1.35 var(--e-font-sans);
     color: var(--e-muted);
   }
 
@@ -63,17 +63,17 @@
   }
 
   .e-opt--selected .e-opt-label {
-    font-weight: 600;
+    font-weight: var(--e-weight-strong);
   }
 
   .e-opt--disabled {
-    color: var(--e-muted);
+    color: var(--e-disabled-ink);
     cursor: not-allowed;
   }
 
   .e-opt-group {
     padding: var(--e-space-2) var(--e-space-3) var(--e-space-1);
-    font: 600 var(--e-text-xs) / 1.2 var(--e-font-mono);
+    font: var(--e-weight-strong) var(--e-text-xs) / 1.2 var(--e-font-mono);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--e-muted);
@@ -91,18 +91,18 @@
     justify-content: center;
     min-height: var(--e-control-height);
     padding: 0 var(--e-space-3);
-    font: 400 var(--e-text-md) / 1.3 var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / 1.3 var(--e-font-sans);
     color: var(--e-muted);
   }
 
   .e-opt mark {
     background: transparent;
     color: inherit;
-    font-weight: 600;
+    font-weight: var(--e-weight-strong);
     text-decoration: underline;
     text-decoration-color: var(--e-primary);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 3px;
+    text-decoration-thickness: var(--e-stroke-focus);
+    text-underline-offset: calc(var(--e-space-1) - var(--e-stroke-edge));
   }
 
   [data-reka-popper-content-wrapper] > .e-popover {
@@ -133,12 +133,6 @@
     margin-top: var(--e-space-1);
     border-top: var(--e-stroke-hair) solid var(--e-border);
     padding-top: var(--e-space-3);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .e-opt {
-      transition: none;
-    }
   }
 
   @media (forced-colors: active) {
