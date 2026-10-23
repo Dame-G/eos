@@ -41,6 +41,8 @@ export function useQuietFocus(open: Ref<boolean>, inside: (el: Element) => boole
   );
 
   function undoFocusSteal() {
+    // On the server there is no focus to keep: a select rendered open from the start must not throw there.
+    if (typeof document === "undefined") return;
     stop?.();
     const prior = document.activeElement as HTMLElement | null;
     const onFocusIn = (e: FocusEvent) => {
