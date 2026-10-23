@@ -22,6 +22,7 @@
       "default": "./dist/index.js"
     },
     "./tokens.css": "./dist/tokens.css",
+    "./tokens.auto.css": "./dist/tokens.auto.css",
     "./tokens.dtcg.json": "./dist/tokens.dtcg.json",
     "./tokens.json": "./src/tokens.json"
   },

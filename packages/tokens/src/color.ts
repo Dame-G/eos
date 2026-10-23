@@ -143,3 +143,117 @@ export function withLightness(hex: string, l: number, chroma?: number, hue?: num
   const o = toOklch(hex);
   return fromOklch({ l: Math.min(1, Math.max(0, l)), c: chroma ?? o.c, h: hue ?? o.h });
 }
+
+interface Rgba {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+}
+
+const NAMED: Record<string, Rgba> = {
+  black: { r: 0, g: 0, b: 0, a: 1 },
+  white: { r: 255, g: 255, b: 255, a: 1 },
+  transparent: { r: 0, g: 0, b: 0, a: 0 },
+};
+
+/** Replaces every `var(--e-name)` with the token's own value, until none is left. Undefined when a token is missing or the references loop. */
+function expand(value: string, lookup: (name: string) => string | undefined): string | undefined {
+  let out = value;
+  for (let i = 0; i < 12; i++) {
+    let missing = false;
+    out = out.replace(/var\(--e-([a-z0-9-]+)\)/g, (_, name: string) => {
+      const v = lookup(name);
+      if (v === undefined) missing = true;
+      return v ?? "";
+    });
+    if (missing) return undefined;
+    if (!out.includes("var(--e-")) return out;
+  }
+  return undefined;
+}
+
+/** Splits on commas that are not inside parentheses. */
+function splitTop(s: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let from = 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === "(") depth++;
+    else if (c === ")") depth--;
+    else if (c === "," && depth === 0) {
+      parts.push(s.slice(from, i).trim());
+      from = i + 1;
+    }
+  }
+  parts.push(s.slice(from).trim());
+  return parts;
+}
+
+function parseColor(value: string): Rgba | undefined {
+  const v = value.trim().toLowerCase();
+  if (v in NAMED) return NAMED[v];
+  if (v.startsWith("#")) {
+    try {
+      const [r, g, b] = parseHex(v);
+      return { r, g, b, a: 1 };
+    } catch {
+      return undefined;
+    }
+  }
+  const fn = /^rgba?\((.*)\)$/.exec(v);
+  if (fn) {
+    const n = fn[1]!
+      .split(/[\s,/]+/)
+      .filter(Boolean)
+      .map(Number);
+    if (n.length < 3 || n.some(Number.isNaN)) return undefined;
+    return { r: n[0]!, g: n[1]!, b: n[2]!, a: n[3] ?? 1 };
+  }
+  const mix = /^color-mix\(\s*in\s+srgb\s*,(.*)\)$/.exec(v);
+  if (!mix) return undefined;
+  const sides = splitTop(mix[1]!);
+  if (sides.length !== 2) return undefined;
+  const items = sides.map((side) => {
+    const m = /^(.*?)(?:\s+(\d+(?:\.\d+)?)%)?$/.exec(side)!;
+    return { color: parseColor(m[1]!), pct: m[2] === undefined ? undefined : Number(m[2]) / 100 };
+  });
+  const [x, y] = items;
+  if (!x!.color || !y!.color) return undefined;
+  let p = x!.pct;
+  let q = y!.pct;
+  if (p === undefined && q === undefined) p = q = 0.5;
+  else if (p === undefined) p = 1 - q!;
+  else if (q === undefined) q = 1 - p;
+  let alphaScale = 1;
+  const sum = p + q!;
+  if (sum > 1) {
+    p /= sum;
+    q = q! / sum;
+  } else if (sum < 1) alphaScale = sum;
+  const wa = x!.color.a * p;
+  const wb = y!.color.a * q!;
+  const a = wa + wb;
+  if (a === 0) return { r: 0, g: 0, b: 0, a: 0 };
+  const channel = (k: "r" | "g" | "b") => (x!.color![k] * wa + y!.color![k] * wb) / a;
+  return { r: channel("r"), g: channel("g"), b: channel("b"), a: a * alphaScale };
+}
+
+/**
+ * Evaluates a token value to a hex colour: a hex, a `var(--e-token)` chain, `rgb()` or a `color-mix(in srgb, ...)` of those, with `transparent`, `black` and `white`.
+ * A colour that is not opaque is laid over `ground`. Undefined when the value cannot be evaluated (an unknown token, another colour space) or is translucent and has no ground.
+ */
+export function resolveColor(
+  value: string,
+  lookup: (name: string) => string | undefined,
+  ground?: string,
+): string | undefined {
+  const text = expand(value, lookup);
+  const c = text === undefined ? undefined : parseColor(text);
+  if (!c) return undefined;
+  if (c.a >= 1) return toHex([c.r, c.g, c.b]);
+  if (!ground) return undefined;
+  const [gr, gg, gb] = parseHex(ground);
+  return toHex([c.r * c.a + gr * (1 - c.a), c.g * c.a + gg * (1 - c.a), c.b * c.a + gb * (1 - c.a)]);
+}
