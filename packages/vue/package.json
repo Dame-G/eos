@@ -1,6 +1,6 @@
 {
   "name": "@eos-ui/vue",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "EOS: a component library for Vue.",
   "type": "module",
   "license": "MIT",
