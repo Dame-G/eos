@@ -1,3 +1,7 @@
+<script lang="ts">
+let warnedClearable = false;
+</script>
+
 <script setup lang="ts" generic="M extends boolean = false">
 import { computed, h, nextTick, onMounted, ref, watch, type FunctionalComponent } from "vue";
 import {
@@ -20,6 +24,7 @@ import { normalizeOptions, sectionOptions } from "../Select/options.js";
 import { fold } from "./fold.js";
 import type { EComboboxProps } from "./types.js";
 import { useMessages, usePortalTarget } from "../../config.js";
+import { isProduction } from "../../env.js";
 import { useDir } from "../../composables/useDir.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
@@ -32,11 +37,13 @@ import "./combo.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = withDefaults(defineProps<EComboboxProps<M>>(), { clearable: true });
+const props = withDefaults(defineProps<EComboboxProps<M>>(), { clearable: undefined });
 
 const emit = defineEmits<{
   /** The text in the input changed, by typing or by choosing. Use it to fetch options from a server. */
   inputChange: [text: string];
+  /** The person cleared the field, with the clear button or Escape. The model is already empty. */
+  clear: [];
 }>();
 
 /** The `value` of the chosen option, empty for nothing. With `multiple` it holds the chosen values in the order chosen (replaced, not mutated). With `freeform` it is the typed text, updated on every key. @default "" or [] */
@@ -47,6 +54,15 @@ const wantOpen = defineModel<boolean>("open", { default: false });
 
 const t = useMessages();
 const { announce: say } = useAnnouncer();
+
+/** The clear button is opt-in, as in every field. Left out, it still shows until the next minor, with a warning. */
+const showClear = () => props.clearable ?? true;
+if (props.clearable === undefined && !warnedClearable && !isProduction()) {
+  warnedClearable = true;
+  console.warn(
+    '[eos] ECombobox will not show its clear button by default from the next minor. Pass `clearable` to keep it, or `:clearable="false"`.',
+  );
+}
 const portal = usePortalTarget();
 const attrs = useFieldAttrs();
 const dir = useDir();
@@ -191,6 +207,7 @@ function clear() {
   text.value = "";
   typing.value = false;
   emit("inputChange", "");
+  emit("clear");
   focusInput();
 }
 
@@ -274,6 +291,7 @@ defineExpose({
             :data-invalid="error && !bare ? '' : undefined"
             :data-disabled="disabled ? '' : undefined"
             :data-readonly="readonly ? '' : undefined"
+            :data-size="size && size !== 'md' ? size : undefined"
             @mousedown="onWrapDown"
             @focusout="onBlur"
           >
@@ -306,7 +324,7 @@ defineExpose({
             />
             <div class="e-combo-tail">
               <button
-                v-if="hasValue && clearable && !disabled && !readonly"
+                v-if="hasValue && showClear() && !disabled && !readonly"
                 type="button"
                 class="e-combo-btn"
                 :aria-label="t('clear')"
