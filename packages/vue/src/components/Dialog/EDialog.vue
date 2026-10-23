@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DialogFrame from "./DialogFrame.vue";
-import EDrawerBody from "../Drawer/EDrawerBody.vue";
+import DialogBody from "./DialogBody.vue";
 
 defineOptions({ inheritAttrs: false });
 
@@ -18,9 +18,9 @@ const props = withDefaults(
     size?: "sm" | "md" | "lg";
     /** A CSS selector for the element that takes focus when it opens, such as `#name`. Without it, an element marked `data-autofocus` does; an `alertdialog` falls back to its least destructive action and any other dialog to its first control. */
     initialFocus?: string;
-    /** Closes the dialog when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. */
+    /** Closes the dialog when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. A press on a toast does not count. */
     dismissible?: boolean;
-    /** Shows the dialog in the page, without the backdrop or the focus trap, for a preview. */
+    /** Shows the dialog in the page, without the backdrop or the focus trap, for a preview. Escape and presses outside leave it open. */
     inline?: boolean;
   }>(),
   { role: "dialog", headingLevel: 2, size: "md" },
@@ -56,7 +56,7 @@ const open = defineModel<boolean>("open");
     :content-class="['e-dialog', `e-dialog--${props.size}`, inline && 'e-dialog--inline']"
     @close="emit('close')"
   >
-    <EDrawerBody class="e-dialog-body"><slot /></EDrawerBody>
+    <DialogBody class="e-dialog-body"><slot /></DialogBody>
     <template v-if="$slots.actions" #actions><slot name="actions" /></template>
   </DialogFrame>
 </template>

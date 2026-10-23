@@ -59,7 +59,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   /** The person chose a command, by Enter or click. The palette closes after this. */
   select: [item: CommandItem];
-  /** It closed, by a choice, Escape or the backdrop. `open` is already false. */
+  /** The person closed it, by a choice, the shortcut, Escape or the backdrop. `open` is already false. */
   close: [];
 }>();
 
@@ -183,10 +183,16 @@ function move(delta: number) {
   activeId.value = all[(at + delta + all.length) % all.length]!.id;
 }
 
+/** Every way the person opens or closes it goes through here, so `close` fires for a choice and the shortcut too. */
+function setOpen(value: boolean) {
+  open.value = value;
+  if (!value) emit("close");
+}
+
 function choose(item: CommandItem | null) {
   if (!item || item.disabled) return;
   emit("select", item);
-  open.value = false;
+  setOpen(false);
 }
 
 function onKeydown(e: KeyboardEvent) {
@@ -201,7 +207,7 @@ function onKeydown(e: KeyboardEvent) {
   e.preventDefault();
 }
 
-if (props.shortcut) useShortcuts({ [props.shortcut]: () => (open.value = !open.value) });
+if (props.shortcut) useShortcuts({ [props.shortcut]: () => setOpen(!open.value) });
 
 defineExpose({
   /** Opens the palette. */

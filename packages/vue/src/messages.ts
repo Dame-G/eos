@@ -24,11 +24,11 @@ export const defaultMessages = {
   breadcrumb: "Breadcrumb",
   showFullPath: "Show full path",
   menu: "Menu",
-  stepError: "has an error",
+  stepError: "(has an error)",
   mainNav: "Main",
   progress: "Progress",
   progressLabel: "Progress",
-  done: "done",
+  done: "(done)",
   status: "Status",
   "status.paid": "Paid",
   "status.due": "Due",
@@ -165,6 +165,7 @@ export const defaultMessages = {
   editItem: "Edit {label}",
   phone: "Phone number",
   toastRegion: "Notifications",
+  /** @deprecated Toasts use `dismiss`, as notices do. A `closeToast` you set still names a toast's dismiss button. */
   closeToast: "Close notification",
   sidebar: "Sidebar",
 } as const;

@@ -8,8 +8,10 @@ import type { DataGridColumn, DataGridFilterValue, DataGridRow } from "./types.j
 import "../../styles/base.css";
 import "../TextField/input.css";
 
-/** The row of filters under the headings, one per column that defines a `filter`. */
+/** The row of filters under the headings, one per column that defines a `filter`. `stacked`, for cards, lists them above the rows with their labels shown. */
 const props = defineProps<{
+  /** Lays the filters out as labelled fields above the cards, in place of a table row. */
+  stacked?: boolean;
   columns: DataGridColumn<Row>[];
   filters: Record<string, DataGridFilterValue>;
   selectable?: boolean;
@@ -41,7 +43,43 @@ const selectOptions = (c: DataGridColumn<Row>): EOption[] => [
 </script>
 
 <template>
-  <tr class="e-filterrow" :role="role('row')">
+  <div v-if="stacked" class="e-grid-filters" role="group" :aria-label="t('filter')">
+    <template v-for="c in columns" :key="c.key">
+      <ESelect
+        v-if="c.filter?.type === 'select'"
+        :label="c.label"
+        :placeholder="t('all')"
+        :options="selectOptions(c)"
+        :model-value="textFilter(c.key) || ALL"
+        @update:model-value="emit('filter', c.key, $event === ALL ? '' : ($event ?? ''))"
+      />
+      <div v-else-if="c.filter?.type === 'number'" class="e-filter-range">
+        <ETextField
+          inputmode="decimal"
+          :label="t('minOf', { col: c.label })"
+          :placeholder="t('min')"
+          :model-value="numberFilter(c.key).min"
+          @update:model-value="emit('filter', c.key, { min: $event, max: numberFilter(c.key).max })"
+        />
+        <ETextField
+          inputmode="decimal"
+          :label="t('maxOf', { col: c.label })"
+          :placeholder="t('max')"
+          :model-value="numberFilter(c.key).max"
+          @update:model-value="emit('filter', c.key, { min: numberFilter(c.key).min, max: $event })"
+        />
+      </div>
+      <ETextField
+        v-else-if="c.filter"
+        type="search"
+        :label="c.label"
+        :placeholder="t('filter')"
+        :model-value="textFilter(c.key)"
+        @update:model-value="emit('filter', c.key, $event)"
+      />
+    </template>
+  </div>
+  <tr v-else class="e-filterrow" :role="role('row')">
     <td v-if="selectable" class="e-cell-check" :role="role('cell')" />
     <td
       v-for="(c, i) in columns"

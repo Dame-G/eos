@@ -49,10 +49,10 @@ The `CommandItem` type (`id`, `label`, `description`, `group`, `icon`, `shortcut
 
 ## Events
 
-| Event    | Payload       | When                                                                       |
-| -------- | ------------- | -------------------------------------------------------------------------- |
-| `select` | `CommandItem` | A command is chosen. The palette closes.                                   |
-| `close`  |               | It closed, by a choice, Escape or the backdrop. `open` is already `false`. |
+| Event    | Payload       | When                                                                                                |
+| -------- | ------------- | --------------------------------------------------------------------------------------------------- |
+| `select` | `CommandItem` | A command is chosen. The palette closes.                                                            |
+| `close`  |               | The person closed it, by a choice, the shortcut, Escape or the backdrop. `open` is already `false`. |
 
 ## Accessibility
 

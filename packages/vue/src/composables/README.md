@@ -68,7 +68,7 @@ const toast = useToast();
 toast.show({ title: "Saved", tone: "success" });
 ```
 
-## `useOverflow(scroller, watch?)`
+## `useOverflow(scroller, watch?, options?)`
 
 Returns a ref that is `true` while the element scrolls (wider or taller than its box). Use it to make a scrolling region a tab stop and a named `region` only when there is something to scroll. It is `false` until mounted, so the server and the first render agree, and it follows resizes of the scroller and of the elements in `watch` (the table inside it).
 
@@ -77,11 +77,13 @@ const scroller = ref<HTMLElement | null>(null);
 const overflows = useOverflow(scroller, [table]);
 ```
 
+Pass `{ children: true }` for a scroller its container holds at one size, such as a dialog body: it then watches the scroller's children too, as they come and go.
+
 ## `useUid(given?)`
 
 A stable id for wiring a label, hint and error to a control. It matches between server and client. Pass the component's own `id` prop to let the consumer choose: `useUid(() => props.id)`.
 
-## `useDir()`
+## `useDir()`, `useLogicalSide(side)`
 
 The direction to use: `createEos({ dir })` when set, otherwise the one the locale is written in (`ar`, `he`, `fa`, `ur` give `rtl`). Reka UI assumes left to right unless told, so every Reka root that takes `dir` (Select, Menu, Popover, Tabs, Calendar...) needs it, and so does anything teleported out of the tree. One place for all of a component's Reka parts is Reka's `ConfigProvider`:
 
@@ -98,6 +100,8 @@ const dir = useDir();
 ```
 
 The provider reaches teleported content, because provide and inject follow the component tree. Text and layout inherit `dir` from the element it is on, so `createEos` sets `lang` and `dir` on the theme target when you give it a `locale` (see `portalTarget`).
+
+`useLogicalSide(() => props.side)` turns a side that follows the reading direction (`start`, `end`) into the physical one a Reka popper takes (`left`, `right`), flipped in a right-to-left page. `top`, `bottom`, `left` and `right` pass through.
 
 ## `useLocale()`
 

@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, watch } from "vue";
 import { TooltipContent, TooltipPortal, TooltipProvider, TooltipRoot, TooltipTrigger } from "reka-ui";
 import { usePortalTarget } from "../../config.js";
-import { useDir } from "../../composables/useDir.js";
+import { useLogicalSide } from "../../composables/useDir.js";
 import { useTooltipGroup } from "./group.js";
 import "../../styles/base.css";
 
@@ -21,7 +21,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  /** It hid, by blur, pointer leave or Escape. `open` is already false. */
+  /** The person hid it, by blur, pointer leave, Escape or the end of a touch. `open` is already false. Setting `open` to false yourself does not fire it. */
   close: [];
 }>();
 
@@ -31,44 +31,39 @@ defineSlots<{
 }>();
 
 const portal = usePortalTarget();
-const dir = useDir();
 const group = useTooltipGroup();
 /** Whether the bubble shows. Hover, focus and Escape update it. */
 const open = defineModel<boolean>("open", { default: false });
 
-const placement = computed(() => {
-  const rtl = dir.value === "rtl";
-  if (props.side === "start") return rtl ? "right" : "left";
-  if (props.side === "end") return rtl ? "left" : "right";
-  return props.side;
-});
+const placement = useLogicalSide(() => props.side);
 const delayNow = computed(() => (group.skipping.value ? 0 : props.delay));
 
-watch(open, (now) => {
-  if (now) group.opened();
-  else {
-    group.closed();
-    emit("close");
-  }
-});
+watch(open, (now) => (now ? group.opened() : group.closed()));
+
+/** The person showing or hiding it: hover, focus, Escape, a touch. Only a person hiding it fires `close`; `open` set to false from outside does not. */
+function setOpen(value: boolean) {
+  const was = open.value;
+  open.value = value;
+  if (was && !value) emit("close");
+}
 
 let hold: ReturnType<typeof setTimeout> | undefined;
 onBeforeUnmount(() => clearTimeout(hold));
 function touchStart(e: PointerEvent) {
   if (e.pointerType !== "touch") return;
   clearTimeout(hold);
-  requestAnimationFrame(() => (open.value = true));
+  requestAnimationFrame(() => setOpen(true));
 }
 function touchEnd(e: PointerEvent) {
   if (e.pointerType !== "touch") return;
   clearTimeout(hold);
-  hold = setTimeout(() => (open.value = false), 1500);
+  hold = setTimeout(() => setOpen(false), 1500);
 }
 </script>
 
 <template>
   <TooltipProvider :delay-duration="delay">
-    <TooltipRoot v-model:open="open" :delay-duration="delayNow">
+    <TooltipRoot :open="open" :delay-duration="delayNow" @update:open="setOpen">
       <TooltipTrigger as-child @pointerdown="touchStart" @pointerup="touchEnd" @pointercancel="touchEnd">
         <slot />
       </TooltipTrigger>

@@ -101,6 +101,7 @@ useFieldControl
 useFormField
 useIconResolver
 useLocale
+useLogicalSide
 useMessages
 useOverflow
 usePortalTarget

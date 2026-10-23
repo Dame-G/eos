@@ -46,4 +46,36 @@ describe("useOverflow", () => {
     await expect.poll(() => state.overflows.value).toBe(false);
     stop();
   });
+
+  test("children: a child added later that grows is watched, though the scroller keeps its size", async () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const shown = ref(false);
+    const tall = ref(10);
+    const state = { overflows: ref(false) };
+    const app = createApp(
+      defineComponent({
+        setup() {
+          const scroller = ref<HTMLElement | null>(null);
+          state.overflows = useOverflow(scroller, [], { children: true });
+          return () =>
+            h("div", { ref: scroller, style: "height: 100px; overflow: auto" }, [
+              h("p", "first"),
+              shown.value ? h("div", { style: { height: `${tall.value}px` } }) : null,
+            ]);
+        },
+      }),
+    );
+    app.mount(host);
+    await nextTick();
+    expect(state.overflows.value).toBe(false);
+    shown.value = true;
+    await nextTick();
+    tall.value = 400;
+    await expect.poll(() => state.overflows.value).toBe(true);
+    tall.value = 10;
+    await expect.poll(() => state.overflows.value).toBe(false);
+    app.unmount();
+    host.remove();
+  });
 });

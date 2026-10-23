@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- the grid is generic over the row, which the tests leave open */
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -566,6 +566,21 @@ describe("EDataGrid", () => {
     }
   });
 
+  test("cards: filterable shows labelled filters above the cards, and they filter", async () => {
+    const { container } = await render(
+      boxed(320, { caption: "T", columns: FILTER_COLS, rows: ROWS, filterable: true }),
+    );
+    await expect.poll(() => container.querySelector(".e-grid-filters")).not.toBeNull();
+    expect(container.querySelector(".e-filterrow")).toBeNull();
+    expect(container.querySelector(".e-grid-filters")!.closest("thead")).toBeNull();
+    await expect.element(page.getByRole("searchbox", { name: "Name" })).toBeVisible();
+    await expect.element(page.getByRole("combobox", { name: "Status" })).toBeVisible();
+    await expect.element(page.getByRole("textbox", { name: "Amount minimum" })).toBeVisible();
+    await typeInto(input(container.querySelector(".e-grid-filters input[type=search]")), "alp");
+    expect(names(container)).toEqual(["Alpha"]);
+    await expectNoViolations(container);
+  });
+
   test("cards: a fixed column width does not hold the card wider than its container", async () => {
     const { container } = await render(
       boxed(320, { caption: "T", columns: [{ key: "n", label: "Name", width: 500 }], rows: ROWS }),
@@ -657,6 +672,14 @@ describe("EDataGrid", () => {
     expect(container.querySelector(".e-filterrow")).toBeNull();
     expect(container.querySelector(".e-grid-foot")).toBeNull();
     expect(bodyRows(container).length).toBe(30);
+  });
+
+  test("bare is deprecated: it warns once in development, pointing to ETable", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await grid({ props: { caption: "T", columns: COLS, rows: ROWS, bare: true } });
+    expect(warn.mock.calls.filter(([m]) => String(m).includes("bare"))).toHaveLength(1);
+    expect(String(warn.mock.calls[0]![0])).toContain("ETable");
+    warn.mockRestore();
   });
 
   test("toolbar slot and attribute fall-through", async () => {
@@ -776,6 +799,32 @@ describe("EDataGrid", () => {
     (container.querySelectorAll("th")[1]!.querySelector("button") as HTMLButtonElement).click();
     await expect.poll(() => queries.length).toBe(3);
     expect(queries[2]).toMatchObject({ sort: { key: "a", dir: "asc" }, search: "alp" });
+  });
+
+  test("manual: searchDebounce also waits for a pause in typing in a column filter", async () => {
+    const queries: any[] = [];
+    const { container } = await grid({
+      props: {
+        caption: "T",
+        columns: FILTER_COLS,
+        rows: ROWS,
+        manual: true,
+        filterable: true,
+        searchDebounce: 120,
+        onQueryChange: (q: unknown) => queries.push(q),
+      },
+    });
+    expect(queries).toHaveLength(1);
+    const box = input(container.querySelector(".e-filterrow input[type=search]"));
+    await typeInto(box, "a");
+    await typeInto(box, "al");
+    await typeInto(box, "alp");
+    expect(queries).toHaveLength(1);
+    await expect.poll(() => queries.length).toBe(2);
+    expect(queries[1]).toMatchObject({ filters: { n: "alp" }, page: 1 });
+    (container.querySelectorAll("th")[0]!.querySelector("button") as HTMLButtonElement).click();
+    await expect.poll(() => queries.length).toBe(3);
+    expect(queries[2]).toMatchObject({ sort: { key: "n", dir: "asc" }, filters: { n: "alp" } });
   });
 
   test("selected keeps the id type of the rows: numbers stay numbers", async () => {
@@ -1059,6 +1108,8 @@ describe("EDataGrid", () => {
         props: { caption: "T", columns: COLS, rows: [], error: true, onRetry: () => retries++ },
       });
       expect(container.textContent).toContain("The data could not be loaded.");
+      // The EOS name "alert", which every icon set maps, so the built-in set draws it too.
+      expect(container.querySelector(".e-empty-icon .e-icon")).not.toBeNull();
       await page.getByRole("button", { name: "Try again" }).click();
       expect(retries).toBe(1);
       const own = await grid({ props: { caption: "T", columns: COLS, rows: [], error: "Offline" } });

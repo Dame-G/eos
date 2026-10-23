@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useMessages } from "../../config.js";
+import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
@@ -18,12 +19,22 @@ const props = withDefaults(
 );
 
 const t = useMessages();
+const loc = useLocale();
 const indeterminate = computed(() => props.value === undefined);
 const limit = computed(() => props.max || 100);
 const clamped = computed(() => Math.max(0, Math.min(limit.value, props.value ?? 0)));
 const percent = computed(() => (clamped.value / limit.value) * 100);
 const complete = computed(() => !indeterminate.value && percent.value >= 100);
 const name = computed(() => props.label || t(indeterminate.value ? "loading" : "progressLabel"));
+/** The percentage in the configured locale: "40%", "40 %" in French, "٤٠٪" in Arabic. */
+const percentFormat = computed(() => {
+  try {
+    return new Intl.NumberFormat(loc.locale.value, { style: "percent", maximumFractionDigits: 0 });
+  } catch {
+    return new Intl.NumberFormat(undefined, { style: "percent", maximumFractionDigits: 0 });
+  }
+});
+const percentText = computed(() => percentFormat.value.format(Math.round(percent.value) / 100));
 const showHead = computed(() => !!props.label || !indeterminate.value || !!props.valueText);
 </script>
 
@@ -38,7 +49,7 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   >
     <div v-if="showHead" class="e-progress-head">
       <span class="e-progress-label">{{ name }}</span>
-      <span class="e-progress-value">{{ valueText || (indeterminate ? "" : Math.round(percent) + "%") }}</span>
+      <span class="e-progress-value">{{ valueText || (indeterminate ? "" : percentText) }}</span>
     </div>
     <div
       class="e-progress-track"
@@ -60,8 +71,15 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   .e-progress {
     --_period: calc(var(--e-space-4) * 1.4142);
 
+    /* Which way the sliding bar travels: from the start edge to the end, so it flips in a right-to-left page. */
+    --_dir: 1;
+
     display: grid;
     gap: var(--e-gap-snug);
+  }
+
+  .e-progress:dir(rtl) {
+    --_dir: -1;
   }
 
   .e-progress-head {
@@ -121,7 +139,8 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   /* Waiting on an unknown length: the bar slides back and forth over the moving stripes. */
   .e-progress--indeterminate .e-progress-fill {
     position: absolute;
-    inset: 0 auto 0 0;
+    inset-block: 0;
+    inset-inline: 0 auto;
     height: auto;
     width: 40%;
     transition: none;
@@ -136,11 +155,11 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
 
   @keyframes e-progress-slide {
     from {
-      transform: translateX(-100%);
+      transform: translateX(calc(-100% * var(--_dir)));
     }
 
     to {
-      transform: translateX(250%);
+      transform: translateX(calc(250% * var(--_dir)));
     }
   }
 

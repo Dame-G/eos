@@ -3,6 +3,7 @@ import { defineComponent, h } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EStepper from "./EStepper.vue";
+import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 const steps = [
@@ -27,6 +28,20 @@ describe("EStepper", () => {
     expect(current.length).toBe(1);
     expect(current[0]!.getAttribute("aria-current")).toBe("step");
     expect(current[0]!.textContent).toContain("Insurance");
+  });
+
+  test("the done and error words come whole from the messages, brackets and all", async () => {
+    const { container } = await render(EStepper, {
+      props: {
+        steps: [
+          { label: "One", state: "done" as const },
+          { label: "Two", state: "error" as const },
+        ],
+      },
+      global: { plugins: [createEos({ themeTarget: null, messages: { done: "– fertig", stepError: "– Fehler" } })] },
+    });
+    const sr = [...container.querySelectorAll(".e-sr")].map((s) => s.textContent);
+    expect(sr).toEqual([" – fertig", " – Fehler"]);
   });
 
   test("states: done steps get a check and are announced as done, others are numbered", async () => {
@@ -138,7 +153,7 @@ describe("EStepper", () => {
     expect(emitted().select).toEqual([[1, steps[1]]]);
   });
 
-  test("interactive: Tab walks the steps, Enter and Space choose, a disabled step is skipped, the current one is aria-current", async () => {
+  test("interactive: Tab walks the steps, Enter and Space choose, a disabled step is reached but not chosen, the current one is aria-current", async () => {
     const list = [
       { label: "One", state: "done" as const },
       { label: "Two", state: "current" as const },
@@ -154,6 +169,10 @@ describe("EStepper", () => {
     await userEvent.tab();
     expect(document.activeElement!.getAttribute("aria-current")).toBe("step");
     await userEvent.tab();
+    expect(document.activeElement!.textContent).toContain("Three");
+    expect(document.activeElement!.getAttribute("aria-disabled")).toBe("true");
+    await userEvent.keyboard("{Enter}");
+    await userEvent.tab();
     expect(document.activeElement!.textContent).toContain("Four");
     await userEvent.keyboard(" ");
     expect(emitted().select).toEqual([
@@ -163,14 +182,17 @@ describe("EStepper", () => {
     expect(container.querySelectorAll("li[aria-current]").length).toBe(0);
   });
 
-  test("a disabled interactive step is a disabled button", async () => {
+  test("a disabled interactive step is aria-disabled and stays focusable, and a press does nothing", async () => {
     const list = [
       { label: "One", state: "current" as const },
       { label: "Two", state: "upcoming" as const, disabled: true },
     ];
     const { container, emitted } = await render(EStepper, { props: { steps: list, interactive: true } });
     const two = container.querySelectorAll("button")[1]!;
-    expect(two.disabled).toBe(true);
+    expect(two.disabled).toBe(false);
+    expect(two.getAttribute("aria-disabled")).toBe("true");
+    two.focus();
+    expect(document.activeElement).toBe(two);
     two.click();
     expect(emitted().select).toBeUndefined();
   });

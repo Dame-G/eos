@@ -30,7 +30,7 @@ Use [`EDataGrid`](../DataGrid/README.md) when people need to sort, filter, selec
 | `maxHeight`    | `string`       | None           | Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header row.                  |
 | `cards`        | `boolean`      | `false`        | Turns each row into a card below 40rem of the table's own width. Give every `td` a `data-label` with its column heading.    |
 | `loading`      | `boolean`      | `false`        | Marks the data as loading: the rows are dimmed, `aria-busy` is set and placeholder lines show under the table.              |
-| `skeletonRows` | `number`       | `3`            | How many placeholder lines `loading` shows.                                                                                 |
+| `skeletonRows` | `number`       | `5`            | How many placeholder lines `loading` shows, 5 as in `EDataGrid`.                                                            |
 | `empty`        | `boolean`      | `false`        | Shows the empty state under the headings. Set it when the table has no rows.                                                |
 | `emptyTitle`   | `string`       | `"No results"` | The title of the empty state.                                                                                               |
 | `emptyText`    | `string`       | None           | The sentence under the empty title.                                                                                         |

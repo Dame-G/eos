@@ -19,6 +19,11 @@ describe("EPagination", () => {
     await expect.element(page.getByRole("button", { name: "Page 3" })).toBeVisible();
   });
 
+  test("an empty label falls back to Pagination, so the landmark is never nameless", async () => {
+    const { container } = await render(EPagination, { props: { modelValue: 1, pageCount: 3, label: "" } });
+    expect(container.querySelector("nav")!.getAttribute("aria-label")).toBe("Pagination");
+  });
+
   test("the current page is marked with aria-current", async () => {
     const { container } = await render(EPagination, { props: { modelValue: 2, pageCount: 5 } });
     const current = container.querySelectorAll(".e-page[aria-current=page]");

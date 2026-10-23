@@ -126,6 +126,27 @@ describe("ETable", () => {
     expect(container.querySelector("[role=status]")!.textContent).toBe("Loading");
   });
 
+  test("the loading status region is in the page before loading starts, so only its text changes", async () => {
+    const view = await render(ETable, { props: { caption: "Plans", loading: false }, slots: { default: rows } });
+    const status = view.container.querySelector("[role=status]");
+    expect(status).not.toBeNull();
+    expect(status!.textContent).toBe("");
+    await view.rerender({ loading: true });
+    expect(view.container.querySelector("[role=status]")).toBe(status);
+    expect(status!.textContent).toBe("Loading");
+    await view.rerender({ loading: false });
+    expect(view.container.querySelector("[role=status]")).toBe(status);
+    expect(status!.textContent).toBe("");
+  });
+
+  test("loading shows five placeholder lines by default, as EDataGrid shows five rows", async () => {
+    const { container } = await render(ETable, {
+      props: { caption: "Plans", loading: true },
+      slots: { default: rows },
+    });
+    expect(container.querySelectorAll(".e-table-loading .e-skel").length).toBe(5);
+  });
+
   test("empty shows the empty state under the headings, or your own slot", async () => {
     const head = () => [h("thead", [h("tr", [h("th", { scope: "col" }, "Plan")])])];
     const { container } = await render(ETable, {
