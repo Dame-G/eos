@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 import EStamp from "./EStamp.vue";
@@ -53,11 +53,20 @@ describe("EStamp", () => {
     expect(container.querySelector(".e-stamp")!.className).toBe("e-stamp e-stamp--info");
   });
 
-  test("the slot is the word, and neutral and ink tones add no modifier", async () => {
-    for (const tone of ["neutral", "ink"] as const) {
-      const { container } = await render(EStamp, { props: { tone }, slots: { default: "Draft" } });
+  test("the slot is the word, and the neutral tone adds no modifier", async () => {
+    const { container } = await render(EStamp, { props: { tone: "neutral" }, slots: { default: "Draft" } });
+    expect(container.querySelector(".e-stamp")!.className).toBe("e-stamp");
+    expect(container.querySelector(".e-stamp-word")!.textContent).toBe("Draft");
+  });
+
+  test("tone ink is still the neutral tone, and warns that it is deprecated", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const { container } = await render(EStamp, { props: { tone: "ink" }, slots: { default: "Draft" } });
       expect(container.querySelector(".e-stamp")!.className).toBe("e-stamp");
-      expect(container.querySelector(".e-stamp-word")!.textContent).toBe("Draft");
+      expect(warn).toHaveBeenCalledWith('[eos] EStamp tone="ink" is deprecated. Use tone="neutral".');
+    } finally {
+      warn.mockRestore();
     }
   });
 
@@ -161,7 +170,7 @@ describe("EStamp", () => {
   test("size sm is shorter", async () => {
     const { container } = await render(
       defineComponent({
-        render: () => h("div", [h(EStamp, { status: "paid" }), h(EStamp, { status: "paid", small: true })]),
+        render: () => h("div", [h(EStamp, { status: "paid" }), h(EStamp, { status: "paid", size: "sm" })]),
       }),
     );
     const [big, small] = [...container.querySelectorAll(".e-stamp")].map((e) => e.getBoundingClientRect().height);
@@ -170,13 +179,16 @@ describe("EStamp", () => {
     expect(container.querySelector(".e-stamp--sm")).not.toBeNull();
   });
 
-  test("size sm matches the small flag, and the stamp sets no placement of its own", async () => {
+  test("size sm matches the older small flag, and the stamp sets no placement of its own", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const { container } = await render(
       defineComponent({
         render: () => h("div", [h(EStamp, { status: "paid", size: "sm" }), h(EStamp, { status: "paid", small: true })]),
       }),
     );
     const [a, b] = [...container.querySelectorAll<HTMLElement>(".e-stamp")];
+    expect(warn).toHaveBeenCalledWith('[eos] EStamp `small` is deprecated. Use size="sm".');
+    warn.mockRestore();
     expect(a!.getBoundingClientRect().height).toBe(b!.getBoundingClientRect().height);
     expect(getComputedStyle(a!).alignSelf).toBe("auto");
     expect(getComputedStyle(a!).justifySelf).toBe("auto");
@@ -219,10 +231,10 @@ describe("EStamp", () => {
         render: () =>
           h("div", [
             ...STATUSES.map(([status]) => h(EStamp, { status })),
-            h(EStamp, { status: "due", detail: "in 3 days", small: true }),
+            h(EStamp, { status: "due", detail: "in 3 days", size: "sm" }),
             h(EStamp, { tone: "warning", label: "Review" }),
             h(EStamp, null, () => "Draft"),
-            h(EStamp, { tone: "ink" }, () => "Ink"),
+            h(EStamp, { tone: "neutral" }, () => "Neutral"),
           ]),
       }),
     );

@@ -645,10 +645,13 @@ describe("EDataGrid", () => {
     expect(names(container)).toEqual(["Beta", "Alpha"]);
   });
 
-  test("bare: a bare table without toolbar, filters, paging or footer", async () => {
+  test("bare (deprecated): a bare table without toolbar, filters, paging or footer", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const { container } = await grid({
       props: { caption: "T", columns: FILTER_COLS, rows: bigRows(30), bare: true, searchable: true, filterable: true },
     });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("`bare` is deprecated"));
+    warn.mockRestore();
     expect(container.querySelector(".e-grid--bare")).not.toBeNull();
     expect(container.querySelector(".e-grid-bar")).toBeNull();
     expect(container.querySelector(".e-filterrow")).toBeNull();
@@ -1166,9 +1169,13 @@ describe("EDataGrid", () => {
   test("the scroller carries the frame's corners where it meets them, so the frame's clip cannot cut its focus ring", async () => {
     const corner = (el: Element, which: string) =>
       parseFloat(getComputedStyle(el).getPropertyValue(`border-${which}-radius`));
+    // Only a bare grid has no foot, so its scroller meets the frame at all four corners. bare is deprecated, and says so.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const { container } = await grid({
       props: { columns: COLS, rows: ROWS, caption: "Invoices", bare: true, maxHeight: "3rem" },
     });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("`bare` is deprecated"));
+    warn.mockRestore();
     container.classList.add("e-root");
     const frame = container.querySelector(".e-grid-frame")!;
     const scroll = container.querySelector(".e-grid-scroll")!;

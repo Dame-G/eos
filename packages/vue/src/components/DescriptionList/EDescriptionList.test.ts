@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -46,12 +46,12 @@ describe("EDescriptionList", () => {
     }
   });
 
-  test("icon, badge and Edit button sit on the row; Edit emits the item", async () => {
+  test("icon, stamp and Edit button sit on the row; Edit emits the item", async () => {
     const seen: string[] = [];
     const { container } = await render(EDescriptionList, {
       props: {
         items: [
-          { label: "Email", text: "a@b.co", icon: "mail", badge: "Verified", badgeTone: "success", editable: true },
+          { label: "Email", text: "a@b.co", icon: "mail", stamp: "Verified", stampTone: "success", editable: true },
         ],
         onEdit: (item: { label?: string }) => seen.push(item.label ?? ""),
       },
@@ -60,6 +60,26 @@ describe("EDescriptionList", () => {
     expect(container.querySelector("dd .e-stamp")!.textContent).toBe("Verified");
     await page.getByRole("button", { name: "Edit Email" }).click();
     expect(seen).toEqual(["Email"]);
+  });
+
+  test("the older badge and badgeTone still give the stamp, and warn that they are deprecated", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const stamp = await render(EDescriptionList, {
+        props: { items: [{ label: "Email", text: "a@b.co", stamp: "Verified", stampTone: "success" }] },
+      });
+      const badge = await render(EDescriptionList, {
+        props: { items: [{ label: "Email", text: "a@b.co", badge: "Verified", badgeTone: "success" }] },
+      });
+      expect(badge.container.querySelector("dd .e-stamp")!.outerHTML).toBe(
+        stamp.container.querySelector("dd .e-stamp")!.outerHTML,
+      );
+      expect(warn).toHaveBeenCalledWith(
+        "[eos] EDescriptionList item `badge` and `badgeTone` are deprecated. Use `stamp` and `stampTone`.",
+      );
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   test("the action slot renders at the end of every row", async () => {

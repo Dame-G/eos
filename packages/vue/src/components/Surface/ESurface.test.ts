@@ -16,26 +16,44 @@ describe("ESurface", () => {
     expect(getComputedStyle(el).paddingTop).toBe("16px");
   });
 
-  test("small, large and flush set the padding from the space scale", async () => {
+  test("size sm and lg and flush set the padding from the space scale", async () => {
     const pads: string[] = [];
-    for (const props of [{ small: true }, { large: true }, { flush: true }] as Record<string, boolean>[]) {
+    for (const props of [{ size: "sm" }, { size: "lg" }, { flush: true }] as Record<string, unknown>[]) {
       const { container } = await render(ESurface, { props, slots: { default: "x" } });
       pads.push(getComputedStyle(container.querySelector(".e-surface")!).paddingTop);
     }
     expect(pads).toEqual(["12px", "24px", "0px"]);
   });
 
-  test("pad still works as a deprecated alias", async () => {
-    const { container } = await render(ESurface, { props: { pad: "lg" }, slots: { default: "x" } });
-    expect(container.querySelector(".e-surface")!.classList.contains("e-surface--pad-lg")).toBe(true);
+  test("pad still works as a deprecated alias, and warns", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const { container } = await render(ESurface, { props: { pad: "lg" }, slots: { default: "x" } });
+      expect(container.querySelector(".e-surface")!.classList.contains("e-surface--pad-lg")).toBe(true);
+      expect(warn).toHaveBeenCalledWith("[eos] ESurface `pad` is deprecated. Use `size`.");
+    } finally {
+      warn.mockRestore();
+    }
   });
 
-  test("paper switches to the paper ground", async () => {
-    const plain = await render(ESurface, { slots: { default: "x" } });
-    const paper = await render(ESurface, { props: { paper: true }, slots: { default: "x" } });
-    expect(getComputedStyle(paper.container.querySelector(".e-surface")!).backgroundColor).not.toBe(
-      getComputedStyle(plain.container.querySelector(".e-surface")!).backgroundColor,
-    );
+  test("the older paper and raised flags and variant tone still work, and warn that they are deprecated", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const look = async (props: Record<string, unknown>) => {
+        const { container } = await render(ESurface, { props, slots: { default: "x" } });
+        const el = container.querySelector(".e-surface")!;
+        return [el.className, getComputedStyle(el).backgroundColor];
+      };
+      expect(await look({ paper: true })).toEqual(await look({ variant: "paper" }));
+      expect(await look({ raised: true })).toEqual(await look({ variant: "raised" }));
+      expect((await look({ variant: "tone" }))[1]).toBe((await look({ variant: "tinted" }))[1]);
+      const said = warn.mock.calls.map(([m]) => String(m));
+      expect(said).toContain('[eos] ESurface `paper` is deprecated. Use variant="paper".');
+      expect(said).toContain('[eos] ESurface `raised` is deprecated. Use variant="raised".');
+      expect(said).toContain('[eos] ESurface variant="tone" is deprecated. Use variant="tinted".');
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   test("clip adds a class", async () => {
@@ -43,8 +61,8 @@ describe("ESurface", () => {
     expect(container.querySelector("div")!.className).toBe("e-surface e-surface--pad-md e-surface--clip");
   });
 
-  test("raised adds its class", async () => {
-    const { container } = await render(ESurface, { props: { raised: true }, slots: { default: "x" } });
+  test("variant raised adds its class", async () => {
+    const { container } = await render(ESurface, { props: { variant: "raised" }, slots: { default: "x" } });
     expect(container.querySelector(".e-surface--raised")).not.toBeNull();
   });
 
@@ -106,19 +124,18 @@ describe("ESurface", () => {
     }
   });
 
-  test("clip does not apply when there is a bar (the bar already clips)", async () => {
-    const { container } = await render(ESurface, {
-      props: { clip: true },
-      slots: { default: "Body", actions: () => "A" },
-    });
-    expect(container.querySelector(".e-surface--clip")).toBeNull();
-  });
-
-  test("clip with a bar warns in development", async () => {
+  test("clip does not apply when there is a bar (the bar already clips), and warns in development", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    await render(ESurface, { props: { clip: true }, slots: { default: "Body", actions: () => "A" } });
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining("clip"));
-    warn.mockRestore();
+    try {
+      const { container } = await render(ESurface, {
+        props: { clip: true },
+        slots: { default: "Body", actions: () => "A" },
+      });
+      expect(container.querySelector(".e-surface--clip")).toBeNull();
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("clip"));
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   test("size sets the padding, and wins over small and large with a warning", async () => {
@@ -127,9 +144,11 @@ describe("ESurface", () => {
       const { container } = await render(ESurface, { props, slots: { default: "x" } });
       return getComputedStyle(container.querySelector(".e-surface")!).paddingTop;
     };
-    expect(await pad({ size: "sm" })).toBe(await pad({ small: true }));
-    expect(await pad({ size: "lg" })).toBe(await pad({ large: true }));
+    const sm = await pad({ size: "sm" });
+    const lg = await pad({ size: "lg" });
     expect(warn.mock.calls.filter(([m]) => String(m).startsWith("[eos]"))).toEqual([]);
+    expect(await pad({ small: true })).toBe(sm);
+    expect(await pad({ large: true })).toBe(lg);
     expect(await pad({ size: "md", large: true })).toBe(await pad({}));
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("ESurface"));
     warn.mockRestore();
@@ -143,15 +162,15 @@ describe("ESurface", () => {
     expect(getComputedStyle(bar.container.querySelector(".e-surface")!).paddingTop).toBe("0px");
   });
 
-  test("outline has no fill and tone has a tint", async () => {
-    const bg = async (variant: "outline" | "tone" | "paper") => {
+  test("outline has no fill and tinted has a tint", async () => {
+    const bg = async (variant: "outline" | "tinted" | "paper") => {
       const { container } = await render(ESurface, { props: { variant }, slots: { default: "x" } });
       return getComputedStyle(container.querySelector(".e-surface")!).backgroundColor;
     };
     const plain = await render(ESurface, { slots: { default: "x" } });
     const base = getComputedStyle(plain.container.querySelector(".e-surface")!).backgroundColor;
     expect(await bg("outline")).toBe("rgba(0, 0, 0, 0)");
-    expect(await bg("tone")).not.toBe(base);
+    expect(await bg("tinted")).not.toBe(base);
     expect(await bg("paper")).not.toBe(base);
   });
 
@@ -201,10 +220,10 @@ describe("ESurface", () => {
       defineComponent({
         render: () =>
           h("div", [
-            h(ESurface, { small: true }, () => h("h2", "Plain")),
-            h(ESurface, { large: true, clip: true, as: "section", "aria-label": "Padded" }, () => "Padded"),
-            h(ESurface, { raised: true }, () => "Raised"),
-            h(ESurface, { paper: true, flush: true }, () => "Statement"),
+            h(ESurface, { size: "sm" }, () => h("h2", "Plain")),
+            h(ESurface, { size: "lg", clip: true, as: "section", "aria-label": "Padded" }, () => "Padded"),
+            h(ESurface, { variant: "raised" }, () => "Raised"),
+            h(ESurface, { variant: "paper", flush: true }, () => "Statement"),
             h(
               ESurface,
               { as: "article", "aria-label": "With bar" },

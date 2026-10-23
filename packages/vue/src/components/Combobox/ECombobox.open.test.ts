@@ -20,6 +20,7 @@ async function bound(initial: boolean, extra: Record<string, unknown> = {}) {
     defineComponent({
       render: () =>
         h(ECombobox as Component, {
+          clearable: true,
           ...{ label: "Country", options: ["France", "Germany", "Spain"] },
           ...extra,
           open: state.value,
@@ -99,7 +100,7 @@ describe("ECombobox open", () => {
 
   test("works uncontrolled: it opens and closes on its own without an open prop", async () => {
     const { container } = await render(ECombobox as Component, {
-      props: { label: "Country", options: ["France", "Germany", "Spain"] },
+      props: { clearable: true, label: "Country", options: ["France", "Germany", "Spain"] },
       global: { plugins: [createEos({ themeTarget: null })] },
     });
     await openIt(container);

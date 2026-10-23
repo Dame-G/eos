@@ -161,7 +161,7 @@ describe("icons follow the text scale", () => {
       document.body.append(box);
       if (textScale) defineTheme({ textScale }).apply(box);
       const { container } = await render(EIcon, { container: box, props: { name: "check" } } as never);
-      const small = await render(EIcon, { container: box, props: { name: "check", small: true } } as never);
+      const small = await render(EIcon, { container: box, props: { name: "check", size: "sm" } } as never);
       const sizes = [
         container.querySelector(".e-icon")!.getBoundingClientRect().width,
         small.container.querySelector(".e-icon--s")!.getBoundingClientRect().width,

@@ -12,7 +12,7 @@ const corner = (el: Element) => parseFloat(getComputedStyle(el).borderTopLeftRad
 
 describe("ESearchBar", () => {
   test("is a search landmark with a named box and a submit button", async () => {
-    const { container } = await render(ESearchBar);
+    const { container } = await render(ESearchBar, { props: { clearable: true } });
     await expect.element(page.getByRole("search")).toBeVisible();
     await expect.element(page.getByRole("textbox", { name: "Search" })).toBeVisible();
     await expect.element(page.getByRole("button", { name: "Search" })).toBeVisible();
@@ -26,7 +26,7 @@ describe("ESearchBar", () => {
 
   test("label, placeholder, action and name are used", async () => {
     const { container } = await render(ESearchBar, {
-      props: { label: "Search help", placeholder: "Search articles", action: "Find", name: "term" },
+      props: { clearable: true, label: "Search help", placeholder: "Search articles", action: "Find", name: "term" },
     });
     const input = page.getByRole("textbox", { name: "Search help" });
     await expect.element(input).toHaveAttribute("placeholder", "Search articles");
@@ -36,7 +36,7 @@ describe("ESearchBar", () => {
 
   test("Enter and the button both submit the current text, value first", async () => {
     const got: string[] = [];
-    await render(ESearchBar, { attrs: { onSubmit: (v: string) => got.push(v) } });
+    await render(ESearchBar, { props: { clearable: true }, attrs: { onSubmit: (v: string) => got.push(v) } });
     await page.getByRole("textbox", { name: "Search" }).fill("flu shot");
     await userEvent.keyboard("{Enter}");
     await page.getByRole("button", { name: "Search" }).click();
@@ -50,7 +50,7 @@ describe("ESearchBar", () => {
       defineComponent({
         render: () =>
           h("form", { onSubmit: (e: Event) => (e.preventDefault(), posted++) }, [
-            h(ESearchBar, { modelValue: "flu", name: "q", onSubmit: (v: string) => got.push(v) }),
+            h(ESearchBar, { clearable: true, modelValue: "flu", name: "q", onSubmit: (v: string) => got.push(v) }),
             h("input", { type: "submit", value: "Save" }),
           ]),
       }),
@@ -65,7 +65,7 @@ describe("ESearchBar", () => {
     const make = (disabled: boolean) =>
       render(
         defineComponent({
-          render: () => h("form", [h(ESearchBar, { modelValue: "flu", name: "q", disabled })]),
+          render: () => h("form", [h(ESearchBar, { clearable: true, modelValue: "flu", name: "q", disabled })]),
         }),
       );
     const on = await make(false);
@@ -77,7 +77,7 @@ describe("ESearchBar", () => {
   test("an IME composition's Enter does not submit", async () => {
     const got: string[] = [];
     const { container } = await render(ESearchBar, {
-      props: { modelValue: "x", onSubmit: (v: string) => got.push(v) },
+      props: { clearable: true, modelValue: "x", onSubmit: (v: string) => got.push(v) },
     });
     container
       .querySelector("input")!
@@ -88,7 +88,7 @@ describe("ESearchBar", () => {
   });
 
   test("size and loading: a bigger box, and a busy button", async () => {
-    const { container } = await render(ESearchBar, { props: { size: "lg", loading: true } });
+    const { container } = await render(ESearchBar, { props: { clearable: true, size: "lg", loading: true } });
     container.classList.add("e-root");
     expect(Math.round(container.querySelector(".e-search")!.getBoundingClientRect().height)).toBe(56);
     expect(container.querySelector("button")!.getAttribute("aria-busy")).toBe("true");
@@ -102,6 +102,7 @@ describe("ESearchBar", () => {
       defineComponent({
         render: () =>
           h(ESearchBar, {
+            clearable: true,
             modelValue: model.value,
             "onUpdate:modelValue": (v: string) => {
               got.push(v);
@@ -120,14 +121,14 @@ describe("ESearchBar", () => {
   });
 
   test("the mobile keyboard offers a search key", async () => {
-    const { container } = await render(ESearchBar);
+    const { container } = await render(ESearchBar, { props: { clearable: true } });
     expect(container.querySelector("input")!.getAttribute("enterkeyhint")).toBe("search");
   });
 
   test("the clear button empties the box, emits clear and returns focus to the box", async () => {
     let cleared = 0;
     const { container } = await render(ESearchBar, {
-      props: { modelValue: "abc", onClear: () => cleared++ },
+      props: { clearable: true, modelValue: "abc", onClear: () => cleared++ },
     });
     await page.getByRole("button", { name: "Clear" }).click();
     expect(cleared).toBe(1);
@@ -135,13 +136,13 @@ describe("ESearchBar", () => {
   });
 
   test("without v-model it keeps its own text", async () => {
-    await render(ESearchBar);
+    await render(ESearchBar, { props: { clearable: true } });
     await page.getByRole("textbox", { name: "Search" }).fill("local");
     await expect.element(page.getByRole("textbox", { name: "Search" })).toHaveValue("local");
   });
 
   test("the keyboard reaches the box, then the button", async () => {
-    await render(ESearchBar);
+    await render(ESearchBar, { props: { clearable: true } });
     await userEvent.tab();
     await expect.element(page.getByRole("textbox", { name: "Search" })).toHaveFocus();
     await userEvent.tab();
@@ -151,6 +152,7 @@ describe("ESearchBar", () => {
   test("attributes land on the input; class and style stay on the search box", async () => {
     const events: string[] = [];
     const { container } = await render(ESearchBar, {
+      props: { clearable: true },
       attrs: {
         class: "mine",
         style: "max-width: 320px",
@@ -171,13 +173,13 @@ describe("ESearchBar", () => {
   });
 
   test("disabled disables the box and the button", async () => {
-    await render(ESearchBar, { props: { disabled: true } });
+    await render(ESearchBar, { props: { clearable: true, disabled: true } });
     await expect.element(page.getByRole("textbox", { name: "Search" })).toBeDisabled();
     await expect.element(page.getByRole("button", { name: "Search" })).toBeDisabled();
   });
 
   test("is as tall as an input (48px)", async () => {
-    const { container } = await render(ESearchBar);
+    const { container } = await render(ESearchBar, { props: { clearable: true } });
     container.classList.add("e-root");
     expect(Math.round(container.querySelector("[role=search]")!.getBoundingClientRect().height)).toBe(48);
   });
@@ -187,9 +189,9 @@ describe("ESearchBar", () => {
       defineComponent({
         render: () =>
           h("div", [
-            h(ESearchBar, { label: "Search the site" }),
-            h(ESearchBar, { label: "Search articles", modelValue: "billing" }),
-            h(ESearchBar, { label: "Search is off", disabled: true }),
+            h(ESearchBar, { clearable: true, label: "Search the site" }),
+            h(ESearchBar, { clearable: true, label: "Search articles", modelValue: "billing" }),
+            h(ESearchBar, { clearable: true, label: "Search is off", disabled: true }),
           ]),
       }),
     );
@@ -201,25 +203,25 @@ describe("ESearchBar", () => {
       Vue.defineComponent({
         render: () =>
           Vue.h("div", [
-            Vue.h(ESearchBar, { label: "Search the site" }),
-            Vue.h(ESearchBar, { label: "Search help articles" }),
+            Vue.h(ESearchBar, { clearable: true, label: "Search the site" }),
+            Vue.h(ESearchBar, { clearable: true, label: "Search help articles" }),
           ]),
       }),
     );
     await expect.element(page.getByRole("search", { name: "Search the site" })).toBeVisible();
     await expect.element(page.getByRole("search", { name: "Search help articles" })).toBeVisible();
-    await render(ESearchBar);
+    await render(ESearchBar, { props: { clearable: true } });
     await expect.element(page.getByRole("search", { name: "Search", exact: true }).first()).toBeVisible();
   });
   test("disabled gives the box the dashed disabled look and no hover change", async () => {
-    const off = await render(ESearchBar, { props: { disabled: true } });
+    const off = await render(ESearchBar, { props: { clearable: true, disabled: true } });
     off.container.classList.add("e-root");
     const form = off.container.querySelector("[role=search]")!;
     expect(form.hasAttribute("data-disabled")).toBe(true);
     const idle = getComputedStyle(form);
     expect(idle.outlineStyle).toBe("dashed");
     const { backgroundColor, boxShadow } = idle;
-    const on = await render(ESearchBar);
+    const on = await render(ESearchBar, { props: { clearable: true } });
     on.container.classList.add("e-root");
     expect(getComputedStyle(on.container.querySelector("[role=search]")!).backgroundColor).not.toBe(backgroundColor);
     expect(on.container.querySelector("[role=search]")!.hasAttribute("data-disabled")).toBe(false);
@@ -233,7 +235,9 @@ describe("ESearchBar", () => {
   test("exposes the input and focus()", async () => {
     let api: { input: HTMLInputElement | null; focus: () => void } | null = null;
     const { container } = await render(
-      defineComponent({ render: () => h(ESearchBar, { ref: (r: unknown) => (api = r as typeof api) }) }),
+      defineComponent({
+        render: () => h(ESearchBar, { clearable: true, ref: (r: unknown) => (api = r as typeof api) }),
+      }),
     );
     api!.focus();
     expect(document.activeElement).toBe(container.querySelector("input"));
@@ -241,7 +245,7 @@ describe("ESearchBar", () => {
   });
 
   test("corners are concentric: the action button is inset by the edge and a tight gap at any theme", async () => {
-    const { container } = await render(ESearchBar);
+    const { container } = await render(ESearchBar, { props: { clearable: true } });
     const root = container as HTMLElement;
     root.classList.add("e-root");
     const wrap = root.querySelector(".e-input-wrap")!;

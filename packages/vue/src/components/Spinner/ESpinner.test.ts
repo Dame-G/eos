@@ -31,9 +31,9 @@ describe("ESpinner", () => {
     expect(getComputedStyle(ring.querySelector(".e-ring-track")!).animationName).toBe("none");
   });
 
-  test("small and large size the ring from the icon tokens", async () => {
+  test("size sm and lg size the ring from the icon tokens", async () => {
     const sizes: number[] = [];
-    for (const props of [{ small: true }, {}, { large: true }] as Record<string, boolean>[]) {
+    for (const props of [{ size: "sm" }, {}, { size: "lg" }] as Record<string, unknown>[]) {
       const { container } = await render(ESpinner, { props });
       sizes.push(container.querySelector(".e-ring")!.getBoundingClientRect().width);
     }
@@ -46,15 +46,19 @@ describe("ESpinner", () => {
       const { container } = await render(ESpinner, { props });
       return container.querySelector(".e-ring")!.getBoundingClientRect().width;
     };
-    expect([await width({ size: "sm" }), await width({ size: "md" }), await width({ size: "lg" })]).toEqual([
-      await width({ small: true }),
-      await width({}),
-      await width({ large: true }),
-    ]);
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    expect(await width({ size: "sm", large: true })).toBe(await width({ small: true }));
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining("ESpinner"));
-    warn.mockRestore();
+    try {
+      expect([await width({ size: "sm" }), await width({ size: "md" }), await width({ size: "lg" })]).toEqual([
+        await width({ small: true }),
+        await width({}),
+        await width({ large: true }),
+      ]);
+      expect(warn).toHaveBeenCalledWith('[eos] ESpinner `small` is deprecated. Use size="sm".');
+      expect(await width({ size: "sm", large: true })).toBe(await width({ small: true }));
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("ESpinner got `size`"));
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   test("block centres it in a panel", async () => {

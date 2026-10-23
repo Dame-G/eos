@@ -13,7 +13,9 @@ const expanded = (el: Element, v: "true" | "false") => expect.poll(() => el.getA
 
 describe("ECombobox freeform", () => {
   test("is a labelled combobox input with no toggle button and no native select", async () => {
-    const { container } = await render(ECombobox, { props: { freeform: true, label: "Street", options: STREETS } });
+    const { container } = await render(ECombobox, {
+      props: { clearable: true, freeform: true, label: "Street", options: STREETS },
+    });
     container.classList.add("e-root");
     await expect.element(box("Street")).toBeVisible();
     expect(container.querySelector("[aria-label='Show options']")).toBeNull();
@@ -24,7 +26,7 @@ describe("ECombobox freeform", () => {
 
   test("bare: just the input, named by ariaLabel", async () => {
     const { container } = await render(ECombobox, {
-      props: { freeform: true, bare: true, ariaLabel: "Street", options: STREETS },
+      props: { clearable: true, freeform: true, bare: true, ariaLabel: "Street", options: STREETS },
     });
     expect(container.querySelector("label")).toBeNull();
     expect(container.querySelector(".e-field")).toBeNull();
@@ -35,6 +37,7 @@ describe("ECombobox freeform", () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         freeform: true,
         label: "Street",
         options: STREETS,
@@ -57,6 +60,7 @@ describe("ECombobox freeform", () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         freeform: true,
         label: "Street",
         options: STREETS,
@@ -79,6 +83,7 @@ describe("ECombobox freeform", () => {
     const got: string[] = [];
     await render(ECombobox, {
       props: {
+        clearable: true,
         freeform: true,
         label: "Pharmacy",
         options: [{ value: "p1", label: "Corner Pharmacy" }],
@@ -95,6 +100,7 @@ describe("ECombobox freeform", () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         freeform: true,
         label: "Street",
         options: STREETS,
@@ -115,6 +121,7 @@ describe("ECombobox freeform", () => {
     const heard: string[] = [];
     await render(ECombobox, {
       props: {
+        clearable: true,
         freeform: true,
         label: "Street",
         options: [],
@@ -131,7 +138,14 @@ describe("ECombobox freeform", () => {
 
   test("name submits the text in one hidden input", async () => {
     const { container } = await render(ECombobox, {
-      props: { freeform: true, label: "Street", name: "street", options: STREETS, modelValue: "1 Free Text" },
+      props: {
+        clearable: true,
+        freeform: true,
+        label: "Street",
+        name: "street",
+        options: STREETS,
+        modelValue: "1 Free Text",
+      },
     });
     const hidden = container.querySelectorAll<HTMLInputElement>("input[type=hidden]");
     expect(hidden.length).toBe(1);
@@ -147,6 +161,7 @@ describe("ECombobox freeform", () => {
       defineComponent({
         render: () =>
           h(ECombobox, {
+            clearable: true,
             freeform: true,
             label: "Street",
             options: STREETS,
@@ -166,7 +181,9 @@ describe("ECombobox freeform", () => {
   });
 
   test("without v-model it keeps its own text", async () => {
-    const { container } = await render(ECombobox, { props: { freeform: true, label: "Street", options: STREETS } });
+    const { container } = await render(ECombobox, {
+      props: { clearable: true, freeform: true, label: "Street", options: STREETS },
+    });
     await box("Street").fill("something else");
     await userEvent.tab();
     await userEvent.tab();
@@ -175,7 +192,7 @@ describe("ECombobox freeform", () => {
 
   test("hint, error, disabled and attribute fall-through behave as in a text field", async () => {
     const { container, rerender } = await render(ECombobox, {
-      props: { freeform: true, label: "Street", options: STREETS, hint: "Start typing" },
+      props: { clearable: true, freeform: true, label: "Street", options: STREETS, hint: "Start typing" },
       attrs: { autocomplete: "street-address", "data-test": "x" },
     });
     const input = inputOf(container);
@@ -198,24 +215,28 @@ describe("ECombobox freeform", () => {
 
   test("axe: closed, open, loading, invalid, disabled", async () => {
     const a = await render(ECombobox, {
-      props: { freeform: true, label: "Street", options: STREETS, hint: "Start typing" },
+      props: { clearable: true, freeform: true, label: "Street", options: STREETS, hint: "Start typing" },
     });
     await expectNoViolations(a.container);
     await box("Street").fill("elm");
     await expect.poll(() => optionEls().length).toBe(2);
     await expectNoViolations(document.body);
     a.unmount();
-    const b = await render(ECombobox, { props: { freeform: true, label: "Street", options: [], loading: true } });
+    const b = await render(ECombobox, {
+      props: { clearable: true, freeform: true, label: "Street", options: [], loading: true },
+    });
     await box("Street").fill("e");
     await expect.poll(() => document.querySelector(".e-opt-status")).not.toBeNull();
     await expectNoViolations(document.body);
     b.unmount();
     const c = await render(ECombobox, {
-      props: { freeform: true, label: "Street", options: STREETS, error: "Enter an address" },
+      props: { clearable: true, freeform: true, label: "Street", options: STREETS, error: "Enter an address" },
     });
     await expectNoViolations(c.container);
     c.unmount();
-    const d = await render(ECombobox, { props: { freeform: true, label: "Street", options: STREETS, disabled: true } });
+    const d = await render(ECombobox, {
+      props: { clearable: true, freeform: true, label: "Street", options: STREETS, disabled: true },
+    });
     await expectNoViolations(d.container);
   });
 });

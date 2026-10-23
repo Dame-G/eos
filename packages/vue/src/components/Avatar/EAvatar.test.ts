@@ -46,7 +46,7 @@ describe("EAvatar", () => {
     expect(emoji.container.textContent!.trim()).toBe("👩‍💻D");
   });
 
-  test("size sm, md and lg match the flags; size wins over them with a warning", async () => {
+  test("size sm, md and lg match the older flags; size wins over them with a warning", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const { container } = await render(
       defineComponent({
@@ -56,11 +56,13 @@ describe("EAvatar", () => {
             h(EAvatar, { name: "A B", size: "md" }),
             h(EAvatar, { name: "A B", size: "lg" }),
             h(EAvatar, { name: "A B", size: "sm", large: true }),
+            h(EAvatar, { name: "A B", small: true }),
+            h(EAvatar, { name: "A B", large: true }),
           ]),
       }),
     );
     const sizes = [...container.querySelectorAll(".e-avatar")].map((e) => e.getBoundingClientRect().width);
-    expect(sizes).toEqual([32, 44, 64, 32]);
+    expect(sizes).toEqual([32, 44, 64, 32, 32, 64]);
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("EAvatar"));
     warn.mockRestore();
   });
@@ -95,14 +97,14 @@ describe("EAvatar", () => {
     expect(container.textContent!.trim()).toBe("AL");
   });
 
-  test("small and large are 32px and 64px, the default 44px", async () => {
+  test("size sm and lg are 32px and 64px, the default 44px", async () => {
     const { container } = await render(
       defineComponent({
         render: () =>
           h("div", { class: "e-root" }, [
             h(EAvatar, { name: "A B" }),
-            h(EAvatar, { name: "A B", small: true }),
-            h(EAvatar, { name: "A B", large: true }),
+            h(EAvatar, { name: "A B", size: "sm" }),
+            h(EAvatar, { name: "A B", size: "lg" }),
           ]),
       }),
     );
@@ -196,8 +198,8 @@ describe("EAvatar", () => {
         render: () =>
           h("div", [
             h(EAvatar, { name: "Ada Lovelace" }),
-            h(EAvatar, { name: "Ada Lovelace", src: PIXEL, small: true }),
-            h(EAvatar, { name: "Ada Lovelace", large: true }),
+            h(EAvatar, { name: "Ada Lovelace", src: PIXEL, size: "sm" }),
+            h(EAvatar, { name: "Ada Lovelace", size: "lg" }),
             h(EAvatar, { name: "Ada Lovelace", as: "button" }),
             h(EAvatar, { name: "Ada Lovelace", src: PIXEL, as: "button" }),
             h(EAvatar, { name: "Ada Lovelace", presence: "away" }),

@@ -84,7 +84,7 @@ describe("EUpload", () => {
     expect(container.querySelector("input")!.accept).toBe(".pdf,.jpg");
   });
 
-  test("choosing files lists them with their size, emits the files and updates v-model", async () => {
+  test("choosing files lists them with their size and updates v-model", async () => {
     const model = ref<File[]>([]);
     const emitted: File[][] = [];
     const { container } = await render(
@@ -94,8 +94,10 @@ describe("EUpload", () => {
             label: "Card",
             multiple: true,
             modelValue: model.value,
-            "onUpdate:modelValue": (v: File[]) => (model.value = v),
-            onFiles: (v: File[]) => emitted.push(v),
+            "onUpdate:modelValue": (v: File[]) => {
+              emitted.push(v);
+              model.value = v;
+            },
           }),
       }),
     );
@@ -149,7 +151,7 @@ describe("EUpload", () => {
         name: "card",
         readonly: true,
         modelValue: [file("a.pdf")],
-        onFiles: (v: File[]) => emitted.push(v),
+        "onUpdate:modelValue": (v: File[]) => emitted.push(v),
       },
     });
     const input = container.querySelector<HTMLInputElement>("input")!;
@@ -331,7 +333,7 @@ describe("EUpload", () => {
   test("dropping files on the zone takes them; dragging over highlights the zone", async () => {
     const emitted: File[][] = [];
     const { container } = await render(EUpload, {
-      props: { label: "Card", onFiles: (v: File[]) => emitted.push(v) },
+      props: { label: "Card", "onUpdate:modelValue": (v: File[]) => emitted.push(v) },
     });
     const zone = container.querySelector(".e-drop")!;
     zone.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true }));
@@ -372,7 +374,7 @@ describe("EUpload", () => {
   test("a disabled upload ignores drops and dims its edge", async () => {
     const emitted: File[][] = [];
     const { container } = await render(EUpload, {
-      props: { label: "Card", disabled: true, onFiles: (v: File[]) => emitted.push(v) },
+      props: { label: "Card", disabled: true, "onUpdate:modelValue": (v: File[]) => emitted.push(v) },
     });
     const zone = container.querySelector(".e-drop")!;
     zone.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true }));
