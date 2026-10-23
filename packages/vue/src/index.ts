@@ -52,6 +52,7 @@ export * from "./components/CodeBlock/index.js";
 export * from "./components/ColorField/index.js";
 export * from "./components/Combobox/index.js";
 export * from "./components/CommandPalette/index.js";
+export * from "./components/ConfigProvider/index.js";
 export * from "./components/Container/index.js";
 export * from "./components/CopyButton/index.js";
 export * from "./components/CurrencyField/index.js";

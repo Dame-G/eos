@@ -88,7 +88,7 @@ const props = {
       { id: "b", label: "Two" },
     ],
   },
-  ESurface: { href: "#card" },
+  ELinkCard: { title: "EButton", href: "#button" },
   ESwitch: { label: "Wi-Fi" },
   ETable: { caption: "Rows", columns: [{ key: "n", label: "Name" }], rows: [{ id: 1, n: "one" }] },
   ETabs: {

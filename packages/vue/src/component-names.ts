@@ -15,6 +15,7 @@ export const componentNames: ReadonlySet<string> = new Set([
   "EColorField",
   "ECombobox",
   "ECommandPalette",
+  "EConfigProvider",
   "EContainer",
   "ECopyButton",
   "ECurrencyField",

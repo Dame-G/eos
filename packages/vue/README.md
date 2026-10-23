@@ -41,7 +41,7 @@ const email = ref("");
 - Requirements: ESM only, Node 22 or later, Vue 3.5 or later. Tree-shaking is done by your bundler. Your bundler must replace `process.env.NODE_ENV` with a literal, as Vite, webpack, Rollup, esbuild and Nuxt do by default. The library reads it to keep development warnings (a theme that fails contrast) out of production builds; with a bundler that does not define it, the warnings stay on, and you can turn the contrast one off with `warnOnContrast: false`.
 - `@eos-ui/vue/fonts.css` is opt-in: it loads the default typefaces from Google Fonts, which shares visitors' IP addresses with Google. Skip it to self-host or use system fonts.
 - Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights.
-- Plugin options: `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget`, `portalTarget` and `warnOnContrast`.
+- Plugin options: `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget`, `portalTarget`, `warnOnContrast` and `applyTheme` (`false` when the page ships the theme CSS itself). [`EConfigProvider`](src/components/ConfigProvider/README.md) changes the theme, locale or direction for one part of the page.
 - A message can be a plural object (`{ one, other }` and the locale's other categories) when it takes a count `n`. `resultsCount`, `rows`, `rowsAnnounce` and `rangeDone` do.
 - `defineTheme()` (re-exported from [`@eos-ui/tokens`](../tokens)) builds a theme from `brand`, `accent` and other inputs and checks its contrast.
 - Icons: a built-in Phosphor set, or Lucide, Tabler, Heroicons, Phosphor (Vue), Iconify or your own set (`@eos-ui/vue/icons`, see [Bring your own icons](src/icons/README.md)).

@@ -46,7 +46,7 @@ const email = ref("");
 
 The stylesheet is mandatory: import `@eos-ui/vue/style.css` once in your entry file, even if you skip the plugin and register components yourself. The JavaScript has no CSS imports, so server rendering works in plain Node without bundler setup, and the stylesheet is the only thing you have to wire. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. Components also work without the plugin, in English and US dollars.
 
-`createEos()` takes `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget` (theme one element instead of `<html>`), `portalTarget` (where menus, dialogs and toasts render) and `warnOnContrast`.
+`createEos()` takes `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget` (theme one element instead of `<html>`), `portalTarget` (where menus, dialogs and toasts render), `warnOnContrast` and `applyTheme` (`false` leaves the theme to CSS the page ships itself, such as `themeCss()` in a `<style>` with its own dark variant). To change the theme, locale or direction for one part of the page, wrap it in `EConfigProvider`.
 
 ## Requirements and packaging
 

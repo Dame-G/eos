@@ -20,6 +20,7 @@ declare module "vue" {
     EColorField: typeof Library.EColorField;
     ECombobox: typeof Library.ECombobox;
     ECommandPalette: typeof Library.ECommandPalette;
+    EConfigProvider: typeof Library.EConfigProvider;
     EContainer: typeof Library.EContainer;
     ECopyButton: typeof Library.ECopyButton;
     ECurrencyField: typeof Library.ECurrencyField;
