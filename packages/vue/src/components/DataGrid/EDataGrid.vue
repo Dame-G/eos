@@ -538,7 +538,7 @@ onMounted(() => {
             <tr v-if="failed" :role="role('row')">
               <td :colspan="colCount" class="e-grid-empty" :role="role('cell')">
                 <slot name="error">
-                  <EEmptyState bare icon="triangle-alert" :title="typeof error === 'string' ? error : t('loadFailed')">
+                  <EEmptyState bare icon="alert" :title="typeof error === 'string' ? error : t('loadFailed')">
                     <template #action>
                       <EButton variant="outline" @click="emit('retry')">{{ t("retry") }}</EButton>
                     </template>

@@ -1067,6 +1067,8 @@ describe("EDataGrid", () => {
         props: { caption: "T", columns: COLS, rows: [], error: true, onRetry: () => retries++ },
       });
       expect(container.textContent).toContain("The data could not be loaded.");
+      // The EOS name "alert", which every icon set maps, so the built-in set draws it too.
+      expect(container.querySelector(".e-empty-icon .e-icon")).not.toBeNull();
       await page.getByRole("button", { name: "Try again" }).click();
       expect(retries).toBe(1);
       const own = await grid({ props: { caption: "T", columns: COLS, rows: [], error: "Offline" } });
