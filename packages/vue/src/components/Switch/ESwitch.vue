@@ -1,89 +1,47 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import EFieldFlag from "../Field/EFieldFlag.vue";
-import EFieldMessage from "../Field/EFieldMessage.vue";
-import { keepIfReadonly, useChoiceMessage } from "../Checkbox/useChoiceMessage.js";
-import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
-import { useUid } from "../../composables/useUid.js";
+import EChoiceRow from "../Checkbox/EChoiceRow.vue";
+import type { EFieldCommonProps } from "../Field/fieldProps.js";
+import { useChoice } from "../Checkbox/useChoiceMessage.js";
 import "../../styles/base.css";
 import "../Checkbox/choice.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<{
-  /** The setting, named by what it does. */
-  label: string;
-  /** A line of detail under the label. */
-  description?: string;
-  /** Disables the switch. It cannot take focus and is not submitted. */
-  disabled?: boolean;
-  /** Shows the state but blocks flipping it. The switch stays focusable and is still submitted. */
-  readonly?: boolean;
-  /** Sets the `required` attribute and shows "Required" beside the label. */
-  required?: boolean;
-  /** Shows "Optional" beside the label. Only the rarer of required and optional needs a flag. */
-  optional?: boolean;
-  /** Help under the row, linked with `aria-describedby`. */
-  hint?: string;
-  /** Shows what to fix under the row, in place of the hint, and sets `aria-invalid`. */
-  error?: string;
-  /** The name submitted with a form. */
-  name?: string;
-  /** The value submitted with a form when on. */
-  value?: string;
-  /** The id of the input, which the label points at. @default generated */
-  id?: string;
-}>();
+const props = defineProps<
+  Omit<EFieldCommonProps, "hideLabel"> & {
+    /** The setting, named by what it does. */
+    label: string;
+    /** A line of detail under the label. */
+    description?: string;
+    /** The name submitted with a form. */
+    name?: string;
+    /** The value submitted with a form when on. */
+    value?: string;
+  }
+>();
 
 /** On or off. */
 const model = defineModel<boolean>({ default: false });
 
-const id = useUid(() => props.id);
-const descId = computed(() => `${id.value}-desc`);
-const message = computed(() => ({ hint: props.hint, error: props.error }));
-const { messageId, describedBy } = useChoiceMessage(id, message);
-const input = ref<HTMLInputElement | null>(null);
-const attrs = useFieldAttrs();
-const guard = keepIfReadonly(() => props.readonly);
+const choice = useChoice(props);
+const input = choice.input;
 
-defineExpose({
-  input,
-  focus: () => input.value?.focus(),
-});
+defineExpose(choice.exposed);
 </script>
 
 <template>
-  <div class="e-choice-wrap" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
-    <label class="e-choice e-switch" :class="{ 'e-choice--disabled': disabled }" :for="id">
-      <input
-        :id="id"
-        ref="input"
-        type="checkbox"
-        role="switch"
-        class="e-switch-input"
-        :name="name"
-        :value="value"
-        :checked="model"
-        :disabled="disabled"
-        :required="required"
-        :aria-readonly="readonly ? 'true' : undefined"
-        :aria-invalid="error ? 'true' : undefined"
-        v-bind="attrs.input(describedBy(description && descId))"
-        @click="guard"
-        @change="model = ($event.target as HTMLInputElement).checked"
-      />
-      <span class="e-switch-track" aria-hidden="true" />
-      <span class="e-choice-text">
-        <span class="e-choice-label">
-          {{ label }}
-          <EFieldFlag :required="required" :optional="optional" />
-        </span>
-        <!-- Visible under the label, but kept out of its accessible name: the input points at it with aria-describedby. -->
-        <span v-if="description" :id="descId" class="e-choice-desc" aria-hidden="true">{{ description }}</span>
-      </span>
-    </label>
-    <EFieldMessage :id="messageId" :error="error" :hint="hint" />
-  </div>
+  <EChoiceRow v-bind="choice.row()" row-class="e-switch">
+    <input
+      ref="input"
+      role="switch"
+      class="e-switch-input"
+      :checked="model"
+      v-bind="choice.bind()"
+      @click="choice.guard"
+      @change="model = ($event.target as HTMLInputElement).checked"
+    />
+    <span class="e-switch-track" aria-hidden="true" />
+  </EChoiceRow>
 </template>
 
 <style>
