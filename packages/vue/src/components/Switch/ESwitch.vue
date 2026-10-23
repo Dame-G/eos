@@ -148,11 +148,13 @@ defineExpose({
     --_ring: var(--e-ink);
   }
 
+  /* Off, the track is pressed in. On, it is a raised primary face, as a checked box or radio is, so the well goes. */
   .e-switch-input:checked + .e-switch-track {
     --_ring: var(--e-primary-slab);
 
     background-color: var(--e-primary);
     background-clip: border-box;
+    box-shadow: none;
   }
 
   .e-switch:hover .e-switch-input:checked:not(:disabled) + .e-switch-track {

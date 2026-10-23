@@ -6,6 +6,15 @@ import ESwitch from "./ESwitch.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESwitch", () => {
+  test("the track is pressed in while off and flat while on, as a checkbox is", async () => {
+    const { container } = await render(ESwitch, { props: { label: "Reminders" } });
+    container.classList.add("e-root");
+    const track = container.querySelector(".e-switch-track")!;
+    expect(getComputedStyle(track).boxShadow).toContain("inset");
+    await page.getByText("Reminders").click();
+    await expect.poll(() => getComputedStyle(track).boxShadow).toBe("none");
+  });
+
   test("is a switch named by its label", async () => {
     const { container } = await render(ESwitch, { props: { label: "Reminders" } });
     await expect.element(page.getByRole("switch", { name: "Reminders" })).toBeVisible();
