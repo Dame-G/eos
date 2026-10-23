@@ -70,52 +70,25 @@
   }
 
   /*
-   * The slab: a raised bottom edge under a face. One construction for every component, so a button, a selected tab, a checked box and a current page all stand out the same way.
-   *   --_slab  the colour of the edge (a tone's `-slab` colour, or `--e-slab-ink` on a neutral face)
-   *   --_ring  the colour of the border on the other three sides; follows --_slab
-   *   --_lift  how far the edge reaches; `--e-slab` (the default), `--e-slab-thin` or `--e-slab-bold`
-   * The edge is the bottom border made thicker by --_lift, so the box is the same height raised or pressed. Pressing sets --_lift to 0 and the face sinks over the edge. Never draw it as a thicker border on one side only, a shadow, a gradient band or a ::before bar. Where a border would shift the layout, `.e-slab--shadow` is the one exception.
+   * The recipes. Each component writes these in its own rules (inner classes are not API), so they live here as the rules every component follows, not as classes. `edges.test.ts` checks what the components render against them.
+   *
+   * The slab: a raised bottom edge under a face, so a button, a checked box, a chosen day and a current page all stand out the same way. A border on every side in the slab colour (a tone's `-slab` colour, or `--e-slab-ink` on a neutral face), the bottom one thicker by --_lift: `--e-depth` (the default), `--e-slab-thin` for a small part or 0 when pressed or disabled, so the box is the same height raised or pressed.
+   *     border: var(--e-stroke-edge) solid var(--_slab);
+   *     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
+   *   Never a thicker border on one side alone, a shadow, a gradient band or a ::before bar. A face that cannot grow a border uses `--e-slab-edge` (and is shorter by `--e-depth`); a quiet control toggled on, `--e-slab-sink`.
+   *   A tone edge (Notice, Stamp, Toast) is the one side edge: the inline-start border, calc(var(--e-stroke-edge) + var(--e-slab-bold)), in the tone colour.
+   *
+   * Hover and press. A bordered item recolours its own border and never adds a ring, so its edge never thickens: Tabs and Segmented go to `--e-wash-ring` on hover and `--e-ink` on press. An unbordered row, tile or quiet button gets `--e-wash-hover` plus `--e-ring-hover`, then `--e-wash-press` plus `--e-ring-press` (the `.e-interact` rules below). Filled controls keep their own `-hover` and `-press` fills. All of them use `--e-transition-state`.
+   *   Named exceptions, which draw no ring: a text link (`ELink`: the ink colour only, no wash), a breadcrumb (a wash under the link text) and a disclosure summary (`EDisclosure`: a wash only, no ring and no underline).
+   *
+   * Selected, in two voices; a component uses one. A value you set (a toggle, a check, a segment, a page, a day) is filled `--e-primary` with `--e-on-primary` text on a `--e-primary-slab` slab. Where you are (a tab, a nav item) is a `--e-wash-hover` face with `--e-primary` text and a primary edge, drawn two ways:
+   *   a tab sits in a bordered strip, so the selected one thickens all four of its edges evenly (the bottom one primary) and its neighbours' shared edges stay put;
+   *   a nav item stands alone, so it takes a real slab: the bottom border thicker by `--e-depth`.
+   *
+   * Disabled, in two voices. A control keeps its box, drops its lift, dims to `--e-disabled-ink` on `--e-disabled-fill` and draws a dashed `--e-border-strong` outline inside its edge, so colour is never the only cue. A list row (a menu item, an option, a nav item) only dims its text. Both use `cursor: not-allowed` and stop answering the pointer.
    */
-  .e-slab {
-    --_lift: var(--e-slab);
-    --_slab: var(--e-slab-ink);
-    --_ring: var(--_slab);
 
-    border: var(--e-stroke-edge) solid var(--_ring);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-  }
-
-  .e-slab--thin {
-    --_lift: var(--e-slab-thin);
-  }
-
-  .e-slab--bold {
-    --_lift: var(--e-slab-bold);
-  }
-
-  .e-slab:active,
-  .e-slab:is(:disabled, [aria-disabled="true"]) {
-    --_lift: 0px;
-  }
-
-  /* The slab as a shadow, for a face that cannot grow a border. Make the face shorter by --e-slab. */
-  .e-slab--shadow {
-    box-shadow: var(--e-slab-edge);
-  }
-
-  /* The slab pressed in: a quiet control that is toggled on. */
-  .e-slab--sink {
-    box-shadow: var(--e-slab-sink);
-  }
-
-  /*
-   * How anything that can be pressed answers the pointer. Add `.e-interact` to a row, tile, menu item or quiet button that has no fill of its own.
-   *   hover  a wash and a hairline ring (`--e-wash-hover`, `--e-ring-hover`)
-   *   press  a stronger wash and an ink ring: the ring darkens (`--e-wash-press`, `--e-ring-press`)
-   *   focus  a solid 2px outline, 2px off the box
-   * Filled controls (a button, a selected segment) keep their own `-hover` and `-press` fills and use the same `--e-transition-state`.
-   * --inset draws the focus outline inside the box, for rows that touch their neighbours or sit in a clipped list. --field is for text inputs and what is built on them: the primary colour, laid over the border.
-   */
+  /* An unbordered button beside the text in a field (clear, reveal, step) or a chip's remove button: the hover and press of a quiet item. --inset draws the focus outline inside the box, for one that touches its neighbours or sits in a clipped box. */
   .e-interact {
     transition: var(--e-transition-state);
   }
@@ -137,50 +110,6 @@
 
   .e-interact--inset:focus-visible {
     outline-offset: calc(-1 * var(--e-stroke-focus));
-  }
-
-  .e-interact--field:focus-visible {
-    outline-color: var(--e-focus-field);
-    outline-offset: var(--e-focus-gap-field);
-  }
-
-  /*
-   * Selected, in two voices. A value you set (a toggle, a check, a segment, a page) is filled primary. Where you are (a tab, a nav item) is outlined with a primary slab on a washed face. Never mix them in one component.
-   * Both set --_slab, so they sit on `.e-slab`.
-   */
-  .e-selected--value {
-    --_slab: var(--e-primary-slab);
-
-    background-color: var(--e-primary);
-    color: var(--e-on-primary);
-  }
-
-  .e-selected--place {
-    --_slab: var(--e-primary);
-
-    background-color: var(--e-surface-hover);
-    color: var(--e-primary);
-  }
-
-  /*
-   * Disabled, in two voices. A control keeps its box and draws a dashed edge, so the colour is never the only cue. A list row (a menu item, an option, a nav item) only dims its text: a dashed box around every unavailable row would be noise. Both stop answering the pointer.
-   */
-  .e-disabled {
-    --_lift: 0px;
-
-    cursor: not-allowed;
-    background: var(--e-disabled-fill);
-    color: var(--e-disabled-ink);
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
-    box-shadow: none;
-  }
-
-  .e-disabled-row {
-    cursor: not-allowed;
-    background: transparent;
-    color: var(--e-disabled-ink);
-    box-shadow: none;
   }
 
   /* The one visually-hidden rule: `EVisuallyHidden` renders this class, and so does every component that hides a label. */
