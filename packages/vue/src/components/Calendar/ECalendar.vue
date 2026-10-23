@@ -732,10 +732,13 @@ defineExpose({
     box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-primary);
   }
 
-  /* The chosen day is a small button face, like a checked box: the primary colour with a slab under it that sinks when pressed. */
+  /* The chosen day is a small button face, like a checked box: the primary colour on the standard slab (an edge on every side in the slab colour, the bottom one thicker by --_lift), which sinks when pressed. */
   .e-day--sel,
   .e-cal-cell.e-day--sel {
-    border-bottom: var(--e-depth) solid var(--e-primary-slab);
+    --_lift: var(--e-depth);
+
+    border: var(--e-stroke-edge) solid var(--e-primary-slab);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     background: var(--e-primary);
     box-shadow: none;
     font-weight: var(--e-weight-strong);
@@ -749,7 +752,8 @@ defineExpose({
 
   .e-day--sel:active,
   .e-cal-cell.e-day--sel:active {
-    border-bottom-width: 0;
+    --_lift: 0px;
+
     background: var(--e-primary-press);
   }
 
