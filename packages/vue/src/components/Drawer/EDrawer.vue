@@ -112,11 +112,11 @@ const edge = computed(() => (props.side === "left" ? "start" : props.side === "r
   }
 
   .e-drawer[data-state="open"] {
-    animation: e-drawer-in var(--e-duration-move) var(--e-easing-out);
+    animation: e-drawer-in var(--e-duration-move) var(--e-easing-enter);
   }
 
   .e-drawer[data-state="closed"] {
-    animation: e-drawer-out var(--e-duration-move) var(--e-easing-out) forwards;
+    animation: e-drawer-out var(--e-duration-move) var(--e-easing-exit) forwards;
   }
 
   .e-drawer--start[data-state="open"] {
