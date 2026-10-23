@@ -186,6 +186,7 @@ const media = async (features: { name: string; value: string }[]) => {
   await cdp().send("Emulation.setEmulatedMedia", { features });
 };
 
+// axe cannot fail on forced colours or motion; media.test.ts checks the focus rings, edges and durations themselves.
 describe("axe under emulated media", () => {
   afterEach(() => media([]));
 
