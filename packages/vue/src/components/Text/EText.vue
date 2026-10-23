@@ -1,21 +1,22 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useSize, type Size } from "../../composables/useSize.js";
+import { useDeprecated, useSize, type ElementTag, type Size, type Tone } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
-export type TextTone = "muted" | "info" | "success" | "warning" | "danger";
+/** The colour of the text. `muted` is the older name of `neutral`. */
+export type TextTone = Extract<Tone, "neutral" | "info" | "success" | "warning" | "danger"> | "muted";
 
 const props = withDefaults(
   defineProps<{
     /** `sm` for captions and fine print, `lg` for the one-sentence reading of a statement. `textScale` rescales both. */
-    size?: Size;
-    /** Smaller text. Same as `size="sm"`. */
+    size?: Extract<Size, "sm" | "md" | "lg">;
+    /** @deprecated Use `size="sm"`. */
     small?: boolean;
-    /** Larger text. Same as `size="lg"`. */
+    /** @deprecated Use `size="lg"`. */
     large?: boolean;
-    /** Secondary copy, in the muted colour. Same as `tone="muted"`. */
+    /** @deprecated Use `tone="neutral"`. */
     muted?: boolean;
-    /** The colour of the text. Left out, it is the ink colour. */
+    /** The colour of the text. Left out, it is the ink colour. `neutral` is the quieter colour of secondary copy. `muted` is a deprecated name for `neutral`. */
     tone?: TextTone;
     /** Aligns the lines. `start` and `end` follow the writing direction. */
     align?: "start" | "center" | "end";
@@ -30,7 +31,7 @@ const props = withDefaults(
     /** Caps the line at the reading measure (`--e-measure`). `false` lets it fill its cell, as in a flex or grid layout. */
     measure?: boolean;
     /** The element to render. */
-    as?: string;
+    as?: ElementTag;
   }>(),
   { as: "p", measure: true },
 );
@@ -41,9 +42,15 @@ defineSlots<{
 }>();
 
 const size = useSize(props, "EText");
-const tone = computed(() => props.tone ?? (props.muted ? "muted" : undefined));
+useDeprecated("EText", props, { muted: 'tone="neutral"', tone: (v) => (v === "muted" ? 'tone="neutral"' : undefined) });
+const tone = computed(() => {
+  const given = props.tone ?? (props.muted ? "neutral" : undefined);
+  return given === "muted" ? "neutral" : given;
+});
+/** Each tone's colour token. `neutral` is the muted ink. */
+const toneVar = (t: string) => `var(--e-${t === "neutral" ? "muted" : t})`;
 const style = computed(() => ({
-  "--_tone": tone.value && `var(--e-${tone.value})`,
+  "--_tone": tone.value && toneVar(tone.value),
   "--_measure": props.measure ? undefined : "none",
   "--_lines": props.lines,
   textAlign: props.align,
@@ -58,7 +65,7 @@ const style = computed(() => ({
     :class="[
       size === 'sm' && 'e-text--small',
       size === 'lg' && 'e-text--large',
-      tone === 'muted' && 'e-text--muted',
+      tone === 'neutral' && 'e-text--muted',
       mono && 'e-text--mono',
       truncate && 'e-text--truncate',
       lines && 'e-text--clamp',

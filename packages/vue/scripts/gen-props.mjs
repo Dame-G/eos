@@ -308,7 +308,8 @@ function row(p, defaults) {
   else if (p.type === "boolean") def = "`false`";
   else def = "None";
 
-  let note = doc.replace(/^Required\.\s*/i, "");
+  // `@deprecated Use x.` is the TypeScript tag, so editors strike the prop through; the table says it in words.
+  let note = doc.replace(/^Required\.\s*/i, "").replace(/(^|\s)@deprecated\s*/, "$1**Deprecated.** ");
   if (p.model) {
     const prefix = p.name === "modelValue" ? "v-model" : `v-model:${p.name}`;
     // The prefix is code: a bare `v-model:end:` would be turned into an emoji by markdown-it.

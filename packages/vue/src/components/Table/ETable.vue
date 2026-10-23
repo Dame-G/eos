@@ -4,6 +4,7 @@ import EEmptyState from "../EmptyState/EEmptyState.vue";
 import "../Skeleton/ESkeleton.vue";
 import { useMessages } from "../../config.js";
 import { useOverflow } from "../../composables/useOverflow.js";
+import { useDeprecated, type Size } from "../../composables/useSize.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 import "./table.css";
@@ -17,8 +18,8 @@ const props = withDefaults(
     /** Tints every other row. */
     striped?: boolean;
     /** Smaller text and tighter cells, for reference tables with many rows. `"sm"` is the same as the older `dense`. @default "md" */
-    size?: "sm" | "md";
-    /** Same as `size="sm"`. */
+    size?: Extract<Size, "sm" | "md">;
+    /** @deprecated Use `size="sm"`. */
     dense?: boolean;
     /** Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header row. */
     maxHeight?: string;
@@ -49,6 +50,7 @@ defineSlots<{
 
 const t = useMessages();
 const style = computed(() => (props.maxHeight ? { "--_max-h": props.maxHeight } : undefined));
+useDeprecated("ETable", props, { dense: 'size="sm"' });
 const small = computed(() => props.size === "sm" || (!props.size && props.dense));
 
 // A tab stop that scrolls nothing is noise, so the frame is a focusable, named region only while it scrolls.

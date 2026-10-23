@@ -5,6 +5,7 @@ import EIconButton from "../IconButton/EIconButton.vue";
 import ESurface from "../Surface/ESurface.vue";
 import { useMessages } from "../../config.js";
 import type { IconProp } from "../../icons/types.js";
+import type { ToastTone } from "../../composables/useToast.js";
 import "../../styles/base.css";
 import "../Notice/notice.css";
 
@@ -12,8 +13,8 @@ withDefaults(
   defineProps<{
     /** What happened, in a few words. */
     title: string;
-    /** `danger` is announced at once and the other tones politely. */
-    tone?: "info" | "success" | "warning" | "danger";
+    /** `danger` is announced at once and the other tones politely. `neutral` is for news that is neither good nor bad. */
+    tone?: ToastTone;
     /** Replaces the icon of the tone. */
     icon?: IconProp;
     /** Shows the dismiss button. */
@@ -37,12 +38,18 @@ defineSlots<{
 }>();
 
 const t = useMessages();
-const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "alert" } as const;
+const TONE_ICON: Record<ToastTone, string> = {
+  neutral: "info",
+  info: "info",
+  success: "check",
+  warning: "alert",
+  danger: "alert",
+};
 </script>
 
 <template>
   <ESurface
-    raised
+    variant="raised"
     flush
     class="e-toast"
     :class="[`e-toast--${tone}`, $slots.action && 'e-toast--actions']"
@@ -77,6 +84,10 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
 
   .e-toast--actions {
     width: min(40rem, 100%);
+  }
+
+  .e-toast--neutral {
+    --e-tone: var(--e-muted);
   }
 
   .e-toast--success {

@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { ElementTag } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
     /** The element to render, such as `main` or `section`. */
-    as?: string;
+    as?: ElementTag;
     /** The widest it grows: `sm` 40rem, `md` 60rem, `lg` 80rem, or `full` for the whole width. It is centred when narrower than its parent. */
     size?: "sm" | "md" | "lg" | "full";
     /** Keeps the page gutter at its sides, so content never touches the screen edge. `false` for a container that sits inside another that already has one. */

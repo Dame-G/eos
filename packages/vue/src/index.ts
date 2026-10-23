@@ -26,7 +26,7 @@ export { useOverflow } from "./composables/useOverflow.js";
 export { useQuietFocus } from "./composables/useQuietFocus.js";
 export { useShortcuts, formatShortcut } from "./composables/useShortcuts.js";
 export type { ShortcutMap, ShortcutOptions } from "./composables/useShortcuts.js";
-export type { Size } from "./composables/useSize.js";
+export type { Size, Tone, ElementTag } from "./composables/useSize.js";
 export { TOAST_KEY, createToasts, useToast } from "./composables/useToast.js";
 export type {
   ToastTone,

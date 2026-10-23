@@ -10,12 +10,12 @@ Several people as overlapping avatars, with a "+N" tile for the rest. Use [`EAva
 
 <!-- props:start -->
 
-| Prop    | Type                | Default      | Notes                                                            |
-| ------- | ------------------- | ------------ | ---------------------------------------------------------------- |
-| `items` | `AvatarGroupItem[]` | **Required** | The people, in order. Each is `{ name, src? }`.                  |
-| `max`   | `number`            | `4`          | How many avatars show before the rest collapse into a "+N" tile. |
-| `size`  | `Size`              | None         | `sm` 32px, `md` 44px or `lg` 64px, for every avatar.             |
-| `label` | `string`            | None         | Names the group, instead of the list of names.                   |
+| Prop    | Type                                  | Default      | Notes                                                            |
+| ------- | ------------------------------------- | ------------ | ---------------------------------------------------------------- |
+| `items` | `AvatarGroupItem[]`                   | **Required** | The people, in order. Each is `{ name, src? }`.                  |
+| `max`   | `number`                              | `4`          | How many avatars show before the rest collapse into a "+N" tile. |
+| `size`  | `Extract<Size, "sm" \| "md" \| "lg">` | None         | `sm` 32px, `md` 44px or `lg` 64px, for every avatar.             |
+| `label` | `string`                              | None         | Names the group, instead of the list of names.                   |
 
 <!-- props:end -->
 

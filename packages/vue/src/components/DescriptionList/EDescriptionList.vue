@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, type VNodeChild } from "vue";
+import { computed, watchEffect, type VNodeChild } from "vue";
 import EButton from "../Button/EButton.vue";
 import EStamp from "../Stamp/EStamp.vue";
 import EIcon from "../Icon/EIcon.vue";
@@ -7,6 +7,7 @@ import EKicker from "../Kicker/EKicker.vue";
 import type { StampTone } from "../Stamp/EStamp.vue";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
+import { warnOnce } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
 export interface DescriptionItem {
@@ -17,15 +18,19 @@ export interface DescriptionItem {
   /** A decorative icon before the label, or before the text in a plain list. */
   icon?: IconProp;
   /** A short word in a stamp after the text, such as "Verified". */
+  stamp?: string;
+  /** The stamp's tone. */
+  stampTone?: StampTone;
+  /** @deprecated Use `stamp`. */
   badge?: string;
-  /** The badge's tone. */
+  /** @deprecated Use `stampTone`. */
   badgeTone?: StampTone;
   /** Shows an Edit button at the end of the row that emits `edit`. A plain list has no Edit button and ignores it. */
   editable?: boolean;
 }
 
 const props = defineProps<{
-  /** The rows, as `{ label?, text, icon?, badge?, badgeTone?, editable? }`. `null` and `undefined` items are skipped. */
+  /** The rows, as `{ label?, text, icon?, stamp?, stampTone?, editable? }`. `null` and `undefined` items are skipped. */
   items: (DescriptionItem | null | undefined)[];
 }>();
 
@@ -35,7 +40,7 @@ const emit = defineEmits<{
 }>();
 
 defineSlots<{
-  /** Adds content after a row's text and badge, such as a Button or IconButton. */
+  /** Adds content after a row's text and stamp, such as a Button or IconButton. */
   action?(props: { item: DescriptionItem; index: number }): unknown;
 }>();
 
@@ -43,6 +48,12 @@ const t = useMessages();
 const shown = computed(() => props.items.filter((it): it is DescriptionItem => Boolean(it)));
 /** No labels anywhere: render a plain list of facts instead of term/description pairs. */
 const plain = computed(() => shown.value.length > 0 && shown.value.every((it) => !it.label));
+const stampOf = (it: DescriptionItem) => it.stamp ?? it.badge;
+const stampToneOf = (it: DescriptionItem) => it.stampTone ?? it.badgeTone;
+watchEffect(() => {
+  if (shown.value.some((it) => it.badge !== undefined || it.badgeTone !== undefined))
+    warnOnce("EDescriptionList item `badge` and `badgeTone` are deprecated. Use `stamp` and `stampTone`.");
+});
 
 const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["value"] });
 </script>
@@ -52,7 +63,7 @@ const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["v
     <li v-for="(item, i) in shown" :key="i" class="e-fact">
       <EIcon v-if="item.icon" :name="item.icon" />
       <span class="e-fact-text"><Render :value="item.text" /></span>
-      <EStamp v-if="item.badge" :tone="item.badgeTone" size="sm">{{ item.badge }}</EStamp>
+      <EStamp v-if="stampOf(item)" :tone="stampToneOf(item)" size="sm">{{ stampOf(item) }}</EStamp>
       <slot name="action" :item="item" :index="i" />
     </li>
   </ul>
@@ -61,7 +72,7 @@ const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["v
       <EKicker as="dt"><EIcon v-if="item.icon" :name="item.icon" />{{ item.label }}</EKicker>
       <dd class="e-fact-text">
         <span class="e-fact-value"><Render :value="item.text" /></span>
-        <EStamp v-if="item.badge" :tone="item.badgeTone" size="sm">{{ item.badge }}</EStamp>
+        <EStamp v-if="stampOf(item)" :tone="stampToneOf(item)" size="sm">{{ stampOf(item) }}</EStamp>
         <slot name="action" :item="item" :index="i" />
         <EButton
           v-if="item.editable"

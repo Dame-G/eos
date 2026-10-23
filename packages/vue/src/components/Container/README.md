@@ -14,7 +14,7 @@ The page-width column: a maximum width, centred, with the page gutter at its sid
 
 | Prop     | Type                             | Default | Notes                                                                                                                                                |
 | -------- | -------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `as`     | `string`                         | `"div"` | The element to render, such as `main` or `section`.                                                                                                  |
+| `as`     | `ElementTag`                     | `"div"` | The element to render, such as `main` or `section`.                                                                                                  |
 | `size`   | `"sm" \| "md" \| "lg" \| "full"` | `"lg"`  | The widest it grows: `sm` 40rem, `md` 60rem, `lg` 80rem, or `full` for the whole width. It is centred when narrower than its parent.                 |
 | `gutter` | `boolean`                        | `true`  | Keeps the page gutter at its sides, so content never touches the screen edge. `false` for a container that sits inside another that already has one. |
 

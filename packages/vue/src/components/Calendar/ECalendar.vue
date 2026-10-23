@@ -472,7 +472,7 @@ defineExpose({
           @click="openView('years')"
         >
           {{ monthTitle }}
-          <EIcon name="chevron-down" small />
+          <EIcon name="chevron-down" size="sm" />
         </button>
       </div>
       <span v-if="picking" class="e-cal-gap" />

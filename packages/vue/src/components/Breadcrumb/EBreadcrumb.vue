@@ -69,7 +69,7 @@ const linkAttrs = (item: BreadcrumbItem) => ({
           <button type="button" class="e-crumb e-crumb-more" :aria-label="t('showFullPath')" @click="expand">
             <span aria-hidden="true">&hellip;</span>
           </button>
-          <EIcon name="chevron-right" small />
+          <EIcon name="chevron-right" size="sm" />
         </li>
         <li v-else>
           <span
@@ -92,7 +92,7 @@ const linkAttrs = (item: BreadcrumbItem) => ({
           <span v-else class="e-crumb-current" :data-crumb="i" :tabindex="focusAt === i ? -1 : undefined">{{
             item.label
           }}</span>
-          <EIcon v-if="i < items.length - 1" name="chevron-right" small />
+          <EIcon v-if="i < items.length - 1" name="chevron-right" size="sm" />
         </li>
       </template>
     </ol>

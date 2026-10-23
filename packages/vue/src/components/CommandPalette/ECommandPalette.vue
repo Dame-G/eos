@@ -274,7 +274,7 @@ defineExpose({
                 </span>
               </span>
               <span v-if="item.shortcut" class="e-cmd-keys" aria-hidden="true">
-                <EKbd v-for="key in formatShortcut(item.shortcut)" :key="key" small>{{ key }}</EKbd>
+                <EKbd v-for="key in formatShortcut(item.shortcut)" :key="key" size="sm">{{ key }}</EKbd>
               </span>
             </slot>
           </div>

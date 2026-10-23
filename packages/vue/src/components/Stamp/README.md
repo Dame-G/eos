@@ -4,7 +4,7 @@ A small non-interactive mark with a word that says where something stands, such 
 
 ```vue
 <EStamp status="overdue" detail="12 days" />
-<EStamp tone="warning" label="Review" icon="pin" small />
+<EStamp tone="warning" label="Review" icon="pin" size="sm" />
 <EStamp tone="success">Paid</EStamp>
 ```
 
@@ -12,20 +12,20 @@ A small non-interactive mark with a word that says where something stands, such 
 
 <!-- props:start -->
 
-| Prop     | Type                  | Default                      | Notes                                                                                                                                                       |
-| -------- | --------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `status` | `StampStatus`         | None                         | A preset: sets the tone and the word (message `status.<name>`).                                                                                             |
-| `tone`   | `StampTone`           | None                         | Overrides the preset's tone. Without a `status` the stamp is `neutral` (`ink` is another name for it). `success`, `info`, `warning` and `danger` colour it. |
-| `label`  | `string`              | `preset's word, else Status` | The word. It overrides the preset's, and the default slot overrides both.                                                                                   |
-| `icon`   | `IconProp`            | None                         | A glyph before the word.                                                                                                                                    |
-| `detail` | `string`              | None                         | A date or day count, set after the word.                                                                                                                    |
-| `size`   | `Exclude<Size, "lg">` | None                         | `sm` is shorter, for rows and tables.                                                                                                                       |
-| `small`  | `boolean`             | `false`                      | Shorter, for rows and tables. Same as `size="sm"`.                                                                                                          |
-| `final`  | `boolean`             | `false`                      | Rubber-stamp ink for the one mark on a page that says a thing is final, such as PAID or VOID. Outlined, in `stamp-ink`. Use it once per screen.             |
+| Prop     | Type                          | Default                      | Notes                                                                                                                                                            |
+| -------- | ----------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `status` | `StampStatus`                 | None                         | A preset: sets the tone and the word (message `status.<name>`).                                                                                                  |
+| `tone`   | `StampTone`                   | None                         | Overrides the preset's tone. Without a `status` the stamp is `neutral` (`ink` is a deprecated name for it). `success`, `info`, `warning` and `danger` colour it. |
+| `label`  | `string`                      | `preset's word, else Status` | The word. It overrides the preset's, and the default slot overrides both.                                                                                        |
+| `icon`   | `IconProp`                    | None                         | A glyph before the word.                                                                                                                                         |
+| `detail` | `string`                      | None                         | A date or day count, set after the word.                                                                                                                         |
+| `size`   | `Extract<Size, "sm" \| "md">` | None                         | `sm` is shorter, for rows and tables.                                                                                                                            |
+| `small`  | `boolean`                     | `false`                      | **Deprecated.** Use `size="sm"`.                                                                                                                                 |
+| `final`  | `boolean`                     | `false`                      | Rubber-stamp ink for the one mark on a page that says a thing is final, such as PAID or VOID. Outlined, in `stamp-ink`. Use it once per screen.                  |
 
 <!-- props:end -->
 
-Presets: `paid`, `confirmed`, `signed` and `complete` are success. `due`, `scheduled` and `pending` are info. `action` is warning. `overdue` and `cancelled` are danger. `class`, `style` and attributes land on the `span` element. The stamp places nothing itself: it stretches in a grid, so give the parent `align="start"` (or `justify-items: start`) to keep it to its width. `size="sm"` is the shorter stamp; `small` is shorthand. Write the word in sentence case. The stamp sets it in capitals.
+Presets: `paid`, `confirmed`, `signed` and `complete` are success. `due`, `scheduled` and `pending` are info. `action` is warning. `overdue` and `cancelled` are danger. `class`, `style` and attributes land on the `span` element. The stamp places nothing itself: it stretches in a grid, so give the parent `align="start"` (or `justify-items: start`) to keep it to its width. `size="sm"` is the shorter stamp (`small` is deprecated). `tone="ink"` is a deprecated name for `neutral`. Write the word in sentence case. The stamp sets it in capitals.
 
 ## Slots
 

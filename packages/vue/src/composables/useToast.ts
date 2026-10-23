@@ -2,7 +2,10 @@ import { inject, shallowRef, type InjectionKey, type VNodeChild } from "vue";
 import type { IconProp } from "../icons/types.js";
 import { isProduction } from "../env.js";
 
-export type ToastTone = "info" | "success" | "warning" | "danger";
+import type { Tone } from "./useSize.js";
+
+/** The tones a toast takes: every `Tone`. `neutral` is for news that is neither good nor bad. */
+export type ToastTone = Extract<Tone, "neutral" | "info" | "success" | "warning" | "danger">;
 
 export interface ToastOptions {
   /** What happened, in a few words. */

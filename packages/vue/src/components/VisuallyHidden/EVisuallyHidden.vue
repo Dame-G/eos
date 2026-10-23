@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { ElementTag } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
 withDefaults(
   defineProps<{
     /** The element to render. */
-    as?: string;
+    as?: ElementTag;
   }>(),
   { as: "span" },
 );

@@ -4,7 +4,7 @@ A one-line row that opens to more: a leading item, a title with a subtitle, and 
 
 ```vue
 <EExpandableRow title="Lab work" subtitle="Oct 3, 2026">
-  <template #leading><EStamp status="paid" small /></template>
+  <template #leading><EStamp status="paid" size="sm" /></template>
   <template #trailing>$42.40</template>
   Blood panel and urinalysis.
   <template #actions><EButton>Download</EButton></template>
