@@ -219,6 +219,6 @@ export function createToasts(): ToastStore {
  */
 export function useToast(): ToastApi {
   const store = inject(TOAST_KEY, null);
-  if (!store) throw new Error("useToast must be used inside an EToastProvider");
+  if (!store) throw new Error("useToast needs createEos() installed, TOAST_KEY provided, or an enclosing EToastProvider");
   return { show: store.show, update: store.update, promise: store.promise, dismiss: store.dismiss, clear: store.clear };
 }
