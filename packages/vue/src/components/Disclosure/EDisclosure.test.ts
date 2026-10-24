@@ -15,6 +15,12 @@ describe("EDisclosure", () => {
     expect(details.querySelector(".e-details-body")!.textContent).toBe("Body");
   });
 
+  test("pressing the summary does not select text (a double click on it selects nothing)", async () => {
+    const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
+    container.classList.add("e-root");
+    expect(getComputedStyle(container.querySelector("summary")!).userSelect).toBe("none");
+  });
+
   test("its only border is a straight line along the top, with square ends", async () => {
     const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
     container.classList.add("e-root");
