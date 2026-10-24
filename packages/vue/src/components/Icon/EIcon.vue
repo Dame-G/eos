@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useIconResolver } from "../../config.js";
-import { useSize, type Size } from "../../composables/useSize.js";
+import type { Size } from "../../composables/useSize.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
@@ -9,10 +9,8 @@ const props = withDefaults(
   defineProps<{
     /** A name (from the built-in list or your icon set, such as `"credit-card"` or `"lucide:credit-card"`), or an icon component. */
     name: IconProp;
-    /** `sm` is 14px (drawn in the bold weight) for chips and stamps, `md` 20px, `lg` 28px and `xl` 40px. @default "md" */
+    /** `sm` is 14px (drawn in the bold weight) for chips and stamps, `md` 20px, `lg` 28px and `xl` 40px. */
     size?: Size;
-    /** @deprecated Use `size="sm"`. */
-    small?: boolean;
     /** The bold weight at the normal 20px size, where the icon set has one. */
     bold?: boolean;
     /** Makes the icon informative: it becomes an image with this name. Without it the icon is decoration and hidden from screen readers. */
@@ -20,11 +18,10 @@ const props = withDefaults(
     /** Turns the icon around in right-to-left text, for a component icon that points one way. A name with a `left` or `right` part (`chevron-left`) does so without it; `:flip="false"` stops that. */
     flip?: boolean;
   }>(),
-  { flip: undefined },
+  { size: "md", flip: undefined },
 );
 
 const resolve = useIconResolver();
-const size = useSize(props, "EIcon");
 /** The token of each size. `md` is the icon size every component uses, so it sets nothing and a component can still change it. */
 const SIZE_TOKEN: Record<Size, string | undefined> = {
   sm: "--e-icon-size-sm",
@@ -32,7 +29,7 @@ const SIZE_TOKEN: Record<Size, string | undefined> = {
   lg: "--e-icon-size-md",
   xl: "--e-icon-size-lg",
 };
-const resolved = computed(() => resolve(props.name as string, size.value === "sm" || !!props.bold));
+const resolved = computed(() => resolve(props.name as string, props.size === "sm" || !!props.bold));
 /** An arrow or chevron that points left or right turns around in a right-to-left page. A physical alignment (`text-align-left`) does not. */
 const directional = computed(
   () =>
@@ -40,8 +37,8 @@ const directional = computed(
     (typeof props.name === "string" && /(^|[-:])(left|right)(-|$)/.test(props.name) && !/align/.test(props.name)),
 );
 const common = computed(() => ({
-  class: ["e-icon", { "e-icon--s": size.value === "sm", "e-icon--dir": directional.value }],
-  style: SIZE_TOKEN[size.value] && { "--_size": `var(${SIZE_TOKEN[size.value]})` },
+  class: ["e-icon", { "e-icon--s": props.size === "sm", "e-icon--dir": directional.value }],
+  style: SIZE_TOKEN[props.size] && { "--_size": `var(${SIZE_TOKEN[props.size]})` },
   role: props.label ? "img" : undefined,
   "aria-label": props.label || undefined,
   "aria-hidden": props.label ? undefined : (true as const),

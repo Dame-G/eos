@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 import EInline from "./EInline.vue";
@@ -19,17 +19,9 @@ describe("EInline", () => {
     );
   });
 
-  test("wrap=false keeps the children on one line, like the older nowrap, which warns", async () => {
+  test("wrap=false keeps the children on one line", async () => {
     const { container } = await render(EInline, { props: { wrap: false }, slots: { default: kids } });
     expect(container.firstElementChild!.classList.contains("e-inline--nowrap")).toBe(true);
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    try {
-      const old = await render(EInline, { props: { nowrap: true }, slots: { default: kids } });
-      expect(old.container.firstElementChild!.className).toBe(container.firstElementChild!.className);
-      expect(warn).toHaveBeenCalledWith('[eos] EInline `nowrap` is deprecated. Use :wrap="false".');
-    } finally {
-      warn.mockRestore();
-    }
   });
 
   test("justify and align and wrap=false add modifier classes", async () => {

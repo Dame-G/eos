@@ -20,11 +20,10 @@ Children in a row that wraps when it runs out of room, for a title with a status
 | `justify` | `"start" \| "center" \| "end" \| "between"`                                                                               | None     | Main-axis placement. `between` spreads the children apart. Left out, they sit at the start.                                                                                                |
 | `align`   | `"start" \| "center" \| "end" \| "stretch" \| "baseline"`                                                                 | None     | Cross-axis alignment. `start` aligns the top edges and `baseline` aligns the text baselines. Left out, the children are centred.                                                           |
 | `wrap`    | `boolean`                                                                                                                 | `true`   | Wraps the children onto further lines when they run out of room. `false` keeps them on one line.                                                                                           |
-| `nowrap`  | `boolean`                                                                                                                 | `false`  | **Deprecated.** Use `:wrap="false"`.                                                                                                                                                       |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the rendered element. The default `gap` is `snug` (8px); `gap` takes the same values as on [`EStack`](../Stack/README.md). `nowrap` is deprecated: use `:wrap="false"`. With `as="ul"` or `as="ol"` the bullets and padding go and the list keeps its role, as in [`EStack`](../Stack/README.md).
+`class`, `style` and attributes land on the rendered element. The default `gap` is `snug` (8px); `gap` takes the same values as on [`EStack`](../Stack/README.md). With `as="ul"` or `as="ol"` the bullets and padding go and the list keeps its role, as in [`EStack`](../Stack/README.md).
 
 ## Slots
 

@@ -34,7 +34,7 @@ describe("EToast", () => {
     const a = await render(EToast, { props: { title: "Failed", tone: "danger" } });
     expect(a.container.querySelector(".e-toast")!.getAttribute("role")).toBe("alert");
     expect(a.container.querySelector(".e-toast--danger")).not.toBeNull();
-    for (const tone of ["info", "success", "warning"] as const) {
+    for (const tone of ["neutral", "info", "success", "warning"] as const) {
       const { container } = await render(EToast, { props: { title: "x", tone } });
       expect(container.querySelector(".e-toast")!.getAttribute("role")).toBe("status");
       expect(container.querySelector(`.e-toast--${tone}`)).not.toBeNull();

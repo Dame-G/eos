@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { computed, getCurrentInstance, ref } from "vue";
+import { computed, ref } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EField from "../Field/EField.vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useConfig, useMessages } from "../../config.js";
-import { isProduction } from "../../env.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useLocale } from "../../composables/useLocale.js";
@@ -31,11 +30,6 @@ const props = defineProps<
 >();
 
 const emit = defineEmits<{
-  /**
-   * The chosen or dropped files, the same list as the model.
-   * @deprecated Use `v-model` (or `@update:model-value`), which carries the same list.
-   */
-  files: [files: File[]];
   /** Files left out, each with why: `type` (not in `accept`), `size` (over `maxSize`) or `count` (over `maxFiles`). A choice that is entirely rejected leaves the list as it was. */
   reject: [rejected: { file: File; reason: "type" | "size" | "count" }[]];
 }>();
@@ -46,10 +40,6 @@ const model = defineModel<File[]>({ default: () => [] });
 const t = useMessages();
 const config = useConfig();
 const attrs = useFieldAttrs();
-
-if (getCurrentInstance()?.vnode.props?.onFiles && !isProduction()) {
-  console.warn("[eos] EUpload @files is deprecated. Use v-model or @update:model-value, which carry the same list.");
-}
 
 /** The prompt as one sentence, with the "choose one" words where the translation puts them. */
 const prompt = computed(() => {
@@ -126,7 +116,6 @@ function take(list: FileList | null | undefined) {
   ].filter(Boolean);
   if (added) {
     model.value = files;
-    emit("files", files);
   }
   // The input holds whatever was just chosen. A choice that was turned away must not replace what the list shows.
   syncInput(added ? files : model.value);
@@ -140,7 +129,6 @@ function removeAt(index: number) {
   const files = model.value.filter((_, i) => i !== index);
   model.value = files;
   syncInput(files);
-  emit("files", files);
   announce(t("removedItem", { label: gone.name }));
   input.value?.focus();
 }

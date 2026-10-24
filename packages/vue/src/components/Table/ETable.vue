@@ -4,7 +4,7 @@ import EEmptyState from "../EmptyState/EEmptyState.vue";
 import "../Skeleton/ESkeleton.vue";
 import { useMessages } from "../../config.js";
 import { useOverflow } from "../../composables/useOverflow.js";
-import { useDeprecated, type Size } from "../../composables/useSize.js";
+import type { Size } from "../../composables/useSize.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 import "./table.css";
@@ -17,10 +17,8 @@ const props = withDefaults(
     hideCaption?: boolean;
     /** Tints every other row. */
     striped?: boolean;
-    /** Smaller text and tighter cells, for reference tables with many rows. `"sm"` is the same as the older `dense`. @default "md" */
+    /** Smaller text and tighter cells, for reference tables with many rows. @default "md" */
     size?: Extract<Size, "sm" | "md">;
-    /** @deprecated Use `size="sm"`. */
-    dense?: boolean;
     /** Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header row. */
     maxHeight?: string;
     /** Turns each row into a card below 40rem of the table's own width. Give every `td` a `data-label` with its column heading. */
@@ -50,8 +48,6 @@ defineSlots<{
 
 const t = useMessages();
 const style = computed(() => (props.maxHeight ? { "--_max-h": props.maxHeight } : undefined));
-useDeprecated("ETable", props, { dense: 'size="sm"' });
-const small = computed(() => props.size === "sm" || (!props.size && props.dense));
 
 // A tab stop that scrolls nothing is noise, so the frame is a focusable, named region only while it scrolls.
 const scroller = ref<HTMLElement | null>(null);
@@ -63,7 +59,7 @@ const scrollable = computed(() => overflows.value || !!props.maxHeight);
 <template>
   <div
     class="e-table-wrap"
-    :class="[striped && 'e-table-wrap--striped', small && 'e-table-wrap--dense', cards && 'e-cards']"
+    :class="[striped && 'e-table-wrap--striped', size === 'sm' && 'e-table-wrap--dense', cards && 'e-cards']"
   >
     <div
       ref="scroller"

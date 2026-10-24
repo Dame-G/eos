@@ -56,10 +56,10 @@ describe("ESearchResults", () => {
     expect(none.container.querySelector(".e-results")).toBeNull();
   });
 
-  test("ArrowDown and ArrowUp move focus between results, and ArrowUp on the first emits edge", async () => {
+  test("ArrowDown and ArrowUp move focus between results, and ArrowUp on the first emits exit-top", async () => {
     let edges = 0;
     const { container } = await render(ESearchResults, {
-      props: { items, label: "Results", onEdge: () => edges++ },
+      props: { items, label: "Results", onExitTop: () => edges++ },
     });
     const links = [...container.querySelectorAll<HTMLElement>("a")];
     links[0]!.focus();
@@ -135,9 +135,8 @@ describe("ESearchResults", () => {
   test("Home and End jump to the first and last result, and ArrowDown on the last emits exit-bottom", async () => {
     let top = 0;
     let bottom = 0;
-    let edge = 0;
     const { container } = await render(ESearchResults, {
-      props: { items, label: "Results", onExitTop: () => top++, onExitBottom: () => bottom++, onEdge: () => edge++ },
+      props: { items, label: "Results", onExitTop: () => top++, onExitBottom: () => bottom++ },
     });
     const links = [...container.querySelectorAll<HTMLElement>("a")];
     links[1]!.focus();
@@ -149,7 +148,7 @@ describe("ESearchResults", () => {
     await userEvent.keyboard("{Home}");
     expect(document.activeElement).toBe(links[0]);
     await userEvent.keyboard("{ArrowUp}");
-    expect([top, edge]).toEqual([1, 1]);
+    expect(top).toBe(1);
   });
 
   test("the empty message is announced when it appears", async () => {

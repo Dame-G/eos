@@ -46,8 +46,7 @@ describe("EAvatar", () => {
     expect(emoji.container.textContent!.trim()).toBe("👩‍💻D");
   });
 
-  test("size sm, md and lg match the older flags; size wins over them with a warning", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  test("size sm, md and lg are 32, 44 and 64px, and md is the default", async () => {
     const { container } = await render(
       defineComponent({
         render: () =>
@@ -55,16 +54,12 @@ describe("EAvatar", () => {
             h(EAvatar, { name: "A B", size: "sm" }),
             h(EAvatar, { name: "A B", size: "md" }),
             h(EAvatar, { name: "A B", size: "lg" }),
-            h(EAvatar, { name: "A B", size: "sm", large: true }),
-            h(EAvatar, { name: "A B", small: true }),
-            h(EAvatar, { name: "A B", large: true }),
+            h(EAvatar, { name: "A B" }),
           ]),
       }),
     );
     const sizes = [...container.querySelectorAll(".e-avatar")].map((e) => e.getBoundingClientRect().width);
-    expect(sizes).toEqual([32, 44, 64, 32, 32, 64]);
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining("EAvatar"));
-    warn.mockRestore();
+    expect(sizes).toEqual([32, 44, 64, 44]);
   });
 
   test("presence adds a dot and is read with the name", async () => {

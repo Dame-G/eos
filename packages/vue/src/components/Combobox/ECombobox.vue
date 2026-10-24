@@ -1,7 +1,3 @@
-<script lang="ts">
-const warned = { clearable: false };
-</script>
-
 <script setup lang="ts" generic="M extends boolean = false">
 import { computed, h, nextTick, onMounted, ref, watch, type FunctionalComponent } from "vue";
 import {
@@ -24,7 +20,6 @@ import { normalizeOptions, sectionOptions } from "../Select/options.js";
 import { fold } from "./fold.js";
 import type { EComboboxProps } from "./types.js";
 import { useMessages, usePortalTarget } from "../../config.js";
-import { isProduction } from "../../env.js";
 import { useDir } from "../../composables/useDir.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
@@ -37,7 +32,7 @@ import "./combo.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = withDefaults(defineProps<EComboboxProps<M>>(), { clearable: undefined });
+const props = defineProps<EComboboxProps<M>>();
 
 const emit = defineEmits<{
   /** The text in the input changed, by typing or by choosing. Use it to fetch options from a server. */
@@ -55,14 +50,6 @@ const wantOpen = defineModel<boolean>("open", { default: false });
 const t = useMessages();
 const { announce: say } = useAnnouncer();
 
-/** The clear button is opt-in, as in every field. Left out, it still shows until the next minor, with a warning. */
-const showClear = () => props.clearable ?? true;
-if (props.clearable === undefined && !warned.clearable && !isProduction()) {
-  warned.clearable = true;
-  console.warn(
-    '[eos] ECombobox will not show its clear button by default from the next minor. Pass `clearable` to keep it, or `:clearable="false"`.',
-  );
-}
 const portal = usePortalTarget();
 const attrs = useFieldAttrs();
 const dir = useDir();
@@ -324,7 +311,7 @@ defineExpose({
             />
             <div class="e-combo-tail">
               <button
-                v-if="hasValue && showClear() && !disabled && !readonly"
+                v-if="hasValue && clearable && !disabled && !readonly"
                 type="button"
                 class="e-combo-btn"
                 :aria-label="t('clear')"

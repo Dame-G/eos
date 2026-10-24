@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -348,17 +348,6 @@ describe("EMenu", () => {
       .toBeGreaterThanOrEqual(trigger.getBoundingClientRect().right - 1);
     await userEvent.keyboard("{Escape}");
     await expect.poll(() => menu()).toBeNull();
-  });
-
-  test("side left and right still work but warn that they are deprecated; start and end do not warn", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    await mount({ side: "end" });
-    expect(warn).not.toHaveBeenCalled();
-    await mount({ side: "right" });
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('side="right" is deprecated. Use "end"'));
-    await mount({ side: "left" });
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('side="left" is deprecated. Use "start"'));
-    warn.mockRestore();
   });
 
   test("close fires when it shuts", async () => {

@@ -47,7 +47,6 @@ A list of search results as links, with a title and a muted line under it, arrow
 | `select`      | `item: SearchResultItem, event: MouseEvent` | A result was opened by click or Enter. A click with Ctrl, Meta, Shift or Alt, or with a non-primary button, does not emit, so "open in a new tab" still works. Call `event.preventDefault()` to navigate yourself. |
 | `exit-top`    |                                             | ArrowUp was pressed on the first result. Move focus back to your search box.                                                                                                                                       |
 | `exit-bottom` |                                             | ArrowDown was pressed on the last result.                                                                                                                                                                          |
-| `edge`        |                                             | Deprecated: the same as `exit-top`, still emitted.                                                                                                                                                                 |
 
 ## Accessibility
 

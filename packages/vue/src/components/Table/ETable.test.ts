@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 import ETable from "./ETable.vue";
@@ -102,7 +102,7 @@ describe("ETable", () => {
     expect(getComputedStyle(wrap, "::after").boxShadow).not.toBe("none");
   });
 
-  test("size sm and the older dense both tighten the cells", async () => {
+  test("size sm tightens the cells", async () => {
     const pad = async (props: Record<string, unknown>) => {
       const { container } = await render(ETable, { props: { caption: "P", ...props }, slots: { default: rows } });
       container.classList.add("e-root");
@@ -110,14 +110,7 @@ describe("ETable", () => {
     };
     const normal = await pad({});
     expect(await pad({ size: "sm" })).not.toBe(normal);
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    try {
-      expect(await pad({ dense: true })).toBe(await pad({ size: "sm" }));
-      expect(warn).toHaveBeenCalledWith('[eos] ETable `dense` is deprecated. Use size="sm".');
-      expect(await pad({ size: "md", dense: true })).toBe(normal);
-    } finally {
-      warn.mockRestore();
-    }
+    expect(await pad({ size: "md" })).toBe(normal);
   });
 
   test("loading marks the table busy, dims its rows and shows placeholder lines", async () => {

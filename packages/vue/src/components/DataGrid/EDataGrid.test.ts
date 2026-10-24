@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- the grid is generic over the row, which the tests leave open */
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -645,28 +645,6 @@ describe("EDataGrid", () => {
     expect(names(container)).toEqual(["Beta", "Alpha"]);
   });
 
-  test("bare (deprecated): a bare table without toolbar, filters, paging or footer", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const { container } = await grid({
-      props: { caption: "T", columns: FILTER_COLS, rows: bigRows(30), bare: true, searchable: true, filterable: true },
-    });
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining("`bare` is deprecated"));
-    warn.mockRestore();
-    expect(container.querySelector(".e-grid--bare")).not.toBeNull();
-    expect(container.querySelector(".e-grid-bar")).toBeNull();
-    expect(container.querySelector(".e-filterrow")).toBeNull();
-    expect(container.querySelector(".e-grid-foot")).toBeNull();
-    expect(bodyRows(container).length).toBe(30);
-  });
-
-  test("bare is deprecated: it warns once in development, pointing to ETable", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    await grid({ props: { caption: "T", columns: COLS, rows: ROWS, bare: true } });
-    expect(warn.mock.calls.filter(([m]) => String(m).includes("bare"))).toHaveLength(1);
-    expect(String(warn.mock.calls[0]![0])).toContain("ETable");
-    warn.mockRestore();
-  });
-
   test("toolbar slot and attribute fall-through", async () => {
     const { container } = await grid({
       props: { caption: "T", columns: COLS, rows: ROWS, class: "mine", "data-x": "1" },
@@ -1169,22 +1147,19 @@ describe("EDataGrid", () => {
   test("the scroller carries the frame's corners where it meets them, so the frame's clip cannot cut its focus ring", async () => {
     const corner = (el: Element, which: string) =>
       parseFloat(getComputedStyle(el).getPropertyValue(`border-${which}-radius`));
-    // Only a bare grid has no foot, so its scroller meets the frame at all four corners. bare is deprecated, and says so.
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    // With no toolbar the scroller is the frame's first child, so it takes the top corners. The foot is always below it.
     const { container } = await grid({
-      props: { columns: COLS, rows: ROWS, caption: "Invoices", bare: true, maxHeight: "3rem" },
+      props: { columns: COLS, rows: ROWS, caption: "Invoices", maxHeight: "3rem" },
     });
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining("`bare` is deprecated"));
-    warn.mockRestore();
     container.classList.add("e-root");
     const frame = container.querySelector(".e-grid-frame")!;
     const scroll = container.querySelector(".e-grid-scroll")!;
     for (const md of ["2px", "8px", "14px"]) {
       (container as HTMLElement).style.setProperty("--e-radius-md", md);
-      for (const which of ["top-left", "top-right", "bottom-left", "bottom-right"]) {
+      for (const which of ["top-left", "top-right", "bottom-left", "bottom-right"])
         expect(corner(frame, which)).toBe(parseFloat(md));
-        expect(corner(scroll, which)).toBe(parseFloat(md));
-      }
+      for (const which of ["top-left", "top-right"]) expect(corner(scroll, which)).toBe(parseFloat(md));
+      for (const which of ["bottom-left", "bottom-right"]) expect(corner(scroll, which)).toBe(0);
     }
     // With the toolbar above and the pager below, the scroller is square.
     const full = await grid({

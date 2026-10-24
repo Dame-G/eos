@@ -21,11 +21,10 @@ One icon, 20px by default, in the colour of the surrounding text, for putting a 
 | `bold`  | `boolean`                      | `false`      | The bold weight at the normal 20px size, where the icon set has one.                                                                                                                         |
 | `label` | `string`                       | None         | Makes the icon informative: it becomes an image with this name. Without it the icon is decoration and hidden from screen readers.                                                            |
 | `flip`  | `boolean`                      | None         | Turns the icon around in right-to-left text, for a component icon that points one way. A name with a `left` or `right` part (`chevron-left`) does so without it; `:flip="false"` stops that. |
-| `small` | `boolean`                      | `false`      | **Deprecated.** Use `size="sm"`.                                                                                                                                                             |
 
 <!-- props:end -->
 
-`class` and attributes land on the icon element. A name resolves through `createEos({ icons })`, then the set's resolver and aliases, then the built-in set. An unknown name draws nothing and logs once in development. Names with a `left` or `right` part (`chevron-left`, `arrow-right`) mirror in right-to-left text; a physical alignment such as `text-align-left` does not. `flip` turns a component icon around in right-to-left text too, and `:flip="false"` stops a named one. `size` is `sm` (14px, drawn in the bold weight), `md` (20px, the default), `lg` (28px) or `xl` (40px). `small` is deprecated: use `size="sm"`. See [Bring your own icons](../../icons/README.md).
+`class` and attributes land on the icon element. A name resolves through `createEos({ icons })`, then the set's resolver and aliases, then the built-in set. An unknown name draws nothing and logs once in development. Names with a `left` or `right` part (`chevron-left`, `arrow-right`) mirror in right-to-left text; a physical alignment such as `text-align-left` does not. `flip` turns a component icon around in right-to-left text too, and `:flip="false"` stops a named one. `size` is `sm` (14px, drawn in the bold weight), `md` (20px, the default), `lg` (28px) or `xl` (40px). See [Bring your own icons](../../icons/README.md).
 
 ## Accessibility
 

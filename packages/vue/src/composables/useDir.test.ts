@@ -47,8 +47,7 @@ describe("useDir", () => {
       createApp(
         defineComponent({
           setup() {
-            for (const s of ["start", "end", "top", "bottom", "left", "right"] as LogicalSide[])
-              out[s] = useLogicalSide(() => s).value;
+            for (const s of ["start", "end", "top", "bottom"] as LogicalSide[]) out[s] = useLogicalSide(() => s).value;
             return () => h("div");
           },
         }),
@@ -62,16 +61,12 @@ describe("useDir", () => {
       end: "right",
       top: "top",
       bottom: "bottom",
-      left: "left",
-      right: "right",
     });
     expect(sides[1]).toEqual({
       start: "right",
       end: "left",
       top: "top",
       bottom: "bottom",
-      left: "left",
-      right: "right",
     });
   });
 });

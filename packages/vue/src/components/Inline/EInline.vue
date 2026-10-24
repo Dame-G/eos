@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import { useGap, type GapToken } from "../Stack/gap.js";
 import { useListRole } from "../Stack/list.js";
-import { useDeprecated, type ElementTag } from "../../composables/useSize.js";
+import type { ElementTag } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
@@ -17,8 +16,6 @@ const props = withDefaults(
     align?: "start" | "center" | "end" | "stretch" | "baseline";
     /** Wraps the children onto further lines when they run out of room. `false` keeps them on one line. */
     wrap?: boolean;
-    /** @deprecated Use `:wrap="false"`. */
-    nowrap?: boolean;
   }>(),
   { as: "div", gap: "snug", wrap: true },
 );
@@ -29,16 +26,14 @@ defineSlots<{
 }>();
 
 const gapCss = useGap(() => props.gap);
-const single = computed(() => !props.wrap || props.nowrap);
 const listRole = useListRole(() => props.as);
-useDeprecated("EInline", props, { nowrap: ':wrap="false"' });
 </script>
 
 <template>
   <component
     :is="as"
     class="e-inline"
-    :class="[single && 'e-inline--nowrap', justify && `e-inline--j-${justify}`, align && `e-inline--a-${align}`]"
+    :class="[!wrap && 'e-inline--nowrap', justify && `e-inline--j-${justify}`, align && `e-inline--a-${align}`]"
     :role="listRole"
     :style="{ '--_gap': gapCss }"
   >

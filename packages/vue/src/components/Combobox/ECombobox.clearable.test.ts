@@ -1,27 +1,18 @@
-// In a file of its own: the deprecation warning is said once per page, so no other render may come first.
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ECombobox from "./ECombobox.vue";
 
 const clearButton = (c: Element) => c.querySelector<HTMLButtonElement>("button[aria-label='Clear']");
 
-describe("ECombobox clearable default and clear event", () => {
-  test("left out, the clear button still shows and a warning says once that the default becomes false", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    try {
-      const said = () =>
-        warn.mock.calls.filter(([m]) => String(m).includes("ECombobox will not show its clear button"));
-      const first = await render(ECombobox, { props: { label: "City", options: ["Lyon"], modelValue: "Lyon" } });
-      expect(clearButton(first.container)).not.toBeNull();
-      await render(ECombobox, { props: { label: "Town", options: ["Nice"], modelValue: "Nice" } });
-      expect(said()).toHaveLength(1);
-      warn.mockClear();
-      await render(ECombobox, { props: { label: "Port", options: ["Brest"], clearable: true } });
-      expect(warn).not.toHaveBeenCalled();
-    } finally {
-      warn.mockRestore();
-    }
+describe("ECombobox clearable and clear event", () => {
+  test("is off by default, as in every field, and `clearable` shows the button while there is a value", async () => {
+    const plain = await render(ECombobox, { props: { label: "City", options: ["Lyon"], modelValue: "Lyon" } });
+    expect(clearButton(plain.container)).toBeNull();
+    const on = await render(ECombobox, {
+      props: { label: "Town", options: ["Nice"], modelValue: "Nice", clearable: true },
+    });
+    expect(clearButton(on.container)).not.toBeNull();
   });
 
   test("clearing with the button or Escape emits clear", async () => {

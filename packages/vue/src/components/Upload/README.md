@@ -37,7 +37,6 @@ A dropzone for attaching files, clickable and droppable, listing the chosen file
 
 | Event    | Payload              | Notes                                                                                                                                                                        |
 | -------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `files`  | `files: File[]`      | Deprecated: use `v-model` or `@update:model-value`, which carry the same list. Warns in development.                                                                         |
 | `reject` | `{ file, reason }[]` | Files left out. `reason` is `type` (not in `accept`), `size` (over `maxSize`) or `count` (over `maxFiles`, or more than one file without `multiple`). Use it to set `error`. |
 
 ## Accessibility

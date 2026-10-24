@@ -103,7 +103,7 @@ const dir = useDir();
 
 The provider reaches teleported content, because provide and inject follow the component tree. Text and layout inherit `dir` from the element it is on, so `createEos` sets `lang` and `dir` on the theme target when you give it a `locale` (see `portalTarget`).
 
-`useLogicalSide(() => props.side)` turns a side that follows the reading direction (`start`, `end`) into the physical one a Reka popper takes (`left`, `right`), flipped in a right-to-left page. `top`, `bottom`, `left` and `right` pass through.
+`useLogicalSide(() => props.side)` turns a side that follows the reading direction (`start`, `end`) into the physical one a Reka popper takes (`left`, `right`), flipped in a right-to-left page. `top` and `bottom` pass through.
 
 ## `useReducedMotion()`
 

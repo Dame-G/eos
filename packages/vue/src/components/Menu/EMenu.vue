@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { watchEffect } from "vue";
 import {
   ConfigProvider,
   DropdownMenuContent,
@@ -12,7 +11,6 @@ import EIcon from "../Icon/EIcon.vue";
 import EMenuItems from "./EMenuItems.vue";
 import type { IconProp } from "../../icons/types.js";
 import { usePortalTarget } from "../../config.js";
-import { isProduction } from "../../env.js";
 import { useDir, useLogicalSide } from "../../composables/useDir.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import "../../styles/base.css";
@@ -89,8 +87,8 @@ const props = withDefaults(
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
     /** An icon before the label. */
     icon?: IconProp;
-    /** Which side of the trigger the menu opens on. It flips to the other side when there is no room. `start` and `end` follow the reading direction. `left` and `right` are deprecated: they still work, on that physical side in either direction, and warn in development. Use `start` and `end`. */
-    side?: "bottom" | "top" | "start" | "end" | "left" | "right";
+    /** Which side of the trigger the menu opens on. It flips to the other side when there is no room. `start` and `end` follow the reading direction. */
+    side?: "bottom" | "top" | "start" | "end";
     /** Which edge of the trigger the menu's edge lines up with: `start` with the trigger's start, `end` with its end (it suits a trigger at the end of a bar), `center` with its middle. */
     align?: "start" | "center" | "end";
     /** The space in pixels to keep between the menu and the edge of the screen. */
@@ -120,10 +118,6 @@ const portal = usePortalTarget();
 const dir = useDir();
 
 const placement = useLogicalSide(() => props.side);
-watchEffect(() => {
-  if ((props.side === "left" || props.side === "right") && !isProduction())
-    console.warn(`[eos] EMenu side="${props.side}" is deprecated. Use "${props.side === "left" ? "start" : "end"}".`);
-});
 
 /*
  * Focus, in three parts:

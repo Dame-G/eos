@@ -25,7 +25,7 @@ Use [`EDataGrid`](../DataGrid/README.md) when people need to sort, filter, selec
 | `caption`      | `string`       | **Required**   | Names the table for screen readers, and its scrolling region. It is also shown above the table unless `hideCaption` is set. |
 | `hideCaption`  | `boolean`      | `false`        | Keeps the caption for screen readers and removes it from the page, for a table that a nearby heading already names.         |
 | `striped`      | `boolean`      | `false`        | Tints every other row.                                                                                                      |
-| `size`         | `"sm" \| "md"` | `"md"`         | Smaller text and tighter cells, for reference tables with many rows. `"sm"` is the same as the older `dense`.               |
+| `size`         | `"sm" \| "md"` | `"md"`         | Smaller text and tighter cells, for reference tables with many rows.                                                        |
 | `maxHeight`    | `string`       | None           | Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header row.                  |
 | `cards`        | `boolean`      | `false`        | Turns each row into a card below 40rem of the table's own width. Give every `td` a `data-label` with its column heading.    |
 | `loading`      | `boolean`      | `false`        | Marks the data as loading: the rows are dimmed, `aria-busy` is set and placeholder lines show under the table.              |
@@ -34,13 +34,12 @@ Use [`EDataGrid`](../DataGrid/README.md) when people need to sort, filter, selec
 | `emptyTitle`   | `string`       | `"No results"` | The title of the empty state.                                                                                               |
 | `emptyText`    | `string`       | None           | The sentence under the empty title.                                                                                         |
 | `emptyIcon`    | `IconProp`     | `"search"`     | The icon above the empty title.                                                                                             |
-| `dense`        | `boolean`      | `false`        | **Deprecated.** Use `size="sm"`.                                                                                            |
 
 <!-- props:end -->
 
 `class`, `style`, `id` and `data-*` land on the outer frame.
 
-`size="sm"` tightens the cells (`dense` is deprecated). `loading` dims the rows, sets `aria-busy` and shows placeholder lines under the table. `empty` shows an empty state under the headings (fill the `empty` slot for your own). `cards` turns each row into a card below 40rem of the table's width: give every `td` a `data-label` with its column heading, and the heading row is hidden.
+`size="sm"` tightens the cells. `loading` dims the rows, sets `aria-busy` and shows placeholder lines under the table. `empty` shows an empty state under the headings (fill the `empty` slot for your own). `cards` turns each row into a card below 40rem of the table's width: give every `td` a `data-label` with its column heading, and the heading row is hidden.
 
 ## Slots
 

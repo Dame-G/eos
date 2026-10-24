@@ -1,20 +1,19 @@
 <script setup lang="ts">
-import { useSize, type Size } from "../../composables/useSize.js";
+import type { Size } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
-const props = defineProps<{
-  /** `sm` is for a hint inside small text. */
-  size?: Extract<Size, "sm" | "md">;
-  /** @deprecated Use `size="sm"`. */
-  small?: boolean;
-}>();
+withDefaults(
+  defineProps<{
+    /** `sm` is for a hint inside small text. */
+    size?: Extract<Size, "sm" | "md">;
+  }>(),
+  { size: "md" },
+);
 
 defineSlots<{
   /** The key, written as it is on the keycap: "/", "Esc", "Ctrl". */
   default(): unknown;
 }>();
-
-const size = useSize(props, "EKbd");
 </script>
 
 <template>

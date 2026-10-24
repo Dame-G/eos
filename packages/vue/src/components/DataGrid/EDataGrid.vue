@@ -14,7 +14,6 @@ import "../Definition/EDefinition.vue";
 import type { EOption } from "../Select/options.js";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
-import { isProduction } from "../../env.js";
 import { useLocale } from "../../composables/useLocale.js";
 import { useOverflow } from "../../composables/useOverflow.js";
 import { cellValue, compareValues, filterActive, foldText, parsePx, passesFilter } from "./grid.js";
@@ -79,11 +78,6 @@ const props = withDefaults(
     error?: boolean | string;
     /** The name of a row for its checkbox ("Select Annual check-up"), when the first column's text is not a good one. */
     rowLabel?: (row: Row) => string;
-    /**
-     * Renders a bare table for a short static list, with no toolbar, filters, paging or footer.
-     * @deprecated Use `ETable` for a short static list. `bare` still works, and warns in development.
-     */
-    bare?: boolean;
   }>(),
   { pageSize: 10, cards: true, searchDebounce: 0, skeletonRows: 5 },
 );
@@ -122,9 +116,6 @@ const loc = useLocale();
 
 const NONE = "__e-none__";
 
-if (props.bare && !isProduction())
-  console.warn("[eos] EDataGrid `bare` is deprecated. Use ETable for a short static list.");
-
 /** Columns hidden from the Columns menu, by key. A column is shown unless it is `false` here. */
 const columnVisibility = ref<Record<string, boolean>>({});
 /** Widths people dragged or keyed, in pixels, by key. */
@@ -159,10 +150,9 @@ function fmtDate(v: Date | string): string {
 const vopt = computed(() =>
   props.virtual ? { rowHeight: 48, height: 440, overscan: 8, ...(props.virtual === true ? {} : props.virtual) } : null,
 );
-const pageSize = computed(() => (vopt.value || props.bare ? 0 : (props.pageSize ?? 10)));
+const pageSize = computed(() => (vopt.value ? 0 : props.pageSize));
 const paging = computed(() => pageSize.value > 0 && !props.manual);
-const resizable = computed(() => !!props.resizable && !props.bare);
-const cards = computed(() => props.cards !== false && !vopt.value && !resizable.value);
+const cards = computed(() => props.cards !== false && !vopt.value && !props.resizable);
 const q = computed(() => foldText(search.value.trim()));
 const anyFilter = computed(() => Object.values(filters.value).some(filterActive));
 
@@ -218,7 +208,7 @@ const cur = computed(() => Math.min(page.value, pages.value));
 watch(pages, (n) => {
   if (page.value > n) page.value = n;
 });
-const hasFilterRow = computed(() => !!props.filterable && !props.bare && cols.value.some((c) => c.filter));
+const hasFilterRow = computed(() => !!props.filterable && cols.value.some((c) => c.filter));
 const colCount = computed(() => cols.value.length + (props.selectable ? 1 : 0));
 const from = computed(() =>
   total.value === 0 ? 0 : (cur.value - 1) * (pageSize.value > 0 ? pageSize.value : total.value) + 1,
@@ -278,7 +268,7 @@ const rowsToRender = computed(() =>
 
 const cellProps = (row: Row, c: DataGridColumn<Row>) => ({ row, value: cellValue(row, c) });
 
-const fixedLayout = computed(() => resizable.value || !!vopt.value || cols.value.some((c) => c.width));
+const fixedLayout = computed(() => props.resizable || !!vopt.value || cols.value.some((c) => c.width));
 const widthOf = (c: DataGridColumn<Row>) => columnSizing.value[c.key] || parsePx(c.width) || undefined;
 const maxOf = (c: DataGridColumn<Row>) => c.maxWidth ?? Math.max(960, (parsePx(c.width) ?? 0) * 2);
 // The checkbox column is as wide as its box (which grows with the text size) plus its padding.
@@ -364,7 +354,7 @@ const hasToolbar = computed(() => !!slots.toolbar);
 const barOther = computed(
   () => !!props.searchable || !!props.columnToggle || nPicked.value > 0 || anyFilter.value || hasToolbar.value,
 );
-const showBar = computed(() => !props.bare && (barOther.value || showSortSelect.value));
+const showBar = computed(() => barOther.value || showSortSelect.value);
 
 function onSearch(value: string) {
   search.value = value;
@@ -427,7 +417,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="root" class="e-grid" :class="{ 'e-grid--bare': bare, 'e-grid--cards e-cards': cards }">
+  <div ref="root" class="e-grid" :class="{ 'e-grid--cards e-cards': cards }">
     <div class="e-grid-frame">
       <EDataGridToolbar
         v-if="showBar"
@@ -617,7 +607,7 @@ onMounted(() => {
           </tbody>
         </table>
       </div>
-      <div v-if="!bare" class="e-grid-foot">
+      <div class="e-grid-foot">
         <span class="e-grid-range">{{
           total === 0
             ? t("rows", { n: 0 })
@@ -720,11 +710,6 @@ onMounted(() => {
   .e-grid-scroll:first-child {
     border-start-start-radius: inherit;
     border-start-end-radius: inherit;
-  }
-
-  .e-grid-scroll:not(:has(+ .e-grid-foot)) {
-    border-end-start-radius: inherit;
-    border-end-end-radius: inherit;
   }
 
   .e-grid-scroll:focus-visible {

@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -13,17 +13,9 @@ describe("EKbd", () => {
     await expect.element(page.getByText("Esc")).toBeVisible();
   });
 
-  test("size sm is the small key, and the older small flag still is, with a warning", async () => {
+  test("size sm is the small key", async () => {
     const { container } = await render(EKbd, { props: { size: "sm" }, slots: { default: "/" } });
     expect(container.querySelector("kbd")!.classList.contains("e-kbd--s")).toBe(true);
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    try {
-      const flag = await render(EKbd, { props: { small: true }, slots: { default: "/" } });
-      expect(flag.container.querySelector("kbd")!.classList.contains("e-kbd--s")).toBe(true);
-      expect(warn).toHaveBeenCalledWith('[eos] EKbd `small` is deprecated. Use size="sm".');
-    } finally {
-      warn.mockRestore();
-    }
   });
 
   test("is a bordered mono keycap, and size sm is smaller", async () => {

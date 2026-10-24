@@ -11,14 +11,13 @@ A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to 
 
 <!-- props:start -->
 
-| Prop    | Type           | Default | Notes                                 |
-| ------- | -------------- | ------- | ------------------------------------- |
-| `size`  | `"sm" \| "md"` | None    | `sm` is for a hint inside small text. |
-| `small` | `boolean`      | `false` | **Deprecated.** Use `size="sm"`.      |
+| Prop   | Type           | Default | Notes                                 |
+| ------ | -------------- | ------- | ------------------------------------- |
+| `size` | `"sm" \| "md"` | `"md"`  | `sm` is for a hint inside small text. |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `kbd` element. `small` is deprecated: use `size="sm"`.
+`class`, `style` and attributes land on the `kbd` element.
 
 ## Slots
 

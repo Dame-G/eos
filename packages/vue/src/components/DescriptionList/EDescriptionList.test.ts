@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -60,26 +60,6 @@ describe("EDescriptionList", () => {
     expect(container.querySelector("dd .e-stamp")!.textContent).toBe("Verified");
     await page.getByRole("button", { name: "Edit Email" }).click();
     expect(seen).toEqual(["Email"]);
-  });
-
-  test("the older badge and badgeTone still give the stamp, and warn that they are deprecated", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    try {
-      const stamp = await render(EDescriptionList, {
-        props: { items: [{ label: "Email", text: "a@b.co", stamp: "Verified", stampTone: "success" }] },
-      });
-      const badge = await render(EDescriptionList, {
-        props: { items: [{ label: "Email", text: "a@b.co", badge: "Verified", badgeTone: "success" }] },
-      });
-      expect(badge.container.querySelector("dd .e-stamp")!.outerHTML).toBe(
-        stamp.container.querySelector("dd .e-stamp")!.outerHTML,
-      );
-      expect(warn).toHaveBeenCalledWith(
-        "[eos] EDescriptionList item `badge` and `badgeTone` are deprecated. Use `stamp` and `stampTone`.",
-      );
-    } finally {
-      warn.mockRestore();
-    }
   });
 
   test("the action slot renders at the end of every row", async () => {
