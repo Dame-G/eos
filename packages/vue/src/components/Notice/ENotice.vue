@@ -84,6 +84,7 @@ const role = computed(() =>
 
 <style>
 @layer e.containers {
+  /* Full width and square, to sit against the edge of its container: the container closes the sides, so the notice keeps only the slab, the top and the bottom. */
   .e-notice {
     --e-tone: var(--e-info);
     --_bg: var(--e-info-soft);
@@ -93,7 +94,8 @@ const role = computed(() =>
     padding-inline: calc(var(--e-pad-card) - var(--e-stroke-edge));
     border: var(--e-stroke-edge) solid var(--e-tone);
     border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-slab-bold));
-    border-radius: var(--e-radius-md);
+    border-inline-end-width: 0;
+    border-radius: 0;
     background-color: var(--_bg);
     background-clip: padding-box;
     color: var(--e-ink);
@@ -130,6 +132,7 @@ const role = computed(() =>
   @media (forced-colors: active) {
     .e-notice {
       border: var(--e-stroke-edge) solid CanvasText;
+      border-inline-end-width: 0;
     }
   }
 }
