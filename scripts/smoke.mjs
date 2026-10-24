@@ -37,12 +37,12 @@ const run = (cmd, cwd = root, env = {}) => execSync(cmd, { cwd, stdio: "inherit"
 const tested = JSON.parse(readFileSync(join(root, "packages", "vue", "package.json"), "utf8")).devDependencies;
 const step = (name) => console.log(`\n== ${name}`);
 
-step("build");
-run("node packages/tokens/scripts/build.mjs");
-run("corepack pnpm --filter @eos-ui/vue build");
-
-step("server render of every component, from the build");
-run("node scripts/ssr.mjs");
+// --no-build packs the build already in packages/*/dist (CI builds once for this and `pnpm check:package`).
+if (!process.argv.includes("--no-build")) {
+  step("build");
+  run("node packages/tokens/scripts/build.mjs");
+  run("corepack pnpm --filter @eos-ui/vue build");
+}
 
 step("pack");
 const packs = join(work, "packs");

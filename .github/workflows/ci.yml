@@ -3,7 +3,7 @@ on:
   pull_request:
   push:
     branches: [main]
-  # Nightly: the same tests in Firefox and WebKit, which the pull request jobs skip to stay fast.
+  # Nightly: the tests in Firefox and WebKit, which pull requests skip to stay fast.
   schedule:
     - cron: "17 4 * * *"
   workflow_dispatch:
@@ -11,77 +11,41 @@ on:
 permissions:
   contents: read
 
+# A new push to a pull request cancels its older run. Runs on main always finish, since Release waits for them.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   CI: "true"
 
 jobs:
-  # Lint, formatting, types (including test/types.test-d.ts) and the source checks (CSS rules, layers, props tables, README links).
-  static:
+  # Everything that reads the source: generated files, CSS rules, layers, props tables, README links, lint, formatting,
+  # types (including test/types.test-d.ts) and unused code.
+  lint:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      # Before typecheck, which regenerates these files: fails when the committed index.ts, globals.ts or component-names.ts is stale.
-      - run: pnpm --filter @eos-ui/vue gen:check
+      # The source checks import @eos-ui/tokens, which resolves to its build.
+      - run: pnpm tokens
+      # Before typecheck, which regenerates index.ts, globals.ts and component-names.ts: fails when the committed ones are stale.
+      - run: pnpm check:source
       - run: pnpm lint
       - run: pnpm format:check
       - run: pnpm typecheck
-      # After typecheck: the tokens typecheck builds the tokens package, which the vue typecheck and the checks import.
-      - run: pnpm check
-
-  # Builds once. The package job downloads the result instead of building again.
-  build:
-    if: github.event_name != 'schedule'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/setup
-      - run: pnpm build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: |
-            packages/tokens/dist
-            packages/vue/dist
-          if-no-files-found: error
-          retention-days: 3
-
-  # What gets published: exports and types, size budgets, the built stylesheet, unused code.
-  package:
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: packages
-      - run: pnpm check:built
       - run: pnpm knip
 
-  # Real-browser tests on the supported Node versions (Node runs the test runner, the build and the plugin code).
+  # Real-browser tests in Chromium.
   test:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        node: [22, 24]
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-        with:
-          node-version: ${{ matrix.node }}
       - uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
@@ -89,14 +53,20 @@ jobs:
       - run: pnpm --filter @eos-ui/vue exec playwright install --with-deps chromium
       - run: pnpm test
 
-  smoke:
+  # What gets published, built once: size budgets, server render, the built stylesheet, then the packed tarballs
+  # (publint, attw) installed in a fresh app. On Node 22, the lowest supported version.
+  package:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - run: pnpm smoke
+        with:
+          node-version: 22
+      - run: pnpm build
+      - run: pnpm check:package
+      - run: pnpm smoke --no-build
 
   # A change under packages/ needs a changeset, unless the pull request carries the `no-changeset` label (docs wording, tests, internal refactors).
   changeset:
@@ -113,10 +83,11 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm changeset status --since=origin/${{ github.base_ref }}
 
-  # The one name branch protection requires, so adding or renaming a job above never breaks the rule. A skipped job (changeset with the label) counts as passing.
-  check:
+  # The one check branch protection requires, so adding or renaming a job above never touches the rule. A skipped job
+  # (changeset with the label) counts as passing.
+  ci-ok:
     if: always() && github.event_name != 'schedule'
-    needs: [static, build, package, test, smoke, changeset]
+    needs: [lint, test, package, changeset]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

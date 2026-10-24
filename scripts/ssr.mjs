@@ -1,6 +1,6 @@
 // Renders every exported component on the server, in plain Node, from the built package (packages/vue/dist).
 // Each one must render with the plugin and without it, give the same HTML twice (stable ids), and log no Vue warning.
-// Needs a build.   node scripts/ssr.mjs   (or `pnpm ssr`; `pnpm check:built` and `pnpm smoke` run it)
+// Needs a build.   node scripts/ssr.mjs   (or `pnpm ssr`; `pnpm check:package` runs it)
 import { createRequire } from "node:module";
 import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";

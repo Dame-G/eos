@@ -7,8 +7,8 @@
       "ignore": ["src/generated/**"]
     },
     "packages/vue": {
-      "entry": ["src/index.ts", "src/resolver.ts", "src/icons/index.ts", "src/icons/iconify.ts", "scripts/*.mjs"],
-      "ignoreDependencies": ["@iconify/vue"]
+      "entry": ["scripts/*.mjs"],
+      "ignoreDependencies": ["@iconify/vue", "publint", "@arethetypeswrong/cli"]
     }
   }
 }

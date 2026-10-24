@@ -76,15 +76,14 @@
     "test:watch": "vitest",
     "prepare:gen": "node scripts/gen-index.mjs",
     "gen:check": "node scripts/gen-index.mjs --check",
-    "check": "pnpm gen:check && pnpm check:css && pnpm check:layers && pnpm check:props && pnpm check:docs",
+    "check:source": "pnpm gen:check && pnpm check:css && pnpm check:layers && pnpm check:props && pnpm check:docs",
     "check:css": "node scripts/check-css.mjs",
     "check:layers": "node scripts/check-layers.mjs",
     "gen:props": "node scripts/gen-props.mjs",
     "check:props": "node scripts/gen-props.mjs --check",
     "check:docs": "node scripts/check-docs.mjs",
     "check:icon-aliases": "node scripts/validate-icon-aliases.mjs",
-    "check:dist": "node scripts/check-dist.mjs",
-    "check:package": "publint --pack npm --strict && attw --pack . --profile esm-only --entrypoints . ./resolver ./globals ./plugin ./components/EButton ./icons ./icons/builtin ./icons/iconify"
+    "check:dist": "node scripts/check-dist.mjs"
   },
   "peerDependencies": {
     "@iconify/vue": "^5.0.0",
