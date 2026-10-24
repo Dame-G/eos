@@ -1,5 +1,16 @@
 # @eos-ui/vue
 
+## 0.15.0
+
+### Minor Changes
+
+- c5ffbd0: ENotice: full width and square, so it sits against the edge of its container. It keeps the tone slab, the top and the bottom, and drops the end edge and the rounded corners.
+
+### Patch Changes
+
+- d8e8f5f: ESegmented: bringing the chosen option into view no longer scrolls past the ends of the track, which on iOS Safari left empty space before the first option.
+- @eos-ui/tokens@0.15.0
+
 ## 0.14.1
 
 ### Patch Changes
