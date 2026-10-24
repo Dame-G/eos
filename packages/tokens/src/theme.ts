@@ -10,6 +10,7 @@ import {
   reachContrast,
   resolveColor,
   settleContrast,
+  toHex,
   tint,
   toOklch,
   withLightness,
@@ -512,11 +513,21 @@ const hexOf = (out: Record<string, string>, name: string) =>
   resolveColor(out[name] ?? "", lookup(out), resolveColor(out["surface"] ?? "", lookup(out)));
 
 /** The fills that carry text and have a strength to give: a wash of `ink` (hover, press), judged over `surface`, and `surface` tinted with `primary` (a selected row). `surface-hover` and `surface-press` are aliases of the washes. */
-const FEEDBACK: [token: string, pct: number, mix: (pct: number) => string][] = [
-  ["wash-hover", 8, (p) => `color-mix(in srgb, var(--e-ink) ${p}%, transparent)`],
-  ["wash-press", 15, (p) => `color-mix(in srgb, var(--e-ink) ${p}%, transparent)`],
+const FEEDBACK: [token: string, pct: number, mix: (pct: number, pigment: string) => string][] = [
+  ["wash-hover", 50, (p, pigment) => `color-mix(in srgb, ${pigment} ${p}%, transparent)`],
+  ["wash-press", 75, (p, pigment) => `color-mix(in srgb, ${pigment} ${p}%, transparent)`],
   ["primary-soft", 12, (p) => `color-mix(in srgb, var(--e-primary) ${p}%, var(--e-surface))`],
 ];
+
+/** The colour that, laid over `surface` at 50%, is exactly `surface-tint` (twice the tint's step from the surface). The hover and press washes are made of it, so a hovered row on a plain ground is the tinted ground, and on a ground that is already tinted (a striped row, the track of a segmented control) it goes one step deeper, so there is always something to see. */
+function washPigment(out: Record<string, string>) {
+  const tint = hexOf(out, "surface-tint");
+  const surface = hexOf(out, "surface");
+  if (!tint || !surface) return undefined;
+  const t = parseHex(tint);
+  const s = parseHex(surface);
+  return toHex(t.map((v, i) => Math.min(255, Math.max(0, Math.round(2 * v - s[i]!)))) as [number, number, number]);
+}
 
 /**
  * The hover, press and selected-row fills, and the hover ring. Each keeps its default strength unless the surface leaves the text no room: then the fill gives up strength until `ink`, `muted` and `primary` hold on it, and the ring takes strength until it holds 3:1 on the surface.
@@ -525,9 +536,11 @@ function deriveFeedback(out: Record<string, string>) {
   const surface = hexOf(out, "surface");
   if (!surface) return;
   const text = ["ink", "muted", "primary"].map((name) => [name, hexOf(out, name)] as const);
+  const pigment = washPigment(out);
+  if (!pigment) return;
   for (const [token, base, mix] of FEEDBACK) {
     for (let pct = base; pct >= 1; pct--) {
-      out[token] = mix(pct);
+      out[token] = mix(pct, pigment);
       const bg = hexOf(out, token);
       if (!bg) return;
       const holdsAll = text.every(([name, fg]) => {
@@ -552,7 +565,7 @@ function deriveFeedback(out: Record<string, string>) {
 /** On a mid-tone surface even the faintest fill leaves the primary colour a hair short, so the primary moves a little further from it. */
 function fitFeedback(out: Record<string, string>) {
   const checks: ContrastCheck[] = [];
-  for (const name of ["surface", "wash-hover", "wash-press"]) {
+  for (const name of ["surface", "wash-hover", "wash-press", "primary-soft"]) {
     const hex = hexOf(out, name);
     if (hex) checks.push([hex, 4.5]);
   }

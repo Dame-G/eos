@@ -18,7 +18,7 @@ describe("evaluating colours", () => {
     expect(resolveColor("var(--e-ink)", get)).toBe("#000000");
     expect(resolveColor("color-mix(in srgb, #ffffff, black 50%)", get)).toBe("#808080");
     expect(resolveColor(t["primary-hover"]!, get)).toMatch(/^#[0-9a-f]{6}$/);
-    expect(resolveColor(t["wash-hover"]!, get, "#ffffff")).toBe("#ebebeb");
+    expect(resolveColor(t["wash-hover"]!, get, "#ffffff")).toBe(t["surface-tint"]);
   });
   test("lays a translucent colour over its ground, and gives up without one", () => {
     expect(resolveColor("color-mix(in srgb, #000000 50%, transparent)", get, "#ffffff")).toBe("#808080");

@@ -647,8 +647,8 @@ describe("brand, wash and tone tokens", () => {
     expect(b["brand-accent"]).toBe("#2e7d32");
   });
   test("the hover and press washes are the one contrast-fitted pair", () => {
-    expect(t["wash-hover"]).toBe("color-mix(in srgb, var(--e-ink) 8%, transparent)");
-    expect(t["wash-press"]).toBe("color-mix(in srgb, var(--e-ink) 15%, transparent)");
+    expect(t["wash-hover"]).toBe("color-mix(in srgb, #c7a7ff 50%, transparent)");
+    expect(t["wash-press"]).toBe("color-mix(in srgb, #c7a7ff 68%, transparent)");
     const grey = defineTheme({ surface: "#808080" });
     expect(grey.issues).toEqual([]);
   });
