@@ -1,5 +1,18 @@
 # @eos-ui/vue
 
+## 0.16.0
+
+### Minor Changes
+
+- a12ac4c: ENotice: closed on every side (a border on the inline-end edge too) and follows the theme's corner radius, like the other components, instead of being square.
+- af48b28: EAppShell: the ground beside the page column is the brand colour mixed into the page background, not `surface-tint`, so it reads against the column in a light theme.
+
+### Patch Changes
+
+- 48fb447: Pressable controls no longer select the text around them when clicked, double-clicked or shift-clicked: every button, summary and element with a button, tab, switch, menu item, option or combobox role is covered, not only a list of known classes.
+- a12ac4c: Select and Combobox: the list panel is at least as wide as the field and grows to fit its rows, so a selected row's check no longer overlaps its label in a narrow field.
+- @eos-ui/tokens@0.16.0
+
 ## 0.15.1
 
 ### Patch Changes
