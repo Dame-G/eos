@@ -386,7 +386,7 @@ describe("derived inputs", () => {
   test("elevation presets set the shadows from the border and ink", () => {
     const lifted = defineTheme({ elevation: "lifted" }).tokens;
     expect(lifted["frame"]).toBe(
-      "0 0 0 var(--e-stroke-card) var(--e-border), 0 1px 2px 0px rgba(36, 36, 36, 0.12), 0 4px 8px -2px rgba(36, 36, 36, 0.08)",
+      "0 0 0 var(--e-stroke-card) var(--e-border), 0 1px 2px 0px rgba(36, 36, 36, 0.1), 0 4px 10px -2px rgba(36, 36, 36, 0.12), 0 14px 28px -10px rgba(36, 36, 36, 0.16)",
     );
     expect(lifted["float"]!.split("rgba(").length - 1).toBe(4);
     expect(lifted["well"]).toBe(base["well"]);

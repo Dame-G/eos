@@ -288,9 +288,11 @@ const LIFTED: ShadowLayer[] = [
   [18, 36, -8, 0.18],
   [32, 64, -16, 0.2],
 ];
+/** Cards under `lifted`: a contact shadow, a near drop and a wide soft one, so a card visibly sits above the page. */
 const CARD: ShadowLayer[] = [
-  [1, 2, 0, 0.12],
-  [4, 8, -2, 0.08],
+  [1, 2, 0, 0.1],
+  [4, 10, -2, 0.12],
+  [14, 28, -10, 0.16],
 ];
 
 function shadowRgb(out: Record<string, string>, dark: boolean) {
