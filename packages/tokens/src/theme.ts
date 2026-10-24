@@ -430,7 +430,7 @@ function groundTint(brand: string, surfaceL: number, dark: boolean) {
   const { h, c } = toOklch(brand);
   return fromOklch({
     l: Math.min(1, Math.max(0, dark ? surfaceL + 0.06 : surfaceL - 0.1)),
-    c: Math.min(dark ? 0.01 : 0.04, c),
+    c: Math.min(dark ? 0.01 : 0.02, c),
     h,
   });
 }
