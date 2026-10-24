@@ -4,6 +4,9 @@ inputs:
   node-version:
     description: Node version
     default: "24"
+  registry-url:
+    description: npm registry to write an .npmrc for (publishing only)
+    default: ""
 runs:
   using: composite
   steps:
@@ -11,6 +14,7 @@ runs:
     - uses: actions/setup-node@v7
       with:
         node-version: ${{ inputs.node-version }}
+        registry-url: ${{ inputs.registry-url }}
         cache: pnpm
     - run: pnpm install --frozen-lockfile
       shell: bash

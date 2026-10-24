@@ -28,13 +28,9 @@ jobs:
         with:
           # The commit CI checked, not whatever main has moved on to since.
           ref: ${{ github.event.workflow_run.head_sha }}
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: ./.github/actions/setup
         with:
-          node-version: 24
-          cache: pnpm
           registry-url: https://registry.npmjs.org
-      - run: pnpm install --frozen-lockfile
       - uses: changesets/action@v2
         id: changesets
         with:

@@ -15,17 +15,17 @@ pnpm install
 pnpm build                # builds tokens, then the Vue package
 pnpm dev                  # watch-builds the library (see Developing against the docs site)
 pnpm test                 # real-browser tests (Chromium in CI; Edge locally if installed, else Chromium)
-pnpm check                # CSS rules, layers, props tables, README links (CI runs it)
+pnpm check:source         # generated files, CSS rules, layers, props tables, README links
 pnpm lint                 # eslint and stylelint
 pnpm format:check         # prettier (run `pnpm format` to fix)
 pnpm knip                 # unused files, exports and dependencies
 pnpm typecheck
-pnpm check:built          # package exports and types, size budgets, server render, built stylesheet (needs a build)
-pnpm ssr                  # renders every component on the server from the build (--verbose lists each check)
-pnpm smoke                # builds, packs and installs both packages in a temporary app
+pnpm check:package        # size budgets, server render, built stylesheet (needs a build)
+pnpm ssr                  # just the server render (--verbose lists each check)
+pnpm smoke                # builds and packs both packages, lints the tarballs (publint, attw), installs them in a temporary app
 ```
 
-Node 22 or later is required. CI runs the tests on Node 22 and 24.
+Node 22 or later is required. CI runs the browser tests on Node 24 and builds the package and the consumer app on Node 22.
 
 ### Developing against the docs site
 
@@ -154,16 +154,16 @@ A README says what the consumer provides, what the component does and the rules.
 - **Examples** use only values that work: icon names from the built-in set (`iconNames`) and real props.
 - **Tables.** Escape `|` inside a cell as `\|`. Props tables are generated, so edit the source comment (see above).
 
-`pnpm check` (its `check:docs` part) checks links, bare URLs, table pipes, sibling links in the intro and icon names in examples. CI runs it.
+`pnpm check:source` (its `check:docs` part) checks links, bare URLs, table pipes, sibling links in the intro and icon names in examples. CI runs it.
 
 ### Definition of done
 
 1. Tests pass, including keyboard and axe.
-2. `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm knip`, `pnpm check` (CSS rules, layers, props tables, README links) and, after a build, `pnpm check:built` (package exports, size, built stylesheet) pass. CI runs all of them.
+2. CI passes. It runs `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm knip`, `pnpm check:source`, `pnpm test`, and after a build `pnpm check:package` and `pnpm smoke --no-build`.
 3. README (following Documentation above), `index.ts` and exported prop types exist.
 4. The component works without the plugin installed and with a custom theme applied.
 
-A pull request that changes `packages/**` also runs the `Site check` workflow, which builds the docs site (`Dame-G/eos-site`, `main`) against your branch. It is not a required check, but a failure means the change breaks the site. If the site needs a matching change, open the site pull request first or at the same time, link the two, and re-run the job once the site change is merged. The site repo is private, so the job needs a `SITE_REPO_TOKEN` secret (a fine-grained token with read access to the contents of `Dame-G/eos-site`). Without it, and on pull requests from forks, the job skips.
+A pull request that changes `packages/**` also runs the `Site check` workflow, which builds the docs site (`Dame-G/eos-site`, `main`) against your branch. It is not a required check, but a failure means the change breaks the site. If the site needs a matching change, open the site pull request first or at the same time, link the two, and re-run the job once the site change is merged. It runs the same checks as the site's own CI (`.github/actions/verify` in the site repo).
 
 ## Design conventions
 
