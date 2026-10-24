@@ -1,5 +1,12 @@
 # @eos-ui/vue
 
+## 0.15.1
+
+### Patch Changes
+
+- 9d78c47: ECombobox: a bare `multiple` (`<ECombobox multiple>`) now turns multiple on; it was ignored, so the field acted as a single choice. Option rows in a Select or Combobox list have a small gap between them.
+- @eos-ui/tokens@0.15.1
+
 ## 0.15.0
 
 ### Minor Changes
