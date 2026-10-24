@@ -173,7 +173,8 @@ describe("ENotice", () => {
     container.classList.add("e-root");
     const notice = container.querySelector<HTMLElement>(".e-notice")!;
     const style = getComputedStyle(notice);
-    expect(parseFloat(style.borderInlineStartWidth)).toBe(parseFloat(style.borderInlineEndWidth) + 4);
+    expect(parseFloat(style.borderInlineStartWidth)).toBeGreaterThan(4);
+    expect(parseFloat(style.borderInlineEndWidth)).toBe(0);
     expect(getComputedStyle(notice, "::before").content).toBe("none");
     const body = notice.getBoundingClientRect();
     const ltrIcon = container.querySelector(".e-notice-icon")!.getBoundingClientRect();
@@ -184,6 +185,13 @@ describe("ENotice", () => {
     expect(parseFloat(getComputedStyle(notice).borderRightWidth)).toBeGreaterThan(
       parseFloat(getComputedStyle(notice).borderLeftWidth),
     );
+  });
+
+  test("it is full width with square corners, to sit against the edge of its container", async () => {
+    const { container } = await render(ENotice, { props: { title: "x" } });
+    const style = getComputedStyle(container.querySelector(".e-notice")!);
+    expect(style.borderRadius).toBe("0px");
+    expect(style.display).toBe("block");
   });
 
   test("neutral is a tone with its own modifier, a status role and no colour", async () => {
