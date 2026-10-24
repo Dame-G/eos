@@ -5,7 +5,7 @@ import * as library from "./index.js";
 describe("EosResolver", () => {
   const resolver = EosResolver();
 
-  test("claims Eos components and nothing else", () => {
+  test("claims eos components and nothing else", () => {
     expect(resolver.resolve("EButton")).toEqual({ name: "EButton", from: "@eos-ui/vue" });
     expect(resolver.resolve("EEmptyState")).toEqual({ name: "EEmptyState", from: "@eos-ui/vue" });
     expect(resolver.resolve("EventCard")).toBeUndefined();

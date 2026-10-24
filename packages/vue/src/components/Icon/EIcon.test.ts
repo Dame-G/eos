@@ -79,7 +79,7 @@ describe("EIcon", () => {
     expect(container.querySelector("[data-testid=square]")).not.toBeNull();
   });
 
-  test("aliases rename Eos's names to the set's names before resolving", async () => {
+  test("aliases rename eos's names to the set's names before resolving", async () => {
     const seen: string[] = [];
     const eos = withIcons({
       aliases: { alert: "triangle-alert" },

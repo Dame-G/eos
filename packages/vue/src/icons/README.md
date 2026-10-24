@@ -1,8 +1,8 @@
 # Bring your own icons
 
-EOS ships a small built-in set (Phosphor, 42 icons) so every component works with no setup. To use your own set instead, tell `createEos` where to find icons. Anything it cannot find falls back to the built-in icon, so a partial set never leaves a blank.
+eos ships a small built-in set (Phosphor, 42 icons) so every component works with no setup. To use your own set instead, tell `createEos` where to find icons. Anything it cannot find falls back to the built-in icon, so a partial set never leaves a blank.
 
-Adapters live in `@eos-ui/vue/icons`. They import nothing: you pass the icon library in, so EOS never depends on it.
+Adapters live in `@eos-ui/vue/icons`. They import nothing: you pass the icon library in, so eos never depends on it.
 
 ## Which source wins
 
@@ -10,7 +10,7 @@ An icon name is looked up in this order, and the first hit is drawn:
 
 1. A component passed straight to the `icon` prop.
 2. `icons[name]`: an explicit map of names to sources.
-3. `resolve(aliases[name] ?? name, { bold })`: your function, after `aliases` has renamed the EOS name.
+3. `resolve(aliases[name] ?? name, { bold })`: your function, after `aliases` has renamed the eos name.
 4. The built-in Phosphor icon of that name, unless `builtin: false`.
 
 Nothing found draws nothing and warns once in development. Adapters (`lucide()`, `tabler()`...) fill `resolve` and `aliases` for you, so an `icons` map you spread after them still wins.
@@ -27,7 +27,7 @@ import { Check, X, CreditCard, TriangleAlert /* ...the names below */ } from "lu
 createEos({ icons: lucide({ Check, X, CreditCard, TriangleAlert }) });
 ```
 
-An explicit map tree-shakes: only the icons you list ship. `import * as lucide from "lucide-vue-next"` is shorter and works too, but it keeps the whole library in your bundle because EOS looks icons up by name at run time. Icons you leave out of the map fall back to the built-in set.
+An explicit map tree-shakes: only the icons you list ship. `import * as lucide from "lucide-vue-next"` is shorter and works too, but it keeps the whole library in your bundle because eos looks icons up by name at run time. Icons you leave out of the map fall back to the built-in set.
 
 ## Tabler
 
@@ -42,7 +42,7 @@ Components are named `Icon<Pascal>` (`IconCreditCard`). A `{ IconCheck, IconX }`
 
 ## Heroicons
 
-Pick the variant with the import path. EOS does not choose for you:
+Pick the variant with the import path. eos does not choose for you:
 
 ```ts
 import * as outline from "@heroicons/vue/24/outline"; // or /24/solid, /20/solid
@@ -69,7 +69,7 @@ import { iconify } from "@eos-ui/vue/icons/iconify"; // needs the optional peer:
 createEos({ icons: iconify("lucide") });
 ```
 
-Known prefixes, with every EOS name already mapped: `lucide`, `tabler`, `heroicons`, `ph` (bold weight for small icons), `mdi`, `material-symbols`, `carbon`, `fluent`. Another prefix uses names as given. A name with a colon is used as given everywhere, so `icon="mdi:account"` works with any setup built on this adapter. Iconify fetches icons from its API unless you register them offline (see the `@iconify/vue` docs). Because Iconify can draw any name, the built-in fallback never triggers with this adapter.
+Known prefixes, with every eos name already mapped: `lucide`, `tabler`, `heroicons`, `ph` (bold weight for small icons), `mdi`, `material-symbols`, `carbon`, `fluent`. Another prefix uses names as given. A name with a colon is used as given everywhere, so `icon="mdi:account"` works with any setup built on this adapter. Iconify fetches icons from its API unless you register them offline (see the `@iconify/vue` docs). Because Iconify can draw any name, the built-in fallback never triggers with this adapter.
 
 ## Options for every adapter
 
@@ -80,7 +80,7 @@ lucide(icons, {
 });
 ```
 
-Aliases map an EOS name to the set's kebab-case name. The tables are in `aliases.ts` and are checked against the live sets with `node scripts/validate-icon-aliases.mjs` (needs the network).
+Aliases map an eos name to the set's kebab-case name. The tables are in `aliases.ts` and are checked against the live sets with `node scripts/validate-icon-aliases.mjs` (needs the network).
 
 ## A custom resolver
 
@@ -91,7 +91,7 @@ import MyIcon from "./MyIcon.vue";
 createEos({
   icons: defineIcons({
     icons: { card: "<svg viewBox='0 0 24 24'>...</svg>" }, // explicit, by name; a full svg string
-    aliases: { alert: "warning" }, // rename EOS's names before resolving
+    aliases: { alert: "warning" }, // rename eos's names before resolving
     resolve: (name, { bold }) => (name === "logo" ? MyIcon : undefined), // return undefined to fall through
     builtin: true,
   }),

@@ -1,4 +1,4 @@
-# EOS
+<h1><img src="brand/logo.svg" alt="eos" width="200"></h1>
 
 A component library for Vue. High contrast and consistent by default, rebrandable with a few lines.
 
@@ -110,7 +110,7 @@ createEos({
 
 ## Bring your own icons
 
-EOS draws its built-in Phosphor icons until you give it your own. Adapters take the icon library you already use, so EOS adds no dependency:
+eos draws its built-in Phosphor icons until you give it your own. Adapters take the icon library you already use, so eos adds no dependency:
 
 ```ts
 import { createEos } from "@eos-ui/vue";
@@ -135,7 +135,7 @@ phosphorVue(ph);
 iconify("lucide");
 ```
 
-`<EButton icon="credit-card">` then finds the icon in your set. The names EOS uses itself (`card`, `alert`, `home`) map to your set's names. Anything your set lacks falls back to the built-in icon. `builtin: false` turns that off. An `icon` prop also takes a component (`:icon="CreditCard"`). All 41 names, the options and the custom resolver are in [packages/vue/src/icons/README.md](packages/vue/src/icons/README.md).
+`<EButton icon="credit-card">` then finds the icon in your set. The names eos uses itself (`card`, `alert`, `home`) map to your set's names. Anything your set lacks falls back to the built-in icon. `builtin: false` turns that off. An `icon` prop also takes a component (`:icon="CreditCard"`). All 41 names, the options and the custom resolver are in [packages/vue/src/icons/README.md](packages/vue/src/icons/README.md).
 
 ## Contributing
 

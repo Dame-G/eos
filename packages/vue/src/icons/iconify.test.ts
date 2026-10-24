@@ -22,7 +22,7 @@ const ctx = { bold: false };
 const drawn = (container: Element) => container.querySelector("svg")?.getAttribute("data-iconify");
 
 describe("iconify adapter", () => {
-  test("aliases Eos names and prefixes the result", async () => {
+  test("aliases eos names and prefixes the result", async () => {
     const config = iconify("lucide");
     expect(config.aliases?.card).toBe("credit-card");
     const plugin = createEos({ themeTarget: null, icons: config });

@@ -20,11 +20,11 @@ export interface IconContext {
   bold: boolean;
 }
 
-/** How EOS finds an icon for a name. All parts are optional and combine in the order below. */
+/** How eos finds an icon for a name. All parts are optional and combine in the order below. */
 export interface IconsConfig {
   /** Explicit icons by name. Checked first. */
   icons?: Record<string, IconSource>;
-  /** Renames EOS's own icon names to your set's: `{ alert: "triangle-alert", card: "credit-card" }`. Applied before `resolve`. */
+  /** Renames eos's own icon names to your set's: `{ alert: "triangle-alert", card: "credit-card" }`. Applied before `resolve`. */
   aliases?: Record<string, string>;
   /** Looks a name up in your icon set. Return `undefined` to fall through to the built-in icon. */
   resolve?: (name: string, context: IconContext) => IconSource | undefined;

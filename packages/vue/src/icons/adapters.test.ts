@@ -56,7 +56,7 @@ describe("lucide adapter", () => {
     expect(lucide(source).builtin).toBe(true);
   });
 
-  test("renders through EIcon by Eos name, by set name, and by an alias override", async () => {
+  test("renders through EIcon by eos name, by set name, and by an alias override", async () => {
     const plugin = eos(lucide(source, { aliases: { alert: "check" } }));
     for (const name of ["card", "credit-card"]) {
       const { container } = await render(EIcon, { props: { name }, global: { plugins: [plugin] } });
@@ -110,7 +110,7 @@ describe("tabler adapter", () => {
     IconAlertTriangle: fake("IconAlertTriangle"),
   };
 
-  test("uses the Icon prefix and renames Eos names", () => {
+  test("uses the Icon prefix and renames eos names", () => {
     const config = tabler(source);
     expect(config.resolve?.(config.aliases!.card!, ctx)).toBe(source.IconCreditCard);
     expect(config.resolve?.(config.aliases!.menu!, ctx)).toBe(source.IconMenu2);

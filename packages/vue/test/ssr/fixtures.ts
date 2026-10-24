@@ -81,7 +81,7 @@ const PROPS: Record<string, Record<string, unknown>> = {
   EUpload: { label: "Files" },
   ELink: { href: "#x" },
   ESkipLink: { href: "#main" },
-  EAppHeader: { brand: "EOS", brandHref: "/" },
+  EAppHeader: { brand: "eos", brandHref: "/" },
   EConfigProvider: { locale: "ar", theme: { brand: "#8a2be2" } },
 };
 

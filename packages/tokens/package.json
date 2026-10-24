@@ -1,7 +1,7 @@
 {
   "name": "@eos-ui/tokens",
   "version": "0.13.0",
-  "description": "Eos design tokens: CSS custom properties, typed values and a theme generator with contrast checks.",
+  "description": "eos design tokens: CSS custom properties, typed values and a theme generator with contrast checks.",
   "type": "module",
   "license": "MIT",
   "sideEffects": [
