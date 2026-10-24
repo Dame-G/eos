@@ -36,7 +36,7 @@ const DARK_SURFACE = "#15121b";
 export interface ThemeInput {
   /** Identifies the theme. It becomes the value of `data-e-theme` when the theme is scoped to an element. */
   name?: string;
-  /** The brand colour. The deep action colour (`primary`) is derived from it so white text on it reaches 7:1; the tinted ground follows. */
+  /** The brand colour. The deep action colour (`primary`) is derived from it so white text on it reaches 7:1. */
   brand?: string;
   /** A second brand colour for positive actions (`secondary`), derived the same way. */
   accent?: string;
@@ -428,9 +428,9 @@ function deriveGround(input: ThemeInput, out: Record<string, string>, dark: bool
   const surface = input.surface ?? out["surface"]!;
   if (input.surface) {
     out["surface"] = input.surface;
-    const hue = toOklch(input.brand ?? out["brand"]!).h;
     const l = toOklch(input.surface).l;
-    out["surface-tint"] = fromOklch({ l: Math.min(1, Math.max(0, dark ? l + 0.06 : l - 0.045)), c: 0.025, h: hue });
+    // The second ground is a neutral zinc grey (chroma 0.006, hue 285): none of the brand colour, and a hint of cool that keeps a true grey from reading green beside a violet interface.
+    out["surface-tint"] = fromOklch({ l: Math.min(1, Math.max(0, dark ? l + 0.06 : l - 0.075)), c: 0.006, h: 285 });
     for (const [token, hueSource] of [
       ["secondary-soft", toOklch(input.accent ?? defaults["secondary-soft"]).h],
       ["danger-soft", toneHue("danger-soft", "danger", input.danger)],
@@ -577,7 +577,6 @@ function derive(input: ThemeInput): Record<string, string> {
   if (input.brand || dark) out["primary"] = reachContrast(out["brand"]!, out["on-primary"]!, 7);
   if (input.accent) out["brand-accent"] = input.accent;
   if (input.accent || dark) out["secondary"] = reachContrast(out["brand-accent"]!, out["on-secondary"]!, 7);
-  if (input.brand && !input.surface) out["surface-tint"] = tint(input.brand);
   if (input.accent && !input.surface) out["secondary-soft"] = tint(input.accent, 0.96, 0.04);
   deriveGround(input, out, dark);
   if (!input.surface) {
@@ -608,7 +607,7 @@ function derive(input: ThemeInput): Record<string, string> {
     const base = input.warning ?? (dark ? DARK_WARNING : defaults["warning-strong"]);
     fitTone(out, "warning-strong", undefined, "warning-soft", base, surface);
   }
-  // The outline has to show on the tinted ground as well as on the surface, and the tint moves with the brand.
+  // The outline has to show on the tinted ground as well as on the surface.
   fit(out, "border", out["border"]!, [
     [surface, 3],
     [out["surface-tint"]!, 3],

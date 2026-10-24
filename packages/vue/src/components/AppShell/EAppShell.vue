@@ -90,12 +90,7 @@ function closeOnLink(event: MouseEvent) {
     display: grid;
     grid-template-rows: auto 1fr auto;
     min-height: 100%;
-
-    /* A neutral with a faint tint of the brand: the ink and a little of the brand mixed into the page background, then set to a fixed, very low colour (chroma 0.01) and its hue turned 8 degrees toward purple. A true grey reads slightly green beside a violet interface; this reads neutral. It follows a light or dark theme, and `surface-tint` (a fill for small things) is nearly white in a light theme. */
-    background: oklch(
-      from color-mix(in oklch, var(--e-primary) 6%, color-mix(in oklch, var(--e-ink) 6%, var(--e-background))) l 0.01
-        calc(h + 8)
-    );
+    background: var(--e-surface-tint);
   }
 
   /* The column is the page; the screen beside it, when the column does not fill it, is the ground. */
