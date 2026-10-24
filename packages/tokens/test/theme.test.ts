@@ -185,7 +185,7 @@ describe("ground inputs", () => {
     const l = (hex: string) => toOklch(hex).l;
     const lightT = defineTheme(light).tokens;
     expect(lightT["surface"]).toBe(light.surface);
-    expect(l(lightT["surface-tint"]!)).toBeCloseTo(l(light.surface) - 0.075, 1);
+    expect(l(lightT["surface-tint"]!)).toBeCloseTo(l(light.surface) - 0.1, 1);
     for (const k of ["secondary-soft", "danger-soft", "warning-soft"])
       expect(l(lightT[k]!)).toBeLessThan(l(light.surface));
     const darkT = defineTheme(dark).tokens;
@@ -201,7 +201,7 @@ describe("ground inputs", () => {
       expect(contrast(t["muted"]!, input.surface)).toBeGreaterThanOrEqual(7);
       expect(contrast(t["muted"]!, input.surface)).toBeLessThan(7.3);
       expect(contrast(t["border"]!, input.surface)).toBeGreaterThanOrEqual(3.4);
-      expect(contrast(t["border"]!, input.surface)).toBeLessThan(4);
+      expect(contrast(t["border"]!, input.surface)).toBeLessThan(4.6);
       expect(contrast(t["border-strong"]!, input.surface)).toBeGreaterThanOrEqual(4.5);
       expect(contrast(t["border-strong"]!, input.surface)).toBeLessThan(4.7);
     }

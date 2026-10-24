@@ -424,13 +424,22 @@ function fitTone(
   out[soft] = reachAll(out[soft]!, [[out[token]!, 4.5]]).color;
 }
 
+/** The second ground: the brand's own hue at a light touch. A lot of colour in a light theme (it is a pale ground, so it takes it), little in a dark one; a grey brand stays grey. */
+function groundTint(brand: string, surfaceL: number, dark: boolean) {
+  const { h, c } = toOklch(brand);
+  return fromOklch({
+    l: Math.min(1, Math.max(0, dark ? surfaceL + 0.06 : surfaceL - 0.1)),
+    c: Math.min(dark ? 0.02 : 0.08, c),
+    h,
+  });
+}
+
 function deriveGround(input: ThemeInput, out: Record<string, string>, dark: boolean) {
   const surface = input.surface ?? out["surface"]!;
   if (input.surface) {
     out["surface"] = input.surface;
     const l = toOklch(input.surface).l;
-    // The second ground is a neutral zinc grey (chroma 0.006, hue 285): none of the brand colour, and a hint of cool that keeps a true grey from reading green beside a violet interface.
-    out["surface-tint"] = fromOklch({ l: Math.min(1, Math.max(0, dark ? l + 0.06 : l - 0.075)), c: 0.006, h: 285 });
+    out["surface-tint"] = groundTint(input.brand ?? out["brand"]!, l, dark);
     for (const [token, hueSource] of [
       ["secondary-soft", toOklch(input.accent ?? defaults["secondary-soft"]).h],
       ["danger-soft", toneHue("danger-soft", "danger", input.danger)],
@@ -577,6 +586,7 @@ function derive(input: ThemeInput): Record<string, string> {
   if (input.brand || dark) out["primary"] = reachContrast(out["brand"]!, out["on-primary"]!, 7);
   if (input.accent) out["brand-accent"] = input.accent;
   if (input.accent || dark) out["secondary"] = reachContrast(out["brand-accent"]!, out["on-secondary"]!, 7);
+  if (input.brand && !input.surface) out["surface-tint"] = groundTint(input.brand, 1, false);
   if (input.accent && !input.surface) out["secondary-soft"] = tint(input.accent, 0.96, 0.04);
   deriveGround(input, out, dark);
   if (!input.surface) {
