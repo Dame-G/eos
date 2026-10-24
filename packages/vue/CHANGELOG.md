@@ -1,5 +1,12 @@
 # @eos-ui/vue
 
+## 0.14.1
+
+### Patch Changes
+
+- 714986f: `ENavList`: in a vertical list, each section heading has a full-width hairline under it, so the heading reads as the head of its section.
+- @eos-ui/tokens@0.14.1
+
 ## 0.14.0
 
 ### Minor Changes
