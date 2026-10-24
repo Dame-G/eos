@@ -44,6 +44,11 @@
     transition: var(--e-transition-state);
   }
 
+  /* A small gap keeps neighbouring rows' hover rings from touching. */
+  .e-opt + .e-opt {
+    margin-block-start: var(--e-pad-inset);
+  }
+
   .e-opt .e-icon {
     flex: none;
   }
