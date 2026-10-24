@@ -140,6 +140,15 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
     border-inline-start: var(--e-stroke-hair) solid color-mix(in srgb, currentcolor 55%, transparent);
   }
 
+  /* Where the browser can trim a line box to the capitals, the stamp centres the capitals themselves, whatever the font, size or text scale, and the nudge above is not needed. */
+  @supports (text-box: trim-both cap alphabetic) {
+    .e-stamp-word,
+    .e-stamp-detail {
+      padding-block-start: 0;
+      text-box: trim-both cap alphabetic;
+    }
+  }
+
   .e-stamp--sm {
     min-height: var(--e-chip-height);
     gap: var(--e-gap-tight);
