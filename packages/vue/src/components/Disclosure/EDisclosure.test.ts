@@ -175,4 +175,24 @@ describe("EDisclosure", () => {
     expect(hovered.textDecorationLine).toBe("none");
     expect(hovered.boxShadow).toBe("none");
   });
+
+  test("the content is clipped at the moving edge while it slides, and given room for a focus ring only once open", async () => {
+    const { container } = await render(EDisclosure, {
+      props: { title: "History" },
+      slots: { default: "Body" },
+      attrs: { style: "--e-duration-move: 400ms" },
+    });
+    const details = container.querySelector("details")!;
+    const margin = () => getComputedStyle(details, "::details-content").overflowClipMargin;
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    margin(); // a starting style, so the change below is a transition
+    await wait(50);
+    details.open = true;
+    await wait(150);
+    expect(margin()).toBe("0px");
+    await expect.poll(margin, { timeout: 2000 }).not.toBe("0px");
+    details.open = false;
+    await wait(50);
+    expect(margin()).toBe("0px");
+  });
 });

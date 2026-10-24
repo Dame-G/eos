@@ -6,16 +6,24 @@
     interpolate-size: allow-keywords;
   }
 
+  /* While it slides, the content is clipped exactly at the moving edge, so no text shows past it: the clip margin drops at once on closing. */
   :is(.e-details, .e-xrow, .e-nav-group)::details-content {
     block-size: 0;
     overflow: clip;
+    overflow-clip-margin: 0;
+    transition:
+      block-size var(--e-duration-move) var(--e-easing-out),
+      content-visibility var(--e-duration-move) allow-discrete,
+      overflow-clip-margin 0s allow-discrete;
+  }
+
+  /* Open, the clip gives way by a little, so a focus ring on the content's edge is not cut off. It does so only once the slide has finished. */
+  :is(.e-details, .e-xrow, .e-nav-group)[open]::details-content {
+    block-size: auto;
     overflow-clip-margin: var(--e-gap-snug);
     transition:
       block-size var(--e-duration-move) var(--e-easing-out),
-      content-visibility var(--e-duration-move) allow-discrete;
-  }
-
-  :is(.e-details, .e-xrow, .e-nav-group)[open]::details-content {
-    block-size: auto;
+      content-visibility var(--e-duration-move) allow-discrete,
+      overflow-clip-margin 0s var(--e-duration-move) allow-discrete;
   }
 }
