@@ -358,7 +358,7 @@ describe("ESegmented", () => {
       q.includes("prefers-reduced-motion") ? ({ matches: true } as MediaQueryList) : real(q),
     );
     const behaviours: (string | undefined)[] = [];
-    const spy = vi.spyOn(HTMLElement.prototype, "scrollBy").mockImplementation(function (o?: unknown) {
+    const spy = vi.spyOn(HTMLElement.prototype, "scrollTo").mockImplementation(function (o?: unknown) {
       behaviours.push((o as ScrollToOptions | undefined)?.behavior);
     });
     try {
