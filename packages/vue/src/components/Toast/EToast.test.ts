@@ -69,17 +69,12 @@ describe("EToast", () => {
     expect(off.container.querySelector(".e-notice-dismiss")).toBeNull();
   });
 
-  test("the dismiss button takes the dismiss message, as ENotice's does; a closeToast set before still wins", async () => {
+  test("the dismiss button takes the dismiss message, as ENotice's does", async () => {
     const own = await render(EToast, {
       props: { title: "x" },
       global: { plugins: [createEos({ themeTarget: null, messages: { dismiss: "Hide" } })] },
     });
     expect(own.container.querySelector(".e-notice-dismiss button")!.getAttribute("aria-label")).toBe("Hide");
-    const old = await render(EToast, {
-      props: { title: "x" },
-      global: { plugins: [createEos({ themeTarget: null, messages: { closeToast: "Close message" } })] },
-    });
-    expect(old.container.querySelector(".e-notice-dismiss button")!.getAttribute("aria-label")).toBe("Close message");
   });
 
   test("a custom icon replaces the icon of the tone", async () => {

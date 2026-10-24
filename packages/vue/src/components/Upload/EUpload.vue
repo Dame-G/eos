@@ -4,7 +4,7 @@ import EIcon from "../Icon/EIcon.vue";
 import EField from "../Field/EField.vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import EIconButton from "../IconButton/EIconButton.vue";
-import { useConfig, useMessages } from "../../config.js";
+import { useMessages } from "../../config.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useLocale } from "../../composables/useLocale.js";
@@ -38,13 +38,10 @@ const emit = defineEmits<{
 const model = defineModel<File[]>({ default: () => [] });
 
 const t = useMessages();
-const config = useConfig();
 const attrs = useFieldAttrs();
 
 /** The prompt as one sentence, with the "choose one" words where the translation puts them. */
 const prompt = computed(() => {
-  // A translation made for the old two pieces keeps working until it gives `dropFile`.
-  if (config.messages.dragHere && !config.messages.dropFile) return [t("dragHere") + " ", ""];
   const [before = "", after = ""] = t("dropFile").split("{choose}");
   return [before, after];
 });

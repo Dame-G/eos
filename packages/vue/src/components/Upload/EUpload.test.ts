@@ -55,16 +55,6 @@ describe("EUpload", () => {
     expect(main.firstElementChild!.className).toBe("e-drop-pick");
   });
 
-  test("a translation of the old dragHere piece still shows", async () => {
-    const { container } = await render(EUpload, {
-      props: { label: "Datei" },
-      global: {
-        plugins: [createEos({ themeTarget: null, messages: { dragHere: "Hierher ziehen oder", chooseOne: "wählen" } })],
-      },
-    });
-    expect(container.querySelector(".e-drop-main")!.textContent).toBe("Hierher ziehen oder wählen");
-  });
-
   test("accept shows as a hint inside the zone and goes to the input", async () => {
     const { container } = await render(EUpload, { props: { label: "Card", accept: ".pdf,.jpg" } });
     expect(container.querySelector(".e-drop-hint")!.textContent).toBe("PDF, JPG");
