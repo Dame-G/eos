@@ -1,6 +1,6 @@
 import postcss from "postcss";
 import { sourceStyles } from "./css-lib.mjs";
-import { LAYER_ORDER, deprecated } from "@eos-ui/tokens";
+import { LAYER_ORDER } from "@eos-ui/tokens";
 
 const layers = new Set(LAYER_ORDER.split(",").map((s) => s.trim()));
 const problems = [];
@@ -41,7 +41,7 @@ for (const { file, css } of sourceStyles()) {
     const decls = [];
     rule.each((n) => n.type === "decl" && decls.push(n));
     const subtle =
-      /^(transparent|none|inherit|initial|unset|currentcolor)\b|--e-(surface-tint|surface-hover|wash-)|color-mix\(|var\(--e-border/i;
+      /^(transparent|none|inherit|initial|unset|currentcolor)\b|--e-(surface-tint|wash-)|color-mix\(|var\(--e-border/i;
     const strongFill = decls.find((d) => /^background(-color)?$/.test(d.prop) && !subtle.test(d.value.trim()));
     const ring = decls.find(
       (d) => d.prop === "box-shadow" && /(^|,)\s*inset\s+0\s+0\s+0\s+(?!0\b)\S+\s+\S/.test(d.value),
@@ -52,9 +52,6 @@ for (const { file, css } of sourceStyles()) {
       );
   });
   root.walkDecls((d) => {
-    for (const [, name] of d.value.matchAll(/var\(--e-([a-z0-9-]+)/g))
-      if (deprecated[name])
-        problems.push(`${file}:${d.source?.start?.line}: --e-${name} is deprecated. ${deprecated[name]}`);
     if (d.important) problems.push(`${file}:${d.source?.start?.line}: !important on ${d.prop}`);
     if (d.prop === "z-index" && /^\d+$/.test(d.value.trim()) && d.value.trim() !== "0")
       problems.push(`${file}:${d.source?.start?.line}: raw z-index ${d.value}; use an --e-z-* token`);

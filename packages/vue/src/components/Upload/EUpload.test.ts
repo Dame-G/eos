@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -53,29 +53,6 @@ describe("EUpload", () => {
     const main = container.querySelector(".e-drop-main")!;
     expect(main.textContent).toBe("Datei wählen oder hierher ziehen");
     expect(main.firstElementChild!.className).toBe("e-drop-pick");
-  });
-
-  test("a translation of the old dragHere piece still shows", async () => {
-    const { container } = await render(EUpload, {
-      props: { label: "Datei" },
-      global: {
-        plugins: [createEos({ themeTarget: null, messages: { dragHere: "Hierher ziehen oder", chooseOne: "wählen" } })],
-      },
-    });
-    expect(container.querySelector(".e-drop-main")!.textContent).toBe("Hierher ziehen oder wählen");
-  });
-
-  test("@files is deprecated with a warning; v-model carries the same list", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    try {
-      await render(EUpload, { props: { label: "A", onFiles: () => {} } });
-      expect(warn.mock.calls.some(([m]) => String(m).includes("@files is deprecated"))).toBe(true);
-      warn.mockClear();
-      await render(EUpload, { props: { label: "B" } });
-      expect(warn).not.toHaveBeenCalled();
-    } finally {
-      warn.mockRestore();
-    }
   });
 
   test("accept shows as a hint inside the zone and goes to the input", async () => {

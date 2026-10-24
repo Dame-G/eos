@@ -7,7 +7,6 @@ import {
   defineTheme,
   derivedFrom,
   groups,
-  deprecated,
   inputTokens,
   toOklch,
   type ThemeInput,
@@ -330,14 +329,16 @@ describe("derived inputs", () => {
     expect(changed({ strokes: { focus: 3 } }).sort()).toEqual(["stroke-focus"]);
   });
 
-  test("strokes.edge and strokes.card set their tokens outright", () => {
-    const t = defineTheme({ elevation: "bold", strokes: { hair: 2, edge: 2, card: 3 } }).tokens;
+  test("stroke-edge and stroke-card are pinned through tokens", () => {
+    const t = defineTheme({
+      elevation: "bold",
+      strokes: { hair: 2 },
+      tokens: { "stroke-edge": "2px", "stroke-card": "3px" },
+    }).tokens;
     expect(t["stroke-hair"]).toBe("2px");
     expect(t["stroke-edge"]).toBe("2px");
     expect(t["stroke-card"]).toBe("3px");
     expect(t["frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
-    expect(changed({ strokes: { edge: 2 } })).toEqual(["stroke-edge"]);
-    expect(defineTheme({ strokes: { edge: 0 } }).tokens).toEqual(base);
   });
 
   test("contrast high pins lines to the foreground and neutralises the tint", () => {
@@ -367,14 +368,12 @@ describe("derived inputs", () => {
 
   test("motion presets set the three motion tokens", () => {
     expect(changed({ motion: "snappy" }).sort()).toEqual(["duration-fade", "duration-move", "duration-tap"]);
-    expect(changed({ motion: "none" }).sort()).toEqual(["duration-fade", "duration-move", "duration-tap"]);
     expect(changed({ motion: "gentle" }).sort()).toEqual([
       "duration-fade",
       "duration-move",
       "duration-tap",
       "easing-out",
     ]);
-    expect(defineTheme({ motion: "none" }).tokens["duration-move"]).toBe("0ms");
   });
 
   test("the shadow tint comes from the ground, not the brand", () => {
@@ -387,7 +386,7 @@ describe("derived inputs", () => {
   test("elevation presets set the shadows from the border and ink", () => {
     const lifted = defineTheme({ elevation: "lifted" }).tokens;
     expect(lifted["frame"]).toBe(
-      "0 0 0 var(--e-stroke-card) var(--e-border), 0 1px 2px 0px rgba(36, 36, 36, 0.12), 0 4px 8px -2px rgba(36, 36, 36, 0.08)",
+      "0 0 0 var(--e-stroke-card) var(--e-border), 0 1px 2px 0px rgba(36, 36, 36, 0.1), 0 4px 10px -2px rgba(36, 36, 36, 0.12), 0 14px 28px -10px rgba(36, 36, 36, 0.16)",
     );
     expect(lifted["float"]!.split("rgba(").length - 1).toBe(4);
     expect(lifted["well"]).toBe(base["well"]);
@@ -416,7 +415,7 @@ describe("derived inputs", () => {
     const t = defineTheme({
       danger: "#e53935",
       textScale: 2,
-      motion: "none",
+      motion: "snappy",
       elevation: "bold",
       controlHeight: 56,
       tokens: { danger: "#111111", "text-md": "17px", "duration-tap": "10ms", float: "none", "chip-height": "30px" },
@@ -498,7 +497,7 @@ describe("scheme, contrast and density", () => {
       /prefers-reduced-motion: reduce\) \{\n {2}:root, \[data-e-theme\] \{\n {4}--e-duration-tap: 0.01ms !important;\n {4}--e-duration-fade: 0.01ms !important;\n {4}--e-duration-move: 0.01ms !important;/,
     );
     expect(css).toMatch(/@media print \{[^}]*--e-ink: #000000 !important;[^}]*--e-surface: #ffffff !important;/);
-    expect(defineTheme({ motion: "none" }).css()).toMatch(/--e-duration-tap: 0ms;/);
+    expect(defineTheme({ motion: "snappy" }).css()).toMatch(/--e-duration-tap: 50ms;/);
   });
   test("loop durations are left alone under reduced motion", () => {
     expect(defineTheme().css()).not.toMatch(/--e-duration-loop: 0.01ms/);
@@ -574,8 +573,9 @@ describe("scheme, contrast and density", () => {
     expect(values).toEqual([...values].sort((a, b) => a - b));
     expect(groups.zIndex.at(-1)).toBe("z-skip");
   });
-  test("the spacing scale has every step from 1 to 8", () => {
-    for (let n = 1; n <= 8; n++) expect(groups.spacing).toContain(`space-${n}`);
+  test("the spacing scale has the steps 1 to 6, 8, 10, 12 and 16", () => {
+    for (const n of [1, 2, 3, 4, 5, 6, 8, 10, 12, 16]) expect(groups.spacing).toContain(`space-${n}`);
+    expect(groups.spacing).not.toContain("space-7");
   });
   test("renamed and removed tokens are gone", () => {
     for (const gone of ["edge", "focus-gap", "print-ink", "print-paper"])
@@ -635,44 +635,22 @@ const silent = <T>(fn: () => T): T => {
   }
 };
 
-describe("deprecated and renamed tokens", () => {
+describe("brand, wash and tone tokens", () => {
   const t = defineTheme().tokens;
-  test("are still emitted, as aliases of what replaces them", () => {
-    expect(t["brand-blue"]).toBe("var(--e-brand)");
-    expect(t["brand-green"]).toBe("var(--e-brand-accent)");
-    expect(t["surface-hover"]).toBe("var(--e-wash-hover)");
-    expect(t["surface-press"]).toBe("var(--e-wash-press)");
-    expect(t["stroke-ring"]).toBe("var(--e-stroke-edge)");
-    expect(t["slab"]).toBe("var(--e-depth)");
-    const css = defineTheme().css();
-    for (const name of Object.keys(deprecated)) expect(css, name).toContain(`--e-${name}:`);
+  test("a removed name in tokens only adds a custom property", () => {
+    const theme = silent(() => defineTheme({ tokens: { "surface-hover": "#eeeeee" } as never }));
+    expect(theme.warnings.join("\n")).toMatch(/tokens\.surface-hover: not a known token/);
   });
-  test("are listed with what to use instead, in explain and in the DTCG export", () => {
-    for (const name of ["brand-blue", "surface-hover", "stroke-ring", "slab", "easing-standard", "space-7", "bp-wide"])
-      expect(deprecated[name], name).toBeTruthy();
-    for (const name of ["brand", "wash-hover", "stroke-edge", "depth", "radius-lg", "space-5", "space-10", "space-16"])
-      expect(deprecated[name], name).toBeUndefined();
-    expect(defineTheme().explain("brand-blue")).toMatch(/deprecated: Use `brand`/);
-    expect(defineTheme().dtcg().color!["brand-blue"]!.$deprecated).toBe("Use `brand`.");
-    expect(defineTheme().dtcg().color!["brand"]!.$deprecated).toBeUndefined();
-  });
-  test("setting one in tokens still works and says what replaces it", () => {
-    const theme = silent(() => defineTheme({ tokens: { "surface-hover": "#eeeeee" } }));
-    expect(theme.tokens["surface-hover"]).toBe("#eeeeee");
-    expect(theme.warnings.join("\n")).toMatch(/tokens\.surface-hover is deprecated: Use `wash-hover`/);
-  });
-  test("the brand inputs set brand and brand-accent, and the old names follow", () => {
+  test("the brand inputs set brand and brand-accent", () => {
     const b = defineTheme({ brand: "#8a2be2", accent: "#2e7d32" }).tokens;
     expect(b["brand"]).toBe("#8a2be2");
     expect(b["brand-accent"]).toBe("#2e7d32");
-    expect(b["brand-blue"]).toBe("var(--e-brand)");
   });
   test("the hover and press washes are the one contrast-fitted pair", () => {
     expect(t["wash-hover"]).toBe("color-mix(in srgb, var(--e-ink) 8%, transparent)");
     expect(t["wash-press"]).toBe("color-mix(in srgb, var(--e-ink) 15%, transparent)");
     const grey = defineTheme({ surface: "#808080" });
     expect(grey.issues).toEqual([]);
-    expect(grey.tokens["surface-hover"]).toBe("var(--e-wash-hover)");
   });
   test("each tone is checked once, through the name components use", () => {
     const issues = checkContrast({ ...t, "warning-strong": "#fdf3dc", secondary: "#e8f5e1" });
@@ -704,18 +682,10 @@ describe("theming API shorthands", () => {
     expect(defineTheme({ radius: "round" }).tokens["radius-md"]).toBe("14px");
     expect(defineTheme({ radius: { md: "10px" } }).tokens["radius-md"]).toBe("10px");
   });
-  test("strokes needs only hair and focus; edge and card still work but say they are derived", () => {
+  test("strokes needs only hair and focus: they derive the edge and card", () => {
     const t = defineTheme({ strokes: { hair: 2, focus: 3 } });
     expect(t.warnings).toEqual([]);
     expect([t.tokens["stroke-hair"], t.tokens["stroke-edge"], t.tokens["stroke-card"]]).toEqual(["2px", "3px", "2px"]);
-    const old = silent(() => defineTheme({ strokes: { hair: 2, edge: 2, card: 3 } }));
-    expect([old.tokens["stroke-edge"], old.tokens["stroke-card"]]).toEqual(["2px", "3px"]);
-    expect(old.warnings.join("\n")).toMatch(/strokes\.edge is deprecated[\s\S]*strokes\.card is deprecated/);
     expect(defineTheme({ preset: "ink" }).warnings).toEqual([]);
-  });
-  test('motion "none" still zeroes the durations but is reported as deprecated', () => {
-    const t = silent(() => defineTheme({ motion: "none" }));
-    expect(t.tokens["duration-move"]).toBe("0ms");
-    expect(t.warnings.join("\n")).toMatch(/motion: "none" is deprecated/);
   });
 });

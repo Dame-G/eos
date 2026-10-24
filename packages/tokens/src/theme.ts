@@ -1,4 +1,4 @@
-import { defaults, deprecated, derivedFrom, groups, usage, type TokenName } from "./generated/defaults.js";
+import { defaults, derivedFrom, groups, usage, type TokenName } from "./generated/defaults.js";
 import { toDtcg, type DtcgTokens } from "./dtcg.js";
 import {
   type ContrastCheck,
@@ -17,8 +17,7 @@ import {
 
 export type TokenValues = Partial<Record<TokenName, string>>;
 
-/** `"none"` is deprecated: the theme CSS already stops every transition under `prefers-reduced-motion`. It still sets the durations to 0ms. */
-export type MotionPreset = "default" | "snappy" | "gentle" | "none";
+export type MotionPreset = "default" | "snappy" | "gentle";
 export type ElevationPreset = "outline" | "lifted" | "bold";
 /** A named bundle of `elevation`, `strokes`, `radius` and `motion`. Anything you set yourself wins over the preset. `"paper"` is the default look, `"ink"` is heavy and sharp, `"quiet"` is soft and round. Fonts are never part of a preset. */
 export type ThemePreset = "paper" | "ink" | "quiet";
@@ -63,10 +62,6 @@ export interface ThemeInput {
   strokes?: {
     hair?: number;
     focus?: number;
-    /** @deprecated Derived from `hair`. To pin it, set `tokens: { "stroke-edge": "2px" }`. */
-    edge?: number;
-    /** @deprecated Derived from `hair` and `elevation`. To pin it, set `tokens: { "stroke-card": "2px" }`. */
-    card?: number;
   };
   /** `"high"` draws every line and secondary text at full strength: `border` and `border-strong` become the foreground colour, `muted` is softened only until it holds 15:1, `surface-tint` is a neutral grey (no brand tint) and `scrim` is darker. Pair it with heavier `strokes`. `"auto"` keeps the standard theme and adds the high one under `prefers-contrast: more`. Default `"standard"`. */
   contrast?: ContrastPreset;
@@ -76,7 +71,7 @@ export interface ThemeInput {
   dark?: ThemeVariant;
   /** `"compact"` tightens the space scale to 0.75 (the `gap-*`, `pad-*` and `gutter` tokens follow, since they reference it) and makes controls exactly the 44px tap target (chips follow at 22px); a smaller `controlHeight` is raised to 44 and reported in `warnings`. `"comfortable"` is the default scale. Tap targets never fall under 44px in a compact theme. */
   density?: DensityPreset;
-  /** How state changes feel: sets `duration-tap`, `duration-fade`, `duration-move` and `easing-out`. `"none"` is deprecated: every theme already stops moving under `prefers-reduced-motion`. */
+  /** How state changes feel: sets `duration-tap`, `duration-fade`, `duration-move` and `easing-out`. Every theme already stops moving under `prefers-reduced-motion`. */
   motion?: MotionPreset;
   /** How depth is drawn: sets `frame`, `well`, `float` and `paper` from the border, ink and hairline. `outline` is flat rings, `lifted` adds soft drops, `bold` uses heavy rings and a hard offset shadow. */
   elevation?: ElevationPreset;
@@ -175,8 +170,6 @@ const PAIRS: { fg: TokenName; bg: TokenName; min: number; role: string }[] = [
   { fg: "warning", bg: "warning-soft", min: 4.5, role: "Warning notice text" },
   { fg: "success", bg: "surface", min: 4.5, role: "Success text" },
   { fg: "warning", bg: "surface", min: 4.5, role: "Warning text" },
-  { fg: "on-success", bg: "success", min: 4.5, role: "Success fill label" },
-  { fg: "on-info", bg: "info", min: 4.5, role: "Information fill label" },
   { fg: "disabled-ink", bg: "surface", min: 4.5, role: "Disabled text" },
   { fg: "ink", bg: "surface-paper", min: 7, role: "Text on the paper surface" },
   { fg: "muted", bg: "surface-paper", min: 4.5, role: "Secondary text on the paper surface" },
@@ -184,7 +177,6 @@ const PAIRS: { fg: TokenName; bg: TokenName; min: number; role: string }[] = [
   { fg: "ink", bg: "selection", min: 4.5, role: "Selected text" },
   { fg: "stamp-ink", bg: "surface", min: 4.5, role: "Stamp ink" },
   { fg: "stamp-ink", bg: "surface-paper", min: 4.5, role: "Stamp ink on the paper surface" },
-  { fg: "on-warning", bg: "warning", min: 4.5, role: "Warning fill label" },
   { fg: "ink", bg: "wash-hover", min: 7, role: "Text on a hovered row" },
   { fg: "muted", bg: "wash-hover", min: 4.5, role: "Secondary text on a hovered row" },
   { fg: "primary", bg: "wash-hover", min: 4.5, role: "Primary text on a hovered row" },
@@ -233,7 +225,6 @@ const MOTION: Record<MotionPreset, Record<string, string>> = {
     "duration-move": "380ms",
     "easing-out": "cubic-bezier(0.4, 0, 0.2, 1)",
   },
-  none: { "duration-tap": "0ms", "duration-fade": "0ms", "duration-move": "0ms" },
 };
 
 const PRESETS: Record<ThemePreset, Pick<ThemeInput, "elevation" | "strokes" | "radius" | "motion">> = {
@@ -273,8 +264,6 @@ function toneHue(soft: "danger-soft" | "warning-soft", strong: "danger" | "warni
 function deriveStrokes(input: ThemeInput, out: Record<string, string>) {
   const hair = positive(input.strokes?.hair);
   const focus = positive(input.strokes?.focus);
-  const edge = positive(input.strokes?.edge);
-  const card = positive(input.strokes?.card);
   if (hair !== undefined) {
     out["stroke-hair"] = px(hair);
     out["stroke-card"] = px(hair);
@@ -283,8 +272,6 @@ function deriveStrokes(input: ThemeInput, out: Record<string, string>) {
   if (focus !== undefined) {
     out["stroke-focus"] = px(focus);
   }
-  if (edge !== undefined) out["stroke-edge"] = px(edge);
-  if (card !== undefined) out["stroke-card"] = px(card);
 }
 
 type ShadowLayer = [y: number, blur: number, spread: number, alpha: number];
@@ -301,9 +288,11 @@ const LIFTED: ShadowLayer[] = [
   [18, 36, -8, 0.18],
   [32, 64, -16, 0.2],
 ];
+/** Cards under `lifted`: a contact shadow, a near drop and a wide soft one, so a card visibly sits above the page. */
 const CARD: ShadowLayer[] = [
-  [1, 2, 0, 0.12],
-  [4, 8, -2, 0.08],
+  [1, 2, 0, 0.1],
+  [4, 10, -2, 0.12],
+  [14, 28, -10, 0.16],
 ];
 
 function shadowRgb(out: Record<string, string>, dark: boolean) {
@@ -333,16 +322,8 @@ function layers(set: ShadowLayer[], dark: boolean, base: string) {
 /** The outline of cards, popovers and paper. Written with `var()` so a `border` or `stroke-card` override, from a theme or from plain CSS, reaches every shadow; only the drop layers are literal. */
 const RING = "0 0 0 var(--e-stroke-card) var(--e-border)";
 
-function deriveElevation(
-  style: ElevationPreset,
-  out: Record<string, string>,
-  dark: boolean,
-  strokes?: ThemeInput["strokes"],
-) {
-  const hair = out["stroke-hair"]!;
-  const given = positive(strokes?.card);
-  const card = given !== undefined ? px(given) : style === "bold" ? "2px" : hair;
-  out["stroke-card"] = card;
+function deriveElevation(style: ElevationPreset, out: Record<string, string>, dark: boolean) {
+  out["stroke-card"] = style === "bold" ? "2px" : out["stroke-hair"]!;
   const base = shadowRgb(out, dark);
   if (style === "lifted") {
     out["frame"] = `${RING}, ${layers(CARD, dark, base)}`;
@@ -581,9 +562,13 @@ function derive(input: ThemeInput): Record<string, string> {
     out["warning-strong"] = input.warning ?? DARK_WARNING;
     out["scrim"] = "rgb(0 0 0 / 0.7)";
     out["well"] = DARK_WELL;
-    out["shade-hover"] = "white 12%";
-    out["shade-press"] = "white 20%";
-    out["shade-slab"] = "black 45%";
+    // Darkening a dark fill is invisible, so hover and press lighten it instead, and the slab goes deeper.
+    for (const fill of ["primary", "secondary", "danger"]) {
+      out[`${fill}-hover`] = `color-mix(in srgb, var(--e-${fill}), white 12%)`;
+      out[`${fill}-press`] = `color-mix(in srgb, var(--e-${fill}), white 20%)`;
+      out[`${fill}-slab`] = `color-mix(in srgb, var(--e-${fill}), black 45%)`;
+    }
+    out["slab-ink"] = "color-mix(in srgb, var(--e-surface), black 45%)";
   }
   const dangerBase = input.danger ?? (dark ? DARK_DANGER : undefined);
   if (dangerBase) out["danger"] = reachContrast(dangerBase, out["on-danger"]!, 7);
@@ -660,10 +645,9 @@ function derive(input: ThemeInput): Record<string, string> {
     input.surface ||
     input.foreground ||
     input.contrast === "high" ||
-    positive(input.strokes?.hair) !== undefined ||
-    positive(input.strokes?.card) !== undefined
+    positive(input.strokes?.hair) !== undefined
   ) {
-    deriveElevation(input.elevation ?? "outline", out, dark, input.strokes);
+    deriveElevation(input.elevation ?? "outline", out, dark);
   }
   deriveFeedback(out);
   deriveMarks(out, dark);
@@ -767,7 +751,7 @@ function variants(input: ThemeInput, base: Record<string, string>) {
 const watchers = new WeakMap<HTMLElement, () => void>();
 
 const SCALES = ["textScale", "spaceScale", "controlHeight"] as const;
-const STROKES = ["hair", "focus", "edge", "card"] as const;
+const STROKES = ["hair", "focus"] as const;
 
 /** Everything the theme quietly changes or ignores, so a wrong input is not a mystery. */
 function inputWarnings(raw: ThemeInput): string[] {
@@ -779,17 +763,9 @@ function inputWarnings(raw: ThemeInput): string[] {
     const v = raw.strokes?.[key];
     if (v !== undefined && positive(v) === undefined)
       out.push(`strokes.${key}: ${String(v)} is not a positive number, so it is ignored.`);
-    else if (v !== undefined && (key === "edge" || key === "card"))
-      out.push(
-        `strokes.${key} is deprecated: it is derived from strokes.hair. It still applies; to pin it, set tokens: { "stroke-${key}": "${v}px" }.`,
-      );
   }
   if (typeof raw.radius === "number" && raw.radius !== 0 && positive(raw.radius) === undefined)
     out.push(`radius: ${String(raw.radius)} is not a positive number, so it is ignored.`);
-  if (raw.motion === "none")
-    out.push(
-      'motion: "none" is deprecated: every theme already stops moving under prefers-reduced-motion. It still sets the durations to 0ms.',
-    );
   const tap = parseFloat(defaults["tap"]);
   if (raw.density === "compact" && positive(raw.controlHeight) !== undefined && raw.controlHeight! < tap)
     out.push(`controlHeight: ${raw.controlHeight} is raised to ${tap}, the tap target, because density is "compact".`);
@@ -802,7 +778,6 @@ function inputWarnings(raw: ThemeInput): string[] {
     out.push(`preset: "${raw.preset}" is not a preset (paper, ink, quiet), so it is ignored.`);
   for (const key of Object.keys(raw.tokens ?? {}))
     if (!(key in defaults)) out.push(`tokens.${key}: not a known token, so it only adds a custom property.`);
-    else if (deprecated[key]) out.push(`tokens.${key} is deprecated: ${deprecated[key]}`);
   return out;
 }
 
@@ -846,7 +821,6 @@ export function defineTheme(given: ThemeInput = {}): Theme {
       if (value === undefined) return `${token}: not a token.`;
       const drivers = (derivedFrom[token] ?? "").split(",").filter(Boolean);
       const lines = [`--e-${token}: ${value}`];
-      if (deprecated[token]) lines.push(`deprecated: ${deprecated[token]}`);
       const hex = resolveColor(
         value,
         (n) => tokens[n],

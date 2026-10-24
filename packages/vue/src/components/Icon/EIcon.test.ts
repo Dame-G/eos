@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { defineComponent, h, markRaw } from "vue";
 import { render } from "vitest-browser-vue";
 import EIcon from "./EIcon.vue";
@@ -52,25 +52,6 @@ describe("EIcon", () => {
     expect(await width({ size: "md" })).toBe(20);
     expect(await width({ size: "lg" })).toBe(28);
     expect(await width({ size: "xl" })).toBe(40);
-  });
-
-  test("small still gives 14px, and warns once that it is deprecated", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const a = await render(EIcon, { props: { name: "check", small: true } });
-    await render(EIcon, { props: { name: "info", small: true } });
-    expect(a.container.querySelector("svg")!.getBoundingClientRect().width).toBe(14);
-    const deprecations = warn.mock.calls.filter(([m]) => String(m).includes("EIcon `small` is deprecated"));
-    expect(deprecations).toHaveLength(1);
-    expect(String(deprecations[0]![0])).toContain('size="sm"');
-    warn.mockRestore();
-  });
-
-  test("size wins over small and warns in development", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const { container } = await render(EIcon, { props: { name: "check", size: "xl", small: true } });
-    expect(container.querySelector("svg")!.getBoundingClientRect().width).toBe(40);
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining("EIcon"));
-    warn.mockRestore();
   });
 
   test("flip turns a component icon around in right-to-left text, and false stops a named one", async () => {

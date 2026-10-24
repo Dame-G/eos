@@ -31,6 +31,4 @@
 
 **EIcon sizes.** The default is now an explicit `md` = 20px, with `sm` 14px, `lg` 28px and `xl` 40px. `sm` and the default keep their size. An explicit `size="md"` was 28px and is now 20px: write `size="lg"` for 28px. `size="lg"` was 40px and is now 28px: write `size="xl"` for 40px.
 
-**Deprecated** (each still works and warns once in development): `small` and `large` on `EAvatar`, `EIcon`, `EKbd`, `ESpinner`, `EStamp`, `ESurface` and `EText` (use `size`); `EText` `muted` and `tone="muted"` (use `tone="neutral"`); `ESurface` `paper`, `raised` (use `variant`), `pad` (use `size`, `padding` or `flush`) and `variant="tone"` (use `tinted`); `ETable` `dense` (use `size="sm"`); `EStamp` `tone="ink"` (use `neutral`); `EInline` `nowrap` (use `:wrap="false"`); `EAvatar` `status` (use `presence`); `EDescriptionList` `badge` and `badgeTone` (use `stamp` and `stampTone`).
-
 **Repository:** the root build builds the tokens once, `pnpm ssr` renders every component on the server from the build (in `check:built` and the smoke test), the accessibility matrix covers every tone of Tag, Stamp, Text and Metric with Highlight and Kbd, and `check:icon-aliases` checks the Iconify aliases (needs the network).

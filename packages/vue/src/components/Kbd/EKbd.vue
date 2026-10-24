@@ -1,20 +1,19 @@
 <script setup lang="ts">
-import { useSize, type Size } from "../../composables/useSize.js";
+import type { Size } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
-const props = defineProps<{
-  /** `sm` is for a hint inside small text. */
-  size?: Extract<Size, "sm" | "md">;
-  /** @deprecated Use `size="sm"`. */
-  small?: boolean;
-}>();
+withDefaults(
+  defineProps<{
+    /** `sm` is for a hint inside small text. */
+    size?: Extract<Size, "sm" | "md">;
+  }>(),
+  { size: "md" },
+);
 
 defineSlots<{
   /** The key, written as it is on the keycap: "/", "Esc", "Ctrl". */
   default(): unknown;
 }>();
-
-const size = useSize(props, "EKbd");
 </script>
 
 <template>
@@ -25,6 +24,10 @@ const size = useSize(props, "EKbd");
 @layer e.primitives {
   .e-kbd {
     display: inline-block;
+
+    /* As wide as its content, also as the child of a grid or a column, which would otherwise stretch it. */
+    inline-size: fit-content;
+    max-inline-size: 100%;
     min-width: 1.5em;
     padding: 0 var(--e-gap-tight);
     border: var(--e-stroke-edge) solid var(--e-border-strong);

@@ -25,37 +25,6 @@ describe("ESurface", () => {
     expect(pads).toEqual(["12px", "24px", "0px"]);
   });
 
-  test("pad still works as a deprecated alias, and warns", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    try {
-      const { container } = await render(ESurface, { props: { pad: "lg" }, slots: { default: "x" } });
-      expect(container.querySelector(".e-surface")!.classList.contains("e-surface--pad-lg")).toBe(true);
-      expect(warn).toHaveBeenCalledWith("[eos] ESurface `pad` is deprecated. Use `size`.");
-    } finally {
-      warn.mockRestore();
-    }
-  });
-
-  test("the older paper and raised flags and variant tone still work, and warn that they are deprecated", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    try {
-      const look = async (props: Record<string, unknown>) => {
-        const { container } = await render(ESurface, { props, slots: { default: "x" } });
-        const el = container.querySelector(".e-surface")!;
-        return [el.className, getComputedStyle(el).backgroundColor];
-      };
-      expect(await look({ paper: true })).toEqual(await look({ variant: "paper" }));
-      expect(await look({ raised: true })).toEqual(await look({ variant: "raised" }));
-      expect((await look({ variant: "tone" }))[1]).toBe((await look({ variant: "tinted" }))[1]);
-      const said = warn.mock.calls.map(([m]) => String(m));
-      expect(said).toContain('[eos] ESurface `paper` is deprecated. Use variant="paper".');
-      expect(said).toContain('[eos] ESurface `raised` is deprecated. Use variant="raised".');
-      expect(said).toContain('[eos] ESurface variant="tone" is deprecated. Use variant="tinted".');
-    } finally {
-      warn.mockRestore();
-    }
-  });
-
   test("clip adds a class", async () => {
     const { container } = await render(ESurface, { props: { clip: true }, slots: { default: "x" } });
     expect(container.querySelector("div")!.className).toBe("e-surface e-surface--pad-md e-surface--clip");
@@ -138,20 +107,13 @@ describe("ESurface", () => {
     }
   });
 
-  test("size sets the padding, and wins over small and large with a warning", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  test("size sets the padding, md by default", async () => {
     const pad = async (props: Record<string, unknown>) => {
       const { container } = await render(ESurface, { props, slots: { default: "x" } });
       return getComputedStyle(container.querySelector(".e-surface")!).paddingTop;
     };
-    const sm = await pad({ size: "sm" });
-    const lg = await pad({ size: "lg" });
-    expect(warn.mock.calls.filter(([m]) => String(m).startsWith("[eos]"))).toEqual([]);
-    expect(await pad({ small: true })).toBe(sm);
-    expect(await pad({ large: true })).toBe(lg);
-    expect(await pad({ size: "md", large: true })).toBe(await pad({}));
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining("ESurface"));
-    warn.mockRestore();
+    expect(await pad({ size: "md" })).toBe(await pad({}));
+    expect(await pad({ size: "sm" })).not.toBe(await pad({ size: "lg" }));
   });
 
   test("padding takes a gap name, a space number or a length, on the body when there is a bar", async () => {

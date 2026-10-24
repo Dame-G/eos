@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -41,24 +41,12 @@ describe("ESpinner", () => {
     expect(sizes[1]).toBeLessThan(sizes[2]!);
   });
 
-  test("size sm, md and lg match small, default and large; size wins and warns", async () => {
+  test("size md is the default ring", async () => {
     const width = async (props: Record<string, unknown>) => {
       const { container } = await render(ESpinner, { props });
       return container.querySelector(".e-ring")!.getBoundingClientRect().width;
     };
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    try {
-      expect([await width({ size: "sm" }), await width({ size: "md" }), await width({ size: "lg" })]).toEqual([
-        await width({ small: true }),
-        await width({}),
-        await width({ large: true }),
-      ]);
-      expect(warn).toHaveBeenCalledWith('[eos] ESpinner `small` is deprecated. Use size="sm".');
-      expect(await width({ size: "sm", large: true })).toBe(await width({ small: true }));
-      expect(warn).toHaveBeenCalledWith(expect.stringContaining("ESpinner got `size`"));
-    } finally {
-      warn.mockRestore();
-    }
+    expect(await width({ size: "md" })).toBe(await width({}));
   });
 
   test("block centres it in a panel", async () => {

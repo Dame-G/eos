@@ -19,7 +19,6 @@ describe("evaluating colours", () => {
     expect(resolveColor("color-mix(in srgb, #ffffff, black 50%)", get)).toBe("#808080");
     expect(resolveColor(t["primary-hover"]!, get)).toMatch(/^#[0-9a-f]{6}$/);
     expect(resolveColor(t["wash-hover"]!, get, "#ffffff")).toBe("#ebebeb");
-    expect(resolveColor(t["surface-hover"]!, get, "#ffffff")).toBe("#ebebeb");
   });
   test("lays a translucent colour over its ground, and gives up without one", () => {
     expect(resolveColor("color-mix(in srgb, #000000 50%, transparent)", get, "#ffffff")).toBe("#808080");
@@ -106,10 +105,8 @@ describe("token layers", () => {
     }
   });
   test("the slab scale derives from depth, and the ring and panel tokens exist", () => {
-    expect(value("slab")).toBe("var(--e-depth)");
     expect(value("slab-thin")).toContain("var(--e-depth)");
     expect(value("slab-bold")).toContain("var(--e-depth)");
-    expect(value("stroke-ring")).toBe("var(--e-stroke-edge)");
     expect(value("ring-hover")).toContain("var(--e-wash-ring)");
     expect([value("size-panel-sm"), value("size-panel-md"), value("size-panel-lg")]).toEqual([
       "28rem",
@@ -117,7 +114,6 @@ describe("token layers", () => {
       "36rem",
     ]);
     expect(value("radius-round")).toBe("50%");
-    expect(value("on-warning")).toBe("var(--e-surface)");
   });
   test("motion has a fade step between tap and move, and enter and exit easings", () => {
     expect(parseFloat(value("duration-fade"))).toBeGreaterThan(parseFloat(value("duration-tap")));
@@ -126,16 +122,46 @@ describe("token layers", () => {
     expect(value("easing-exit")).toMatch(/^cubic-bezier/);
     expect(css).toContain("--e-duration-fade: 0.01ms !important");
   });
-  test("tone variants follow one template", () => {
+  test("tone variants follow one template, darkening on a light surface and lightening on a dark one", () => {
+    const shades = { hover: "black 8%", press: "black 16%", slab: "black 30%" };
+    const dark = { hover: "white 12%", press: "white 20%", slab: "black 45%" };
+    const night = defineTheme({ surface: "#10151a" }).tokens;
     for (const tone of ["primary", "secondary", "danger"])
-      for (const suffix of ["hover", "press", "slab"])
-        expect(value(`${tone}-${suffix}`)).toBe(`color-mix(in srgb, var(--e-${tone}), var(--e-shade-${suffix}))`);
+      for (const suffix of ["hover", "press", "slab"] as const) {
+        expect(value(`${tone}-${suffix}`)).toBe(`color-mix(in srgb, var(--e-${tone}), ${shades[suffix]})`);
+        expect(night[`${tone}-${suffix}` as keyof typeof night]).toBe(
+          `color-mix(in srgb, var(--e-${tone}), ${dark[suffix]})`,
+        );
+      }
+    expect(value("slab-ink")).toBe("color-mix(in srgb, var(--e-surface), black 30%)");
+    expect(night["slab-ink"]).toBe("color-mix(in srgb, var(--e-surface), black 45%)");
   });
-  test("the shades are colour tokens, and the unused surface aliases are gone", () => {
-    expect(groups.color).toContain("shade-hover");
-    expect(groups.size).not.toContain("shade-hover");
-    expect(Object.keys(defaults)).not.toContain("surface-raised");
-    expect(Object.keys(defaults)).not.toContain("surface-sunken");
+  test("the removed tokens are gone", () => {
+    const names = Object.keys(defaults);
+    for (const gone of [
+      "surface-raised",
+      "surface-sunken",
+      "slab",
+      "stroke-ring",
+      "surface-hover",
+      "surface-press",
+      "brand-blue",
+      "brand-green",
+      "easing-standard",
+      "leading-loose",
+      "space-7",
+      "on-info",
+      "on-success",
+      "on-warning",
+      "shade-hover",
+      "shade-press",
+      "shade-slab",
+      "bp-narrow",
+      "bp-medium",
+      "bp-wide",
+    ])
+      expect(names, gone).not.toContain(gone);
+    expect(Object.values(groups).flat()).not.toContain("shade-hover");
   });
 });
 
@@ -187,7 +213,7 @@ describe("presets, warnings and explain", () => {
     expect(t.explain("primary")).toMatch(/driven by: brand, surface[\s\S]*given here: brand/);
     expect(t.explain("ink")).toMatch(/set explicitly in tokens/);
     expect(t.explain("depth")).toMatch(/fixed/);
-    expect(t.explain("surface-hover")).toMatch(/resolves to #/);
+    expect(t.explain("wash-hover")).toMatch(/resolves to #/);
     expect(t.explain("nope")).toMatch(/not a token/);
   });
 });

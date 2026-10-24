@@ -3,18 +3,18 @@ import { computed } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
-import { useDeprecated, useSize, type Size, type Tone } from "../../composables/useSize.js";
+import type { Size, Tone } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
-/** The tones a stamp takes. `ink` is a deprecated name for `neutral`. */
-export type StampTone = Extract<Tone, "neutral" | "success" | "info" | "warning" | "danger"> | "ink";
+/** The tones a stamp takes. */
+export type StampTone = Extract<Tone, "neutral" | "success" | "info" | "warning" | "danger">;
 export type StampStatus =
   "paid" | "due" | "overdue" | "action" | "scheduled" | "confirmed" | "cancelled" | "signed" | "pending" | "complete";
 
 const props = defineProps<{
   /** A preset: sets the tone and the word (message `status.<name>`). */
   status?: StampStatus;
-  /** Overrides the preset's tone. Without a `status` the stamp is `neutral` (`ink` is a deprecated name for it). `success`, `info`, `warning` and `danger` colour it. */
+  /** Overrides the preset's tone. Without a `status` the stamp is `neutral`. `success`, `info`, `warning` and `danger` colour it. */
   tone?: StampTone;
   /** The word. It overrides the preset's, and the default slot overrides both. @default preset's word, else Status */
   label?: string;
@@ -24,8 +24,6 @@ const props = defineProps<{
   detail?: string;
   /** `sm` is shorter, for rows and tables. */
   size?: Extract<Size, "sm" | "md">;
-  /** @deprecated Use `size="sm"`. */
-  small?: boolean;
   /** Rubber-stamp ink for the one mark on a page that says a thing is final, such as PAID or VOID. Outlined, in `stamp-ink`. Use it once per screen. */
   final?: boolean;
 }>();
@@ -49,11 +47,9 @@ const PRESETS: Record<StampStatus, StampTone> = {
 };
 
 const t = useMessages();
-const size = useSize(props, "EStamp");
-useDeprecated("EStamp", props, { tone: (v) => (v === "ink" ? 'tone="neutral"' : undefined) });
 const preset = computed(() => (props.status ? PRESETS[props.status] : undefined));
 const tone = computed<StampTone>(() => props.tone || preset.value || "neutral");
-const toneClass = computed(() => (tone.value === "neutral" || tone.value === "ink" ? null : `e-stamp--${tone.value}`));
+const toneClass = computed(() => (tone.value === "neutral" ? null : `e-stamp--${tone.value}`));
 const text = computed(() => props.label || (preset.value ? t(`status.${props.status}`) : t("status")));
 </script>
 
@@ -77,6 +73,10 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
 
     display: inline-flex;
     flex-wrap: nowrap;
+
+    /* As wide as its content, also as the child of a grid or a column, which would otherwise stretch it. */
+    inline-size: fit-content;
+    max-inline-size: 100%;
     white-space: nowrap;
     align-items: center;
     gap: var(--e-gap-snug);
@@ -139,6 +139,15 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
     letter-spacing: var(--e-tracking-wide);
     padding-inline-start: var(--e-gap-snug);
     border-inline-start: var(--e-stroke-hair) solid color-mix(in srgb, currentcolor 55%, transparent);
+  }
+
+  /* Where the browser can trim a line box to the capitals, the stamp centres the capitals themselves, whatever the font, size or text scale, and the nudge above is not needed. */
+  @supports (text-box: trim-both cap alphabetic) {
+    .e-stamp-word,
+    .e-stamp-detail {
+      padding-block-start: 0;
+      text-box: trim-both cap alphabetic;
+    }
   }
 
   .e-stamp--sm {

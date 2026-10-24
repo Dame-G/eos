@@ -2,12 +2,12 @@
 import { computed, useSlots } from "vue";
 import EActions from "../Actions/EActions.vue";
 import { useGap, type GapToken } from "../Stack/gap.js";
-import { useDeprecated, useSize, type ElementTag, type Size } from "../../composables/useSize.js";
+import type { ElementTag, Size } from "../../composables/useSize.js";
 import { isProduction } from "../../env.js";
 import "../../styles/base.css";
 
-/** The looks of a surface. `tone` is a deprecated name for `tinted`. */
-export type SurfaceVariant = "paper" | "raised" | "outline" | "tinted" | "tone";
+/** The looks of a surface. */
+export type SurfaceVariant = "paper" | "raised" | "outline" | "tinted";
 
 const props = withDefaults(
   defineProps<{
@@ -15,26 +15,16 @@ const props = withDefaults(
     as?: ElementTag;
     /** The padding as a gap token (`tight` to `section`), a space token number or a CSS length. This is the way to set the padding; `size` is a shorthand for three presets, and `padding` wins over it. */
     padding?: GapToken | string;
-    /** A padding preset: `sm`, `md` or `lg`. @default "md" */
+    /** A padding preset: `sm`, `md` or `lg`. */
     size?: Extract<Size, "sm" | "md" | "lg">;
-    /** @deprecated Use `size="sm"`. */
-    small?: boolean;
-    /** @deprecated Use `size="lg"`. */
-    large?: boolean;
     /** No padding, so a table, an image or a list can run edge to edge. */
     flush?: boolean;
-    /** @deprecated Use `size`, `padding` or `flush`. */
-    pad?: Extract<Size, "sm" | "md" | "lg">;
-    /** `paper` is a warm ground and a pressed edge, for a statement or receipt. `raised` is the lifted shadow of something floating above the page, such as a Toast. `outline` has no fill, so the page shows through. `tinted` is a tinted ground for a block that sits beside plain ones (`tone` is a deprecated name for it). */
+    /** `paper` is a warm ground and a pressed edge, for a statement or receipt. `raised` is the lifted shadow of something floating above the page, such as a Toast. `outline` has no fill, so the page shows through. `tinted` is a tinted ground for a block that sits beside plain ones. */
     variant?: SurfaceVariant;
-    /** @deprecated Use `variant="paper"`. */
-    paper?: boolean;
-    /** @deprecated Use `variant="raised"`. */
-    raised?: boolean;
     /** Hides what overflows the rounded corners. Ignored when there is an `actions` slot. */
     clip?: boolean;
   }>(),
-  { as: "div" },
+  { as: "div", size: "md" },
 );
 
 defineSlots<{
@@ -45,22 +35,9 @@ defineSlots<{
 }>();
 
 const slots = useSlots();
-const size = useSize(props, "ESurface");
-useDeprecated("ESurface", props, {
-  pad: "`size`",
-  paper: 'variant="paper"',
-  raised: 'variant="raised"',
-  variant: (v) => (v === "tone" ? 'variant="tinted"' : undefined),
-});
-const sizeClass = computed(() =>
-  props.flush ? null : `e-surface--pad-${props.pad && !props.size ? props.pad : size.value}`,
-);
+const sizeClass = computed(() => (props.flush ? null : `e-surface--pad-${props.size}`));
 const padCss = useGap(() => props.padding);
 const padStyle = computed(() => (padCss.value && !props.flush ? { padding: padCss.value } : undefined));
-const variant = computed(() => {
-  const given = props.variant ?? (props.paper ? "paper" : props.raised ? "raised" : undefined);
-  return given === "tone" ? "tinted" : given;
-});
 /** In a sectioning element the action bar is the block's own footer; anywhere else it is a plain group. */
 const SECTIONING = new Set<string>(["article", "section", "aside"]);
 const barElement = computed(() => (SECTIONING.has(props.as) ? "footer" : "div"));

@@ -1,7 +1,3 @@
-<script lang="ts">
-const warned = { clearable: false };
-</script>
-
 <script setup lang="ts">
 import EIcon from "../Icon/EIcon.vue";
 import EButton from "../Button/EButton.vue";
@@ -9,7 +5,6 @@ import EInputClear from "../Field/EInputClear.vue";
 import EInputShell from "../Field/EInputShell.vue";
 import type { EFieldBoxProps } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
-import { isProduction } from "../../env.js";
 import { useFieldControl } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
@@ -27,11 +22,7 @@ const props = withDefaults(
       action?: string;
       /** Leaves out the button, for a box that filters or searches as you type. Enter still submits. */
       hideAction?: boolean;
-      /**
-       * Shows the clear button while there is text. Off by default in every field; ESearchBar and ECombobox still show it when the prop is left out, and
-       * warn in development, until the next minor release. Pass `clearable` to keep it, or `:clearable="false"`.
-       * @default true
-       */
+      /** Shows a button that empties the box while it has text. */
       clearable?: boolean;
       /** The name the text is posted under when the bar sits inside a form of your own. There is no default: the bar is not a form. */
       name?: string;
@@ -39,7 +30,7 @@ const props = withDefaults(
       disabled?: boolean;
     }
   >(),
-  { clearable: undefined },
+  { clearable: false },
 );
 
 const emit = defineEmits<{
@@ -55,14 +46,6 @@ const model = defineModel<string>({ default: "" });
 const t = useMessages();
 const control = useFieldControl(props);
 
-/** The clear button is opt-in, as in every field. Left out, it still shows until the next minor, with a warning. */
-const showClear = () => props.clearable ?? true;
-if (props.clearable === undefined && !warned.clearable && !isProduction()) {
-  warned.clearable = true;
-  console.warn(
-    '[eos] ESearchBar will not show its clear button by default from the next minor. Pass `clearable` to keep it, or `:clearable="false"`.',
-  );
-}
 const box = control.input;
 
 function clear() {
@@ -103,7 +86,7 @@ defineExpose(control.exposed);
       @input="model = ($event.target as HTMLInputElement).value"
       @keydown.enter="onEnter"
     />
-    <EInputClear v-if="showClear() && model && !disabled" @click="clear" />
+    <EInputClear v-if="clearable && model && !disabled" @click="clear" />
     <EButton v-if="!hideAction" :disabled="disabled" :loading="loading" @click="emit('submit', model)">
       {{ action || t("search") }}
     </EButton>

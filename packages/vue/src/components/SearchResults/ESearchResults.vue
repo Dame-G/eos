@@ -41,8 +41,6 @@ const emit = defineEmits<{
   "exit-top": [];
   /** ArrowDown was pressed on the last result. */
   "exit-bottom": [];
-  /** Deprecated: the same as `exit-top`. */
-  edge: [];
 }>();
 
 const root = ref<HTMLElement | null>(null);
@@ -91,10 +89,8 @@ function onKeydown(e: KeyboardEvent) {
   else if (e.key === "ArrowDown") {
     if (at >= all.length - 1) emit("exit-bottom");
     else all[at + 1]?.focus();
-  } else if (at <= 0) {
-    emit("exit-top");
-    emit("edge");
-  } else all[at - 1]?.focus();
+  } else if (at <= 0) emit("exit-top");
+  else all[at - 1]?.focus();
 }
 
 function onClick(item: SearchResultItem, e: MouseEvent) {

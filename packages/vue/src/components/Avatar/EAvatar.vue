@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useConfig, useMessages } from "../../config.js";
-import { useDeprecated, useSize, type Size } from "../../composables/useSize.js";
+import type { Size } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
@@ -12,25 +12,16 @@ const props = withDefaults(
     src?: string;
     /** `sm` (32px) for rows and bars, `md` (44px), `lg` (64px) for a profile or a practitioner on an appointment card. */
     size?: Extract<Size, "sm" | "md" | "lg">;
-    /** @deprecated Use `size="sm"`. */
-    small?: boolean;
-    /** @deprecated Use `size="lg"`. */
-    large?: boolean;
     /** A presence dot at the corner. The name is read with it, as "Ada Lovelace, Online". */
     presence?: "online" | "away" | "busy" | "offline";
-    /** @deprecated Use `presence`. */
-    status?: "online" | "away" | "busy" | "offline";
     /** `button` renders a `button` with `type="button"`, named by `name`, for use as the `trigger` of an `EMenu`, for example. */
     as?: "span" | "button";
   }>(),
-  { as: "span" },
+  { size: "md", as: "span" },
 );
 
 const t = useMessages();
 const config = useConfig();
-const size = useSize(props, "EAvatar");
-useDeprecated("EAvatar", props, { status: "presence" });
-const presence = computed(() => props.presence ?? props.status);
 const failed = ref(false);
 watch(
   () => props.src,
@@ -60,7 +51,7 @@ const initials = computed(() => {
   }
 });
 const label = computed(() =>
-  presence.value ? t("avatarStatus", { name: props.name, status: t(`status.${presence.value}`) }) : props.name,
+  props.presence ? t("avatarStatus", { name: props.name, status: t(`status.${props.presence}`) }) : props.name,
 );
 </script>
 

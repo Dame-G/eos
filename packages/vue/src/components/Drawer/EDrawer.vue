@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { computed, watchEffect } from "vue";
-import { isProduction } from "../../env.js";
 import DialogFrame from "../Dialog/DialogFrame.vue";
 import DialogBody from "../Dialog/DialogBody.vue";
 
 defineOptions({ inheritAttrs: false });
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     /** The panel's heading and accessible name, such as the statement being read. */
     title: string;
@@ -16,8 +14,8 @@ const props = withDefaults(
     role?: "dialog" | "alertdialog";
     /** The level of the title's heading element, 1 to 6. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
-    /** The edge it slides in from. `end` is the right in a left-to-right page, `start` the left, and both flip in a right-to-left page. `bottom` gives a sheet that suits phones. `right` and `left` are deprecated names for `end` and `start`. */
-    side?: "end" | "start" | "bottom" | "right" | "left";
+    /** The edge it slides in from. `end` is the right in a left-to-right page, `start` the left, and both flip in a right-to-left page. `bottom` gives a sheet that suits phones. */
+    side?: "end" | "start" | "bottom";
     /** The width of a side drawer: `sm`, `md` or `lg`. A `bottom` sheet is always full width. */
     size?: "sm" | "md" | "lg";
     /** A CSS selector for the element that takes focus when it opens. Without it, an element marked `data-autofocus` does; an `alertdialog` falls back to its least destructive action and any other drawer to its first control. */
@@ -44,13 +42,6 @@ defineSlots<{
 
 /** Whether it is open. Without a binding it keeps its own state. */
 const open = defineModel<boolean>("open");
-
-watchEffect(() => {
-  if ((props.side === "left" || props.side === "right") && !isProduction())
-    console.warn(`[eos] EDrawer side="${props.side}" is deprecated. Use "${props.side === "left" ? "start" : "end"}".`);
-});
-
-const edge = computed(() => (props.side === "left" ? "start" : props.side === "right" ? "end" : props.side));
 </script>
 
 <template>
@@ -67,7 +58,7 @@ const edge = computed(() => (props.side === "left" ? "start" : props.side === "r
     :content-class="[
       'e-drawer',
       `e-drawer--${size}`,
-      edge !== 'end' && `e-drawer--${edge}`,
+      side !== 'end' && `e-drawer--${side}`,
       inline && 'e-drawer--inline',
     ]"
     @close="emit('close')"
