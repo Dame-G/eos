@@ -93,7 +93,7 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     margin: 0;
     padding: var(--e-space-3) var(--e-space-4);
     background: transparent;
-    font: var(--e-weight-regular) var(--e-text-sm) / 1.6 var(--e-font-mono);
+    font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-normal) var(--e-font-mono);
     color: var(--e-ink);
   }
 

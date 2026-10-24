@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h, ref } from "vue";
+import { defineComponent, h, markRaw, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EAppHeader from "./EAppHeader.vue";
@@ -155,5 +155,73 @@ describe("EAppHeader", () => {
     const header = container.querySelector("header")!;
     expect(getComputedStyle(header).position).toBe("sticky");
     expect(getComputedStyle(container.querySelector(".e-tabs")!).isolation).toBe("isolate");
+  });
+
+  test("a sticky header sits above everything the page raises, and below every overlay", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { class: "e-root" }, [
+            h(EAppHeader, { sticky: true }, { logo: () => "Logo" }),
+            // A sticky table head (z-sticky) and a focused control (z-focus) that come later in the page.
+            h("div", {
+              style: "position: relative; z-index: var(--e-z-focus); margin-top: -40px; height: 80px",
+              "data-raised": "",
+            }),
+          ]),
+      }),
+    );
+    const header = container.querySelector("header")!;
+    const token = (name: string) =>
+      Number(getComputedStyle(document.documentElement).getPropertyValue(`--e-z-${name}`));
+    const z = Number(getComputedStyle(header).zIndex);
+    expect(z).toBeGreaterThan(token("focus"));
+    expect(z).toBeLessThan(token("modal"));
+    const box = header.getBoundingClientRect();
+    expect(header.contains(document.elementFromPoint(box.left + 4, box.bottom - 4))).toBe(true);
+  });
+
+  test("brand draws a styled link to the home page", async () => {
+    const { container } = await render(EAppHeader, { props: { brand: "Acme" } });
+    const link = container.querySelector<HTMLAnchorElement>("a.e-appheader-brand")!;
+    expect(link.getAttribute("href")).toBe("/");
+    expect(link.textContent!.trim()).toBe("Acme");
+    expect(link.getBoundingClientRect().height).toBeGreaterThanOrEqual(44);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(link);
+    expect(getComputedStyle(link).outlineStyle).toBe("solid");
+  });
+
+  test("the brand slot holds a logo, named by brandLabel, before the logo slot", async () => {
+    const { container } = await render(EAppHeader, {
+      props: { brandHref: "/home", brandLabel: "Acme, home" },
+      slots: {
+        brand: () => h("svg", { "aria-hidden": "true", width: 80, height: 24 }),
+        logo: () => h("button", "Search"),
+      },
+    });
+    const link = container.querySelector("a.e-appheader-brand")!;
+    expect(link.getAttribute("href")).toBe("/home");
+    await expect.element(page.getByRole("link", { name: "Acme, home" })).toBeVisible();
+    expect(link.nextElementSibling!.tagName).toBe("BUTTON");
+    await expectNoViolations(container);
+  });
+
+  test("brandTo goes to the linkComponent as to", async () => {
+    const Router = markRaw(
+      defineComponent({
+        props: { to: String },
+        render() {
+          return h("a", { href: "/app" + this.to }, this.$slots.default?.());
+        },
+      }),
+    );
+    const { container } = await render(EAppHeader, { props: { brand: "Acme", brandTo: "/", linkComponent: Router } });
+    expect(container.querySelector("a.e-appheader-brand")!.getAttribute("href")).toBe("/app/");
+  });
+
+  test("without brand there is no brand link", async () => {
+    const { container } = await render(EAppHeader, { slots: { logo: () => "Logo" } });
+    expect(container.querySelector(".e-appheader-brand")).toBeNull();
   });
 });

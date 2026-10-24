@@ -9,7 +9,9 @@
     cursor: pointer;
   }
 
-  .e-choice--disabled {
+  /* A row whose input is disabled, by itself or by a disabled fieldset around a group. */
+  .e-choice--disabled,
+  .e-choice:has(:disabled) {
     cursor: not-allowed;
     color: var(--e-disabled-ink);
   }
@@ -81,7 +83,7 @@
   .e-check:indeterminate,
   .e-radio:checked {
     --_slab: var(--e-primary-slab);
-    --_lift: var(--e-slab);
+    --_lift: var(--e-depth);
 
     border-color: var(--_slab);
     background-color: var(--e-primary);

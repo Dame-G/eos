@@ -55,8 +55,14 @@ describe("useCopy", () => {
     stubClipboard(vi.fn().mockResolvedValue(undefined));
     document.querySelectorAll("[data-e-announcer]").forEach((el) => (el.textContent = ""));
     const state = await setup({ announce: false });
-    await state.copy("quiet");
-    await new Promise((r) => setTimeout(r, 120));
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      expect(await state.copy("quiet")).toBe(true);
+      // Past the moment an announcement would land.
+      await vi.advanceTimersByTimeAsync(500);
+    } finally {
+      vi.useRealTimers();
+    }
     expect(document.querySelector("[data-e-announcer=polite]")?.textContent ?? "").toBe("");
   });
 });

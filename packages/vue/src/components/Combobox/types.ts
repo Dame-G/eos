@@ -1,8 +1,12 @@
 import type { EOption, EOptionInput } from "../Select/options.js";
 import type { ELabelProps } from "../Field/labelProps.js";
+import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 
 /** What ECombobox takes besides its `v-model`. */
-export type EComboboxProps<M extends boolean = boolean> = ELabelProps & EComboboxFields<M>;
+export type EComboboxProps<M extends boolean = boolean> = ELabelProps &
+  Omit<EFieldCommonProps, "hideLabel"> &
+  Pick<EFieldBoxProps, "size"> &
+  EComboboxFields<M>;
 
 /** @public Exported so the generated declarations can name it. */
 export interface EComboboxFields<M extends boolean = boolean> {
@@ -14,28 +18,18 @@ export interface EComboboxFields<M extends boolean = boolean> {
   options: readonly EOptionInput[];
   /** An example, never the label. */
   placeholder?: string;
-  /** Shows help text under the field. */
-  hint?: string;
-  /** Shows what to fix in place of the hint, marks the input `aria-invalid` and is announced. */
-  error?: string;
-  /** Sets the `required` attribute and shows a word beside the label. A chosen value satisfies it. */
-  required?: boolean;
-  /** Shows a word beside the label. Use it on whichever of required and optional is rarer. */
-  optional?: boolean;
-  /** Disables the field. A disabled field never opens. */
-  disabled?: boolean;
-  /** Shows the value but blocks editing. The input stays focusable and selectable, the list never opens and the clear and remove buttons are gone. The value is still submitted. */
-  readonly?: boolean;
   /** Submits the value with a form, through a hidden input. */
   name?: string;
   /** Shows the Searching spinner in the list in place of the options while a server answers. */
   loading?: boolean;
   /** What the list says when nothing matches. @default "No matches" */
   emptyText?: string;
-  /** Shows a clear button when there is something to clear. */
+  /**
+   * Shows a clear button while there is something to clear. Off by default in every field; ESearchBar and ECombobox still show it when the prop is left out, and
+   * warn in development, until the next minor release. Pass `clearable` to keep it, or `:clearable="false"`.
+   * @default true
+   */
   clearable?: boolean;
   /** Replaces the default match, which ignores case and accents. `query` is trimmed, lower case and without accents. Return `true` when the server filters. @default label or description contains query */
   filter?: (option: EOption, query: string) => boolean;
-  /** The `id` of the input, which the label points at. @default generated */
-  id?: string;
 }

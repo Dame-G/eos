@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, h, ref, watch, type FunctionalComponent } from "vue";
 import {
   ConfigProvider,
   SelectContent,
@@ -12,10 +12,13 @@ import {
 } from "reka-ui";
 import EIcon from "../Icon/EIcon.vue";
 import ESpinner from "../Spinner/ESpinner.vue";
+import EHiddenInputs from "../Field/EHiddenInputs.vue";
 import ESelectOption from "./ESelectOption.vue";
 import { sectionOptions, type EOption } from "./options.js";
+import type { EFieldSize } from "../Field/fieldProps.js";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
+import { useScrollBody } from "../../composables/useScrollBody.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
@@ -32,6 +35,7 @@ const props = defineProps<{
   multiple?: boolean | undefined;
   clearable?: boolean | undefined;
   loading?: boolean | undefined;
+  size?: EFieldSize | undefined;
   name?: string | undefined;
   /** The `form` attribute the consumer gave, so the hidden inputs can join a form they are not inside. */
   form?: string | undefined;
@@ -46,6 +50,7 @@ const model = defineModel<string | string[]>({ default: "" });
 
 const t = useMessages();
 const dir = useDir();
+const scrollBody = useScrollBody();
 const trigger = ref<{ $el: HTMLElement } | null>(null);
 const portal = usePortalTarget();
 
@@ -105,11 +110,22 @@ function typeahead(e: KeyboardEvent) {
 defineExpose({
   trigger: computed(() => trigger.value?.$el ?? null),
 });
+
+/** A run of options: under its heading in a group when it has one, else as they are. One path for both. */
+const Section: FunctionalComponent<{ group?: string | undefined }> = (p, { slots }) =>
+  p.group
+    ? h(SelectGroup, { class: "e-opt-set" }, () => [
+        h(SelectLabel, { class: "e-opt-group" }, () => p.group),
+        slots.default?.(),
+      ])
+    : slots.default?.();
+Section.props = ["group"];
 </script>
 
 <template>
-  <div class="e-sel" :class="{ 'e-sel--clear': canClear }">
-    <ConfigProvider :dir="dir">
+  <!-- The size is set on the wrapper, so the trigger and the clear button over it share the height. -->
+  <div class="e-sel" :class="{ 'e-sel--clear': canClear }" :data-size="size && size !== 'md' ? size : undefined">
+    <ConfigProvider :dir="dir" :scroll-body="scrollBody">
       <SelectRoot
         :model-value="model"
         :multiple="multiple"
@@ -139,7 +155,8 @@ defineExpose({
           </span>
           <span v-else class="e-sel-placeholder">{{ placeholder || t("select") }}</span>
           <ESpinner v-if="loading" :label="t('loading')" />
-          <EIcon v-else-if="!disabled" name="chevron-down" bold />
+          <!-- A list that cannot open shows no arrow, as in ECombobox. -->
+          <EIcon v-else-if="!disabled && !readonly" name="chevron-down" bold />
         </SelectTrigger>
         <SelectPortal :to="portal">
           <SelectContent
@@ -153,25 +170,14 @@ defineExpose({
             @close-auto-focus="closeFocus"
           >
             <SelectViewport>
-              <template v-for="(section, i) in sections" :key="i">
-                <SelectGroup v-if="section.group" class="e-opt-set">
-                  <SelectLabel class="e-opt-group">{{ section.group }}</SelectLabel>
-                  <ESelectOption
-                    v-for="o in section.options"
-                    :key="o.value"
-                    :option="o"
-                    :selected="values.includes(o.value)"
-                  />
-                </SelectGroup>
-                <template v-else>
-                  <ESelectOption
-                    v-for="o in section.options"
-                    :key="o.value"
-                    :option="o"
-                    :selected="values.includes(o.value)"
-                  />
-                </template>
-              </template>
+              <Section v-for="(section, i) in sections" :key="i" :group="section.group">
+                <ESelectOption
+                  v-for="o in section.options"
+                  :key="o.value"
+                  :option="o"
+                  :selected="values.includes(o.value)"
+                />
+              </Section>
             </SelectViewport>
           </SelectContent>
         </SelectPortal>
@@ -180,17 +186,7 @@ defineExpose({
     <button v-if="canClear" type="button" class="e-combo-btn e-sel-clear" :aria-label="t('clear')" @click="clear">
       <EIcon name="x" />
     </button>
-    <template v-if="name">
-      <input
-        v-for="(v, k) in multiple ? values : [values[0] ?? '']"
-        :key="k"
-        type="hidden"
-        :name="name"
-        :value="v"
-        :disabled="disabled || undefined"
-        :form="form"
-      />
-    </template>
+    <EHiddenInputs :name="name" :values="multiple ? values : [values[0]]" :disabled="disabled" :form="form" />
   </div>
 </template>
 
@@ -221,7 +217,9 @@ defineExpose({
   }
 
   .e-sel--clear .e-sel-trigger {
-    padding-inline-end: calc(var(--_clear) + var(--e-control-height) - var(--e-gap-snug) - var(--e-stroke-edge));
+    padding-inline-end: calc(
+      var(--_clear) + var(--_h, var(--e-control-height)) - var(--e-gap-snug) - var(--e-stroke-edge)
+    );
   }
 
   /* Open, the trigger looks focused: focus moves into the list, so the field's own :focus no longer applies. */
@@ -245,7 +243,7 @@ defineExpose({
     gap: var(--e-gap-snug);
     min-width: 0;
     overflow: hidden;
-    line-height: 1.4;
+    line-height: var(--e-leading-normal);
     text-overflow: ellipsis;
     white-space: nowrap;
   }

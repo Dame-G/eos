@@ -1,3 +1,4 @@
+// @internal: shared by the components, not exported from the package (see scripts/gen-index.mjs).
 import { computed, toValue, type MaybeRefOrGetter, type Ref } from "vue";
 
 export interface DetailsOptions {

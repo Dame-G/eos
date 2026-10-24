@@ -31,9 +31,9 @@ A short label that names an icon-only control. It never holds anything to read o
 
 ## Events
 
-| Event   | Payload | Notes                                                                |
-| ------- | ------- | -------------------------------------------------------------------- |
-| `close` |         | It hid, by blur, pointer leave or Escape. `open` is already `false`. |
+| Event   | Payload | Notes                                                                                                                                         |
+| ------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `close` |         | The person hid it, by blur, pointer leave, Escape or the end of a touch. `open` is already `false`. Setting `open` to false does not fire it. |
 
 ## Accessibility
 
@@ -42,7 +42,7 @@ A short label that names an icon-only control. It never holds anything to read o
 
 ## Keyboard
 
-| Key    | Does                                            |
+| Key    | Action                                          |
 | ------ | ----------------------------------------------- |
 | Tab    | Focusing the control shows the tooltip at once. |
 | Escape | Hides it. Focus stays on the control.           |

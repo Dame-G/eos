@@ -472,7 +472,7 @@ defineExpose({
           @click="openView('years')"
         >
           {{ monthTitle }}
-          <EIcon name="chevron-down" small />
+          <EIcon name="chevron-down" size="sm" />
         </button>
       </div>
       <span v-if="picking" class="e-cal-gap" />
@@ -610,7 +610,7 @@ defineExpose({
     flex: 1;
     min-width: 0;
     margin: 0;
-    font: var(--e-weight-strong) var(--e-text-lg) / 1.2 var(--e-font-sans);
+    font: var(--e-type-h4);
     text-align: center;
   }
 
@@ -645,7 +645,7 @@ defineExpose({
   }
 
   .e-cal-range {
-    font: var(--e-weight-strong) var(--e-text-lg) / 1.2 var(--e-font-sans);
+    font: var(--e-type-h4);
     font-variant-numeric: tabular-nums;
   }
 
@@ -732,10 +732,13 @@ defineExpose({
     box-shadow: inset 0 0 0 var(--e-stroke-edge) var(--e-primary);
   }
 
-  /* The chosen day is a small button face, like a checked box: the primary colour with a slab under it that sinks when pressed. */
+  /* The chosen day is a small button face, like a checked box: the primary colour on the standard slab (an edge on every side in the slab colour, the bottom one thicker by --_lift), which sinks when pressed. */
   .e-day--sel,
   .e-cal-cell.e-day--sel {
-    border-bottom: var(--e-depth) solid var(--e-primary-slab);
+    --_lift: var(--e-depth);
+
+    border: var(--e-stroke-edge) solid var(--e-primary-slab);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
     background: var(--e-primary);
     box-shadow: none;
     font-weight: var(--e-weight-strong);
@@ -749,7 +752,8 @@ defineExpose({
 
   .e-day--sel:active,
   .e-cal-cell.e-day--sel:active {
-    border-bottom-width: 0;
+    --_lift: 0px;
+
     background: var(--e-primary-press);
   }
 
@@ -815,8 +819,8 @@ defineExpose({
   }
 
   .e-cal-help {
-    min-height: calc(var(--e-text-sm) * 1.4);
-    font: var(--e-weight-medium) var(--e-text-sm) / 1.4 var(--e-font-sans);
+    min-height: calc(var(--e-text-sm) * var(--e-leading-normal));
+    font: var(--e-type-small);
     color: var(--e-muted);
     text-align: center;
   }

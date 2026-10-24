@@ -53,6 +53,8 @@ onMounted(() => (mounted.value = true));
 const region = ref<HTMLElement>();
 let hovering = false;
 let focused = false;
+/** The element focus was on before it entered the notifications. */
+let before: HTMLElement | null = null;
 const away = () => typeof document !== "undefined" && document.hidden;
 const settle = () => (hovering || focused || away() ? store.pause() : store.resume());
 
@@ -64,7 +66,10 @@ useEventListener(region, "mouseleave", () => {
   hovering = false;
   settle();
 });
-useEventListener(region, "focusin", () => {
+useEventListener(region, "focusin", (e: FocusEvent) => {
+  // Where focus came from, by F8 or Tab, so dismissing the last toast can hand it back.
+  const from = e.relatedTarget as HTMLElement | null;
+  if (from && !region.value?.contains(from)) before = from;
   focused = true;
   settle();
 });
@@ -118,7 +123,6 @@ watch(
  * region itself, hands focus back to where it was). A modal dialog traps focus, so under one the toasts are reached by
  * pointer and the announcement.
  */
-let before: HTMLElement | null = null;
 useEventListener(typeof document === "undefined" ? undefined : document, "keydown", (e: KeyboardEvent) => {
   if (e.key !== "F8" || e.defaultPrevented || !region.value) return;
   e.preventDefault();
@@ -126,19 +130,32 @@ useEventListener(typeof document === "undefined" ? undefined : document, "keydow
   region.value.focus();
 });
 
+function restoreFocus() {
+  before?.focus();
+  before = null;
+}
+
+/**
+ * Dismisses a toast by its close button or Escape. When focus was in the notifications it moves to the next toast, or,
+ * with none left, back to where it was before F8, so it never drops to the page body.
+ */
+function dismissFocused(id: string) {
+  const hadFocus = !!region.value?.contains(document.activeElement);
+  store.dismiss(id);
+  if (!hadFocus) return;
+  void nextTick(() => {
+    const next = region.value?.querySelector<HTMLElement>("button, a[href], [tabindex]:not([tabindex='-1'])");
+    if (next) next.focus();
+    else restoreFocus();
+  });
+}
+
 function onKeydown(e: KeyboardEvent) {
   if (e.key !== "Escape") return;
   const toast = (e.target as Element).closest<HTMLElement>("[data-toast-id]");
   e.stopPropagation();
-  if (toast) store.dismiss(toast.dataset.toastId!);
-  void nextTick(() => {
-    const next = region.value?.querySelector<HTMLElement>("button, a[href], [tabindex]");
-    if (toast && next) next.focus();
-    else {
-      before?.focus();
-      before = null;
-    }
-  });
+  if (toast) dismissFocused(toast.dataset.toastId!);
+  else restoreFocus();
 }
 
 const Render: FunctionalComponent<{ content: VNodeChild | (() => VNodeChild) }> = (p) =>
@@ -168,7 +185,7 @@ Render.props = ["content"];
         :icon="item.icon"
         :closable="item.closable ?? true"
         :live="false"
-        @close="store.dismiss(item.id)"
+        @close="dismissFocused(item.id)"
       >
         <template v-if="item.message" #default>{{ item.message }}</template>
         <template v-if="item.action" #action><Render :content="item.action" /></template>
@@ -192,12 +209,18 @@ Render.props = ["content"];
     gap: var(--e-gap-snug);
   }
 
-  .e-toast-region:focus {
+  .e-toast-region:focus:not(:focus-visible) {
     outline: none;
   }
 
+  /* F8 focuses the region itself, so it shows the ring like any other stop. */
+  .e-toast-region:focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: var(--e-stroke-focus);
+  }
+
   .e-toast-region > .e-toast {
-    width: min(24rem, calc(100vw - 2 * var(--e-gap-loose)));
+    width: min(var(--e-size-panel-sm), calc(100vw - 2 * var(--e-gap-loose)));
   }
 
   .e-toast-region > .e-toast--actions {

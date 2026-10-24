@@ -33,9 +33,7 @@ The page-width column: a maximum width, centred, with the page gutter at its sid
 - Layout only: no role. Use `as="main"` for the one main landmark of a page, and `section` with an `aria-label` for a named region.
 - The gutter is `gutter-min` on a phone and grows with the viewport, so text keeps clear of the screen edge when it is zoomed.
 
-## Keyboard
-
-Not focusable and takes no keys.
+Not focusable.
 
 ## Related
 

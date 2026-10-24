@@ -4,6 +4,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ESignatureField, { type SignatureValue } from "./ESignatureField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { expectPostingContract } from "../../../test/formPosting.js";
 
 const date = new Date(2026, 8, 22);
 
@@ -75,7 +76,10 @@ describe("ESignatureField", () => {
 
   test("in draw mode the error marks the pad", async () => {
     const { container } = await mount({ mode: "draw", error: "Sign the form" });
-    expect(container.querySelector("canvas")!.getAttribute("aria-invalid")).toBe("true");
+    expect(container.querySelector(".e-pad-surface")!.hasAttribute("data-invalid")).toBe(true);
+    expect(container.querySelector("canvas")!.getAttribute("aria-describedby")).toContain(
+      container.querySelector("[role=alert]")!.id,
+    );
     expect(container.querySelectorAll("[role=alert]")).toHaveLength(1);
   });
 
@@ -184,6 +188,12 @@ describe("ESignatureField", () => {
     await expect.element(page.getByRole("checkbox", { name: /I agree/ })).toBeDisabled();
   });
 
+  test("a named field posts the typed name, nothing while disabled, and joins a form it is outside of", async () => {
+    await expectPostingContract(ESignatureField, {
+      modelValue: { method: "type", name: "Ada Lovelace", image: "", agreed: true },
+    });
+  });
+
   test("disabled does not submit the hidden input", async () => {
     const { container } = await mount({ disabled: true, name: "signature" });
     const hidden = container.querySelector<HTMLInputElement>("input[type=hidden]")!;
@@ -199,6 +209,9 @@ describe("ESignatureField", () => {
     expect(input.readOnly).toBe(true);
     expect(input.disabled).toBe(false);
     await page.getByRole("checkbox", { name: /I agree/ }).click({ force: true });
+    // The Type and Draw switch is read-only, not disabled: it stays focusable and readable.
+    await expect.element(page.getByRole("radio", { name: "Draw" })).toBeEnabled();
+    expect(container.querySelector(".e-seg")!.getAttribute("aria-readonly")).toBe("true");
     await page.getByRole("radio", { name: "Draw" }).click({ force: true });
     expect(got).toEqual([]);
     expect(container.querySelector<HTMLInputElement>("input[type=hidden]")!.disabled).toBe(false);

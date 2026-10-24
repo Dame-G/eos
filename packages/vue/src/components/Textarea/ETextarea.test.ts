@@ -145,6 +145,13 @@ describe("ETextarea", () => {
     await expect.poll(() => area.getBoundingClientRect().height).toBe(before);
   });
 
+  test("name is a prop: the textarea posts under it", async () => {
+    const { container } = await render(ETextarea, { props: { label: "Note", name: "note", modelValue: "Hi" } });
+    const form = document.createElement("form");
+    form.append(container.querySelector("textarea")!);
+    expect([...new FormData(form).entries()]).toEqual([["note", "Hi"]]);
+  });
+
   test("a disabled textarea posts nothing, and a named one joins a form it is outside of", async () => {
     await expectPostingContract(ETextarea, { label: "Notes", modelValue: "hi" });
   });

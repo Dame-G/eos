@@ -4,6 +4,7 @@ import EEmptyState from "../EmptyState/EEmptyState.vue";
 import "../Skeleton/ESkeleton.vue";
 import { useMessages } from "../../config.js";
 import { useOverflow } from "../../composables/useOverflow.js";
+import { useDeprecated, type Size } from "../../composables/useSize.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 import "./table.css";
@@ -17,8 +18,8 @@ const props = withDefaults(
     /** Tints every other row. */
     striped?: boolean;
     /** Smaller text and tighter cells, for reference tables with many rows. `"sm"` is the same as the older `dense`. @default "md" */
-    size?: "sm" | "md";
-    /** Same as `size="sm"`. */
+    size?: Extract<Size, "sm" | "md">;
+    /** @deprecated Use `size="sm"`. */
     dense?: boolean;
     /** Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header row. */
     maxHeight?: string;
@@ -26,7 +27,7 @@ const props = withDefaults(
     cards?: boolean;
     /** Marks the data as loading: the rows are dimmed, `aria-busy` is set and placeholder lines show under the table. */
     loading?: boolean;
-    /** How many placeholder lines `loading` shows. */
+    /** How many placeholder lines `loading` shows, 5 as in `EDataGrid`. */
     skeletonRows?: number;
     /** Shows the empty state under the headings. Set it when the table has no rows. */
     empty?: boolean;
@@ -37,7 +38,7 @@ const props = withDefaults(
     /** The icon above the empty title. @default "search" */
     emptyIcon?: IconProp;
   }>(),
-  { skeletonRows: 3 },
+  { skeletonRows: 5 },
 );
 
 defineSlots<{
@@ -49,6 +50,7 @@ defineSlots<{
 
 const t = useMessages();
 const style = computed(() => (props.maxHeight ? { "--_max-h": props.maxHeight } : undefined));
+useDeprecated("ETable", props, { dense: 'size="sm"' });
 const small = computed(() => props.size === "sm" || (!props.size && props.dense));
 
 // A tab stop that scrolls nothing is noise, so the frame is a focusable, named region only while it scrolls.
@@ -86,7 +88,6 @@ const scrollable = computed(() => overflows.value || !!props.maxHeight);
       </table>
       <div v-if="loading" class="e-table-loading">
         <span v-for="n in skeletonRows" :key="n" class="e-skel" />
-        <span class="e-sr" role="status">{{ t("loading") }}</span>
       </div>
       <div v-else-if="empty" class="e-table-empty">
         <slot name="empty">
@@ -96,6 +97,8 @@ const scrollable = computed(() => overflows.value || !!props.maxHeight);
         </slot>
       </div>
     </div>
+    <!-- Always in the page, so a screen reader hears the text change; a live region that arrives with its text is missed. -->
+    <span class="e-sr" role="status">{{ loading ? t("loading") : "" }}</span>
   </div>
 </template>
 
@@ -149,7 +152,7 @@ const scrollable = computed(() => overflows.value || !!props.maxHeight);
   }
 
   .e-table-wrap--striped tbody tr:hover :is(td, th) {
-    background: var(--e-surface-hover);
+    background: var(--e-wash-hover);
   }
 
   .e-table-wrap--dense .e-table {

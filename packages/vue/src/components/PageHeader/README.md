@@ -1,6 +1,6 @@
 # EPageHeader
 
-The top of a page: title, optional breadcrumb, description, status and main actions. Every page has exactly one.
+The top of a page: title, optional breadcrumb, description, status and main actions. Every page has exactly one. Use [`EHeading`](../Heading/README.md) for the sections under it.
 
 ```vue
 <EPageHeader title="Visit on Oct 2" description="Statement 4471 · Main office">

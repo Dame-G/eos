@@ -133,3 +133,13 @@ createEos({ icons: { ...lucide({ Check, X }), builtin: false } });
 ```
 
 With `builtin: false`, a name your set lacks draws nothing and logs one warning in development.
+
+`builtin: false` stops the lookup, but the set still ships when your app imports from `@eos-ui/vue`, which registers it. To leave its bytes (about 9 kB gzipped) out of the bundle, import components from their own paths and the plugin from `@eos-ui/vue/plugin`:
+
+```ts
+import { createEos } from "@eos-ui/vue/plugin";
+import { EButton } from "@eos-ui/vue/components/EButton";
+import { lucide } from "@eos-ui/vue/icons";
+```
+
+Those paths never import the set. `import "@eos-ui/vue/icons/builtin"` registers it again.

@@ -104,6 +104,7 @@ describe("ECommandPalette", () => {
     await userEvent.keyboard("{Enter}");
     expect(emitted().select![0]).toEqual([expect.objectContaining({ id: "refund" })]);
     expect(emitted()["update:open"]).toEqual([[false]]);
+    expect(emitted().close).toHaveLength(1);
   });
 
   test("a click chooses; a disabled command does nothing", async () => {
@@ -157,6 +158,11 @@ describe("ECommandPalette", () => {
     const mod = /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? { metaKey: true } : { ctrlKey: true };
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", bubbles: true, cancelable: true, ...mod }));
     expect(emitted()["update:open"]).toEqual([[true]]);
+    expect(emitted().close).toBeUndefined();
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", bubbles: true, cancelable: true, ...mod }));
+    expect(emitted()["update:open"]).toEqual([[true], [false]]);
+    expect(emitted().close).toHaveLength(1);
   });
 
   test("shows a command's own shortcut as keycaps", async () => {

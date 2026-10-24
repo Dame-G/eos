@@ -29,6 +29,8 @@ const props = defineProps<
       suffix?: string;
       /** The name submitted with a form (the number, or empty). Posts nothing while disabled. */
       name?: string;
+      /** BCP 47 tag the number is written and read in: its decimal and group separators. @default configured locale */
+      locale?: string;
     }
 >();
 
@@ -40,6 +42,7 @@ const control = useFieldControl(props);
 const loc = useLocale();
 const input = control.input;
 const hidden = ref<HTMLInputElement | null>(null);
+const locale = computed(() => props.locale || loc.locale.value);
 
 const stepBy = computed(() => props.step || 1);
 const decimals = computed(() => (String(stepBy.value).split(".")[1] || "").length);
@@ -47,7 +50,7 @@ const decimals = computed(() => (String(stepBy.value).split(".")[1] || "").lengt
 /** The decimal and group separators of the configured locale. */
 const separators = computed(() => {
   try {
-    const parts = new Intl.NumberFormat(loc.locale.value).formatToParts(1234567.5);
+    const parts = new Intl.NumberFormat(locale.value).formatToParts(1234567.5);
     return {
       decimal: parts.find((p) => p.type === "decimal")?.value ?? ".",
       group: parts.find((p) => p.type === "group")?.value ?? ",",
@@ -62,7 +65,7 @@ function format(n: number | null | undefined): string {
   const own = (String(n).split(".")[1] || "").length;
   const digits = Math.max(decimals.value, Math.min(own, 10));
   try {
-    return new Intl.NumberFormat(loc.locale.value, {
+    return new Intl.NumberFormat(locale.value, {
       minimumFractionDigits: digits,
       maximumFractionDigits: digits,
     }).format(n);

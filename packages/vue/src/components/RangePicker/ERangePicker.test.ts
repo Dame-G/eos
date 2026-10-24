@@ -5,14 +5,16 @@ import { render } from "vitest-browser-vue";
 import ERangePicker from "./ERangePicker.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
+import { frames } from "../../../test/frames.js";
 
 const d = (y: number, m: number, day: number) => new Date(y, m - 1, day, 12);
 const plugin = (options: Parameters<typeof createEos>[0]) => ({
   plugins: [createEos({ themeTarget: null, ...options })],
 });
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const active = () => document.activeElement as HTMLElement;
 const panel = () => document.querySelector<HTMLElement>(".e-calpanel");
+/** The calendar is open and has taken focus, so keys and clicks reach it. */
+const opened = () => expect.poll(() => panel()?.contains(document.activeElement) ?? false).toBe(true);
 const days = () => [...document.querySelectorAll<HTMLButtonElement>(".e-calpanel .e-day:not(.e-day--out)")];
 const setText = async (input: HTMLInputElement, value: string) => {
   input.focus();
@@ -54,20 +56,22 @@ describe("ERangePicker", () => {
     expect(button.element().getAttribute("aria-haspopup")).toBe("dialog");
     expect(container.querySelector(".e-range-sep")!.textContent).toBe("to");
     expect(container.querySelector(".e-input-wrap")!.className).toBe("e-input-wrap e-combo e-rangefield");
+    // The boxes are named by aria-label, so the placeholder can show the format, as in EDatePicker.
+    const boxes = [...container.querySelectorAll<HTMLInputElement>(".e-combo-input")];
+    expect(boxes.map((b) => b.placeholder)).toEqual(["MM/DD/YYYY", "MM/DD/YYYY"]);
     expect(container.querySelector("label")!.getAttribute("for")).toBe(container.querySelector("input")!.id);
   });
 
   test("two day clicks set the range and close the calendar", async () => {
     const { start, end } = await bound({ label: "Dates" });
     await page.getByRole("button", { name: "Choose dates" }).click();
-    await sleep(80);
+    await opened();
     days()[4]!.click();
-    await sleep(30);
+    await frames();
     expect(panel()).not.toBeNull();
     expect(start.value).toBeNull();
     days()[10]!.click();
-    await sleep(80);
-    expect(start.value).not.toBeNull();
+    await expect.poll(() => start.value).not.toBeNull();
     expect(end.value!.getTime()).toBeGreaterThan(start.value!.getTime());
     expect(panel()).toBeNull();
   });
@@ -75,50 +79,47 @@ describe("ERangePicker", () => {
   test("clicking before the start restarts the range", async () => {
     const { start, end } = await bound({ label: "Dates" });
     await page.getByRole("button", { name: "Choose dates" }).click();
-    await sleep(80);
+    await opened();
     days()[10]!.click();
-    await sleep(30);
+    await expect.poll(() => document.querySelector(".e-cal-help")!.textContent).toMatch(/^Starts /);
     days()[4]!.click();
-    await sleep(30);
+    await frames();
     expect(panel()).not.toBeNull();
     days()[6]!.click();
-    await sleep(80);
-    expect(start.value!.getDate()).toBe(5);
+    await expect.poll(() => start.value!.getDate()).toBe(5);
     expect(end.value!.getDate()).toBe(7);
   });
 
   test("the calendar shows what to do next, then the span", async () => {
     await bound({ label: "Dates" });
     await page.getByRole("button", { name: "Choose dates" }).click();
-    await sleep(80);
-    expect(document.querySelector(".e-cal-help")!.textContent).toBe("Choose a start date");
+    await expect.poll(() => document.querySelector(".e-cal-help")!.textContent).toBe("Choose a start date");
     days()[4]!.click();
-    await sleep(30);
-    expect(document.querySelector(".e-cal-help")!.textContent).toMatch(/^Starts .+\. Now choose an end date$/);
+    await expect
+      .poll(() => document.querySelector(".e-cal-help")!.textContent)
+      .toMatch(/^Starts .+\. Now choose an end date$/);
   });
 
   test("it opens on the chosen start with the keyboard and Escape closes it", async () => {
     const { container } = await bound({ label: "Dates" }, { start: d(2026, 10, 10), end: d(2026, 10, 18) });
     container.querySelector("input")!.focus();
     await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
-    await sleep(80);
+    await opened();
     expect(panel()!.getAttribute("role")).toBe("dialog");
     expect(panel()!.getAttribute("aria-label")).toBe("Choose dates");
     expect(active().getAttribute("aria-label")).toMatch(/October 10, 2026/);
     expect(panel()!.classList.contains("e-root")).toBe(true);
     await userEvent.keyboard("{Escape}");
-    await sleep(80);
-    expect(panel()).toBeNull();
+    await expect.poll(() => panel()).toBeNull();
   });
 
   test("keyboard: arrows and Enter choose a span", async () => {
     const { start, end, container } = await bound({ label: "Dates" }, { start: d(2026, 10, 10), end: null });
     container.querySelector("input")!.focus();
     await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
-    await sleep(80);
+    await opened();
     await userEvent.keyboard("{ArrowRight}{ArrowRight}{Enter}");
-    await sleep(80);
-    expect(start.value).toEqual(d(2026, 10, 10));
+    await expect.poll(() => start.value).toEqual(d(2026, 10, 10));
     expect(end.value).toEqual(d(2026, 10, 12));
     expect(panel()).toBeNull();
   });
@@ -126,11 +127,11 @@ describe("ERangePicker", () => {
   test("presets choose a span at once; the defaults are last 7 days, last 30 days and this month", async () => {
     const { start, end } = await bound({ label: "Dates" });
     await page.getByRole("button", { name: "Choose dates" }).click();
-    await sleep(80);
+    await opened();
     const labels = [...document.querySelectorAll(".e-cal-presets .e-btn")].map((b) => b.textContent!.trim());
     expect(labels).toEqual(["Last 7 days", "Last 30 days", "This month"]);
     await page.getByRole("button", { name: "Last 7 days" }).click();
-    await sleep(80);
+    await expect.poll(() => end.value).not.toBeNull();
     const today = new Date();
     expect(end.value!.getDate()).toBe(today.getDate());
     expect(Math.round((end.value!.getTime() - start.value!.getTime()) / 864e5)).toBe(6);
@@ -143,11 +144,9 @@ describe("ERangePicker", () => {
       presets: [{ label: "Q4", get: () => ({ start: d(2026, 10, 1), end: d(2026, 12, 31) }) }],
     });
     await page.getByRole("button", { name: "Choose dates" }).click();
-    await sleep(80);
-    expect(document.querySelectorAll(".e-cal-presets .e-btn")).toHaveLength(1);
+    await expect.poll(() => document.querySelectorAll(".e-cal-presets .e-btn")).toHaveLength(1);
     await page.getByRole("button", { name: "Q4" }).click();
-    await sleep(80);
-    expect(start.value).toEqual(d(2026, 10, 1));
+    await expect.poll(() => start.value).toEqual(d(2026, 10, 1));
     expect(end.value).toEqual(d(2026, 12, 31));
   });
 
@@ -157,8 +156,7 @@ describe("ERangePicker", () => {
     await setText(a!, "10/04/2026");
     await setText(b!, "10-18-2026");
     b!.blur();
-    await sleep(30);
-    expect(start.value).toEqual(d(2026, 10, 4));
+    await expect.poll(() => start.value).toEqual(d(2026, 10, 4));
     expect(end.value).toEqual(d(2026, 10, 18));
     expect(a!.value).toBe("10/04/2026");
     expect(b!.value).toBe("10/18/2026");
@@ -169,20 +167,61 @@ describe("ERangePicker", () => {
     ]);
   });
 
+  test("the hidden fields keep the consumer's form attribute", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h("form", { id: "range-form" }),
+            h(ERangePicker as Component, {
+              label: "Dates",
+              startName: "from",
+              endName: "to",
+              start: d(2026, 10, 4),
+              end: d(2026, 10, 18),
+              form: "range-form",
+            }),
+          ]),
+      }),
+    );
+    const form = container.querySelector("form")!;
+    expect([...new FormData(form).entries()]).toEqual([
+      ["from", "2026-10-04"],
+      ["to", "2026-10-18"],
+    ]);
+  });
+
+  test("while the typed span cannot be used it posts nothing, not the dates it had before", async () => {
+    const { container } = await bound(
+      { label: "Dates", startName: "from", endName: "to" },
+      { start: d(2026, 10, 4), end: d(2026, 10, 18) },
+    );
+    const [, b] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
+    const hidden = () => [...container.querySelectorAll<HTMLInputElement>("input[type=hidden]")].map((i) => i.value);
+    await setText(b!, "10/01/2026");
+    await userEvent.keyboard("{Enter}");
+    expect(hidden()).toEqual(["", ""]);
+    await setText(b!, "10/20/2026");
+    await userEvent.keyboard("{Enter}");
+    expect(hidden()).toEqual(["2026-10-04", "2026-10-20"]);
+  });
+
   test("a bad date or an end before the start shows an error and leaves the value alone", async () => {
     const { start, end, container } = await bound({ label: "Dates" }, { start: d(2026, 10, 4), end: d(2026, 10, 18) });
     const [a, b] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
     await setText(b!, "99/99/2026");
     b!.blur();
-    await sleep(30);
-    expect(container.querySelector(".e-field-error")!.textContent).toMatch(/Enter dates as MM\/DD\/YYYY\./);
+    await expect
+      .poll(() => container.querySelector(".e-field-error")!.textContent)
+      .toMatch(/Enter dates as MM\/DD\/YYYY\./);
     expect(a!.getAttribute("aria-invalid")).toBe("true");
     expect(b!.getAttribute("aria-invalid")).toBe("true");
     expect(container.querySelector(".e-input-wrap")!.hasAttribute("data-invalid")).toBe(true);
     await setText(b!, "10/01/2026");
     b!.blur();
-    await sleep(30);
-    expect(container.querySelector(".e-field-error")!.textContent).toMatch(/The end date is before the start date\./);
+    await expect
+      .poll(() => container.querySelector(".e-field-error")!.textContent)
+      .toMatch(/The end date is before the start date\./);
     expect(start.value).toEqual(d(2026, 10, 4));
     expect(end.value).toEqual(d(2026, 10, 18));
   });
@@ -192,15 +231,15 @@ describe("ERangePicker", () => {
     const [a] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
     await setText(a!, "06/15/2030");
     a!.blur();
-    await sleep(30);
-    expect(container.querySelector(".e-field-error")!.textContent).toMatch(/Choose a date between 01\/01\/2026/);
+    await expect
+      .poll(() => container.querySelector(".e-field-error")!.textContent)
+      .toMatch(/Choose a date between 01\/01\/2026/);
   });
 
   test("min and max reach the calendar", async () => {
     await bound({ label: "Dates", min: d(2026, 10, 10), max: d(2026, 10, 20) }, { start: d(2026, 10, 12), end: null });
     await page.getByRole("button", { name: "Choose dates" }).click();
-    await sleep(80);
-    expect(days()[0]!.disabled).toBe(true);
+    await expect.poll(() => days()[0]!.disabled).toBe(true);
     expect(days()[14]!.disabled).toBe(false);
   });
 
@@ -239,7 +278,7 @@ describe("ERangePicker", () => {
       { label: "Dates", readonly: true, open: true, startName: "from", endName: "to" },
       { start: d(2026, 10, 4), end: d(2026, 10, 18) },
     );
-    await sleep(80);
+    await frames();
     expect(panel()).toBeNull();
     const [a, b] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
     expect([a!.readOnly, b!.readOnly, a!.disabled]).toEqual([true, true, false]);
@@ -249,7 +288,7 @@ describe("ERangePicker", () => {
     a!.focus();
     expect(active()).toBe(a);
     await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
-    await sleep(80);
+    await frames();
     expect(panel()).toBeNull();
     const form = document.createElement("form");
     for (const i of container.querySelectorAll<HTMLInputElement>("input[type=hidden]")) form.append(i);
@@ -265,8 +304,9 @@ describe("ERangePicker", () => {
     const [a] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
     await setText(a!, "06/15/2020");
     a!.blur();
-    await sleep(30);
-    expect(container.querySelector(".e-field-error")!.textContent).toMatch("Choose a date on or after 01/01/2026.");
+    await expect
+      .poll(() => container.querySelector(".e-field-error")!.textContent)
+      .toMatch("Choose a date on or after 01/01/2026.");
   });
 
   test("valueFormat iso: start and end are YYYY-MM-DD strings or null", async () => {
@@ -316,9 +356,8 @@ describe("ERangePicker", () => {
     const { start, end, container } = await bound({ label: "Dates" });
     start.value = d(2027, 1, 2);
     end.value = d(2027, 1, 9);
-    await sleep(40);
     const [a, b] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
-    expect([a!.value, b!.value]).toEqual(["01/02/2027", "01/09/2027"]);
+    await expect.poll(() => [a!.value, b!.value]).toEqual(["01/02/2027", "01/09/2027"]);
   });
 
   test("locale: de-DE writes DD.MM.YYYY and names the months in German in the calendar", async () => {
@@ -330,8 +369,7 @@ describe("ERangePicker", () => {
     const [a, b] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
     expect([a!.value, b!.value]).toEqual(["04.10.2026", "18.10.2026"]);
     await page.getByRole("button", { name: "Choose dates" }).click();
-    await sleep(80);
-    expect(document.querySelector(".e-cal-pick")!.textContent!.trim()).toBe("Oktober 2026");
+    await expect.poll(() => document.querySelector(".e-cal-pick")!.textContent!.trim()).toBe("Oktober 2026");
   });
 
   test("locale: en-GB reads day first; he-IL (right to left) formats and mirrors", async () => {
@@ -348,6 +386,25 @@ describe("ERangePicker", () => {
     expect(wrap.querySelector(".e-range-sep")).not.toBeNull();
   });
 
+  test("@focus and @blur fire as focus enters and leaves the field, not between its inputs", async () => {
+    const seen: string[] = [];
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(ERangePicker, { label: "Stay", onFocus: () => seen.push("focus"), onBlur: () => seen.push("blur") }),
+            h("button", { class: "after" }, "After"),
+          ]),
+      }),
+    );
+    const inputs = [...container.querySelectorAll<HTMLInputElement>("input.e-combo-input")];
+    inputs[0]!.focus();
+    inputs[1]!.focus();
+    expect(seen).toEqual(["focus"]);
+    container.querySelector<HTMLElement>(".after")!.focus();
+    expect(seen).toEqual(["focus", "blur"]);
+  });
+
   test("has no accessibility violations: closed, invalid, disabled, open", async () => {
     const closed = await render(ERangePicker, {
       props: { label: "Dates", hint: "Any span.", start: d(2026, 10, 4), end: d(2026, 10, 18) },
@@ -359,8 +416,7 @@ describe("ERangePicker", () => {
     await expectNoViolations(off.container);
     await render(ERangePicker, { props: { label: "Dates d", start: d(2026, 10, 4), end: d(2026, 10, 18) } });
     await page.getByRole("button", { name: "Choose dates" }).nth(3).click();
-    await sleep(80);
-    expect(panel()).not.toBeNull();
+    await expect.poll(() => panel()).not.toBeNull();
     await expectNoViolations(document.body);
   });
 });

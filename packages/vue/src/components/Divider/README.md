@@ -1,6 +1,6 @@
 # EDivider
 
-A hairline between sections of a form or list, optionally with a centred label.
+A hairline between sections of a form or list, optionally with a centred label. Between blocks of a page, the gap of [`EStack`](../Stack/README.md) is enough.
 
 ```vue
 <EDivider />
@@ -25,11 +25,7 @@ A hairline between sections of a form or list, optionally with a centred label.
 - Without a label it is an `hr`. With one it is a `div` with `role="separator"` named by the label, and the visible text is hidden from screen readers so it is not read twice.
 - `vertical` sets `aria-orientation="vertical"`.
 
-## Keyboard
-
-| Key | Action                      |
-| --- | --------------------------- |
-| Tab | A divider is not focusable. |
+Not focusable.
 
 ## Related
 

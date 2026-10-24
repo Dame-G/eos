@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, onTestFinished, test, vi } from "vitest";
 import { defineComponent, h, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -93,7 +93,9 @@ describe("EDrawer", () => {
     await expect.poll(() => Math.round(drawer().getBoundingClientRect().left)).toBe(0);
   });
 
-  test("left and right are accepted as aliases for start and end", async () => {
+  test("left and right are accepted as aliases for start and end, and warn that they are deprecated", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    onTestFinished(() => warn.mockRestore());
     const left = host({ side: "left" });
     await render(left.Host);
     left.open.value = true;
@@ -106,14 +108,8 @@ describe("EDrawer", () => {
     right.open.value = true;
     await expect.element(page.getByRole("dialog")).toBeVisible();
     expect(drawer().classList.contains("e-drawer--start")).toBe(false);
-  });
-
-  test("left and right warn that they are deprecated", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const { Host } = host({ side: "left" });
-    await render(Host);
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('side="left" is deprecated'));
-    warn.mockRestore();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('side="right" is deprecated'));
   });
 
   test("size widens a side drawer", async () => {

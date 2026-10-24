@@ -10,7 +10,7 @@ export interface Step {
   state: "done" | "current" | "upcoming" | "todo" | "error";
   /** Marks a step the person may skip. It says "Optional" under the label. */
   optional?: boolean;
-  /** Keeps an `interactive` step from being chosen. */
+  /** Keeps an `interactive` step from being chosen. It stays in the Tab order, dimmed and marked `aria-disabled`. */
   disabled?: boolean;
 }
 
@@ -51,19 +51,19 @@ function choose(index: number, step: Step) {
         :is="interactive ? 'button' : 'span'"
         class="e-step-body"
         :type="interactive ? 'button' : undefined"
-        :disabled="interactive && step.disabled ? true : undefined"
+        :aria-disabled="interactive && step.disabled ? 'true' : undefined"
         :aria-current="interactive && step.state === 'current' ? 'step' : undefined"
         @click="choose(i, step)"
       >
         <span class="e-step-dot">
-          <EIcon v-if="step.state === 'done'" name="check" small />
-          <EIcon v-else-if="step.state === 'error'" name="alert" small />
+          <EIcon v-if="step.state === 'done'" name="check" size="sm" />
+          <EIcon v-else-if="step.state === 'error'" name="alert" size="sm" />
           <template v-else>{{ i + 1 }}</template>
         </span>
         <span class="e-step-label">
           {{ step.label }}
-          <span v-if="step.state === 'done'" class="e-sr"> ({{ t("done") }})</span>
-          <span v-else-if="step.state === 'error'" class="e-sr"> ({{ t("stepError") }})</span>
+          <span v-if="step.state === 'done'" class="e-sr">{{ " " + t("done") }}</span>
+          <span v-else-if="step.state === 'error'" class="e-sr">{{ " " + t("stepError") }}</span>
           <span v-if="step.optional" class="e-step-optional">{{ t("optional") }}</span>
         </span>
       </component>
@@ -112,16 +112,16 @@ function choose(index: number, step: Step) {
     transition: var(--e-transition-state);
   }
 
-  button.e-step-body:not(:disabled) {
+  button.e-step-body:not([aria-disabled="true"]) {
     cursor: pointer;
   }
 
-  button.e-step-body:not(:disabled):hover {
+  button.e-step-body:not([aria-disabled="true"]):hover {
     background-color: var(--e-wash-hover);
     box-shadow: var(--e-ring-hover);
   }
 
-  button.e-step-body:not(:disabled):active {
+  button.e-step-body:not([aria-disabled="true"]):active {
     background-color: var(--e-wash-press);
     box-shadow: var(--e-ring-press);
   }
@@ -131,7 +131,8 @@ function choose(index: number, step: Step) {
     outline-offset: var(--e-stroke-focus);
   }
 
-  button.e-step-body:disabled {
+  /* A disabled step stays focusable (`aria-disabled`), as a pager's dimmed step does, so Tab still reaches it and reads why it is there. */
+  button.e-step-body[aria-disabled="true"] {
     color: var(--e-disabled-ink);
     cursor: not-allowed;
   }

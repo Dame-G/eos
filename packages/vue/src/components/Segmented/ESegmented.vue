@@ -3,7 +3,7 @@ export type { SegmentedOption } from "../RadioGroup/options.js";
 </script>
 
 <script setup lang="ts" generic="T extends string = string">
-import { computed, h, nextTick, onMounted, ref, watch, type FunctionalComponent } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EFieldMessage from "../Field/EFieldMessage.vue";
 import { useMessages } from "../../config.js";
@@ -13,6 +13,8 @@ import { keepIfReadonly, useChoiceMessage } from "../Checkbox/useChoiceMessage.j
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useUid } from "../../composables/useUid.js";
 import { useOverflow } from "../../composables/useOverflow.js";
+import { useReducedMotion } from "../../composables/useReducedMotion.js";
+import { useFormField } from "../../composables/useFormContext.js";
 import "../../styles/base.css";
 
 defineOptions({ inheritAttrs: false });
@@ -42,15 +44,30 @@ const props = defineProps<{
 const model = defineModel<T>();
 
 const t = useMessages();
+const uid = useUid();
 const name = useUid(() => props.name);
 const message = computed(() => ({ hint: props.hint, error: props.error }));
-const { messageId: hintId, describedBy } = useChoiceMessage(name, message);
+const { messageId: hintId, describedBy } = useChoiceMessage(uid, message);
 const guard = keepIfReadonly(() => props.readonly);
 const options = computed(() => normalizeChoices<SegmentedOption<T>>(props.options));
 /** What is shown as chosen while the model has no value: the first option that can be chosen. */
 const fallback = computed(() => options.value.find((o) => !o.disabled && !props.disabled) ?? options.value[0]);
 const current = computed(() => model.value ?? fallback.value?.value);
 const attrs = useFieldAttrs();
+const calm = useReducedMotion();
+const optionId = (i: number) => `${uid.value}-${i}`;
+// The summary of an EForm links to the chosen option.
+useFormField({
+  id: () =>
+    optionId(
+      Math.max(
+        0,
+        options.value.findIndex((o) => o.value === current.value),
+      ),
+    ),
+  label: () => props.label,
+  error: () => props.error,
+});
 
 const track = ref<HTMLElement | null>(null);
 /** Whether the options are wider than the track. Only then does the track clip: a clip along the rounded corners would draw them twice. */
@@ -64,7 +81,7 @@ async function reveal(smooth: boolean) {
   if (!el || !opt || el.scrollWidth <= el.clientWidth) return;
   const a = opt.getBoundingClientRect();
   const b = el.getBoundingClientRect();
-  el.scrollBy({ left: a.left + a.width / 2 - (b.left + b.width / 2), behavior: smooth ? "smooth" : "auto" });
+  el.scrollBy({ left: a.left + a.width / 2 - (b.left + b.width / 2), behavior: smooth && !calm() ? "smooth" : "auto" });
 }
 
 onMounted(() => reveal(false));
@@ -82,37 +99,6 @@ defineExpose({
   focus: () => pick()?.focus(),
 });
 
-/** The radios, once for both layouts (with and without a message under the track). */
-const Choices: FunctionalComponent<
-  {
-    options: SegmentedOption<T>[];
-    name: string;
-    current?: T;
-    disabled?: boolean;
-    required?: boolean;
-    guard: (e: Event) => void;
-  },
-  { pick: [value: T] }
-> = (p, { emit }) =>
-  p.options.map((o) =>
-    h("label", { key: o.value, class: "e-seg-opt" }, [
-      h("input", {
-        type: "radio",
-        class: "e-seg-input",
-        name: p.name,
-        value: o.value,
-        checked: p.current === o.value,
-        disabled: o.disabled || p.disabled,
-        required: p.required,
-        onClick: p.guard,
-        onChange: () => emit("pick", o.value),
-      }),
-      h("span", { class: "e-seg-text" }, [o.icon ? h(EIcon, { name: o.icon }) : null, o.label]),
-    ]),
-  );
-Choices.props = ["options", "name", "current", "disabled", "required", "guard"];
-Choices.emits = ["pick"];
-
 const groupAttrs = () => ({
   role: "radiogroup",
   "aria-label": props.required
@@ -123,47 +109,35 @@ const groupAttrs = () => ({
   "aria-required": props.required ? ("true" as const) : undefined,
   "aria-readonly": props.readonly ? ("true" as const) : undefined,
   "aria-invalid": props.error ? ("true" as const) : undefined,
-  ...attrs.input(describedBy()),
+  ...attrs.group(describedBy()),
 });
 </script>
 
 <template>
-  <div v-if="hint || error" class="e-seg-field" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
+  <div class="e-seg-field" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
     <div
       ref="track"
       class="e-seg"
       :class="{ 'e-seg--disabled': disabled, 'e-seg--scroll': scrolls }"
       v-bind="groupAttrs()"
     >
-      <Choices
-        :options="options"
-        :name="name"
-        :current="current"
-        :disabled="disabled"
-        :required="required"
-        :guard="guard"
-        @pick="model = $event"
-      />
+      <label v-for="(o, i) in options" :key="o.value" class="e-seg-opt">
+        <input
+          :id="optionId(i)"
+          type="radio"
+          class="e-seg-input"
+          :name="name"
+          :value="o.value"
+          :checked="current === o.value"
+          :disabled="o.disabled || disabled"
+          :required="required"
+          @click="guard"
+          @change="model = o.value"
+        />
+        <span class="e-seg-text"><EIcon v-if="o.icon" :name="o.icon" />{{ o.label }}</span>
+      </label>
     </div>
     <EFieldMessage :id="hintId" :error="error" :hint="hint" />
-  </div>
-  <div
-    v-else
-    ref="track"
-    class="e-seg"
-    :class="[{ 'e-seg--disabled': disabled, 'e-seg--scroll': scrolls }, attrs.wrapper().class]"
-    :style="attrs.wrapper().style"
-    v-bind="groupAttrs()"
-  >
-    <Choices
-      :options="options"
-      :name="name"
-      :current="current"
-      :disabled="disabled"
-      :required="required"
-      :guard="guard"
-      @pick="model = $event"
-    />
   </div>
 </template>
 
@@ -270,7 +244,7 @@ const groupAttrs = () => ({
 
   .e-seg-input:checked + .e-seg-text {
     --_slab: var(--e-primary-slab);
-    --_lift: var(--e-slab);
+    --_lift: var(--e-depth);
 
     background-color: var(--e-primary);
     color: var(--e-on-primary);
@@ -327,10 +301,13 @@ const groupAttrs = () => ({
     background: var(--e-danger-soft);
   }
 
+  /* One wrapper, with a message or without. It sits inline as the track does, and a message under the track wraps at the width it is given. */
   .e-seg-field {
-    display: grid;
+    display: inline-grid;
     grid-template-columns: minmax(0, 1fr);
     gap: var(--e-gap-snug);
+    max-width: 100%;
+    vertical-align: middle;
   }
 
   @media (forced-colors: active) {

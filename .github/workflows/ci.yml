@@ -32,7 +32,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm format:check
       - run: pnpm typecheck
-      # After typecheck: the vue typecheck builds the tokens package, which the checks import.
+      # After typecheck: the tokens typecheck builds the tokens package, which the vue typecheck and the checks import.
       - run: pnpm check
 
   # Builds once. The package job downloads the result instead of building again.

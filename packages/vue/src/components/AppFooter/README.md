@@ -1,6 +1,6 @@
 # EAppFooter
 
-The bottom of the page: small print, privacy and terms links, contact.
+The bottom of the page: small print, privacy and terms links, contact. Put it in the `footer` slot of [`EAppShell`](../AppShell/README.md).
 
 ```vue
 <EAppFooter>
@@ -22,9 +22,7 @@ The bottom of the page: small print, privacy and terms links, contact.
 - Renders the `contentinfo` landmark: use one per page, last, in the `footer` slot of `EAppShell`.
 - No primary actions here.
 
-## Keyboard
-
-No custom keyboard behavior.
+Not focusable.
 
 ## Related
 

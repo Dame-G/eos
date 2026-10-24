@@ -5,6 +5,7 @@ import { render } from "vitest-browser-vue";
 import ERadioGroupGeneric from "./ERadioGroup.vue";
 import ETextField from "../TextField/ETextField.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { settled } from "../../../test/frames.js";
 
 // Generic SFCs are not assignable to `mount`/`h` component typings; the tests drive them by props.
 const ERadioGroup = ERadioGroupGeneric as unknown as Component;
@@ -99,9 +100,45 @@ describe("ERadioGroup", () => {
       },
     });
     expect(container.querySelector(".e-choice-desc")!.textContent).toBe("$162.40");
+    // The description describes the radio and stays out of its name, as on a checkbox.
+    const full = page.getByRole("radio", { name: "Pay in full", exact: true });
+    await expect.element(full).toHaveAccessibleName("Pay in full");
+    await expect.element(full).toHaveAccessibleDescription("$162.40");
     const plan = page.getByRole("radio", { name: "Payment plan" });
     await expect.element(plan).toBeDisabled();
     expect(container.querySelectorAll(".e-choice--disabled").length).toBe(1);
+  });
+
+  test("a disabled group's rows look disabled, not only the radios", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { class: "e-root" }, [
+            h(ERadioGroup, { label: "Off", options: ["Text", "Email"], disabled: true }),
+            h(ERadioGroup, { label: "On", options: ["Text", "Email"] }),
+          ]),
+      }),
+    );
+    const [off, on] = [...container.querySelectorAll("fieldset")].map((f) => f.querySelector(".e-choice")!);
+    expect(getComputedStyle(off!).cursor).toBe("not-allowed");
+    expect(getComputedStyle(off!).color).not.toBe(getComputedStyle(on!).color);
+  });
+
+  test("id names the fieldset, and the radios are numbered from it", async () => {
+    const { container } = await render(ERadioGroup, {
+      props: { label: "Reminder", options: ["Text", "Email"], id: "rem" },
+    });
+    expect(container.querySelector("fieldset")!.id).toBe("rem");
+    expect([...container.querySelectorAll("input")].map((i) => i.id)).toEqual(["rem-1", "rem-2"]);
+  });
+
+  test("orientation horizontal lays the options out in a row", async () => {
+    const { container } = await render(ERadioGroup, {
+      props: { label: "Size", options: ["S", "M", "L"], orientation: "horizontal" },
+    });
+    const [a, b] = [...container.querySelectorAll(".e-choice")].map((el) => el.getBoundingClientRect());
+    expect(b!.top).toBe(a!.top);
+    expect(b!.left).toBeGreaterThan(a!.right);
   });
 
   test("the legend, hint and error describe the group", async () => {
@@ -230,11 +267,11 @@ describe("ERadioGroup", () => {
     container.classList.add("e-root");
     const radio = container.querySelector("input")!;
     expect(radio.getAttribute("aria-invalid")).toBe("true");
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     expect(getComputedStyle(radio).borderTopColor).not.toBe(plain);
     expect(getComputedStyle(radio).borderTopColor).toBe(colourOf(container, "--e-danger"));
     await userEvent.hover(radio);
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     expect(getComputedStyle(radio).backgroundColor).toBe(colourOf(container, "--e-danger-soft"));
   });
 

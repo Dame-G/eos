@@ -3,6 +3,7 @@ import { defineComponent, h } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EProgress from "./EProgress.vue";
+import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("EProgress", () => {
@@ -86,6 +87,36 @@ describe("EProgress", () => {
     const fill = container.querySelector(".e-progress-fill") as HTMLElement;
     expect(fill.style.width).toBe("");
     expect(getComputedStyle(fill).animationName).not.toBe("none");
+  });
+
+  test("the indeterminate bar starts at the inline start and slides toward the end, flipped in a right-to-left page", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h("div", { dir: "ltr" }, [h(EProgress, { label: "A" })]),
+            h("div", { dir: "rtl" }, [h(EProgress, { label: "B" })]),
+          ]),
+      }),
+    );
+    const [ltr, rtl] = [...container.querySelectorAll<HTMLElement>(".e-progress")];
+    const fill = (el: HTMLElement) => getComputedStyle(el.querySelector(".e-progress-fill")!);
+    expect(getComputedStyle(ltr!).getPropertyValue("--_dir").trim()).toBe("1");
+    expect(getComputedStyle(rtl!).getPropertyValue("--_dir").trim()).toBe("-1");
+    expect(fill(ltr!).left).toBe("0px");
+    expect(fill(rtl!).right).toBe("0px");
+    expect(fill(rtl!).left).not.toBe("0px");
+  });
+
+  test("the percentage is written in the configured locale", async () => {
+    const { container } = await render(EProgress, {
+      props: { label: "Upload", value: 40 },
+      global: { plugins: [createEos({ themeTarget: null, locale: "de-DE" })] },
+    });
+    expect(container.querySelector(".e-progress-value")!.textContent).toBe(
+      new Intl.NumberFormat("de-DE", { style: "percent" }).format(0.4),
+    );
+    expect(container.querySelector(".e-progress-value")!.textContent).not.toBe("40%");
   });
 
   test("a determinate bar with no label is named Progress, not Loading", async () => {

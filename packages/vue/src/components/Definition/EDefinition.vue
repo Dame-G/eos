@@ -19,6 +19,8 @@ withDefaults(
     title?: string;
     /** The level of the title's heading, so it fits the page outline. */
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+    /** Sets the term in the sentence around it, at the sentence's size and on its baseline, without the info icon. For a term inside running text, such as a footer line. */
+    inline?: boolean;
   }>(),
   { headingLevel: 3 },
 );
@@ -55,8 +57,8 @@ watch(
 <template>
   <PopoverRoot v-model:open="open">
     <PopoverTrigger as-child>
-      <button type="button" class="e-definition-term" v-bind="$attrs">
-        <EIcon name="info" size="sm" />
+      <button type="button" class="e-definition-term" :class="inline && 'e-definition-term--inline'" v-bind="$attrs">
+        <EIcon v-if="!inline" name="info" size="sm" />
         <slot name="trigger" />
         <span class="e-sr">, {{ label }}</span>
       </button>
@@ -99,9 +101,17 @@ watch(
     font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-snug) var(--e-font-sans);
     text-decoration: underline dotted;
     text-decoration-color: currentcolor;
-    text-underline-offset: var(--e-gap-tight);
+    text-underline-offset: var(--e-underline-offset);
     text-decoration-thickness: var(--e-stroke-edge);
     cursor: help;
+  }
+
+  /* In running text: the sentence's font and baseline, no icon, and no taller box than the line. */
+  .e-definition-term--inline {
+    align-items: baseline;
+    min-height: 0;
+    font: inherit;
+    vertical-align: baseline;
   }
 
   .e-definition-term::after {

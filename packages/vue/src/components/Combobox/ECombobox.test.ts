@@ -17,7 +17,9 @@ const active = (el: Element) =>
 
 describe("ECombobox", () => {
   test("is a labelled combobox input in a 48px outlined field, with no native select", async () => {
-    const { container } = await render(ECombobox, { props: { label: "Practitioner", options: PEOPLE } });
+    const { container } = await render(ECombobox, {
+      props: { clearable: true, label: "Practitioner", options: PEOPLE },
+    });
     container.classList.add("e-root");
     await expect.element(box("Practitioner")).toBeVisible();
     const input = inputOf(container);
@@ -31,7 +33,9 @@ describe("ECombobox", () => {
   });
 
   test("bare: just the input, named by ariaLabel, with the list named the same", async () => {
-    const { container } = await render(ECombobox, { props: { bare: true, ariaLabel: "Filter", options: PEOPLE } });
+    const { container } = await render(ECombobox, {
+      props: { clearable: true, bare: true, ariaLabel: "Filter", options: PEOPLE },
+    });
     expect(container.querySelector("label")).toBeNull();
     expect(container.querySelector(".e-field")).toBeNull();
     await expect.element(box("Filter")).toBeVisible();
@@ -40,7 +44,9 @@ describe("ECombobox", () => {
   });
 
   test("bare with only a label still names the input", async () => {
-    const { container } = await render(ECombobox, { props: { bare: true, label: "Practitioner", options: PEOPLE } });
+    const { container } = await render(ECombobox, {
+      props: { clearable: true, bare: true, label: "Practitioner", options: PEOPLE },
+    });
     expect(container.querySelector("label")).toBeNull();
     await expect.element(box("Practitioner")).toBeVisible();
   });
@@ -49,6 +55,7 @@ describe("ECombobox", () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         label: "Practitioner",
         options: PEOPLE,
         "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
@@ -69,6 +76,7 @@ describe("ECombobox", () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         label: "Clinic",
         options: [
           { value: "c1", label: "North Clinic", description: "Elm Street" },
@@ -88,6 +96,7 @@ describe("ECombobox", () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         label: "Practitioner",
         options: PEOPLE,
         "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
@@ -112,6 +121,7 @@ describe("ECombobox", () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         label: "Practitioner",
         options: PEOPLE,
         "onUpdate:modelValue": (v?: string | string[]) => got.push(v as string),
@@ -126,7 +136,9 @@ describe("ECombobox", () => {
   });
 
   test("Home and End move the cursor in the text, they do not leave the field", async () => {
-    const { container } = await render(ECombobox, { props: { label: "Practitioner", options: PEOPLE } });
+    const { container } = await render(ECombobox, {
+      props: { clearable: true, label: "Practitioner", options: PEOPLE },
+    });
     const input = inputOf(container);
     await box("Practitioner").fill("ma");
     await userEvent.keyboard("{Home}");
@@ -139,6 +151,7 @@ describe("ECombobox", () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         label: "Practitioner",
         options: PEOPLE,
         modelValue: "Priya Nair",
@@ -161,7 +174,7 @@ describe("ECombobox", () => {
 
   test("when focus leaves, the text snaps back to the chosen option", async () => {
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, modelValue: "Marcus Webb" },
+      props: { clearable: true, label: "Practitioner", options: PEOPLE, modelValue: "Marcus Webb" },
     });
     const input = inputOf(container);
     await box("Practitioner").fill("zzz");
@@ -175,7 +188,9 @@ describe("ECombobox", () => {
   });
 
   test("shows No matches, or your own words, when nothing matches", async () => {
-    const { rerender } = await render(ECombobox, { props: { label: "Practitioner", options: PEOPLE } });
+    const { rerender } = await render(ECombobox, {
+      props: { clearable: true, label: "Practitioner", options: PEOPLE },
+    });
     await box("Practitioner").fill("zzz");
     await expect.poll(() => document.querySelector(".e-opt-status")?.textContent?.trim()).toBe("No matches");
     expect(optionEls().filter((o) => !o.classList.contains("e-opt-status")).length).toBe(0);
@@ -192,7 +207,9 @@ describe("ECombobox", () => {
   });
 
   test("matching ignores accents and case, and marks the match in the original text", async () => {
-    await render(ECombobox, { props: { label: "City", options: ["Zürich", "Zagreb", "Café du Monde"] } });
+    await render(ECombobox, {
+      props: { clearable: true, label: "City", options: ["Zürich", "Zagreb", "Café du Monde"] },
+    });
     await box("City").fill("ZURI");
     await expect.poll(() => optionEls().map((o) => o.textContent?.trim())).toEqual(["Zürich"]);
     expect(document.querySelector("[role=option] mark")!.textContent).toBe("Züri");
@@ -202,7 +219,14 @@ describe("ECombobox", () => {
 
   test("readonly keeps the value, stays focusable, never opens and offers no edit buttons", async () => {
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, modelValue: "Marcus Webb", readonly: true, name: "who" },
+      props: {
+        clearable: true,
+        label: "Practitioner",
+        options: PEOPLE,
+        modelValue: "Marcus Webb",
+        readonly: true,
+        name: "who",
+      },
     });
     const input = inputOf(container);
     expect(input.readOnly).toBe(true);
@@ -221,7 +245,13 @@ describe("ECombobox", () => {
   test("loading shows a Searching spinner in the list; inputChange lets a server answer", async () => {
     const heard: string[] = [];
     const { container, rerender } = await render(ECombobox, {
-      props: { label: "Practitioner", options: [], loading: true, onInputChange: (t: string) => heard.push(t) },
+      props: {
+        clearable: true,
+        label: "Practitioner",
+        options: [],
+        loading: true,
+        onInputChange: (t: string) => heard.push(t),
+      },
     });
     await box("Practitioner").fill("pr");
     await expect
@@ -242,6 +272,7 @@ describe("ECombobox", () => {
   test("a custom filter replaces the default match", async () => {
     await render(ECombobox, {
       props: {
+        clearable: true,
         label: "Practitioner",
         options: PEOPLE,
         filter: (o: { label: string }, q: string) => o.label.toLowerCase().endsWith(q),
@@ -256,6 +287,7 @@ describe("ECombobox", () => {
     const heard: string[] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         label: "Practitioner",
         options: PEOPLE,
         modelValue: "Priya Nair",
@@ -276,17 +308,19 @@ describe("ECombobox", () => {
     });
     expect(a.container.querySelector("[aria-label=Clear]")).toBeNull();
     a.unmount();
-    const b = await render(ECombobox, { props: { label: "B", options: PEOPLE } });
+    const b = await render(ECombobox, { props: { clearable: true, label: "B", options: PEOPLE } });
     expect(b.container.querySelector("[aria-label=Clear]")).toBeNull();
     b.unmount();
     const c = await render(ECombobox, {
-      props: { label: "C", options: PEOPLE, modelValue: "Priya Nair", disabled: true },
+      props: { clearable: true, label: "C", options: PEOPLE, modelValue: "Priya Nair", disabled: true },
     });
     expect(c.container.querySelector("[aria-label=Clear]")).toBeNull();
   });
 
   test("the toggle button opens and closes the list and is out of the tab order", async () => {
-    const { container } = await render(ECombobox, { props: { label: "Practitioner", options: PEOPLE } });
+    const { container } = await render(ECombobox, {
+      props: { clearable: true, label: "Practitioner", options: PEOPLE },
+    });
     const toggle = page.getByRole("button", { name: "Show options" });
     expect(container.querySelector<HTMLElement>("[aria-label='Show options']")!.tabIndex).toBe(-1);
     await toggle.click();
@@ -296,7 +330,9 @@ describe("ECombobox", () => {
   });
 
   test("an outside press closes the list", async () => {
-    const { container } = await render(ECombobox, { props: { label: "Practitioner", options: PEOPLE } });
+    const { container } = await render(ECombobox, {
+      props: { clearable: true, label: "Practitioner", options: PEOPLE },
+    });
     await page.getByRole("button", { name: "Show options" }).click();
     await expanded(inputOf(container), "true");
     document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
@@ -305,7 +341,13 @@ describe("ECombobox", () => {
 
   test("name submits the value; an object option submits its value, not its label", async () => {
     const { container } = await render(ECombobox, {
-      props: { label: "Clinic", name: "clinic", options: [{ value: "c1", label: "North Clinic" }], modelValue: "c1" },
+      props: {
+        clearable: true,
+        label: "Clinic",
+        name: "clinic",
+        options: [{ value: "c1", label: "North Clinic" }],
+        modelValue: "c1",
+      },
     });
     const hidden = container.querySelectorAll<HTMLInputElement>("input[type=hidden]");
     expect(hidden.length).toBe(1);
@@ -316,7 +358,7 @@ describe("ECombobox", () => {
 
   test("required puts the word and the attribute on the field", async () => {
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, required: true },
+      props: { clearable: true, label: "Practitioner", options: PEOPLE, required: true },
     });
     expect(container.querySelector(".e-field-flag")!.textContent).toBe("Required");
     expect(inputOf(container).required).toBe(true);
@@ -329,6 +371,7 @@ describe("ECombobox", () => {
       defineComponent({
         render: () =>
           h(ECombobox, {
+            clearable: true,
             label: "Practitioner",
             options: PEOPLE,
             modelValue: model.value,
@@ -351,7 +394,9 @@ describe("ECombobox", () => {
   });
 
   test("without v-model it keeps its own value", async () => {
-    const { container } = await render(ECombobox, { props: { label: "Practitioner", options: PEOPLE } });
+    const { container } = await render(ECombobox, {
+      props: { clearable: true, label: "Practitioner", options: PEOPLE },
+    });
     await box("Practitioner").fill("pri");
     await userEvent.keyboard("{Enter}");
     await userEvent.tab();
@@ -360,7 +405,7 @@ describe("ECombobox", () => {
 
   test("a label that arrives later (options fetched after the value) still shows", async () => {
     const { container, rerender } = await render(ECombobox, {
-      props: { label: "Clinic", options: [], modelValue: "c1" },
+      props: { clearable: true, label: "Clinic", options: [], modelValue: "c1" },
     });
     expect(inputOf(container).value).toBe("");
     await (rerender as (p: Record<string, unknown>) => Promise<void>)({
@@ -375,6 +420,7 @@ describe("ECombobox", () => {
     const got: string[] = [];
     const { container } = await render(ECombobox, {
       props: {
+        clearable: true,
         label: "City",
         options: [
           { value: "1", label: "Lyon", group: "France" },
@@ -398,7 +444,7 @@ describe("ECombobox", () => {
 
   test("the chosen option shows bold with a check when the list opens", async () => {
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, modelValue: "Priya Nair" },
+      props: { clearable: true, label: "Practitioner", options: PEOPLE, modelValue: "Priya Nair" },
     });
     await page.getByRole("button", { name: "Show options" }).click();
     await expanded(inputOf(container), "true");
@@ -411,7 +457,7 @@ describe("ECombobox", () => {
 
   test("hint and error come from the field; the hint sits 8px under the control", async () => {
     const { container, rerender } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, hint: "Search by name" },
+      props: { clearable: true, label: "Practitioner", options: PEOPLE, hint: "Search by name" },
     });
     const input = inputOf(container);
     expect(input.getAttribute("aria-describedby")).toBe(container.querySelector(".e-field-hint")!.id);
@@ -431,7 +477,7 @@ describe("ECombobox", () => {
 
   test("disabled: the input is disabled, the field is dashed, the list never opens", async () => {
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, disabled: true },
+      props: { clearable: true, label: "Practitioner", options: PEOPLE, disabled: true },
     });
     expect(inputOf(container).disabled).toBe(true);
     const wrap = container.querySelector(".e-input-wrap")!;
@@ -445,7 +491,7 @@ describe("ECombobox", () => {
     let focused = 0;
     let blurred = 0;
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, hint: "h" },
+      props: { clearable: true, label: "Practitioner", options: PEOPLE, hint: "h" },
       attrs: {
         autocomplete: "name",
         "data-test": "x",
@@ -474,7 +520,12 @@ describe("ECombobox", () => {
     const { container } = await render(
       defineComponent({
         render: () =>
-          h(ECombobox, { label: "Practitioner", options: PEOPLE, ref: (r: unknown) => (api = r as typeof api) }),
+          h(ECombobox, {
+            clearable: true,
+            label: "Practitioner",
+            options: PEOPLE,
+            ref: (r: unknown) => (api = r as typeof api),
+          }),
       }),
     );
     expect(api!.input).toBe(inputOf(container));
@@ -487,7 +538,7 @@ describe("ECombobox", () => {
     target.id = "themed-combo";
     document.body.appendChild(target);
     const { container } = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE },
+      props: { clearable: true, label: "Practitioner", options: PEOPLE },
       global: { plugins: [createEos({ portalTarget: "#themed-combo" })] },
     });
     await page.getByRole("button", { name: "Show options" }).click();
@@ -499,7 +550,7 @@ describe("ECombobox", () => {
 
   test("words come from useMessages", async () => {
     const { container } = await render(ECombobox, {
-      props: { label: "Praticien", options: PEOPLE, modelValue: "Priya Nair" },
+      props: { clearable: true, label: "Praticien", options: PEOPLE, modelValue: "Priya Nair" },
       global: { plugins: [createEos({ messages: { clear: "Effacer", showOptions: "Afficher les options" } })] },
     });
     expect(container.querySelector("[aria-label='Effacer']")).not.toBeNull();
@@ -507,7 +558,9 @@ describe("ECombobox", () => {
   });
 
   test("axe: closed, open, filtered, no matches, loading, invalid, disabled, grouped", async () => {
-    const a = await render(ECombobox, { props: { label: "Practitioner", options: PEOPLE, hint: "Search by name" } });
+    const a = await render(ECombobox, {
+      props: { clearable: true, label: "Practitioner", options: PEOPLE, hint: "Search by name" },
+    });
     await expectNoViolations(a.container);
     await page.getByRole("button", { name: "Show options" }).click();
     await expanded(inputOf(a.container), "true");
@@ -519,21 +572,26 @@ describe("ECombobox", () => {
     await expect.poll(() => document.querySelector(".e-opt-status")).not.toBeNull();
     await expectNoViolations(document.body);
     a.unmount();
-    const b = await render(ECombobox, { props: { label: "Practitioner", options: [], loading: true } });
+    const b = await render(ECombobox, {
+      props: { clearable: true, label: "Practitioner", options: [], loading: true },
+    });
     await box("Practitioner").fill("x");
     await expect.poll(() => document.querySelector(".e-opt-status [role=status]")).not.toBeNull();
     await expectNoViolations(document.body);
     b.unmount();
     const c = await render(ECombobox, {
-      props: { label: "Practitioner", options: PEOPLE, error: "Choose one", modelValue: "Priya Nair" },
+      props: { clearable: true, label: "Practitioner", options: PEOPLE, error: "Choose one", modelValue: "Priya Nair" },
     });
     await expectNoViolations(c.container);
     c.unmount();
-    const d = await render(ECombobox, { props: { label: "Practitioner", options: PEOPLE, disabled: true } });
+    const d = await render(ECombobox, {
+      props: { clearable: true, label: "Practitioner", options: PEOPLE, disabled: true },
+    });
     await expectNoViolations(d.container);
     d.unmount();
     const e = await render(ECombobox, {
       props: {
+        clearable: true,
         label: "City",
         options: [
           { value: "1", label: "Lyon", group: "France", description: "East", icon: "info" },
@@ -549,7 +607,7 @@ describe("ECombobox", () => {
 
   test("a disabled combobox posts nothing through its hidden inputs", async () => {
     const { container } = await render(ECombobox, {
-      props: { label: "Pay", name: "m", options: ["A", "B"], modelValue: "A", disabled: true },
+      props: { clearable: true, label: "Pay", name: "m", options: ["A", "B"], modelValue: "A", disabled: true },
     });
     const form = document.createElement("form");
     form.append(container.firstElementChild!);

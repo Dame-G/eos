@@ -3,18 +3,18 @@ import { computed } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
-import { useSize, type Size } from "../../composables/useSize.js";
+import { useDeprecated, useSize, type Size, type Tone } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
-/** `ink` is another name for `neutral`, kept so existing code works. */
-export type StampTone = "neutral" | "ink" | "success" | "info" | "warning" | "danger";
+/** The tones a stamp takes. `ink` is a deprecated name for `neutral`. */
+export type StampTone = Extract<Tone, "neutral" | "success" | "info" | "warning" | "danger"> | "ink";
 export type StampStatus =
   "paid" | "due" | "overdue" | "action" | "scheduled" | "confirmed" | "cancelled" | "signed" | "pending" | "complete";
 
 const props = defineProps<{
   /** A preset: sets the tone and the word (message `status.<name>`). */
   status?: StampStatus;
-  /** Overrides the preset's tone. Without a `status` the stamp is `neutral` (`ink` is another name for it). `success`, `info`, `warning` and `danger` colour it. */
+  /** Overrides the preset's tone. Without a `status` the stamp is `neutral` (`ink` is a deprecated name for it). `success`, `info`, `warning` and `danger` colour it. */
   tone?: StampTone;
   /** The word. It overrides the preset's, and the default slot overrides both. @default preset's word, else Status */
   label?: string;
@@ -23,8 +23,8 @@ const props = defineProps<{
   /** A date or day count, set after the word. */
   detail?: string;
   /** `sm` is shorter, for rows and tables. */
-  size?: Exclude<Size, "lg">;
-  /** Shorter, for rows and tables. Same as `size="sm"`. */
+  size?: Extract<Size, "sm" | "md">;
+  /** @deprecated Use `size="sm"`. */
   small?: boolean;
   /** Rubber-stamp ink for the one mark on a page that says a thing is final, such as PAID or VOID. Outlined, in `stamp-ink`. Use it once per screen. */
   final?: boolean;
@@ -50,6 +50,7 @@ const PRESETS: Record<StampStatus, StampTone> = {
 
 const t = useMessages();
 const size = useSize(props, "EStamp");
+useDeprecated("EStamp", props, { tone: (v) => (v === "ink" ? 'tone="neutral"' : undefined) });
 const preset = computed(() => (props.status ? PRESETS[props.status] : undefined));
 const tone = computed<StampTone>(() => props.tone || preset.value || "neutral");
 const toneClass = computed(() => (tone.value === "neutral" || tone.value === "ink" ? null : `e-stamp--${tone.value}`));
@@ -81,9 +82,10 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
     gap: var(--e-gap-snug);
     min-height: calc(var(--e-chip-height) + var(--e-gap-tight));
     padding-block: 0;
-    padding-inline: calc(var(--e-pad-chip) - var(--e-slab-bold)) calc(var(--e-pad-chip) - var(--e-stroke-edge));
+    padding-inline: calc(var(--e-pad-chip) - var(--e-stroke-edge) - var(--e-slab-bold))
+      calc(var(--e-pad-chip) - var(--e-stroke-edge));
     border: var(--e-stroke-edge) solid var(--_tone);
-    border-inline-start-width: var(--e-slab-bold);
+    border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-slab-bold));
     border-radius: var(--e-radius-sm);
     background-color: var(--_bg);
     background-clip: padding-box;

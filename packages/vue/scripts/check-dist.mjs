@@ -1,8 +1,10 @@
-// Checks the built stylesheet (dist/style.css) for what the PostCSS plugins in vite.config.ts guarantee, so a plugin that
-// silently stops running fails here. Needs a build. Run: node scripts/check-dist.mjs
-import { existsSync, readFileSync } from "node:fs";
+// Checks the build (dist): the stylesheet keeps what the PostCSS plugins in vite.config.ts guarantee, the development
+// check survives a consumer's bundler, the entry points exist, and the built-in icons tree-shake. Needs a build.
+// Run: node scripts/check-dist.mjs
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import postcss from "postcss";
+import { build } from "vite";
 import { LAYER_ORDER } from "@eos-ui/tokens";
 import { pkgRoot } from "./css-lib.mjs";
 
@@ -67,16 +69,98 @@ const envFile = join(pkgRoot, "dist", "env.js");
 if (!existsSync(envFile)) problems.push("dist/env.js is missing");
 else if (!readFileSync(envFile, "utf8").includes("process.env.NODE_ENV"))
   problems.push("dist/env.js no longer reads process.env.NODE_ENV");
+// Bundle it as a consumer's app would, once per NODE_ENV, and run the result: production must say true, development false.
+// Nothing in the bundle may still read `process`, which a browser does not have.
+if (existsSync(envFile)) {
+  for (const mode of ["production", "development"]) {
+    const out = await build({
+      configFile: false,
+      logLevel: "silent",
+      define: { "process.env.NODE_ENV": JSON.stringify(mode) },
+      build: {
+        write: false,
+        minify: false,
+        lib: { entry: envFile, formats: ["es"], fileName: "env" },
+      },
+    });
+    const code = (Array.isArray(out) ? out[0] : out).output[0].code;
+    if (/\bprocess\b/.test(code)) problems.push(`dist/env.js bundled for ${mode} still reads process: ${code.trim()}`);
+    const { isProduction } = await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`);
+    if (isProduction() !== (mode === "production"))
+      problems.push(`dist/env.js bundled with NODE_ENV=${mode} gives isProduction() === ${isProduction()}`);
+  }
+}
 for (const name of ["plugin.js", "config.js", "env.js"]) {
   const path = join(pkgRoot, "dist", name);
   if (existsSync(path) && readFileSync(path, "utf8").includes("import.meta.env"))
     problems.push(`dist/${name} reads import.meta.env, which the build freezes`);
 }
 
-// 5. The types that augment "vue" are reachable from the package entry.
+// 5. The global component types are opt-in (`@eos-ui/vue/globals`): the package entry must not load them, since the
+// plugin registers no components. `$e` is always set, so its type comes with the entry.
 const indexTypes = join(pkgRoot, "dist", "index.d.ts");
-if (!existsSync(indexTypes) || !readFileSync(indexTypes, "utf8").includes("globals.js"))
-  problems.push("dist/index.d.ts does not load globals.d.ts (GlobalComponents and $e types)");
+const globalsTypes = join(pkgRoot, "dist", "globals.d.ts");
+if (existsSync(indexTypes) && readFileSync(indexTypes, "utf8").includes("globals.js"))
+  problems.push("dist/index.d.ts loads globals.d.ts; the GlobalComponents types are opt-in (@eos-ui/vue/globals)");
+if (!existsSync(globalsTypes) || !readFileSync(globalsTypes, "utf8").includes("GlobalComponents"))
+  problems.push("dist/globals.d.ts is missing or does not declare GlobalComponents");
+if (!existsSync(join(pkgRoot, "dist", "globals.js"))) problems.push("dist/globals.js is missing");
+const pluginTypes = join(pkgRoot, "dist", "plugin.d.ts");
+if (!existsSync(pluginTypes) || !readFileSync(pluginTypes, "utf8").includes("$e"))
+  problems.push("dist/plugin.d.ts does not declare $e");
+
+// 6. The built-in icon set (about 9 kB gzipped) is in a bundle that imports the package entry, and not in one that imports
+// only per-component paths (`@eos-ui/vue/components/EButton`, `@eos-ui/vue/plugin`). The bundler reads the package's
+// `sideEffects`, so the files are bundled from inside the package directory, as a consumer's bundler would see them.
+const iconMarker = readFileSync(join(pkgRoot, "dist", "icons", "phosphor.js"), "utf8").match(/M[0-9.,]{12}/)?.[0];
+const bundleOf = async (code) => {
+  const work = mkdtempSync(join(pkgRoot, "dist", ".shake-"));
+  try {
+    const entry = join(work, "entry.js");
+    writeFileSync(entry, code);
+    const out = await build({
+      configFile: false,
+      logLevel: "silent",
+      root: pkgRoot,
+      define: { "process.env.NODE_ENV": '"production"' },
+      build: {
+        write: false,
+        minify: false,
+        lib: { entry, formats: ["es"], fileName: "entry" },
+        rollupOptions: { external: (id) => !/^[./]|^[A-Za-z]:[\\/]/.test(id) },
+      },
+    });
+    return (Array.isArray(out) ? out[0] : out).output.map((c) => c.code ?? "").join("\n");
+  } finally {
+    rmSync(work, { recursive: true, force: true });
+  }
+};
+// 7. Every component has its own path, `@eos-ui/vue/components/E<Name>` -> dist/components/<Name>/index.js and .d.ts.
+const componentsDir = join(pkgRoot, "src", "components");
+for (const name of readdirSync(componentsDir)) {
+  if (!existsSync(join(componentsDir, name, "index.ts"))) continue;
+  for (const ext of ["js", "d.ts"])
+    if (!existsSync(join(pkgRoot, "dist", "components", name, `index.${ext}`)))
+      problems.push(`dist/components/${name}/index.${ext} is missing (@eos-ui/vue/components/E${name})`);
+}
+
+if (!iconMarker) problems.push("dist/icons/phosphor.js has no path data to look for");
+else {
+  const dist = (p) => JSON.stringify("../" + p);
+  const whole = await bundleOf(`import { EIcon, createEos } from ${dist("index.js")};\nexport { EIcon, createEos };\n`);
+  if (!whole.includes(iconMarker)) problems.push("a bundle of the package entry is missing the built-in icon set");
+  const parts = await bundleOf(
+    `import { EButton } from ${dist("components/Button/index.js")};
+import { createEos } from ${dist("plugin.js")};
+import { lucide } from ${dist("icons/index.js")};
+export { EButton, createEos, lucide };
+`,
+  );
+  if (parts.includes(iconMarker))
+    problems.push(
+      "a bundle of only per-component paths still has the built-in icon set; something imports it statically",
+    );
+}
 
 if (problems.length) {
   console.error(problems.join("\n"));

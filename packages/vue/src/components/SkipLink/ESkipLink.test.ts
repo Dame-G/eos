@@ -4,6 +4,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ESkipLink from "./ESkipLink.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { frames } from "../../../test/frames.js";
 
 const Page = defineComponent({
   props: { href: { type: String, default: undefined } },
@@ -95,7 +96,7 @@ describe("ESkipLink", () => {
     const onError = (e: ErrorEvent) => errors.push(e);
     window.addEventListener("error", onError);
     container.querySelector("a")!.click();
-    await new Promise((r) => setTimeout(r, 20));
+    await frames();
     window.removeEventListener("error", onError);
     expect(errors).toHaveLength(0);
   });

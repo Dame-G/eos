@@ -24,11 +24,11 @@ export const defaultMessages = {
   breadcrumb: "Breadcrumb",
   showFullPath: "Show full path",
   menu: "Menu",
-  stepError: "has an error",
+  stepError: "(has an error)",
   mainNav: "Main",
   progress: "Progress",
   progressLabel: "Progress",
-  done: "done",
+  done: "(done)",
   status: "Status",
   "status.paid": "Paid",
   "status.due": "Due",
@@ -49,8 +49,12 @@ export const defaultMessages = {
   trendUp: "Up {delta}",
   trendDown: "Down {delta}",
   trendFlat: "No change",
+  /** @deprecated Use `dropFile`. Still read when you translated it and not `dropFile`. */
   dragHere: "Drag a file here or",
+  /** The dropzone prompt. `{choose}` is where the "choose one" link text (`chooseOne`) goes. */
+  dropFile: "Drag a file here or {choose}",
   chooseOne: "choose one",
+  readOnly: "Read only",
   signature: "Signature",
   typeName: "Type your full name",
   fullName: "Full name",
@@ -165,6 +169,7 @@ export const defaultMessages = {
   editItem: "Edit {label}",
   phone: "Phone number",
   toastRegion: "Notifications",
+  /** @deprecated Toasts use `dismiss`, as notices do. A `closeToast` you set still names a toast's dismiss button. */
   closeToast: "Close notification",
   sidebar: "Sidebar",
 } as const;

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- the grid is generic over the row, which the tests leave open */
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -7,6 +7,7 @@ import EDataGrid from "./EDataGrid.vue";
 import { createEos } from "../../plugin.js";
 import type { DataGridColumn, DataGridSort } from "./types.js";
 import { expectNoViolations } from "../../../test/axe.js";
+import { frames } from "../../../test/frames.js";
 
 type Row = { id: number | string; n: string; a: number; s?: string };
 const ROWS: Row[] = [
@@ -24,7 +25,6 @@ const FILTER_COLS: DataGridColumn<Row>[] = [
   { key: "a", label: "Amount", numeric: true, filter: { type: "number" } },
 ];
 
-const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const grid = (opts: { props: Record<string, unknown>; slots?: Record<string, unknown> }) =>
   render(EDataGrid as any, { ...opts, props: { cards: false, ...opts.props } } as any);
 const bodyRows = (c: Element) => [...c.querySelectorAll("tbody tr:not(.e-spacer)")] as HTMLElement[];
@@ -36,7 +36,6 @@ async function typeInto(el: HTMLInputElement, text: string) {
   el.value = text;
   el.dispatchEvent(new Event("input", { bubbles: true }));
   await nextTick();
-  await wait(20);
 }
 function boxed(width: number, props: Record<string, unknown>) {
   return defineComponent({
@@ -60,24 +59,20 @@ describe("EDataGrid", () => {
     const th = () => container.querySelectorAll("th")[1]!;
     expect(th().getAttribute("aria-sort")).toBe("none");
     (th().querySelector("button") as HTMLButtonElement).click();
-    await wait(30);
-    expect(th().getAttribute("aria-sort")).toBe("ascending");
+    await expect.poll(() => th().getAttribute("aria-sort")).toBe("ascending");
     expect(names(container)).toEqual(["Alpha", "Beta", "Gamma"]);
     (th().querySelector("button") as HTMLButtonElement).click();
-    await wait(30);
-    expect(th().getAttribute("aria-sort")).toBe("descending");
+    await expect.poll(() => th().getAttribute("aria-sort")).toBe("descending");
     expect(names(container)).toEqual(["Gamma", "Beta", "Alpha"]);
     (th().querySelector("button") as HTMLButtonElement).click();
-    await wait(30);
-    expect(th().getAttribute("aria-sort")).toBe("none");
+    await expect.poll(() => th().getAttribute("aria-sort")).toBe("none");
     expect(names(container)).toEqual(["Beta", "Alpha", "Gamma"]);
     await typeInto(input(container.querySelector(".e-grid-search input")), "alp");
     expect(names(container)).toEqual(["Alpha"]);
     expect(container.querySelector("td[data-label]")).not.toBeNull();
     await typeInto(input(container.querySelector(".e-grid-search input")), "");
     (container.querySelector("thead .e-check") as HTMLInputElement).click();
-    await wait(30);
-    expect(picked.at(-1)!.length).toBe(3);
+    await expect.poll(() => picked.at(-1)!.length).toBe(3);
   });
 
   test("is a real table: a caption, column headers with scope, cells; a named region only while it scrolls", async () => {
@@ -118,8 +113,7 @@ describe("EDataGrid", () => {
     });
     expect(names(container)).toEqual(["item 2", "item 10", "item 1"]);
     (container.querySelectorAll("th")[0]!.querySelector("button") as HTMLButtonElement).click();
-    await wait(30);
-    expect(names(container)).toEqual(["item 1", "item 2", "item 10"]);
+    await expect.poll(() => names(container)).toEqual(["item 1", "item 2", "item 10"]);
   });
 
   test("keyboard: Enter and Space on a heading sort it, and the change is announced", async () => {
@@ -153,12 +147,10 @@ describe("EDataGrid", () => {
     );
     expect(names(container)).toEqual(["Gamma", "Beta", "Alpha"]);
     (container.querySelectorAll("th")[1]!.querySelector("button") as HTMLButtonElement).click();
-    await wait(30);
-    expect(sort.value).toEqual({ key: "a", dir: "asc" });
+    await expect.poll(() => sort.value).toEqual({ key: "a", dir: "asc" });
     expect(names(container)).toEqual(["Gamma", "Beta", "Alpha"]);
     sort.value = null;
-    await wait(30);
-    expect(names(container)).toEqual(["Beta", "Alpha", "Gamma"]);
+    await expect.poll(() => names(container)).toEqual(["Beta", "Alpha", "Gamma"]);
   });
 
   test("a heading that is not sortable is plain text without aria-sort", async () => {
@@ -180,8 +172,7 @@ describe("EDataGrid", () => {
     await typeInto(input(page.getByLabelText("Filter Name").element()), "alp");
     expect(names(container)).toEqual(["Alpha"]);
     await page.getByRole("button", { name: "Clear filters" }).first().click();
-    await wait(30);
-    expect(names(container)).toEqual(["Beta", "Alpha", "Gamma"]);
+    await expect.poll(() => names(container)).toEqual(["Beta", "Alpha", "Gamma"]);
     expect(container.querySelector<HTMLInputElement>('input[type="search"]')!.value).toBe("");
 
     await typeInto(input(page.getByLabelText("Filter Amount minimum").element()), "5");
@@ -253,8 +244,7 @@ describe("EDataGrid", () => {
     const clear = container.querySelector(".e-grid-empty button") as HTMLButtonElement;
     expect(clear.textContent).toContain("Clear filters");
     clear.click();
-    await wait(30);
-    expect(names(container)).toEqual(["Beta", "Alpha", "Gamma"]);
+    await expect.poll(() => names(container)).toEqual(["Beta", "Alpha", "Gamma"]);
   });
 
   test("loading shows placeholder rows and marks the table busy", async () => {
@@ -295,15 +285,12 @@ describe("EDataGrid", () => {
     expect(all.checked).toBe(false);
     expect(all.closest("label")!.textContent).toContain("Select all rows on this page");
     (rows[0]!.querySelector(".e-check") as HTMLInputElement).click();
-    await wait(30);
-    expect(selected.value.sort()).toEqual([1, 2]);
+    await expect.poll(() => selected.value.sort()).toEqual([1, 2]);
     all.click();
-    await wait(30);
-    expect(selected.value.sort()).toEqual([1, 2, 3]);
+    await expect.poll(() => selected.value.sort()).toEqual([1, 2, 3]);
     expect(all.checked).toBe(true);
     all.click();
-    await wait(30);
-    expect(selected.value).toEqual([]);
+    await expect.poll(() => selected.value).toEqual([]);
     expect(container.querySelector(".e-grid-count")).toBeNull();
   });
 
@@ -318,15 +305,12 @@ describe("EDataGrid", () => {
       },
     });
     (container.querySelector("thead .e-check") as HTMLInputElement).click();
-    await wait(30);
-    expect(container.querySelector(".e-grid-count")!.textContent).toBe("10 selected");
+    await expect.poll(() => container.querySelector(".e-grid-count")!.textContent).toBe("10 selected");
     await page.getByRole("button", { name: "Next" }).click();
-    await wait(30);
-    expect(names(container)[0]).toBe("Row 10");
+    await expect.poll(() => names(container)[0]).toBe("Row 10");
     expect((container.querySelector("thead .e-check") as HTMLInputElement).checked).toBe(false);
     (container.querySelector("tbody .e-check") as HTMLInputElement).click();
-    await wait(30);
-    expect(container.querySelector(".e-grid-count")!.textContent).toBe("11 selected");
+    await expect.poll(() => container.querySelector(".e-grid-count")!.textContent).toBe("11 selected");
   });
 
   test("paging: a range line, Pagination, page size, v-model:page, and the page is clamped when rows shrink", async () => {
@@ -351,13 +335,11 @@ describe("EDataGrid", () => {
     expect(bodyRows(container).length).toBe(10);
     // The page list may be hidden when the pager is narrow, so press the button itself.
     container.querySelector<HTMLElement>('.e-pager [aria-label="Page 3"]')!.click();
-    await wait(30);
-    expect(pageNo.value).toBe(3);
+    await expect.poll(() => pageNo.value).toBe(3);
     expect(names(container)).toHaveLength(5);
     expect(container.querySelector(".e-grid-range")!.textContent).toMatch(/^Showing 21\D+25 of 25$/);
     rows.value = bigRows(12);
-    await wait(30);
-    expect(pageNo.value).toBe(2);
+    await expect.poll(() => pageNo.value).toBe(2);
     expect(names(container)).toEqual(["Row 10", "Row 11"]);
     await typeInto(input(container.querySelector(".e-grid-search input")), "Row 1");
     expect(pageNo.value).toBe(1);
@@ -459,7 +441,7 @@ describe("EDataGrid", () => {
     await expect.poll(() => colWidth()).toBe("100px");
     window.dispatchEvent(new PointerEvent("pointerup"));
     window.dispatchEvent(new PointerEvent("pointermove", { clientX: x + 300 }));
-    await wait(30);
+    await frames();
     expect(colWidth()).toBe("100px");
     expect(container.querySelector("table")!.classList.contains("e-gridtable--fixed")).toBe(true);
     expect(getComputedStyle(container.querySelector("table")!).tableLayout).toBe("fixed");
@@ -566,6 +548,21 @@ describe("EDataGrid", () => {
     }
   });
 
+  test("cards: filterable shows labelled filters above the cards, and they filter", async () => {
+    const { container } = await render(
+      boxed(320, { caption: "T", columns: FILTER_COLS, rows: ROWS, filterable: true }),
+    );
+    await expect.poll(() => container.querySelector(".e-grid-filters")).not.toBeNull();
+    expect(container.querySelector(".e-filterrow")).toBeNull();
+    expect(container.querySelector(".e-grid-filters")!.closest("thead")).toBeNull();
+    await expect.element(page.getByRole("searchbox", { name: "Name" })).toBeVisible();
+    await expect.element(page.getByRole("combobox", { name: "Status" })).toBeVisible();
+    await expect.element(page.getByRole("textbox", { name: "Amount minimum" })).toBeVisible();
+    await typeInto(input(container.querySelector(".e-grid-filters input[type=search]")), "alp");
+    expect(names(container)).toEqual(["Alpha"]);
+    await expectNoViolations(container);
+  });
+
   test("cards: a fixed column width does not hold the card wider than its container", async () => {
     const { container } = await render(
       boxed(320, { caption: "T", columns: [{ key: "n", label: "Name", width: 500 }], rows: ROWS }),
@@ -648,15 +645,26 @@ describe("EDataGrid", () => {
     expect(names(container)).toEqual(["Beta", "Alpha"]);
   });
 
-  test("bare: a bare table without toolbar, filters, paging or footer", async () => {
+  test("bare (deprecated): a bare table without toolbar, filters, paging or footer", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const { container } = await grid({
       props: { caption: "T", columns: FILTER_COLS, rows: bigRows(30), bare: true, searchable: true, filterable: true },
     });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("`bare` is deprecated"));
+    warn.mockRestore();
     expect(container.querySelector(".e-grid--bare")).not.toBeNull();
     expect(container.querySelector(".e-grid-bar")).toBeNull();
     expect(container.querySelector(".e-filterrow")).toBeNull();
     expect(container.querySelector(".e-grid-foot")).toBeNull();
     expect(bodyRows(container).length).toBe(30);
+  });
+
+  test("bare is deprecated: it warns once in development, pointing to ETable", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await grid({ props: { caption: "T", columns: COLS, rows: ROWS, bare: true } });
+    expect(warn.mock.calls.filter(([m]) => String(m).includes("bare"))).toHaveLength(1);
+    expect(String(warn.mock.calls[0]![0])).toContain("ETable");
+    warn.mockRestore();
   });
 
   test("toolbar slot and attribute fall-through", async () => {
@@ -695,10 +703,10 @@ describe("EDataGrid", () => {
       await typeInto(input(page.getByLabelText("Filter Name").element()), "a");
       await expectNoViolations(container);
       (container.querySelector("tbody .e-check") as HTMLInputElement).click();
-      await wait(30);
+      await expect.poll(() => container.querySelector(".e-grid-count")?.textContent).toMatch(/selected/);
       await expectNoViolations(container);
       (container.querySelector("thead .e-check") as HTMLInputElement).click();
-      await wait(30);
+      await frames();
       await expectNoViolations(container);
     });
 
@@ -748,7 +756,7 @@ describe("EDataGrid", () => {
   test("a client-side grid does not report a query on mount", async () => {
     const queries: unknown[] = [];
     await grid({ props: { caption: "T", columns: COLS, rows: ROWS, onQueryChange: (q: unknown) => queries.push(q) } });
-    await wait(30);
+    await frames();
     expect(queries).toEqual([]);
   });
 
@@ -778,6 +786,32 @@ describe("EDataGrid", () => {
     expect(queries[2]).toMatchObject({ sort: { key: "a", dir: "asc" }, search: "alp" });
   });
 
+  test("manual: searchDebounce also waits for a pause in typing in a column filter", async () => {
+    const queries: any[] = [];
+    const { container } = await grid({
+      props: {
+        caption: "T",
+        columns: FILTER_COLS,
+        rows: ROWS,
+        manual: true,
+        filterable: true,
+        searchDebounce: 120,
+        onQueryChange: (q: unknown) => queries.push(q),
+      },
+    });
+    expect(queries).toHaveLength(1);
+    const box = input(container.querySelector(".e-filterrow input[type=search]"));
+    await typeInto(box, "a");
+    await typeInto(box, "al");
+    await typeInto(box, "alp");
+    expect(queries).toHaveLength(1);
+    await expect.poll(() => queries.length).toBe(2);
+    expect(queries[1]).toMatchObject({ filters: { n: "alp" }, page: 1 });
+    (container.querySelectorAll("th")[0]!.querySelector("button") as HTMLButtonElement).click();
+    await expect.poll(() => queries.length).toBe(3);
+    expect(queries[2]).toMatchObject({ sort: { key: "n", dir: "asc" }, filters: { n: "alp" } });
+  });
+
   test("selected keeps the id type of the rows: numbers stay numbers", async () => {
     const picked: unknown[][] = [];
     const { container } = await grid({
@@ -793,8 +827,7 @@ describe("EDataGrid", () => {
     const boxes = () => [...container.querySelectorAll<HTMLInputElement>("tbody input[type=checkbox]")];
     expect(boxes().map((b) => b.checked)).toEqual([false, true]);
     boxes()[0]!.click();
-    await wait(30);
-    expect([...picked.at(-1)!].sort()).toEqual([1, 2]);
+    await expect.poll(() => [...picked.at(-1)!].sort()).toEqual([1, 2]);
     expect(picked.at(-1)!.every((id) => typeof id === "number")).toBe(true);
   });
 
@@ -811,8 +844,7 @@ describe("EDataGrid", () => {
       },
     });
     container.querySelector<HTMLInputElement>("tbody input[type=checkbox]")!.click();
-    await wait(30);
-    expect([...picked.at(-1)!].sort()).toEqual([1, 99]);
+    await expect.poll(() => [...picked.at(-1)!].sort()).toEqual([1, 99]);
   });
 
   test("default cells write dates, numbers and currency in the configured locale; format overrides", async () => {
@@ -947,7 +979,6 @@ describe("EDataGrid", () => {
   test("the Columns menu is a dialog named by its trigger, with no patched attributes", async () => {
     await grid({ props: { caption: "T", columns: COLS, rows: ROWS, columnToggle: true } });
     await page.getByRole("button", { name: "Choose columns" }).click();
-    await wait(80);
     await expect.element(page.getByRole("dialog", { name: "Choose columns" })).toBeVisible();
   });
 
@@ -955,10 +986,9 @@ describe("EDataGrid", () => {
     const { container } = await grid({
       props: { caption: "T", columns: FILTER_COLS, rows: ROWS, filterable: true, maxHeight: "200px" },
     });
-    await wait(60);
-    const head = container.querySelector<HTMLElement>("thead tr")!.getBoundingClientRect().height;
+    const head = () => container.querySelector<HTMLElement>("thead tr")!.getBoundingClientRect().height;
     const filter = container.querySelector<HTMLElement>(".e-filterrow td")!;
-    expect(parseFloat(getComputedStyle(filter).top)).toBeCloseTo(head, 0);
+    await expect.poll(() => Math.round(parseFloat(getComputedStyle(filter).top) - head())).toBe(0);
   });
 
   test("resizer: aria-valuemax, Escape restores the starting width, pointercancel ends a drag, unmount lets go", async () => {
@@ -990,7 +1020,7 @@ describe("EDataGrid", () => {
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
     await expect.poll(() => colWidth()).toBe("2000px");
     window.dispatchEvent(new PointerEvent("pointermove", { clientX: x + 50 }));
-    await wait(30);
+    await frames();
     expect(colWidth()).toBe("2000px");
     expect(document.body.style.cursor).toBe("");
     // A cancelled pointer (a touch taken over by scrolling) stops the drag where it is... and back at the start.
@@ -1000,7 +1030,7 @@ describe("EDataGrid", () => {
     window.dispatchEvent(new PointerEvent("pointercancel"));
     await expect.poll(() => colWidth()).toBe("2000px");
     window.dispatchEvent(new PointerEvent("pointermove", { clientX: x + 90 }));
-    await wait(30);
+    await frames();
     expect(colWidth()).toBe("2000px");
     // Escape on the focused edge goes back to the width it had when focused.
     sep.focus();
@@ -1059,6 +1089,8 @@ describe("EDataGrid", () => {
         props: { caption: "T", columns: COLS, rows: [], error: true, onRetry: () => retries++ },
       });
       expect(container.textContent).toContain("The data could not be loaded.");
+      // The EOS name "alert", which every icon set maps, so the built-in set draws it too.
+      expect(container.querySelector(".e-empty-icon .e-icon")).not.toBeNull();
       await page.getByRole("button", { name: "Try again" }).click();
       expect(retries).toBe(1);
       const own = await grid({ props: { caption: "T", columns: COLS, rows: [], error: "Offline" } });
@@ -1080,6 +1112,11 @@ describe("EDataGrid", () => {
       { key: "s", label: "Status", filter: { type: "select", options: ["paid", "due"] } },
       { key: "a", label: "Amount", numeric: true, sortable: true },
     ];
+    // Narrow, the grid turns to cards once it has measured itself; then the layout is settled.
+    const laidOut = async (c: Element) => {
+      await expect.poll(() => c.querySelector("thead")?.hasAttribute("inert")).toBe(true);
+      await frames();
+    };
     const phone = () =>
       render(
         boxed(343, {
@@ -1097,7 +1134,7 @@ describe("EDataGrid", () => {
 
     test("nothing overflows sideways at 343px: toolbar controls and the footer fit and align", async () => {
       const { container } = await phone();
-      await wait(80);
+      await laidOut(container);
       const box = container.firstElementChild!.getBoundingClientRect();
       const inside = (el: Element) => {
         const r = el.getBoundingClientRect();
@@ -1117,7 +1154,7 @@ describe("EDataGrid", () => {
 
     test("the footer stacks the pager above its range, with Previous and Next on one line", async () => {
       const { container } = await phone();
-      await wait(80);
+      await laidOut(container);
       const pager = container.querySelector(".e-pager")!.getBoundingClientRect();
       const range = container.querySelector(".e-grid-range")!.getBoundingClientRect();
       expect(pager.bottom).toBeLessThanOrEqual(range.top + 0.5);
@@ -1132,9 +1169,13 @@ describe("EDataGrid", () => {
   test("the scroller carries the frame's corners where it meets them, so the frame's clip cannot cut its focus ring", async () => {
     const corner = (el: Element, which: string) =>
       parseFloat(getComputedStyle(el).getPropertyValue(`border-${which}-radius`));
+    // Only a bare grid has no foot, so its scroller meets the frame at all four corners. bare is deprecated, and says so.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const { container } = await grid({
       props: { columns: COLS, rows: ROWS, caption: "Invoices", bare: true, maxHeight: "3rem" },
     });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("`bare` is deprecated"));
+    warn.mockRestore();
     container.classList.add("e-root");
     const frame = container.querySelector(".e-grid-frame")!;
     const scroll = container.querySelector(".e-grid-scroll")!;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { watchEffect } from "vue";
 import {
   ConfigProvider,
   DropdownMenuContent,
@@ -12,7 +12,8 @@ import EIcon from "../Icon/EIcon.vue";
 import EMenuItems from "./EMenuItems.vue";
 import type { IconProp } from "../../icons/types.js";
 import { usePortalTarget } from "../../config.js";
-import { useDir } from "../../composables/useDir.js";
+import { isProduction } from "../../env.js";
+import { useDir, useLogicalSide } from "../../composables/useDir.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import "../../styles/base.css";
 import "../Select/panel.css";
@@ -88,7 +89,7 @@ const props = withDefaults(
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
     /** An icon before the label. */
     icon?: IconProp;
-    /** Which side of the trigger the menu opens on. It flips to the other side when there is no room. `start` and `end` follow the reading direction. */
+    /** Which side of the trigger the menu opens on. It flips to the other side when there is no room. `start` and `end` follow the reading direction. `left` and `right` are deprecated: they still work, on that physical side in either direction, and warn in development. Use `start` and `end`. */
     side?: "bottom" | "top" | "start" | "end" | "left" | "right";
     /** Which edge of the trigger the menu's edge lines up with: `start` with the trigger's start, `end` with its end (it suits a trigger at the end of a bar), `center` with its middle. */
     align?: "start" | "center" | "end";
@@ -118,11 +119,10 @@ const open = defineModel<boolean>("open", { default: false });
 const portal = usePortalTarget();
 const dir = useDir();
 
-const placement = computed(() => {
-  const rtl = dir.value === "rtl";
-  if (props.side === "start") return rtl ? "right" : "left";
-  if (props.side === "end") return rtl ? "left" : "right";
-  return props.side;
+const placement = useLogicalSide(() => props.side);
+watchEffect(() => {
+  if ((props.side === "left" || props.side === "right") && !isProduction())
+    console.warn(`[eos] EMenu side="${props.side}" is deprecated. Use "${props.side === "left" ? "start" : "end"}".`);
 });
 
 /*
@@ -193,7 +193,7 @@ function returnFocus(event: Event) {
   .e-menu {
     width: max-content;
     min-width: 12rem;
-    max-width: min(20rem, calc(100vw - 2 * var(--e-gap-loose)));
+    max-width: min(var(--e-size-panel-sm), calc(100vw - 2 * var(--e-gap-loose)));
     padding: var(--e-gap-tight);
   }
 

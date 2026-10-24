@@ -1,6 +1,6 @@
 # EStepper
 
-Shows where a person is in a multi-step flow such as registration. It displays progress and does not navigate.
+Shows where a person is in a multi-step flow such as registration. It displays progress and does not navigate. Use [`EProgress`](../Progress/README.md) for a single bar of progress.
 
 ```vue
 <EStepper
@@ -36,17 +36,17 @@ Shows where a person is in a multi-step flow such as registration. It displays p
 
 ## Accessibility
 
-- An ordered list. The current step has `aria-current="step"`, done steps are read as "(done)" and a step in `error` as "(has an error)". An `optional` step shows "Optional" under its label.
-- With `interactive` each step is a `button`; `aria-current` moves to the button of the current step and a `disabled` step is skipped.
+- An ordered list. The current step has `aria-current="step"`, done steps are read with the `done` message, "(done)", and a step in `error` with `stepError`, "(has an error)". The brackets are part of the messages, so a translation can drop them. An `optional` step shows "Optional" under its label.
+- With `interactive` each step is a `button`; `aria-current` moves to the button of the current step and a `disabled` step is `aria-disabled`: dimmed, still in the Tab order, and choosing it does nothing, as with a pager's dimmed step.
 
 ## Keyboard
 
 A display-only stepper takes no keys. With `interactive`:
 
-| Key          | Action                                         |
-| ------------ | ---------------------------------------------- |
-| Tab          | Moves to the next step that is not `disabled`. |
-| Enter, Space | Chooses the focused step and emits `select`.   |
+| Key          | Action                                                                |
+| ------------ | --------------------------------------------------------------------- |
+| Tab          | Moves to the next step, `disabled` ones too.                          |
+| Enter, Space | Chooses the focused step and emits `select`, unless it is `disabled`. |
 
 ## Related
 

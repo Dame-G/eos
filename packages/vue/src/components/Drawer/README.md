@@ -23,8 +23,8 @@ A side panel that slides in from an edge, for reading something beside the list,
 | `side`         | `"end" \| "start" \| "bottom" \| "right" \| "left"` | `"end"`      | The edge it slides in from. `end` is the right in a left-to-right page, `start` the left, and both flip in a right-to-left page. `bottom` gives a sheet that suits phones. `right` and `left` are deprecated names for `end` and `start`. |
 | `size`         | `"sm" \| "md" \| "lg"`                              | `"sm"`       | The width of a side drawer: `sm`, `md` or `lg`. A `bottom` sheet is always full width.                                                                                                                                                    |
 | `initialFocus` | `string`                                            | None         | A CSS selector for the element that takes focus when it opens. Without it, an element marked `data-autofocus` does; an `alertdialog` falls back to its least destructive action and any other drawer to its first control.                |
-| `dismissible`  | `boolean`                                           | `false`      | Closes the drawer when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work.                                                                                                           |
-| `inline`       | `boolean`                                           | `false`      | Shows the drawer in the page, without the backdrop or the focus trap, for a preview.                                                                                                                                                      |
+| `dismissible`  | `boolean`                                           | `false`      | Closes the drawer when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. A press on a toast does not count.                                                                        |
+| `inline`       | `boolean`                                           | `false`      | Shows the drawer in the page, without the backdrop or the focus trap, for a preview. Escape and presses outside leave it open.                                                                                                            |
 
 <!-- props:end -->
 
@@ -46,7 +46,6 @@ A side panel that slides in from an edge, for reading something beside the list,
 ## Accessibility
 
 - A `role="dialog"` named by its title. Focus is trapped while open and returns to the opener.
-- Escape closes it.
 - `description` shows a sentence under the title and sets `aria-describedby` to it. Without one the attribute is left off. An `aria-describedby` you pass yourself is kept.
 - `role="alertdialog"` is available as on [`EDialog`](../Dialog/README.md).
 - The slide takes its length from the `--e-duration-move` token, so the `motion` presets apply, and it stops moving under `prefers-reduced-motion`.

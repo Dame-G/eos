@@ -43,12 +43,11 @@ A slot named by the bare `id` (`#open`) still works for ids other than `panel` a
 
 ## Accessibility
 
-- Arrow Left and Right (Arrow Up and Down when `vertical`) select the previous or next tab, wrapping. Home and End go to the first and last tab. Tab moves into the panel.
 - `count` is part of the tab's accessible name ("Open 3").
 
 ## Keyboard
 
-| Key                     | Does                                                                    |
+| Key                     | Action                                                                  |
 | ----------------------- | ----------------------------------------------------------------------- |
 | Tab                     | Moves from the selected tab into its panel.                             |
 | Arrow Left, Arrow Right | Selects the previous or next tab, wrapping (reversed in right-to-left). |

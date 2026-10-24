@@ -3,8 +3,9 @@ import EActions from "../Actions/EActions.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import ESurface from "../Surface/ESurface.vue";
-import { useMessages } from "../../config.js";
+import { useConfig, useMessages } from "../../config.js";
 import type { IconProp } from "../../icons/types.js";
+import type { ToastTone } from "../../composables/useToast.js";
 import "../../styles/base.css";
 import "../Notice/notice.css";
 
@@ -12,8 +13,8 @@ withDefaults(
   defineProps<{
     /** What happened, in a few words. */
     title: string;
-    /** `danger` is announced at once and the other tones politely. */
-    tone?: "info" | "success" | "warning" | "danger";
+    /** `danger` is announced at once and the other tones politely. `neutral` is for news that is neither good nor bad. */
+    tone?: ToastTone;
     /** Replaces the icon of the tone. */
     icon?: IconProp;
     /** Shows the dismiss button. */
@@ -37,12 +38,21 @@ defineSlots<{
 }>();
 
 const t = useMessages();
-const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "alert" } as const;
+const config = useConfig();
+/** Toasts and notices share the `dismiss` message. A `closeToast` set before that still names the toast's button. */
+const dismissLabel = () => (config.messages.closeToast as string | undefined) ?? t("dismiss");
+const TONE_ICON: Record<ToastTone, string> = {
+  neutral: "info",
+  info: "info",
+  success: "check",
+  warning: "alert",
+  danger: "alert",
+};
 </script>
 
 <template>
   <ESurface
-    raised
+    variant="raised"
     flush
     class="e-toast"
     :class="[`e-toast--${tone}`, $slots.action && 'e-toast--actions']"
@@ -56,7 +66,7 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
       </div>
       <EActions v-if="$slots.action" class="e-notice-actions"><slot name="action" /></EActions>
       <span v-if="closable" class="e-notice-dismiss">
-        <EIconButton icon="x" :label="t('closeToast')" @click="emit('close')" />
+        <EIconButton icon="x" :label="dismissLabel()" @click="emit('close')" />
       </span>
     </div>
   </ESurface>
@@ -64,19 +74,24 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
 
 <style>
 @layer e.containers {
-  /* The slab on the tone's side: the inline-start border, `slab-bold` thick, in the colour of the tone's edge. It flips in a right-to-left page. */
+  /* The slab on the tone's side: the inline-start border, `stroke-edge` plus `slab-bold` thick as on a Notice and a Stamp, in the colour of the tone's edge. It flips in a right-to-left page. */
   .e-toast {
     --e-tone: var(--e-info);
 
     position: relative;
     container-type: inline-size;
-    width: min(24rem, 100%);
+    width: min(var(--e-size-panel-sm), 100%);
     padding: var(--e-gap-base) var(--e-pad-card);
-    border-inline-start: var(--e-slab-bold) solid var(--e-tone);
+    border-inline-start: calc(var(--e-stroke-edge) + var(--e-slab-bold)) solid var(--e-tone);
   }
 
   .e-toast--actions {
+    /* Wider than the notice's 36rem container step plus padding, so the action sits at the end of the row. */
     width: min(40rem, 100%);
+  }
+
+  .e-toast--neutral {
+    --e-tone: var(--e-muted);
   }
 
   .e-toast--success {
@@ -98,14 +113,14 @@ const TONE_ICON = { info: "info", success: "check", warning: "alert", danger: "a
 
   .e-toast-text {
     margin: 0;
-    font: var(--e-weight-regular) var(--e-text-sm) / 1.45 var(--e-font-sans);
+    font: var(--e-type-small);
     color: var(--e-muted);
   }
 
   @media (forced-colors: active) {
     .e-toast {
       border: var(--e-stroke-card) solid CanvasText;
-      border-inline-start-width: var(--e-slab-bold);
+      border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-slab-bold));
     }
   }
 }

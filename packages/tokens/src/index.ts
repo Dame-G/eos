@@ -31,4 +31,4 @@ export {
   parseHex,
   toHex,
 } from "./color.js";
-export { usage, derivedFrom, constants, inputTokens } from "./generated/defaults.js";
+export { usage, derivedFrom, constants, inputTokens, deprecated } from "./generated/defaults.js";

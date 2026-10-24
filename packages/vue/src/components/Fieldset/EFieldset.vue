@@ -4,6 +4,7 @@ import EFieldFlag from "../Field/EFieldFlag.vue";
 import EFieldMessage from "../Field/EFieldMessage.vue";
 import { isProduction } from "../../env.js";
 import { useUid } from "../../composables/useUid.js";
+import { useFormField } from "../../composables/useFormContext.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
@@ -27,7 +28,7 @@ const props = defineProps<{
   legendClass?: string;
   /** Hides the legend from the page and keeps it for screen readers. */
   hideLegend?: boolean;
-  /** The id the hint and error ids are built from. @default generated */
+  /** The id of the `fieldset`, which an `EForm` summary links to. The hint and error ids are built from it. @default generated */
   id?: string;
 }>();
 
@@ -40,6 +41,12 @@ const id = useUid(() => props.id);
 const hintId = computed(() => `${id.value}-hint`);
 
 const attrs = useAttrs();
+// The group's error is listed in the summary of the EForm around it, linked to the group.
+useFormField({
+  id: () => id.value,
+  label: () => props.legend || (attrs["aria-label"] as string | undefined) || "",
+  error: () => props.error,
+});
 if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isProduction()) {
   console.warn("[eos] EFieldset has no name. Give it a `legend`, or an `aria-label` or `aria-labelledby`.");
 }
@@ -47,6 +54,7 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
 
 <template>
   <fieldset
+    :id="id"
     class="e-fieldset"
     :class="{ 'e-fieldset--box': !bare && !section, 'e-fieldset--section': section }"
     :disabled="disabled"

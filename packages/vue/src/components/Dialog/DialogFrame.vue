@@ -14,6 +14,7 @@ import EActions from "../Actions/EActions.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
+import { useScrollBody } from "../../composables/useScrollBody.js";
 import "../../styles/base.css";
 import "../Heading/scale.css";
 import "./dialog.css";
@@ -51,6 +52,7 @@ const open = defineModel<boolean>("open");
 const t = useMessages();
 const target = usePortalTarget();
 const dir = useDir();
+const scrollBody = useScrollBody();
 
 /** An inline preview is part of the page, so it leaves focus alone: it does not take it when it opens, and does not send it back to wherever it was when it closes. Sending it back could land on a tab or link and activate it. */
 function keepFocus(event: Event) {
@@ -83,6 +85,22 @@ const describedby = computed(() =>
   props.description || attrs["aria-describedby"] ? {} : { "aria-describedby": undefined },
 );
 
+/**
+ * A press outside the panel closes a dismissible dialog. A press on a toast is not one: the toasts float over the
+ * dialog, and dismissing one must leave the dialog open. An inline preview is part of the page, so nothing outside it
+ * (a press, or focus moving on) closes it.
+ */
+function onInteractOutside(event: CustomEvent<{ originalEvent?: Event }>) {
+  const hit = event.detail?.originalEvent?.target ?? event.target;
+  const onToast = hit instanceof Element && !!hit.closest(".e-toast-region");
+  if (props.inline || !props.dismissible || onToast) event.preventDefault();
+}
+
+/** Reka listens for Escape on the whole window. An inline preview is not a layer over the page, so Escape leaves it. */
+function onEscape(event: KeyboardEvent) {
+  if (props.inline) event.preventDefault();
+}
+
 function setOpen(value: boolean) {
   open.value = value;
   if (!value) emit("close");
@@ -90,7 +108,7 @@ function setOpen(value: boolean) {
 </script>
 
 <template>
-  <ConfigProvider :dir="dir">
+  <ConfigProvider :dir="dir" :scroll-body="scrollBody">
     <DialogRoot :open="!!open" :modal="!inline" :dir="dir" @update:open="setOpen">
       <DialogPortal :to="target" :disabled="inline">
         <div class="e-root">
@@ -99,7 +117,8 @@ function setOpen(value: boolean) {
             :role="role"
             v-bind="{ ...describedby, ...$attrs }"
             :class="contentClass"
-            @interact-outside="(e) => !dismissible && e.preventDefault()"
+            @interact-outside="onInteractOutside"
+            @escape-key-down="onEscape"
             @open-auto-focus="focusInitial"
             @close-auto-focus="keepFocus"
           >

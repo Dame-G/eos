@@ -17,7 +17,14 @@ import EDialog from "../src/components/Dialog/EDialog.vue";
 import EMenu from "../src/components/Menu/EMenu.vue";
 import EPagination from "../src/components/Pagination/EPagination.vue";
 import ECalendar from "../src/components/Calendar/ECalendar.vue";
+import ETag from "../src/components/Tag/ETag.vue";
+import EStamp from "../src/components/Stamp/EStamp.vue";
+import EText from "../src/components/Text/EText.vue";
+import EMetric from "../src/components/Metric/EMetric.vue";
+import EHighlight from "../src/components/Highlight/EHighlight.vue";
+import EKbd from "../src/components/Kbd/EKbd.vue";
 import { expectNoViolations } from "./axe.js";
+import { settled } from "./frames.js";
 
 const themes = {
   light: () => defineTheme({ name: "light" }),
@@ -26,7 +33,6 @@ const themes = {
 };
 const directions = { ltr: "en-US", rtl: "ar" } as const;
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const items = [
   { id: "a", label: "One" },
   { id: "b", label: "Two" },
@@ -106,6 +112,38 @@ const cases: Case[] = [
   },
 ];
 
+// Every tone of the components that colour text, so a tone that fails contrast in one theme or direction is caught.
+const TONES = ["neutral", "info", "success", "warning", "danger"] as const;
+cases.push(
+  ...TONES.map((tone) => ({ name: `Tag ${tone}`, component: ETag, props: { label: "Urgent", tone, removable: true } })),
+  ...TONES.map((tone) => ({
+    name: `Stamp ${tone}`,
+    component: EStamp,
+    props: { label: "Review", tone, detail: "12 days" },
+  })),
+  { name: "Stamp final", component: EStamp, props: { label: "Paid", final: true } },
+  ...TONES.map((tone) => ({
+    name: `Text ${tone}`,
+    component: EText,
+    props: { tone },
+    slots: { default: () => "Receipts are kept." },
+  })),
+  ...(["success", "danger", "neutral"] as const).map((tone) => ({
+    name: `Metric ${tone}`,
+    component: EMetric,
+    props: { label: "Balance", value: 1620.4, delta: "+4.2%", trend: "up", tone, help: "Since October" },
+  })),
+  { name: "Highlight", component: EHighlight, slots: { default: () => "the due date" } },
+  {
+    name: "Highlight code",
+    component: EHighlight,
+    props: { code: true, swatch: "#2c95b4" },
+    slots: { default: () => "#2c95b4" },
+  },
+  { name: "Kbd", component: EKbd, slots: { default: () => "Esc" } },
+  { name: "Kbd sm", component: EKbd, props: { size: "sm" }, slots: { default: () => "/" } },
+);
+
 function setPage(theme: keyof typeof themes, dir: keyof typeof directions) {
   const root = document.documentElement;
   themes[theme]().apply(root);
@@ -123,7 +161,7 @@ async function show(c: Case, locale: string) {
   });
   if (c.overlay) {
     await expect.poll(c.overlay).toBe(true);
-    await sleep(300);
+    await settled();
   }
   return c.overlay ? document.body : container;
 }
@@ -148,6 +186,7 @@ const media = async (features: { name: string; value: string }[]) => {
   await cdp().send("Emulation.setEmulatedMedia", { features });
 };
 
+// axe cannot fail on forced colours or motion; media.test.ts checks the focus rings, edges and durations themselves.
 describe("axe under emulated media", () => {
   afterEach(() => media([]));
 

@@ -1,4 +1,4 @@
-import { groups, usage } from "./generated/defaults.js";
+import { deprecated, groups, usage } from "./generated/defaults.js";
 
 /** One token in the W3C Design Tokens format. */
 export interface DtcgToken {
@@ -6,6 +6,8 @@ export interface DtcgToken {
   /** Omitted when the value is a CSS expression no DTCG type can hold (a shadow stack, `color-mix()`). */
   $type?: "color" | "dimension" | "duration" | "cubicBezier" | "number" | "fontFamily" | "fontWeight";
   $description?: string;
+  /** Set on a token that is still emitted but will be removed: what to use instead. */
+  $deprecated?: string;
 }
 
 /** Tokens grouped by kind (`color`, `spacing`, `radius`...), the shape Tokens Studio and Style Dictionary read. */
@@ -29,7 +31,8 @@ export function toDtcg(tokens: Record<string, string>): DtcgTokens {
   const out: DtcgTokens = {};
   const put = (group: string, name: string, token: DtcgToken) => {
     const note = usage[name];
-    (out[group] ??= {})[name] = note ? { ...token, $description: note } : token;
+    const gone = deprecated[name];
+    (out[group] ??= {})[name] = { ...token, ...(note && { $description: note }), ...(gone && { $deprecated: gone }) };
   };
 
   for (const [name, value] of Object.entries(tokens)) {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h, type Component } from "vue";
+import { defineComponent, h, type Component, markRaw } from "vue";
 import { render } from "vitest-browser-vue";
 import EIcon from "../components/Icon/EIcon.vue";
 import EButton from "../components/Button/EButton.vue";
@@ -8,17 +8,19 @@ import { defineIcons, heroicons, iconNames, lucide, phosphorVue, tabler } from "
 import type { IconsConfig } from "./types.js";
 
 function fake(id: string): Component {
-  return defineComponent({
-    name: id,
-    inheritAttrs: false,
-    props: { weight: String },
-    setup:
-      (props, { attrs }) =>
-      () =>
-        h("svg", { ...attrs, viewBox: "0 0 24 24", "data-fake": id, "data-weight": props.weight }, [
-          h("path", { d: "M0 0" }),
-        ]),
-  });
+  return markRaw(
+    defineComponent({
+      name: id,
+      inheritAttrs: false,
+      props: { weight: String },
+      setup:
+        (props, { attrs }) =>
+        () =>
+          h("svg", { ...attrs, viewBox: "0 0 24 24", "data-fake": id, "data-weight": props.weight }, [
+            h("path", { d: "M0 0" }),
+          ]),
+    }),
+  );
 }
 
 const eos = (icons: IconsConfig) => createEos({ themeTarget: null, icons });
@@ -143,7 +145,7 @@ describe("phosphorVue adapter", () => {
     const plugin = eos(phosphorVue(source));
     const normal = await render(EIcon, { props: { name: "card" }, global: { plugins: [plugin] } });
     expect(normal.container.querySelector("[data-fake=PhCreditCard]")!.getAttribute("data-weight")).toBe("regular");
-    const small = await render(EIcon, { props: { name: "card", small: true }, global: { plugins: [plugin] } });
+    const small = await render(EIcon, { props: { name: "card", size: "sm" }, global: { plugins: [plugin] } });
     expect(small.container.querySelector("[data-fake=PhCreditCard]")!.getAttribute("data-weight")).toBe("bold");
     const bold = await render(EIcon, { props: { name: "menu", bold: true }, global: { plugins: [plugin] } });
     expect(bold.container.querySelector("[data-fake=PhList]")!.getAttribute("data-weight")).toBe("bold");

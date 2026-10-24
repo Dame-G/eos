@@ -1,10 +1,11 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ESegmented from "./ESegmented.vue";
 import ETabs from "../Tabs/ETabs.vue";
 import { expectNoViolations } from "../../../test/axe.js";
+import { frames, settled } from "../../../test/frames.js";
 
 function colourOf(host: Element, token: string) {
   const probe = document.createElement("span");
@@ -22,7 +23,8 @@ describe("ESegmented", () => {
     const { container } = await render(ESegmented, { props: { label: "View", options } });
     await expect.element(page.getByRole("radiogroup", { name: "View" })).toBeVisible();
     expect(container.querySelectorAll("input.e-seg-input").length).toBe(3);
-    expect(container.firstElementChild!.className).toBe("e-seg");
+    expect(container.firstElementChild!.className).toBe("e-seg-field");
+    expect(container.querySelectorAll(".e-seg").length).toBe(1);
     await expect.element(page.getByRole("radio", { name: "Week" })).toBeVisible();
   });
 
@@ -49,7 +51,7 @@ describe("ESegmented", () => {
       }),
     );
     await expect.element(page.getByRole("radio", { name: "Day" })).toBeChecked();
-    await new Promise((r) => setTimeout(r, 50));
+    await frames();
     expect(got).toEqual([]);
     expect(model.value).toBeUndefined();
     await page.getByRole("radio", { name: "Week" }).click();
@@ -193,6 +195,31 @@ describe("ESegmented", () => {
     expect([...container.querySelectorAll("input")].every((i) => i.disabled)).toBe(true);
   });
 
+  test("@focus and @blur fire as focus enters and leaves the field, not between its inputs", async () => {
+    const seen: string[] = [];
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(ESegmented, {
+              label: "View",
+              options,
+              modelValue: "Day",
+              onFocus: () => seen.push("focus"),
+              onBlur: () => seen.push("blur"),
+            }),
+            h("button", { class: "after" }, "After"),
+          ]),
+      }),
+    );
+    const inputs = [...container.querySelectorAll<HTMLInputElement>("input.e-seg-input")];
+    inputs[0]!.focus();
+    inputs[1]!.focus();
+    expect(seen).toEqual(["focus"]);
+    container.querySelector<HTMLElement>(".after")!.focus();
+    expect(seen).toEqual(["focus", "blur"]);
+  });
+
   test("attributes land on the group, class and style on the outer element", async () => {
     const { container } = await render(ESegmented, {
       props: { label: "View", options },
@@ -200,7 +227,8 @@ describe("ESegmented", () => {
     });
     const seg = container.querySelector(".e-seg") as HTMLElement;
     expect(seg.dataset["x"]).toBe("1");
-    expect(seg.className).toBe("e-seg mine");
+    expect(seg.className).toBe("e-seg");
+    expect(container.firstElementChild!.className).toBe("e-seg-field mine");
   });
 
   test("has no accessibility violations in any state", async () => {
@@ -264,10 +292,10 @@ describe("ESegmented", () => {
       };
     };
     await userEvent.hover(container.querySelectorAll("input")[1]!);
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     const seg = look(container.querySelectorAll(".e-seg-text")[1]!);
     await userEvent.hover(tabs.container.querySelectorAll(".e-tab")[1]!);
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     const tab = look(tabs.container.querySelectorAll(".e-tab")[1]!);
     expect(seg).toEqual(tab);
     // The edge changes colour but never gets thicker: no ring is laid inside it.
@@ -323,6 +351,46 @@ describe("ESegmented", () => {
     await page.getByRole("radio", { name: "Option number 5" }).click({ force: true });
     await expect.poll(inView).toBe(true);
   });
+
+  test("with reduced motion the chosen option jumps into view instead of a smooth scroll", async () => {
+    const real = window.matchMedia.bind(window);
+    vi.stubGlobal("matchMedia", (q: string) =>
+      q.includes("prefers-reduced-motion") ? ({ matches: true } as MediaQueryList) : real(q),
+    );
+    const behaviours: (string | undefined)[] = [];
+    const spy = vi.spyOn(HTMLElement.prototype, "scrollBy").mockImplementation(function (o?: unknown) {
+      behaviours.push((o as ScrollToOptions | undefined)?.behavior);
+    });
+    try {
+      const options = Array.from({ length: 6 }, (_, i) => `Option number ${i}`);
+      const { container } = await render(ESegmented, { props: { label: "Pick", options } });
+      container.classList.add("e-root");
+      container.style.width = "16rem";
+      const track = container.querySelector<HTMLElement>(".e-seg")!;
+      await expect.poll(() => track.scrollWidth).toBeGreaterThan(track.clientWidth);
+      await page.getByRole("radio", { name: "Option number 5" }).click({ force: true });
+      await expect.poll(() => behaviours.length).toBeGreaterThan(0);
+      expect(behaviours).not.toContain("smooth");
+    } finally {
+      spy.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  test("the hint id does not come from the name, so two groups sharing a name keep their own hints", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(ESegmented, { label: "A", options, name: "view", hint: "First" }),
+            h(ESegmented, { label: "B", options, name: "view", hint: "Second" }),
+          ]),
+      }),
+    );
+    const ids = [...container.querySelectorAll(".e-field-hint")].map((el) => el.id);
+    expect(new Set(ids).size).toBe(2);
+    await expect.element(page.getByRole("radiogroup", { name: "B" })).toHaveAccessibleDescription("Second");
+  });
   test("an error turns the edge of the options that are not chosen danger and tints a hovered option", async () => {
     const { container } = await render(ESegmented, { props: { label: "View", options, error: "Pick a view" } });
     container.classList.add("e-root");
@@ -333,7 +401,7 @@ describe("ESegmented", () => {
     ok.container.classList.add("e-root");
     expect(edge(ok.container, 1)).not.toBe(colourOf(container, "--e-danger"));
     await userEvent.hover(container.querySelectorAll("input")[1]!);
-    await new Promise((r) => setTimeout(r, 250));
+    await settled();
     expect(getComputedStyle(container.querySelectorAll(".e-seg-text")[1]!).backgroundColor).toBe(
       colourOf(container, "--e-danger-soft"),
     );

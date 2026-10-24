@@ -1,5 +1,20 @@
 <script lang="ts">
-import type { LinkItem } from "./LinkNav.vue";
+export interface LinkItem {
+  /** The words for this destination. */
+  label: string;
+  /** Where it goes. Without `href` or `to` the item is plain text, not a link. */
+  href?: string;
+  /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). */
+  to?: unknown;
+  /** The page the person is on. Left out, `isCurrent` decides. */
+  current?: boolean;
+  /** Shown but not choosable: dimmed, not a link, and skipped by Tab. */
+  disabled?: boolean;
+  /** More items under this one. The item becomes a group that opens and closes and is not itself a link. */
+  children?: LinkItem[];
+  /** Whether a group starts open. A group that holds the current page starts open anyway. */
+  open?: boolean;
+}
 
 /** An item that is a link, or plain text, or a group that holds more items. */
 const hasTarget = (item: LinkItem) => item.to !== undefined || item.href !== undefined;

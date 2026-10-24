@@ -20,7 +20,8 @@ pnpm lint                 # eslint and stylelint
 pnpm format:check         # prettier (run `pnpm format` to fix)
 pnpm knip                 # unused files, exports and dependencies
 pnpm typecheck
-pnpm check:built          # package exports and types, size budgets, built stylesheet (needs a build)
+pnpm check:built          # package exports and types, size budgets, server render, built stylesheet (needs a build)
+pnpm ssr                  # renders every component on the server from the build (--verbose lists each check)
 pnpm smoke                # builds, packs and installs both packages in a temporary app
 ```
 
@@ -38,7 +39,9 @@ Tests run in Chromium. Locally the Chromium tests use the installed Microsoft Ed
 
 `pnpm check:size` compares the gzipped `style.css`, `index.js` and all JavaScript with the budgets in `scripts/size.mjs` and prints each one's headroom. A budget is the current size plus about 3%. All CSS ships as one file, so every component's CSS is paid for by every consumer: reuse tokens and shared rules, avoid repeating a rule set across components, and do not add a dependency for something small. If a deliberate change needs more, raise the limit in the same pull request and say why in its description. Per-component CSS files are not offered; consumers who need a smaller stylesheet are a reason to revisit that, not to loosen the budget.
 
-While working on one component, run from `packages/vue` (these need `pnpm build` or `pnpm test` to have generated the tokens once):
+The Vue package reads the built tokens (`packages/tokens/dist`). `pnpm build`, `pnpm test` and `pnpm typecheck` build them first, in dependency order, and only once. After changing `tokens.json` while you work inside `packages/vue`, run `pnpm tokens` from the root.
+
+While working on one component, run from `packages/vue` (these need `pnpm build` or `pnpm test` to have built the tokens once):
 
 | Command                                 | Use                                                                      |
 | --------------------------------------- | ------------------------------------------------------------------------ |
@@ -88,10 +91,10 @@ One name means one thing across the library. A component may have props of its o
 | `variant`                                           | Emphasis: how loudly an action speaks (`primary`, `secondary`, `outline`, `danger`, `quiet`). Nothing else uses it.                                | `EButton`, `EMenu`                                           |
 | `tone`                                              | Meaning in a colour: `success`, `info`, `warning`, `danger`. Never a look.                                                                         | `EStamp`, `ENotice`, `EToast`                                |
 | `status`                                            | A `StampStatus` preset (`paid`, `due`, `overdue`...). It sets the tone and the word.                                                               | `EStamp`                                                     |
-| `badge*`                                            | On a composite, the props that feed its inner stamp get the prefix: `badge` and `badgeTone`. A bare `tone` or `label` on a composite is ambiguous. | `EDescriptionList`                                           |
-| `small`, `large`                                    | Size, as booleans. There is no `size` enum. Medium is the default and has no prop.                                                                 | `EIcon`, `EAvatar`, `EKbd`, `EStamp`, `EText`                |
+| `stamp*`                                            | On a composite, the props that feed its inner stamp get the prefix: `stamp` and `stampTone`. A bare `tone` or `label` on a composite is ambiguous. | `EDescriptionList`                                           |
+| `size`                                              | Size: `sm`, `md` (the default) or `lg`, narrowed per component. The older `small`, `large` and `dense` booleans are deprecated aliases.            | `EButton`, `EIcon`, `EAvatar`, `ETable`                      |
 | `bare`                                              | Drops the component's own chrome (box, label, toolbar) so the parent supplies it.                                                                  | fields, `EFieldset`, `EEmptyState`, `EDataGrid`, `ECheckbox` |
-| `raised`                                            | The lifted shadow of something floating above the page.                                                                                            | `ESurface`                                                   |
+| `variant` on a surface                              | `paper`, `raised`, `outline` or `tinted`: the face of a surface. The older `paper` and `raised` booleans are deprecated aliases.                   | `ESurface`                                                   |
 | `label`                                             | The name of the thing itself: the visible label of a field, or the accessible name of a control with no visible text.                              | fields, `EProgress`, `ESpinner`, `ETooltip`...               |
 | `hideLabel`, `hideLegend`, `hideAction`             | Keep the text for screen readers and hide it. Always `hide` plus the part.                                                                         | fields, `EFieldset`, `ESearchBar`                            |
 | `headingLevel`                                      | The level of the heading a component renders inside itself. `EHeading` is the heading, so its prop is `level`.                                     | cards, panels, dialogs, drawers                              |
@@ -133,10 +136,10 @@ There are no look variants. A component has one good default. If two looks are b
 - Values come from tokens (`var(--e-space-4)`). A raw colour, size or duration means a missing token, which you add to `packages/tokens/src/tokens.json` with a usage note. Logical properties only (`margin-inline-start`).
 - Space belongs to the parent: a component sets no outer margin. Layout that depends on the component's own width uses container queries, not viewport media queries.
 - **Private custom properties are `--_name`.** `--e-*` is the public contract: tokens from `tokens.json`, which a theme or a consumer may set. A property a component uses to pass a value between its own rules (a fill, a gap, a slab colour) starts with an underscore: `--_fill`, `--_slab`, `--_gap`. It is declared on the component's own selector, never on `:root`, and nothing outside the component reads it. Some older components still use `--e-gap`, `--e-min`, `--e-over`, `--e-chars`, `--e-swatch`, `--e-xrow-lead`, `--e-row-h`, `--e-grid-*`, `--e-table-max-h` and `--e-shell-*`; rename them to `--_*` when you touch the component.
-- **Motion.** Use `--e-duration-tap`, `--e-duration-fade` and `--e-duration-move` for state changes: the theme CSS sets all three to 0.01ms under `prefers-reduced-motion`, so a transition needs no media query of its own. A looping animation (a skeleton pulse, a spinner, an indeterminate bar) uses `--e-duration-loop` or `--e-duration-spin` with `--e-easing-standard` or `--e-easing-linear`, and sets `animation: none` itself under `prefers-reduced-motion`, because a loop at 0.01ms would flicker.
+- **Motion.** Use `--e-duration-tap`, `--e-duration-fade` and `--e-duration-move` for state changes: the theme CSS sets all three to 0.01ms under `prefers-reduced-motion`, so a transition needs no media query of its own. A looping animation (a skeleton pulse, a spinner, an indeterminate bar) uses `--e-duration-loop` or `--e-duration-spin` with `ease-in-out` or `--e-easing-linear` (`--e-easing-standard` is deprecated), and sets `animation: none` itself under `prefers-reduced-motion`, because a loop at 0.01ms would flicker.
 - **Print.** The theme CSS makes `ink`, the borders and the grounds black and white under `@media print`. A component only hides what should not print and drops its shadow; it does not write print colours.
 - **Weights and sizes.** `font-weight` is `var(--e-weight-regular | medium | strong)` (400, 500, 600; there is no 700). An icon, a checkbox or an avatar is sized with `--e-icon-size`, `--e-icon-size-sm`, `--e-icon-size-md`, `--e-icon-size-lg`, `--e-check-size`, `--e-avatar-size-sm` or `--e-avatar-size-lg`, so it grows with `textScale`.
-- **A fill and its states** use the tone tokens, not a `color-mix()` of your own: `--e-<tone>`, `--e-<tone>-hover`, `--e-<tone>-press`, `--e-<tone>-slab` for `primary`, `secondary` and `danger`; `--e-<tone>-soft` for the backdrop of `success`, `info`, `warning` and `danger`; `--e-wash-hover`, `--e-wash-press` and `--e-wash-ring` for something without a fill; `--e-skeleton` for a loading placeholder; `--e-disabled-ink` and `--e-disabled-fill` for a disabled control. A raised face with no colour of its own uses `.e-slab` (see Design conventions).
+- **A fill and its states** use the tone tokens, not a `color-mix()` of your own: `--e-<tone>`, `--e-<tone>-hover`, `--e-<tone>-press`, `--e-<tone>-slab` for `primary`, `secondary` and `danger`; `--e-<tone>-soft` for the backdrop of `success`, `info`, `warning` and `danger`; `--e-wash-hover`, `--e-wash-press` and `--e-wash-ring` for something without a fill; `--e-skeleton` for a loading placeholder; `--e-disabled-ink` and `--e-disabled-fill` for a disabled control. A raised face with no colour of its own uses the slab construction with `--e-slab-ink` (see Design conventions).
 - **Breakpoints** are written as literals, because a custom property cannot be read inside `@media` or `@container`: `26rem` (a phone column), `36rem` (two columns) and `48rem` (the page frame shows its navigation). `--e-bp-narrow`, `--e-bp-medium` and `--e-bp-wide` record them for design tools. Query the component's own container (`@container`) except for the page frame.
 
 ### Documentation
@@ -148,7 +151,7 @@ A README says what the consumer provides, what the component does and the rules.
 - **The intro** says what the component is for in one sentence, then names the sibling to use instead ("Use `EDrawer` to read a statement"). Link the first mention of each sibling: ``[`EDrawer`](../Drawer/README.md)``. Later mentions stay plain code.
 - **Links.** Relative links between repo files. Named links for sites (`[Documentation](https://eos.dame.gg)`), never a bare URL. A package README may link other packages by path. Do not link a heading to itself.
 - **Highlighting.** Code font for anything the reader types or the code names: components, props, events, slots, CSS properties, message keys, attribute values and key names in code (`aria-pressed`, `Escape` as `event.key`). Quotes for words a user sees or hears ("Copied", "Page 2"). Plain text for key names in a keyboard list (Arrow Left, Enter). Bold only for the **Required** marker the generator writes.
-- **Examples** use only values that work: icon names from the built-in set (`iconNames`), real props, no `size` enum.
+- **Examples** use only values that work: icon names from the built-in set (`iconNames`), real props, and `size` rather than the deprecated `small`/`large` booleans.
 - **Tables.** Escape `|` inside a cell as `\|`. Props tables are generated, so edit the source comment (see above).
 
 `pnpm check` (its `check:docs` part) checks links, bare URLs, table pipes, sibling links in the intro and icon names in examples. CI runs it.
@@ -217,7 +220,7 @@ The slab is the raised bottom edge under a face. There is one construction, the 
 }
 ```
 
-`.e-slab` in `base.css` is exactly this, with `--_slab` defaulting to `--e-slab-ink` for a face with no colour of its own. Thickness comes from three tokens and nothing else (no `0.6 *`, `1.5 *`, `space-1`): `slab-thin` (a small part: a switch thumb, a key), `slab` (everything else), `slab-bold` (a side edge that marks a tone, as on a Notice or Toast). A tone's edge colour is its `*-slab` token. Do not draw the slab as a gradient band, a `::before` bar or an inset shadow. The one exception is a face that cannot grow a border: `.e-slab--shadow` / `--e-slab-edge` (the face is shorter by `--e-slab`), and `.e-slab--sink` / `--e-slab-sink` for a quiet control toggled on.
+The recipe comment in `base.css` is the reference; use `--e-slab-ink` for `--_slab` on a face with no colour of its own. Thickness comes from three tokens and nothing else (no `0.6 *`, `1.5 *`, `space-1`): `slab-thin` (a small part: a key, a tag), `depth` (everything else; `slab` is its deprecated alias), and `slab-bold` for a side edge that marks a tone (Notice, Stamp, Toast), always `calc(var(--e-stroke-edge) + var(--e-slab-bold))` on the inline-start border. A tone's edge colour is its `*-slab` token. Do not draw the slab as a gradient band, a `::before` bar or an inset shadow. The one exception is a face that cannot grow a border: `--e-slab-edge` (the face is shorter by `--e-depth`), and `--e-slab-sink` for a quiet control toggled on.
 
 ### Corners
 
@@ -230,11 +233,11 @@ A rounded thing inside a rounded, bordered thing has a smaller radius, so the tw
 }
 ```
 
-Write the sum where the child is styled, with the container's real border and padding: a custom property built from `var(--e-radius-md)` is resolved where it is declared, so a scoped theme that sets `--e-radius-md` on a container would not reach it. A component that needs the sum twice keeps the inset in a private `--_inset` and computes `max(0px, calc(var(--e-radius-md) - var(--_inset)))` on the element itself. A child that sits a full `gap-tight` inside its container would round a lot less than the container (4px against 8px) and look sharp beside it. So rows of a list panel and swatches in a field use `--e-pad-inset` (2px, half of `gap-tight`) in the sum while keeping their real padding: `max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))`. Use the real inset for a child that fills its container, such as a segment or the picture in an avatar ring. The maths follows every `radius` setting (`sharp`, `default`, `round`). A circle or pill (`radius-round`, `radius-pill`) is left alone.
+Write the sum where the child is styled, with the container's real border and padding: a custom property built from `var(--e-radius-md)` is resolved where it is declared, so a scoped theme that sets `--e-radius-md` on a container would not reach it. A component that needs the sum twice keeps the inset in a private `--_inset` and computes `max(0px, calc(var(--e-radius-md) - var(--_inset)))` on the element itself. Rows of a list panel, a menu or a stepper sit `gap-tight` inside an unbordered `radius-md` panel and use `--e-radius-row`, which is that sum; inside a bordered container take the border off too: `max(0px, calc(var(--e-radius-row) - var(--e-stroke-edge)))`. A theme from `defineTheme` sets `radius-row` with the other tokens, so a scoped theme reaches it. Use the real inset for a child that fills its container, such as a segment or the picture in an avatar ring. The maths follows every `radius` setting (`sharp`, `default`, `round`). A circle or pill (`radius-round`, `radius-pill`) is left alone.
 
 ### Hover, press and focus
 
-One recipe for anything that can be pressed. `.e-interact` in `base.css` is the reference; a component that needs its own selectors copies these declarations.
+One recipe for anything that can be pressed. The recipe comment and `.e-interact` in `base.css` are the reference; a component that needs its own selectors copies these declarations. A bordered item (a tab, a segment) recolours its own border instead of adding a ring, so its edge never thickens. A text link, a breadcrumb and a disclosure summary are the named exceptions and draw no ring.
 
 | State      | Quiet item (no fill)                                                               | Filled control                          |
 | ---------- | ---------------------------------------------------------------------------------- | --------------------------------------- |
@@ -244,23 +247,25 @@ One recipe for anything that can be pressed. `.e-interact` in `base.css` is the 
 | transition | `transition: var(--e-transition-state)`                                            | the same                                |
 | focus      | solid `--e-stroke-focus` outline in `--e-focus-ring`, offset by `--e-stroke-focus` | the same                                |
 
-- The ring is `--e-stroke-ring` wide, one value for every hover (not `stroke-card`, `stroke-hair` or `stroke-edge` as the case may be). Hover darkens the edge to `wash-ring`, press to `ink`, so a pressed item reads as sunk.
-- Focus has three variants. **Default:** outline 2px, offset 2px (buttons, links, tabs, rows). **Inset** (`.e-interact--inset`): offset `-2px`, for rows that touch their neighbours or sit in a clipped list. **Field** (`.e-interact--field`): `--e-focus-field` (primary), offset `--e-focus-gap-field`, laid exactly over the border of a text input. An invalid input keeps `danger`.
-- Never gate a state on colour alone: hover, press and disabled also change a ring, a slab or an outline.
+- The ring is `--e-stroke-edge` wide, one value for every hover (not `stroke-card`, `stroke-hair` or `stroke-edge` as the case may be). Hover darkens the edge to `wash-ring`, press to `ink`, so a pressed item reads as sunk.
+- Focus has three variants. **Default:** outline 2px, offset 2px (buttons, links, tabs, rows). **Inset** (`.e-interact--inset`): offset `-2px`, for rows that touch their neighbours or sit in a clipped list. **Field**: `--e-focus-field` (primary), offset `--e-focus-gap-field`, laid exactly over the border of a text input. An invalid input keeps `danger`.
+- Never gate a state on colour alone: hover, press and disabled also change a ring, a slab or an outline. The named exceptions are a text link (hover and press turn it to ink, which also changes its weight against the text around it) and a disclosure summary (a wash only).
 - Hover styles are held back for devices that can hover by the build (`postcss-hover`); write `:hover` plainly.
 
 ### Selected
 
 There are two voices, and a component uses one.
 
-| Voice     | Means           | Look                                                                                   | Used by                                                                               |
-| --------- | --------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| **Value** | a value you set | filled `--e-primary` with `--e-on-primary`, `primary-slab` edge (`.e-selected--value`) | toggle button, checkbox, radio, switch, segmented control, current page, selected day |
-| **Place** | where you are   | `surface-hover` face, `primary` text and a `primary` slab (`.e-selected--place`)       | tab, nav item                                                                         |
+| Voice     | Means           | Look                                                            | Used by                                                                               |
+| --------- | --------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| **Value** | a value you set | filled `--e-primary` with `--e-on-primary`, `primary-slab` edge | toggle button, checkbox, radio, switch, segmented control, current page, selected day |
+| **Place** | where you are   | `wash-hover` face, `primary` text and a `primary` edge          | tab, nav item                                                                         |
+
+Place is drawn two ways on purpose. A tab sits in a bordered strip next to its neighbours, so the selected one thickens all four of its edges evenly and the bottom one is primary; a nav item stands alone and takes a real slab, its bottom border thicker by `--e-depth`.
 
 ### Disabled
 
-A control keeps its box, drops its lift, dims to `--e-disabled-ink` and draws a dashed `border-strong` outline inside its edge, so colour is never the only cue (`.e-disabled`). A list row (menu item, option, nav item) only dims its text and stops answering the pointer (`.e-disabled-row`): a dashed box on every unavailable row is noise. Both use `aria-disabled` or `disabled`, not just a class.
+A control keeps its box, drops its lift, dims to `--e-disabled-ink` and draws a dashed `border-strong` outline inside its edge, so colour is never the only cue. A list row (menu item, option, nav item) only dims its text and stops answering the pointer: a dashed box on every unavailable row is noise. Both use `aria-disabled` or `disabled`, not just a class.
 
 ### Motion
 

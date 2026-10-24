@@ -1,3 +1,4 @@
+// @internal: shared by the components, not exported from the package (see scripts/gen-index.mjs).
 import { ref, type Ref } from "vue";
 import { useFieldAttrs, type DescribedBy } from "./useFieldAttrs.js";
 import type { EFieldSize } from "../components/Field/fieldProps.js";

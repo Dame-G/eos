@@ -1,6 +1,6 @@
 # EFieldset
 
-Related controls in a bordered box. Use it, not a bare label, whenever two or more controls answer one question.
+Related controls in a bordered box. Use it, not a bare label, whenever two or more controls answer one question. [`ECheckboxGroup`](../CheckboxGroup/README.md) and [`ERadioGroup`](../RadioGroup/README.md) bring their own.
 
 ```vue
 <EFieldset legend="Home address" required hint="Where we send statements.">
@@ -25,11 +25,11 @@ Related controls in a bordered box. Use it, not a bare label, whenever two or mo
 | `disabled`    | `boolean` | `false`     | Disables every control inside.                                                                                                                                                   |
 | `legendClass` | `string`  | None        | Classes added to the legend.                                                                                                                                                     |
 | `hideLegend`  | `boolean` | `false`     | Hides the legend from the page and keeps it for screen readers.                                                                                                                  |
-| `id`          | `string`  | `generated` | The id the hint and error ids are built from.                                                                                                                                    |
+| `id`          | `string`  | `generated` | The id of the `fieldset`, which an `EForm` summary links to. The hint and error ids are built from it.                                                                           |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `fieldset` element.
+`class`, `style` and attributes land on the `fieldset` element, which carries `id`. Inside an [`EForm`](../Form/README.md), `error` is listed in the summary by the legend, and its link focuses the first control.
 
 ## Slots
 

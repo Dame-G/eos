@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, type Component } from "vue";
 import EIcon from "../Icon/EIcon.vue";
-import LinkNav, { type LinkItem, type LinkSection } from "./LinkNav.vue";
+import LinkNavNode, { keyOf, type LinkItem } from "./LinkNavNode.vue";
+import { useMessages } from "../../config.js";
+import { useUid } from "../../composables/useUid.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
@@ -16,7 +18,12 @@ export interface NavItem extends LinkItem {
   children?: NavItem[];
 }
 
-export type NavSection = LinkSection<NavItem>;
+export interface NavSection {
+  /** A small heading over the section. Leave it out for a section that needs none. */
+  label?: string;
+  /** The destinations of the section, in order. */
+  items: NavItem[];
+}
 
 const props = withDefaults(
   defineProps<{
@@ -36,33 +43,57 @@ const props = withDefaults(
   { orientation: "vertical", linkComponent: "a" },
 );
 
+const t = useMessages();
+const uid = useUid();
 const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.items ?? [] }]);
+/** The recursive node knows only the link fields; every item it hands back is one of ours. */
+const nav = (item: LinkItem) => item as NavItem;
+const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item)) ?? false;
 </script>
 
 <template>
-  <LinkNav
-    class="e-nav"
-    :class="orientation === 'horizontal' && 'e-nav--horizontal'"
-    :groups="groups"
-    :label="label"
-    :link-component="linkComponent"
-    :is-current="isCurrent"
-    item-class="e-nav-item"
-    heading-class="e-nav-heading"
-  >
-    <template #item="{ item }">
-      <EIcon v-if="item.icon" :name="item.icon" />
-      <span class="e-nav-label">{{ item.label }}</span>
-      <span v-if="item.count != null" class="e-nav-count" :aria-hidden="item.countLabel ? 'true' : undefined">{{
-        item.count
-      }}</span>
-      <span v-if="item.count != null && item.countLabel" class="e-sr">, {{ item.countLabel }}</span>
+  <nav class="e-nav" :class="orientation === 'horizontal' && 'e-nav--horizontal'" :aria-label="label || t('mainNav')">
+    <template v-for="(group, g) in groups" :key="group.label ?? g">
+      <p v-if="group.label" :id="`${uid}-${g}`" class="e-nav-heading">{{ group.label }}</p>
+      <ul :aria-labelledby="group.label ? `${uid}-${g}` : undefined">
+        <li v-for="(item, i) in group.items" :key="keyOf(item, i)">
+          <LinkNavNode :item="item" :link-component="linkComponent" item-class="e-nav-item" :is-current="current">
+            <template #item="{ item: node }">
+              <EIcon v-if="nav(node).icon" :name="nav(node).icon!" />
+              <span class="e-nav-label">{{ node.label }}</span>
+              <span
+                v-if="nav(node).count != null"
+                class="e-nav-count"
+                :aria-hidden="nav(node).countLabel ? 'true' : undefined"
+                >{{ nav(node).count }}</span
+              >
+              <span v-if="nav(node).count != null && nav(node).countLabel" class="e-sr"
+                >, {{ nav(node).countLabel }}</span
+              >
+            </template>
+          </LinkNavNode>
+        </li>
+      </ul>
     </template>
-  </LinkNav>
+  </nav>
 </template>
 
 <style>
 @layer e.page {
+  .e-nav-heading {
+    margin-block: var(--e-gap-section) var(--e-gap-snug);
+    margin-inline: 0;
+    padding-inline: var(--e-pad-control-sm);
+    font: var(--e-type-kicker);
+    letter-spacing: var(--e-tracking-label);
+    text-transform: uppercase;
+    color: var(--e-ink);
+  }
+
+  .e-nav > :first-child {
+    margin-block-start: 0;
+  }
+
   .e-nav ul {
     display: grid;
     margin: 0;
@@ -118,9 +149,9 @@ const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.it
   /* Where you are: a washed face with the primary slab, in the voice tabs use. */
   .e-nav-item[aria-current="page"] {
     --_slab: var(--e-primary);
-    --_lift: var(--e-slab);
+    --_lift: var(--e-depth);
 
-    background-color: var(--e-surface-hover);
+    background-color: var(--e-wash-hover);
     background-clip: padding-box;
     color: var(--e-primary);
     font-weight: var(--e-weight-strong);

@@ -4,7 +4,7 @@ A one-line row that opens to more: a leading item, a title with a subtitle, and 
 
 ```vue
 <EExpandableRow title="Lab work" subtitle="Oct 3, 2026">
-  <template #leading><EStamp status="paid" small /></template>
+  <template #leading><EStamp status="paid" size="sm" /></template>
   <template #trailing>$42.40</template>
   Blood panel and urinalysis.
   <template #actions><EButton>Download</EButton></template>
@@ -40,7 +40,7 @@ Rows in a list line their leading items up when the lead column has a fixed widt
 
 ## Accessibility
 
-- A native `details` with a `summary`. Tab focuses the summary, and Enter or Space toggles it.
+- A native `details` with a `summary`, so the open state is announced.
 - `disabled` sets `aria-disabled="true"` on the summary: it stays focusable, is dimmed and does not toggle.
 - The summary holds only the title, subtitle, leading and trailing content, all as text (`span`s), because a summary may not contain a button or link. Put interactive controls in the body or the `actions` slot.
 

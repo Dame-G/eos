@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -13,14 +13,22 @@ describe("EKbd", () => {
     await expect.element(page.getByText("Esc")).toBeVisible();
   });
 
-  test("size sm is the small key", async () => {
+  test("size sm is the small key, and the older small flag still is, with a warning", async () => {
     const { container } = await render(EKbd, { props: { size: "sm" }, slots: { default: "/" } });
     expect(container.querySelector("kbd")!.classList.contains("e-kbd--s")).toBe(true);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const flag = await render(EKbd, { props: { small: true }, slots: { default: "/" } });
+      expect(flag.container.querySelector("kbd")!.classList.contains("e-kbd--s")).toBe(true);
+      expect(warn).toHaveBeenCalledWith('[eos] EKbd `small` is deprecated. Use size="sm".');
+    } finally {
+      warn.mockRestore();
+    }
   });
 
-  test("is a bordered mono keycap, and small is smaller", async () => {
+  test("is a bordered mono keycap, and size sm is smaller", async () => {
     const normal = await render(EKbd, { slots: { default: "/" } });
-    const small = await render(EKbd, { props: { small: true }, slots: { default: "/" } });
+    const small = await render(EKbd, { props: { size: "sm" }, slots: { default: "/" } });
     const a = getComputedStyle(normal.container.querySelector("kbd")!);
     const b = getComputedStyle(small.container.querySelector("kbd")!);
     expect(parseFloat(a.borderBottomWidth)).toBeGreaterThan(parseFloat(a.borderTopWidth));
@@ -44,7 +52,7 @@ describe("EKbd", () => {
     const { container } = await render(
       defineComponent({
         render: () =>
-          h("p", ["Press ", h(EKbd, null, () => "/"), " to search, ", h(EKbd, { small: true }, () => "Esc")]),
+          h("p", ["Press ", h(EKbd, null, () => "/"), " to search, ", h(EKbd, { size: "sm" }, () => "Esc")]),
       }),
     );
     await expectNoViolations(container);

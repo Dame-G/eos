@@ -8,10 +8,10 @@ const props = defineProps<{
   /** Shown beside the ring. The spinner is a `status` region, so a label that appears with it is announced politely. Without one, screen readers get "Loading". */
   label?: string;
   /** The ring: `sm` 20px, `md` 28px, `lg` 40px. */
-  size?: Size;
-  /** A smaller ring. Same as `size="sm"`. */
+  size?: Extract<Size, "sm" | "md" | "lg">;
+  /** @deprecated Use `size="sm"`. */
   small?: boolean;
-  /** A larger ring. Same as `size="lg"`. */
+  /** @deprecated Use `size="lg"`. */
   large?: boolean;
   /** Centre it in a panel. */
   block?: boolean;

@@ -171,6 +171,11 @@ describe("ESlider", () => {
     expect(some.container.querySelectorAll(".e-slider-mark")).toHaveLength(3);
   });
 
+  test("a decimal step still marks the last value: 0.1 added three times is past 0.3", async () => {
+    const { container } = await render(ESlider, { props: { label: "A", min: 0, max: 0.3, step: 0.1, marks: true } });
+    expect(container.querySelectorAll(".e-slider-mark")).toHaveLength(4);
+  });
+
   test("has no accessibility violations", async () => {
     const { container } = await render(ESlider, { props: { label: "Volume", hint: "Loud", marks: true, step: 10 } });
     await expectNoViolations(container);

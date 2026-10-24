@@ -52,7 +52,6 @@ function update(next: number[] | undefined) {
   model.value = props.range ? [next[0]!, next[1]!] : next[0]!;
 }
 
-/** A read-only slider takes focus but swallows the pointer and the keys that would move a thumb. */
 /**
  * The thumb is focused in code when it is pressed, and the browser then guesses whether to draw the focus ring from the
  * last interaction: on a fresh page it guesses a keyboard and draws it. The ring is for the keyboard, so a press hides it
@@ -60,6 +59,7 @@ function update(next: number[] | undefined) {
  */
 const byPointer = ref(false);
 
+/** A read-only slider takes focus but swallows the pointer and the keys that would move a thumb. */
 function hold(e: Event) {
   if (props.readonly && !(e instanceof KeyboardEvent && e.key === "Tab")) e.stopImmediatePropagation();
 }
@@ -67,9 +67,9 @@ function hold(e: Event) {
 const ticks = computed<number[]>(() => {
   if (!props.marks) return [];
   if (Array.isArray(props.marks)) return props.marks;
-  const out: number[] = [];
-  for (let v = props.min; v <= props.max && out.length < 101; v += props.step) out.push(v);
-  return out;
+  // Counted, not summed: adding 0.1 again and again drifts past `max` and drops the last tick.
+  const count = Math.min(100, Math.floor((props.max - props.min) / props.step + 1e-9));
+  return Array.from({ length: count + 1 }, (_, i) => Math.round((props.min + i * props.step) * 1e9) / 1e9);
 });
 /**
  * Where the middle of a thumb sits for a value. A thumb stays inside the track, so its middle runs from half a thumb in
@@ -206,7 +206,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
   /* The thumb is a small button face with a slab under it. Like the switch's, its face is `ink`, so it stands out on the groove and on the page in every theme, and it stands on a primary slab that sinks when pressed. */
   .e-slider-thumb {
     --_slab: var(--e-primary-slab);
-    --_lift: var(--e-slab);
+    --_lift: var(--e-depth);
 
     display: block;
     box-sizing: border-box;

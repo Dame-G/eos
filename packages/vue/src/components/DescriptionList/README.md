@@ -1,6 +1,6 @@
 # EDescriptionList
 
-Label and text rows, ruled apart, for facts such as what a statement covers or when it is due.
+Label and text rows, ruled apart, for facts such as what a statement covers or when it is due. Use [`ETable`](../Table/README.md) when the data has columns, and [`EMetric`](../Metric/README.md) for a figure a page leads with.
 
 ```vue
 <EDescriptionList
@@ -17,7 +17,7 @@ Label and text rows, ruled apart, for facts such as what a statement covers or w
 
 | Prop    | Type                                       | Default      | Notes                                                                                                            |
 | ------- | ------------------------------------------ | ------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `items` | `(DescriptionItem \| null \| undefined)[]` | **Required** | The rows, as `{ label?, text, icon?, badge?, badgeTone?, editable? }`. `null` and `undefined` items are skipped. |
+| `items` | `(DescriptionItem \| null \| undefined)[]` | **Required** | The rows, as `{ label?, text, icon?, stamp?, stampTone?, editable? }`. `null` and `undefined` items are skipped. |
 
 <!-- props:end -->
 
@@ -29,7 +29,7 @@ A list where no item has a `label` renders as a plain list of facts. It has no E
 
 | Slot     | Use                                                                                                     |
 | -------- | ------------------------------------------------------------------------------------------------------- |
-| `action` | Adds content after a row's text and badge, such as a Button or IconButton. Receives `item` and `index`. |
+| `action` | Adds content after a row's text and stamp, such as a Button or IconButton. Receives `item` and `index`. |
 
 ## Events
 
@@ -51,4 +51,4 @@ A list where no item has a `label` renders as a plain list of facts. It has no E
 
 ## Related
 
-[`EStamp`](../Stamp/README.md) for the badge, [`ETable`](../Table/README.md) when the data has columns.
+[`EStamp`](../Stamp/README.md) for the stamp, [`ETable`](../Table/README.md) when the data has columns.

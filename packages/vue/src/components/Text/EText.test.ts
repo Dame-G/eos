@@ -15,10 +15,10 @@ describe("EText", () => {
     expect(style.lineHeight).toBe("24px");
   });
 
-  test("large is 18px and small is 14px", async () => {
+  test("size lg is 18px and size sm is 14px", async () => {
     const { container } = await render(
       defineComponent({
-        render: () => h("div", [h(EText, { large: true }, () => "D"), h(EText, { small: true }, () => "S")]),
+        render: () => h("div", [h(EText, { size: "lg" }, () => "D"), h(EText, { size: "sm" }, () => "S")]),
       }),
     );
     const [deck, small] = [...container.querySelectorAll("p")];
@@ -28,15 +28,23 @@ describe("EText", () => {
     expect(getComputedStyle(small!).lineHeight).toBe("21px");
   });
 
-  test("size sm and lg match the small and large flags", async () => {
-    const { container } = await render(
-      defineComponent({
-        render: () => h("div", [h(EText, { size: "lg" }, () => "D"), h(EText, { size: "sm" }, () => "S")]),
-      }),
-    );
-    const [deck, small] = [...container.querySelectorAll("p")];
-    expect(getComputedStyle(deck!).fontSize).toBe("18px");
-    expect(getComputedStyle(small!).fontSize).toBe("14px");
+  test("the older small and large flags still give sm and lg, and warn that they are deprecated", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const { container } = await render(
+        defineComponent({
+          render: () => h("div", [h(EText, { large: true }, () => "D"), h(EText, { small: true }, () => "S")]),
+        }),
+      );
+      const [deck, small] = [...container.querySelectorAll("p")];
+      expect(getComputedStyle(deck!).fontSize).toBe("18px");
+      expect(getComputedStyle(small!).fontSize).toBe("14px");
+      const said = warn.mock.calls.map(([m]) => String(m));
+      expect(said).toContain('[eos] EText `large` is deprecated. Use size="lg".');
+      expect(said).toContain('[eos] EText `small` is deprecated. Use size="sm".');
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   test("size wins over the flags and warns in development", async () => {
@@ -47,22 +55,20 @@ describe("EText", () => {
     warn.mockRestore();
   });
 
-  test("tone colours the text, and muted is the muted tone", async () => {
+  test("tone colours the text", async () => {
     const { container } = await render(
       defineComponent({
         render: () =>
           h("div", [
             h(EText, null, () => "A"),
             h(EText, { tone: "danger" }, () => "B"),
-            h(EText, { tone: "muted" }, () => "C"),
-            h(EText, { muted: true }, () => "D"),
+            h(EText, { tone: "neutral" }, () => "C"),
           ]),
       }),
     );
-    const [a, b, c, d] = [...container.querySelectorAll("p")].map((p) => getComputedStyle(p).color);
+    const [a, b, c] = [...container.querySelectorAll("p")].map((p) => getComputedStyle(p).color);
     expect(b).not.toBe(a);
     expect(c).not.toBe(a);
-    expect(d).toBe(c);
   });
 
   test("align, weight and mono change the text", async () => {
@@ -101,15 +107,29 @@ describe("EText", () => {
     expect(free.container.querySelector("p")!.getBoundingClientRect().width).toBeGreaterThan(1300);
   });
 
-  test("muted changes the colour", async () => {
-    const { container } = await render(
-      defineComponent({
-        render: () => h("div", [h(EText, null, () => "A"), h(EText, { muted: true }, () => "B")]),
-      }),
-    );
-    const [a, b] = [...container.querySelectorAll("p")];
-    expect(b!.className).toBe("e-text e-text--muted");
-    expect(getComputedStyle(a!).color).not.toBe(getComputedStyle(b!).color);
+  test("muted and tone=muted still give the neutral tone, and warn that they are deprecated", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const { container } = await render(
+        defineComponent({
+          render: () =>
+            h("div", [
+              h(EText, { tone: "neutral" }, () => "A"),
+              h(EText, { muted: true }, () => "B"),
+              h(EText, { tone: "muted" }, () => "C"),
+            ]),
+        }),
+      );
+      const [a, b, c] = [...container.querySelectorAll("p")];
+      expect(b!.className).toBe("e-text e-text--muted");
+      expect(getComputedStyle(b!).color).toBe(getComputedStyle(a!).color);
+      expect(getComputedStyle(c!).color).toBe(getComputedStyle(a!).color);
+      const said = warn.mock.calls.map(([m]) => String(m));
+      expect(said).toContain('[eos] EText `muted` is deprecated. Use tone="neutral".');
+      expect(said).toContain('[eos] EText tone="muted" is deprecated. Use tone="neutral".');
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   test("as changes the element", async () => {
@@ -141,8 +161,8 @@ describe("EText", () => {
         render: () =>
           h("div", [
             h(EText, null, () => "Body"),
-            h(EText, { large: true }, () => "Large"),
-            h(EText, { small: true, muted: true }, () => "Small muted"),
+            h(EText, { size: "lg" }, () => "Large"),
+            h(EText, { size: "sm", tone: "neutral" }, () => "Small neutral"),
           ]),
       }),
     );

@@ -26,8 +26,8 @@ A modal dialog for a short decision. Use [`EDrawer`](../Drawer/README.md) to rea
 | `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6` | `2`          | The level of the title's heading element, 1 to 6.                                                                                                                                                                                           |
 | `size`         | `"sm" \| "md" \| "lg"`       | `"md"`       | The width: `sm` for a confirmation, `md` for most dialogs, `lg` for a form.                                                                                                                                                                 |
 | `initialFocus` | `string`                     | None         | A CSS selector for the element that takes focus when it opens, such as `#name`. Without it, an element marked `data-autofocus` does; an `alertdialog` falls back to its least destructive action and any other dialog to its first control. |
-| `dismissible`  | `boolean`                    | `false`      | Closes the dialog when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work.                                                                                                             |
-| `inline`       | `boolean`                    | `false`      | Shows the dialog in the page, without the backdrop or the focus trap, for a preview.                                                                                                                                                        |
+| `dismissible`  | `boolean`                    | `false`      | Closes the dialog when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. A press on a toast does not count.                                                                          |
+| `inline`       | `boolean`                    | `false`      | Shows the dialog in the page, without the backdrop or the focus trap, for a preview. Escape and presses outside leave it open.                                                                                                              |
 
 <!-- props:end -->
 
@@ -50,7 +50,7 @@ A modal dialog for a short decision. Use [`EDrawer`](../Drawer/README.md) to rea
 
 - A `role="dialog"` named by its title. Focus moves in, is trapped, and returns to the opener on close.
 - Focus lands on the first control, or on the element marked `data-autofocus` or matched by `initialFocus`. An `alertdialog` lands on its least destructive action (the first foot button that is not `danger`), never on Close.
-- Escape closes it. Always offer a Close or Cancel action too.
+- Always offer a Close or Cancel action as well as Escape.
 - The header and the foot stay in view and only the body scrolls.
 - `description` shows a sentence under the title and sets `aria-describedby` to it. Without one the attribute is left off. An `aria-describedby` you pass yourself is kept.
 - Set `role="alertdialog"` for a confirmation that needs an answer, such as a delete. Focus, Escape and the backdrop behave the same.

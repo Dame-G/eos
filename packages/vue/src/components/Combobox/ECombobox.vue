@@ -1,3 +1,7 @@
+<script lang="ts">
+const warned = { clearable: false };
+</script>
+
 <script setup lang="ts" generic="M extends boolean = false">
 import { computed, h, nextTick, onMounted, ref, watch, type FunctionalComponent } from "vue";
 import {
@@ -14,15 +18,18 @@ import EField from "../Field/EField.vue";
 import EIcon from "../Icon/EIcon.vue";
 import ETag from "../Tag/ETag.vue";
 import ESpinner from "../Spinner/ESpinner.vue";
+import EHiddenInputs from "../Field/EHiddenInputs.vue";
 import EComboboxOption from "./EComboboxOption.vue";
 import { normalizeOptions, sectionOptions } from "../Select/options.js";
 import { fold } from "./fold.js";
 import type { EComboboxProps } from "./types.js";
 import { useMessages, usePortalTarget } from "../../config.js";
+import { isProduction } from "../../env.js";
 import { useDir } from "../../composables/useDir.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useUid } from "../../composables/useUid.js";
+import type { FieldSlot } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
 import "../TextField/input.css";
 import "../Select/panel.css";
@@ -30,11 +37,13 @@ import "./combo.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = withDefaults(defineProps<EComboboxProps<M>>(), { clearable: true });
+const props = withDefaults(defineProps<EComboboxProps<M>>(), { clearable: undefined });
 
 const emit = defineEmits<{
   /** The text in the input changed, by typing or by choosing. Use it to fetch options from a server. */
   inputChange: [text: string];
+  /** The person cleared the field, with the clear button or Escape. The model is already empty. */
+  clear: [];
 }>();
 
 /** The `value` of the chosen option, empty for nothing. With `multiple` it holds the chosen values in the order chosen (replaced, not mutated). With `freeform` it is the typed text, updated on every key. @default "" or [] */
@@ -45,6 +54,15 @@ const wantOpen = defineModel<boolean>("open", { default: false });
 
 const t = useMessages();
 const { announce: say } = useAnnouncer();
+
+/** The clear button is opt-in, as in every field. Left out, it still shows until the next minor, with a warning. */
+const showClear = () => props.clearable ?? true;
+if (props.clearable === undefined && !warned.clearable && !isProduction()) {
+  warned.clearable = true;
+  console.warn(
+    '[eos] ECombobox will not show its clear button by default from the next minor. Pass `clearable` to keep it, or `:clearable="false"`.',
+  );
+}
 const portal = usePortalTarget();
 const attrs = useFieldAttrs();
 const dir = useDir();
@@ -52,7 +70,26 @@ const groupId = useUid();
 const bareId = useUid(() => props.id);
 
 const Bare: FunctionalComponent = (_, { slots }) =>
-  h("div", attrs.wrapper(), slots.default?.({ id: bareId.value, ariaInvalid: undefined, ariaDescribedby: undefined }));
+  h(
+    "div",
+    attrs.wrapper(),
+    slots.default?.({
+      id: bareId.value,
+      ariaInvalid: undefined,
+      ariaDescribedby: undefined,
+      required: !!props.required,
+    }),
+  );
+
+/** A run of options: under its heading in a group when it has one, else as they are. One path for both. */
+const Section: FunctionalComponent<{ group?: string | undefined; id: string }> = (p, { slots }) =>
+  p.group
+    ? h("div", { class: "e-opt-set", role: "group", "aria-labelledby": p.id }, [
+        h("div", { id: p.id, class: "e-opt-group" }, p.group),
+        slots.default?.(),
+      ])
+    : slots.default?.();
+Section.props = ["group", "id"];
 const frame = computed(() =>
   props.bare
     ? {}
@@ -170,6 +207,7 @@ function clear() {
   text.value = "";
   typing.value = false;
   emit("inputChange", "");
+  emit("clear");
   focusInput();
 }
 
@@ -187,9 +225,16 @@ function keepCaretKeys(e: KeyboardEvent) {
   if (e.key === "Home" || e.key === "End") e.stopImmediatePropagation();
 }
 
+/** Whether an element is in this field's own list, which is teleported out of the field. Another popover is not. */
+function inOwnList(el: Element): boolean {
+  const list = content.value?.$el as Element | undefined;
+  const panel = el.closest?.(".e-popover");
+  return !!list && !!panel && (panel === list || panel.contains(list));
+}
+
 function onBlur(e: FocusEvent) {
   const next = e.relatedTarget as Element | null;
-  if (next && (anchor.value?.$el?.contains(next) || next.closest?.(".e-popover"))) return;
+  if (next && (anchor.value?.$el?.contains(next) || inOwnList(next))) return;
   wantOpen.value = false;
   typing.value = false;
   if (!free.value) text.value = resting();
@@ -202,7 +247,6 @@ function onWrapDown(e: MouseEvent) {
   }
 }
 
-type FieldSlot = { id: string; ariaInvalid: "true" | undefined; ariaDescribedby: string | undefined };
 function inputBind(field: FieldSlot) {
   return {
     id: field.id,
@@ -247,6 +291,7 @@ defineExpose({
             :data-invalid="error && !bare ? '' : undefined"
             :data-disabled="disabled ? '' : undefined"
             :data-readonly="readonly ? '' : undefined"
+            :data-size="size && size !== 'md' ? size : undefined"
             @mousedown="onWrapDown"
             @focusout="onBlur"
           >
@@ -271,20 +316,15 @@ defineExpose({
                 @keydown.capture="keepCaretKeys"
               />
             </div>
-            <template v-if="name">
-              <input
-                v-for="(v, k) in multiple ? values : [single]"
-                :key="k"
-                type="hidden"
-                :name="name"
-                :value="v"
-                :disabled="disabled || undefined"
-                :form="attrs.form()"
-              />
-            </template>
+            <EHiddenInputs
+              :name="name"
+              :values="multiple ? values : [single]"
+              :disabled="disabled"
+              :form="attrs.form()"
+            />
             <div class="e-combo-tail">
               <button
-                v-if="hasValue && clearable && !disabled && !readonly"
+                v-if="hasValue && showClear() && !disabled && !readonly"
                 type="button"
                 class="e-combo-btn"
                 :aria-label="t('clear')"
@@ -319,29 +359,16 @@ defineExpose({
             >
               <ComboboxViewport>
                 <template v-if="shown.length">
-                  <template v-for="(section, i) in sections" :key="i">
-                    <div v-if="section.group" class="e-opt-set" role="group" :aria-labelledby="`${groupId}-g${i}`">
-                      <div :id="`${groupId}-g${i}`" class="e-opt-group">{{ section.group }}</div>
-                      <EComboboxOption
-                        v-for="o in section.options"
-                        :key="o.value"
-                        :option="o"
-                        :value="itemValue(o)"
-                        :selected="isSelected(itemValue(o))"
-                        :query="query"
-                      />
-                    </div>
-                    <template v-else>
-                      <EComboboxOption
-                        v-for="o in section.options"
-                        :key="o.value"
-                        :option="o"
-                        :value="itemValue(o)"
-                        :selected="isSelected(itemValue(o))"
-                        :query="query"
-                      />
-                    </template>
-                  </template>
+                  <Section v-for="(section, i) in sections" :id="`${groupId}-g${i}`" :key="i" :group="section.group">
+                    <EComboboxOption
+                      v-for="o in section.options"
+                      :key="o.value"
+                      :option="o"
+                      :value="itemValue(o)"
+                      :selected="isSelected(itemValue(o))"
+                      :query="query"
+                    />
+                  </Section>
                 </template>
                 <div v-else class="e-opt-status" aria-hidden="true">
                   <ESpinner v-if="loading" :label="t('searching')" />
@@ -381,8 +408,9 @@ defineExpose({
     gap: var(--e-gap-tight);
   }
 
+  /* The input fills the wrap's inner height: the box height less the wrap's block padding and edge, a tight gap on each side. */
   .e-combo--multi .e-input {
-    height: calc(var(--e-control-height) - 9px);
+    height: calc(var(--_h, var(--e-control-height)) - 2 * var(--e-gap-tight));
     align-self: center;
     padding-inline: var(--e-gap-snug);
   }

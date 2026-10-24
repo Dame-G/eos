@@ -1,10 +1,10 @@
 # Composables
 
-Functions to call inside `setup()`. Each is exported from `@eos-ui/vue`.
+Functions to call inside `setup()`. Each one documented here is exported from `@eos-ui/vue`.
 
 ## Conventions
 
-- One composable per file: `useThing.ts` exports `useThing` (and its types). A helper that is not a composable (`focusInside`, from `useFocusInside.ts`) lives here too when components share it. `focusInside.ts` is a re-export kept for old imports. The file is exported from the package automatically by `scripts/gen-index.mjs`.
+- One composable per file: `useThing.ts` exports `useThing` (and its types). A helper that is not a composable (`focusInside`, from `useFocusInside.ts`) lives here too when components share it. `scripts/gen-index.mjs` exports each name from the package, except one marked `@internal` in its JSDoc, or a whole file whose first line is `// @internal`. Mark a helper the components share but apps should not depend on (`useSize`, `useDetails`, `useFieldControl`, `useFormField`) that way, so it can change without a breaking release.
 - Each has a test next to it (`useThing.test.ts`) that runs in a real browser.
 - Safe for the server: touch `window`, `document` and the clipboard only inside `onMounted` or an event handler, and do nothing when they are missing.
 - Take reactive input as `MaybeRefOrGetter`, read it with `toValue`, and return refs or computeds, so callers can pass props directly.
@@ -65,10 +65,12 @@ Shows a toast from anywhere in an app that installed `createEos()`, or from insi
 
 ```ts
 const toast = useToast();
-toast.show({ title: "Saved", tone: "success" });
+const id = toast.show({ title: "Saved", tone: "success" });
 ```
 
-## `useOverflow(scroller, watch?)`
+It returns `show`, `update(id, patch)`, `promise(promise, { loading, success, error })`, `dismiss(id)` and `clear()`. The options (`title`, `message`, `tone`, `icon`, `closable`, `key`, `action`, `duration`) are listed in [`EToastProvider`](../components/ToastProvider/README.md#options). Outside the plugin and a provider it throws; `app.provide(TOAST_KEY, createToasts())` gives code elsewhere a store.
+
+## `useOverflow(scroller, watch?, options?)`
 
 Returns a ref that is `true` while the element scrolls (wider or taller than its box). Use it to make a scrolling region a tab stop and a named `region` only when there is something to scroll. It is `false` until mounted, so the server and the first render agree, and it follows resizes of the scroller and of the elements in `watch` (the table inside it).
 
@@ -77,11 +79,13 @@ const scroller = ref<HTMLElement | null>(null);
 const overflows = useOverflow(scroller, [table]);
 ```
 
+Pass `{ children: true }` for a scroller its container holds at one size, such as a dialog body: it then watches the scroller's children too, as they come and go.
+
 ## `useUid(given?)`
 
 A stable id for wiring a label, hint and error to a control. It matches between server and client. Pass the component's own `id` prop to let the consumer choose: `useUid(() => props.id)`.
 
-## `useDir()`
+## `useDir()`, `useLogicalSide(side)`
 
 The direction to use: `createEos({ dir })` when set, otherwise the one the locale is written in (`ar`, `he`, `fa`, `ur` give `rtl`). Reka UI assumes left to right unless told, so every Reka root that takes `dir` (Select, Menu, Popover, Tabs, Calendar...) needs it, and so does anything teleported out of the tree. One place for all of a component's Reka parts is Reka's `ConfigProvider`:
 
@@ -99,6 +103,17 @@ const dir = useDir();
 
 The provider reaches teleported content, because provide and inject follow the component tree. Text and layout inherit `dir` from the element it is on, so `createEos` sets `lang` and `dir` on the theme target when you give it a `locale` (see `portalTarget`).
 
+`useLogicalSide(() => props.side)` turns a side that follows the reading direction (`start`, `end`) into the physical one a Reka popper takes (`left`, `right`), flipped in a right-to-left page. `top`, `bottom`, `left` and `right` pass through.
+
+## `useReducedMotion()`
+
+Returns a function that says whether the person asked for less motion (`prefers-reduced-motion: reduce`). Call it when the motion starts, so a change of the setting is followed. `ETabs` and `ESegmented` use it to scroll the chosen item into view without a smooth scroll.
+
+```ts
+const calm = useReducedMotion();
+el.scrollBy({ left, behavior: calm() ? "auto" : "smooth" });
+```
+
 ## `useLocale()`
 
 Everything date and money components need from the configured locale: month and weekday names, the first day of the week, date order and separator, and formatting and parsing of dates and money.
@@ -109,7 +124,7 @@ A click handler for a boxed input: a click on the padding or an icon puts the cu
 
 ## `useFieldAttrs()`
 
-For a form control built on `EField`: keeps `class` and `style` on the wrapper and sends every other attribute to the real input. Use it with `defineOptions({ inheritAttrs: false })`.
+For a form control built on `EField`: keeps `class` and `style` on the wrapper and sends every other attribute to the real input. Use it with `defineOptions({ inheritAttrs: false })`. A control made of several inputs puts `group()` on the element around them: the consumer's `@focus` and `@blur` then fire when focus enters or leaves the group.
 
 ## `useQuietFocus(open, inside)`
 

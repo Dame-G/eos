@@ -22,6 +22,38 @@ function mount(props: Record<string, unknown> = {}, extra: Record<string, unknow
 }
 
 describe("EDefinition", () => {
+  test("inline sets the term in its sentence: no icon, the sentence's font, on its baseline, and it still opens", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("p", { style: "font: 18px/1.5 serif" }, [
+            "Licensed under ",
+            h(
+              EDefinition,
+              { label: "About the licence", inline: true },
+              { trigger: () => "MIT", default: () => "Use it for anything." },
+            ),
+            ".",
+          ]),
+      }),
+    );
+    const term = triggerOf(container);
+    expect(term.querySelector(".e-icon")).toBeNull();
+    const style = getComputedStyle(term);
+    expect(style.fontSize).toBe("18px");
+    expect(style.fontFamily).toBe(getComputedStyle(container.querySelector("p")!).fontFamily);
+    expect(style.verticalAlign).toBe("baseline");
+    expect(term.getBoundingClientRect().height).toBeLessThanOrEqual(27);
+    await userEvent.click(term);
+    await expect.element(page.getByRole("dialog", { name: "About the licence" })).toBeVisible();
+    await userEvent.keyboard("{Escape}");
+  });
+
+  test("the default term keeps its info icon", async () => {
+    const { container } = await mount();
+    expect(triggerOf(container).querySelector(".e-icon")).not.toBeNull();
+  });
+
   test("is a dotted-underline term button with an info glyph; the panel is not in the page until it opens", async () => {
     const { container } = await mount();
     const trigger = triggerOf(container);

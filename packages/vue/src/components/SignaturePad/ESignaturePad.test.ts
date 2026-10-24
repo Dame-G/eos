@@ -203,7 +203,9 @@ describe("ESignaturePad", () => {
       props: { id: "p", hint: "Sign inside the box", error: "Sign here" },
     });
     const canvas = container.querySelector("canvas")!;
-    expect(canvas.getAttribute("aria-invalid")).toBe("true");
+    // role=img does not take aria-invalid: the error describes the pad and the edge turns danger.
+    expect(canvas.hasAttribute("aria-invalid")).toBe(false);
+    expect(container.querySelector(".e-pad-surface")!.hasAttribute("data-invalid")).toBe(true);
     expect(canvas.getAttribute("aria-describedby")).toBe("p-hint p-msg");
     const msg = container.querySelector("#p-msg")!;
     expect(msg.getAttribute("role")).toBe("alert");

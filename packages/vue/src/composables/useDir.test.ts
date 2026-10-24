@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { createApp, defineComponent, h } from "vue";
 import { createEos } from "../plugin.js";
-import { useDir } from "./useDir.js";
+import { useDir, useLogicalSide, type LogicalSide } from "./useDir.js";
 
 function dirIn(options: Parameters<typeof createEos>[0] = {}) {
   let dir!: ReturnType<typeof useDir>;
@@ -38,5 +38,40 @@ describe("useDir", () => {
     expect(dir.value).toBe("ltr");
     eos.config.dir = null;
     expect(dir.value).toBe("rtl");
+  });
+
+  test("useLogicalSide turns start and end into the physical side for the direction, and keeps the rest", () => {
+    const sides: Record<string, string>[] = [];
+    for (const dir of ["ltr", "rtl"] as const) {
+      const out: Record<string, string> = {};
+      createApp(
+        defineComponent({
+          setup() {
+            for (const s of ["start", "end", "top", "bottom", "left", "right"] as LogicalSide[])
+              out[s] = useLogicalSide(() => s).value;
+            return () => h("div");
+          },
+        }),
+      )
+        .use(createEos({ dir }))
+        .mount(document.createElement("div"));
+      sides.push(out);
+    }
+    expect(sides[0]).toEqual({
+      start: "left",
+      end: "right",
+      top: "top",
+      bottom: "bottom",
+      left: "left",
+      right: "right",
+    });
+    expect(sides[1]).toEqual({
+      start: "right",
+      end: "left",
+      top: "top",
+      bottom: "bottom",
+      left: "left",
+      right: "right",
+    });
   });
 });

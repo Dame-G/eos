@@ -31,10 +31,10 @@ For text outside a Vue template, or on an element you already have, use the `e-s
 - Never hide text a sighted person also needs, or repeat visible text.
 - Leave a space where it joins visible words (" (done)").
 
-## Keyboard
-
-Not focusable and takes no keys.
+Not focusable.
 
 ## Related
 
 [`EText`](../Text/README.md) for text everyone sees.
+
+<!-- lede: no sibling -->

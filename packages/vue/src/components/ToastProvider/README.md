@@ -1,6 +1,6 @@
 # EToastProvider
 
-Renders the toast region once at the app root and provides `useToast()`, so any component inside can show a toast.
+Renders the toast region once at the app root and provides `useToast()`, so any component inside can show a toast. Use [`ENotice`](../Notice/README.md) for a message that stays on the page.
 
 ```vue
 <!-- App.vue -->
@@ -9,8 +9,16 @@ Renders the toast region once at the app root and provides `useToast()`, so any 
 
 ```ts
 const toast = useToast();
-const id = toast.show({ title: "Payment received", message: "A receipt was sent to your email.", tone: "success" });
-toast.dismiss(id);
+const id = toast.show({ title: "Uploading", duration: 0 });
+toast.update(id, { title: "Uploaded", tone: "success" });
+
+toast.promise(pay(), {
+  loading: "Paying",
+  success: (receipt) => ({ title: "Payment received", message: `Receipt ${receipt.number} was sent to your email.` }),
+  error: "Payment failed",
+});
+
+toast.show({ title: "3 rows deleted", key: "rows-deleted" }); // a repeat updates this toast
 toast.clear();
 ```
 
@@ -28,18 +36,20 @@ toast.clear();
 
 ## Options
 
-The options of `toast.show`.
+The options of `toast.show`. `toast.update(id, patch)` takes any of them.
 
-| Option     | Type                                           | Default    | Notes                                                                                     |
-| ---------- | ---------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------- |
-| `title`    | `string`                                       |            | Required. What happened, in a few words.                                                  |
-| `message`  | `string`                                       |            | One sentence of detail.                                                                   |
-| `tone`     | `"info" \| "success" \| "warning" \| "danger"` | `info`     | `danger` is announced at once.                                                            |
-| `icon`     | icon name                                      | the tone's | Replaces the icon of the tone.                                                            |
-| `closable` | `boolean`                                      | `true`     | Shows the dismiss button. It is always shown when `duration` is `0`.                      |
-| `key`      | `string`                                       |            | Showing another toast with the same key updates the one on screen and restarts its timer. |
-| `action`   | vnode or function returning one                |            | A button, such as `() => h(EButton, { variant: "outline" }, () => "Undo")`.               |
-| `duration` | `number` (ms)                                  | `5000`     | `0` stays until dismissed. That is the default for `danger` and with an `action`.         |
+| Option     | Type                                                        | Default      | Notes                                                                                                                      |
+| ---------- | ----------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `title`    | `string`                                                    | **Required** | What happened, in a few words.                                                                                             |
+| `message`  | `string`                                                    | None         | One sentence of detail under the title.                                                                                    |
+| `tone`     | `"neutral" \| "info" \| "success" \| "warning" \| "danger"` | `"info"`     | `danger` is announced at once. `neutral` is for news that is neither good nor bad.                                         |
+| `icon`     | `IconProp`                                                  | the tone's   | An icon name or component, in place of the tone's icon.                                                                    |
+| `closable` | `boolean`                                                   | `true`       | Shows the dismiss button. A toast with `duration: 0` always shows it, since nothing else would remove it.                  |
+| `key`      | `string`                                                    | None         | Identifies the toast. Showing another with the same key updates the one on screen and restarts its timer, so it stays one. |
+| `action`   | `VNodeChild \| (() => VNodeChild)`                          | None         | A button, such as `() => h(EButton, { variant: "outline" }, () => "Undo")`. A toast with an action stays until dismissed.  |
+| `duration` | `number`                                                    | `5000`       | Milliseconds before it goes. `0` stays until dismissed, the default for `danger` and with an `action`.                     |
+
+`toast.promise` takes `loading`, `success` and `error`, each a title or the options above without `tone`: the stages are `info`, `success` and `danger`. `success` and `error` may also be functions of the result or the error. The loading toast stays until the promise settles, and its `message`, `action`, `closable` and `duration` do not carry over to the result.
 
 ## Slots
 
@@ -57,12 +67,12 @@ The options of `toast.show`.
 
 ## Keyboard
 
-| Key         | Does                                                                                     |
-| ----------- | ---------------------------------------------------------------------------------------- |
-| F8          | Moves focus to the notifications.                                                        |
-| Tab         | Moves into the region and between a toast's buttons.                                     |
-| Escape      | Dismisses the toast that has focus. On the region itself, returns focus to where it was. |
-| Enter/Space | Presses the focused button. Focus inside pauses the timers.                              |
+| Key          | Action                                                                                   |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| F8           | Moves focus to the notifications.                                                        |
+| Tab          | Moves into the region and between a toast's buttons.                                     |
+| Escape       | Dismisses the toast that has focus. On the region itself, returns focus to where it was. |
+| Enter, Space | Presses the focused button. Focus inside pauses the timers.                              |
 
 ## Related
 

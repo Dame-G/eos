@@ -1,24 +1,24 @@
 # EKbd
 
-A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to search".
+A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to search". Use [`EHighlight`](../Highlight/README.md) for other words set off in a sentence.
 
 ```vue
 <ESearchBar label="Search" />
-<p>Press <EKbd>/</EKbd> to search, <EKbd small>Esc</EKbd> to close.</p>
+<p>Press <EKbd>/</EKbd> to search, <EKbd size="sm">Esc</EKbd> to close.</p>
 ```
 
 ## Props
 
 <!-- props:start -->
 
-| Prop    | Type                  | Default | Notes                                       |
-| ------- | --------------------- | ------- | ------------------------------------------- |
-| `size`  | `Exclude<Size, "lg">` | None    | `sm` is for a hint inside small text.       |
-| `small` | `boolean`             | `false` | Makes the key smaller. Same as `size="sm"`. |
+| Prop    | Type           | Default | Notes                                 |
+| ------- | -------------- | ------- | ------------------------------------- |
+| `size`  | `"sm" \| "md"` | None    | `sm` is for a hint inside small text. |
+| `small` | `boolean`      | `false` | **Deprecated.** Use `size="sm"`.      |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `kbd` element. `small` is shorthand for `size="sm"`.
+`class`, `style` and attributes land on the `kbd` element. `small` is deprecated: use `size="sm"`.
 
 ## Slots
 
@@ -31,11 +31,7 @@ A keyboard key drawn as a small keycap, for a shortcut hint such as "Press / to 
 - It only describes a shortcut: the shortcut must work and be named elsewhere, for example with `aria-keyshortcuts` on the control.
 - Add `aria-hidden="true"` when a nearby control already announces the shortcut.
 
-## Keyboard
-
-| Key | Action                     |
-| --- | -------------------------- |
-| Tab | A keycap is not focusable. |
+Not focusable.
 
 ## Related
 

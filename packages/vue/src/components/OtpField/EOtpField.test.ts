@@ -3,6 +3,7 @@ import { defineComponent, h, nextTick, ref } from "vue";
 import { userEvent, page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EOtpField from "./EOtpField.vue";
+import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 import { expectPostingContract } from "../../../test/formPosting.js";
 
@@ -138,6 +139,20 @@ describe("EOtpField", () => {
     expect(document.activeElement).toBe(boxesOf(container)[2]);
   });
 
+  test("in a right-to-left page the arrows follow the boxes: left is the next box, right the one before", async () => {
+    const { container } = await render(EOtpField, {
+      props: { label: "Code", modelValue: "1234" },
+      global: { plugins: [createEos({ themeTarget: null, locale: "he-IL", dir: "rtl" })] },
+    });
+    container.setAttribute("dir", "rtl");
+    const boxes = boxesOf(container);
+    boxes[2]!.focus();
+    await userEvent.keyboard("{ArrowLeft}");
+    expect(document.activeElement).toBe(boxes[3]);
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}");
+    expect(document.activeElement).toBe(boxes[1]);
+  });
+
   test("arrows, Home and End move; Delete removes", async () => {
     const { container, got } = await bound({ label: "Code" }, "1234");
     const boxes = boxesOf(container);
@@ -261,6 +276,30 @@ describe("EOtpField", () => {
   test("disabled disables every box", async () => {
     const { container } = await render(EOtpField, { props: { label: "Code", disabled: true } });
     expect(boxesOf(container).every((b) => b.disabled)).toBe(true);
+  });
+
+  test("@focus and @blur fire as focus enters and leaves the field, not between its inputs", async () => {
+    const seen: string[] = [];
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", [
+            h(EOtpField, {
+              label: "Code",
+              modelValue: "12",
+              onFocus: () => seen.push("focus"),
+              onBlur: () => seen.push("blur"),
+            }),
+            h("button", { class: "after" }, "After"),
+          ]),
+      }),
+    );
+    const inputs = [...container.querySelectorAll<HTMLInputElement>("input.e-otp-box")];
+    inputs[0]!.focus();
+    inputs[1]!.focus();
+    expect(seen).toEqual(["focus"]);
+    container.querySelector<HTMLElement>(".after")!.focus();
+    expect(seen).toEqual(["focus", "blur"]);
   });
 
   test("attributes land on the group, class and style on the wrapper", async () => {

@@ -15,6 +15,7 @@ export interface TabItem {
 import { computed, nextTick, onMounted, ref, useSlots, watch } from "vue";
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from "reka-ui";
 import { useDir } from "../../composables/useDir.js";
+import { useReducedMotion } from "../../composables/useReducedMotion.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
@@ -54,16 +55,16 @@ const current = computed(() => {
 const dir = useDir();
 
 const list = ref<{ $el: HTMLElement } | null>(null);
+const calm = useReducedMotion();
 
 async function reveal(smooth: boolean) {
   await nextTick();
   const el = list.value?.$el;
   const tab = el?.querySelector<HTMLElement>('[aria-selected="true"]');
   if (props.orientation === "vertical" || !el || !tab || el.scrollWidth <= el.clientWidth) return;
-  const calm = typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
   const a = tab.getBoundingClientRect();
   const b = el.getBoundingClientRect();
-  el.scrollBy({ left: a.left + a.width / 2 - (b.left + b.width / 2), behavior: smooth && !calm ? "smooth" : "auto" });
+  el.scrollBy({ left: a.left + a.width / 2 - (b.left + b.width / 2), behavior: smooth && !calm() ? "smooth" : "auto" });
 }
 
 onMounted(() => reveal(false));
@@ -181,7 +182,7 @@ watch(current, () => reveal(true));
     z-index: var(--e-z-sticky);
     border-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-bottom-color: var(--_slab);
-    background-color: var(--e-surface-hover);
+    background-color: var(--e-wash-hover);
     color: var(--e-primary);
     font-weight: var(--e-weight-strong);
   }

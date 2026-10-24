@@ -100,7 +100,7 @@ defineExpose(control.exposed);
       </EInputShell>
       <ul v-if="results.length" :id="`${field.id}-rules`" class="e-rules" :aria-label="t('passwordRules')">
         <li v-for="r in results" :key="r.rule.label" class="e-rule" :data-met="r.met ? '' : undefined">
-          <EIcon v-if="r.met" name="check" small />
+          <EIcon v-if="r.met" name="check" size="sm" />
           <span v-else class="e-rule-dot" aria-hidden="true" />
           {{ r.rule.label }}
           <span class="e-sr"> ({{ t(r.met ? "ruleMet" : "ruleNotMet") }})</span>

@@ -22,17 +22,17 @@ interface Case {
 const CASES: Case[] = [
   { name: "EText", component: EText, props: {}, slots: { default: "Body" }, selector: ".e-text", lineHeight: 24 },
   {
-    name: "EText large",
+    name: "EText lg",
     component: EText,
-    props: { large: true },
+    props: { size: "lg" },
     slots: { default: "Body" },
     selector: ".e-text",
     lineHeight: 27,
   },
   {
-    name: "EText small",
+    name: "EText sm",
     component: EText,
-    props: { small: true },
+    props: { size: "sm" },
     slots: { default: "Body" },
     selector: ".e-text",
     lineHeight: 21,

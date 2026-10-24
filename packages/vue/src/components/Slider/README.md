@@ -45,7 +45,7 @@ Picks a number, or a span of two, by dragging or with the arrow keys. Use [`ENum
 
 ## Keyboard
 
-| Key                    | Does                                         |
+| Key                    | Action                                       |
 | ---------------------- | -------------------------------------------- |
 | Arrow Right, Arrow Up  | Adds one `step` (Arrow Left adds it in RTL). |
 | Arrow Left, Arrow Down | Takes away one `step`.                       |
