@@ -49,6 +49,32 @@
     touch-action: manipulation;
   }
 
+  /* Anything else you press: a click, and above all a double or shift click, must not select the text around it. Covered by element and role so a new control is too; the named ones above also lose the tap highlight and double-tap zoom. */
+  .e-root
+    :where(
+      button,
+      summary,
+      [role="button"],
+      [role="tab"],
+      [role="switch"],
+      [role="menuitem"],
+      [role="menuitemcheckbox"],
+      [role="menuitemradio"],
+      [role="option"],
+      [role="combobox"]:not(input, textarea),
+      [role="gridcell"][tabindex],
+      .e-sel-trigger,
+      .e-numbtn,
+      .e-sortbtn,
+      .e-crumb-more,
+      .e-nav-summary,
+      .e-cal-cell,
+      .e-color-swatch,
+      .e-avatar--button
+    ) {
+    user-select: none;
+  }
+
   .e-kicker {
     font: var(--e-type-kicker);
     letter-spacing: var(--e-tracking-label);
