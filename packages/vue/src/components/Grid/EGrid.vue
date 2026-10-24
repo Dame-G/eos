@@ -10,7 +10,7 @@ const props = withDefaults(
     as?: ElementTag;
     /** The narrowest a column may be, as a CSS length. One column below that. */
     min?: string;
-    /** `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. */
+    /** `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 6, 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. */
     gap?: GapToken | string;
     /** Aligns each item inside its row. Items stretch to the tallest by default. Not used with `masonry`. */
     align?: "start" | "center" | "end" | "stretch" | "baseline";

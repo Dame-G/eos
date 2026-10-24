@@ -171,7 +171,7 @@ What every component shares: spacing, type, the slab, how a control answers the 
 
 ### Spacing
 
-Spacing has a semantic layer on top of the `space-N` scale (4, 8, 12, 16, 20, 24, 28, 32, 40, 48, 64px; `space-5`, `-7`, `-10` and `-16` are public scale steps for one-off needs). Components read the semantic tokens, which are references to `space-N`, so `spaceScale` and `density: "compact"` reach them with no code in the component.
+Spacing has a semantic layer on top of the `space-N` scale (4, 8, 12, 16, 20, 24, 32, 40, 48, 64px; `space-5`, `-10` and `-16` are public scale steps for one-off needs). Components read the semantic tokens, which are references to `space-N`, so `spaceScale` and `density: "compact"` reach them with no code in the component.
 
 | Need                                                                                    | Token            | Value |
 | --------------------------------------------------------------------------------------- | ---------------- | ----- |

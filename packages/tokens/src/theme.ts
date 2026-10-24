@@ -170,8 +170,6 @@ const PAIRS: { fg: TokenName; bg: TokenName; min: number; role: string }[] = [
   { fg: "warning", bg: "warning-soft", min: 4.5, role: "Warning notice text" },
   { fg: "success", bg: "surface", min: 4.5, role: "Success text" },
   { fg: "warning", bg: "surface", min: 4.5, role: "Warning text" },
-  { fg: "on-success", bg: "success", min: 4.5, role: "Success fill label" },
-  { fg: "on-info", bg: "info", min: 4.5, role: "Information fill label" },
   { fg: "disabled-ink", bg: "surface", min: 4.5, role: "Disabled text" },
   { fg: "ink", bg: "surface-paper", min: 7, role: "Text on the paper surface" },
   { fg: "muted", bg: "surface-paper", min: 4.5, role: "Secondary text on the paper surface" },
@@ -179,7 +177,6 @@ const PAIRS: { fg: TokenName; bg: TokenName; min: number; role: string }[] = [
   { fg: "ink", bg: "selection", min: 4.5, role: "Selected text" },
   { fg: "stamp-ink", bg: "surface", min: 4.5, role: "Stamp ink" },
   { fg: "stamp-ink", bg: "surface-paper", min: 4.5, role: "Stamp ink on the paper surface" },
-  { fg: "on-warning", bg: "warning", min: 4.5, role: "Warning fill label" },
   { fg: "ink", bg: "wash-hover", min: 7, role: "Text on a hovered row" },
   { fg: "muted", bg: "wash-hover", min: 4.5, role: "Secondary text on a hovered row" },
   { fg: "primary", bg: "wash-hover", min: 4.5, role: "Primary text on a hovered row" },
@@ -563,9 +560,13 @@ function derive(input: ThemeInput): Record<string, string> {
     out["warning-strong"] = input.warning ?? DARK_WARNING;
     out["scrim"] = "rgb(0 0 0 / 0.7)";
     out["well"] = DARK_WELL;
-    out["shade-hover"] = "white 12%";
-    out["shade-press"] = "white 20%";
-    out["shade-slab"] = "black 45%";
+    // Darkening a dark fill is invisible, so hover and press lighten it instead, and the slab goes deeper.
+    for (const fill of ["primary", "secondary", "danger"]) {
+      out[`${fill}-hover`] = `color-mix(in srgb, var(--e-${fill}), white 12%)`;
+      out[`${fill}-press`] = `color-mix(in srgb, var(--e-${fill}), white 20%)`;
+      out[`${fill}-slab`] = `color-mix(in srgb, var(--e-${fill}), black 45%)`;
+    }
+    out["slab-ink"] = "color-mix(in srgb, var(--e-surface), black 45%)";
   }
   const dangerBase = input.danger ?? (dark ? DARK_DANGER : undefined);
   if (dangerBase) out["danger"] = reachContrast(dangerBase, out["on-danger"]!, 7);

@@ -7,7 +7,6 @@ import {
   defineTheme,
   derivedFrom,
   groups,
-  deprecated,
   inputTokens,
   toOklch,
   type ThemeInput,
@@ -574,8 +573,9 @@ describe("scheme, contrast and density", () => {
     expect(values).toEqual([...values].sort((a, b) => a - b));
     expect(groups.zIndex.at(-1)).toBe("z-skip");
   });
-  test("the spacing scale has every step from 1 to 8", () => {
-    for (let n = 1; n <= 8; n++) expect(groups.spacing).toContain(`space-${n}`);
+  test("the spacing scale has the steps 1 to 6, 8, 10, 12 and 16", () => {
+    for (const n of [1, 2, 3, 4, 5, 6, 8, 10, 12, 16]) expect(groups.spacing).toContain(`space-${n}`);
+    expect(groups.spacing).not.toContain("space-7");
   });
   test("renamed and removed tokens are gone", () => {
     for (const gone of ["edge", "focus-gap", "print-ink", "print-paper"])
@@ -635,44 +635,22 @@ const silent = <T>(fn: () => T): T => {
   }
 };
 
-describe("deprecated and renamed tokens", () => {
+describe("brand, wash and tone tokens", () => {
   const t = defineTheme().tokens;
-  test("are still emitted, as aliases of what replaces them", () => {
-    expect(t["brand-blue"]).toBe("var(--e-brand)");
-    expect(t["brand-green"]).toBe("var(--e-brand-accent)");
-    expect(t["surface-hover"]).toBe("var(--e-wash-hover)");
-    expect(t["surface-press"]).toBe("var(--e-wash-press)");
-    expect(t["stroke-ring"]).toBe("var(--e-stroke-edge)");
-    expect(t["slab"]).toBe("var(--e-depth)");
-    const css = defineTheme().css();
-    for (const name of Object.keys(deprecated)) expect(css, name).toContain(`--e-${name}:`);
+  test("a removed name in tokens only adds a custom property", () => {
+    const theme = silent(() => defineTheme({ tokens: { "surface-hover": "#eeeeee" } as never }));
+    expect(theme.warnings.join("\n")).toMatch(/tokens\.surface-hover: not a known token/);
   });
-  test("are listed with what to use instead, in explain and in the DTCG export", () => {
-    for (const name of ["brand-blue", "surface-hover", "stroke-ring", "slab", "easing-standard", "space-7", "bp-wide"])
-      expect(deprecated[name], name).toBeTruthy();
-    for (const name of ["brand", "wash-hover", "stroke-edge", "depth", "radius-lg", "space-5", "space-10", "space-16"])
-      expect(deprecated[name], name).toBeUndefined();
-    expect(defineTheme().explain("brand-blue")).toMatch(/deprecated: Use `brand`/);
-    expect(defineTheme().dtcg().color!["brand-blue"]!.$deprecated).toBe("Use `brand`.");
-    expect(defineTheme().dtcg().color!["brand"]!.$deprecated).toBeUndefined();
-  });
-  test("setting one in tokens still works and says what replaces it", () => {
-    const theme = silent(() => defineTheme({ tokens: { "surface-hover": "#eeeeee" } }));
-    expect(theme.tokens["surface-hover"]).toBe("#eeeeee");
-    expect(theme.warnings.join("\n")).toMatch(/tokens\.surface-hover is deprecated: Use `wash-hover`/);
-  });
-  test("the brand inputs set brand and brand-accent, and the old names follow", () => {
+  test("the brand inputs set brand and brand-accent", () => {
     const b = defineTheme({ brand: "#8a2be2", accent: "#2e7d32" }).tokens;
     expect(b["brand"]).toBe("#8a2be2");
     expect(b["brand-accent"]).toBe("#2e7d32");
-    expect(b["brand-blue"]).toBe("var(--e-brand)");
   });
   test("the hover and press washes are the one contrast-fitted pair", () => {
     expect(t["wash-hover"]).toBe("color-mix(in srgb, var(--e-ink) 8%, transparent)");
     expect(t["wash-press"]).toBe("color-mix(in srgb, var(--e-ink) 15%, transparent)");
     const grey = defineTheme({ surface: "#808080" });
     expect(grey.issues).toEqual([]);
-    expect(grey.tokens["surface-hover"]).toBe("var(--e-wash-hover)");
   });
   test("each tone is checked once, through the name components use", () => {
     const issues = checkContrast({ ...t, "warning-strong": "#fdf3dc", secondary: "#e8f5e1" });

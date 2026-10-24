@@ -8,7 +8,7 @@ const props = withDefaults(
   defineProps<{
     /** The element to render, such as `ul` (with `li` children). `ul` and `ol` lose their bullets and padding and keep their list role. */
     as?: ElementTag;
-    /** `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. */
+    /** `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 6, 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. */
     gap?: GapToken | string;
     /** Main-axis placement. `between` spreads the children apart. Left out, they sit at the start. */
     justify?: "start" | "center" | "end" | "between";
