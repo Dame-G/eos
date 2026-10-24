@@ -67,6 +67,9 @@ const t = useMessages();
     --_lift: var(--e-slab-thin);
 
     display: inline-flex;
+    /* As wide as its content, also as the child of a grid or a column, which would otherwise stretch it. */
+    inline-size: fit-content;
+    max-inline-size: 100%;
     align-items: center;
     gap: var(--e-gap-tight);
     max-inline-size: 100%;

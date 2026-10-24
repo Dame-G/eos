@@ -2,6 +2,9 @@ import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 import EStamp from "./EStamp.vue";
+import EStack from "../Stack/EStack.vue";
+import ETag from "../Tag/ETag.vue";
+import EKbd from "../Kbd/EKbd.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
@@ -225,5 +228,21 @@ describe("EStamp", () => {
       }),
     );
     await expectNoViolations(container);
+  });
+
+  test("in a stack or a grid it stays as wide as its words, like ETag and EKbd", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(EStack, { style: "width: 600px" }, () => [
+            h(EStamp, { status: "paid" }),
+            h(ETag, null, () => "Bills"),
+            h(EKbd, null, () => "K"),
+          ]),
+      }),
+    );
+    for (const sel of [".e-stamp", ".e-tag", ".e-kbd"]) {
+      expect(container.querySelector<HTMLElement>(sel)!.getBoundingClientRect().width).toBeLessThan(200);
+    }
   });
 });
