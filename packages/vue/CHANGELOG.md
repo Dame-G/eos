@@ -1,5 +1,144 @@
 # @eos-ui/vue
 
+## 0.13.0
+
+### Minor Changes
+
+- 4852210: Form inputs audit.
+
+  - `EForm` checks every control on submit. `ECheckbox`, `ESwitch`, `ESegmented`, `EFieldset` (and so `ECheckboxGroup` and `ERadioGroup`) and `ESignaturePad` register their `error`. An empty required `ESelect` or `ESignaturePad` stops the submit with the browser's own message. An empty required `ERadioGroup` is listed once, by its label. `useFormField` takes a `check` for a custom control.
+  - `ENumberField` has `locale`, and `ECurrencyField` passes its `locale` on, so the separators and reading typed text follow it, not only the symbol.
+  - `ESelect`, `ECombobox`, `EDatePicker` and `ERangePicker` take `size`. `ECheckboxGroup` and `ERadioGroup` take `id` and `orientation`. `ECombobox` emits `clear`. `ETextarea` documents `name`.
+  - `clearable` is off by default in every field, `ESearchBar` and `ECombobox` included: pass `clearable` to show the button.
+  - `EUpload`: the `files` event is removed (it repeated `v-model`). The prompt is one message, `dropFile`, with `{choose}`, in place of `dragHere`.
+  - `EDatePicker` and `ERangePicker` post nothing while the typed date cannot be used, and keep the consumer's `form` attribute, as does `ESignatureField`. `ERangePicker`'s placeholders show the date format.
+  - `@focus` and `@blur` on `EOtpField`, `ERangePicker` and `ESegmented` fire as focus enters and leaves the field (`useFieldAttrs().group()`).
+  - `EOtpField`'s arrow keys follow the boxes in a right-to-left page. `ESegmented` does not smooth-scroll under reduced motion (`useReducedMotion`, shared with `ETabs`) and always renders one wrapper (`.e-seg-field`), which takes `class` and `style`.
+  - A read-only `ESelect` looks read-only and has no arrow. The rows of a disabled `ECheckboxGroup`, `ERadioGroup` or `ESignatureField` look disabled. `ERadioGroup` describes an option with its `description` instead of folding it into the name.
+  - Invalid ARIA removed: `aria-readonly` on `ECheckboxGroup`'s fieldset and `EUpload`'s file input (described as "Read only" instead), `aria-invalid` on `ESignaturePad`'s image.
+  - `ECombobox` only keeps the field open for its own list, and the multi-select input height comes from the tokens. `ESignatureField`'s Type and Draw switch is read-only, not disabled. `ESlider` keeps the last tick with a decimal step.
+
+- 4852210: **Development warnings no longer ship to production.** `isProduction()` guarded its lookup with `typeof process`, which bundlers leave in place, so it was false in every browser bundle. It now reads `process.env.NODE_ENV` alone, and `check:dist` bundles it both ways to prove it.
+
+  **Per-component paths.** `@eos-ui/vue/components/EButton` (any component), `@eos-ui/vue/plugin` (`createEos`, `themeCss`) and `@eos-ui/vue/icons/builtin`. They are the modules the root exports, so mixing them is safe. The built-in Phosphor set (about 9 kB gzipped) is now registered by the package root instead of imported by the config, so an app that imports only per-component paths does not bundle it; `import "@eos-ui/vue/icons/builtin"` brings it back. Importing the root behaves as before, with or without the plugin.
+
+  **Global component types are opt-in.** `createEos()` registers no components, so `GlobalComponents` moved to `@eos-ui/vue/globals` (`import type {} from "@eos-ui/vue/globals"` after `app.component(...)`). A component you forgot to import now fails `vue-tsc` instead of failing at run time. `$e` is still typed by the package.
+
+  **Internal composables are no longer exported:** `useSize`, `useDetails`, `useFieldControl`, `useFormField`, `FORM_KEY`, `isApple` and `localeDirection`. They were undocumented helpers for the components. `focusInside` still is, from one file.
+
+  **Icon components in `createEos({ icons: { icons } })` stay raw** instead of becoming reactive proxies.
+
+  **New:**
+
+  - `ELinkCard`: a card that is one link (`title`, `href`/`to`/`linkComponent`, `external`, `as`, `size`), the whole card the click target, with a border that hover recolours and never thickens.
+  - `EConfigProvider`: a scoped config for part of the page. Inherits the parent config and overrides `theme`, `scheme`, `locale`, `currency`, `dir`, `messages` and `icons`; the theme's tokens go on its element, and floating parts opened inside render inside it (`portal`).
+  - `EAppHeader` `brand`, `brandHref`, `brandTo`, `brandLabel`, `linkComponent` and a `brand` slot: a styled home link.
+  - `EDefinition` `inline`: the term in running text, without the info icon.
+  - `createEos({ applyTheme: false })`: leaves the theme to CSS the page ships itself.
+  - `EToast` and `ToastTone` take `neutral`. `EText` takes `tone="neutral"`. `ESurface` takes `variant="tinted"`. `EAvatar` takes `presence`. `EDescriptionList` items take `stamp` and `stampTone`.
+  - Shared `Size`, `Tone` and `ElementTag` types; each component narrows them with `Extract`, and every polymorphic `as` takes an `ElementTag`.
+
+  **Fixes:**
+
+  - `EInline` and `EGrid` with `as="ul"` or `"ol"` drop the bullets and padding and keep the list role, as `EStack` does.
+  - A sticky `EAppHeader` sits above anything the page raises (a sticky table head, a focused control) and below every overlay. It was level with a sticky table head.
+  - A dialog or select no longer shifts a page that sets `scrollbar-gutter: stable`: the scroll lock does not pad the body there.
+  - `EAvatar` capitalises its initials in the configured locale.
+
+  **EIcon sizes.** The default is now an explicit `md` = 20px, with `sm` 14px, `lg` 28px and `xl` 40px. `sm` and the default keep their size. An explicit `size="md"` was 28px and is now 20px: write `size="lg"` for 28px. `size="lg"` was 40px and is now 28px: write `size="xl"` for 40px.
+
+  **Repository:** the root build builds the tokens once, `pnpm ssr` renders every component on the server from the build (in `check:built` and the smoke test), the accessibility matrix covers every tone of Tag, Stamp, Text and Metric with Highlight and Kbd, and `check:icon-aliases` checks the Iconify aliases (needs the network).
+
+- 4852210: Overlays, navigation, feedback and data: fixes from the audit.
+
+  **Overlays**
+
+  - `EDialog`, `EDrawer`, `ECommandPalette`: a press on a toast no longer counts as a press outside, so dismissing a toast leaves a dismissible dialog (and the palette) open.
+  - `inline` previews of `EDialog` and `EDrawer` now ignore Escape, presses outside and focus moving out.
+  - `ECommandPalette` emits `close` when a command is chosen and when the shortcut closes it, not only on Escape and the backdrop.
+  - `ETooltip` emits `close` only when the person hides it. Setting `open` to false no longer fires it, matching `EDialog`, `EDrawer` and `EMenu`.
+  - `EMenu` `side` takes `start` and `end`, which follow the reading direction, in place of `left` and `right`. The side mapping is shared through the new `useLogicalSide()`, exported next to `useDir()`.
+  - `useOverflow(scroller, watch, { children: true })` also watches the scroller's children. `EDialog` and `EDrawer` share one body built on it.
+
+  **Toasts**
+
+  - `EToastProvider`: closing a toast with its button moves focus to the next toast, or back to where it was, instead of dropping it to the page. The region shows a focus ring when F8 focuses it.
+  - `EToast`'s dismiss button now uses the `dismiss` message ("Dismiss"), as `ENotice` does, in place of "Close notification". The `closeToast` message is removed. Panels (dialog, drawer, the Columns menu) keep `close`.
+
+  **Data**
+
+  - `EDataGrid` no longer depends on `@tanstack/vue-table`: filtering, sorting, paging and selection are plain computeds. Behaviour is unchanged. `@tanstack/vue-virtual` stays for `virtual`.
+  - `EDataGrid` as cards (below 40rem) now shows the `filterable` filters above the rows, labelled by column, as the sort moves to a menu.
+  - `EDataGrid` with `manual`: `searchDebounce` also waits for typing in text and number filters.
+  - `EDataGrid`'s error state uses the icon name `alert`, so every icon set draws it.
+  - `ETable`: the loading status region stays in the page and only its text changes, so screen readers hear it. `skeletonRows` defaults to 5, as in `EDataGrid` (was 3).
+
+  **Navigation and feedback**
+
+  - `EStepper`: a `disabled` interactive step stays focusable with `aria-disabled`, as `EPagination` does, instead of leaving the Tab order. The brackets around the screen-reader words are now in the `done` and `stepError` messages ("(done)", "(has an error)"): if you translated them, add brackets if you want them.
+  - `EPagination`: an empty `label` falls back to "Pagination", as `EBreadcrumb` and `EStepper` do.
+  - `EProgress`: the indeterminate bar slides from the start edge in a right-to-left page too, and the percentage is formatted in the configured locale.
+
+- 6280803: **Old spellings are removed.** Until 1.0 an old spelling goes outright instead of warning. Each line names what to write instead.
+
+  Components:
+
+  - `small` and `large` on `EAvatar`, `ESpinner`, `ESurface` and `EText`, `small` on `EIcon`, `EKbd` and `EStamp`, and `dense` on `ETable`: use `size` (`size="sm"`, `size="lg"`).
+  - `ESurface` `paper` and `raised`: use `variant="paper"` and `variant="raised"`. `ESurface` `pad`: use `size`, `padding` or `flush`. `ESurface` `variant="tone"`: use `variant="tinted"`.
+  - `EText` `muted` and `tone="muted"`: use `tone="neutral"`.
+  - `EAvatar` `status`: use `presence`.
+  - `EDescriptionList` item `badge` and `badgeTone`: use `stamp` and `stampTone`.
+  - `EDataGrid` `bare`: use `ETable` for a short static list. Every grid now has its foot.
+  - `EUpload` `@files`: use `v-model` or `@update:model-value`, which carry the same list.
+  - `EStamp` `tone="ink"`: use `tone="neutral"`.
+  - `EMenu` `side="left"` and `side="right"`: use `start` and `end`. `EDrawer` `side="left"` and `side="right"`: use `start` and `end`. `useLogicalSide()` and its `LogicalSide` type take `top`, `bottom`, `start` and `end` only.
+  - `EInline` `nowrap`: use `:wrap="false"`.
+  - `ESearchResults` `@edge`: use `@exit-top`.
+  - `ESearchBar` and `ECombobox` no longer show the clear button when `clearable` is left out: it defaults to `false`, as in every field, with no warning. Pass `clearable` to show it.
+
+  Messages:
+
+  - `dragHere`: use `dropFile` (with `{choose}` where the `chooseOne` link goes).
+  - `closeToast`: use `dismiss`. `EToast` no longer reads `closeToast`.
+
+  `defineTheme` inputs:
+
+  - `strokes.edge` and `strokes.card`: `strokes.hair` derives both. To pin one, set `tokens: { "stroke-edge": "2px" }` or `tokens: { "stroke-card": "2px" }`.
+  - `motion: "none"`: every theme already stops moving under `prefers-reduced-motion`. To zero the durations anyway, set `duration-tap`, `duration-fade` and `duration-move` in `tokens`.
+
+  CSS tokens (each `--e-*`):
+
+  - `slab`: use `depth`. `stroke-ring`: use `stroke-edge`. `surface-hover` and `surface-press`: use `wash-hover` and `wash-press`. `brand-blue` and `brand-green`: use `brand` and `brand-accent`. `easing-standard`: use `ease-in-out`.
+  - `leading-loose` and `space-7`: use another step of the scale (`leading-normal`, `space-6` or `space-8`). A gap or padding of `7` is no longer a space token.
+  - `on-info`, `on-success` and `on-warning`: use `on-primary`, `on-secondary` and `surface`, which they were aliases of.
+  - `shade-hover`, `shade-press` and `shade-slab`: use the `*-hover`, `*-press` and `*-slab` tokens of a fill, or `slab-ink`. Those carry the mix amounts inline now and resolve to the same colours on light and dark surfaces.
+  - `bp-narrow`, `bp-medium` and `bp-wide`: write the breakpoints as literals (`26rem`, `36rem`, `48rem`), since a custom property cannot be read in `@media` or `@container`.
+
+  The tokens package no longer exports `deprecated`. `explain()` and the DTCG export (`$deprecated`) no longer mark old tokens, and a removed token set in `tokens` is reported as not a known token.
+
+### Patch Changes
+
+- 6280803: `EDisclosure`, `EExpandableRow` and `ENavList` groups: while the content slides open or shut it is clipped exactly at the moving edge, so text no longer shows below a closing panel. The clip gives way by `gap-snug` (for focus rings) only once the panel is open.
+- 6280803: `EStamp`, `ETag` and `EKbd` stay as wide as their content as the child of a grid or a column (an `EStack`, a pattern's card), instead of stretching to its width.
+- 4852210: `ESelect`: a select rendered open from the first render (`open` set) no longer throws `document is not defined` in a server render.
+- 6280803: `EStamp` centres its capitals with `text-box` where the browser supports it, so the word sits in the middle with any font, size or text scale. Other browsers keep the small nudge above the text.
+- 4852210: Tokens and CSS values audit.
+
+  - The `frame`, `float` and `paper` shadows draw their ring as `0 0 0 var(--e-stroke-card) var(--e-border)`, so a `border` or `stroke-card` override (from `defineTheme` or plain CSS on `:root`) reaches cards, popovers and paper. Only the drop layers are literal. `paper` is the ring plus `var(--e-well)`.
+  - The `scrim` is a deep shade of the brand colour, so a custom `brand` no longer dims dialogs with the default teal.
+  - New tokens: `brand` and `brand-accent` (the new names of `brand-blue` and `brand-green`), `type-meta` (one line of small mono metadata), `underline-offset` (0.25em, the gap under every underlined text), `tracking-snug` (the button label), `shell-width` and `shell-rail` (the `EAppShell` column, now in `tokens.json`). `type-button` is listed with the sans styles. `easing-linear` is `linear`.
+  - `defineTheme`: `radius` also takes one base number in px (`radius-md`; `sm` is half, `lg` double). `strokes` needs only `{ hair, focus }`. The success and warning notice pairs are checked once each.
+  - `base.css`: the unused recipe classes `.e-slab` (and `--thin`, `--bold`, `--shadow`, `--sink`), `.e-selected--value`, `.e-selected--place`, `.e-disabled`, `.e-disabled-row` and `.e-interact--field` are removed. They were never documented as API; the rules they stood for are now a comment in `base.css`, including the named hover exceptions (link, breadcrumb, disclosure summary) and the two ways "place" is drawn (a tab thickens its edges in a bordered strip, a nav item takes a slab).
+  - Dialogs, drawers and the command palette arrive on `easing-enter` and leave on `easing-exit`; the scrim fades over `duration-fade`.
+  - The selected calendar day stands on the standard slab. Notice, Stamp and Toast share one tone edge: `stroke-edge` plus `slab-bold` on the inline-start side, so the stamp's and the toast's are 1px heavier.
+  - Raw line heights and letter spacing in component CSS are type, leading and tracking tokens. Calendar titles use `type-h4`, so they are medium weight, not strong; navigation group headings use `type-kicker`, like menu group labels. `ECodeBlock` sets code at the mono weight `fonts.css` loads (500).
+  - Popovers and plain toasts are `size-panel-sm` wide (28rem, from 24rem), the menu grows to `size-panel-sm`, and the tooltip is half of `size-panel-md` (16rem, as before).
+
+- Updated dependencies [6280803]
+- Updated dependencies [6280803]
+- Updated dependencies [4852210]
+  - @eos-ui/tokens@0.13.0
+
 ## 0.12.0
 
 ### Minor Changes
