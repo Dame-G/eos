@@ -84,7 +84,10 @@ async function reveal(smooth: boolean) {
   // Clamped to the track's own range: an end option would otherwise ask to be centred past the start, and iOS Safari lets the track rest there with empty space showing.
   const reach = el.scrollWidth - el.clientWidth;
   const rtl = getComputedStyle(el).direction === "rtl";
-  const left = Math.min(Math.max(el.scrollLeft + a.left + a.width / 2 - (b.left + b.width / 2), rtl ? -reach : 0), rtl ? 0 : reach);
+  const left = Math.min(
+    Math.max(el.scrollLeft + a.left + a.width / 2 - (b.left + b.width / 2), rtl ? -reach : 0),
+    rtl ? 0 : reach,
+  );
   el.scrollTo({ left, behavior: smooth && !calm() ? "smooth" : "auto" });
 }
 
