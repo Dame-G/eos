@@ -91,7 +91,7 @@ function closeOnLink(event: MouseEvent) {
     grid-template-rows: auto 1fr auto;
     min-height: 100%;
     /* The brand mixed into the page background: more than `surface-tint`, which is a fill for small things and nearly white in a light theme, so the ground reads beside the column. */
-    background: color-mix(in srgb, var(--e-primary) 9%, var(--e-background));
+    background: color-mix(in srgb, var(--e-primary) 16%, var(--e-background));
   }
 
   /* The column is the page; the screen beside it, when the column does not fill it, is the ground. */
