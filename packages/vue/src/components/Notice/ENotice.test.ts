@@ -174,7 +174,8 @@ describe("ENotice", () => {
     const notice = container.querySelector<HTMLElement>(".e-notice")!;
     const style = getComputedStyle(notice);
     expect(parseFloat(style.borderInlineStartWidth)).toBeGreaterThan(4);
-    expect(parseFloat(style.borderInlineEndWidth)).toBe(0);
+    expect(parseFloat(style.borderInlineEndWidth)).toBeGreaterThan(0);
+    expect(parseFloat(style.borderInlineEndWidth)).toBeLessThan(parseFloat(style.borderInlineStartWidth));
     expect(getComputedStyle(notice, "::before").content).toBe("none");
     const body = notice.getBoundingClientRect();
     const ltrIcon = container.querySelector(".e-notice-icon")!.getBoundingClientRect();
@@ -187,10 +188,11 @@ describe("ENotice", () => {
     );
   });
 
-  test("it is full width with square corners, to sit against the edge of its container", async () => {
+  test("it is full width and follows the theme radius, like the other components", async () => {
     const { container } = await render(ENotice, { props: { title: "x" } });
+    container.classList.add("e-root");
     const style = getComputedStyle(container.querySelector(".e-notice")!);
-    expect(style.borderRadius).toBe("0px");
+    expect(style.borderRadius).not.toBe("0px");
     expect(style.display).toBe("block");
   });
 
