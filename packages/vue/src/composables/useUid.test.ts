@@ -24,6 +24,14 @@ describe("useUid", () => {
     expect(found[0]).not.toBe(found[1]);
   });
 
+  test("a generated id has no dash after its prefix, so an id derived from it (`-0`, `-label`) never equals another generated id", async () => {
+    const { found, Probe } = ids();
+    await render(defineComponent({ render: () => [h(Probe), h(Probe), h(Probe)] }));
+    for (const id of found) expect(id).toMatch(/^e-[A-Za-z0-9_]+$/);
+    const derived = found.map((id) => `${id}-0`);
+    for (const d of derived) expect(found).not.toContain(d);
+  });
+
   test("the id a consumer gives wins, and a blank one falls back to the generated id", async () => {
     const given = ids(() => "mine");
     await render(given.Probe);
