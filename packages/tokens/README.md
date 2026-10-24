@@ -51,7 +51,7 @@ All variables are prefixed `--e-` (`--e-primary`, `--e-space-4`). [Documentation
 | `density` `"comfortable" \| "compact"`         | `compact` scales `space-*` by 0.75 (so `gap-*`, `pad-*` and `gutter` follow) and sets `control-height` to the 44px tap target (`2.75rem`; `chip-height` 22px). A smaller `controlHeight` is raised and reported                                                     |
 | `controlHeight`                                | `control-height`, `chip-height`                                                                                                                                                                                                                                     |
 
-`derivedFrom`, `constants` and `inputTokens` say which input drives each token and which tokens are fixed. `deprecated` lists the tokens that are still emitted but will be removed, with what to use instead; `explain()`, the DTCG export (`$deprecated`) and a `tokens` entry for one of them say so too. Fixed tokens include `depth`, the thickness of a raised or pressed edge.
+`derivedFrom`, `constants` and `inputTokens` say which input drives each token and which tokens are fixed. Fixed tokens include `depth`, the thickness of a raised or pressed edge.
 
 ## Token layers
 

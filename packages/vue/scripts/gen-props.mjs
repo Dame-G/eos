@@ -447,11 +447,7 @@ function row(p, defaults) {
   else if (p.type === "boolean") def = "`false`";
   else def = "None";
 
-  // `@deprecated Use x.` is the TypeScript tag, so editors strike the prop through. The table leads with
-  // **Deprecated.** and the replacement, then whatever the JSDoc says before the tag.
   let note = doc.replace(/^Required\.\s*/i, "");
-  const dep = deprecation(note);
-  if (dep) note = [`**Deprecated.**`, dep.use, dep.rest].filter(Boolean).join(" ");
   if (p.model) {
     const prefix = p.name === "modelValue" ? "v-model" : `v-model:${p.name}`;
     // The prefix is code: a bare `v-model:end:` would be turned into an emoji by markdown-it.
@@ -461,16 +457,8 @@ function row(p, defaults) {
   return `| ${code(p.name)} | ${code(p.type)} | ${def} | ${esc(note)} |`;
 }
 
-/** `{ use, rest }` for a JSDoc with an `@deprecated` tag: the replacement, and the text before the tag. */
-function deprecation(doc) {
-  const m = /(?:^|\s)@deprecated(?:\s+|$)/.exec(doc);
-  return m ? { use: doc.slice(m.index + m[0].length).trim(), rest: doc.slice(0, m.index).trim() } : null;
-}
-
 function table(info) {
-  // Deprecated props go last, so the table reads as the current API first.
-  const all = [...info.models, ...info.props];
-  const rows = [...all.filter((p) => !deprecation(p.doc)), ...all.filter((p) => deprecation(p.doc))];
+  const rows = [...info.models, ...info.props];
   const lines = [
     "| Prop | Type | Default | Notes |",
     "| --- | --- | --- | --- |",

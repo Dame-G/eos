@@ -1,4 +1,4 @@
-import { defaults, deprecated, derivedFrom, groups, usage, type TokenName } from "./generated/defaults.js";
+import { defaults, derivedFrom, groups, usage, type TokenName } from "./generated/defaults.js";
 import { toDtcg, type DtcgTokens } from "./dtcg.js";
 import {
   type ContrastCheck,
@@ -776,7 +776,6 @@ function inputWarnings(raw: ThemeInput): string[] {
     out.push(`preset: "${raw.preset}" is not a preset (paper, ink, quiet), so it is ignored.`);
   for (const key of Object.keys(raw.tokens ?? {}))
     if (!(key in defaults)) out.push(`tokens.${key}: not a known token, so it only adds a custom property.`);
-    else if (deprecated[key]) out.push(`tokens.${key} is deprecated: ${deprecated[key]}`);
   return out;
 }
 
@@ -820,7 +819,6 @@ export function defineTheme(given: ThemeInput = {}): Theme {
       if (value === undefined) return `${token}: not a token.`;
       const drivers = (derivedFrom[token] ?? "").split(",").filter(Boolean);
       const lines = [`--e-${token}: ${value}`];
-      if (deprecated[token]) lines.push(`deprecated: ${deprecated[token]}`);
       const hex = resolveColor(
         value,
         (n) => tokens[n],

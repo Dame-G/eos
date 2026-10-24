@@ -26,7 +26,7 @@ const composables = existsSync(join(root, "composables"))
   : [];
 
 // A composable's exports are public unless marked `@internal`: in the JSDoc right before the export, or with a first line
-// of `// @internal` for the whole file. The components share internal helpers (useSize, useDetails, useFieldControl) that are not
+// of `// @internal` for the whole file. The components share internal helpers (useDetails, useFieldControl) that are not
 // part of the package's API, so they are named here one by one instead of with `export *`.
 const exportLine =
   /(\/\*\*(?:(?!\*\/)[\s\S])*\*\/\s*)?^export\s+(?:declare\s+)?(?:async\s+)?(function|const|let|class|interface|type|enum)\s+([A-Za-z0-9_$]+)/gm;
