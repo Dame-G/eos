@@ -90,8 +90,8 @@ function closeOnLink(event: MouseEvent) {
     display: grid;
     grid-template-rows: auto 1fr auto;
     min-height: 100%;
-    /* The brand mixed into the page background: more than `surface-tint`, which is a fill for small things and nearly white in a light theme, so the ground reads beside the column. */
-    background: color-mix(in srgb, var(--e-primary) 16%, var(--e-background));
+    /* The brand mixed into the page background: more than `surface-tint`, which is a fill for small things and nearly white in a light theme, so the ground reads beside the column. The hue is turned 12 degrees: a pale tint of a violet looks bluer than the colour it comes from. */
+    background: oklch(from color-mix(in oklch, var(--e-primary) 16%, var(--e-background)) l c calc(h + 12));
   }
 
   /* The column is the page; the screen beside it, when the column does not fill it, is the ground. */
