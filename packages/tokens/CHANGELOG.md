@@ -1,5 +1,11 @@
 # @eos-ui/tokens
 
+## 0.13.1
+
+### Patch Changes
+
+- bf2cb90: The library's name is written in lowercase, eos, in the package descriptions, READMEs and generated `llms.txt`. Nothing in the API changes.
+
 ## 0.13.0
 
 ### Minor Changes
