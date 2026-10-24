@@ -345,7 +345,7 @@ export const usage: Record<string, string> = {
   surface:
     "What sits on the page: cards, fields, popovers, dialogs, panels and headers. Every screen starts on white. The `surface` input of `defineTheme` sets it, and with it derives `surface-tint`, the soft tone backdrops and, on a dark surface, the light action colours.",
   "surface-tint":
-    "The surface's second step: wells, hovered rows, table headers, footers, empty slots and the information tone's tint. Derived from `surface` by shifting its lightness 0.1 toward the foreground (0.06 the other way on a dark surface), in the brand hue: chroma 0.02 in a light theme and 0.01 in a dark one (never more than the brand has; a neutral grey with `contrast: \"high\"`). About 1.1:1 against white, so never a boundary on its own.",
+    "The surface's second step: wells, hovered rows, table headers, footers, empty slots and the information tone's tint. Derived from `surface` by shifting its lightness 0.1 toward the foreground (0.06 the other way on a dark surface), in the brand hue: chroma 0.02 in light and dark themes (never more than the brand has; a neutral grey with `contrast: \"high\"`). About 1.1:1 against white, so never a boundary on its own.",
   "surface-paper":
     "The statement: a paper-coloured surface for the one document-like block on a screen (a bill, a receipt, a form to sign). A hair warmer than `surface` and drawn with the `paper` shadow. Derived from `surface`.",
   skeleton: "The resting fill of a loading placeholder (skeleton, empty bar track). Faint enough to read as absent.",
