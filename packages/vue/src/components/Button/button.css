@@ -20,11 +20,10 @@
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--_ring);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-md);
 
     /* The bottom corners are as much taller than wide as the slab is thick, so the face inside them is a true circle like the top ones (a corner whose border is thicker on one side than the other has an elliptical inside, which reads as a diagonal). */
-    border-bottom-left-radius: var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift));
-    border-bottom-right-radius: var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift));
+    border-radius: var(--e-radius-md) / var(--e-radius-md) var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift))
+      calc(var(--e-radius-md) + var(--_lift));
     background-color: var(--_fill);
 
     /* A solid face runs under its border so no page colour shows between them. */

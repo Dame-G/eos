@@ -134,11 +134,8 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
     padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
     border: var(--e-stroke-edge) solid var(--_ring);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-md);
-
-    /* The bottom corners are as much taller than wide as the slab is thick, so the face inside them is a true circle like the top ones (a corner whose border is thicker on one side than the other has an elliptical inside, which reads as a diagonal). */
-    border-bottom-left-radius: var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift));
-    border-bottom-right-radius: var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift));
+    border-radius: var(--e-radius-md) / var(--e-radius-md) var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift))
+      calc(var(--e-radius-md) + var(--_lift));
     color: var(--e-ink);
     font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-none) var(--e-font-sans);
     text-decoration: none;
