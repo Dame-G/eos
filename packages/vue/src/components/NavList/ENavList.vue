@@ -90,6 +90,16 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
     color: var(--e-ink);
   }
 
+  /* In a stacked list the heading is underlined by the same hairline that parts the items, full width, so it reads as the head of its section. */
+  .e-nav:not(.e-nav--horizontal) .e-nav-heading::after {
+    content: "";
+    display: block;
+    height: var(--e-stroke-hair);
+    margin-block-start: var(--e-gap-snug);
+    margin-inline: calc(-1 * var(--e-pad-control-sm));
+    background: var(--e-border);
+  }
+
   .e-nav > :first-child {
     margin-block-start: 0;
   }
