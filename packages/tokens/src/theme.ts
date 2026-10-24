@@ -425,12 +425,12 @@ function fitTone(
   out[soft] = reachAll(out[soft]!, [[out[token]!, 4.5]]).color;
 }
 
-/** The second ground: the brand's own hue at a light touch. A lot of colour in a light theme (it is a pale ground, so it takes it), little in a dark one; a grey brand stays grey. */
+/** The second ground: the brand's own hue at a light touch. A little colour in a light theme and hardly any in a dark one; a grey brand stays grey. */
 function groundTint(brand: string, surfaceL: number, dark: boolean) {
   const { h, c } = toOklch(brand);
   return fromOklch({
     l: Math.min(1, Math.max(0, dark ? surfaceL + 0.06 : surfaceL - 0.1)),
-    c: Math.min(dark ? 0.02 : 0.08, c),
+    c: Math.min(dark ? 0.01 : 0.02, c),
     h,
   });
 }
