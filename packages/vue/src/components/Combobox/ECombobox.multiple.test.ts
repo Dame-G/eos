@@ -30,6 +30,16 @@ describe("ECombobox multiple", () => {
     expect(inputOf(container).placeholder).toBe("");
   });
 
+  test("a bare `multiple` attribute, as in a template, turns multiple on", async () => {
+    const { container } = await render(
+      defineComponent({
+        setup: () => () => h(ECombobox as never, { multiple: "", label: "Bare", options: WAYS, modelValue: ["Text"] }),
+      }),
+    );
+    expect(tags(container)).toEqual(["Text"]);
+    expect(container.querySelector(".e-combo")!.classList.contains("e-combo--multi")).toBe(true);
+  });
+
   test("the tags are the library's own ETag, and sit in the middle of a field that keeps its height", async () => {
     const empty = await render(ECombobox, {
       props: { clearable: true, multiple: true, label: "Empty", options: WAYS },

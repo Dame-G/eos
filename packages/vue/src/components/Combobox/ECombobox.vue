@@ -92,9 +92,10 @@ const frame = computed(() =>
 );
 const listName = computed(() => (props.bare ? (props.ariaLabel ?? props.label) : props.label));
 
-const multiple = computed(() => props.multiple);
+// `multiple` is typed `M`, so Vue cannot cast the bare attribute (`<ECombobox multiple>`, which arrives as "") to a boolean.
+const multiple = computed(() => (props.multiple as unknown) === "" || !!props.multiple);
 // Free text is for one value, so `multiple` ignores it.
-const free = computed(() => props.freeform && !props.multiple);
+const free = computed(() => props.freeform && !multiple.value);
 const all = computed(() => normalizeOptions(props.options));
 const values = computed<string[]>(() =>
   multiple.value && Array.isArray(model.value) ? (model.value as string[]) : [],
