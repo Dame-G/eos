@@ -98,7 +98,7 @@ function darkOf(input: ThemeInput): ThemeInput {
   const { dark, ...rest } = input;
   const own: ThemeInput = { ...rest };
   for (const key of GROUNDS) delete own[key];
-  return { surface: "#10151a", ...own, ...dark, scheme: "dark", tokens: { ...own.tokens, ...dark?.tokens } };
+  return { surface: "#15121b", ...own, ...dark, scheme: "dark", tokens: { ...own.tokens, ...dark?.tokens } };
 }
 
 const isTheme = (t: Theme | ThemeInput): t is Theme => typeof (t as Theme).css === "function";

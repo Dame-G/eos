@@ -31,7 +31,7 @@ export type SchemePreset = "light" | "dark" | "auto";
 export type ThemeVariant = Omit<ThemeInput, "name" | "scheme" | "dark" | "strict" | "preset">;
 
 /** The surface of the dark variant when `scheme: "auto"` gives none. */
-const DARK_SURFACE = "#10151a";
+const DARK_SURFACE = "#15121b";
 
 export interface ThemeInput {
   /** Identifies the theme. It becomes the value of `data-e-theme` when the theme is scoped to an element. */
@@ -65,7 +65,7 @@ export interface ThemeInput {
   };
   /** `"high"` draws every line and secondary text at full strength: `border` and `border-strong` become the foreground colour, `muted` is softened only until it holds 15:1, `surface-tint` is a neutral grey (no brand tint) and `scrim` is darker. Pair it with heavier `strokes`. `"auto"` keeps the standard theme and adds the high one under `prefers-contrast: more`. Default `"standard"`. */
   contrast?: ContrastPreset;
-  /** Opt in to `prefers-color-scheme` with `"auto"`. The theme is the light one; `dark` (default: a dark surface of `#10151a`) is derived the same way and emitted inside `@media (prefers-color-scheme: dark)`. `color-scheme` becomes `light dark`. Without it the theme is fixed: dark when `surface` is dark, light otherwise. */
+  /** Opt in to `prefers-color-scheme` with `"auto"`. The theme is the light one; `dark` (default: a dark surface of `#15121b`) is derived the same way and emitted inside `@media (prefers-color-scheme: dark)`. `color-scheme` becomes `light dark`. Without it the theme is fixed: dark when `surface` is dark, light otherwise. */
   scheme?: SchemePreset;
   /** What changes on a dark page when `scheme` is `"auto"`: usually `surface`, and `foreground` or `brand` if the light ones do not carry over. */
   dark?: ThemeVariant;
@@ -303,7 +303,7 @@ function shadowRgb(out: Record<string, string>, dark: boolean) {
   return `${r}, ${g}, ${b}`;
 }
 
-/** The scrim is the deep shade of the brand, as the default teal one is of the logo blue, so it follows a theme instead of tinting every brand teal. */
+/** The scrim is the deep shade of the brand, as the default one is of the lavender, so it follows a theme instead of tinting every brand the default hue. */
 function brandScrim(brand: string) {
   const { c, h } = toOklch(brand);
   const [r, g, b] = parseHex(fromOklch({ l: 0.2613, c: Math.min(c, 0.0408), h }));

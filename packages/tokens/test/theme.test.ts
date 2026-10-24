@@ -139,8 +139,8 @@ describe("mid-tone surfaces", () => {
   });
   test("a surface that already worked keeps its action colours", () => {
     const fixed = (surface: string) => defineTheme({ surface }).tokens;
-    expect(fixed("#e0e0e0")["primary"]).toBe("#17586d");
-    expect(fixed("#20202a")["primary"]).toBe("#3ca1c1");
+    expect(fixed("#e0e0e0")["primary"]).toBe("#624b90");
+    expect(fixed("#20202a")["primary"]).toBe("#bfa8f5");
     expect(fixed("#20202a")["on-primary"]).toBe("#000000");
   });
 });
@@ -357,7 +357,7 @@ describe("derived inputs", () => {
   });
 
   test("the scrim is a deep shade of the brand, and black on a dark or high-contrast theme", () => {
-    expect(base["scrim"]).toBe("rgb(11 40 52 / 0.55)");
+    expect(base["scrim"]).toBe("rgb(39 32 54 / 0.55)");
     const rose = defineTheme({ brand: "#e91e63" }).tokens["scrim"]!;
     expect(rose).toMatch(/^rgb\(\d+ \d+ \d+ \/ 0\.55\)$/);
     const [r, , b] = rose.match(/\d+/g)!.map(Number);
@@ -615,7 +615,7 @@ describe("dtcg", () => {
     expect(typeof tree.color!["wash-hover"]!.$value).toBe("string");
   });
   test("carries the usage note as the description, and every token appears once", () => {
-    expect(tree.color!["primary"]!.$description).toMatch(/Action blue/);
+    expect(tree.color!["primary"]!.$description).toMatch(/Action violet/);
     const count = Object.values(tree).reduce((n, g) => n + Object.keys(g).length, 0);
     expect(count).toBe(Object.keys(defineTheme({ name: "light" }).tokens).length);
   });

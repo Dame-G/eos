@@ -18,12 +18,12 @@ const glyphs = {
 
 const styles = (wordmark) => `
     :root {
-      --eos-face: #17586d;      /* --e-primary */
-      --eos-slab: #104251;      /* --e-primary-slab */
-      --eos-on: #ffffff;        /* --e-on-primary */
-      --eos-word: #17586d;
+      --eos-face: #bfa8f5;      /* --e-brand, the pastel lavender */
+      --eos-slab: #8676ac;      /* the brand with 30% black, as a slab is */
+      --eos-on: #433b56;        /* the brand with 65% black: 4.9:1 on the face */
+      --eos-word: #624b90;      /* --e-primary */
     }
-    @media (prefers-color-scheme: dark) { :root { --eos-word: #e8f1f3; } }
+    @media (prefers-color-scheme: dark) { :root { --eos-word: #ece6ff; } }
     .face  { fill: var(--eos-face); }
     .slab  { fill: var(--eos-slab); }
     .glyph { fill: var(--eos-on); }${
@@ -64,7 +64,7 @@ const svg = (
   wordmark,
   animated,
 ) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} 64" role="img" aria-labelledby="eos-title">
-  <title id="eos-title">EOS</title>
+  <title id="eos-title">eos</title>
   <style>${styles(wordmark)}${animated ? motion : ""}
   </style>
   <g class="tile">${tile}
