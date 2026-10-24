@@ -90,10 +90,14 @@ function closeOnLink(event: MouseEvent) {
     display: grid;
     grid-template-rows: auto 1fr auto;
     min-height: 100%;
-    background: var(--e-surface-tint);
+
+    /* The brand mixed into the page background, then given more colour the lighter it is (about three times in a light theme, hardly any in a dark one, where the same boost would be heavy): a pale tint with little colour reads as grey-blue whatever its hue, and `surface-tint` (a fill for small things) is nearly white in a light theme. The hue is turned 8 degrees toward purple. */
+    background: oklch(
+      from color-mix(in oklch, var(--e-primary) 16%, var(--e-background)) l calc(c * (1 + 2.87 * l * l)) calc(h + 8)
+    );
   }
 
-  /* The column is the page; the screen beside it, when the column does not fill it, is the tinted ground. */
+  /* The column is the page; the screen beside it, when the column does not fill it, is the ground. */
   .e-shell-body {
     background: var(--e-background);
     display: grid;
