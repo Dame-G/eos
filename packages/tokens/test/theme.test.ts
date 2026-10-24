@@ -330,14 +330,16 @@ describe("derived inputs", () => {
     expect(changed({ strokes: { focus: 3 } }).sort()).toEqual(["stroke-focus"]);
   });
 
-  test("strokes.edge and strokes.card set their tokens outright", () => {
-    const t = defineTheme({ elevation: "bold", strokes: { hair: 2, edge: 2, card: 3 } }).tokens;
+  test("stroke-edge and stroke-card are pinned through tokens", () => {
+    const t = defineTheme({
+      elevation: "bold",
+      strokes: { hair: 2 },
+      tokens: { "stroke-edge": "2px", "stroke-card": "3px" },
+    }).tokens;
     expect(t["stroke-hair"]).toBe("2px");
     expect(t["stroke-edge"]).toBe("2px");
     expect(t["stroke-card"]).toBe("3px");
     expect(t["frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
-    expect(changed({ strokes: { edge: 2 } })).toEqual(["stroke-edge"]);
-    expect(defineTheme({ strokes: { edge: 0 } }).tokens).toEqual(base);
   });
 
   test("contrast high pins lines to the foreground and neutralises the tint", () => {
@@ -367,14 +369,12 @@ describe("derived inputs", () => {
 
   test("motion presets set the three motion tokens", () => {
     expect(changed({ motion: "snappy" }).sort()).toEqual(["duration-fade", "duration-move", "duration-tap"]);
-    expect(changed({ motion: "none" }).sort()).toEqual(["duration-fade", "duration-move", "duration-tap"]);
     expect(changed({ motion: "gentle" }).sort()).toEqual([
       "duration-fade",
       "duration-move",
       "duration-tap",
       "easing-out",
     ]);
-    expect(defineTheme({ motion: "none" }).tokens["duration-move"]).toBe("0ms");
   });
 
   test("the shadow tint comes from the ground, not the brand", () => {
@@ -416,7 +416,7 @@ describe("derived inputs", () => {
     const t = defineTheme({
       danger: "#e53935",
       textScale: 2,
-      motion: "none",
+      motion: "snappy",
       elevation: "bold",
       controlHeight: 56,
       tokens: { danger: "#111111", "text-md": "17px", "duration-tap": "10ms", float: "none", "chip-height": "30px" },
@@ -498,7 +498,7 @@ describe("scheme, contrast and density", () => {
       /prefers-reduced-motion: reduce\) \{\n {2}:root, \[data-e-theme\] \{\n {4}--e-duration-tap: 0.01ms !important;\n {4}--e-duration-fade: 0.01ms !important;\n {4}--e-duration-move: 0.01ms !important;/,
     );
     expect(css).toMatch(/@media print \{[^}]*--e-ink: #000000 !important;[^}]*--e-surface: #ffffff !important;/);
-    expect(defineTheme({ motion: "none" }).css()).toMatch(/--e-duration-tap: 0ms;/);
+    expect(defineTheme({ motion: "snappy" }).css()).toMatch(/--e-duration-tap: 50ms;/);
   });
   test("loop durations are left alone under reduced motion", () => {
     expect(defineTheme().css()).not.toMatch(/--e-duration-loop: 0.01ms/);
@@ -704,18 +704,10 @@ describe("theming API shorthands", () => {
     expect(defineTheme({ radius: "round" }).tokens["radius-md"]).toBe("14px");
     expect(defineTheme({ radius: { md: "10px" } }).tokens["radius-md"]).toBe("10px");
   });
-  test("strokes needs only hair and focus; edge and card still work but say they are derived", () => {
+  test("strokes needs only hair and focus: they derive the edge and card", () => {
     const t = defineTheme({ strokes: { hair: 2, focus: 3 } });
     expect(t.warnings).toEqual([]);
     expect([t.tokens["stroke-hair"], t.tokens["stroke-edge"], t.tokens["stroke-card"]]).toEqual(["2px", "3px", "2px"]);
-    const old = silent(() => defineTheme({ strokes: { hair: 2, edge: 2, card: 3 } }));
-    expect([old.tokens["stroke-edge"], old.tokens["stroke-card"]]).toEqual(["2px", "3px"]);
-    expect(old.warnings.join("\n")).toMatch(/strokes\.edge is deprecated[\s\S]*strokes\.card is deprecated/);
     expect(defineTheme({ preset: "ink" }).warnings).toEqual([]);
-  });
-  test('motion "none" still zeroes the durations but is reported as deprecated', () => {
-    const t = silent(() => defineTheme({ motion: "none" }));
-    expect(t.tokens["duration-move"]).toBe("0ms");
-    expect(t.warnings.join("\n")).toMatch(/motion: "none" is deprecated/);
   });
 });

@@ -17,8 +17,7 @@ import {
 
 export type TokenValues = Partial<Record<TokenName, string>>;
 
-/** `"none"` is deprecated: the theme CSS already stops every transition under `prefers-reduced-motion`. It still sets the durations to 0ms. */
-export type MotionPreset = "default" | "snappy" | "gentle" | "none";
+export type MotionPreset = "default" | "snappy" | "gentle";
 export type ElevationPreset = "outline" | "lifted" | "bold";
 /** A named bundle of `elevation`, `strokes`, `radius` and `motion`. Anything you set yourself wins over the preset. `"paper"` is the default look, `"ink"` is heavy and sharp, `"quiet"` is soft and round. Fonts are never part of a preset. */
 export type ThemePreset = "paper" | "ink" | "quiet";
@@ -63,10 +62,6 @@ export interface ThemeInput {
   strokes?: {
     hair?: number;
     focus?: number;
-    /** @deprecated Derived from `hair`. To pin it, set `tokens: { "stroke-edge": "2px" }`. */
-    edge?: number;
-    /** @deprecated Derived from `hair` and `elevation`. To pin it, set `tokens: { "stroke-card": "2px" }`. */
-    card?: number;
   };
   /** `"high"` draws every line and secondary text at full strength: `border` and `border-strong` become the foreground colour, `muted` is softened only until it holds 15:1, `surface-tint` is a neutral grey (no brand tint) and `scrim` is darker. Pair it with heavier `strokes`. `"auto"` keeps the standard theme and adds the high one under `prefers-contrast: more`. Default `"standard"`. */
   contrast?: ContrastPreset;
@@ -76,7 +71,7 @@ export interface ThemeInput {
   dark?: ThemeVariant;
   /** `"compact"` tightens the space scale to 0.75 (the `gap-*`, `pad-*` and `gutter` tokens follow, since they reference it) and makes controls exactly the 44px tap target (chips follow at 22px); a smaller `controlHeight` is raised to 44 and reported in `warnings`. `"comfortable"` is the default scale. Tap targets never fall under 44px in a compact theme. */
   density?: DensityPreset;
-  /** How state changes feel: sets `duration-tap`, `duration-fade`, `duration-move` and `easing-out`. `"none"` is deprecated: every theme already stops moving under `prefers-reduced-motion`. */
+  /** How state changes feel: sets `duration-tap`, `duration-fade`, `duration-move` and `easing-out`. Every theme already stops moving under `prefers-reduced-motion`. */
   motion?: MotionPreset;
   /** How depth is drawn: sets `frame`, `well`, `float` and `paper` from the border, ink and hairline. `outline` is flat rings, `lifted` adds soft drops, `bold` uses heavy rings and a hard offset shadow. */
   elevation?: ElevationPreset;
@@ -233,7 +228,6 @@ const MOTION: Record<MotionPreset, Record<string, string>> = {
     "duration-move": "380ms",
     "easing-out": "cubic-bezier(0.4, 0, 0.2, 1)",
   },
-  none: { "duration-tap": "0ms", "duration-fade": "0ms", "duration-move": "0ms" },
 };
 
 const PRESETS: Record<ThemePreset, Pick<ThemeInput, "elevation" | "strokes" | "radius" | "motion">> = {
@@ -273,8 +267,6 @@ function toneHue(soft: "danger-soft" | "warning-soft", strong: "danger" | "warni
 function deriveStrokes(input: ThemeInput, out: Record<string, string>) {
   const hair = positive(input.strokes?.hair);
   const focus = positive(input.strokes?.focus);
-  const edge = positive(input.strokes?.edge);
-  const card = positive(input.strokes?.card);
   if (hair !== undefined) {
     out["stroke-hair"] = px(hair);
     out["stroke-card"] = px(hair);
@@ -283,8 +275,6 @@ function deriveStrokes(input: ThemeInput, out: Record<string, string>) {
   if (focus !== undefined) {
     out["stroke-focus"] = px(focus);
   }
-  if (edge !== undefined) out["stroke-edge"] = px(edge);
-  if (card !== undefined) out["stroke-card"] = px(card);
 }
 
 type ShadowLayer = [y: number, blur: number, spread: number, alpha: number];
@@ -333,16 +323,8 @@ function layers(set: ShadowLayer[], dark: boolean, base: string) {
 /** The outline of cards, popovers and paper. Written with `var()` so a `border` or `stroke-card` override, from a theme or from plain CSS, reaches every shadow; only the drop layers are literal. */
 const RING = "0 0 0 var(--e-stroke-card) var(--e-border)";
 
-function deriveElevation(
-  style: ElevationPreset,
-  out: Record<string, string>,
-  dark: boolean,
-  strokes?: ThemeInput["strokes"],
-) {
-  const hair = out["stroke-hair"]!;
-  const given = positive(strokes?.card);
-  const card = given !== undefined ? px(given) : style === "bold" ? "2px" : hair;
-  out["stroke-card"] = card;
+function deriveElevation(style: ElevationPreset, out: Record<string, string>, dark: boolean) {
+  out["stroke-card"] = style === "bold" ? "2px" : out["stroke-hair"]!;
   const base = shadowRgb(out, dark);
   if (style === "lifted") {
     out["frame"] = `${RING}, ${layers(CARD, dark, base)}`;
@@ -660,10 +642,9 @@ function derive(input: ThemeInput): Record<string, string> {
     input.surface ||
     input.foreground ||
     input.contrast === "high" ||
-    positive(input.strokes?.hair) !== undefined ||
-    positive(input.strokes?.card) !== undefined
+    positive(input.strokes?.hair) !== undefined
   ) {
-    deriveElevation(input.elevation ?? "outline", out, dark, input.strokes);
+    deriveElevation(input.elevation ?? "outline", out, dark);
   }
   deriveFeedback(out);
   deriveMarks(out, dark);
@@ -767,7 +748,7 @@ function variants(input: ThemeInput, base: Record<string, string>) {
 const watchers = new WeakMap<HTMLElement, () => void>();
 
 const SCALES = ["textScale", "spaceScale", "controlHeight"] as const;
-const STROKES = ["hair", "focus", "edge", "card"] as const;
+const STROKES = ["hair", "focus"] as const;
 
 /** Everything the theme quietly changes or ignores, so a wrong input is not a mystery. */
 function inputWarnings(raw: ThemeInput): string[] {
@@ -779,17 +760,9 @@ function inputWarnings(raw: ThemeInput): string[] {
     const v = raw.strokes?.[key];
     if (v !== undefined && positive(v) === undefined)
       out.push(`strokes.${key}: ${String(v)} is not a positive number, so it is ignored.`);
-    else if (v !== undefined && (key === "edge" || key === "card"))
-      out.push(
-        `strokes.${key} is deprecated: it is derived from strokes.hair. It still applies; to pin it, set tokens: { "stroke-${key}": "${v}px" }.`,
-      );
   }
   if (typeof raw.radius === "number" && raw.radius !== 0 && positive(raw.radius) === undefined)
     out.push(`radius: ${String(raw.radius)} is not a positive number, so it is ignored.`);
-  if (raw.motion === "none")
-    out.push(
-      'motion: "none" is deprecated: every theme already stops moving under prefers-reduced-motion. It still sets the durations to 0ms.',
-    );
   const tap = parseFloat(defaults["tap"]);
   if (raw.density === "compact" && positive(raw.controlHeight) !== undefined && raw.controlHeight! < tap)
     out.push(`controlHeight: ${raw.controlHeight} is raised to ${tap}, the tap target, because density is "compact".`);
