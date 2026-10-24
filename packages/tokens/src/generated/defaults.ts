@@ -29,7 +29,7 @@ export const defaults = {
   warning: "var(--e-warning-strong)",
   background: "#ffffff",
   surface: "#ffffff",
-  "surface-tint": "#e3d3ff",
+  "surface-tint": "#e1d9f6",
   "surface-paper": "#fefcf7",
   skeleton: "color-mix(in srgb, var(--e-ink) 6%, var(--e-surface))",
   "slab-ink": "color-mix(in srgb, var(--e-surface), black 30%)",
@@ -39,8 +39,8 @@ export const defaults = {
   "disabled-fill": "transparent",
   selection: "#cbc0eb",
   "stamp-ink": "#a12900",
-  "wash-hover": "color-mix(in srgb, #c7a7ff 50%, transparent)",
-  "wash-press": "color-mix(in srgb, #c7a7ff 68%, transparent)",
+  "wash-hover": "color-mix(in srgb, #c3b3ed 50%, transparent)",
+  "wash-press": "color-mix(in srgb, #c3b3ed 74%, transparent)",
   "wash-ring": "color-mix(in srgb, var(--e-ink) 42%, transparent)",
   scrim: "rgb(39 32 54 / 0.55)",
   muted: "#515151",
@@ -345,7 +345,7 @@ export const usage: Record<string, string> = {
   surface:
     "What sits on the page: cards, fields, popovers, dialogs, panels and headers. Every screen starts on white. The `surface` input of `defineTheme` sets it, and with it derives `surface-tint`, the soft tone backdrops and, on a dark surface, the light action colours.",
   "surface-tint":
-    "The surface's second step: wells, hovered rows, table headers, footers, empty slots and the information tone's tint. Derived from `surface` by shifting its lightness 0.1 toward the foreground (0.06 the other way on a dark surface), in the brand hue: chroma 0.08 in a light theme and 0.02 in a dark one (never more than the brand has; a neutral grey with `contrast: \"high\"`). About 1.1:1 against white, so never a boundary on its own.",
+    "The surface's second step: wells, hovered rows, table headers, footers, empty slots and the information tone's tint. Derived from `surface` by shifting its lightness 0.1 toward the foreground (0.06 the other way on a dark surface), in the brand hue: chroma 0.04 in a light theme and 0.01 in a dark one (never more than the brand has; a neutral grey with `contrast: \"high\"`). About 1.1:1 against white, so never a boundary on its own.",
   "surface-paper":
     "The statement: a paper-coloured surface for the one document-like block on a screen (a bill, a receipt, a form to sign). A hair warmer than `surface` and drawn with the `paper` shadow. Derived from `surface`.",
   skeleton: "The resting fill of a loading placeholder (skeleton, empty bar track). Faint enough to read as absent.",
@@ -364,7 +364,7 @@ export const usage: Record<string, string> = {
   "wash-hover":
     "The one hover fill: a transparent wash of the `surface-tint` pigment (the colour that is exactly `surface-tint` at 50% over `surface`) for rows, items, tiles, quiet buttons and the selected nav item or tab, so the ground beneath shows through. On a plain ground a hovered row is the tinted ground; on one that is already tinted (a striped row, a segmented track) it is one step deeper. 50% by default; `defineTheme` gives up strength on a ground where `ink`, `muted` or `primary` would lose contrast on it. Where the fill must be opaque (a sticky cell), lay it over the surface: `background: linear-gradient(var(--e-wash-hover), var(--e-wash-hover)) var(--e-surface)`.",
   "wash-press":
-    "The one pressed fill: one step past `wash-hover` (68% of the same pigment: the deepest at which the primary text still holds 4.5:1 on it), fitted the same way.",
+    "The one pressed fill: one step past `wash-hover` (74% of the same pigment: the deepest at which the primary text still holds 4.5:1 on it), fitted the same way.",
   "wash-ring": "The transparent edge of a hovered quiet control.",
   scrim:
     'The dimmed backdrop behind a dialog or drawer: a deep shade of the brand colour at 55%, so it follows the theme. Black on a dark surface and with `contrast: "high"`.',
