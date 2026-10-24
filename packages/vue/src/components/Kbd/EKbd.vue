@@ -24,6 +24,7 @@ defineSlots<{
 @layer e.primitives {
   .e-kbd {
     display: inline-block;
+
     /* As wide as its content, also as the child of a grid or a column, which would otherwise stretch it. */
     inline-size: fit-content;
     max-inline-size: 100%;

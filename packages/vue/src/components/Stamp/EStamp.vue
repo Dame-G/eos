@@ -73,6 +73,7 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
 
     display: inline-flex;
     flex-wrap: nowrap;
+
     /* As wide as its content, also as the child of a grid or a column, which would otherwise stretch it. */
     inline-size: fit-content;
     max-inline-size: 100%;
