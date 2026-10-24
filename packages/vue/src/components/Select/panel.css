@@ -119,9 +119,11 @@
     z-index: var(--e-z-popover);
   }
 
+  /* At least as wide as the field, and wider when the rows need it: a short field would otherwise squeeze a selected row (bold, with its check) until the two overlap. */
   [data-reka-popper-content-wrapper] > .e-popover.e-listpanel {
-    width: var(--reka-popper-anchor-width);
+    width: max-content;
     min-width: var(--reka-popper-anchor-width);
+    max-width: min(var(--e-size-panel-sm), calc(100vw - var(--e-space-8)));
   }
 
   /* A select option takes real focus: the same inset outline as any row that touches its neighbours. A combobox option never does; its input keeps focus and [data-highlighted] shows the active row. */
