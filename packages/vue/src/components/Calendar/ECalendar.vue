@@ -739,6 +739,8 @@ defineExpose({
 
     border: var(--e-stroke-edge) solid var(--e-primary-slab);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
+    border-radius: var(--e-radius-md) / var(--e-radius-md) var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift))
+      calc(var(--e-radius-md) + var(--_lift));
     background: var(--e-primary);
     box-shadow: none;
     font-weight: var(--e-weight-strong);

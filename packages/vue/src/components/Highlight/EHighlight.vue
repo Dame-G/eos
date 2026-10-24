@@ -29,7 +29,9 @@ defineSlots<{
   .e-highlight {
     background: color-mix(in srgb, var(--e-secondary) 12%, transparent);
     box-decoration-break: clone;
-    color: var(--e-secondary);
+
+    /* A little ink in the text, so it holds 4.5:1 on its own pill over a tinted ground (a striped row), where the pill is deeper than on the surface. */
+    color: color-mix(in srgb, var(--e-secondary) 88%, var(--e-ink));
     font-weight: var(--e-weight-strong);
   }
 

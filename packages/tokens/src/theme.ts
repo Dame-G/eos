@@ -10,6 +10,7 @@ import {
   reachContrast,
   resolveColor,
   settleContrast,
+  toHex,
   tint,
   toOklch,
   withLightness,
@@ -36,7 +37,7 @@ const DARK_SURFACE = "#15121b";
 export interface ThemeInput {
   /** Identifies the theme. It becomes the value of `data-e-theme` when the theme is scoped to an element. */
   name?: string;
-  /** The brand colour. The deep action colour (`primary`) is derived from it so white text on it reaches 7:1; the tinted ground follows. */
+  /** The brand colour. The deep action colour (`primary`) is derived from it so white text on it reaches 7:1. */
   brand?: string;
   /** A second brand colour for positive actions (`secondary`), derived the same way. */
   accent?: string;
@@ -424,13 +425,22 @@ function fitTone(
   out[soft] = reachAll(out[soft]!, [[out[token]!, 4.5]]).color;
 }
 
+/** The second ground: the brand's own hue at a light touch. A lot of colour in a light theme (it is a pale ground, so it takes it), little in a dark one; a grey brand stays grey. */
+function groundTint(brand: string, surfaceL: number, dark: boolean) {
+  const { h, c } = toOklch(brand);
+  return fromOklch({
+    l: Math.min(1, Math.max(0, dark ? surfaceL + 0.06 : surfaceL - 0.1)),
+    c: Math.min(dark ? 0.02 : 0.08, c),
+    h,
+  });
+}
+
 function deriveGround(input: ThemeInput, out: Record<string, string>, dark: boolean) {
   const surface = input.surface ?? out["surface"]!;
   if (input.surface) {
     out["surface"] = input.surface;
-    const hue = toOklch(input.brand ?? out["brand"]!).h;
     const l = toOklch(input.surface).l;
-    out["surface-tint"] = fromOklch({ l: Math.min(1, Math.max(0, dark ? l + 0.06 : l - 0.045)), c: 0.025, h: hue });
+    out["surface-tint"] = groundTint(input.brand ?? out["brand"]!, l, dark);
     for (const [token, hueSource] of [
       ["secondary-soft", toOklch(input.accent ?? defaults["secondary-soft"]).h],
       ["danger-soft", toneHue("danger-soft", "danger", input.danger)],
@@ -503,11 +513,21 @@ const hexOf = (out: Record<string, string>, name: string) =>
   resolveColor(out[name] ?? "", lookup(out), resolveColor(out["surface"] ?? "", lookup(out)));
 
 /** The fills that carry text and have a strength to give: a wash of `ink` (hover, press), judged over `surface`, and `surface` tinted with `primary` (a selected row). `surface-hover` and `surface-press` are aliases of the washes. */
-const FEEDBACK: [token: string, pct: number, mix: (pct: number) => string][] = [
-  ["wash-hover", 8, (p) => `color-mix(in srgb, var(--e-ink) ${p}%, transparent)`],
-  ["wash-press", 15, (p) => `color-mix(in srgb, var(--e-ink) ${p}%, transparent)`],
+const FEEDBACK: [token: string, pct: number, mix: (pct: number, pigment: string) => string][] = [
+  ["wash-hover", 50, (p, pigment) => `color-mix(in srgb, ${pigment} ${p}%, transparent)`],
+  ["wash-press", 75, (p, pigment) => `color-mix(in srgb, ${pigment} ${p}%, transparent)`],
   ["primary-soft", 12, (p) => `color-mix(in srgb, var(--e-primary) ${p}%, var(--e-surface))`],
 ];
+
+/** The colour that, laid over `surface` at 50%, is exactly `surface-tint` (twice the tint's step from the surface). The hover and press washes are made of it, so a hovered row on a plain ground is the tinted ground, and on a ground that is already tinted (a striped row, the track of a segmented control) it goes one step deeper, so there is always something to see. */
+function washPigment(out: Record<string, string>) {
+  const tint = hexOf(out, "surface-tint");
+  const surface = hexOf(out, "surface");
+  if (!tint || !surface) return undefined;
+  const t = parseHex(tint);
+  const s = parseHex(surface);
+  return toHex(t.map((v, i) => Math.min(255, Math.max(0, Math.round(2 * v - s[i]!)))) as [number, number, number]);
+}
 
 /**
  * The hover, press and selected-row fills, and the hover ring. Each keeps its default strength unless the surface leaves the text no room: then the fill gives up strength until `ink`, `muted` and `primary` hold on it, and the ring takes strength until it holds 3:1 on the surface.
@@ -516,9 +536,11 @@ function deriveFeedback(out: Record<string, string>) {
   const surface = hexOf(out, "surface");
   if (!surface) return;
   const text = ["ink", "muted", "primary"].map((name) => [name, hexOf(out, name)] as const);
+  const pigment = washPigment(out);
+  if (!pigment) return;
   for (const [token, base, mix] of FEEDBACK) {
     for (let pct = base; pct >= 1; pct--) {
-      out[token] = mix(pct);
+      out[token] = mix(pct, pigment);
       const bg = hexOf(out, token);
       if (!bg) return;
       const holdsAll = text.every(([name, fg]) => {
@@ -543,7 +565,7 @@ function deriveFeedback(out: Record<string, string>) {
 /** On a mid-tone surface even the faintest fill leaves the primary colour a hair short, so the primary moves a little further from it. */
 function fitFeedback(out: Record<string, string>) {
   const checks: ContrastCheck[] = [];
-  for (const name of ["surface", "wash-hover", "wash-press"]) {
+  for (const name of ["surface", "wash-hover", "wash-press", "primary-soft"]) {
     const hex = hexOf(out, name);
     if (hex) checks.push([hex, 4.5]);
   }
@@ -577,7 +599,7 @@ function derive(input: ThemeInput): Record<string, string> {
   if (input.brand || dark) out["primary"] = reachContrast(out["brand"]!, out["on-primary"]!, 7);
   if (input.accent) out["brand-accent"] = input.accent;
   if (input.accent || dark) out["secondary"] = reachContrast(out["brand-accent"]!, out["on-secondary"]!, 7);
-  if (input.brand && !input.surface) out["surface-tint"] = tint(input.brand);
+  if (input.brand && !input.surface) out["surface-tint"] = groundTint(input.brand, 1, false);
   if (input.accent && !input.surface) out["secondary-soft"] = tint(input.accent, 0.96, 0.04);
   deriveGround(input, out, dark);
   if (!input.surface) {
@@ -608,7 +630,7 @@ function derive(input: ThemeInput): Record<string, string> {
     const base = input.warning ?? (dark ? DARK_WARNING : defaults["warning-strong"]);
     fitTone(out, "warning-strong", undefined, "warning-soft", base, surface);
   }
-  // The outline has to show on the tinted ground as well as on the surface, and the tint moves with the brand.
+  // The outline has to show on the tinted ground as well as on the surface.
   fit(out, "border", out["border"]!, [
     [surface, 3],
     [out["surface-tint"]!, 3],

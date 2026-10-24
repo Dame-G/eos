@@ -134,7 +134,8 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
     padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
     border: var(--e-stroke-edge) solid var(--_ring);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-md);
+    border-radius: var(--e-radius-md) / var(--e-radius-md) var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift))
+      calc(var(--e-radius-md) + var(--_lift));
     color: var(--e-ink);
     font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-none) var(--e-font-sans);
     text-decoration: none;

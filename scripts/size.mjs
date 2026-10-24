@@ -22,7 +22,7 @@ const jsFiles = (dir) =>
 //
 // THE LIMITS: change a number here, nowhere else.
 const limits = {
-  "style.css": 21900,
+  "style.css": 22000,
   "index.js": 2250,
   "all JavaScript files (each gzipped)": 183000,
 };
