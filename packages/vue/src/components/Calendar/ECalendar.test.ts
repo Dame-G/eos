@@ -413,11 +413,11 @@ describe("ECalendar", () => {
 
   test("day names say marked days through the translated sentence, and the plain date otherwise", async () => {
     const { container } = await render(ECalendar, {
-      props: { modelValue: d(2026, 10, 22), marked: [d(2026, 10, 22)], markLabel: "open", month: d(2026, 10, 1) },
+      props: { modelValue: d(2024, 10, 22), marked: [d(2024, 10, 22)], markLabel: "open", month: d(2024, 10, 1) },
       global: plugin({ messages: { dayMarked: "{date} ({mark})" } }),
     });
-    expect(dayButton(container, /^Thursday, October 22, 2026 \(open\)$/)).toBeTruthy();
-    expect(dayButton(container, /^Saturday, October 24, 2026$/)).toBeTruthy();
+    expect(dayButton(container, /^Tuesday, October 22, 2024 \(open\)$/)).toBeTruthy();
+    expect(dayButton(container, /^Thursday, October 24, 2024$/)).toBeTruthy();
   });
 
   test("works without the plugin, and class and style land on the root", async () => {
