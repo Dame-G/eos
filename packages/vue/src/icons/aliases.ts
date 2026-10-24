@@ -370,7 +370,7 @@ export const fluentAliases = {
   copy: "copy-24-regular",
 } satisfies AliasTable;
 
-/** Alias tables for the Iconify prefixes EOS knows. Other prefixes work too and use the name as given. */
+/** Alias tables for the Iconify prefixes eos knows. Other prefixes work too and use the name as given. */
 export const iconifyAliases: Record<string, AliasTable> = {
   lucide: lucideAliases,
   tabler: tablerAliases,

@@ -1,4 +1,4 @@
-name: Set up EOS
+name: Set up eos
 description: Installs pnpm, Node and the dependencies.
 inputs:
   node-version:

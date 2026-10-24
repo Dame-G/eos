@@ -31,7 +31,7 @@ function iconComponent(icon: string): Component {
 }
 
 /**
- * Icons from Iconify. `iconify("lucide")` draws `lucide:<name>` for every EOS name (renamed through the table for
+ * Icons from Iconify. `iconify("lucide")` draws `lucide:<name>` for every eos name (renamed through the table for
  * that prefix), and any name that already has a colon is used as given, so `icon="mdi:account"` works anywhere.
  * Known prefixes: lucide, tabler, heroicons, ph, mdi, material-symbols, carbon, fluent. Another prefix uses names as given.
  */

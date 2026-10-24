@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Eos is pre-1.0. Only the latest published release of `@eos-ui/vue` and `@eos-ui/tokens` receives security fixes.
+eos is pre-1.0. Only the latest published release of `@eos-ui/vue` and `@eos-ui/tokens` receives security fixes.
 
 ## Reporting a vulnerability
 

@@ -1,6 +1,6 @@
 # @eos-ui/tokens
 
-The design tokens behind EOS (colour, spacing, radius, shadow, type, size, motion, layering) as CSS custom properties, typed values, and `defineTheme()`, which builds a theme from a brand colour and checks every promised contrast pair.
+The design tokens behind eos (colour, spacing, radius, shadow, type, size, motion, layering) as CSS custom properties, typed values, and `defineTheme()`, which builds a theme from a brand colour and checks every promised contrast pair.
 
 ```bash
 npm install @eos-ui/tokens

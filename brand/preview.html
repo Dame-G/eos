@@ -1,0 +1,64 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>EOS logo</title>
+<style>
+  body {
+    margin: 0;
+    font:
+      14px system-ui,
+      sans-serif;
+    background: #f7f5f0;
+    color: #17586d;
+  }
+  @media (prefers-color-scheme: dark) {
+    body {
+      background: #0f2a33;
+      color: #e8f1f3;
+    }
+  }
+  .tile {
+    display: grid;
+    place-items: center;
+    gap: 20px;
+    padding: 48px 16px;
+  }
+  .hero img {
+    width: min(460px, 90vw);
+  }
+  .small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  button {
+    font: inherit;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid currentColor;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+</style>
+<div class="tile hero">
+  <img id="hero" src="logo-animated.svg" alt="EOS" />
+  <button
+    onclick="
+      hero.src = 'logo-animated.svg?' + Date.now();
+      mk.src = 'mark-animated.svg?' + Date.now();
+    "
+  >
+    Replay
+  </button>
+</div>
+<div class="tile small">
+  <img id="mk" src="mark-animated.svg" width="120" alt="" />
+  <img src="logo.svg" width="160" alt="" /><img src="logo.svg" width="96" alt="" />
+  <img src="mark.svg" width="48" alt="" /><img src="mark.svg" width="32" alt="" /><img
+    src="mark.svg"
+    width="16"
+    alt=""
+  />
+</div>

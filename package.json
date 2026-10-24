@@ -2,7 +2,7 @@
   "name": "eos-monorepo",
   "private": true,
   "version": "0.0.0",
-  "description": "EOS: a component library for Vue, and its design tokens.",
+  "description": "eos: a component library for Vue, and its design tokens.",
   "type": "module",
   "packageManager": "pnpm@12.14.0",
   "engines": {
@@ -19,6 +19,7 @@
     "changeset": "changeset",
     "release": "pnpm build && pnpm check:built && node scripts/publish.mjs",
     "tokens": "node packages/tokens/scripts/build.mjs",
+    "brand": "node brand/build.mjs brand",
     "smoke": "node scripts/smoke.mjs",
     "ssr": "node scripts/ssr.mjs",
     "check": "pnpm --filter @eos-ui/vue check",

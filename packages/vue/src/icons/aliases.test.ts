@@ -24,12 +24,12 @@ const tables = {
 };
 
 describe("icon alias tables", () => {
-  test("there are 42 Eos icon names", () => {
+  test("there are 42 eos icon names", () => {
     expect(iconNames).toHaveLength(42);
   });
 
   for (const [set, table] of Object.entries(tables)) {
-    test(`${set} has an entry for every Eos icon name, and nothing else`, () => {
+    test(`${set} has an entry for every eos icon name, and nothing else`, () => {
       expect(Object.keys(table).sort()).toEqual([...iconNames].sort());
     });
 

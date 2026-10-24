@@ -38,7 +38,7 @@ export interface EosOptions extends Partial<EosConfig> {
 
 declare module "vue" {
   interface ComponentCustomProperties {
-    /** The EOS config (locale, currency, messages, icons). Set by `createEos()`. */
+    /** The eos config (locale, currency, messages, icons). Set by `createEos()`. */
     $e: EosConfig;
   }
 }
