@@ -226,6 +226,59 @@ describe("ERangePicker", () => {
     expect(end.value).toEqual(d(2026, 10, 18));
   });
 
+  test("the span is read when focus leaves the group, not while it moves from the start box to the end box", async () => {
+    const heard: string[] = [];
+    const { start, end, container } = await bound(
+      { label: "Dates", onInvalid: (text: string) => heard.push(text) },
+      { start: d(2026, 10, 4), end: d(2026, 10, 8) },
+    );
+    const [a, b] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
+    await setText(a!, "10/12/2026");
+    await userEvent.tab();
+    expect(document.activeElement).toBe(b);
+    expect(container.querySelector(".e-field-error")).toBeNull();
+    await setText(b!, "10/20/2026");
+    b!.blur();
+    await expect.poll(() => start.value).toEqual(d(2026, 10, 12));
+    expect(end.value).toEqual(d(2026, 10, 20));
+    expect(heard).toEqual([]);
+  });
+
+  test("an unusable span emits invalid with what was typed and the message, and keeps the models", async () => {
+    const heard: [string, string][] = [];
+    const { start, container } = await bound(
+      { label: "Dates", onInvalid: (text: string, message: string) => heard.push([text, message]) },
+      { start: d(2026, 10, 4), end: d(2026, 10, 8) },
+    );
+    const [, b] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
+    await setText(b!, "10/01/2026");
+    b!.blur();
+    await expect.poll(() => heard.length).toBe(1);
+    expect(heard[0]![0]).toBe("10/04/2026 – 10/01/2026");
+    expect(heard[0]![1]).toMatch(/before the start/);
+    expect(start.value).toEqual(d(2026, 10, 4));
+  });
+
+  test("min and max take YYYY-MM-DD strings", async () => {
+    const { container } = await bound({ label: "Dates", min: "2026-01-01", max: "2026-12-31" });
+    const [a] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");
+    await setText(a!, "06/15/2030");
+    a!.blur();
+    await expect
+      .poll(() => container.querySelector(".e-field-error")!.textContent)
+      .toMatch(/Choose a date between 01\/01\/2026/);
+  });
+
+  test("an empty presets list shows no presets row; the footer's Clear empties both dates", async () => {
+    const { start, end } = await bound({ label: "Dates", presets: [] }, { start: d(2026, 10, 4), end: d(2026, 10, 8) });
+    await page.getByRole("button", { name: "Choose dates" }).click();
+    await opened();
+    expect(document.querySelector(".e-cal-presets")).toBeNull();
+    await page.getByRole("button", { name: "Clear" }).click();
+    expect(start.value).toBeNull();
+    expect(end.value).toBeNull();
+  });
+
   test("a typed date outside min and max shows the dateBetween message", async () => {
     const { container } = await bound({ label: "Dates", min: d(2026, 1, 1), max: d(2026, 12, 31) });
     const [a] = container.querySelectorAll<HTMLInputElement>(".e-combo-input");

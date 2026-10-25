@@ -20,6 +20,11 @@ const props = defineProps<
     }
 >();
 
+const emit = defineEmits<{
+  /** The typed text is not a colour, when focus leaves it. The field shows `message`, keeps the model as it was and posts nothing until the text is fixed. */
+  invalid: [text: string, message: string];
+}>();
+
 /** `#rrggbb`, lower case. Only complete, valid colours are written, and clearing the text writes an empty string. `#abc` expands to `#aabbcc`. */
 const model = defineModel<string>({ default: "" });
 
@@ -41,9 +46,8 @@ watch(model, (v) => {
 });
 
 const invalid = computed(() => touched.value && text.value.trim() !== "" && normalize(text.value) === null);
-const shownError = computed(
-  () => props.error || (invalid.value ? t("colorInvalid", { example: t("colorPlaceholder") }) : undefined),
-);
+const invalidMessage = () => t("colorInvalid", { example: t("colorPlaceholder") });
+const shownError = computed(() => props.error || (invalid.value ? invalidMessage() : undefined));
 // An <input type="color"> always has a value, so an empty field gives it black and an overlay hides that.
 const swatch = computed(() => normalize(model.value) ?? "#000000");
 const empty = computed(() => normalize(model.value) === null);
@@ -61,6 +65,7 @@ function onBlur() {
   touched.value = true;
   const hex = normalize(text.value);
   if (hex) text.value = hex;
+  else if (text.value.trim() && !props.readonly) emit("invalid", text.value.trim(), invalidMessage());
 }
 
 function onPick(e: Event) {

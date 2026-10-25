@@ -38,6 +38,15 @@ export interface FieldControlProps {
 export function useFieldControl<El extends HTMLElement = HTMLInputElement>(props: FieldControlProps) {
   const attrs = useFieldAttrs();
   const input = ref<El | null>(null) as Ref<El | null>;
+  const own = (field: FieldSlot): Record<string, unknown> => ({
+    id: field.id,
+    required: props.required,
+    disabled: props.disabled,
+    readonly: props.readonly,
+    "aria-invalid": field.ariaInvalid,
+    "aria-busy": props.loading || undefined,
+    "data-size": sizeAttr(props.size),
+  });
   return {
     attrs,
     input,
@@ -51,14 +60,13 @@ export function useFieldControl<El extends HTMLElement = HTMLInputElement>(props
     }),
     /** The attributes the real input needs from the field. Spread the field's own (`type`, `value`, `placeholder`) beside it. */
     bind: (field: FieldSlot, describedby: readonly DescribedBy[] = []): Record<string, unknown> => ({
-      id: field.id,
-      required: props.required,
-      disabled: props.disabled,
-      readonly: props.readonly,
-      "aria-invalid": field.ariaInvalid,
-      "aria-busy": props.loading || undefined,
-      "data-size": sizeAttr(props.size),
+      ...own(field),
       ...attrs.input([...describedby, field.ariaDescribedby]),
+    }),
+    /** `bind` without the consumer's attributes, for the inputs inside an element that takes them (`attrs.group()`). */
+    own: (field: FieldSlot): Record<string, unknown> => ({
+      ...own(field),
+      "aria-describedby": field.ariaDescribedby,
     }),
     /** A hidden input that posts the value under `name`. Disabled, it posts nothing; `form` puts it in a form it is not inside. */
     hidden: (name: string | undefined, value: string | number | null | undefined) => ({

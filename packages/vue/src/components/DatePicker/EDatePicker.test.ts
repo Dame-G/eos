@@ -117,6 +117,26 @@ describe("EDatePicker", () => {
       .toMatch(/Choose a date between 01\/01\/2026 and 12\/31\/2026\./);
   });
 
+  test("min and max take YYYY-MM-DD strings; unusable text emits invalid and keeps the model", async () => {
+    const heard: [string, string][] = [];
+    const { model, container } = await bound(
+      {
+        label: "Date",
+        min: "2026-01-01",
+        max: "2026-12-31",
+        onInvalid: (text: string, message: string) => heard.push([text, message]),
+      },
+      d(2026, 3, 3),
+    );
+    const input = container.querySelector("input")!;
+    await setText(input, "06/15/2030");
+    input.blur();
+    await expect.poll(() => heard.length).toBe(1);
+    expect(heard[0]![0]).toBe("06/15/2030");
+    expect(heard[0]![1]).toMatch(/Choose a date between 01\/01\/2026/);
+    expect(model.value).toEqual(d(2026, 3, 3));
+  });
+
   test("a date before only min, or after only max, names just that bound", async () => {
     const early = await bound({ label: "Date", min: d(2026, 1, 1) }, null);
     const input = early.container.querySelector<HTMLInputElement>(".e-combo-input")!;
