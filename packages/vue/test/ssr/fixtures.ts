@@ -1,5 +1,8 @@
-// What each component needs to render on its own: the props from scripts/ssr.mjs, shared by the server render (in
-// Node, test/ssr/command.ts) and the hydration in the browser (test/ssr.test.ts), so both build the same tree.
+// What each component needs to render on its own: the one copy. The hydration test uses it on both sides (the server
+// half in Node, test/ssr/command.ts, and the browser half, test/ssr.test.ts), and so does the server render of the
+// built package (scripts/ssr.mjs). Node loads this file there with its built-in type stripping, so keep it to erasable
+// TypeScript (no enums, no parameter properties) and import nothing but "vue". A component that renders with no props
+// and text in its default slot needs no entry; `pnpm new:component` adds an empty one to fill in when it does.
 import { h, type Component, type VNode } from "vue";
 
 const items = [
@@ -83,6 +86,7 @@ const PROPS: Record<string, Record<string, unknown>> = {
   ESkipLink: { href: "#main" },
   EAppHeader: { brand: "eos", brandHref: "/" },
   EConfigProvider: { locale: "ar", theme: { brand: "#8a2be2" } },
+  // new:component adds entries above this line
 };
 
 /** Slots that differ from the default: what a component takes in place of text. */
