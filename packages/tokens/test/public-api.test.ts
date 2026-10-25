@@ -1,13 +1,16 @@
 // The public API is deliberate: every export of `@eos-ui/tokens`, value or type, is listed in public-api.txt.
 // After changing it on purpose, run `pnpm --filter @eos-ui/tokens exec vitest run test/public-api.test.ts -u` and
 // commit the updated file.
-import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { expect, test } from "vitest";
 import * as api from "../src/index.js";
 
 test("exports exactly the documented names", async () => {
-  const entry = fileURLToPath(new URL("../src/index.ts", import.meta.url));
+  // A path TypeScript reads on every platform (no node:url: this package type-checks without Node types).
+  const entry = decodeURIComponent(new URL("../src/index.ts", import.meta.url).pathname).replace(
+    /^\/(?=[A-Za-z]:)/,
+    "",
+  );
   const program = ts.createProgram([entry], {
     module: ts.ModuleKind.ESNext,
     moduleResolution: ts.ModuleResolutionKind.Bundler,

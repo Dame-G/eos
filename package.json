@@ -10,10 +10,10 @@
   },
   "scripts": {
     "build": "pnpm -r --workspace-concurrency=1 build",
-    "dev": "pnpm tokens && pnpm --filter @eos-ui/vue dev",
+    "dev": "node scripts/dev.mjs",
     "test": "pnpm -r test",
     "lint": "eslint . && stylelint \"packages/**/*.{css,vue}\"",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm tokens && pnpm -r typecheck",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "changeset": "changeset",
@@ -23,7 +23,7 @@
     "smoke": "node scripts/smoke.mjs",
     "ssr": "node scripts/ssr.mjs",
     "new:component": "node scripts/new-component.mjs",
-    "check:source": "node packages/tokens/scripts/generate.mjs --check && pnpm --filter @eos-ui/vue check:source",
+    "check:source": "node packages/tokens/scripts/generate.mjs --check && node scripts/check-playwright-image.mjs && pnpm --filter @eos-ui/vue check:source",
     "check:package": "pnpm check:size && pnpm ssr && pnpm --filter @eos-ui/vue check:dist",
     "check:size": "node scripts/size.mjs",
     "knip": "knip"

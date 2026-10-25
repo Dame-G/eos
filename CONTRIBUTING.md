@@ -29,7 +29,7 @@ Node 22 or later is required. CI runs the browser tests on Node 24 and builds th
 
 ### Developing against the docs site
 
-There is no playground in this repository: the docs site (`Dame-G/eos-site`, checked out beside this repo, or anywhere with `EOS_DIR` set to this checkout) is the playground. It links `@eos-ui/vue` to `packages/vue`, so it reads the built `dist`. Run `pnpm dev` here (it builds the tokens, regenerates `src/index.ts` and runs `vite build --watch`), and run the site's dev server beside it. Edits to a component rebuild `dist` and the site reloads. After adding or removing a component folder, restart `pnpm dev` so `index.ts` is regenerated.
+There is no playground in this repository: the docs site (`Dame-G/eos-site`, checked out beside this repo, or anywhere with `EOS_DIR` set to this checkout) is the playground. It links `@eos-ui/vue` to `packages/vue`, so it reads the built `dist`. Run `pnpm dev` here (it builds the tokens, regenerates `src/index.ts` and runs `vite build --watch`, and rebuilds the tokens when `tokens.json` changes), and run the site's dev server beside it. Edits to a component rebuild `dist` and the site reloads. After adding or removing a component folder, restart `pnpm dev` so `index.ts` is regenerated.
 
 ### Browsers
 
@@ -39,7 +39,7 @@ Tests run in Chromium. Locally the Chromium tests use the installed Microsoft Ed
 
 `pnpm check:size` compares the gzipped `style.css`, `index.js` and all JavaScript (minified first: the JavaScript ships unminified, for the consumer's bundler to minify) with the budgets in `scripts/size.mjs` and prints each one's headroom. A budget is the current size plus about 3%. All CSS ships as one file, so every component's CSS is paid for by every consumer: reuse tokens and shared rules, avoid repeating a rule set across components, and do not add a dependency for something small. If a deliberate change needs more, raise the limit in the same pull request and say why in its description. Per-component CSS files are not offered; consumers who need a smaller stylesheet are a reason to revisit that, not to loosen the budget.
 
-The Vue package reads the built tokens (`packages/tokens/dist`). `pnpm build`, `pnpm test` and `pnpm typecheck` build them first, in dependency order, and only once. After changing `tokens.json` while you work inside `packages/vue`, run `pnpm tokens` from the root.
+The Vue package reads the built tokens (`packages/tokens/dist`). `pnpm build`, `pnpm test` and `pnpm typecheck` build them first, in dependency order, and only once. After changing `tokens.json` while you work inside `packages/vue`, run `pnpm tokens` from the root (`pnpm dev` does it for you), and commit the regenerated `src/generated/defaults.ts`: `pnpm check:source` fails when it is stale.
 
 While working on one component, run from `packages/vue` (these need `pnpm build` or `pnpm test` to have built the tokens once):
 
