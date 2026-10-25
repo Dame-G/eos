@@ -46,7 +46,7 @@ const email = ref("");
 
 The stylesheet is mandatory: import `@eos-ui/vue/style.css` once in your entry file, even if you skip the plugin and register components yourself. The JavaScript has no CSS imports, so server rendering works in plain Node without bundler setup, and the stylesheet is the only thing you have to wire. Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights. Components also work without the plugin, in English and US dollars.
 
-`createEos()` takes `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget` (theme one element instead of `<html>`), `portalTarget` (where menus, dialogs and toasts render), `warnOnContrast` and `applyTheme` (`false` leaves the theme to CSS the page ships itself, such as `themeCss()` in a `<style>` with its own dark variant). To change the theme, locale or direction for one part of the page, wrap it in `EConfigProvider`.
+`createEos()` takes `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget` (theme one element instead of `<html>`), `portalTarget` (where menus, dialogs and toasts render), `warnOnContrast` and `applyTheme` (`false` leaves the theme to CSS the page ships itself, such as `themeCss()` in a `<style>`). Without a `theme` it applies nothing, since `style.css` carries the default theme. A `theme` is added to the document as a stylesheet in the token layer, so its dark and high-contrast variants still follow the visitor and your own CSS still wins. To change the theme, locale or direction for one part of the page, wrap it in `EConfigProvider`.
 
 ## Requirements and packaging
 
@@ -69,7 +69,7 @@ The resolver imports components only, not the stylesheet. Pass `EosResolver({ cs
 
 ## Theming
 
-A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes these design inputs: `brand`, `accent`, `danger`, `warning`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `contrast`, `textScale`, `spaceScale`, `controlHeight`, `motion`, `density`, `preset` and `scheme` (with its `dark` variant).
+A theme is a set of CSS variables. `defineTheme()` derives the deep action colours from your brand colour and checks every contrast pair the system promises. It takes these design inputs: `brand`, `accent`, `danger`, `warning`, `success`, `background`, `surface`, `foreground`, `fonts`, `radius`, `elevation`, `strokes`, `contrast`, `textScale`, `spaceScale`, `controlHeight`, `motion`, `density`, `preset` and `scheme` (with its `dark` variant).
 
 ```ts
 import { defineTheme } from "@eos-ui/vue";
@@ -78,7 +78,7 @@ const clinic = defineTheme({ name: "clinic", brand: "#8a2be2", accent: "#2e7d32"
 clinic.issues; // [] when every contrast pair holds
 ```
 
-Or override variables in plain CSS. Your CSS wins because the library is layered:
+Or override variables in plain CSS. Your CSS wins, with or without a theme, because the library and the theme are layered:
 
 ```css
 :root {

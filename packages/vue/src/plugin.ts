@@ -22,16 +22,17 @@ import { isProduction } from "./env.js";
  * ```
  */
 export interface EosOptions extends Partial<EosConfig> {
-  /** A theme from `defineTheme()`, or the same options. Applied to `<html>` unless `themeTarget` says otherwise. */
+  /** A theme from `defineTheme()`, or the same options. Applied to `<html>` unless `themeTarget` says otherwise. Left out, nothing is applied: `style.css` already carries the default theme. */
   theme?: Theme | ThemeInput;
   /** Element the theme (and `lang` and `dir`) is applied to. Default `document.documentElement`. Pair it with `portalTarget`: see "scoped theme" above. */
   themeTarget?: HTMLElement | null;
   /** Warn in the console when the theme fails a contrast pair. Default true unless `NODE_ENV` is `production`. */
   warnOnContrast?: boolean;
   /**
-   * Set the theme's tokens on `themeTarget` as inline custom properties. Default true. Turn it off when the page ships the
-   * theme as CSS itself (`themeCss()` in a `<style>`, or a stylesheet of its own with a dark variant), so the inline
-   * tokens never override it. `lang` and `dir` are still set, and `theme` still names the theme for `themeCss`.
+   * Add the theme to the document as a stylesheet scoped to `themeTarget` (in the `e.tokens` layer, so your own CSS still
+   * wins and the theme's `prefers-color-scheme` and `prefers-contrast` variants still apply). Default true. Turn it off
+   * when the page ships the theme as CSS itself (`themeCss()` in a `<style>`, or a stylesheet of its own). `lang` and
+   * `dir` are still set, and `theme` still names the theme for `themeCss`.
    */
   applyTheme?: boolean;
 }
@@ -47,10 +48,48 @@ export interface Eos {
   install(app: App): void;
   /** The reactive config. Change `config.locale` or `config.messages` and the components follow. */
   config: EosConfig;
+  /** The theme passed to `createEos()`, built. Without one, the default theme that `style.css` carries. */
   theme: Theme;
 }
 
 const isTheme = (t: Theme | ThemeInput): t is Theme => typeof (t as Theme).css === "function";
+
+let fallback: Theme | undefined;
+/** A theme, or the options of one, built. Left out, the default theme: the one `style.css` carries, light, following `prefers-contrast: more`. */
+function toTheme(theme?: Theme | ThemeInput): Theme {
+  if (theme) return isTheme(theme) ? theme : defineTheme(theme);
+  return (fallback ??= defineTheme({ name: "light", contrast: "auto" }));
+}
+
+/**
+ * Adds the theme to the document as a stylesheet scoped to `target`, and marks `target` with `data-e-theme`. A stylesheet,
+ * not inline custom properties, so the theme's media-query variants apply and the page's own CSS wins over it. On `<html>`
+ * the selector is `:root[data-e-theme]`, which outranks the default `:root` tokens of `style.css` in the same layer.
+ * Returns a function that removes the stylesheet and the mark.
+ */
+function mountTheme(theme: Theme, target: HTMLElement): () => void {
+  const doc = target.ownerDocument;
+  const scope = target === doc.documentElement ? ":root" : "";
+  const css = theme.css({ selector: `${scope}[data-e-theme="${theme.name.replace(/["\\]/g, "\\$&")}"]` });
+  target.setAttribute("data-e-theme", theme.name);
+  let remove: () => void;
+  // A constructed sheet is CSSOM, so a Content-Security-Policy without unsafe-inline styles allows it.
+  if ("adoptedStyleSheets" in doc && typeof CSSStyleSheet === "function" && "replaceSync" in CSSStyleSheet.prototype) {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(css);
+    doc.adoptedStyleSheets = [...doc.adoptedStyleSheets, sheet];
+    remove = () => (doc.adoptedStyleSheets = doc.adoptedStyleSheets.filter((s) => s !== sheet));
+  } else {
+    const style = doc.createElement("style");
+    style.textContent = css;
+    doc.head.append(style);
+    remove = () => style.remove();
+  }
+  return () => {
+    remove();
+    if (target.getAttribute("data-e-theme") === theme.name) target.removeAttribute("data-e-theme");
+  };
+}
 
 /** The icons map stays raw inside the reactive config, so an icon component is rendered as given, never as a reactive proxy. */
 function rawIcons(icons: IconsConfig | undefined): IconsConfig {
@@ -67,16 +106,16 @@ function rawIcons(icons: IconsConfig | undefined): IconsConfig {
  * const html = `<style>${themeCss({ brand: "#2c95b4" })}</style>`
  * ```
  *
- * @param theme A theme from `defineTheme()`, or the same options. Default is the light theme.
+ * @param theme A theme from `defineTheme()`, or the same options. Default is the theme `style.css` carries.
  * @param selector Element the tokens apply to. Default `:root`. Use the same `themeTarget` scope you pass to `createEos`.
  */
 export function themeCss(theme?: Theme | ThemeInput, selector?: string): string {
-  const t = theme ? (isTheme(theme) ? theme : defineTheme(theme)) : defineTheme({ name: "light" });
-  return t.css(selector ? { selector } : undefined);
+  return toTheme(theme).css(selector ? { selector } : undefined);
 }
 
 /**
- * Installs the library: provides the config (language, currency, direction, words, icons) and applies the theme.
+ * Installs the library: provides the config (language, currency, direction, words, icons) and applies the theme, if one is
+ * given. Unmounting the app removes the theme again.
  * In a browser it also sets `lang` on the theme target when you pass a `locale`, and `dir` from `dir` or from that locale
  * (`ar` gives `rtl`), so teleported menus and dialogs inherit the direction. On the server set both on `<html>` yourself.
  *
@@ -94,11 +133,7 @@ export function createEos(options: EosOptions = {}): Eos {
     portalTarget: options.portalTarget ?? "body",
   });
   const explicitLocale = options.locale != null;
-  const theme = options.theme
-    ? isTheme(options.theme)
-      ? options.theme
-      : defineTheme(options.theme)
-    : defineTheme({ name: "light" });
+  const theme = toTheme(options.theme);
 
   return {
     config,
@@ -116,11 +151,15 @@ export function createEos(options: EosOptions = {}): Eos {
         );
       }
       const target = options.themeTarget ?? document.documentElement;
-      if (options.applyTheme !== false) theme.apply(target);
-      watchEffect(() => {
+      const unmountTheme = options.theme && options.applyTheme !== false ? mountTheme(theme, target) : undefined;
+      const stop = watchEffect(() => {
         if (explicitLocale) target.setAttribute("lang", config.locale);
         const dir = config.dir ?? (explicitLocale ? localeDirection(config.locale) : null);
         if (dir) target.setAttribute("dir", dir);
+      });
+      app.onUnmount(() => {
+        stop();
+        unmountTheme?.();
       });
     },
   } as Eos;
