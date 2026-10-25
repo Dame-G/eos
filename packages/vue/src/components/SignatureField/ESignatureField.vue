@@ -79,6 +79,7 @@ function update(patch: Partial<SignatureValue>) {
     <ESegmented
       v-if="mode === 'both'"
       :label="t('signature')"
+      hide-label
       :disabled="disabled"
       :model-value="method"
       :readonly="readonly"

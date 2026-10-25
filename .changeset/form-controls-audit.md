@@ -32,5 +32,5 @@ Behaviour:
 New:
 
 - `useFormField` is exported, for a custom control that joins an `EForm`.
-- `ESegmented`: `id`, `size` (`sm` is compact) and `showLabel`. `ESearchBar`: `id` and `readonly`. `ESwitch`: `hideLabel`.
+- `ESegmented`: `id` and `size` (`sm` is compact). `ESearchBar`: `id` and `readonly`. `ESwitch`: `hideLabel`.
 - Messages: `fileSizeLimit`, `fileCountLimit`, `passwordRulesMet`.

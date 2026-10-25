@@ -23,10 +23,10 @@ import "../../styles/controls/label.css";
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  /** The name of the group. Read by screen readers, and shown above the control with `showLabel`. */
+  /** The name of the group, shown above the control as a field's label, with the Required or Optional word beside it. */
   label: string;
-  /** Shows the label above the control, as a field's, with the Required or Optional word beside it. */
-  showLabel?: boolean;
+  /** Keeps the label for screen readers only, where the context already names the control (a view switch in a toolbar). */
+  hideLabel?: boolean;
   /** Two to five. A string is both value and label. `SegmentedOption` is `{ value, label, icon?, disabled? }`. */
   options: readonly (T | SegmentedOption<T>)[];
   /** The height: `sm` is a compact control for a toolbar, with smaller text; `lg` is a step over the control height. @default "md" */
@@ -37,9 +37,9 @@ const props = defineProps<{
   hint?: string;
   /** What to fix. Replaces the hint and is announced. */
   error?: string;
-  /** Adds the word "Optional" to the group's accessible name, and shows it with `showLabel`. Use it when most fields in the form are required. */
+  /** Adds the word "Optional" to the group's accessible name and to the label. Use it when most fields in the form are required. */
   optional?: boolean;
-  /** Marks the group `aria-required` and adds the word "Required" to its accessible name, and shows it with `showLabel`. */
+  /** Marks the group `aria-required` and adds the word "Required" to its accessible name and to the label. */
   required?: boolean;
   /** Disables every option. */
   disabled?: boolean;
@@ -120,8 +120,8 @@ const groupAttrs = () => ({
   id: uid.value,
   role: "radiogroup",
   // A shown label names the group, Required or Optional word and all.
-  "aria-labelledby": props.showLabel ? labelId.value : undefined,
-  "aria-label": props.showLabel
+  "aria-labelledby": props.hideLabel ? undefined : labelId.value,
+  "aria-label": !props.hideLabel
     ? undefined
     : props.required
       ? `${props.label}, ${t("required")}`
@@ -137,7 +137,7 @@ const groupAttrs = () => ({
 
 <template>
   <div class="e-seg-field" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
-    <span v-if="showLabel" :id="labelId" class="e-field-label e-kicker">
+    <span v-if="!hideLabel" :id="labelId" class="e-field-label e-kicker">
       {{ label }}
       <EFieldFlag :required="required" :optional="optional" />
     </span>
