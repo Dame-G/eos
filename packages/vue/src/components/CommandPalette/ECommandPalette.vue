@@ -287,7 +287,7 @@ defineExpose({
         </div>
       </template>
       <p v-if="!flat.length" class="e-opt-status" aria-hidden="true">
-        <ESpinner v-if="loading" :label="t('searching')" />
+        <ESpinner v-if="loading" :label="t('searching')" silent />
         <template v-else>{{ emptyMessage }}</template>
       </p>
     </div>

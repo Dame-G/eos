@@ -75,11 +75,14 @@ describe("ESkeleton", () => {
     expect(container.querySelector(".e-skeleton")).toBeNull();
   });
 
-  test("a label makes it a polite status region that is not hidden", async () => {
+  test("a label is announced politely as it appears, and kept as text that is not hidden", async () => {
     const { container } = await render(ESkeleton, { props: { label: "Loading invoices", lines: 2 } });
     const root = container.firstElementChild!;
-    expect(root.getAttribute("role")).toBe("status");
+    expect(root.hasAttribute("role")).toBe(false);
     expect(root.hasAttribute("aria-hidden")).toBe(false);
+    await expect
+      .poll(() => document.querySelector("[data-e-announcer=polite]")?.textContent)
+      .toContain("Loading invoices");
     expect(root.querySelector(".e-sr")!.textContent).toBe("Loading invoices");
     await expectNoViolations(container);
   });

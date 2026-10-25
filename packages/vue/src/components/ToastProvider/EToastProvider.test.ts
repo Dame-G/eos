@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { createSSRApp, defineComponent, h } from "vue";
+import { createSSRApp, defineComponent, h, ref } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EToastProvider from "./EToastProvider.vue";
 import EButton from "../Button/EButton.vue";
+import EDialog from "../Dialog/EDialog.vue";
 import { createToasts, TOAST_KEY, useToast, type ToastApi } from "../../composables/useToast.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
@@ -37,7 +38,7 @@ describe("EToastProvider", () => {
     api.show({ title: "Saved" });
     await expect.poll(() => document.querySelectorAll(".e-toast-region").length).toBe(1);
     await expect.element(page.getByRole("region", { name: "Notifications" })).toBeInTheDocument();
-    expect(document.querySelector(".e-toast-region")!.hasAttribute("aria-live")).toBe(false);
+    expect(document.querySelector(".e-toast-region")!.getAttribute("aria-live")).toBe("off");
     api.clear();
     await expect.poll(() => document.querySelectorAll(".e-toast-region").length).toBe(0);
   });
@@ -205,6 +206,31 @@ describe("EToastProvider", () => {
 });
 
 describe("EToastProvider behaviour", () => {
+  test("a toast that exists before a modal opens stays visible to assistive technology", async () => {
+    const open = ref(false);
+    await render(
+      defineComponent({
+        render: () =>
+          h(EToastProvider, null, {
+            default: () => [
+              h(Grab),
+              h(EDialog, { open: open.value, title: "Sure?", "onUpdate:open": (v?: boolean) => (open.value = !!v) }),
+            ],
+          }),
+      }),
+    );
+    api.show({ title: "Saved", duration: 0 });
+    await expect.poll(() => toasts().length).toBe(1);
+    open.value = true;
+    await expect.poll(() => document.querySelector("[role=dialog]")).not.toBeNull();
+    // The rest of the page is hidden behind the modal, the notifications are not.
+    await expect.poll(() => document.getElementById("app")?.closest("[aria-hidden=true]")).not.toBeNull();
+    const region = document.querySelector(".e-toast-region")!;
+    expect(region.closest("[aria-hidden=true]")).toBeNull();
+    await expect.element(page.getByRole("region", { name: "Notifications" })).toBeInTheDocument();
+    open.value = false;
+  });
+
   test("a toast with no duration keeps its close button even when closable is false", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     await mountApp();

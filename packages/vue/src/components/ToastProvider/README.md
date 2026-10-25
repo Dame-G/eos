@@ -76,4 +76,4 @@ The options of `toast.show`. `toast.update(id, patch)` takes any of them.
 
 ## Related
 
-[`EToast`](../Toast/README.md) is the toast itself, [`ENotice`](../Notice/README.md) a message that stays in the page.
+[`EToast`](../Toast/README.md) is the toast itself.

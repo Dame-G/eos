@@ -30,15 +30,27 @@ describe("EToast", () => {
     expect(el.querySelector(".e-notice-icon svg")).not.toBeNull();
   });
 
-  test("danger is an alert, the other tones a status", async () => {
+  test("danger is announced at once, the other tones politely, through the shared live regions and not a role", async () => {
+    const said = (kind: string) => document.querySelector(`[data-e-announcer=${kind}]`)?.textContent ?? "";
     const a = await render(EToast, { props: { title: "Failed", tone: "danger" } });
-    expect(a.container.querySelector(".e-toast")!.getAttribute("role")).toBe("alert");
+    expect(a.container.querySelector(".e-toast")!.hasAttribute("role")).toBe(false);
     expect(a.container.querySelector(".e-toast--danger")).not.toBeNull();
+    await expect.poll(() => said("assertive")).toContain("Failed");
     for (const tone of ["neutral", "info", "success", "warning"] as const) {
-      const { container } = await render(EToast, { props: { title: "x", tone } });
-      expect(container.querySelector(".e-toast")!.getAttribute("role")).toBe("status");
+      const { container } = await render(EToast, { props: { title: `x ${tone}`, tone } }, { default: () => "detail" });
+      expect(container.querySelector(".e-toast")!.hasAttribute("role")).toBe(false);
       expect(container.querySelector(`.e-toast--${tone}`)).not.toBeNull();
+      await expect.poll(() => said("polite")).toContain(`x ${tone}`);
     }
+  });
+
+  test("role overrides the tone's announcement, and false says nothing", async () => {
+    const said = () => document.querySelector("[data-e-announcer=assertive]")?.textContent ?? "";
+    await render(EToast, { props: { title: "Heads up", tone: "warning", role: "alert" } });
+    await expect.poll(said).toContain("Heads up");
+    await render(EToast, { props: { title: "Quiet one", tone: "danger", role: false } });
+    await new Promise((r) => setTimeout(r, 120));
+    expect(said()).not.toContain("Quiet one");
   });
 
   test("is size-panel-sm wide, and up to 40rem with an action", async () => {
@@ -91,11 +103,6 @@ describe("EToast", () => {
     expect(style.borderInlineStartColor).not.toBe("rgba(0, 0, 0, 0)");
     expect(style.borderInlineStartStyle).toBe("solid");
     expect(parseFloat(style.borderInlineStartWidth)).toBeGreaterThan(parseFloat(style.borderTopWidth));
-  });
-
-  test("live=false leaves out the alert and status roles", async () => {
-    const { container } = await render(EToast, { props: { title: "x", tone: "danger", live: false } });
-    expect(container.querySelector(".e-toast")!.hasAttribute("role")).toBe(false);
   });
 
   test("class and data attributes fall through to the root", async () => {

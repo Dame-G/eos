@@ -1,28 +1,41 @@
 <script setup lang="ts">
+import { computed, onMounted, watch } from "vue";
 import { useMessages } from "../../config.js";
+import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import type { Size } from "../../composables/useSize.js";
 import SpinnerRing from "./SpinnerRing.vue";
 import "../../styles/base.css";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
-    /** Shown beside the ring. The spinner is a `status` region, so a label that appears with it is announced politely. Without one, screen readers get "Loading". */
+    /** Shown beside the ring, and announced politely when the spinner appears or the label changes. Without one, screen readers hear "Loading". */
     label?: string;
     /** The ring: `sm` 20px, `md` 28px, `lg` 40px. */
     size?: Extract<Size, "sm" | "md" | "lg">;
     /** Centre it in a panel. */
     block?: boolean;
+    /** Leaves the announcement to a parent that says what is loading itself. The words stay for anyone who reads the page. */
+    silent?: boolean;
   }>(),
   { size: "md" },
 );
 
 const t = useMessages();
+const { announce } = useAnnouncer();
+const words = computed(() => props.label || t("loading"));
+
+/*
+ * A live region that arrives with its words already in it is missed by several screen readers, so the spinner is not
+ * one: it says its words through the page's shared live region, which is there before anything is said.
+ */
+onMounted(() => props.silent || announce(words.value));
+watch(words, (now) => props.silent || announce(now));
 </script>
 
 <template>
-  <span class="e-spinner" :class="[size !== 'md' && `e-spinner--${size}`, block && 'e-spinner--block']" role="status">
+  <span class="e-spinner" :class="[size !== 'md' && `e-spinner--${size}`, block && 'e-spinner--block']">
     <SpinnerRing class="e-spinner-ring" />
-    <span :class="label ? 'e-spinner-label' : 'e-sr'">{{ label || t("loading") }}</span>
+    <span :class="label ? 'e-spinner-label' : 'e-sr'">{{ words }}</span>
   </span>
 </template>
 

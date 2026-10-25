@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, watch } from "vue";
+import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import "../../styles/base.css";
 import "./skeleton.css";
 
@@ -14,9 +15,17 @@ const props = defineProps<{
   lines?: number;
   /** One line of text. Same as `lines` of 1. */
   text?: boolean;
-  /** Names what is loading. The skeleton becomes a polite `status` region that reads this, instead of being hidden from screen readers. */
+  /** Names what is loading. It is announced politely when the skeleton appears, and kept as text for screen readers, instead of the skeleton being hidden from them. */
   label?: string;
 }>();
+
+const { announce } = useAnnouncer();
+// Through the page's shared live region: a live region that arrives with its words in it is missed by several screen readers.
+onMounted(() => props.label && announce(props.label));
+watch(
+  () => props.label,
+  (now) => now && announce(now),
+);
 
 const px = (v: number | string) => (typeof v === "number" ? `${v}px` : v);
 const count = computed(() => props.lines ?? (props.text ? 1 : 0));
@@ -33,7 +42,6 @@ const style = computed(() =>
   <div
     :class="count ? 'e-skeleton-lines' : ['e-skeleton', circle && 'e-skeleton--circle']"
     :style="style"
-    :role="label ? 'status' : undefined"
     :aria-hidden="label ? undefined : 'true'"
   >
     <span v-if="label" class="e-sr">{{ label }}</span>

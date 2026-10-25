@@ -13,15 +13,15 @@ An inline message that stays until it is dealt with. Use [`EToast`](../Toast/REA
 
 <!-- props:start -->
 
-| Prop           | Type                                                        | Default      | Notes                                                                                                                                                    |
-| -------------- | ----------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tone`         | `"neutral" \| "info" \| "success" \| "warning" \| "danger"` | `"info"`     | `neutral` is plain information with no colour, `info` informs, `success` confirms, `warning` needs attention and `danger` is an error announced at once. |
-| `title`        | `string`                                                    | **Required** | What happened, in one short line.                                                                                                                        |
-| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6`                                | None         | Renders the title as a heading of this level (1 to 6) so the notice is findable by heading. Without it the title is a paragraph.                         |
-| `titleId`      | `string`                                                    | None         | The id of the title element, for a parent that labels itself by it.                                                                                      |
-| `role`         | `string \| false`                                           | None         | The ARIA role. `danger` uses `alert`, the others `status`. `false` removes it, for a parent that announces the notice.                                   |
-| `icon`         | `IconProp`                                                  | None         | Replaces the icon of the tone.                                                                                                                           |
-| `closable`     | `boolean`                                                   | `false`      | Shows the close button. Handle `@close` to remove the notice.                                                                                            |
+| Prop           | Type                                                        | Default                             | Notes                                                                                                                                                          |
+| -------------- | ----------------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tone`         | `"neutral" \| "info" \| "success" \| "warning" \| "danger"` | `"info"`                            | `neutral` is plain information with no colour, `info` informs, `success` confirms, `warning` needs attention and `danger` is an error.                         |
+| `title`        | `string`                                                    | **Required**                        | What happened, in one short line.                                                                                                                              |
+| `headingLevel` | `1 \| 2 \| 3 \| 4 \| 5 \| 6`                                | None                                | Renders the title as a heading of this level (1 to 6) so the notice is findable by heading. Without it the title is a paragraph.                               |
+| `titleId`      | `string`                                                    | None                                | The id of the title element, for a parent that labels itself by it.                                                                                            |
+| `role`         | `"alert" \| "status" \| false`                              | `"alert" for danger, else "status"` | The live role, which announces a change of the notice's words: `alert` at once, `status` politely. `false` removes it, for a parent that announces the notice. |
+| `icon`         | `IconProp`                                                  | None                                | Replaces the icon of the tone.                                                                                                                                 |
+| `closable`     | `boolean`                                                   | `false`                             | Shows the close button. Handle `@close` to remove the notice.                                                                                                  |
 
 <!-- props:end -->
 
@@ -42,7 +42,7 @@ An inline message that stays until it is dealt with. Use [`EToast`](../Toast/REA
 
 ## Accessibility
 
-- A live region, with `role="alert"` for `danger` and `role="status"` otherwise. Set `role` to `false` when a parent already announces it.
+- `role="alert"` for `danger` and `role="status"` otherwise. The live role announces a change of the words once the notice is in the page; a notice that appears with its words in it is not reliably announced, so announce that moment with `useAnnouncer()` when it matters. Set `role` to `false` when a parent already announces it.
 - The close button is named "Dismiss". It shows when `closable` is set; handle `@close` to remove the notice.
 - The coloured edge is the slab on the inline start, so it flips in a right-to-left page. `neutral` is the plain tone, for a note with no urgency; colour is never the only cue, since the icon and the title say what it is.
 
