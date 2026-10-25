@@ -13,7 +13,7 @@ import EDataGridToolbar from "./EDataGridToolbar.vue";
 import type { EOption } from "../Select/options.js";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
-import { warnOnce } from "../../warn.js";
+import { warnOnce } from "../../env.js";
 import { useLocale } from "../../composables/useLocale.js";
 import { useOverflow } from "../../composables/useOverflow.js";
 import { cellValue, filterActive, foldText, parsePx } from "./grid.js";

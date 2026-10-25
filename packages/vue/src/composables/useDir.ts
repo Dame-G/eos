@@ -74,3 +74,5 @@ export const SUBMENU_OFFSET = 4;
 export const EDGE_PADDING = 16;
 /** Pixels a small floating part (a tooltip, a submenu) keeps from the edge of the screen. @internal */
 export const EDGE_PADDING_TIGHT = 8;
+/** Where the popup of a field (a list of options, a calendar) sits: this far from the box, and kept this far inside the viewport. Bind it on the popup content. @internal */
+export const FIELD_POPPER = { sideOffset: 6, collisionPadding: EDGE_PADDING_TIGHT } as const;

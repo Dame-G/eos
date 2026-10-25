@@ -33,7 +33,16 @@ const limits = {
   "style.css": 22300,
   // Minified here before gzip since the JavaScript ships unminified; rebased then with the headroom they had.
   "index.js": 2100,
-  "all JavaScript files (each gzipped)": 144300,
+  // Raised from 144300 in the audit release, at 148029 B with the headroom it had (2.9%). Growth over 0.17 (about 8 kB,
+  // EDefinition -> EToggletip moved bytes without adding any): useDataGrid (the grid's search index and sort, split out
+  // so it is tested alone), useDatePopover (the calendar popup EDatePicker and ERangePicker now share, which also gives
+  // the range picker invalid-text and Alt+Arrow Down), RekaConfig/TooltipScope (one direction, scroll lock and tooltip
+  // provider for every Reka part), useLink (to and href, never both, on every link), useBusyButton, the theme mounted
+  // as a stylesheet with lang and dir restored on unmount (plugin), useDir following the page's own direction, ETooltip
+  // not reading a label twice, EAppHeader's height hook and scrolling nav, and the announcer and new props across the
+  // release. Already cut: warn.ts folded into env.ts with every one-off console.warn on warnOnce, and Field/popper.ts
+  // folded into the floating-part constants of useDir.ts.
+  "all JavaScript files (each gzipped)": 152300,
 };
 
 // The per-component paths (`@eos-ui/vue/components/EButton`) are one-line re-exports, dist/components/<Name>/index.js.

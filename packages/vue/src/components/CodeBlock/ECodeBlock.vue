@@ -124,8 +124,8 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     --_toward-end: to left;
 
     background:
-      linear-gradient(var(--_toward-end), var(--e-surface) 40%, transparent) var(--_end) / var(--e-space-6) 100% no-repeat
-        local,
+      linear-gradient(var(--_toward-end), var(--e-surface) 40%, transparent) var(--_end) / var(--e-space-6) 100%
+        no-repeat local,
       linear-gradient(var(--_toward-end), var(--e-wash-ring), transparent) var(--_end) / var(--e-space-2) 100% no-repeat
         scroll;
 

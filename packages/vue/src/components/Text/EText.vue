@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { ElementTag, Size, Tone } from "../../types.js";
-import { warnOnce } from "../../warn.js";
+import { warnOnce } from "../../env.js";
 import "../../styles/base.css";
 
 /** The colour of the text. Left out, it is the ink colour; `muted` is the quieter colour of secondary copy. */

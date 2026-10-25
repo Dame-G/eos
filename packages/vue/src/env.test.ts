@@ -24,9 +24,14 @@ describe("development warnings", () => {
   });
 
   test("with no process at all (an unbundled script in a browser) it is not production", () => {
+    // Only isProduction: the rest of the module (warnOnce) is typed TypeScript, which Function cannot run.
+    const isProductionSource = source.slice(
+      source.indexOf("export function isProduction"),
+      source.indexOf("const warned"),
+    );
     const run = new Function(
       "process",
-      `${source.replace(/export /g, "").replace("): boolean", ")")}; return isProduction();`,
+      `${isProductionSource.replace(/export /g, "").replace("): boolean", ")")}; return isProduction();`,
     ) as (p: unknown) => boolean;
     expect(run(undefined)).toBe(false);
     expect(run({ env: { NODE_ENV: "production" } })).toBe(true);

@@ -3,8 +3,7 @@ import { computed, useSlots } from "vue";
 import EActions from "../Actions/EActions.vue";
 import { useGap, type GapToken } from "../Stack/gap.js";
 import type { ElementTag } from "../../types.js";
-import { isProduction } from "../../env.js";
-import { warnOnce } from "../../warn.js";
+import { warnOnce } from "../../env.js";
 import "../../styles/base.css";
 
 /** The looks of a surface. */
@@ -42,9 +41,8 @@ const barElement = computed(() => (SECTIONING.has(props.as) ? "footer" : "div"))
 
 if (props.flush && props.padding !== undefined)
   warnOnce("ESurface-flush", "ESurface takes `flush` or `padding`, not both; `flush` is padding 0 and wins.");
-if (props.clip && slots.actions && !isProduction()) {
-  console.warn("[eos] ESurface `clip` is ignored when there is an `actions` slot; the surface already clips.");
-}
+if (props.clip && slots.actions)
+  warnOnce("ESurface-clip", "ESurface `clip` is ignored when there is an `actions` slot; the surface already clips.");
 </script>
 
 <template>

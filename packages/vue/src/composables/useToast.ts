@@ -1,6 +1,6 @@
 import { inject, shallowRef, type InjectionKey, type VNodeChild } from "vue";
 import type { IconProp } from "../icons/types.js";
-import { isProduction } from "../env.js";
+import { warnOnce } from "../env.js";
 
 import type { Tone } from "../types.js";
 
@@ -132,8 +132,7 @@ export function createToasts(): ToastStore {
   /** A toast that never goes must be closable, or nothing could remove it. */
   function reachable(item: ToastItem): ToastItem {
     if (item.duration > 0 || item.closable !== false) return item;
-    if (!isProduction())
-      console.warn("[eos] A toast with no duration needs its close button, so `closable: false` is ignored.");
+    warnOnce("toast-closable", "A toast with no duration needs its close button, so `closable: false` is ignored.");
     return { ...item, closable: true };
   }
 
