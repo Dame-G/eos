@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import DialogFrame from "../Dialog/DialogFrame.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EKbd from "../Kbd/EKbd.vue";
@@ -9,7 +9,7 @@ import { fold } from "../Combobox/fold.js";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
-import { formatShortcut, useShortcuts } from "../../composables/useShortcuts.js";
+import { formatShortcut, isApple, useShortcuts } from "../../composables/useShortcuts.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
 import "../../styles/controls/panel.css";
@@ -77,6 +77,9 @@ const query = defineModel<string>("query", { default: "" });
 const t = useMessages();
 const { announce } = useAnnouncer();
 const uid = useUid();
+/** Cmd or Ctrl in the keycaps. The server cannot tell, so the first render says Ctrl on both sides and the browser's answer follows once mounted. */
+const apple = ref(false);
+onMounted(() => (apple.value = isApple()));
 
 const activeId = ref<string | null>(null);
 const list = ref<HTMLElement | null>(null);
@@ -308,7 +311,7 @@ defineExpose({
                 </span>
               </span>
               <span v-if="item.shortcut" class="e-cmd-keys" aria-hidden="true">
-                <EKbd v-for="key in formatShortcut(item.shortcut)" :key="key" size="sm">{{ key }}</EKbd>
+                <EKbd v-for="key in formatShortcut(item.shortcut, apple)" :key="key" size="sm">{{ key }}</EKbd>
               </span>
             </slot>
           </div>

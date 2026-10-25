@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ECommandPalette, { type CommandItem } from "./ECommandPalette.vue";
@@ -207,6 +207,16 @@ describe("ECommandPalette", () => {
     const caps = [...document.querySelectorAll("[role=option] kbd")].map((k) => k.textContent);
     expect(caps).toHaveLength(2);
     expect(caps.at(-1)).toBe("I");
+  });
+
+  test("the keycaps follow the platform once mounted", async () => {
+    vi.stubGlobal("navigator", { ...navigator, platform: "MacIntel", userAgent: "Macintosh" });
+    try {
+      await mount();
+      await expect.poll(() => document.querySelector("[role=option] kbd")?.textContent).toBe("⌘");
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   test("a custom score replaces the built-in matching", async () => {

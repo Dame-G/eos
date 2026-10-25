@@ -46,7 +46,7 @@ Combine `mod`, `ctrl`, `cmd` (or `meta`), `alt` and `shift` with `+`. Key names 
 - A held key does not repeat, and text being composed (an IME) is left alone.
 - Options: `target` (an element or ref, the document by default), `enabled` (a ref or getter), `allowInInputs`, `preventDefault` (on by default).
 
-`formatShortcut("mod+k")` gives the keycaps to show in [`EKbd`](../components/Kbd/README.md): `["⌘", "K"]` on a Mac, `["Ctrl", "K"]` elsewhere.
+`formatShortcut("mod+k")` gives the keycaps to show in [`EKbd`](../components/Kbd/README.md): `["⌘", "K"]` on a Mac, `["Ctrl", "K"]` elsewhere. It reads the browser, so in a server-rendered page pass `formatShortcut(combo, apple)` with an `apple` ref that is `false` until mounted, as `ECommandPalette` does; otherwise the server and the first render in the browser disagree.
 
 ## `useCopy(options?)`
 
