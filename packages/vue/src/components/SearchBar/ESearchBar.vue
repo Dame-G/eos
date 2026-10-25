@@ -3,7 +3,7 @@ import EIcon from "../Icon/EIcon.vue";
 import EButton from "../Button/EButton.vue";
 import EInputClear from "../Field/EInputClear.vue";
 import EInputShell from "../Field/EInputShell.vue";
-import type { EFieldBoxProps } from "../Field/fieldProps.js";
+import { sizeAttr, type EFieldBoxProps } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
 import { useFieldControl } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
@@ -13,7 +13,9 @@ defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
   defineProps<
-    EFieldBoxProps & {
+    Pick<EFieldBoxProps, "size"> & {
+      /** Shows a spinner on the search button and sets `aria-busy` on the box while results load. With `hideAction` the spinner sits in the box. */
+      loading?: boolean;
       /** Names the box and the search landmark. It is not shown on the page. @default "Search" */
       label?: string;
       /** Hint text in the empty box that says what can be searched. @default "Search" */
@@ -24,10 +26,14 @@ const props = withDefaults(
       hideAction?: boolean;
       /** Shows a button that empties the box while it has text. */
       clearable?: boolean;
-      /** The name the text is posted under when the bar sits inside a form of your own. There is no default: the bar is not a form. */
+      /** The name the text is posted under when the bar sits inside a form of your own and that form is submitted by its own button. There is no default: the bar is not a form. */
       name?: string;
       /** Disables the box and button. Pair it with an `ENotice` that says why. */
       disabled?: boolean;
+      /** Shows the text but blocks editing it. The box stays focusable and the text can still be searched. */
+      readonly?: boolean;
+      /** The id of the input, for a label of your own or a link to it. */
+      id?: string;
     }
   >(),
   { clearable: false },
@@ -72,6 +78,7 @@ defineExpose(control.exposed);
   >
     <span class="e-search-lead"><EIcon name="search" /></span>
     <input
+      :id="id"
       ref="box"
       enterkeyhint="search"
       v-bind="control.attrs.input()"
@@ -82,11 +89,12 @@ defineExpose(control.exposed);
       :placeholder="placeholder || t('search')"
       :value="model"
       :disabled="disabled"
-      :data-size="size && size !== 'md' ? size : undefined"
+      :readonly="readonly"
+      :data-size="sizeAttr(size)"
       @input="model = ($event.target as HTMLInputElement).value"
       @keydown.enter="onEnter"
     />
-    <EInputClear v-if="clearable && model && !disabled" @click="clear" />
+    <EInputClear v-if="clearable && model && !disabled && !readonly" @click="clear" />
     <EButton v-if="!hideAction" :disabled="disabled" :loading="loading" @click="emit('submit', model)">
       {{ action || t("search") }}
     </EButton>
