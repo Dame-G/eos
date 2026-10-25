@@ -4,7 +4,7 @@ A one-time code entered one character per box, with paste and SMS autofill suppo
 
 ```vue
 <EOtpField v-model="code" label="Sign-in code" hint="We texted you a code." @complete="verify" />
-<EOtpField v-model="code" :length="8" inputmode="text" :group-size="4" />
+<EOtpField v-model="code" :length="8" charset="alphanumeric" :group-size="4" />
 ```
 
 ## Props

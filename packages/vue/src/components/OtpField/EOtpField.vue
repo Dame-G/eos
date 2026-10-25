@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from "vue";
 import EField from "../Field/EField.vue";
-import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
+import { sizeAttr, type EFieldBoxProps, type EFieldCommonProps } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
 import { useFieldControl } from "../../composables/useFieldControl.js";
 import { useDir } from "../../composables/useDir.js";
@@ -18,17 +18,17 @@ const props = withDefaults(
         label?: string;
         /** How many characters: the number of boxes. */
         length?: number;
-        /** `numeric` opens the number pad and `text` takes letters and digits, upper-cased. */
-        inputmode?: "numeric" | "text";
+        /** The characters a box takes: `numeric` takes digits and opens the number pad, `alphanumeric` takes letters and digits, upper-cased. */
+        charset?: "numeric" | "alphanumeric";
         /** The number of boxes in each group, with a gap between groups. A `length` of 6 with 3 reads 123 456. */
         groupSize?: number;
         /** The name submitted with a form (the whole code), through a hidden input. Posts nothing while disabled. */
         name?: string;
-        /** Focuses the first empty box when the field mounts. */
-        autoFocus?: boolean;
+        /** Focuses the first empty box when the field mounts, as the native attribute does for one input. */
+        autofocus?: boolean;
       }
   >(),
-  { length: 6, inputmode: "numeric", groupSize: 0 },
+  { length: 6, charset: "numeric", groupSize: 0 },
 );
 
 const emit = defineEmits<{
@@ -43,7 +43,7 @@ const t = useMessages();
 const dir = useDir();
 const control = useFieldControl(props);
 const attrs = control.attrs;
-const numeric = computed(() => props.inputmode !== "text");
+const numeric = computed(() => props.charset !== "alphanumeric");
 const refs: (HTMLInputElement | null)[] = [];
 
 function clean(s: unknown): string {
@@ -142,7 +142,7 @@ function onPaste(i: number, e: ClipboardEvent) {
 }
 
 onMounted(() => {
-  if (props.autoFocus) focusAt(live.length);
+  if (props.autofocus) focusAt(live.length);
 });
 
 defineExpose({
@@ -183,7 +183,7 @@ defineExpose({
             :disabled="disabled"
             :readonly="readonly"
             :required="required"
-            :data-size="size && size !== 'md' ? size : undefined"
+            :data-size="sizeAttr(size)"
             :data-filled="value[i - 1] ? '' : undefined"
             :aria-label="t(numeric ? 'otpDigit' : 'otpChar', { n: i, total: length })"
             :aria-invalid="field.ariaInvalid"

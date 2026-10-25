@@ -106,7 +106,7 @@ describe("EOtpField", () => {
     boxesOf(numeric.container)[0]!.focus();
     await userEvent.keyboard("a1b2");
     expect(numeric.got.at(-1)).toBe("12");
-    const text = await bound({ label: "Code2", inputmode: "text", length: 4 });
+    const text = await bound({ label: "Code2", charset: "alphanumeric", length: 4 });
     boxesOf(text.container)[0]!.focus();
     await userEvent.keyboard("a1b2");
     expect(text.got.at(-1)).toBe("A1B2");
@@ -201,7 +201,7 @@ describe("EOtpField", () => {
   test("autocapitalize applies only to text codes", async () => {
     const numeric = await render(EOtpField, { props: { label: "Code" } });
     expect(boxesOf(numeric.container)[0]!.hasAttribute("autocapitalize")).toBe(false);
-    const text = await render(EOtpField, { props: { label: "Code", inputmode: "text" } });
+    const text = await render(EOtpField, { props: { label: "Code", charset: "alphanumeric" } });
     expect(boxesOf(text.container)[0]!.getAttribute("autocapitalize")).toBe("characters");
   });
 
@@ -229,10 +229,10 @@ describe("EOtpField", () => {
     expect(seps[0]!.nextElementSibling).toBe(boxesOf(container)[3]);
   });
 
-  test("autoFocus starts in the first empty box", async () => {
+  test("autofocus starts in the first empty box", async () => {
     const focused: (string | null)[] = [];
     await render(EOtpField, {
-      props: { label: "Code", autoFocus: true, modelValue: "12" },
+      props: { label: "Code", autofocus: true, modelValue: "12" },
       attrs: { onFocusin: (e: FocusEvent) => focused.push((e.target as HTMLElement).getAttribute("aria-label")) },
     });
     expect(focused).toEqual(["Digit 3 of 6"]);
@@ -319,7 +319,7 @@ describe("EOtpField", () => {
             h(EOtpField, { label: "Empty" }),
             h(EOtpField, { label: "Filled", modelValue: "123456", hint: "A hint" }),
             h(EOtpField, { label: "Invalid", modelValue: "12", error: "Wrong code", groupSize: 3 }),
-            h(EOtpField, { label: "Disabled", disabled: true, inputmode: "text", length: 4 }),
+            h(EOtpField, { label: "Disabled", disabled: true, charset: "alphanumeric", length: 4 }),
           ]),
       }),
     );
