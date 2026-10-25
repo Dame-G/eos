@@ -127,13 +127,13 @@ function cached<T extends Intl.NumberFormat | Intl.ListFormat | Intl.Collator>(k
   return f;
 }
 
-/** A number in a locale, or in the runtime's locale when the tag is not one Intl knows. @internal */
-export function numberFormat(locale: string): Intl.NumberFormat {
+/** A number in a locale, or in the runtime's locale when the tag is not one Intl knows. */
+function numberFormat(locale: string): Intl.NumberFormat {
   return cached(`n|${locale}`, () => new Intl.NumberFormat(locale)) ?? cached("n|", () => new Intl.NumberFormat())!;
 }
 
-/** Money in a locale and currency, with the currency's own number of decimals (none for yen). Null when either is unknown. @internal */
-export function moneyFormat(locale: string, currency: string): Intl.NumberFormat | null {
+/** Money in a locale and currency, with the currency's own number of decimals (none for yen). Null when either is unknown. */
+function moneyFormat(locale: string, currency: string): Intl.NumberFormat | null {
   return cached(`m|${locale}|${currency}`, () => new Intl.NumberFormat(locale, { style: "currency", currency }));
 }
 

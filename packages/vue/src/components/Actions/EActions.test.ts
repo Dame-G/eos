@@ -61,7 +61,7 @@ describe("EActions", () => {
   });
 
   test('stack="narrow" stacks full width in a narrow container and not in a wide one; always stacks at every width', async () => {
-    const at = (width: number, stack: string) =>
+    const at = (width: number, stack: "narrow" | "always") =>
       render(
         defineComponent({
           render: () => h("div", { style: { width: `${width}px` } }, [h(EActions, { stack }, buttons)]),

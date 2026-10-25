@@ -102,6 +102,7 @@ const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["v
 
   .e-fact {
     display: grid;
+
     /* The label column: about two kicker words wide. No token yet. */
     grid-template-columns: 8rem minmax(0, 1fr);
     gap: var(--e-gap-tight) var(--e-gap-loose);

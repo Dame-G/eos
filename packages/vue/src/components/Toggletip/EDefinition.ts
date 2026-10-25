@@ -12,6 +12,7 @@ export default defineComponent({
   inheritAttrs: false,
   setup(_, { attrs, slots }) {
     warnOnce("EDefinition", "EDefinition is renamed EToggletip; the old name goes in the next minor release.");
-    return () => h(EToggletip, attrs, slots);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- attrs pass straight through to EToggletip
+    return () => h(EToggletip as any, attrs, slots);
   },
 }) as unknown as typeof EToggletip;

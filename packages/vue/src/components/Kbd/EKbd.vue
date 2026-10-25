@@ -28,6 +28,7 @@ defineSlots<{
     /* As wide as its content, also as the child of a grid or a column, which would otherwise stretch it. */
     inline-size: fit-content;
     max-inline-size: 100%;
+
     /* At least as wide as its line is tall, so a one-letter key is square. */
     min-width: calc(var(--e-leading-normal) * 1em);
     padding: 0 var(--e-gap-tight);
