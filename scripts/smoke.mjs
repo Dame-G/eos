@@ -4,31 +4,11 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
+import { pnpmShell as pnpm } from "./pnpm.mjs";
 
-// A second server entry for components that teleport or hold state. EToastProvider has an unconditional
-// <Teleport to="body">, so it must render on the server, where there is no document.
-const ssrMore = `// @ts-nocheck: a render-function probe, not typed app code
-import { createSSRApp, h } from "vue";
-import { renderToString } from "vue/server-renderer";
-import { createEos, EToastProvider, EDialog, ESelect, EDataGrid, ETabs, EToast, EButton } from "@eos-ui/vue";
-export async function renderMore() {
-  const app = createSSRApp({
-    render: () =>
-      h(EToastProvider, null, () => [
-        h(ETabs, { items: [{ id: "a", label: "Alpha" }, { id: "b", label: "Beta" }], label: "Sections" }, { "panel-a": () => "First", "panel-b": () => "Second" }),
-        h(ESelect, { label: "Pick", options: ["x", "y"] }),
-        h(EDialog, { title: "Sure?", open: true }, () => "Body"),
-        h(EDataGrid, { caption: "Rows", columns: [{ key: "n", label: "Name" }], rows: [{ id: 1, n: "one" }] }),
-        h(EToast, { tone: "info" }, () => "Saved"),
-        h(EButton, null, () => "Go"),
-      ]),
-  });
-  app.use(createEos());
-  const ctx: Record<string, unknown> = {};
-  const html = await renderToString(app, ctx);
-  return { html, teleports: ctx.teleports as Record<string, string> | undefined };
-}
-`;
+// Packs both packages as npm would publish them, lints the tarballs (publint, arethetypeswrong), installs them in a fresh
+// Vite app and checks that the app type-checks, builds for the browser and builds and renders for the server. It proves the
+// packages install and import; what each component renders is scripts/ssr.mjs, which covers every one of them.
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const work = mkdtempSync(join(tmpdir(), "eos-smoke-"));
@@ -41,14 +21,14 @@ const step = (name) => console.log(`\n== ${name}`);
 if (!process.argv.includes("--no-build")) {
   step("build");
   run("node packages/tokens/scripts/build.mjs");
-  run("corepack pnpm --filter @eos-ui/vue build");
+  run(`${pnpm} --filter @eos-ui/vue build`);
 }
 
 step("pack");
 const packs = join(work, "packs");
 mkdirSync(packs);
-run(`corepack pnpm --filter @eos-ui/tokens pack --pack-destination "${packs}"`);
-run(`corepack pnpm --filter @eos-ui/vue pack --pack-destination "${packs}"`);
+run(`${pnpm} --filter @eos-ui/tokens pack --pack-destination "${packs}"`);
+run(`${pnpm} --filter @eos-ui/vue pack --pack-destination "${packs}"`);
 const tarballs = readdirSync(packs).filter((f) => f.endsWith(".tgz"));
 const tokensTgz = tarballs.find((f) => f.includes("tokens"));
 const vueTgz = tarballs.find((f) => f.includes("vue"));
@@ -60,9 +40,9 @@ const checks = [
   [vueTgz, ". ./resolver ./globals ./plugin ./components/EButton ./icons ./icons/builtin ./icons/iconify"],
 ];
 for (const [tgz, entrypoints] of checks) {
-  run(`corepack pnpm --filter @eos-ui/vue exec publint "${join(packs, tgz)}" --strict`);
+  run(`${pnpm} --filter @eos-ui/vue exec publint "${join(packs, tgz)}" --strict`);
   run(
-    `corepack pnpm --filter @eos-ui/vue exec attw --pack "${join(packs, tgz)}" --profile esm-only --entrypoints ${entrypoints}`,
+    `${pnpm} --filter @eos-ui/vue exec attw --pack "${join(packs, tgz)}" --profile esm-only --entrypoints ${entrypoints}`,
   );
 }
 
@@ -160,8 +140,6 @@ writeFileSync(
   'import { createSSRApp } from "vue";\nimport { renderToString } from "vue/server-renderer";\nimport { createEos } from "@eos-ui/vue";\nimport App from "./App.vue";\nexport async function render() {\n  const app = createSSRApp(App);\n  app.use(createEos());\n  return renderToString(app);\n}\n',
 );
 
-writeFileSync(join(app, "src/entry-more.ts"), ssrMore);
-
 step("install (npm)");
 run("npm install --no-audit --no-fund", app);
 
@@ -189,15 +167,3 @@ const html = await render();
 if (!html.includes("e-btn") || !html.includes("e-field"))
   throw new Error("SSR output is missing component markup:\n" + html.slice(0, 600));
 console.log(`SSR ok (${html.length} bytes)`);
-
-step("SSR render of the toast provider, tabs, select, dialog, data grid and toast");
-run("npx vite build --ssr src/entry-more.ts --outDir dist-ssr-more", app);
-const moreDir = join(app, "dist-ssr-more");
-const moreEntry = readdirSync(moreDir).find((f) => f.startsWith("entry-more") && f.endsWith(".js"));
-const { renderMore } = await import("file:///" + join(moreDir, moreEntry).replace(/\\/g, "/"));
-const more = await renderMore();
-for (const needle of ["Alpha", "e-field", "Rows"])
-  if (!more.html.includes(needle)) throw new Error(`SSR output is missing "${needle}":\n` + more.html.slice(0, 800));
-console.log(`SSR ok (${more.html.length} bytes, teleports: ${Object.keys(more.teleports ?? {}).join(", ") || "none"})`);
-
-console.log(`\nSmoke test passed. Work dir: ${work}`);

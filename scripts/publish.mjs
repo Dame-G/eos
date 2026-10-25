@@ -3,6 +3,7 @@ import { appendFileSync, mkdtempSync, readFileSync, readdirSync } from "node:fs"
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { pnpm } from "./pnpm.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const run = (cmd, args, cwd = root) => execFileSync(cmd, args, { cwd, stdio: "inherit" });
@@ -28,7 +29,7 @@ for (const pkg of packages) {
     console.log(`${pkg.name}@${pkg.version} is already published`);
     continue;
   }
-  run("corepack", ["pnpm", "--filter", pkg.name, "pack", "--pack-destination", packs]);
+  run(pnpm[0], [...pnpm.slice(1), "--filter", pkg.name, "pack", "--pack-destination", packs]);
   const tarball = readdirSync(packs).find((f) =>
     f.startsWith(pkg.name.replace("@", "").replace("/", "-") + "-" + pkg.version),
   );

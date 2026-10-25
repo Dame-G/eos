@@ -10,26 +10,27 @@ packages/vue      @eos-ui/vue      components, plugin, composables
 ## Setup
 
 ```bash
-corepack enable           # or install pnpm 12
+npm install -g pnpm@12    # or corepack enable, on a Node that still ships corepack (24 and earlier)
 pnpm install
 pnpm build                # builds tokens, then the Vue package
 pnpm dev                  # watch-builds the library (see Developing against the docs site)
 pnpm test                 # real-browser tests (Chromium in CI; Edge locally if installed, else Chromium)
-pnpm check:source         # generated files, CSS rules, layers, props tables, README links
+pnpm check:source         # generated files (index, tokens defaults), CSS rules, props tables, README links
 pnpm lint                 # eslint and stylelint
 pnpm format:check         # prettier (run `pnpm format` to fix)
 pnpm knip                 # unused files, exports and dependencies
 pnpm typecheck
-pnpm check:package        # size budgets, server render, built stylesheet (needs a build)
+pnpm check:package        # size budgets, server render, built stylesheet, type exports (needs a build)
 pnpm ssr                  # just the server render (--verbose lists each check)
 pnpm smoke                # builds and packs both packages, lints the tarballs (publint, attw), installs them in a temporary app
+pnpm new:component <Name> # scaffolds a component (see Adding a component)
 ```
 
 Node 22 or later is required. CI runs the browser tests on Node 24 and builds the package and the consumer app on Node 22.
 
 ### Developing against the docs site
 
-There is no playground in this repository: the docs site (`Dame-G/eos-site`, checked out beside this repo, or anywhere with `EOS_DIR` set to this checkout) is the playground. It links `@eos-ui/vue` to `packages/vue`, so it reads the built `dist`. Run `pnpm dev` here (it builds the tokens, regenerates `src/index.ts` and runs `vite build --watch`), and run the site's dev server beside it. Edits to a component rebuild `dist` and the site reloads. After adding or removing a component folder, restart `pnpm dev` so `index.ts` is regenerated.
+There is no playground in this repository: the docs site (`Dame-G/eos-site`, checked out beside this repo, or anywhere with `EOS_DIR` set to this checkout) is the playground. It links `@eos-ui/vue` to `packages/vue`, so it reads the built `dist`. Run `pnpm dev` here (it builds the tokens, regenerates `src/index.ts` and runs `vite build --watch`, and rebuilds the tokens when `tokens.json` changes), and run the site's dev server beside it. Edits to a component rebuild `dist` and the site reloads. After adding or removing a component folder, restart `pnpm dev` so `index.ts` is regenerated.
 
 ### Browsers
 
@@ -37,22 +38,21 @@ Tests run in Chromium. Locally the Chromium tests use the installed Microsoft Ed
 
 ### Size
 
-`pnpm check:size` compares the gzipped `style.css`, `index.js` and all JavaScript with the budgets in `scripts/size.mjs` and prints each one's headroom. A budget is the current size plus about 3%. All CSS ships as one file, so every component's CSS is paid for by every consumer: reuse tokens and shared rules, avoid repeating a rule set across components, and do not add a dependency for something small. If a deliberate change needs more, raise the limit in the same pull request and say why in its description. Per-component CSS files are not offered; consumers who need a smaller stylesheet are a reason to revisit that, not to loosen the budget.
+`pnpm check:size` compares the gzipped `style.css`, `index.js` and all JavaScript (minified first: the JavaScript ships unminified, for the consumer's bundler to minify) with the budgets in `scripts/size.mjs` and prints each one's headroom. A budget is the current size plus about 3%. All CSS ships as one file, so every component's CSS is paid for by every consumer: reuse tokens and shared rules, avoid repeating a rule set across components, and do not add a dependency for something small. If a deliberate change needs more, raise the limit in the same pull request and say why in its description. Per-component CSS files are not offered; consumers who need a smaller stylesheet are a reason to revisit that, not to loosen the budget.
 
-The Vue package reads the built tokens (`packages/tokens/dist`). `pnpm build`, `pnpm test` and `pnpm typecheck` build them first, in dependency order, and only once. After changing `tokens.json` while you work inside `packages/vue`, run `pnpm tokens` from the root.
+The Vue package reads the built tokens (`packages/tokens/dist`). `pnpm build`, `pnpm test` and `pnpm typecheck` build them first, in dependency order, and only once. After changing `tokens.json` while you work inside `packages/vue`, run `pnpm tokens` from the root (`pnpm dev` does it for you), and commit the regenerated `src/generated/defaults.ts`: `pnpm check:source` fails when it is stale.
 
 While working on one component, run from `packages/vue` (these need `pnpm build` or `pnpm test` to have built the tokens once):
 
-| Command                                 | Use                                                                      |
-| --------------------------------------- | ------------------------------------------------------------------------ |
-| `npx vitest run src/components/Stamp`   | that component's tests                                                   |
-| `node scripts/check-css.mjs`            | every rule is inside `@layer e.*`, no `!important`, no raw z-index       |
-| `node scripts/check-layers.mjs`         | a component only uses components of its own layer or an earlier one      |
-| `npx vue-tsc --noEmit -p tsconfig.json` | types, including `.vue` files                                            |
-| `node scripts/gen-index.mjs`            | rewrites `src/index.ts` from what is on disk (never edit `src/index.ts`) |
-| `node scripts/gen-props.mjs`            | rewrites every README's props table from the component source            |
-| `node scripts/gen-props.mjs --check`    | fails if a props table is out of date (CI runs it as `check:props`)      |
-| `node scripts/check-docs.mjs`           | README links, bare URLs, table pipes, icon names (CI: `check:docs`)      |
+| Command                                 | Use                                                                                                     |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `npx vitest run src/components/Stamp`   | that component's tests                                                                                  |
+| `node scripts/check-css.mjs`            | the CSS rules: layer membership and order, no selector repeated across files, no inset ring over a fill |
+| `npx vue-tsc --noEmit -p tsconfig.json` | types, including `.vue` files                                                                           |
+| `node scripts/gen-index.mjs`            | rewrites `src/index.ts` from what is on disk (never edit `src/index.ts`)                                |
+| `node scripts/gen-props.mjs`            | rewrites every README's props table from the component source                                           |
+| `node scripts/gen-props.mjs --check`    | fails if a props table is out of date (CI runs it as `check:props`)                                     |
+| `node scripts/check-docs.mjs`           | README links, bare URLs, table pipes, icon names (CI: `check:docs`)                                     |
 
 ## A component
 
@@ -66,6 +66,17 @@ index.ts         export { default as EStamp } from "./EStamp.vue";   (plus expor
 ```
 
 `EButton` is the model.
+
+### Adding a component
+
+`pnpm new:component Stamp --layer e.primitives` (the layer defaults to `e.primitives`; see CSS below) writes the four files with the required README sections and props-table markers, adds an empty `EStamp` entry to `packages/vue/test/ssr/fixtures.ts`, and regenerates `src/index.ts`, `component-names.ts`, `globals.ts` and the props table. Then:
+
+1. Write the component, its tests (keyboard and axe for every state) and the README's TODOs.
+2. In `test/ssr/fixtures.ts`, give it the props it needs to render on the server, or delete the empty entry. That one table feeds the hydration test and `pnpm ssr`.
+3. Accept the new exports in the public API snapshots and check their diff: `pnpm --filter @eos-ui/vue exec vitest run test/public-api.test.ts -u` for the runtime names (`test/public-api.txt`), and after a build `node scripts/check-api-types.mjs --update` in `packages/vue` for the type names (`test/public-types.txt`).
+4. `pnpm changeset` (a `minor`), then `pnpm check:source`, `pnpm lint` and `pnpm test`.
+
+Nothing else lists the components by hand: the build entries, the resolver, the global types, `llms.txt` and the size report read the folders. Exports that are not a component or a composable (the plugin, config, messages, icons, themes) are written by hand in `src/core.ts`, which the generated index re-exports.
 
 ### Naming
 
@@ -135,7 +146,7 @@ There are no look variants. A component has one good default. If two looks are b
 - Draw a stroke once. A `border`, or a `box-shadow` ring (`var(--e-frame)`, `var(--e-float)`, `inset 0 0 0 <width> <colour>`), is the whole stroke: do not lay an identical `outline` over it, because the antialiased pixels on the curve are then painted twice and every rounded corner looks heavier than its straight edges. Keep `--e-stroke-edge` a whole pixel so border and ring agree in every browser. A raised slab is the one construction in Design conventions (The slab).
 - Values come from tokens (`var(--e-space-4)`). A raw colour, size or duration means a missing token, which you add to `packages/tokens/src/tokens.json` with a usage note. Logical properties only (`margin-inline-start`).
 - Space belongs to the parent: a component sets no outer margin. Layout that depends on the component's own width uses container queries, not viewport media queries.
-- **Private custom properties are `--_name`.** `--e-*` is the public contract: tokens from `tokens.json`, which a theme or a consumer may set. A property a component uses to pass a value between its own rules (a fill, a gap, a slab colour) starts with an underscore: `--_fill`, `--_slab`, `--_gap`. It is declared on the component's own selector, never on `:root`, and nothing outside the component reads it. Some older components still use `--e-gap`, `--e-min`, `--e-over`, `--e-chars`, `--e-swatch`, `--e-xrow-lead`, `--e-row-h`, `--e-grid-*`, `--e-table-max-h` and `--e-shell-*`; rename them to `--_*` when you touch the component.
+- **Private custom properties are `--_name`.** `--e-*` is the public contract: tokens from `tokens.json`, which a theme or a consumer may set. A property a component uses to pass a value between its own rules (a fill, a gap, a slab colour) starts with an underscore: `--_fill`, `--_slab`, `--_gap`. It is declared on the component's own selector, never on `:root`, and nothing outside the component reads it. `--e-ring` and `--e-tone` are older private properties that still carry the public prefix; they are being renamed to `--_*`, so do not copy them. (`--e-xrow-lead` is different: a documented hook a consumer sets on `EExpandableRow`.)
 - **Motion.** Use `--e-duration-tap`, `--e-duration-fade` and `--e-duration-move` for state changes: the theme CSS sets all three to 0.01ms under `prefers-reduced-motion`, so a transition needs no media query of its own. A looping animation (a skeleton pulse, a spinner, an indeterminate bar) uses `--e-duration-loop` or `--e-duration-spin` with `ease-in-out` or `--e-easing-linear`, and sets `animation: none` itself under `prefers-reduced-motion`, because a loop at 0.01ms would flicker.
 - **Print.** The theme CSS makes `ink`, the borders and the grounds black and white under `@media print`. A component only hides what should not print and drops its shadow; it does not write print colours.
 - **Weights and sizes.** `font-weight` is `var(--e-weight-regular | medium | strong)` (400, 500, 600; there is no 700). An icon, a checkbox or an avatar is sized with `--e-icon-size`, `--e-icon-size-sm`, `--e-icon-size-md`, `--e-icon-size-lg`, `--e-check-size`, `--e-avatar-size-sm` or `--e-avatar-size-lg`, so it grows with `textScale`.
@@ -193,7 +204,7 @@ Spacing has a semantic layer on top of the `space-N` scale (4, 8, 12, 16, 20, 24
 - **A toolbar is a wrapping cluster.** `display: flex; flex-wrap: wrap; gap: var(--e-gap-snug)`, row gap included. Below `26rem` of the component's own container, inputs and selects take the full row (`flex: 1 1 100%`) and a pager stacks above its range text, so nothing is squeezed and everything stays aligned to one left edge.
 - **Tap spacing.** Every target is at least `--e-tap` (44px) square and at least `gap-snug` from the next one.
 - **Phones.** The page gutter is `gutter-min`; a container keeps its `pad-card`. Never go below `pad-control-sm` to fit something in; wrap or stack it.
-- **No literals.** `node scripts/check-css.mjs --spacing` (in `packages/vue`) lists raw lengths in `gap`, `padding` and `margin`.
+- **No literals.** `pnpm --filter @eos-ui/vue report:spacing` lists raw lengths in `gap`, `padding` and `margin`.
 
 ### Type
 
@@ -281,4 +292,4 @@ A control keeps its box, drops its lift, dims to `--e-disabled-ink` and draws a 
 
 Until 1.0 a change of API removes the old spelling outright: rename or remove the prop, value, event, message, token or `defineTheme` input, update every use, and list the old name with its replacement in the changeset as a `minor`. Do not keep a deprecated alias with a development warning.
 
-Run `pnpm changeset` for each user-facing change: anything that changes behaviour, the API, the CSS a consumer receives, or the published README. CI fails a pull request that changes `packages/**` without a changeset. Docs-only wording changes, tests and internal refactors do not need one: add the `no-changeset` label to the pull request to skip the check. Do not delete or edit other people's pending changesets. Merging to `main` opens a version PR. Merging that PR publishes both packages to npm at one shared version, but only after CI has passed on `main`; the release also runs the built-package checks (`pnpm check:built`) before it publishes.
+Run `pnpm changeset` for each user-facing change: anything that changes behaviour, the API, the CSS a consumer receives, or the published README. CI fails a pull request that changes `packages/**` without a changeset. Docs-only wording changes, tests and internal refactors do not need one: add the `no-changeset` label to the pull request to skip the check. Do not delete or edit other people's pending changesets. Merging to `main` opens a version PR. Merging that PR publishes both packages to npm at one shared version (`pnpm release`: a build, then `scripts/publish.mjs`). The Release workflow runs only after CI has passed on that commit of `main`, so the built-package checks (`pnpm check:package`, `pnpm smoke`) have already run on what it publishes.

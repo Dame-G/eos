@@ -38,7 +38,7 @@
   "scripts": {
     "generate": "node scripts/generate.mjs",
     "build": "node scripts/build.mjs",
-    "typecheck": "node scripts/build.mjs && tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node scripts/build.mjs && vitest run"
   },
   "devDependencies": {

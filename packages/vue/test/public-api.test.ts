@@ -1,6 +1,7 @@
 // The public API is deliberate: every runtime export of `@eos-ui/vue` is listed in public-api.txt.
 // A new component or composable changes the list. After adding one on purpose, run
-// `pnpm --filter @eos-ui/vue exec vitest run test/public-api.test.ts -u` and commit the updated file.
+// `pnpm --filter @eos-ui/vue exec vitest run test/public-api.test.ts -u` and commit the updated file. The type-only
+// exports are listed in public-types.txt, which scripts/check-api-types.mjs checks against the build.
 import { expect, test } from "vitest";
 import * as api from "../src/index.js";
 

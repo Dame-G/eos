@@ -3,5 +3,4 @@ node_modules
 **/generated
 pnpm-lock.yaml
 .changeset/*.md
-packages/vue/src/component-names.ts
 .claude
