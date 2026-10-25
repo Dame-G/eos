@@ -117,6 +117,7 @@ function setOpen(value: boolean) {
           <DialogOverlay v-if="!inline" class="e-dialog-overlay" />
           <DialogContent
             :role="role"
+            :aria-modal="inline ? undefined : 'true'"
             v-bind="{ ...describedby, ...$attrs }"
             :class="contentClass"
             @interact-outside="onInteractOutside"
