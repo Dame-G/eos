@@ -178,7 +178,7 @@ describe("presets, warnings and explain", () => {
     expect(ink.tokens["duration-tap"]).toBe("50ms");
     expect(ink.tokens["depth"]).toBe("3px");
     expect(ink.tokens["depth-bold"]).toBe("6px");
-    expect(ink.tokens["shadow-float"]).toContain("0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-slab-ink)");
+    expect(ink.tokens["shadow-float"]).toContain("0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-border)");
     const quiet = defineTheme({ preset: "quiet" });
     expect(quiet.tokens["radius-md"]).toBe("14px");
     expect(quiet.tokens["duration-move"]).toBe("380ms");

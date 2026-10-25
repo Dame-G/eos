@@ -389,12 +389,12 @@ describe("derived inputs", () => {
 
   test("elevation presets keep the material: a flush frame or a card slab, and a floating slab with one drop", () => {
     const ring = "0 0 0 var(--e-stroke-card) var(--e-border)";
-    const floatSlab = "0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-slab-ink)";
+    const floatSlab = "0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-border)";
     // The default theme is the outline elevation, written out in tokens.json.
     expect(changed({ elevation: "outline" })).toEqual([]);
     expect(base["shadow-float"]).toBe(`${ring}, ${floatSlab}, 0 12px 32px -8px rgba(36, 36, 36, 0.18)`);
     const lifted = defineTheme({ elevation: "lifted" }).tokens;
-    expect(lifted["shadow-frame"]).toBe(`${ring}, 0 var(--e-depth) 0 var(--e-stroke-card) var(--e-slab-ink)`);
+    expect(lifted["shadow-frame"]).toBe(`${ring}, 0 var(--e-depth) 0 var(--e-stroke-card) var(--e-border)`);
     expect(lifted["shadow-float"]).toBe(`${ring}, ${floatSlab}, 0 20px 48px -12px rgba(36, 36, 36, 0.24)`);
     expect(lifted["shadow-well"]).toBe(base["shadow-well"]);
     expect(changed({ elevation: "lifted" }).sort()).toEqual(["shadow-float", "shadow-frame"]);

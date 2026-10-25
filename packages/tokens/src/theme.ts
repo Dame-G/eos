@@ -332,9 +332,9 @@ function brandScrim(brand: string) {
 /** The outline of cards, popovers and paper. Written with `var()` so a `border` or `stroke-card` override, from a theme or from plain CSS, reaches every shadow; only the drop layers are literal. */
 const RING = "0 0 0 var(--e-stroke-card) var(--e-border)";
 
-/** The slab under a floating panel: a hard bottom edge twice `depth` deep in the slab ink, as wide as the ring, so the panel reads as a slab lifted off the page. Under `lifted` a card stands on one of `depth`. */
-const FLOAT_SLAB = "0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-slab-ink)";
-const CARD_SLAB = "0 var(--e-depth) 0 var(--e-stroke-card) var(--e-slab-ink)";
+/** The slab under a floating panel: a hard bottom edge twice `depth` deep, as wide as the ring and in the ring's own colour, so the edge and the slab are one piece, as a button's are, and the panel reads as a slab lifted off the page. Under `lifted` a card stands on one of `depth`. */
+const FLOAT_SLAB = "0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-border)";
+const CARD_SLAB = "0 var(--e-depth) 0 var(--e-stroke-card) var(--e-border)";
 
 /** The one soft layer each elevation keeps under a floating panel, and the well, in the theme's deep shade: [y, blur, spread, alpha light, alpha dark]. */
 const DROP: Record<ElevationPreset, readonly [number, number, number, number, number]> = {

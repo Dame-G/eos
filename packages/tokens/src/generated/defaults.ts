@@ -81,7 +81,7 @@ export const defaults = {
   "shadow-frame": "0 0 0 var(--e-stroke-card) var(--e-border)",
   "shadow-well": "inset 0 2px 0 0 rgba(36, 36, 36, 0.07)",
   "shadow-float":
-    "0 0 0 var(--e-stroke-card) var(--e-border), 0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-slab-ink), 0 12px 32px -8px rgba(36, 36, 36, 0.18)",
+    "0 0 0 var(--e-stroke-card) var(--e-border), 0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-border), 0 12px 32px -8px rgba(36, 36, 36, 0.18)",
   "shadow-sink": "inset 0 var(--e-depth) 0 0 var(--e-slab-ink)",
   "shadow-ring-hover": "inset 0 0 0 var(--e-stroke-edge) var(--e-wash-ring)",
   "shadow-ring-press": "inset 0 0 0 var(--e-stroke-edge) var(--e-ink)",
@@ -442,7 +442,7 @@ export const usage: Record<string, string> = {
   "shadow-well":
     "Sunk: inputs, tracks, meters and empty slots pressed into the page, a shade along the top inner edge. Drawn in the same deep shade as `shadow-float`, so every shadow of a theme has one hue.",
   "shadow-float":
-    "Raised off the page: popovers, menus, list panels, tooltips' larger cousins, toasts, dialogs and the command palette. A floating panel is a slab lifted off the page: its `stroke-card` ring in `border`, a hard bottom edge twice `depth` deep in `slab-ink` (the slab of a button, at twice the lift), and one wide, faint drop in the theme's shade. Nothing in the flow of the page uses it. Written with `var()`, so a `border`, `slab-ink`, `depth` or `stroke-card` override reaches it.",
+    "Raised off the page: popovers, menus, list panels, tooltips' larger cousins, toasts, dialogs and the command palette. A floating panel is a slab lifted off the page: its `stroke-card` ring in `border`, a hard bottom edge twice `depth` deep in the same `border`, so edge and slab are one piece as a button's are (at twice a button's lift), and one wide, faint drop in the theme's shade. Nothing in the flow of the page uses it. Written with `var()`, so a `border`, `depth` or `stroke-card` override reaches it.",
   "shadow-sink":
     "Sunk, for a quiet control toggled on (a pressed icon button, a revealed password): the slab drawn inside the top of the face, `depth` deep in `slab-ink`, so the face reads as pushed in.",
   "shadow-ring-hover":
