@@ -44,7 +44,7 @@ const Wrap: FunctionalComponent = (_, { slots }) =>
       v-bind="$attrs"
       :type="type"
       :class="[
-        variant === 'quiet' ? 'e-icon-btn' : ['e-btn', `e-btn--${variant}`, 'e-btn--icon'],
+        variant === 'quiet' ? 'e-icon-btn e-interact' : ['e-btn', `e-btn--${variant}`, 'e-btn--icon'],
         size !== 'md' && (variant === 'quiet' ? `e-icon-btn--${size}` : `e-btn--${size}`),
         loading && 'e-btn--loading',
       ]"
@@ -87,16 +87,6 @@ const Wrap: FunctionalComponent = (_, { slots }) =>
     --_h: calc(var(--e-control-height) + var(--e-gap-snug));
   }
 
-  .e-icon-btn:not(:disabled, [aria-busy="true"]):hover {
-    background: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
-  }
-
-  .e-icon-btn:not(:disabled, [aria-busy="true"]):active {
-    background: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
-  }
-
   /* A toggle that is on (`aria-pressed`) sits in the surface, like a pressed slab. */
   .e-icon-btn[aria-pressed="true"] {
     background: var(--e-wash-hover);
@@ -104,8 +94,8 @@ const Wrap: FunctionalComponent = (_, { slots }) =>
   }
 
   .e-icon-btn:disabled {
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
+    --_dash-inset: 0;
+
     background: var(--e-disabled-fill);
     color: var(--e-disabled-ink);
     cursor: not-allowed;
@@ -113,7 +103,8 @@ const Wrap: FunctionalComponent = (_, { slots }) =>
 
   /* Busy, as on a quiet EButton: the soft tint and dashed edge of button.css, in the border colour. */
   .e-icon-btn.e-btn--loading {
-    --_fill: var(--e-border-strong);
+    --_fill: var(--e-slab-ink);
+    --_dash-inset: 0;
 
     color: var(--e-muted);
     cursor: not-allowed;

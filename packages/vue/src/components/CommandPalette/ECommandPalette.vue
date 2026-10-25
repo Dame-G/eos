@@ -292,7 +292,7 @@ defineExpose({
             v-for="item in section.items"
             :id="optionId(item)"
             :key="item.id"
-            class="e-opt e-cmd-opt"
+            class="e-opt e-cmd-opt e-interact e-interact--inset"
             :class="{ 'e-opt--active': item.id === activeId, 'e-opt--disabled': item.disabled }"
             role="option"
             :aria-selected="item.id === activeId"
@@ -328,9 +328,9 @@ defineExpose({
 <style>
 @layer e.containers {
   .e-cmd {
-    /* How far down the screen it opens, and the most height it takes: room for about seven commands. */
+    /* How far down the screen it opens, and the most height it takes: the search row and a list of options. */
     --_top: min(20dvh, 8rem);
-    --_max-h: 26rem;
+    --_max-h: calc(var(--e-control-height) + var(--e-stroke-hair) + var(--e-size-list-max));
 
     position: fixed;
     inset-block-start: var(--_top);

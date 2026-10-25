@@ -100,12 +100,6 @@
     max-height: var(--_max-h, none);
   }
 
-  /* The scroller is a tab stop only while it scrolls; its ring sits inside it, where the frame cannot cover it. */
-  :is(.e-table-scroll, .e-grid-scroll):focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
-  }
-
   .e-cards {
     container-type: inline-size;
   }

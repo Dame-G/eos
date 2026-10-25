@@ -85,7 +85,7 @@ const items = computed<(number | "gap")[]>(() => {
           v-else
           :type="href ? undefined : 'button'"
           :href="href ? href(n) : undefined"
-          class="e-page"
+          class="e-page e-interact"
           :aria-current="n === current ? 'page' : undefined"
           :aria-label="t('pageN', { n })"
           @click="go(n)"
@@ -150,7 +150,8 @@ const items = computed<(number | "gap")[]>(() => {
     padding-inline: calc(var(--e-gap-snug) - var(--e-stroke-edge));
     border: var(--e-stroke-edge) solid var(--_ring);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-md);
+    border-radius: var(--e-radius-md) / var(--e-radius-md) var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift))
+      calc(var(--e-radius-md) + var(--_lift));
     background: transparent;
     color: var(--e-ink);
     font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-none) var(--e-font-mono);
@@ -160,21 +161,6 @@ const items = computed<(number | "gap")[]>(() => {
     transition: var(--e-transition-state);
   }
 
-  .e-page:not([aria-current="page"]):hover {
-    background: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
-  }
-
-  .e-page:not([aria-current="page"]):active {
-    background: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
-  }
-
-  .e-page:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
-  }
-
   /* The current page is a value: filled primary on its slab. */
   .e-page[aria-current="page"] {
     --_slab: var(--e-primary-slab);
@@ -182,7 +168,6 @@ const items = computed<(number | "gap")[]>(() => {
 
     background: var(--e-primary);
     color: var(--e-on-primary);
-    font-weight: var(--e-weight-strong);
     cursor: default;
   }
 

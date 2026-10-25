@@ -186,15 +186,12 @@ watch(current, () => reveal(true));
     z-index: calc(var(--e-z-raised) + 1); /* over a hovered neighbour, which is z-raised */
     border-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-bottom-color: var(--_slab);
-    background-color: var(--e-wash-hover);
+    background-color: var(--e-primary-soft);
     color: var(--e-primary);
-    font-weight: var(--e-weight-strong);
   }
 
   .e-tab:focus-visible {
     z-index: var(--e-z-focus);
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
   }
 
   /* Unavailable reads like a disabled button: dashed edge, no fill, quiet text. */
@@ -204,8 +201,6 @@ watch(current, () => reveal(true));
     z-index: auto;
     background: var(--e-disabled-fill);
     color: var(--e-disabled-ink);
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     cursor: not-allowed;
   }
 

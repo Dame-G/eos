@@ -264,12 +264,12 @@ const groupAttrs = () => ({
   /* The end pieces have the track's corners themselves. A piece fills the track edge to edge, so its border is the track's edge there; left square, the track's clip would cut off the corner of a ring, a focus outline or a slab at an end. */
   .e-seg-opt:first-child .e-seg-text {
     border-start-start-radius: var(--e-radius-md);
-    border-end-start-radius: var(--e-radius-md);
+    border-end-start-radius: var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift));
   }
 
   .e-seg-opt:last-child .e-seg-text {
     border-start-end-radius: var(--e-radius-md);
-    border-end-end-radius: var(--e-radius-md);
+    border-end-end-radius: var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift));
   }
 
   /* An option that is not chosen answers the pointer as an inactive tab does: ink text, a wash and a darker edge of the same width, darker again when pressed. No ring is added, so the edge never gets thicker. */
@@ -292,7 +292,6 @@ const groupAttrs = () => ({
 
     background-color: var(--e-primary);
     color: var(--e-on-primary);
-    font-weight: var(--e-weight-strong);
   }
 
   .e-seg-opt:hover .e-seg-input:enabled[data-on] + .e-seg-text {
@@ -303,11 +302,6 @@ const groupAttrs = () => ({
     --_lift: 0px;
 
     background-color: var(--e-primary-press);
-  }
-
-  .e-seg-input:focus-visible + .e-seg-text {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   /* An option that cannot be chosen only dims; a fully disabled track draws the dashed edge. */
@@ -321,10 +315,10 @@ const groupAttrs = () => ({
   }
 
   .e-seg--disabled {
+    --_dash-inset: 0;
+
     background: var(--e-disabled-fill);
     box-shadow: none;
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
   }
 
   /* Chosen but unavailable: a flat, tinted piece with ink text, so it stays readable. It has no edge of its own, only the track's dashed one, so its corners follow the track's. */

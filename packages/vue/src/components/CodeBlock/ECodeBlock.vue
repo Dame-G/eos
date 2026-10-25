@@ -119,6 +119,11 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     min-width: 0;
     overflow-x: auto;
 
+    /* Overflow shows as a shade at the end edge that the content covers once it is scrolled to the end, not only as a bar. */
+    background:
+      linear-gradient(to left, var(--e-surface) 40%, transparent) right / var(--e-space-6) 100% no-repeat local,
+      linear-gradient(to left, var(--e-wash-ring), transparent) right / var(--e-space-2) 100% no-repeat scroll;
+
     /* Flush against the block's start edge, so the block's corners (its own, which differ where blocks are stacked): the body scrolls itself and the block does not clip, so the ring around the block is painted once on a curve nothing else clips; the body takes the corner so its focus ring follows it. The block has no border of its own, so inheriting fills it exactly. */
     border-start-start-radius: inherit;
     border-end-start-radius: inherit;
@@ -132,9 +137,15 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     color: var(--e-ink);
   }
 
-  .e-code-body:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
+  /* On a touch screen the code scrolls with a swipe and the shade says there is more, so the bar is not drawn. The region stays focusable and scrolls with the keys. */
+  @media (pointer: coarse) {
+    .e-code-body {
+      scrollbar-width: none;
+    }
+
+    .e-code-body::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   .e-code code {

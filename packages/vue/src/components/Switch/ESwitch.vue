@@ -55,13 +55,15 @@ defineExpose(choice.exposed);
     height: 1px;
   }
 
-  /* A pressed-in track with a plain thumb. The sizes follow the checkbox, so they grow with the text scale. */
+  /* Off, a pressed-in track; on, a value you set: the primary face on a thin slab (the track is no taller than a chip). The thumb is a small button face either way, the page surface on a thin slab, like the slider's thumb. The sizes follow the checkbox, so they grow with the text scale. */
   .e-switch-track {
     --_w: calc(2 * var(--e-check-size) - var(--e-gap-tight));
     --_thumb: calc(var(--e-check-size) - 2 * var(--e-gap-tight));
     --_inset: var(--e-gap-tight);
     --_travel: calc(var(--_w) - var(--_thumb) - 2 * var(--_inset));
     --_ring: var(--e-border-strong);
+    --_lift: 0px;
+    --_r: var(--e-radius-sm);
 
     position: relative;
     flex: none;
@@ -69,7 +71,8 @@ defineExpose(choice.exposed);
     height: var(--e-check-size);
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--_ring);
-    border-radius: var(--e-radius-sm);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
+    border-radius: var(--_r) / var(--_r) var(--_r) calc(var(--_r) + var(--_lift)) calc(var(--_r) + var(--_lift));
     background: var(--e-surface-tint);
     background-clip: padding-box;
     box-shadow: var(--e-well);
@@ -77,7 +80,7 @@ defineExpose(choice.exposed);
   }
 
   .e-switch-track::after {
-    --_face: var(--e-ink);
+    --_edge: var(--e-slab-ink);
 
     content: "";
     position: absolute;
@@ -87,26 +90,33 @@ defineExpose(choice.exposed);
     height: var(--_thumb);
     margin-block-start: calc(var(--_thumb) / -2);
     box-sizing: border-box;
+    border: var(--e-stroke-edge) solid var(--_edge);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-slab-thin));
 
     /* Concentric with the track: the thumb's edge is `--_inset` inside the track's outer edge, border included. */
-    border-radius: max(0px, calc(var(--e-radius-sm) - var(--_inset)));
-    background: var(--_face);
-    transition: transform var(--e-duration-move) var(--e-easing-out);
+    border-radius: max(0px, calc(var(--_r) - var(--_inset)));
+    background: var(--e-surface);
+    transition:
+      transform var(--e-duration-move) var(--e-easing-out),
+      border-color var(--e-duration-tap) var(--e-easing-out);
   }
 
   .e-switch:hover .e-switch-input:not(:checked, :disabled) + .e-switch-track {
     --_ring: var(--e-wash-ring);
 
-    background-color: var(--e-primary-soft);
+    background-color: var(--e-wash-hover);
   }
 
   .e-switch:active .e-switch-input:not(:checked, :disabled) + .e-switch-track {
     --_ring: var(--e-ink);
+
+    background-color: var(--e-wash-press);
   }
 
-  /* Off, the track is pressed in. On, it is a flat primary face, so the well goes. The thumb is the same height either way. */
+  /* On, the well goes and the face rises on its slab; it sinks while pressed. */
   .e-switch-input:checked + .e-switch-track {
     --_ring: var(--e-primary-slab);
+    --_lift: var(--e-slab-thin);
 
     background-color: var(--e-primary);
     background-clip: border-box;
@@ -118,25 +128,27 @@ defineExpose(choice.exposed);
   }
 
   .e-switch:active .e-switch-input:checked:not(:disabled) + .e-switch-track {
+    --_lift: 0px;
+
     background-color: var(--e-primary-press);
   }
 
   .e-switch-input:checked + .e-switch-track::after {
-    --_face: var(--e-on-primary);
+    --_edge: var(--e-primary-slab);
 
     transform: translateX(var(--_travel));
   }
 
   .e-switch-input:disabled + .e-switch-track {
+    --_lift: 0px;
+
     border-color: transparent;
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     background-color: var(--e-disabled-fill);
     box-shadow: none;
   }
 
   .e-switch-input:disabled + .e-switch-track::after {
-    --_face: var(--e-disabled-ink);
+    --_edge: var(--e-disabled-ink);
   }
 
   .e-switch-input[aria-invalid="true"]:not(:disabled) + .e-switch-track {

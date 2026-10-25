@@ -45,8 +45,6 @@ export interface NavListOptions {
   isCurrent?: (item: NavItem) => boolean;
   /** `sm` gives short rows with no rule between them, for a long list such as a documentation sidebar. Rows stay a full tap target on a touch screen. */
   size?: "sm" | "md";
-  /** How the current page is marked: `slab` raises its row on the primary slab; `text` only colours and weights its words, for a list whose current item moves as the page scrolls, such as an outline. */
-  marker?: "slab" | "text";
 }
 
 const props = withDefaults(
@@ -58,7 +56,7 @@ const props = withDefaults(
       sections?: NavSection[];
     } & ({ items: NavItem[] } | { sections: NavSection[] })
   >(),
-  { orientation: "vertical", linkComponent: "a", size: "md", marker: "slab" },
+  { orientation: "vertical", linkComponent: "a", size: "md" },
 );
 
 const t = useMessages();
@@ -90,18 +88,19 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
 <template>
   <nav
     class="e-nav"
-    :class="[
-      orientation === 'horizontal' && 'e-nav--horizontal',
-      size === 'sm' && 'e-nav--sm',
-      marker === 'text' && 'e-nav--text',
-    ]"
+    :class="[orientation === 'horizontal' && 'e-nav--horizontal', size === 'sm' && 'e-nav--sm']"
     :aria-label="label || t('mainNav')"
   >
     <template v-for="(group, g) in groups" :key="group.label ?? g">
       <p v-if="group.label" :id="`${uid}-${g}`" class="e-nav-heading">{{ group.label }}</p>
       <ul :aria-labelledby="group.label ? `${uid}-${g}` : undefined">
         <li v-for="(item, i) in group.items" :key="keyOf(item, i)">
-          <LinkNavNode :item="item" :link-component="linkComponent" item-class="e-nav-item" :is-current="current">
+          <LinkNavNode
+            :item="item"
+            :link-component="linkComponent"
+            item-class="e-nav-item e-interact"
+            :is-current="current"
+          >
             <template #item="{ item: node }">
               <EIcon v-if="nav(node).icon" :name="nav(node).icon!" />
               <span class="e-nav-label">{{ node.label }}</span>
@@ -163,12 +162,8 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
     background: var(--e-border);
   }
 
-  /* A row uses the slab contract with no edge at rest, so the current page can rise without the row changing size. */
+  /* A row has a clear edge at rest, so the current page can show one without the row changing size. */
   .e-nav-item {
-    --_slab: transparent;
-    --_ring: var(--_slab);
-    --_lift: 0px;
-
     display: flex;
     align-items: center;
     gap: var(--e-gap-base);
@@ -176,40 +171,20 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
     height: var(--e-control-height);
     padding-block: 0;
     padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
-    border: var(--e-stroke-edge) solid var(--_ring);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-md) / var(--e-radius-md) var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift))
-      calc(var(--e-radius-md) + var(--_lift));
+    border: var(--e-stroke-edge) solid transparent;
+    border-radius: var(--e-radius-md);
     color: var(--e-ink);
     font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-none) var(--e-font-sans);
     text-decoration: none;
     transition: var(--e-transition-state);
   }
 
-  .e-nav-item:is(a, button, summary):not([aria-current="page"], [aria-disabled="true"]):hover {
-    background-color: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
-  }
-
-  .e-nav-item:is(a, button, summary):not([aria-current="page"], [aria-disabled="true"]):active {
-    background-color: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
-  }
-
-  .e-nav-item:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
-  }
-
-  /* Where you are: a washed face with the primary slab, in the voice tabs use. */
+  /* Where you are: the pastel brand tint with a primary edge and primary text, and no slab (a slab is something to press). The weight stays, so the row does not change width. */
   .e-nav-item[aria-current="page"] {
-    --_slab: var(--e-primary);
-    --_lift: var(--e-depth);
-
-    background-color: var(--e-wash-hover);
+    border-color: var(--e-primary);
+    background-color: var(--e-primary-soft);
     background-clip: padding-box;
     color: var(--e-primary);
-    font-weight: var(--e-weight-strong);
   }
 
   /* An unavailable row only dims its text and stops answering the pointer. */
@@ -295,14 +270,6 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
     .e-nav--sm {
       --_row-h: var(--e-tap);
     }
-  }
-
-  /* The current page in colour and weight only: no face and no slab, so a marker that moves as the page scrolls does not jump. */
-  .e-nav--text .e-nav-item[aria-current="page"] {
-    --_slab: transparent;
-    --_lift: 0px;
-
-    background-color: transparent;
   }
 
   @media (forced-colors: active) {

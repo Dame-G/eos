@@ -58,7 +58,7 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 @layer e.containers {
   /* The slab contract: a border on every side, thicker at the bottom by the lift. Hover darkens the edge, press inks it, and opening lays the row flat. */
   .e-xrow {
-    --_slab: var(--e-border-strong);
+    --_slab: var(--e-slab-ink);
     --_ring: var(--_slab);
     --_lift: var(--e-depth);
 
@@ -71,7 +71,8 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     container-type: inline-size;
     border: var(--e-stroke-edge) solid var(--_ring);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-md);
+    border-radius: var(--e-radius-md) / var(--e-radius-md) var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift))
+      calc(var(--e-radius-md) + var(--_lift));
     background-color: var(--e-surface);
     background-clip: padding-box;
     transition: var(--e-transition-state);
@@ -106,12 +107,9 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     cursor: not-allowed;
   }
 
-  /* The summary and body sit inside the row's border (edge wide, the bottom edge plus the lift while closed), so their corners are the row's less that. */
+  /* The summary and body sit inside the row's border, so their corners are the row's less the edge; the slab corners keep the inside round at the bottom too. */
   .e-xrow > summary {
-    border-start-start-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
-    border-start-end-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
-    border-end-start-radius: max(0px, calc(var(--e-radius-md) - var(--_inset) - var(--_lift)));
-    border-end-end-radius: max(0px, calc(var(--e-radius-md) - var(--_inset) - var(--_lift)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
@@ -130,11 +128,6 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 
   .e-xrow > summary::-webkit-details-marker {
     display: none;
-  }
-
-  .e-xrow > summary:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
   }
 
   .e-xrow-lead {

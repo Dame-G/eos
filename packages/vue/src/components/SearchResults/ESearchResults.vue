@@ -110,7 +110,7 @@ defineExpose({ focus, focusFirst });
       <li v-for="(item, i) in items" :key="keys[i]">
         <component
           :is="linkAttrs(item) ? linkComponent : 'button'"
-          class="e-opt"
+          class="e-opt e-interact e-interact--inset"
           v-bind="linkAttrs(item) ?? { type: 'button' }"
           @click="onClick(item, $event)"
         >
@@ -130,7 +130,7 @@ defineExpose({ focus, focusFirst });
 <style>
 @layer e.controls {
   .e-results {
-    max-height: min(24rem, 50vh);
+    max-height: min(var(--e-size-list-max), 60dvh);
     min-height: var(--e-tap);
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -161,20 +161,8 @@ defineExpose({ focus, focusFirst });
     text-align: start;
   }
 
-  .e-results .e-opt:hover {
-    background: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
-  }
-
-  .e-results .e-opt:active {
-    background: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
-  }
-
   .e-results .e-opt:focus-visible {
     background: var(--e-wash-hover);
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   @media (forced-colors: active) {

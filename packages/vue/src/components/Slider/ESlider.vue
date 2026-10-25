@@ -223,8 +223,9 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
   /* The thumb is a small button face with a slab under it. Its face is the page surface, so it stands out on the groove in every theme, and it stands on a primary slab that sinks when pressed. The slab makes the bottom border thicker, so the bottom corners take taller vertical radii to stay round rather than elliptical. */
   .e-slider-thumb {
     --_slab: var(--e-primary-slab);
-    --_lift: var(--e-depth);
+    --_lift: var(--e-slab-thin);
 
+    position: relative;
     display: block;
     box-sizing: border-box;
     width: var(--_thumb);
@@ -243,11 +244,6 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     --_lift: 0px;
 
     cursor: grabbing;
-  }
-
-  .e-slider-thumb:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
   }
 
   .e-slider--pointer .e-slider-thumb:focus-visible {
@@ -271,7 +267,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
   }
 
   .e-slider--readonly .e-slider-thumb:not([aria-invalid="true"]) {
-    --_slab: var(--e-border-strong);
+    --_slab: var(--e-slab-ink);
   }
 
   .e-slider[data-disabled] {
@@ -279,8 +275,6 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
   }
 
   .e-slider[data-disabled] .e-slider-track {
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-color: transparent;
     background: var(--e-disabled-fill);
     box-shadow: none;
@@ -293,8 +287,6 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
   .e-slider-thumb[data-disabled] {
     --_lift: 0px;
 
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-color: transparent;
 
     /* The disabled fill is clear, so the thumb needs a face of its own or the range would show through it. */

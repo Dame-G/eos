@@ -467,7 +467,7 @@ defineExpose({
         <button
           v-else
           type="button"
-          class="e-cal-pick"
+          class="e-cal-pick e-interact"
           :aria-label="t('chooseDateNow', { month: loc.months.value[cm] ?? '', year: cy })"
           @click="openView('years')"
         >
@@ -500,7 +500,7 @@ defineExpose({
             <button
               :id="dayId(cell.d)"
               type="button"
-              class="e-day"
+              class="e-day e-interact e-interact--inset"
               :class="[
                 cell.d.getMonth() !== cm && 'e-day--out',
                 sameDay(cell.d, today) && 'e-day--today',
@@ -535,7 +535,7 @@ defineExpose({
         :id="`${uid}-m-${m}`"
         :key="m"
         type="button"
-        class="e-cal-cell"
+        class="e-cal-cell e-interact e-interact--inset"
         :class="[m === cm && 'e-day--sel', cy === nowYear && m === nowMonth && 'e-day--today']"
         :tabindex="m === pick ? 0 : -1"
         :disabled="monthOff(cy, m)"
@@ -561,7 +561,7 @@ defineExpose({
         :id="`${uid}-y-${y}`"
         :key="y"
         type="button"
-        class="e-cal-cell"
+        class="e-cal-cell e-interact e-interact--inset"
         :class="[y === cy && 'e-day--sel', y === nowYear && 'e-day--today']"
         :tabindex="y === pick ? 0 : -1"
         :disabled="yearOff(y)"
@@ -632,21 +632,6 @@ defineExpose({
     transition: var(--e-transition-state);
   }
 
-  .e-cal-pick:hover {
-    background: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
-  }
-
-  .e-cal-pick:active {
-    background: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
-  }
-
-  .e-cal-pick:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
-  }
-
   .e-cal-range {
     font: var(--e-type-h4);
     font-variant-numeric: tabular-nums;
@@ -661,11 +646,6 @@ defineExpose({
   .e-cal-head .e-icon-btn:disabled {
     color: var(--e-disabled-ink);
     cursor: not-allowed;
-  }
-
-  .e-cal-head .e-icon-btn:disabled:hover {
-    background: transparent;
-    box-shadow: none;
   }
 
   .e-cal-grid {
@@ -706,24 +686,6 @@ defineExpose({
     font-variant-numeric: tabular-nums;
     cursor: pointer;
     transition: var(--e-transition-state);
-  }
-
-  .e-day:hover:not(:disabled, .e-day--sel),
-  .e-cal-cell:hover:not(:disabled, .e-day--sel) {
-    background: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
-  }
-
-  .e-day:active:not(:disabled, .e-day--sel),
-  .e-cal-cell:active:not(:disabled, .e-day--sel) {
-    background: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
-  }
-
-  .e-day:focus-visible,
-  .e-cal-cell:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-day--out {
@@ -779,7 +741,7 @@ defineExpose({
     width: var(--e-space-1);
     height: var(--e-space-1);
     margin-inline-start: calc(var(--e-space-1) / -2);
-    border-radius: 50%;
+    border-radius: var(--e-radius-round);
     background: var(--e-primary);
   }
 

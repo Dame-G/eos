@@ -10,7 +10,7 @@ describe("EIconButton", () => {
     const { container } = await render(EIconButton, { props: { icon: "download", label: "Download receipt" } });
     await expect.element(page.getByRole("button", { name: "Download receipt", exact: true })).toBeVisible();
     const button = container.querySelector("button")!;
-    expect(button.className).toBe("e-icon-btn");
+    expect(button.className).toBe("e-icon-btn e-interact");
     expect(button.type).toBe("button");
     expect(button.querySelector("svg.e-icon")!.getAttribute("aria-hidden")).toBe("true");
   });
@@ -66,7 +66,7 @@ describe("EIconButton", () => {
 
   test("a disabled button is drawn with a dashed edge, like a disabled EButton", async () => {
     const { container } = await render(EIconButton, { props: { icon: "trash", label: "Delete", disabled: true } });
-    expect(getComputedStyle(container.querySelector("button")!).outlineStyle).toBe("dashed");
+    expect(getComputedStyle(container.querySelector("button")!, "::before").borderTopStyle).toBe("dashed");
   });
 
   test("other attributes fall through to the button, such as popovertarget", async () => {
@@ -100,7 +100,7 @@ describe("EIconButton", () => {
     const box = button.getBoundingClientRect();
     expect(box.width).toBe(box.height);
     const quiet = await render(EIconButton, { props: { icon: "plus", label: "Quiet" } });
-    expect(quiet.container.querySelector("button")!.className).toBe("e-icon-btn");
+    expect(quiet.container.querySelector("button")!.className).toBe("e-icon-btn e-interact");
   });
 
   test("size changes the square and keeps a 44px target", async () => {

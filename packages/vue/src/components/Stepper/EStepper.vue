@@ -49,7 +49,7 @@ function choose(index: number, step: Step) {
     >
       <component
         :is="interactive ? 'button' : 'span'"
-        class="e-step-body"
+        class="e-step-body e-interact"
         :type="interactive ? 'button' : undefined"
         :aria-disabled="interactive && step.disabled ? 'true' : undefined"
         :aria-current="interactive && step.state === 'current' ? 'step' : undefined"
@@ -116,21 +116,6 @@ function choose(index: number, step: Step) {
     cursor: pointer;
   }
 
-  button.e-step-body:not([aria-disabled="true"]):hover {
-    background-color: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
-  }
-
-  button.e-step-body:not([aria-disabled="true"]):active {
-    background-color: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
-  }
-
-  button.e-step-body:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
-  }
-
   /* A disabled step stays focusable (`aria-disabled`), as a pager's dimmed step does, so Tab still reaches it and reads why it is there. */
   button.e-step-body[aria-disabled="true"] {
     color: var(--e-disabled-ink);
@@ -167,8 +152,8 @@ function choose(index: number, step: Step) {
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid transparent;
 
-    /* The dot sits `--_inset` inside the step's rounded hover face. */
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
+    /* The dot is a small part inside the step's rounded hover face. */
+    border-radius: var(--e-radius-row);
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     background: var(--e-surface);

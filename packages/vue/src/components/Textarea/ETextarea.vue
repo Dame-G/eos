@@ -2,7 +2,7 @@
 import { nextTick, onMounted, watch } from "vue";
 import EField from "../Field/EField.vue";
 import EFieldCount from "../Field/EFieldCount.vue";
-import type { EFieldCommonProps } from "../Field/fieldProps.js";
+import { sizeAttr, type EFieldBoxProps, type EFieldCommonProps } from "../Field/fieldProps.js";
 import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
 import "../../styles/controls/input.css";
@@ -11,24 +11,25 @@ defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
   defineProps<
-    EFieldCommonProps & {
-      /** The visible label above the textarea. */
-      label: string;
-      /** An example, never the label. */
-      placeholder?: string;
-      /** Visible lines. The height follows it, down to one. With `autoGrow` it is the least height. @default 4 */
-      rows?: number;
-      /** The name submitted with a form. */
-      name?: string;
-      /** What the browser may fill in. */
-      autocomplete?: string;
-      /** The most characters the textarea takes. */
-      maxlength?: number;
-      /** Shows how many characters there are, out of `maxlength` when it is set. */
-      counter?: boolean;
-      /** Grows with the text instead of scrolling, and drops the resize handle. */
-      autoGrow?: boolean;
-    }
+    EFieldCommonProps &
+      Pick<EFieldBoxProps, "size"> & {
+        /** The visible label above the textarea. */
+        label: string;
+        /** An example, never the label. */
+        placeholder?: string;
+        /** Visible lines. The height follows it, down to one. With `autoGrow` it is the least height. @default 4 */
+        rows?: number;
+        /** The name submitted with a form. */
+        name?: string;
+        /** What the browser may fill in. */
+        autocomplete?: string;
+        /** The most characters the textarea takes. */
+        maxlength?: number;
+        /** Shows how many characters there are, out of `maxlength` when it is set. */
+        counter?: boolean;
+        /** Grows with the text instead of scrolling, and drops the resize handle. */
+        autoGrow?: boolean;
+      }
   >(),
   { rows: 4 },
 );
@@ -49,6 +50,7 @@ function inputBind(field: FieldSlot) {
     autocomplete: props.autocomplete,
     maxlength: props.maxlength,
     "data-autogrow": props.autoGrow ? "" : undefined,
+    "data-size": sizeAttr(props.size),
     ...control.bind(field, [props.counter && `${field.id}-count`]),
   };
 }
@@ -91,10 +93,11 @@ defineExpose(control.exposed);
 
 <style>
 @layer e.controls {
+  /* The height comes from `rows`, so 2 rows is shorter than 4. The block padding is what centres one line in a text field of the same `size`, so a one-row textarea is exactly as tall as that field and its text sits on the same line. */
   .e-textarea {
-    /* The height comes from `rows`, so 2 rows is shorter than 4. */
     height: auto;
-    padding: calc(var(--e-gap-base) - var(--e-stroke-edge)) calc(var(--e-pad-control) - var(--e-stroke-edge));
+    padding: calc((var(--_h, var(--e-control-height)) - 1lh) / 2 - var(--e-stroke-edge))
+      calc(var(--e-pad-control) - var(--e-stroke-edge));
     resize: vertical;
   }
 

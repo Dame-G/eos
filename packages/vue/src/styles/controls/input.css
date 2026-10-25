@@ -175,8 +175,8 @@
     padding: 0;
     border: 0;
 
-    /* Inset by the wrap's edge and a tight gap on every side. */
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
+    /* A small part inside the wrap's border. */
+    border-radius: max(0px, calc(var(--e-radius-row) - var(--e-stroke-edge)));
     background: transparent;
     color: var(--e-ink);
     cursor: pointer;

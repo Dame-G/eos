@@ -77,7 +77,11 @@ const role = computed(() => roleFor(props.role, props.tone));
     padding-inline: calc(var(--e-pad-card) - var(--e-stroke-edge));
     border: var(--e-stroke-edge) solid var(--_tone);
     border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-slab-bold));
+
+    /* The start corners are as much wider than tall as the tone edge is thick, so the face inside them stays round. */
     border-radius: var(--e-radius-md);
+    border-start-start-radius: calc(var(--e-radius-md) + var(--e-slab-bold)) var(--e-radius-md);
+    border-end-start-radius: calc(var(--e-radius-md) + var(--e-slab-bold)) var(--e-radius-md);
     background-color: var(--_tone-bg);
     background-clip: padding-box;
     color: var(--e-ink);

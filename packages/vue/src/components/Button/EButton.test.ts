@@ -103,10 +103,12 @@ describe("EButton", () => {
     const disabled = await render(EButton, { props: { disabled: true }, slots: { default: "Plain" } });
     const link = getComputedStyle(a);
     const button = getComputedStyle(disabled.container.querySelector("button")!);
-    expect(link.outlineStyle).toBe("dashed");
-    for (const prop of ["cursor", "color", "backgroundColor", "outlineStyle", "outlineWidth"] as const) {
+    const edge = (el: Element) => getComputedStyle(el, "::before");
+    expect(edge(a).borderTopStyle).toBe("dashed");
+    for (const prop of ["cursor", "color", "backgroundColor"] as const) {
       expect(link[prop]).toBe(button[prop]);
     }
+    expect(edge(a).borderTopWidth).toBe(edge(disabled.container.querySelector("button")!).borderTopWidth);
   });
 
   test("a disabled link does not navigate or fire click, by mouse or Enter", async () => {
@@ -199,7 +201,7 @@ describe("EButton", () => {
     const rest = getComputedStyle(el).backgroundColor;
     await userEvent.hover(el);
     expect(getComputedStyle(el).backgroundColor).toBe(rest);
-    expect(getComputedStyle(el).outlineStyle).toBe("dashed");
+    expect(getComputedStyle(el, "::before").borderTopStyle).toBe("dashed");
     const on = await render(EButton, {
       props: { variant: "outline" },
       attrs: { "aria-pressed": "true" },

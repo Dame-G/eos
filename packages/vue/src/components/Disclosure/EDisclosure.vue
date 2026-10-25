@@ -60,12 +60,6 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     display: none;
   }
 
-  /* The ring is drawn inside the summary: a disclosure often sits flush in a clipped column or between its neighbours, which would cut a ring drawn outside. */
-  .e-details > summary:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
-  }
-
   /* The summary line answers the pointer with the wash every row uses, and keeps its ink text: no colour change, no underline, no ring. */
   .e-details > summary:not([aria-disabled="true"]):hover {
     background-color: var(--e-wash-hover);

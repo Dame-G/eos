@@ -40,7 +40,7 @@ watch(
 <style>
 @layer e.controls {
   .e-field-hint {
-    font: var(--e-weight-regular) var(--e-text-sm)/1.4 var(--e-font-sans);
+    font: var(--e-type-helper);
     color: var(--e-muted);
     margin: 0;
   }
@@ -49,7 +49,8 @@ watch(
     display: flex;
     align-items: flex-start;
     gap: var(--e-gap-tight);
-    font: var(--e-weight-medium) var(--e-text-sm)/1.4 var(--e-font-sans);
+    font: var(--e-type-helper);
+    font-weight: var(--e-weight-medium);
     color: var(--e-danger);
     margin: 0;
   }

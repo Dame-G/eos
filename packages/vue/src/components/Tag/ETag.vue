@@ -62,9 +62,10 @@ const t = useMessages();
 @layer e.primitives {
   .e-tag {
     --_ink: var(--e-ink);
-    --_edge: var(--e-border-strong);
+    --_edge: var(--e-slab-ink);
     --_bg: var(--e-surface-tint);
     --_lift: var(--e-slab-thin);
+    --_r: var(--e-radius-sm);
 
     display: inline-flex;
 
@@ -78,7 +79,7 @@ const t = useMessages();
     padding-block-start: var(--_lift);
     border: var(--e-stroke-edge) solid var(--_edge);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-sm);
+    border-radius: var(--_r) / var(--_r) var(--_r) calc(var(--_r) + var(--_lift)) calc(var(--_r) + var(--_lift));
     background: var(--_bg);
     background-clip: padding-box;
     color: var(--_ink);

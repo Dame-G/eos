@@ -188,12 +188,15 @@ describe("EToastProvider", () => {
     expect(Math.round(toasts()[1]!.getBoundingClientRect().width)).toBe(608);
   });
 
-  test("a toast has no motion of its own, so reduced motion has nothing to turn off", async () => {
+  test("a toast arrives with the shared pop-in, timed by duration-fade, so reduced motion stops it", async () => {
     await mountApp();
     api.show({ title: "Saved", tone: "danger" });
     await expect.poll(() => toasts().length).toBe(1);
-    expect(getComputedStyle(toasts()[0]!).animationName).toBe("none");
-    expect(getComputedStyle(toasts()[0]!).transitionDuration).toBe("0s");
+    const toast = toasts()[0]! as HTMLElement;
+    expect(getComputedStyle(toast).animationName).toBe("e-pop-in");
+    toast.style.setProperty("--e-duration-fade", "0.01ms");
+    expect(parseFloat(getComputedStyle(toast).animationDuration)).toBeLessThan(0.001);
+    expect(getComputedStyle(toast).transitionDuration).toBe("0s");
   });
 
   test("axe finds nothing with toasts of every tone showing", async () => {

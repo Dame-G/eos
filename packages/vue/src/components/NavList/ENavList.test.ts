@@ -63,10 +63,9 @@ describe("ENavList", () => {
     expect(current[0]!.getAttribute("aria-current")).toBe("page");
     expect(current[0]!.textContent).toContain("Pay a bill");
     const cs = getComputedStyle(current[0]!);
-    expect(cs.fontWeight).toBe("600");
-    // The page is also marked by an edge with a thicker bottom (the slab), not by colour alone.
+    // The page is also marked by an edge all round, not by colour alone.
     expect(cs.borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
-    expect(parseFloat(cs.borderBottomWidth)).toBeGreaterThan(parseFloat(cs.borderTopWidth));
+    expect(cs.borderTopColor).toBe(cs.borderBottomColor);
   });
 
   test("rows are control height and the count is a pill", async () => {
@@ -149,9 +148,7 @@ describe("ENavList", () => {
     expect(links[0]!.getBoundingClientRect().top).toBe(links[1]!.getBoundingClientRect().top);
     expect(links[0]!.getBoundingClientRect().height).toBe(48);
     const current = getComputedStyle(container.querySelector("[aria-current]")!);
-    expect(current.fontWeight).toBe("600");
     expect(current.borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
-    expect(parseFloat(current.borderBottomWidth)).toBeGreaterThan(parseFloat(current.borderTopWidth));
     await expectNoViolations(container);
   });
 
@@ -302,13 +299,13 @@ describe("ENavList options", () => {
     expect(long.scrollWidth).toBeLessThanOrEqual(long.clientWidth + 1);
   });
 
-  test("marker text marks the current page by colour and weight only, with no face or slab", async () => {
-    const { container } = await render(ENavList, { props: { label: "Outline", items, marker: "text" } });
-    const current = container.querySelector<HTMLElement>("[aria-current=page]")!;
-    const style = getComputedStyle(current);
-    expect(style.backgroundColor).toBe("rgba(0, 0, 0, 0)");
-    expect(style.borderBottomWidth).toBe(style.borderTopWidth);
-    expect(style.fontWeight).toBe("600");
+  test("the current page is where you are: the pastel tint and a primary edge, with no slab and the same weight", async () => {
+    const { container } = await render(ENavList, { props: { label: "Outline", items } });
+    const current = getComputedStyle(container.querySelector<HTMLElement>("[aria-current=page]")!);
+    const other = getComputedStyle(container.querySelector<HTMLElement>("a:not([aria-current])")!);
+    expect(current.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(current.borderBottomWidth).toBe(current.borderTopWidth);
+    expect(current.fontWeight).toBe(other.fontWeight);
   });
 
   test("a group's state is the library's chevron icon, turned while open", async () => {

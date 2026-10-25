@@ -230,12 +230,6 @@ Render.props = ["content"];
     outline: none;
   }
 
-  /* F8 focuses the region itself, so it shows the ring like any other stop. */
-  .e-toast-region:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
-  }
-
   .e-toast-region > .e-toast {
     width: min(var(--e-size-panel-sm), calc(100vw - 2 * var(--e-gap-loose)));
   }

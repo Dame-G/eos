@@ -81,7 +81,7 @@
     --_hover: var(--_fill);
     --_press: var(--_fill);
     --_wash: var(--e-wash-hover);
-    --_slab: var(--e-border-strong);
+    --_slab: var(--e-slab-ink);
 
     background-clip: padding-box;
   }
@@ -97,7 +97,7 @@
     --_wash: var(--e-wash-press);
   }
 
-  /* No fill: the quiet item recipe, a wash and a ring, under an underlined label. */
+  /* No fill: the quiet item recipe (the wash and the ring are the shared rule in `base.css`), under an underlined label. */
   .e-btn--quiet {
     --_fill: transparent;
     --_on: var(--e-ink);
@@ -114,12 +114,7 @@
   }
 
   .e-btn--quiet:not(:disabled, [aria-disabled="true"], .e-btn--loading):hover {
-    box-shadow: var(--e-ring-hover);
     text-decoration-color: currentcolor;
-  }
-
-  .e-btn--quiet:not(:disabled, [aria-disabled="true"], .e-btn--loading):active {
-    box-shadow: var(--e-ring-press);
   }
 
   .e-btn .e-btn-spinner {
@@ -133,11 +128,12 @@
     padding: 0;
   }
 
-  /* Busy reads as unavailable and in progress: a soft tint of the button's colour with a dashed edge like a disabled button, and the spinner. The edge is a pseudo-element, so a page's focus reset cannot remove it. */
+  /* Busy reads as unavailable and in progress: a soft tint of the button's colour with the dashed edge of a disabled button in that colour (the shared ::before in `base.css`), and the spinner. */
   .e-btn--loading {
     --_lift: 0px;
     --_tint: var(--_fill);
     --_busy: color-mix(in srgb, var(--_tint) 80%, var(--e-ink));
+    --_dash: var(--_busy);
 
     background-color: color-mix(in srgb, var(--_tint) 14%, var(--e-surface));
     background-clip: padding-box;
@@ -147,16 +143,7 @@
   }
 
   .e-btn--outline.e-btn--loading {
-    --_tint: var(--e-border-strong);
-  }
-
-  .e-btn--loading::before {
-    content: "";
-    position: absolute;
-    inset: calc(-1 * var(--e-stroke-edge));
-    border: var(--e-stroke-edge) dashed var(--_busy);
-    border-radius: inherit;
-    pointer-events: none;
+    --_tint: var(--e-slab-ink);
   }
 
   .e-btn--block {
@@ -181,8 +168,6 @@
     cursor: not-allowed;
     background: var(--e-disabled-fill);
     color: var(--e-disabled-ink);
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-color: transparent;
     box-shadow: none;
   }

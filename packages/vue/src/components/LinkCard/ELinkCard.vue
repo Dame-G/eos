@@ -95,7 +95,7 @@ const target = computed(() => linkTarget(props, props.linkComponent));
     font: var(--e-weight-medium) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
-    text-underline-offset: var(--e-gap-tight);
+    text-underline-offset: var(--e-underline-offset);
   }
 
   .e-linkcard-link::after {

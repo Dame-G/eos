@@ -107,7 +107,7 @@ const linkAttrs = (item: BreadcrumbItem) => linkTarget(item, props.linkComponent
     margin: 0;
     padding: 0;
     list-style: none;
-    font: var(--e-weight-regular) var(--e-text-sm) / calc(10 / 7) var(--e-font-sans);
+    font: var(--e-type-helper);
   }
 
   .e-crumbs li {
@@ -161,8 +161,6 @@ const linkAttrs = (item: BreadcrumbItem) => linkTarget(item, props.linkComponent
 
   .e-crumb:focus-visible,
   .e-crumb-current:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
     border-radius: var(--e-radius-sm);
   }
 

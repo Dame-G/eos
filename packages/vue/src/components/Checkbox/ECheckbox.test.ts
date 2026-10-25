@@ -216,7 +216,7 @@ describe("ECheckbox", () => {
     const { container } = await render(ECheckbox, { props: { label: "Agree", error: "Required", disabled: true } });
     container.classList.add("e-root");
     const style = getComputedStyle(container.querySelector("input")!);
-    expect(style.outlineStyle).toBe("dashed");
+    expect(getComputedStyle(container.querySelector("input")!, "::before").borderTopStyle).toBe("dashed");
     expect(style.boxShadow).toBe("none");
   });
 

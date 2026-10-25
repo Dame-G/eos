@@ -203,12 +203,18 @@ describe("ETabs", () => {
     await expect.element(page.getByRole("tabpanel")).toHaveTextContent("Fallback c");
   });
 
-  test("the selected tab has the primary underline and heavier text", async () => {
+  test("the selected tab has primary edges on the place tint, and keeps its weight", async () => {
     const { container } = await render(ETabs, { props: { items }, slots });
     container.classList.add("e-root");
     const [first, second] = [...container.querySelectorAll<HTMLElement>("[role=tab]")] as [HTMLElement, HTMLElement];
-    expect(getComputedStyle(first).fontWeight).toBe("600");
-    expect(getComputedStyle(second).fontWeight).toBe("500");
+    // Selecting never changes the weight, so a label keeps its width.
+    expect(getComputedStyle(first).fontWeight).toBe(getComputedStyle(second).fontWeight);
+    // Where you are is its own colour, not the hover wash.
+    const probe = document.createElement("i");
+    probe.style.color = "var(--e-primary-soft)";
+    container.append(probe);
+    expect(getComputedStyle(first).backgroundColor).toBe(getComputedStyle(probe).color);
+    probe.remove();
     // The selected tab's edges are all all one thickness, and thicker than the even edge of the others. No tab uses a shadow.
     const chosen = getComputedStyle(first);
     const other = getComputedStyle(second);

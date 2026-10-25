@@ -36,15 +36,15 @@
     background: var(--e-scrim);
   }
 
-  /* A short scale and fade in, the counterpart of the drawer's slide. Arriving eases with `easing-enter`, leaving with `easing-exit`; the scrim only fades, over `duration-fade`. The motion tokens go to ~0 under reduced motion. */
+  /* A short scale and fade in place, over `duration-fade` like every floating surface (only a drawer travels). Arriving eases with `easing-enter`, leaving with `easing-exit`; the scrim only fades. The motion tokens go to ~0 under reduced motion. */
   .e-dialog[data-state="open"],
   .e-cmd[data-state="open"] {
-    animation: e-dialog-in var(--e-duration-move) var(--e-easing-enter);
+    animation: e-dialog-in var(--e-duration-fade) var(--e-easing-enter);
   }
 
   .e-dialog[data-state="closed"],
   .e-cmd[data-state="closed"] {
-    animation: e-dialog-out var(--e-duration-move) var(--e-easing-exit) forwards;
+    animation: e-dialog-out var(--e-duration-fade) var(--e-easing-exit) forwards;
   }
 
   @keyframes e-dialog-in {

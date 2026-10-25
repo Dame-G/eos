@@ -16,6 +16,8 @@ const PAGE_RULES = [
  */
 export async function expectNoViolations(root: Element, options: { disable?: string[] } = {}): Promise<void> {
   const rules = Object.fromEntries([...PAGE_RULES, ...(options.disable ?? [])].map((id) => [id, { enabled: false }]));
+  // A floating surface fades in (`e-pop-in`); contrast is judged on what settles, not on a frame of the fade.
+  for (const a of document.getAnimations()) if (a.effect?.getComputedTiming().iterations !== Infinity) a.finish();
   const result = await axe.run(root, { rules, resultTypes: ["violations"] });
   if (result.violations.length) {
     const text = result.violations

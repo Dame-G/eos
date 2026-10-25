@@ -15,6 +15,13 @@ import EIcon from "./components/Icon/EIcon.vue";
 import EStamp from "./components/Stamp/EStamp.vue";
 import EToast from "./components/Toast/EToast.vue";
 import ECalendar from "./components/Calendar/ECalendar.vue";
+import EPagination from "./components/Pagination/EPagination.vue";
+import ETag from "./components/Tag/ETag.vue";
+import EKbd from "./components/Kbd/EKbd.vue";
+import EAvatar from "./components/Avatar/EAvatar.vue";
+import ESlider from "./components/Slider/ESlider.vue";
+import EExpandableRow from "./components/ExpandableRow/EExpandableRow.vue";
+import ESurface from "./components/Surface/ESurface.vue";
 import { defineTheme } from "@eos-ui/tokens";
 
 /**
@@ -85,6 +92,133 @@ describe("edges", () => {
     expect(cs.borderTopColor).toBe(cs.borderBottomColor);
     expect(parseFloat(cs.borderInlineStartWidth)).toBe(top);
     expect(parseFloat(cs.borderBottomWidth)).toBe(top + 2);
+  });
+});
+
+/** The corner radii of a computed `border-*-radius` value: horizontal, then vertical (the same when only one is given). */
+const radii = (value: string): [number, number] => {
+  const [h, v] = value.split(" ").map(parseFloat);
+  return [h ?? 0, v ?? h ?? 0];
+};
+
+/**
+ * Every raised face in `root` keeps a round inside at its thick edge. A slab makes the bottom border thicker than the
+ * top, and a corner whose borders differ has an elliptical inside unless the radius grows by the difference on that
+ * axis: the bottom corners' vertical radius is the horizontal one plus the extra width. A tone edge is the same turned
+ * on its side: the start corners' horizontal radius grows. A square corner or a circle (50%) is left alone.
+ */
+function slabFaults(root: ParentNode, pseudo?: string): string[] {
+  const faults: string[] = [];
+  for (const el of [root as Element, ...root.querySelectorAll("*")]) {
+    if (!(el instanceof Element)) continue;
+    const cs = getComputedStyle(el, pseudo);
+    if (cs.display === "none" || cs.borderBottomStyle === "none") continue;
+    const top = parseFloat(cs.borderTopWidth);
+    const bottom = parseFloat(cs.borderBottomWidth);
+    const start = parseFloat(cs.borderInlineStartWidth);
+    const name = `${el.className || el.tagName}${pseudo ?? ""}`;
+    if (top > 0 && bottom > top) {
+      for (const corner of ["borderBottomLeftRadius", "borderBottomRightRadius"] as const) {
+        if (cs[corner].includes("%")) continue;
+        const [h, v] = radii(cs[corner]);
+        if (h > 0 && Math.abs(v - h - (bottom - top)) > 0.1) faults.push(`${name}: ${corner} ${cs[corner]}`);
+      }
+    }
+    if (top > 0 && start > top) {
+      for (const corner of ["borderStartStartRadius", "borderEndStartRadius"] as const) {
+        if (cs[corner].includes("%")) continue;
+        const [h, v] = radii(cs[corner]);
+        if (v > 0 && Math.abs(h - v - (start - top)) > 0.1) faults.push(`${name}: ${corner} ${cs[corner]}`);
+      }
+    }
+  }
+  return faults;
+}
+
+describe("the material", () => {
+  test("every raised face and tone edge keeps a round inside at its thick edge", async () => {
+    const box = document.createElement("div");
+    box.className = "e-root";
+    document.body.append(box);
+    const at = { container: box };
+    const mounts: (() => Promise<unknown>)[] = [
+      () => render(EButton, { ...at, slots: { default: () => "Pay" } }),
+      () => render(EButton, { ...at, props: { variant: "outline" }, slots: { default: () => "Cancel" } }),
+      () => render(ECheckbox, { ...at, props: { label: "Agree", modelValue: true } }),
+      () => render(ESwitch, { ...at, props: { label: "On", modelValue: true } }),
+      () => render(ESegmented, { ...at, props: { label: "View", options: ["Day", "Week"], modelValue: "Day" } }),
+      () => render(ESegmented, { ...at, props: { label: "View", options: ["Day", "Week"], modelValue: "Week" } }),
+      () => render(EPagination, { ...at, props: { pageCount: 3, modelValue: 1 } }),
+      () => render(ECalendar, { ...at, props: { modelValue: new Date(2026, 9, 22, 12) } }),
+      () => render(ETag, { ...at, props: { label: "Cardiology" } }),
+      () => render(EKbd, { ...at, slots: { default: () => "K" } }),
+      () => render(EAvatar, { ...at, props: { name: "Ada Lovelace", interactive: true } }),
+      () => render(EAvatar, { ...at, props: { name: "Ada Lovelace", interactive: true, size: "sm" } }),
+      () => render(ESlider, { ...at, props: { label: "Volume", modelValue: 40 } }),
+      () => render(EExpandableRow, { ...at, props: { title: "Statement" }, slots: { default: () => "Body" } }),
+      () => render(ENotice, { ...at, props: { title: "Heads up", tone: "warning" } }),
+      () => render(EStamp, { ...at, props: { status: "overdue" } }),
+      () => render(EToast, { ...at, props: { title: "Saved", tone: "success" } }),
+    ];
+    for (const mount of mounts) await mount();
+    expect([...slabFaults(box), ...slabFaults(box, "::after")]).toEqual([]);
+    // The guard sees a face without the recipe.
+    const plain = document.createElement("span");
+    plain.style.cssText = "display:block;border:1px solid;border-bottom-width:3px;border-radius:8px";
+    box.append(plain);
+    expect(slabFaults(box)).toHaveLength(2);
+    box.remove();
+  });
+
+  test("a raised face's slab follows its height: thin up to chip height, depth up to control height", async () => {
+    const probe = document.createElement("div");
+    probe.className = "e-root";
+    document.body.append(probe);
+    const px = (value: string) => {
+      probe.style.width = value;
+      return probe.getBoundingClientRect().width;
+    };
+    const thin = px("var(--e-slab-thin)");
+    const depth = px("var(--e-depth)");
+    const lift = (el: Element) => {
+      const cs = getComputedStyle(el);
+      return parseFloat(cs.borderBottomWidth) - parseFloat(cs.borderTopWidth);
+    };
+    const check = await render(ECheckbox, { props: { label: "Agree", modelValue: true } });
+    const sw = await render(ESwitch, { props: { label: "On", modelValue: true } });
+    const tag = await render(ETag, { props: { label: "Tag" } });
+    const button = await render(EButton, { slots: { default: () => "Pay" } });
+    expect(lift(check.container.querySelector(".e-check")!)).toBe(thin);
+    expect(lift(sw.container.querySelector(".e-switch-track")!)).toBe(thin);
+    expect(lift(tag.container.querySelector(".e-tag")!)).toBe(thin);
+    expect(lift(button.container.querySelector(".e-btn")!)).toBe(depth);
+    probe.remove();
+  });
+
+  test("a flush surface is one flat ring and a floating one stands on a slab", async () => {
+    const shadows = (el: Element) =>
+      getComputedStyle(el)
+        .boxShadow.split(/,(?![^(]*\))/)
+        .map((s) => s.trim());
+    // Flush: a card lies on the page inside one ring with no blur, never a drop shadow.
+    const card = await render(ESurface, { slots: { default: () => "Card" } });
+    const flush = shadows(card.container.querySelector(".e-surface")!);
+    expect(flush).toHaveLength(1);
+    expect(flush[0]).toMatch(/0px 0px 0px 1px/);
+    // Raised off the page: the ring, a hard edge with no blur below it, and one soft drop.
+    const raised = await render(ESurface, { props: { variant: "raised" }, slots: { default: () => "Toast" } });
+    const float = shadows(raised.container.querySelector(".e-surface")!);
+    expect(float).toHaveLength(3);
+    expect(float[1]).toMatch(/0px [1-9][\d.]*px 0px [1-9]/);
+  });
+
+  test("a disabled control's dashed edge survives a page that resets outlines", async () => {
+    const reset = document.createElement("style");
+    reset.textContent = "* { outline: none }";
+    document.head.append(reset);
+    const { container } = await render(EButton, { props: { disabled: true }, slots: { default: () => "Pay" } });
+    expect(getComputedStyle(container.querySelector(".e-btn")!, "::before").borderTopStyle).toBe("dashed");
+    reset.remove();
   });
 });
 

@@ -227,13 +227,13 @@ describe("EAvatar", () => {
       for (const ring of container.querySelectorAll(".e-avatar")) {
         const img = ring.querySelector(".e-avatar-img")!;
         const edge = px(ring, "border-top-width");
-        const lift = px(ring, "border-bottom-width");
         expect(px(img, "border-top-left-radius")).toBeCloseTo(
           Math.max(0, px(ring, "border-top-left-radius") - edge),
           1,
         );
+        // A pressable avatar's slab corners are taller by the lift, so the picture inside stays round: the ring's less the edge.
         expect(px(img, "border-bottom-left-radius")).toBeCloseTo(
-          Math.max(0, px(ring, "border-bottom-left-radius") - lift),
+          Math.max(0, px(ring, "border-bottom-left-radius") - edge),
           1,
         );
       }

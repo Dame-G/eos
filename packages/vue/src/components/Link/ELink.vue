@@ -65,11 +65,6 @@ const target = computed(() => linkTarget(props, props.linkComponent));
     color: var(--e-ink);
   }
 
-  .e-link:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
-  }
-
   .e-link--icon {
     display: inline-flex;
     align-items: center;

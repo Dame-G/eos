@@ -207,7 +207,9 @@ describe("EExpandableRow corners", () => {
     const close = (a: number, b: number) => expect(Math.abs(a - Math.max(0, b))).toBeLessThan(0.5);
     const summary = details.querySelector("summary")!;
     close(r(summary, "borderTopLeftRadius"), outer - edge);
-    close(r(summary, "borderBottomLeftRadius"), outer - edge - lift);
+    // The slab corners are taller by the lift, so the inside stays round: the summary's corner is the row's less the edge.
+    expect(lift).toBeGreaterThan(0);
+    close(r(summary, "borderBottomLeftRadius"), outer - edge);
     details.open = true;
     await new Promise((resolve) => setTimeout(resolve, 400));
     close(r(details.querySelector(".e-xrow-body")!, "borderBottomLeftRadius"), outer - edge);

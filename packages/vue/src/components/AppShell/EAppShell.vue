@@ -149,11 +149,6 @@ function closeOnLink(event: MouseEvent) {
     outline: none;
   }
 
-  .e-shell-main:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
-  }
-
   @media print {
     .e-shell-body::after,
     .e-shell-side {

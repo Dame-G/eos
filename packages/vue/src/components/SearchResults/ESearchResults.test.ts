@@ -229,7 +229,10 @@ describe("ESearchResults corners", () => {
     const { container } = await render(ESearchResults, { props: { items, label: "Results" } });
     container.classList.add("e-root");
     const box = container.querySelector<HTMLElement>(".e-results")!;
-    if (md) container.style.setProperty("--e-radius-md", md);
+    if (md) {
+      container.style.setProperty("--e-radius-md", md);
+      container.style.setProperty("--e-radius-row", "max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))");
+    }
     const css = getComputedStyle(box);
     const outer = parseFloat(css.borderTopLeftRadius);
     const inset = parseFloat(css.paddingTop) / 2 + parseFloat(css.borderTopWidth); /* pad-inset is half the padding */

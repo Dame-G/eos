@@ -361,10 +361,13 @@ describe("ETextField", () => {
     const btn = wrap.querySelector(".e-input-btn")!;
 
     for (const md of [null, "14px", "2px"]) {
-      if (md) root.style.setProperty("--e-radius-md", md);
+      if (md) {
+        root.style.setProperty("--e-radius-md", md);
+        root.style.setProperty("--e-radius-row", "max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))");
+      }
       const outer = corner(wrap);
       expect(corner(input)).toBeCloseTo(Math.max(0, outer - 1), 0); // flush: the edge
-      expect(corner(btn)).toBeCloseTo(Math.max(0, outer - 5), 0); // the edge and a tight gap
+      expect(corner(btn)).toBeCloseTo(Math.max(0, outer - 3), 0); // radius-row less the edge
     }
   });
 });

@@ -440,10 +440,14 @@ describe("ECombobox multiple", () => {
     const btn = wrap.querySelector(".e-input-btn")!;
 
     for (const md of [null, "14px", "2px"]) {
-      if (md) root.style.setProperty("--e-radius-md", md);
+      if (md) {
+        root.style.setProperty("--e-radius-md", md);
+        root.style.setProperty("--e-radius-row", "max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))");
+      }
       const outer = corner(wrap);
-      expect(corner(tag)).toBeCloseTo(Math.max(0, outer - 4), 0);
-      expect(corner(btn)).toBeCloseTo(Math.max(0, outer - 5), 0);
+      // A small part inside the wrap's border: radius-row (md less pad-inset) less the edge.
+      expect(corner(tag)).toBeCloseTo(Math.max(0, outer - 3), 0);
+      expect(corner(btn)).toBeCloseTo(Math.max(0, outer - 3), 0);
     }
   });
 });

@@ -69,7 +69,7 @@ const isAction = (item: EMenuItem): item is EMenuAction => !("type" in item && i
     </DropdownMenuLabel>
     <DropdownMenuCheckboxItem
       v-else-if="'type' in item && item.type === 'checkbox'"
-      class="e-menu-item"
+      class="e-menu-item e-interact e-interact--inset"
       :model-value="!!item.checked"
       :disabled="item.disabled"
       @select="stayOpen($event, item.keepOpen)"
@@ -85,7 +85,7 @@ const isAction = (item: EMenuItem): item is EMenuAction => !("type" in item && i
       <DropdownMenuRadioItem
         v-for="option in item.options"
         :key="option.value"
-        class="e-menu-item"
+        class="e-menu-item e-interact e-interact--inset"
         :value="option.value"
         :disabled="option.disabled"
         @select="
@@ -100,7 +100,7 @@ const isAction = (item: EMenuItem): item is EMenuAction => !("type" in item && i
       </DropdownMenuRadioItem>
     </DropdownMenuRadioGroup>
     <DropdownMenuSub v-else-if="'type' in item && item.type === 'submenu'">
-      <DropdownMenuSubTrigger class="e-menu-item" :disabled="item.disabled">
+      <DropdownMenuSubTrigger class="e-menu-item e-interact e-interact--inset" :disabled="item.disabled">
         <EIcon v-if="item.icon" :name="item.icon" />
         {{ item.label }}
         <EIcon class="e-menu-chevron" name="chevron-right" />
@@ -123,7 +123,7 @@ const isAction = (item: EMenuItem): item is EMenuAction => !("type" in item && i
     <DropdownMenuItem
       v-else-if="isAction(item) && hasLinkTarget(item)"
       as-child
-      class="e-menu-item"
+      class="e-menu-item e-interact e-interact--inset"
       :class="{ 'e-menu-item--danger': item.danger }"
       :disabled="item.disabled"
       @select="choose(item)"
@@ -135,7 +135,7 @@ const isAction = (item: EMenuItem): item is EMenuAction => !("type" in item && i
     </DropdownMenuItem>
     <DropdownMenuItem
       v-else-if="isAction(item)"
-      class="e-menu-item"
+      class="e-menu-item e-interact e-interact--inset"
       :class="{ 'e-menu-item--danger': item.danger }"
       :disabled="item.disabled"
       @select="choose(item)"

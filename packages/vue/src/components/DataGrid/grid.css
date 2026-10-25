@@ -102,8 +102,6 @@
   }
 
   .e-sortbtn:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
     border-radius: var(--e-radius-sm);
   }
 

@@ -216,9 +216,7 @@ function returnFocus(event: Event) {
     padding-block: var(--e-gap-tight);
     padding-inline: var(--e-pad-control-sm);
     border: 0;
-
-    /* Concentric with the md panel it sits one gap-tight inside; the panel has no border. */
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)));
+    border-radius: var(--e-radius-row);
     background: transparent;
     color: var(--e-ink);
     font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-tight) var(--e-font-sans);
@@ -226,23 +224,6 @@ function returnFocus(event: Event) {
     text-decoration: none;
     cursor: pointer;
     transition: var(--e-transition-state);
-  }
-
-  /* The shared recipe: hover and the keyboard highlight wash and ring, press sinks, focus is the outline drawn inside the row. */
-  .e-menu-item:hover,
-  .e-menu-item[data-highlighted] {
-    background: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
-  }
-
-  .e-menu-item:active {
-    background: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
-  }
-
-  .e-menu-item:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-menu-item--danger {
@@ -277,14 +258,6 @@ function returnFocus(event: Event) {
   .e-menu-item[data-disabled] {
     color: var(--e-disabled-ink);
     cursor: not-allowed;
-  }
-
-  .e-menu-item[disabled]:hover,
-  .e-menu-item[data-disabled]:hover,
-  .e-menu-item[data-disabled][data-highlighted] {
-    background: transparent;
-    box-shadow: none;
-    outline: 0;
   }
 
   @media (forced-colors: active) {

@@ -164,7 +164,10 @@ describe("EColorField", () => {
     expect(w.bottom - c.bottom).toBeCloseTo(5, 0);
 
     for (const md of [null, "14px", "2px"]) {
-      if (md) root.style.setProperty("--e-radius-md", md);
+      if (md) {
+        root.style.setProperty("--e-radius-md", md);
+        root.style.setProperty("--e-radius-row", "max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))");
+      }
       const want = Math.max(0, corner(wrap) - 3);
       expect(corner(swatch)).toBeCloseTo(want, 0);
       expect(corner(chip)).toBeCloseTo(want, 0);

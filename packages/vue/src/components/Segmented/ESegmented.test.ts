@@ -175,7 +175,10 @@ describe("ESegmented", () => {
     const seg = container.querySelector(".e-seg")!;
     expect(seg.getBoundingClientRect().height).toBe(48);
     const active = container.querySelector(".e-seg-input[data-on] + .e-seg-text")!;
-    expect(getComputedStyle(active).fontWeight).toBe("600");
+    // Choosing never changes the weight, so the label keeps its width.
+    expect(getComputedStyle(active).fontWeight).toBe(
+      getComputedStyle(container.querySelector(".e-seg-text")!).fontWeight,
+    );
     expect(getComputedStyle(seg).width).not.toBe("100%");
   });
 
@@ -338,7 +341,7 @@ describe("ESegmented", () => {
     const chosen = getComputedStyle(container.querySelector(".e-seg-input[data-on] + .e-seg-text")!);
     expect(chosen.outlineStyle).toBe("none");
     expect(chosen.boxShadow).toBe("none");
-    expect(getComputedStyle(container.querySelector(".e-seg")!).outlineStyle).toBe("dashed");
+    expect(getComputedStyle(container.querySelector(".e-seg")!, "::before").borderTopStyle).toBe("dashed");
   });
 
   test("in a narrow space the options scroll, and the chosen one is brought into view", async () => {

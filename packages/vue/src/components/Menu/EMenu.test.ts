@@ -427,7 +427,10 @@ describe("EMenu corners", () => {
     const { container } = await mount();
     await userEvent.click(triggerOf(container));
     await expect.poll(() => menu()).not.toBeNull();
-    if (md) menu()!.style.setProperty("--e-radius-md", md);
+    if (md) {
+      menu()!.style.setProperty("--e-radius-md", md);
+      menu()!.style.setProperty("--e-radius-row", "max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))");
+    }
     const outer = parseFloat(getComputedStyle(menu()!).borderTopLeftRadius);
     const inset =
       parseFloat(getComputedStyle(menu()!).paddingTop) / 2 + parseFloat(getComputedStyle(menu()!).borderTopWidth); // pad-inset is half the padding

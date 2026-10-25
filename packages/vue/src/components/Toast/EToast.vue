@@ -75,23 +75,26 @@ onMounted(() => {
 @layer e.containers {
   /* The slab on the tone's side: the inline-start border, `stroke-edge` plus `slab-bold` thick as on a Notice and a Stamp, in the colour of the tone's edge. It flips in a right-to-left page. The tone's colour comes from notice.css. */
   .e-toast {
-    /* Wider than the notice's 36rem container step plus padding, so an action sits at the end of the row. */
-    --_wide: 40rem;
+    /* The notice's 36rem container step (`size-panel-lg`) plus the toast's padding and tone edge, so an action sits at the end of the row. */
+    --_wide: calc(var(--e-size-panel-lg) + 2 * var(--e-pad-card) + var(--e-stroke-edge) + var(--e-slab-bold));
 
     position: relative;
     container-type: inline-size;
     width: min(var(--e-size-panel-sm), 100%);
     padding: var(--e-gap-base) var(--e-pad-card);
     border-inline-start: calc(var(--e-stroke-edge) + var(--e-slab-bold)) solid var(--_tone);
+    border-start-start-radius: calc(var(--e-radius-md) + var(--e-slab-bold)) var(--e-radius-md);
+    border-end-start-radius: calc(var(--e-radius-md) + var(--e-slab-bold)) var(--e-radius-md);
   }
 
   .e-toast--actions {
     width: min(var(--_wide), 100%);
   }
 
+  /* The title is the notice's title style. */
   .e-toast-title {
     margin: 0;
-    font: var(--e-weight-medium) var(--e-text-lg) / calc(4 / 3) var(--e-font-sans);
+    font: var(--e-type-h4);
   }
 
   .e-toast-text {

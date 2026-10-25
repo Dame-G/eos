@@ -176,8 +176,6 @@ onBeforeUnmount(() => {
   }
 
   .e-appheader-logo a:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
     border-radius: var(--e-radius-sm);
   }
 
@@ -191,12 +189,6 @@ onBeforeUnmount(() => {
     border-top: var(--e-stroke-hair) solid var(--e-border);
     overflow-x: auto;
     padding-block: var(--e-gap-snug);
-  }
-
-  /* A tab stop only while it scrolls; its ring is drawn inside, where the row does not clip it. */
-  .e-appheader-nav:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   /* The shell's menu button, drawn from the first render, shows only where the sidebar is a drawer (the page-frame breakpoint). */

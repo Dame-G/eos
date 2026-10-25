@@ -397,7 +397,7 @@ defineExpose({
 
   /* A tag sits a tight gap inside the wrap's edge, edge included, on a wrapped row. */
   .e-combo--multi .e-tag {
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-gap-tight)));
+    --_r: max(0px, calc(var(--e-radius-row) - var(--e-stroke-edge)));
   }
 
   /* A disabled field's tags are plain, not primary. */

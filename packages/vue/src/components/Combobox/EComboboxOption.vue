@@ -20,7 +20,7 @@ defineProps<{
   <ComboboxItem
     :value="value"
     :disabled="option.disabled"
-    class="e-opt"
+    class="e-opt e-interact e-interact--inset"
     :class="{ 'e-opt--selected': selected, 'e-opt--disabled': option.disabled }"
     @mousedown.prevent
   >

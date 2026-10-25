@@ -31,7 +31,7 @@
   }
 
   .e-choice-desc {
-    font: var(--e-weight-regular) var(--e-text-sm)/1.4 var(--e-font-sans);
+    font: var(--e-type-helper);
     color: var(--e-muted);
   }
 
@@ -45,7 +45,9 @@
 
     --_ring: var(--e-border-strong);
     --_lift: 0px;
+    --_r: var(--e-radius-sm);
 
+    position: relative;
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--_ring);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
@@ -55,35 +57,36 @@
     transition: var(--e-transition-state);
   }
 
+  /* The slab corners: the bottom ones as much taller as the slab is thick, so the face inside stays round. */
   .e-check {
-    border-radius: var(--e-radius-sm);
+    border-radius: var(--_r) / var(--_r) var(--_r) calc(var(--_r) + var(--_lift)) calc(var(--_r) + var(--_lift));
   }
 
   .e-radio {
-    border-radius: 50%;
+    border-radius: var(--e-radius-round);
   }
 
-  /* Pointing at the label counts as pointing at the box: the outline darkens and the face takes the soft primary wash. Pressing darkens the outline to ink. */
+  /* Pointing at the label counts as pointing at the box. A bordered item answers as every bordered item does: the edge darkens and the face takes the neutral wash (hover never previews the primary), and pressing darkens the edge to ink. */
   .e-choice:hover .e-check:not(:checked, :indeterminate, :disabled),
   .e-choice:hover .e-radio:not(:checked, :disabled) {
     --_ring: var(--e-wash-ring);
 
-    background-color: var(--e-primary-soft);
+    background-color: var(--e-wash-hover);
   }
 
   .e-choice:active .e-check:not(:checked, :indeterminate, :disabled),
   .e-choice:active .e-radio:not(:checked, :disabled) {
     --_ring: var(--e-ink);
 
-    background-color: var(--e-primary-soft);
+    background-color: var(--e-wash-press);
   }
 
-  /* Checked, it is a small button face: the primary colour with a slab under it, which sinks away when pressed. */
+  /* Checked, it is a small button face: the primary colour on a thin slab (the box is no taller than a chip), which sinks away when pressed. */
   .e-check:checked,
   .e-check:indeterminate,
   .e-radio:checked {
     --_slab: var(--e-primary-slab);
-    --_lift: var(--e-depth);
+    --_lift: var(--e-slab-thin);
 
     border-color: var(--_slab);
     background-color: var(--e-primary);
@@ -134,13 +137,6 @@
     background-color: var(--e-primary-press);
   }
 
-  .e-check:focus-visible,
-  .e-radio:focus-visible,
-  .e-switch-input:focus-visible + .e-switch-track {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
-  }
-
   /* Invalid: the edge turns danger and pointing at it tints the face danger-soft. A chosen box keeps its primary fill, so the danger shows as a ring just outside it. Disabled comes after and stays neutral. */
   .e-check[aria-invalid="true"],
   .e-radio[aria-invalid="true"] {
@@ -170,8 +166,6 @@
 
   .e-check:disabled,
   .e-radio:disabled {
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-color: transparent;
     background-color: var(--e-disabled-fill);
     box-shadow: none;
@@ -181,7 +175,6 @@
   .e-radio:checked:disabled {
     --_lift: 0px;
 
-    outline: 0;
     border-color: var(--e-border-strong);
     background-color: var(--e-disabled-fill);
     box-shadow: none;
