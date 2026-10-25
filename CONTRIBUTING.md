@@ -72,7 +72,7 @@ index.ts         export { default as EStamp } from "./EStamp.vue";   (plus expor
 
 1. Write the component, its tests (keyboard and axe for every state) and the README's TODOs.
 2. In `test/ssr/fixtures.ts`, give it the props it needs to render on the server, or delete the empty entry. That one table feeds the hydration test and `pnpm ssr`.
-3. Accept the new export in the public API snapshots: `pnpm --filter @eos-ui/vue exec vitest run test/public-api.test.ts -u`, and check the diff of `test/public-api.txt` and `test/public-types.txt`.
+3. Accept the new exports in the public API snapshots and check their diff: `pnpm --filter @eos-ui/vue exec vitest run test/public-api.test.ts -u` for the runtime names (`test/public-api.txt`), and after a build `node scripts/check-api-types.mjs --update` in `packages/vue` for the type names (`test/public-types.txt`).
 4. `pnpm changeset` (a `minor`), then `pnpm check:source`, `pnpm lint` and `pnpm test`.
 
 Nothing else lists the components by hand: the build entries, the resolver, the global types, `llms.txt` and the size report read the folders. Exports that are not a component or a composable (the plugin, config, messages, icons, themes) are written by hand in `src/core.ts`, which the generated index re-exports.

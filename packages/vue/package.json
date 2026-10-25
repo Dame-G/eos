@@ -83,7 +83,7 @@
     "check:props": "node scripts/gen-props.mjs --check",
     "check:docs": "node scripts/check-docs.mjs",
     "check:icon-aliases": "node scripts/validate-icon-aliases.mjs",
-    "check:dist": "node scripts/check-dist.mjs"
+    "check:dist": "node scripts/check-dist.mjs && node scripts/check-api-types.mjs"
   },
   "peerDependencies": {
     "@iconify/vue": "^5.0.0",

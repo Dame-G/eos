@@ -149,5 +149,6 @@ Created packages/vue/src/components/${name} (${E}, in @layer ${layer}). Next:
   1. Write the component, its tests (keyboard and axe for every state) and the README TODOs.
   2. Give ${E} the props it needs to render in test/ssr/fixtures.ts, or delete its empty entry.
   3. node scripts/gen-props.mjs (in packages/vue) after changing a prop's doc comment or default.
-  4. Accept the new export: pnpm --filter @eos-ui/vue exec vitest run test/public-api.test.ts -u
+  4. Accept the new exports: pnpm --filter @eos-ui/vue exec vitest run test/public-api.test.ts -u, and after a
+     build, node scripts/check-api-types.mjs --update (in packages/vue) if it exports types.
   5. pnpm changeset (a minor: a new component), then pnpm check:source, pnpm lint and pnpm test.`);
