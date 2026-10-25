@@ -124,7 +124,7 @@ const Wrap: FunctionalComponent = (_, { slots }) =>
     }
 
     .e-icon-btn:disabled {
-      outline-color: GrayText;
+      --_dash: GrayText;
       color: GrayText;
     }
   }

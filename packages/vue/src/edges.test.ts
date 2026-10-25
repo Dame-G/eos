@@ -3,6 +3,7 @@ import { render } from "vitest-browser-vue";
 import { commands, userEvent } from "vitest/browser";
 import "./styles/controls/panel.css";
 import EButton from "./components/Button/EButton.vue";
+import EIconButton from "./components/IconButton/EIconButton.vue";
 import ESegmented from "./components/Segmented/ESegmented.vue";
 import ETabs from "./components/Tabs/ETabs.vue";
 import ETooltip from "./components/Tooltip/ETooltip.vue";
@@ -298,6 +299,24 @@ describe("forced colors", () => {
       expect(style(container.querySelector(".e-check")).borderTopColor).toBe(system("GrayText"));
       // The segmented track's edge is a shadow, so it draws a border instead.
       expect(style(container.querySelector(".e-seg")).borderTopStyle).toBe("solid");
+    });
+
+    test("the dashed edge of a disabled control is GrayText", async () => {
+      const { container } = await render({
+        template: `<div>
+          <EButton disabled>Pay</EButton>
+          <EIconButton icon="close" label="Close" disabled />
+          <ESwitch label="Reminders" disabled />
+          <ECheckbox label="Agree" disabled />
+        </div>`,
+        components: { EButton, EIconButton, ESwitch, ECheckbox },
+      });
+      await forced();
+      for (const selector of [".e-btn", ".e-icon-btn", ".e-switch-track", ".e-check"]) {
+        const edge = style(container.querySelector(selector), "::before");
+        expect(edge.borderTopStyle, selector).toBe("dashed");
+        expect(edge.borderTopColor, selector).toBe(system("GrayText"));
+      }
     });
 
     test("a switch that is on is Highlight with a HighlightText thumb, hovered too", async () => {

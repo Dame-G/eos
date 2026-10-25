@@ -186,7 +186,7 @@ defineExpose(choice.exposed);
     }
 
     .e-switch-input:disabled + .e-switch-track {
-      outline-color: GrayText;
+      --_dash: GrayText;
     }
 
     .e-switch-input:disabled + .e-switch-track::after {

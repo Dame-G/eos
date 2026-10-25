@@ -191,7 +191,7 @@
 
     .e-btn[disabled],
     .e-btn[aria-disabled="true"] {
-      outline-color: GrayText;
+      --_dash: GrayText;
       color: GrayText;
     }
   }

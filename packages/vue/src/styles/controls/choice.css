@@ -197,8 +197,9 @@
 
     .e-check:disabled,
     .e-radio:disabled {
+      --_dash: GrayText;
+
       border-color: GrayText;
-      outline-color: GrayText;
     }
 
     .e-check:focus-visible,
