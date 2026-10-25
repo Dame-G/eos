@@ -8,7 +8,7 @@ import EIcon from "../Icon/EIcon.vue";
 import EKicker from "../Kicker/EKicker.vue";
 import { useMessages } from "../../config.js";
 import { useLocale } from "../../composables/useLocale.js";
-import type { Tone } from "../../composables/useSize.js";
+import type { Tone } from "../../types.js";
 import { warnOnce } from "../../warn.js";
 import "../../styles/base.css";
 

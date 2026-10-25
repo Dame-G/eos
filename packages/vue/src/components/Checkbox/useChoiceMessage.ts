@@ -2,7 +2,7 @@ import { computed, ref, toValue, type MaybeRefOrGetter, type Ref } from "vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useUid } from "../../composables/useUid.js";
-import { useFormField } from "../../composables/useFormContext.js";
+import { useFormField } from "../../composables/useFormField.js";
 
 /** What ECheckbox and ESwitch share. */
 export interface ChoiceProps extends EFieldCommonProps {

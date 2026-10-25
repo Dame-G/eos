@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Size } from "../../composables/useSize.js";
+import type { Size } from "../../types.js";
 import "../../styles/base.css";
 
 withDefaults(

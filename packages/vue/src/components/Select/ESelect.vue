@@ -8,7 +8,7 @@ import { isOn, normalizeOptions } from "./options.js";
 import type { ESelectFields } from "./selectProps.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import type { FieldSlot } from "../../composables/useFieldControl.js";
-import { useFormField } from "../../composables/useFormContext.js";
+import { useFormField } from "../../composables/useFormField.js";
 import { useUid } from "../../composables/useUid.js";
 import { useMessages } from "../../config.js";
 import { missingMessage } from "../Form/missing.js";

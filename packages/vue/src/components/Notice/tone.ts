@@ -1,4 +1,4 @@
-import type { Tone } from "../../composables/useSize.js";
+import type { Tone } from "../../types.js";
 
 /** The tones of a message: `ENotice`, `EToast` and the toasts of `useToast`. */
 export type NoticeTone = Extract<Tone, "neutral" | "info" | "success" | "warning" | "danger">;

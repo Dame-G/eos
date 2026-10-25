@@ -6,7 +6,7 @@ export type { ChoiceOption } from "./options.js";
 import { Comment, computed, Fragment, h, ref, useSlots, type FunctionalComponent, type VNode } from "vue";
 import EFieldset from "../Fieldset/EFieldset.vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
-import { useFormField } from "../../composables/useFormContext.js";
+import { useFormField } from "../../composables/useFormField.js";
 import { normalizeChoices, type ChoiceOption } from "./options.js";
 import { keepIfReadonly } from "../Checkbox/useChoiceMessage.js";
 import { missingMessage } from "../Form/missing.js";

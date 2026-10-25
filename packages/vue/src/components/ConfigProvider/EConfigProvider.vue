@@ -4,7 +4,7 @@ import { darkVariant, defineTheme, themeVariant, type Theme, type ThemeInput } f
 import { CONFIG_KEY, useConfig, type EosConfig, type MessageValue } from "../../config.js";
 import type { IconsConfig } from "../../icons/types.js";
 import { localeDirection } from "../../composables/useLocale.js";
-import type { ElementTag } from "../../composables/useSize.js";
+import type { ElementTag } from "../../types.js";
 import { RekaConfig } from "../../composables/useRekaConfig.js";
 import "../../styles/base.css";
 

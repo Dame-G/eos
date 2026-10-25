@@ -26,7 +26,7 @@ import { useDir } from "../../composables/useDir.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useUid } from "../../composables/useUid.js";
 import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
-import { useFormField } from "../../composables/useFormContext.js";
+import { useFormField } from "../../composables/useFormField.js";
 import "../../styles/base.css";
 import "../../styles/controls/input.css";
 import "../../styles/controls/panel.css";

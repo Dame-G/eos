@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import SpinnerRing from "../Spinner/SpinnerRing.vue";
-import { focusInside } from "../../composables/useFocusInside.js";
+import { focusInside } from "../../composables/focusInside.js";
 import { sizeAttr, type EFieldSize } from "./fieldProps.js";
 import "../../styles/base.css";
 import "../../styles/controls/input.css";

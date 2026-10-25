@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { ElementTag, Size, Tone } from "../../composables/useSize.js";
+import type { ElementTag, Size, Tone } from "../../types.js";
 import { warnOnce } from "../../warn.js";
 import "../../styles/base.css";
 

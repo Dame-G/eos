@@ -4,7 +4,7 @@ Functions to call inside `setup()`. Each one documented here is exported from `@
 
 ## Conventions
 
-- One composable per file: `useThing.ts` exports `useThing` (and its types). A helper that is not a composable (`focusInside`, from `useFocusInside.ts`) lives here too when components share it. `scripts/gen-index.mjs` exports each name from the package, except one marked `@internal` in its JSDoc, or a whole file whose first line is `// @internal`. Mark a helper the components share but apps should not depend on (`useDetails`, `useFieldControl`) that way, so it can change without a breaking release.
+- One composable per file: `useThing.ts` exports `useThing` (and its types). A helper that is not a composable lives here too when components share it, in a file named after it (`focusInside.ts` exports `focusInside`). Shared types (`Size`, `Tone`, `ElementTag`) are in `src/types.ts`. `scripts/gen-index.mjs` exports each name from the package, except one marked `@internal` in its JSDoc, or a whole file whose first line is `// @internal`. Mark a helper the components share but apps should not depend on (`useDetails`, `useFieldControl`) that way, so it can change without a breaking release.
 - Each has a test next to it (`useThing.test.ts`) that runs in a real browser.
 - Safe for the server: touch `window`, `document` and the clipboard only inside `onMounted` or an event handler, and do nothing when they are missing.
 - Take reactive input as `MaybeRefOrGetter`, read it with `toValue`, and return refs or computeds, so callers can pass props directly.
@@ -118,7 +118,7 @@ el.scrollBy({ left, behavior: calm() ? "auto" : "smooth" });
 
 Everything date and money components need from the configured locale: month and weekday names, the first day of the week, date order and separator, and formatting and parsing of dates and money.
 
-## `focusInside(event)` (`useFocusInside.ts`)
+## `focusInside(event)` (`focusInside.ts`)
 
 A click handler for a boxed input: a click on the padding or an icon puts the cursor in the input, while a button or link inside keeps its own click. Bind it with `@click="focusInside"` on the wrapper.
 
@@ -126,7 +126,7 @@ A click handler for a boxed input: a click on the padding or an icon puts the cu
 
 For a form control built on `EField`: keeps `class` and `style` on the wrapper and sends every other attribute to the real input. Use it with `defineOptions({ inheritAttrs: false })`. A control made of several inputs puts `group()` on the element around them: the consumer's `@focus` and `@blur` then fire when focus enters or leaves the group.
 
-## `useFormField(entry)` (`useFormContext.ts`)
+## `useFormField(entry)` (`useFormField.ts`)
 
 Joins a custom control to the [`EForm`](../components/Form/README.md) around it, so the error summary lists it and focuses it from its link. Outside a form it does nothing. The entry is getters, read when the form checks:
 

@@ -182,7 +182,6 @@ export function useLocale() {
 
   return {
     locale: computed(() => config.locale),
-    dir: computed<"ltr" | "rtl">(() => config.dir ?? (info.value.rtl ? "rtl" : "ltr")),
     months: computed(() => info.value.months),
     monthsShort: computed(() => info.value.monthsShort),
     weekdays: computed(() => info.value.weekdays),

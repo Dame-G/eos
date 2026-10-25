@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useIconResolver } from "../../config.js";
-import type { Size } from "../../composables/useSize.js";
+import type { Size } from "../../types.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
