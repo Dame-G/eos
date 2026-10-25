@@ -1,4 +1,5 @@
 // @internal: shared by the components, not exported from the package (see scripts/gen-index.mjs).
+/* eslint-disable vue/one-component-per-file -- two small wrappers around the same Reka providers */
 import { defineComponent, h, inject, provide, type InjectionKey } from "vue";
 import { ConfigProvider, TooltipProvider, injectTooltipProviderContext } from "reka-ui";
 import { useDir } from "./useDir.js";

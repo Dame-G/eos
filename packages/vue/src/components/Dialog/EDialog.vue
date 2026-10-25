@@ -16,12 +16,6 @@ const props = withDefaults(
   { role: "dialog", headingLevel: 2, size: "md" },
 );
 
-/** Everything but the size goes to the frame as it is. */
-const frame = computed(() => {
-  const { size: _size, ...shared } = props;
-  return shared;
-});
-
 const emit = defineEmits<{
   /** Fires when the person closes it with the Close button, Escape, or the backdrop when `dismissible`. `open` is already false, so `v-model:open` is enough unless you need the moment. */
   close: [];
@@ -36,6 +30,13 @@ defineSlots<{
 
 /** Whether it is open. Without a binding it keeps its own state. */
 const open = defineModel<boolean>("open");
+
+/** Everything but the size goes to the frame as it is. */
+const frame = computed<DialogFrameProps>(() => {
+  const shared: Record<string, unknown> = { ...props };
+  delete shared.size;
+  return shared as unknown as DialogFrameProps;
+});
 </script>
 
 <template>
