@@ -114,7 +114,7 @@ One name means one thing across the library. A component may have props of its o
 | `required`, `optional`, `disabled`, `error`, `hint` | Field state and help. `error` is one message.                                                                                                      | every field                                        |
 | `as`, `gap`, `align`, `justify`, `side`             | The element, spacing from the space scale, cross-axis and main-axis alignment, and which edge.                                                     | layout components                                  |
 
-There are no look variants. A component has one good default. If two looks are both needed they are two components. Do not add `compact`, `plain`, `card`, `outlined` or similar switches. `ETable` and `EDataGrid` have `dense` for row height and are the only ones.
+There are no look variants. A component has one good default. If two looks are both needed they are two components. Do not add `compact`, `plain`, `card`, `outlined` or similar switches. A prop may change the size on the shared `size` scale (`ENavList`, `ESegmented`), the layout (`ETabs` `stretch`, `EActions` `stack`) or the row height (`dense` on `ETable` and `EDataGrid`), never how a state is drawn: a state's look comes from the material and the ladder of selection in Design conventions, so it is the same in every component.
 
 ### Accessibility
 
@@ -140,6 +140,8 @@ There are no look variants. A component has one good default. If two looks are b
   | `e.composites` | controls built from controls         |
   | `e.containers` | things that hold or announce content |
   | `e.page`       | navigation and the page frame        |
+
+  `e.state` comes after them all and holds only the shared states of `base.css` (the hover and press of `.e-interact`, the dashed edge of a disabled control), so no component's resting face can hide them. A component does not write into it; it joins by carrying the class.
 
   A component uses only components of its own layer or an earlier one.
 
@@ -209,22 +211,30 @@ Spacing has a semantic layer on top of the `space-N` scale (4, 8, 12, 16, 20, 24
 
 ### Type
 
-A style is a token: `font: var(--e-type-kicker)` sets weight, size, line-height and family. `letter-spacing` is separate (`var(--e-tracking-label)` for uppercase labels, `var(--e-tracking-tight)` for large figures). `.e-kicker`, `.e-numeral` and `.e-numeral-l` in `base.css` are built from them. Styles: `type-h1`..`type-h6`, `type-deck`, `type-body`, `type-small`, `type-kicker`, `type-button`, `type-numeral`, `type-numeral-l`.
+A style is a token: `font: var(--e-type-kicker)` sets weight, size, line-height and family. `letter-spacing` is separate: `var(--e-tracking-label)` for uppercase labels, `var(--e-tracking-tight)` for display type (`h1`, `h2`, the large figures). There are no other tracking tokens. `.e-kicker`, `.e-numeral` and `.e-numeral-l` in `base.css` are built from them. Styles: `type-h1`..`type-h6`, `type-deck`, `type-body`, `type-small`, `type-helper` (help, error and description text, breadcrumbs), `type-kicker`, `type-button`, `type-meta`, `type-count` (the count on a tab or nav item), `type-numeral`, `type-numeral-l`. A component that needs a recurring style takes its token; a new recurring style is a token to add, not a `font:` written by hand.
 
-Sizes are rem (`text-xs` to `text-4xl`, `control-height`, `chip-height`, the icon, check and avatar boxes), so the visitor's browser font size scales text and the controls around it. `textScale` multiplies on top. Line heights are unitless: `leading-none` 1, `-tight` 1.15 (titles, kickers, buttons), `-snug` 1.3 (section titles, numerals), `-normal` 1.5 (copy), `-loose` 1.7. Never a line-height under 1, and never a pixel line-height.
+Bricolage Grotesque has an optical size axis, which the browser sets from the font size (`font-optical-sizing: auto`, set on `.e-root`): display sizes get tighter letterforms on their own. Geist Mono is the voice of data: every figure a component shows (a day, a page, a count, a step, an amount) is set in it.
+
+Sizes are rem (`text-xs` to `text-4xl`, `control-height`, `chip-height`, the icon, check and avatar boxes), so the visitor's browser font size scales text and the controls around it. `textScale` multiplies on top. Line heights are unitless: `leading-none` 1, `-tight` 1.15 (titles, kickers, buttons), `-snug` 1.3 (section titles, numerals), `-normal` 1.5 (copy), and the two that put a recurring small style on the 4px line grid: `leading-helper` (20px at `text-sm`) and `leading-chip` (20px at `text-xs`). Never a line-height under 1, and never a pixel line-height.
+
+### The material
+
+Every surface is one of three, and says which. **Raised**: it stands on a slab (anything you press, and anything that floats over the page: `--e-float` is a slab twice `--e-depth` deep lifted off the page, with one faint drop). **Flush**: it lies on the page inside one flat ring, `--e-frame` in `border` (3.4:1), never a drop shadow (a card, a table, a code block). **Sunk**: it is pressed into the page, `--e-well` on a tinted ground (a field, a track, a groove). The header comment of `base.css` is the reference.
 
 ### The slab
 
-The slab is the raised bottom edge under a face. There is one construction, the Button's: a border on all four sides in the slab colour, the bottom one thicker by the lift.
+The slab is the raised bottom edge under a face. There is one construction, the Button's: a border on all four sides in the slab colour, the bottom one thicker by the lift, and bottom corners taller by the same amount so the face inside them stays round.
 
 ```css
 .e-thing {
   --_slab: var(--e-primary-slab); /* the edge colour */
   --_ring: var(--_slab); /* the other three sides; a state may set it apart */
-  --_lift: var(--e-slab); /* how far the edge reaches */
+  --_lift: var(--e-depth); /* how far the edge reaches */
 
   border: var(--e-stroke-edge) solid var(--_ring);
   border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
+  border-radius: var(--e-radius-md) / var(--e-radius-md) var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift))
+    calc(var(--e-radius-md) + var(--_lift));
 }
 
 .e-thing:active {
@@ -232,7 +242,7 @@ The slab is the raised bottom edge under a face. There is one construction, the 
 }
 ```
 
-The recipe comment in `base.css` is the reference; use `--e-slab-ink` for `--_slab` on a face with no colour of its own. Thickness comes from three tokens and nothing else (no `0.6 *`, `1.5 *`, `space-1`): `slab-thin` (a small part: a key, a tag), `depth` (everything else), and `slab-bold` for a side edge that marks a tone (Notice, Stamp, Toast), always `calc(var(--e-stroke-edge) + var(--e-slab-bold))` on the inline-start border. A tone's edge colour is its `*-slab` token. Do not draw the slab as a gradient band, a `::before` bar or an inset shadow. The one exception is a face that cannot grow a border: `--e-slab-edge` (the face is shorter by `--e-depth`), and `--e-slab-sink` for a quiet control toggled on.
+The recipe comment in `base.css` is the reference; use `--e-slab-ink` (the same as `border-strong`) for `--_slab` on a face with no colour of its own. Thickness comes from three tokens and nothing else (no `0.6 *`, `1.5 *`, `space-1`), chosen by the face's height: `slab-thin` up to `chip-height` (a key, a tag, a checkbox, a radio, the switch, a slider thumb), `depth` up to `control-height` (everything else), and `slab-bold` for a side edge that marks a tone (Notice, Stamp, Toast), always `calc(var(--e-stroke-edge) + var(--e-slab-bold))` on the inline-start border, with the start corners wider by `slab-bold` (`border-start-start-radius: calc(r + slab-bold) r`). `depth` is a theme dimension (the `depth` input, and the `ink` and `quiet` presets), so never assume 2px. A tone's edge colour is its `*-slab` token. Do not draw the slab as a gradient band, a `::before` bar or an inset shadow; the one inset is `--e-slab-sink`, for a quiet control toggled on. `edges.test.ts` fails a raised face or a tone edge whose thick side has elliptical inner corners.
 
 ### Corners
 
@@ -245,11 +255,11 @@ A rounded thing inside a rounded, bordered thing has a smaller radius, so the tw
 }
 ```
 
-Write the sum where the child is styled, with the container's real border and padding: a custom property built from `var(--e-radius-md)` is resolved where it is declared, so a scoped theme that sets `--e-radius-md` on a container would not reach it. A component that needs the sum twice keeps the inset in a private `--_inset` and computes `max(0px, calc(var(--e-radius-md) - var(--_inset)))` on the element itself. Rows of a list panel, a menu or a stepper sit `gap-tight` inside an unbordered `radius-md` panel and use `--e-radius-row`, which is that sum; inside a bordered container take the border off too: `max(0px, calc(var(--e-radius-row) - var(--e-stroke-edge)))`. A theme from `defineTheme` sets `radius-row` with the other tokens, so a scoped theme reaches it. Use the real inset for a child that fills its container, such as a segment or the picture in an avatar ring. The maths follows every `radius` setting (`sharp`, `default`, `round`). A circle or pill (`radius-round`, `radius-pill`) is left alone.
+Write the sum where the child is styled, with the container's real border and padding: a custom property built from `var(--e-radius-md)` is resolved where it is declared, so a scoped theme that sets `--e-radius-md` on a container would not reach it. A component that needs the sum twice keeps the inset in a private `--_inset` and computes `max(0px, calc(var(--e-radius-md) - var(--_inset)))` on the element itself. Rows of a list panel or a menu, and the dot of a step, use `--e-radius-row` (the panel's radius less `pad-inset`: 6px in an 8px panel, rounding almost as much as the panel so the two read as one shape); inside a bordered container take the border off too: `max(0px, calc(var(--e-radius-row) - var(--e-stroke-edge)))`. A theme from `defineTheme` sets `radius-row` with the other tokens, so a scoped theme reaches it. Use the real inset for a child that fills its container, such as a segment or the picture in an avatar ring. The maths follows every `radius` setting (`sharp`, `default`, `round`). A circle or pill (`radius-round`, `radius-pill`) is left alone.
 
 ### Hover, press and focus
 
-One recipe for anything that can be pressed. The recipe comment and `.e-interact` in `base.css` are the reference; a component that needs its own selectors copies these declarations. A bordered item (a tab, a segment) recolours its own border instead of adding a ring, so its edge never thickens. A text link, a breadcrumb and a disclosure summary are the named exceptions and draw no ring.
+One recipe for anything that can be pressed. Hover is never a colour: it does not preview what pressing will do. An unbordered item (a row, a tile, a day, a page, a quiet button) carries `.e-interact` (and `.e-interact--inset` for the inset focus ring) and takes the shared wash and ring from `base.css`; do not copy the declarations. A bordered item (a tab, a segment, a checkbox, a radio, the switch, an expandable row) recolours its own border instead of adding a ring, so its edge never thickens, and takes the same wash. A text link, a breadcrumb and a disclosure summary are the named exceptions and draw no ring.
 
 | State      | Quiet item (no fill)                                                               | Filled control                          |
 | ---------- | ---------------------------------------------------------------------------------- | --------------------------------------- |
@@ -266,22 +276,23 @@ One recipe for anything that can be pressed. The recipe comment and `.e-interact
 
 ### Selected
 
-There are two voices, and a component uses one.
+Selection is a ladder of three steps, each its own colour, so hovering never looks like choosing and choosing never looks like being somewhere.
 
-| Voice     | Means           | Look                                                            | Used by                                                                               |
-| --------- | --------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| **Value** | a value you set | filled `--e-primary` with `--e-on-primary`, `primary-slab` edge | toggle button, checkbox, radio, switch, segmented control, current page, selected day |
-| **Place** | where you are   | `wash-hover` face, `primary` text and a `primary` edge          | tab, nav item                                                                         |
+| Step      | Means           | Look                                                                            | Used by                                                                               |
+| --------- | --------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| **Hover** | pointing at it  | the neutral `wash-hover`                                                        | every pressable item                                                                  |
+| **Place** | where you are   | the pastel brand tint `primary-soft`, `primary` text, a `primary` edge, no slab | tab, nav item, current step, calendar range                                           |
+| **Value** | a value you set | filled `--e-primary` with `--e-on-primary` on a `primary-slab` slab             | toggle button, checkbox, radio, switch, segmented control, current page, selected day |
 
-Place is drawn two ways on purpose. A tab sits in a bordered strip next to its neighbours, so the selected one thickens all four of its edges evenly and the bottom one is primary; a nav item stands alone and takes a real slab, its bottom border thicker by `--e-depth`.
+A tab sits in a bordered strip next to its neighbours, so the selected one thickens all four of its edges evenly in primary; a nav item stands alone with a 1px primary edge. Selection never changes the weight of a label, so a selected tab, segment or page keeps its width.
 
 ### Disabled
 
-A control keeps its box, drops its lift, dims to `--e-disabled-ink` and draws a dashed `border-strong` outline inside its edge, so colour is never the only cue. A list row (menu item, option, nav item) only dims its text and stops answering the pointer: a dashed box on every unavailable row is noise. Both use `aria-disabled` or `disabled`, not just a class.
+A control keeps its box, drops its lift, dims to `--e-disabled-ink` and draws a dashed `border-strong` edge over its own, so colour is never the only cue. The edge is the shared `::before` in `base.css` (add the control's disabled selector there), not an `outline`, which a page's focus reset would remove. A list row (menu item, option, nav item) only dims its text and stops answering the pointer: a dashed box on every unavailable row is noise. Both use `aria-disabled` or `disabled`, not just a class.
 
 ### Motion
 
-`duration-tap` (80ms) for hover and press, `duration-fade` (140ms) for things that fade, `duration-move` (220ms) for things that move. Arriving uses `easing-enter`, leaving `easing-exit`, every state change `easing-out`. The theme CSS collapses the three durations under `prefers-reduced-motion`.
+`duration-tap` (80ms) for hover and press, `duration-fade` (140ms) for things that appear or fade where they are, `duration-move` (220ms) for things that travel. Every floating surface (a popover, a menu, a list panel, a tooltip, a date panel, a toast) arrives with the shared `e-pop-in` of `base.css`: a short drop onto its slab over `duration-fade`. A dialog scales in over the same duration; only a drawer travels. Arriving uses `easing-enter`, leaving `easing-exit`, every state change `easing-out`. The theme CSS collapses the three durations under `prefers-reduced-motion`.
 
 ### Layers and theme
 
