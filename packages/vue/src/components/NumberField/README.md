@@ -24,8 +24,8 @@ A number input with decrease and increase buttons, for quantities. Use [`ECurren
 | `id`         | `string`               | `generated`         | The id of the control. The label points at it.                                                                          |
 | `size`       | `"sm" \| "md" \| "lg"` | `"md"`              | The height of the box: `sm` and `lg` are a step under and over the control height.                                      |
 | `label`      | `string`               | **Required**        | The visible label above the field.                                                                                      |
-| `min`        | `number`               | None                | The lowest value. The value clamps to it and the decrease button dims there (it stays focusable).                       |
-| `max`        | `number`               | None                | The highest value. The value clamps to it and the increase button dims there (it stays focusable).                      |
+| `min`        | `number`               | None                | The lowest value. The value clamps to it and the decrease button dims there.                                            |
+| `max`        | `number`               | None                | The highest value. The value clamps to it and the increase button dims there.                                           |
 | `step`       | `number`               | `1`                 | The amount one step of the buttons and arrow keys changes the value. Decimals shown follow the step (`0.25` shows two). |
 | `prefix`     | `string`               | None                | A unit before the value. Read with the value by screen readers.                                                         |
 | `suffix`     | `string`               | None                | A unit after the value, such as visits. Read with the value by screen readers.                                          |
@@ -55,4 +55,4 @@ A number input with decrease and increase buttons, for quantities. Use [`ECurren
 
 ## Related
 
-[`ECurrencyField`](../CurrencyField/README.md) for money, [`ETextField`](../TextField/README.md) for free text.
+[`ETextField`](../TextField/README.md) for free text.

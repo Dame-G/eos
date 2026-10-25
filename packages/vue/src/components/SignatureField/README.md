@@ -36,9 +36,9 @@ const signed = ref<SignatureValue>({ method: "type", name: "", image: "", agreed
 
 ## Accessibility
 
-- The group is a bare `EFieldset`: `hint` is announced with it. `error` replaces the hint and goes to the typed-name input (`aria-invalid`, alert) or to the pad, never onto the `fieldset`.
+- The group is a plain `EFieldset`: `hint` is announced with it. `error` replaces the hint and goes to the typed-name input (`aria-invalid`) or to the pad, never onto the `fieldset`.
 - A drawn signature cannot be made from a keyboard, so use `mode="both"`.
-- `required` marks the typed-name input required; in `draw` mode the legend says "Required". `readonly` keeps everything visible and submitted but changes nothing, including the Type and Draw switch.
+- `required` makes the typed name or the drawing, and the agreement, required; the legend says "Required" once for all of them. `readonly` keeps everything visible and submitted but changes nothing, including the Type and Draw switch.
 - The typed-name preview beside the date is not a live region: it repeats what the person is typing, which the input already announces.
 - Signing needs a signature and the checked agreement: validate both before accepting the form.
 
@@ -52,4 +52,4 @@ const signed = ref<SignatureValue>({ method: "type", name: "", image: "", agreed
 
 ## Related
 
-[`ESignaturePad`](../SignaturePad/README.md) is the drawing area on its own, [`ECheckbox`](../Checkbox/README.md) for a plain agreement.
+[`ECheckbox`](../Checkbox/README.md) for a plain agreement.

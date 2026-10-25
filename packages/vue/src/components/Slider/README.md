@@ -4,7 +4,7 @@ Picks a number, or a span of two, by dragging or with the arrow keys. Use [`ENum
 
 ```vue
 <ESlider v-model="volume" label="Volume" :step="5" />
-<ESlider v-model="price" label="Price" range :min="0" :max="500" :step="10" :format="(v) => `$${v}`" />
+<ESlider v-model="price" label="Price" range :min="0" :max="500" :step="10" :value-text="(v) => `${v}`" />
 ```
 
 ## Props
@@ -17,18 +17,18 @@ Picks a number, or a span of two, by dragging or with the arrow keys. Use [`ENum
 | `hideLabel`  | `boolean`                    | `false`      | Hides the label from the page and keeps it for screen readers.                                                                  |
 | `hint`       | `string`                     | None         | Help that stays under the control.                                                                                              |
 | `error`      | `string`                     | None         | What to fix. Replaces the hint, marks the control invalid and is announced.                                                     |
-| `required`   | `boolean`                    | `false`      | Sets the `required` attribute and shows "Required" beside the label.                                                            |
 | `optional`   | `boolean`                    | `false`      | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.                                        |
 | `disabled`   | `boolean`                    | `false`      | Disables the control. A disabled control posts nothing.                                                                         |
 | `readonly`   | `boolean`                    | `false`      | Shows the value but blocks editing. The control stays focusable and selectable, and still posts its value.                      |
 | `id`         | `string`                     | `generated`  | The id of the control. The label points at it.                                                                                  |
+| `required`   | `boolean`                    | `false`      | Shows "Required" beside the label. A slider always has a value, so nothing is checked and no attribute is set.                  |
 | `label`      | `string`                     | **Required** | What the slider sets. Names every thumb.                                                                                        |
 | `min`        | `number`                     | `0`          | The lowest value.                                                                                                               |
 | `max`        | `number`                     | `100`        | The highest value.                                                                                                              |
 | `step`       | `number`                     | `1`          | The distance between values. Keys and dragging land on multiples of it from `min`.                                              |
 | `range`      | `boolean`                    | `false`      | Two thumbs choose a span. `v-model` is then `[from, to]` in place of a number.                                                  |
-| `marks`      | `boolean \| number[]`        | None         | Draws tick marks: `true` for every step, or the values to mark.                                                                 |
-| `format`     | `(value: number) => string`  | None         | Turns a value into the words screen readers announce (`aria-valuetext`), such as "$40". Without it the number is read.          |
+| `marks`      | `boolean \| number[]`        | None         | Draws tick marks: `true` for every step (at most about a hundred, so a fine step marks every few), or the values to mark.       |
+| `valueText`  | `(value: number) => string`  | None         | Turns a value into the words screen readers announce (`aria-valuetext`), such as "$40". Without it the number is read.          |
 | `name`       | `string`                     | None         | The name submitted with a form. A range posts two entries, `from` first. Posts nothing while disabled.                          |
 
 <!-- props:end -->
@@ -38,7 +38,8 @@ Picks a number, or a span of two, by dragging or with the arrow keys. Use [`ENum
 ## Accessibility
 
 - Each thumb is `role="slider"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and the label. A range names its thumbs "Price minimum" and "Price maximum".
-- Pass `format` so screen readers hear "$40" and not "40": it becomes `aria-valuetext`.
+- Pass `valueText` so screen readers hear "$40" and not "40": it becomes `aria-valuetext`.
+- A slider always has a value, so `required` only shows the word; a slider takes no `aria-required`. A click on the label focuses the first thumb.
 - `readonly` leaves the thumbs in the tab order and sets `aria-readonly`.
 - In a right-to-left language the track runs right to left and Arrow Right lowers the value.
 - Tick marks are decoration. Do not rely on them to convey a value.
@@ -55,4 +56,4 @@ Picks a number, or a span of two, by dragging or with the arrow keys. Use [`ENum
 
 ## Related
 
-[`ENumberField`](../NumberField/README.md) to type an exact number, [`ESegmented`](../Segmented/README.md) to choose one of a few named values.
+[`ESegmented`](../Segmented/README.md) to choose one of a few named values.

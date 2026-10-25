@@ -10,22 +10,22 @@ A single yes/no choice. Use [`ESwitch`](../Switch/README.md) for a setting that 
 
 <!-- props:start -->
 
-| Prop            | Type      | Default      | Notes                                                                                                            |
-| --------------- | --------- | ------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `modelValue`    | `boolean` | `false`      | `v-model`: whether it is checked.                                                                                |
-| `hint`          | `string`  | None         | Help that stays under the control.                                                                               |
-| `error`         | `string`  | None         | What to fix. Replaces the hint, marks the control invalid and is announced.                                      |
-| `required`      | `boolean` | `false`      | Sets the `required` attribute and shows "Required" beside the label.                                             |
-| `optional`      | `boolean` | `false`      | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.                         |
-| `disabled`      | `boolean` | `false`      | Disables the control. A disabled control posts nothing.                                                          |
-| `readonly`      | `boolean` | `false`      | Shows the value but blocks editing. The control stays focusable and selectable, and still posts its value.       |
-| `id`            | `string`  | `generated`  | The id of the control. The label points at it.                                                                   |
-| `label`         | `string`  | **Required** | What the person agrees to or turns on.                                                                           |
-| `description`   | `string`  | None         | A line of detail under the label.                                                                                |
-| `indeterminate` | `boolean` | `false`      | A mixed state, such as select-all with some rows chosen.                                                         |
-| `bare`          | `boolean` | `false`      | Hides the label from the page and keeps it for screen readers, for a table cell. It shows no hint or error text. |
-| `name`          | `string`  | None         | The name submitted with a form.                                                                                  |
-| `value`         | `string`  | None         | The value submitted with a form when checked.                                                                    |
+| Prop            | Type      | Default      | Notes                                                                                                      |
+| --------------- | --------- | ------------ | ---------------------------------------------------------------------------------------------------------- |
+| `modelValue`    | `boolean` | `false`      | `v-model`: whether it is checked.                                                                          |
+| `hideLabel`     | `boolean` | `false`      | Hides the label from the page and keeps it for screen readers.                                             |
+| `hint`          | `string`  | None         | Help that stays under the control.                                                                         |
+| `error`         | `string`  | None         | What to fix. Replaces the hint, marks the control invalid and is announced.                                |
+| `required`      | `boolean` | `false`      | Sets the `required` attribute and shows "Required" beside the label.                                       |
+| `optional`      | `boolean` | `false`      | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.                   |
+| `disabled`      | `boolean` | `false`      | Disables the control. A disabled control posts nothing.                                                    |
+| `readonly`      | `boolean` | `false`      | Shows the value but blocks editing. The control stays focusable and selectable, and still posts its value. |
+| `id`            | `string`  | `generated`  | The id of the control. The label points at it.                                                             |
+| `label`         | `string`  | **Required** | What the person agrees to or turns on.                                                                     |
+| `description`   | `string`  | None         | A line of detail under the label.                                                                          |
+| `indeterminate` | `boolean` | `false`      | A mixed state, such as select-all with some rows chosen.                                                   |
+| `name`          | `string`  | None         | The name submitted with a form.                                                                            |
+| `value`         | `string`  | None         | The value submitted with a form when checked.                                                              |
 
 <!-- props:end -->
 
@@ -33,7 +33,7 @@ A single yes/no choice. Use [`ESwitch`](../Switch/README.md) for a setting that 
 
 ## Accessibility
 
-- The label is required. With `bare` it stays for screen readers.
+- The label is required. With `hideLabel` it stays for screen readers, as in a table cell, and the hint or error still shows.
 - `readonly` sets `aria-readonly`, keeps the box focusable and blocks the toggle. `hint`, `error` and `description` are linked to the input with `aria-describedby`. The description is not part of the checkbox's name.
 - `indeterminate` is the prop's to set: a click checks the box, and the mixed state stays until the prop changes.
 
@@ -46,4 +46,4 @@ A single yes/no choice. Use [`ESwitch`](../Switch/README.md) for a setting that 
 
 ## Related
 
-[`ESwitch`](../Switch/README.md) for a setting that applies at once, [`ECheckboxGroup`](../CheckboxGroup/README.md) for several related boxes, [`ERadioGroup`](../RadioGroup/README.md) to choose one of several.
+[`ECheckboxGroup`](../CheckboxGroup/README.md) for several related boxes, [`ERadioGroup`](../RadioGroup/README.md) to choose one of several.

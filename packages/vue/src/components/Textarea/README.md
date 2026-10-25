@@ -47,4 +47,4 @@ Native textarea keys. Enter adds a line break. The resize handle is a pointer co
 
 ## Related
 
-[`ETextField`](../TextField/README.md) for one line.
+[`EField`](../Field/README.md) to wrap a rich-text editor of your own.

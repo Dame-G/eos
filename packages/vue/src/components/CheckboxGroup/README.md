@@ -14,21 +14,21 @@ Any number of several related options, checked into an array. Use [`ECheckbox`](
 
 <!-- props:start -->
 
-| Prop          | Type                         | Default      | Notes                                                                                                                       |
-| ------------- | ---------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| `modelValue`  | `T[]`                        | `[]`         | `v-model`: the values that are checked, in the order they were chosen.                                                      |
-| `hideLabel`   | `boolean`                    | `false`      | Hides the label from the page and keeps it for screen readers.                                                              |
-| `hint`        | `string`                     | None         | Help that stays under the control.                                                                                          |
-| `optional`    | `boolean`                    | `false`      | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.                                    |
-| `disabled`    | `boolean`                    | `false`      | Disables the control. A disabled control posts nothing.                                                                     |
-| `readonly`    | `boolean`                    | `false`      | Shows the value but blocks editing. The control stays focusable and selectable, and still posts its value.                  |
-| `label`       | `string`                     | **Required** | The question, as the group's legend.                                                                                        |
-| `options`     | `(T \| CheckboxOption<T>)[]` | **Required** | A string is both value and label. `CheckboxOption`: `{ value, label, description?, disabled? }`.                            |
-| `error`       | `string`                     | None         | What to fix. Replaces the hint, marks every box invalid and is announced with the group.                                    |
-| `required`    | `boolean`                    | `false`      | Adds the word "Required" beside the legend. The group does not validate itself: the form decides how many boxes are enough. |
-| `name`        | `string`                     | None         | Shared by the boxes, submitted with a form: one entry per checked box.                                                      |
-| `id`          | `string`                     | `generated`  | The id of the group's `fieldset`, which an `EForm` summary links to. The boxes are `{id}-1`, `{id}-2` and so on.            |
-| `orientation` | `"vertical" \| "horizontal"` | `"vertical"` | Lays the options out in a row that wraps, or one under another.                                                             |
+| Prop          | Type                                | Default      | Notes                                                                                                                       |
+| ------------- | ----------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`  | `T[]`                               | `[]`         | `v-model`: the values that are checked, in the order they were chosen.                                                      |
+| `hideLabel`   | `boolean`                           | `false`      | Hides the label from the page and keeps it for screen readers.                                                              |
+| `hint`        | `string`                            | None         | Help that stays under the control.                                                                                          |
+| `optional`    | `boolean`                           | `false`      | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.                                    |
+| `disabled`    | `boolean`                           | `false`      | Disables the control. A disabled control posts nothing.                                                                     |
+| `readonly`    | `boolean`                           | `false`      | Shows the value but blocks editing. The control stays focusable and selectable, and still posts its value.                  |
+| `label`       | `string`                            | **Required** | The question, as the group's legend.                                                                                        |
+| `options`     | `readonly (T \| ChoiceOption<T>)[]` | **Required** | A string is both value and label. `ChoiceOption`: `{ value, label, description?, disabled? }`.                              |
+| `error`       | `string`                            | None         | What to fix. Replaces the hint, marks every box invalid and is announced with the group.                                    |
+| `required`    | `boolean`                           | `false`      | Adds the word "Required" beside the legend. The group does not validate itself: the form decides how many boxes are enough. |
+| `name`        | `string`                            | None         | Shared by the boxes, submitted with a form: one entry per checked box.                                                      |
+| `id`          | `string`                            | `generated`  | The id of the group's `fieldset`, which an `EForm` summary links to. The boxes are `{id}-1`, `{id}-2` and so on.            |
+| `orientation` | `"vertical" \| "horizontal"`        | `"vertical"` | Lays the options out in a row that wraps, or one under another.                                                             |
 
 `T` is a type parameter, inferred from the props you pass. It extends `string` (default `string`).
 
@@ -52,4 +52,4 @@ Any number of several related options, checked into an array. Use [`ECheckbox`](
 
 ## Related
 
-[`ECheckbox`](../Checkbox/README.md) for a single choice, [`ERadioGroup`](../RadioGroup/README.md) to choose one of several, [`ESelect`](../Select/README.md) when the list is long.
+[`ESelect`](../Select/README.md) when the list is long.

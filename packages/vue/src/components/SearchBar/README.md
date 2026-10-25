@@ -10,18 +10,20 @@ The single search box for a page: an outlined field with a submit button inside.
 
 <!-- props:start -->
 
-| Prop          | Type                   | Default    | Notes                                                                                                                      |
-| ------------- | ---------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `modelValue`  | `string`               | `""`       | `v-model`: the text.                                                                                                       |
-| `size`        | `"sm" \| "md" \| "lg"` | `"md"`     | The height of the box: `sm` and `lg` are a step under and over the control height.                                         |
-| `loading`     | `boolean`              | `false`    | Shows a spinner at the end of the box and sets `aria-busy`, while options or a check load. The field stays editable.       |
-| `label`       | `string`               | `"Search"` | Names the box and the search landmark. It is not shown on the page.                                                        |
-| `placeholder` | `string`               | `"Search"` | Hint text in the empty box that says what can be searched.                                                                 |
-| `action`      | `string`               | `"Search"` | The text on the button.                                                                                                    |
-| `hideAction`  | `boolean`              | `false`    | Leaves out the button, for a box that filters or searches as you type. Enter still submits.                                |
-| `clearable`   | `boolean`              | `false`    | Shows a button that empties the box while it has text.                                                                     |
-| `name`        | `string`               | None       | The name the text is posted under when the bar sits inside a form of your own. There is no default: the bar is not a form. |
-| `disabled`    | `boolean`              | `false`    | Disables the box and button. Pair it with an `ENotice` that says why.                                                      |
+| Prop          | Type                   | Default    | Notes                                                                                                                                                                   |
+| ------------- | ---------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`  | `string`               | `""`       | `v-model`: the text.                                                                                                                                                    |
+| `size`        | `"sm" \| "md" \| "lg"` | `"md"`     | The height of the box: `sm` and `lg` are a step under and over the control height.                                                                                      |
+| `loading`     | `boolean`              | `false`    | Shows a spinner on the search button and sets `aria-busy` on the box while results load. With `hideAction` the spinner sits in the box.                                 |
+| `label`       | `string`               | `"Search"` | Names the box and the search landmark. It is not shown on the page.                                                                                                     |
+| `placeholder` | `string`               | `"Search"` | Hint text in the empty box that says what can be searched.                                                                                                              |
+| `action`      | `string`               | `"Search"` | The text on the button.                                                                                                                                                 |
+| `hideAction`  | `boolean`              | `false`    | Leaves out the button, for a box that filters or searches as you type. Enter still submits.                                                                             |
+| `clearable`   | `boolean`              | `false`    | Shows a button that empties the box while it has text.                                                                                                                  |
+| `name`        | `string`               | None       | The name the text is posted under when the bar sits inside a form of your own and that form is submitted by its own button. There is no default: the bar is not a form. |
+| `disabled`    | `boolean`              | `false`    | Disables the box and button. Pair it with an `ENotice` that says why.                                                                                                   |
+| `readonly`    | `boolean`              | `false`    | Shows the text but blocks editing it. The box stays focusable and the text can still be searched.                                                                       |
+| `id`          | `string`               | None       | The id of the input, for a label of your own or a link to it.                                                                                                           |
 
 <!-- props:end -->
 
@@ -49,4 +51,4 @@ The bar is a `div` with `role="search"`, not a form, so it can sit inside one. `
 
 ## Related
 
-[`ESearchResults`](../SearchResults/README.md) lists matches under it, [`ETextField`](../TextField/README.md) for a plain input, [`ECommandPalette`](../CommandPalette/README.md) to search commands.
+[`ETextField`](../TextField/README.md) for a plain input, [`ECommandPalette`](../CommandPalette/README.md) to search commands.
