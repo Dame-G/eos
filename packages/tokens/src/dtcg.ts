@@ -6,7 +6,6 @@ export interface DtcgToken {
   /** Omitted when the value is a CSS expression no DTCG type can hold (a shadow stack, `color-mix()`). */
   $type?: "color" | "dimension" | "duration" | "cubicBezier" | "number" | "fontFamily" | "fontWeight";
   $description?: string;
-  /** Set on a token that is still emitted but will be removed: what to use instead. */
 }
 
 /** Tokens grouped by kind (`color`, `spacing`, `radius`...), the shape Tokens Studio and Style Dictionary read. */
