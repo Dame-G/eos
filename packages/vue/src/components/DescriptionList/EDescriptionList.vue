@@ -102,7 +102,6 @@ const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["v
 
   .e-fact {
     display: grid;
-
     grid-template-columns: var(--e-term-width) minmax(0, 1fr);
     gap: var(--e-gap-tight) var(--e-gap-loose);
     align-items: baseline;

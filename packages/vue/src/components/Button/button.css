@@ -192,6 +192,7 @@
     .e-btn[disabled],
     .e-btn[aria-disabled="true"] {
       --_dash: GrayText;
+
       color: GrayText;
     }
   }
