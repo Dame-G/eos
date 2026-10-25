@@ -1,6 +1,7 @@
 @import url("@eos-ui/tokens/tokens.css");
 
 @layer e.base {
+  /* Reduced motion has one mechanism: the theme sets `--e-duration-tap`, `-fade` and `-move` to 0.01ms under `prefers-reduced-motion`, so every transition and every arriving or leaving animation built on them stops with no rule of its own. Only an infinite loop (the ring of SpinnerRing, the indeterminate bar of EProgress, the pulse of skeleton.css) sets `animation: none` in a media block, since a loop at 0.01ms would flicker. */
   .e-root,
   .e-root * {
     box-sizing: border-box;

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h, ref, markRaw } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -20,6 +20,23 @@ const FakeRouterLink = markRaw(
         h("a", { href: `/app${props.to}`, "data-router": "" }, slots.default?.()),
   }),
 );
+
+// First in the file: the warning is given once per page.
+describe("ENavList names", () => {
+  test("development warns once when two navigations are left on the default name", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const one = await render(ENavList, { props: { items } });
+      expect(warn).not.toHaveBeenCalledWith(expect.stringContaining("ENavList"));
+      const two = await render(ENavList, { props: { items } });
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("ENavList"));
+      one.unmount();
+      two.unmount();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+});
 
 describe("ENavList", () => {
   test("is a navigation landmark named Main by default, or by the label prop", async () => {
@@ -55,8 +72,8 @@ describe("ENavList", () => {
   test("rows are control height and the count is a pill", async () => {
     const { container } = await render(ENavList, { props: { items } });
     expect(container.querySelector("a")!.getBoundingClientRect().height).toBe(48);
-    expect(container.querySelectorAll(".e-nav-count").length).toBe(1);
-    expect(container.querySelector(".e-nav-count")!.textContent).toBe("2");
+    expect(container.querySelectorAll(".e-count").length).toBe(1);
+    expect(container.querySelector(".e-count")!.textContent).toBe("2");
     expect(container.querySelectorAll(".e-nav-item .e-icon").length).toBe(2);
   });
 
@@ -263,5 +280,45 @@ describe("ENavList", () => {
       props: { items: tree.map((i) => (i.children ? { ...i, open: true } : i)) },
     });
     await expectNoViolations(container);
+  });
+});
+
+describe("ENavList options", () => {
+  test("size sm gives short rows with no rule between them; long labels wrap inside the row", async () => {
+    const { container } = await render(ENavList, {
+      props: {
+        label: "Docs",
+        size: "sm",
+        items: [...items, { label: "A long page title that cannot fit on one line of a narrow rail", href: "/x" }],
+      },
+    });
+    (container.firstElementChild as HTMLElement).style.width = "12rem";
+    const rows = [...container.querySelectorAll<HTMLElement>(".e-nav-item")];
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    expect(rows[0]!.getBoundingClientRect().height).toBe(coarse ? 44 : 32);
+    expect(getComputedStyle(container.querySelectorAll("li")[1]!, "::before").content).toBe("none");
+    const long = rows.at(-1)!;
+    expect(long.getBoundingClientRect().height).toBeGreaterThan(rows[0]!.getBoundingClientRect().height);
+    expect(long.scrollWidth).toBeLessThanOrEqual(long.clientWidth + 1);
+  });
+
+  test("marker text marks the current page by colour and weight only, with no face or slab", async () => {
+    const { container } = await render(ENavList, { props: { label: "Outline", items, marker: "text" } });
+    const current = container.querySelector<HTMLElement>("[aria-current=page]")!;
+    const style = getComputedStyle(current);
+    expect(style.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(style.borderBottomWidth).toBe(style.borderTopWidth);
+    expect(style.fontWeight).toBe("600");
+  });
+
+  test("a group's state is the library's chevron icon, turned while open", async () => {
+    const { container } = await render(ENavList, {
+      props: { label: "Docs", items: [{ label: "Guides", children: [{ label: "Start", href: "/start" }] }] },
+    });
+    const chevron = container.querySelector(".e-nav-summary > .e-details-chevron")!;
+    expect(chevron.classList.contains("e-icon")).toBe(true);
+    const closed = getComputedStyle(chevron).transform;
+    await page.getByText("Guides").click();
+    await expect.poll(() => getComputedStyle(chevron).transform).not.toBe(closed);
   });
 });

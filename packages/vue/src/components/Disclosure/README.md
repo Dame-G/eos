@@ -44,4 +44,4 @@ A section that opens and closes, for secondary detail. Give several the same `gr
 
 ## Related
 
-[`EExpandableRow`](../ExpandableRow/README.md) for a row in a list that opens to more, [`ETabs`](../Tabs/README.md) to switch between panels.
+[`ENavList`](../NavList/README.md) for a group of links that opens and closes.

@@ -23,6 +23,7 @@ export const keyOf = (item: LinkItem, i: number) =>
 
 <script setup lang="ts">
 import { computed, ref, watch, type Component } from "vue";
+import EIcon from "../Icon/EIcon.vue";
 import { useDetails } from "../../composables/useDetails.js";
 import { hasLinkTarget, linkTarget } from "../../composables/useLink.js";
 import "../../styles/base.css";
@@ -63,6 +64,7 @@ const attrs = computed(() => {
   <details v-if="isGroup" class="e-nav-group" v-bind="details">
     <summary v-bind="summary" :class="[itemClass, 'e-nav-summary']" :data-current="holdsCurrent(item) || undefined">
       <slot name="item" :item="item" />
+      <EIcon class="e-details-chevron" name="chevron-down" />
     </summary>
     <ul>
       <li v-for="(child, i) in item.children" :key="keyOf(child, i)">

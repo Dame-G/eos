@@ -15,6 +15,16 @@ const slots = {
 };
 
 describe("EExpandableRow", () => {
+  test("a chevron after the value shows whether it is open, and turns when it opens", async () => {
+    const { container } = await render(EExpandableRow, { props: { title: "Lab work" }, slots });
+    const chevron = container.querySelector(".e-xrow-end > .e-details-chevron")!;
+    expect(chevron.classList.contains("e-icon")).toBe(true);
+    expect(chevron.previousElementSibling?.classList.contains("e-xrow-trail")).toBe(true);
+    const closed = getComputedStyle(chevron).transform;
+    await page.getByText("Lab work").click();
+    await expect.poll(() => getComputedStyle(chevron).transform).not.toBe(closed);
+  });
+
   test("the summary is the same height open and closed", async () => {
     const { container } = await render(EExpandableRow, { props: { title: "Visit" }, slots });
     container.classList.add("e-root");
