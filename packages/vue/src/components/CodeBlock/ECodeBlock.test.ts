@@ -144,6 +144,20 @@ describe("ECodeBlock", () => {
     vi.unstubAllGlobals();
   });
 
+  test("the overflow shade sits at the end edge, on the left in a right-to-left page", async () => {
+    const { container } = await render({
+      render: () =>
+        h("div", [
+          h("div", { dir: "ltr" }, h(ECodeBlock, { code: "x" })),
+          h("div", { dir: "rtl" }, h(ECodeBlock, { code: "x" })),
+        ]),
+    });
+    const [ltr, rtl] = Array.from(container.querySelectorAll(".e-code-body"), (el) => getComputedStyle(el));
+    expect(ltr!.backgroundPositionX).toBe("100%, 100%");
+    expect(rtl!.backgroundPositionX).toBe("0%, 0%");
+    expect(rtl!.backgroundImage).toContain("to right");
+  });
+
   test("has no accessibility violations", async () => {
     const { container } = await render(ECodeBlock, { props: { code: "const a = 1;", lang: "ts" } });
     await expectNoViolations(container);

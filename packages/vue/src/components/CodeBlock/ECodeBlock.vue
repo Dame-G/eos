@@ -119,14 +119,24 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     min-width: 0;
     overflow-x: auto;
 
-    /* Overflow shows as a shade at the end edge that the content covers once it is scrolled to the end, not only as a bar. */
+    /* Overflow shows as a shade at the end edge that the content covers once it is scrolled to the end, not only as a bar. A background has no logical position, so the end side is a property that flips in a right-to-left page. */
+    --_end: right;
+    --_toward-end: to left;
+
     background:
-      linear-gradient(to left, var(--e-surface) 40%, transparent) right / var(--e-space-6) 100% no-repeat local,
-      linear-gradient(to left, var(--e-wash-ring), transparent) right / var(--e-space-2) 100% no-repeat scroll;
+      linear-gradient(var(--_toward-end), var(--e-surface) 40%, transparent) var(--_end) / var(--e-space-6) 100% no-repeat
+        local,
+      linear-gradient(var(--_toward-end), var(--e-wash-ring), transparent) var(--_end) / var(--e-space-2) 100% no-repeat
+        scroll;
 
     /* Flush against the block's start edge, so the block's corners (its own, which differ where blocks are stacked): the body scrolls itself and the block does not clip, so the ring around the block is painted once on a curve nothing else clips; the body takes the corner so its focus ring follows it. The block has no border of its own, so inheriting fills it exactly. */
     border-start-start-radius: inherit;
     border-end-start-radius: inherit;
+  }
+
+  .e-code-body:dir(rtl) {
+    --_end: left;
+    --_toward-end: to right;
   }
 
   .e-code pre {
