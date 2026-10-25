@@ -66,6 +66,17 @@ index.ts         export { default as EStamp } from "./EStamp.vue";   (plus expor
 
 `EButton` is the model.
 
+### Adding a component
+
+`pnpm new:component Stamp --layer e.primitives` (the layer defaults to `e.primitives`; see CSS below) writes the four files with the required README sections and props-table markers, adds an empty `EStamp` entry to `packages/vue/test/ssr/fixtures.ts`, and regenerates `src/index.ts`, `component-names.ts`, `globals.ts` and the props table. Then:
+
+1. Write the component, its tests (keyboard and axe for every state) and the README's TODOs.
+2. In `test/ssr/fixtures.ts`, give it the props it needs to render on the server, or delete the empty entry. That one table feeds the hydration test and `pnpm ssr`.
+3. Accept the new export in the public API snapshots: `pnpm --filter @eos-ui/vue exec vitest run test/public-api.test.ts -u`, and check the diff of `test/public-api.txt` and `test/public-types.txt`.
+4. `pnpm changeset` (a `minor`), then `pnpm check:source`, `pnpm lint` and `pnpm test`.
+
+Nothing else lists the components by hand: the build entries, the resolver, the global types, `llms.txt` and the size report read the folders. Exports that are not a component or a composable (the plugin, config, messages, icons, themes) are written by hand in `src/core.ts`, which the generated index re-exports.
+
 ### Naming
 
 - Components are `E` + a name: `EStamp`. One word where it reads well. `*Field` is a labelled input built on `EField`, `*Picker` chooses from a popup, `*Group` is a fieldset of choices, `*Row` is a compact line, `*Card` is a bordered summary, `*List` repeats items. The folder is the name without the prefix.
