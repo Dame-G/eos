@@ -43,16 +43,15 @@ The Vue package reads the built tokens (`packages/tokens/dist`). `pnpm build`, `
 
 While working on one component, run from `packages/vue` (these need `pnpm build` or `pnpm test` to have built the tokens once):
 
-| Command                                 | Use                                                                      |
-| --------------------------------------- | ------------------------------------------------------------------------ |
-| `npx vitest run src/components/Stamp`   | that component's tests                                                   |
-| `node scripts/check-css.mjs`            | every rule is inside `@layer e.*`, no `!important`, no raw z-index       |
-| `node scripts/check-layers.mjs`         | a component only uses components of its own layer or an earlier one      |
-| `npx vue-tsc --noEmit -p tsconfig.json` | types, including `.vue` files                                            |
-| `node scripts/gen-index.mjs`            | rewrites `src/index.ts` from what is on disk (never edit `src/index.ts`) |
-| `node scripts/gen-props.mjs`            | rewrites every README's props table from the component source            |
-| `node scripts/gen-props.mjs --check`    | fails if a props table is out of date (CI runs it as `check:props`)      |
-| `node scripts/check-docs.mjs`           | README links, bare URLs, table pipes, icon names (CI: `check:docs`)      |
+| Command                                 | Use                                                                                                     |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `npx vitest run src/components/Stamp`   | that component's tests                                                                                  |
+| `node scripts/check-css.mjs`            | the CSS rules: layer membership and order, no selector repeated across files, no inset ring over a fill |
+| `npx vue-tsc --noEmit -p tsconfig.json` | types, including `.vue` files                                                                           |
+| `node scripts/gen-index.mjs`            | rewrites `src/index.ts` from what is on disk (never edit `src/index.ts`)                                |
+| `node scripts/gen-props.mjs`            | rewrites every README's props table from the component source                                           |
+| `node scripts/gen-props.mjs --check`    | fails if a props table is out of date (CI runs it as `check:props`)                                     |
+| `node scripts/check-docs.mjs`           | README links, bare URLs, table pipes, icon names (CI: `check:docs`)                                     |
 
 ## A component
 
@@ -193,7 +192,7 @@ Spacing has a semantic layer on top of the `space-N` scale (4, 8, 12, 16, 20, 24
 - **A toolbar is a wrapping cluster.** `display: flex; flex-wrap: wrap; gap: var(--e-gap-snug)`, row gap included. Below `26rem` of the component's own container, inputs and selects take the full row (`flex: 1 1 100%`) and a pager stacks above its range text, so nothing is squeezed and everything stays aligned to one left edge.
 - **Tap spacing.** Every target is at least `--e-tap` (44px) square and at least `gap-snug` from the next one.
 - **Phones.** The page gutter is `gutter-min`; a container keeps its `pad-card`. Never go below `pad-control-sm` to fit something in; wrap or stack it.
-- **No literals.** `node scripts/check-css.mjs --spacing` (in `packages/vue`) lists raw lengths in `gap`, `padding` and `margin`.
+- **No literals.** `pnpm --filter @eos-ui/vue report:spacing` lists raw lengths in `gap`, `padding` and `margin`.
 
 ### Type
 
