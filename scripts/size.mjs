@@ -1,11 +1,19 @@
 import { readFileSync, readdirSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
 import { sourceStyles } from "../packages/vue/scripts/css-lib.mjs";
 
-const dist = join(dirname(fileURLToPath(import.meta.url)), "..", "packages", "vue", "dist");
+const pkg = join(dirname(fileURLToPath(import.meta.url)), "..", "packages", "vue");
+const dist = join(pkg, "dist");
 const gzip = (file) => gzipSync(readFileSync(file)).length;
+
+// The JavaScript ships unminified (a consumer's bundler minifies it), so it is measured as a production bundle would
+// carry it: minified with the minifier Vite builds with (rolldown's, through Vite), then gzipped. The CSS ships minified.
+const fromVite = createRequire(createRequire(join(pkg, "package.json")).resolve("vite"));
+const { minifySync } = await import(pathToFileURL(fromVite.resolve("rolldown/experimental")).href);
+const gzipMinified = (file) => gzipSync(minifySync(file, readFileSync(file, "utf8")).code).length;
 
 const jsFiles = (dir) =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -23,8 +31,9 @@ const jsFiles = (dir) =>
 // THE LIMITS: change a number here, nowhere else.
 const limits = {
   "style.css": 22000,
-  "index.js": 2250,
-  "all JavaScript files (each gzipped)": 183000,
+  // Minified here before gzip since the JavaScript ships unminified; rebased then with the headroom they had.
+  "index.js": 2100,
+  "all JavaScript files (each gzipped)": 144300,
 };
 
 // The per-component paths (`@eos-ui/vue/components/EButton`) are one-line re-exports, dist/components/<Name>/index.js.
@@ -33,10 +42,10 @@ const perComponentEntry = /[\\/]components[\\/][A-Za-z]+[\\/]index\.js$/;
 
 const sizes = {
   "style.css": gzip(join(dist, "style.css")),
-  "index.js": gzip(join(dist, "index.js")),
+  "index.js": gzipMinified(join(dist, "index.js")),
   "all JavaScript files (each gzipped)": jsFiles(dist)
     .filter((f) => !perComponentEntry.test(f))
-    .reduce((sum, f) => sum + gzip(f), 0),
+    .reduce((sum, f) => sum + gzipMinified(f), 0),
 };
 
 const json = process.argv.includes("--json");

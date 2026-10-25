@@ -65,9 +65,12 @@ root.walkRules((rule) => {
 if (!gated) problems.push("no hover rule was found inside @media (hover: hover); the hover plugin may not have run");
 
 // 4. The development check reads NODE_ENV in the consumer's build. Vite would freeze import.meta.env while building the library.
+// The JavaScript ships unminified, comments and all, so these checks read the code with its block and line comments
+// taken out (a line comment is `//` after the start of a line or a space, so a URL in a string survives).
+const uncommented = (text) => text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|\s)\/\/.*$/gm, "$1");
 const envFile = join(pkgRoot, "dist", "env.js");
 if (!existsSync(envFile)) problems.push("dist/env.js is missing");
-else if (!readFileSync(envFile, "utf8").includes("process.env.NODE_ENV"))
+else if (!uncommented(readFileSync(envFile, "utf8")).includes("process.env.NODE_ENV"))
   problems.push("dist/env.js no longer reads process.env.NODE_ENV");
 // Bundle it as a consumer's app would, once per NODE_ENV, and run the result: production must say true, development false.
 // Nothing in the bundle may still read `process`, which a browser does not have.
@@ -84,7 +87,8 @@ if (existsSync(envFile)) {
       },
     });
     const code = (Array.isArray(out) ? out[0] : out).output[0].code;
-    if (/\bprocess\b/.test(code)) problems.push(`dist/env.js bundled for ${mode} still reads process: ${code.trim()}`);
+    if (/\bprocess\b/.test(uncommented(code)))
+      problems.push(`dist/env.js bundled for ${mode} still reads process: ${code.trim()}`);
     const { isProduction } = await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`);
     if (isProduction() !== (mode === "production"))
       problems.push(`dist/env.js bundled with NODE_ENV=${mode} gives isProduction() === ${isProduction()}`);
@@ -92,7 +96,7 @@ if (existsSync(envFile)) {
 }
 for (const name of ["plugin.js", "config.js", "env.js"]) {
   const path = join(pkgRoot, "dist", name);
-  if (existsSync(path) && readFileSync(path, "utf8").includes("import.meta.env"))
+  if (existsSync(path) && uncommented(readFileSync(path, "utf8")).includes("import.meta.env"))
     problems.push(`dist/${name} reads import.meta.env, which the build freezes`);
 }
 
@@ -109,7 +113,16 @@ const pluginTypes = join(pkgRoot, "dist", "plugin.d.ts");
 if (!existsSync(pluginTypes) || !readFileSync(pluginTypes, "utf8").includes("$e"))
   problems.push("dist/plugin.d.ts does not declare $e");
 
-// 6. The built-in icon set (about 9 kB gzipped) is in a bundle that imports the package entry, and not in one that imports
+// 6. Every component has its own path, `@eos-ui/vue/components/E<Name>` -> dist/components/<Name>/index.js and .d.ts.
+const componentsDir = join(pkgRoot, "src", "components");
+for (const name of readdirSync(componentsDir)) {
+  if (!existsSync(join(componentsDir, name, "index.ts"))) continue;
+  for (const ext of ["js", "d.ts"])
+    if (!existsSync(join(pkgRoot, "dist", "components", name, `index.${ext}`)))
+      problems.push(`dist/components/${name}/index.${ext} is missing (@eos-ui/vue/components/E${name})`);
+}
+
+// 7. The built-in icon set (about 9 kB gzipped) is in a bundle that imports the package entry, and not in one that imports
 // only per-component paths (`@eos-ui/vue/components/EButton`, `@eos-ui/vue/plugin`). The bundler reads the package's
 // `sideEffects`, so the files are bundled from inside the package directory, as a consumer's bundler would see them.
 const iconMarker = readFileSync(join(pkgRoot, "dist", "icons", "phosphor.js"), "utf8").match(/M[0-9.,]{12}/)?.[0];
@@ -135,15 +148,6 @@ const bundleOf = async (code) => {
     rmSync(work, { recursive: true, force: true });
   }
 };
-// 7. Every component has its own path, `@eos-ui/vue/components/E<Name>` -> dist/components/<Name>/index.js and .d.ts.
-const componentsDir = join(pkgRoot, "src", "components");
-for (const name of readdirSync(componentsDir)) {
-  if (!existsSync(join(componentsDir, name, "index.ts"))) continue;
-  for (const ext of ["js", "d.ts"])
-    if (!existsSync(join(pkgRoot, "dist", "components", name, `index.${ext}`)))
-      problems.push(`dist/components/${name}/index.${ext} is missing (@eos-ui/vue/components/E${name})`);
-}
-
 if (!iconMarker) problems.push("dist/icons/phosphor.js has no path data to look for");
 else {
   const dist = (p) => JSON.stringify("../" + p);
