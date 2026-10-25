@@ -1,5 +1,14 @@
 # @eos-ui/vue
 
+## 0.17.1
+
+### Patch Changes
+
+- 98b3901: ESlider: the thumb has a page-surface face on its primary slab instead of black, and its bottom corners take taller vertical radii so the sides keep their full width.
+- 64f27d3: Generated ids can no longer collide with the ids a component derives from another generated id. The path Vue builds (`v-0-0`) had its dashes turned into underscores in `useUid`: one component's first option was `e-v-0-0` plus `-0`, and a component in a later async boundary of the same page was `e-v-0-0-0` itself, so a label's `for` pointed at the wrong control (on the docs site, clicking the Masonry switch of the Grid demo selected the Light option of the preview colour scheme instead).
+- Updated dependencies [e5fc23f]
+  - @eos-ui/tokens@0.17.1
+
 ## 0.17.0
 
 ### Minor Changes
