@@ -398,7 +398,7 @@ describe("EUpload", () => {
     );
     const bad = await render(EUpload, { props: { label: "Card", hint: "Hint", error: "File too large" } });
     expect(bad.container.querySelector(".e-field-hint")).toBeNull();
-    expect(bad.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(bad.container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
     expect(bad.container.querySelector("input")!.getAttribute("aria-invalid")).toBe("true");
   });
 

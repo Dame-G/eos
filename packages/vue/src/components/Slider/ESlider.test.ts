@@ -120,7 +120,7 @@ describe("ESlider", () => {
     await expect.element(page.getByRole("slider", { name: /Volume/ })).toHaveAccessibleDescription("0 to 100");
     const bad = await render(ESlider, { props: { label: "Loud", error: "Too loud" } });
     expect(bad.container.querySelector("[role=slider]")!.getAttribute("aria-invalid")).toBe("true");
-    expect(bad.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(bad.container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
   });
 
   test("name posts one hidden input per thumb, and a disabled slider posts nothing", async () => {

@@ -343,7 +343,7 @@ describe("ENumberField", () => {
     const bad = await render(ENumberField, { props: { label: "Visits", error: "Too many", required: true } });
     expect(bad.container.querySelector("input")!.getAttribute("aria-invalid")).toBe("true");
     expect(bad.container.querySelector(".e-input-wrap")!.hasAttribute("data-invalid")).toBe(true);
-    expect(bad.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(bad.container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
     expect(bad.container.querySelector(".e-field-flag")!.textContent).toBe("Required");
     const opt = await render(ENumberField, { props: { label: "Visits", optional: true } });
     expect(opt.container.querySelector(".e-field-flag")!.textContent).toBe("Optional");

@@ -10,9 +10,10 @@ export interface FormIssue {
 </script>
 
 <script setup lang="ts">
-import { nextTick, provide, ref, shallowReactive, watch } from "vue";
+import { nextTick, onBeforeUnmount, provide, ref, shallowReactive, watch } from "vue";
 import ENotice from "../Notice/ENotice.vue";
 import { useMessages } from "../../config.js";
+import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { FORM_KEY, type FormFieldEntry } from "../../composables/useFormContext.js";
 import "../../styles/base.css";
 
@@ -43,15 +44,38 @@ defineSlots<{
 }>();
 
 const t = useMessages();
+const { announce: say } = useAnnouncer();
 const form = ref<HTMLFormElement | null>(null);
 const notice = ref<{ $el: HTMLElement } | null>(null);
 const fields = shallowReactive(new Set<FormFieldEntry>());
 const issues = ref<FormIssue[]>([]);
 
+/**
+ * The fields' errors that appear in one turn are said together, once the turn is over. A failed submit that shows the
+ * summary says nothing more: the summary is an alert and takes focus, so it is the one announcement.
+ */
+let heard: string[] = [];
+let summarySpoke = false;
+let turn: ReturnType<typeof setTimeout> | undefined;
+function endTurn() {
+  turn ??= setTimeout(() => {
+    turn = undefined;
+    const words = summarySpoke ? [] : heard;
+    heard = [];
+    summarySpoke = false;
+    if (words.length) say(words.join(". "), { assertive: true });
+  }, 0);
+}
+onBeforeUnmount(() => clearTimeout(turn));
+
 provide(FORM_KEY, {
   register(entry) {
     fields.add(entry);
     return () => fields.delete(entry);
+  },
+  announce(message) {
+    heard.push(message);
+    endTurn();
   },
 });
 
@@ -94,12 +118,22 @@ function collect(): Found[] {
 }
 const strip = ({ id, label, message }: Found): FormIssue => ({ id, label, message });
 
-/** Updates the list while the summary is up, so a fixed field drops out of it. */
+/** Updates the list while the summary is up, so a fixed field drops out of it: once a frame however many keys or checks change. */
+let frame = 0;
 function refresh() {
-  if (issues.value.length) issues.value = collect().map(strip);
+  if (!issues.value.length || frame) return;
+  frame = requestAnimationFrame(() => {
+    frame = 0;
+    if (issues.value.length) issues.value = collect().map(strip);
+  });
 }
-// A Select or a group changes no native input the form hears, so the list also follows the fields' own checks.
-watch(() => [...fields].map((f) => [f.error(), f.check?.()].join("\t")).join("\n"), refresh);
+onBeforeUnmount(() => cancelAnimationFrame(frame));
+// A Select or a group changes no native input the form hears, so the list also follows the fields' own checks, which
+// read reactive state. They are read only while the summary is up.
+watch(
+  () => (issues.value.length ? [...fields].map((f) => [f.error(), f.check?.()].join("\t")).join("\n") : ""),
+  refresh,
+);
 // A server's answer: the form stops submitting and the fields now carry errors.
 watch(
   () => props.submitting,
@@ -130,6 +164,10 @@ function focusField(id: string) {
 async function show(found: Found[]) {
   issues.value = found.map(strip);
   if (!found.length) return;
+  if (props.summary) {
+    summarySpoke = true;
+    endTurn();
+  }
   await nextTick();
   if (props.focusTarget === "field" || !props.summary) focusEl(found[0]!.el);
   else notice.value?.$el.focus();

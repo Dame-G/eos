@@ -208,7 +208,7 @@ describe("ESignaturePad", () => {
     expect(container.querySelector(".e-pad-surface")!.hasAttribute("data-invalid")).toBe(true);
     expect(canvas.getAttribute("aria-describedby")).toBe("p-hint p-msg");
     const msg = container.querySelector("#p-msg")!;
-    expect(msg.getAttribute("role")).toBe("alert");
+    expect(msg.hasAttribute("role")).toBe(false);
     expect(msg.textContent).toContain("Sign here");
     expect(container.querySelector(".e-pad-surface")!.hasAttribute("data-invalid")).toBe(true);
     expect(container.textContent).not.toContain("Sign inside the box");

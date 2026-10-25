@@ -90,7 +90,7 @@ describe("ECheckbox", () => {
     input.focus();
     error.value = "You must agree";
     await nextTick();
-    await expect.element(page.getByRole("alert")).toBeVisible();
+    expect(container.querySelector(".e-field-error")!.textContent).toContain("You must agree");
     expect(container.firstElementChild).toBe(root);
     expect(container.querySelector("input")).toBe(input);
     expect(document.activeElement).toBe(input);
@@ -114,7 +114,7 @@ describe("ECheckbox", () => {
     const error = container.querySelector(".e-field-error")!;
     expect(input.getAttribute("aria-invalid")).toBe("true");
     expect(input.getAttribute("aria-describedby")).toBe(error.id);
-    expect(error.getAttribute("role")).toBe("alert");
+    expect(error.hasAttribute("role")).toBe(false);
     expect(container.firstElementChild!.className).toBe("e-choice-wrap");
     expect(error.getBoundingClientRect().top - input.getBoundingClientRect().bottom).toBe(8);
     await expect.element(page.getByRole("checkbox", { name: "Agree" })).toHaveAccessibleDescription("You must agree");

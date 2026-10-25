@@ -298,7 +298,7 @@ describe("ESelect", () => {
       error: "Choose a method",
     });
     await expect.poll(() => button.getAttribute("aria-invalid")).toBe("true");
-    expect(container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
     expect(container.querySelector(".e-field-hint")).toBeNull();
     expect(button.getAttribute("aria-describedby")).toBe(container.querySelector(".e-field-error")!.id);
   });

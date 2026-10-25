@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, ref } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EField from "./EField.vue";
@@ -71,12 +71,22 @@ describe("EField", () => {
     });
     expect(container.querySelector(".e-field-hint")).toBeNull();
     const error = container.querySelector(".e-field-error")!;
-    expect(error.getAttribute("role")).toBe("alert");
+    expect(error.hasAttribute("role")).toBe(false);
     expect(error.querySelector("svg.e-icon")).not.toBeNull();
     const input = container.querySelector("input")!;
     expect(input.getAttribute("aria-invalid")).toBe("true");
     expect(input.getAttribute("aria-describedby")).toBe(error.id);
     await expect.element(page.getByRole("textbox", { name: "Email" })).toHaveAccessibleDescription("Enter an email");
+  });
+
+  test("an error there on load is not announced; one that appears or changes later is, once", async () => {
+    const region = () => document.querySelector('[data-e-announcer="assertive"]')?.textContent ?? "";
+    const error = ref<string | undefined>("Already wrong");
+    await render(defineComponent({ render: () => h(EField, { label: "Email", error: error.value }, { default: control }) }));
+    await new Promise((r) => setTimeout(r, 120));
+    expect(region()).not.toContain("Already wrong");
+    error.value = "Enter an email";
+    await expect.poll(region).toContain("Enter an email");
   });
 
   test("without a hint or error the control has no aria-describedby and no aria-invalid", async () => {

@@ -143,7 +143,7 @@ describe("ESwitch", () => {
   test("an error marks the switch invalid and is announced", async () => {
     const { container } = await render(ESwitch, { props: { label: "Reminders", error: "Turn this on" } });
     expect(container.querySelector("input")!.getAttribute("aria-invalid")).toBe("true");
-    expect(container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
   });
 
   test("readonly keeps the state and blocks the flip", async () => {

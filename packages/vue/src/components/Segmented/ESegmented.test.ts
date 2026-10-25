@@ -182,7 +182,7 @@ describe("ESegmented", () => {
     await expect.element(page.getByRole("radiogroup", { name: "View" })).toHaveAccessibleDescription("Pick a range");
 
     const bad = await render(ESegmented, { props: { label: "View2", options, error: "Choose one" } });
-    expect(bad.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(bad.container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
   });
 
   test("optional adds the word to the group's accessible name", async () => {

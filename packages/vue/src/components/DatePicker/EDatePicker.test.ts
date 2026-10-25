@@ -96,7 +96,7 @@ describe("EDatePicker", () => {
     await expect.poll(() => container.querySelector(".e-field-error")).not.toBeNull();
     const error = container.querySelector(".e-field-error")!;
     expect(error.textContent).toMatch(/Enter a date as MM\/DD\/YYYY\./);
-    expect(error.getAttribute("role")).toBe("alert");
+    expect(error.hasAttribute("role")).toBe(false);
     expect(input.getAttribute("aria-invalid")).toBe("true");
     expect(input.getAttribute("aria-describedby")).toBe(error.id);
     expect(container.querySelector(".e-input-wrap")!.hasAttribute("data-invalid")).toBe(true);

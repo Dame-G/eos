@@ -1,7 +1,7 @@
 // @internal: shared by the components, not exported from the package (see scripts/gen-index.mjs).
 import { ref, type Ref } from "vue";
 import { useFieldAttrs, type DescribedBy } from "./useFieldAttrs.js";
-import type { EFieldSize } from "../components/Field/fieldProps.js";
+import { sizeAttr, type EFieldSize } from "../components/Field/fieldProps.js";
 
 /** The scope EField gives its default slot. */
 export interface FieldSlot {
@@ -38,7 +38,6 @@ export interface FieldControlProps {
 export function useFieldControl<El extends HTMLElement = HTMLInputElement>(props: FieldControlProps) {
   const attrs = useFieldAttrs();
   const input = ref<El | null>(null) as Ref<El | null>;
-  const size = () => (props.size && props.size !== "md" ? props.size : undefined);
   return {
     attrs,
     input,
@@ -58,7 +57,7 @@ export function useFieldControl<El extends HTMLElement = HTMLInputElement>(props
       readonly: props.readonly,
       "aria-invalid": field.ariaInvalid,
       "aria-busy": props.loading || undefined,
-      "data-size": size(),
+      "data-size": sizeAttr(props.size),
       ...attrs.input([...describedby, field.ariaDescribedby]),
     }),
     /** A hidden input that posts the value under `name`. Disabled, it posts nothing; `form` puts it in a form it is not inside. */

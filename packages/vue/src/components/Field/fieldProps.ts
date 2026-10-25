@@ -28,3 +28,7 @@ export interface EFieldBoxProps {
   /** Shows a spinner at the end of the box and sets `aria-busy`, while options or a check load. The field stays editable. */
   loading?: boolean;
 }
+
+/** The `data-size` attribute for a size: `md` is the default and writes none. */
+export const sizeAttr = (size: EFieldSize | undefined): "sm" | "lg" | undefined =>
+  size && size !== "md" ? size : undefined;

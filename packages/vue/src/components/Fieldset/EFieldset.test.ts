@@ -112,7 +112,7 @@ describe("EFieldset", () => {
     });
     const errorEl = bad.container.querySelector(".e-field-error")!;
     expect(bad.container.querySelector(".e-field-hint")).toBeNull();
-    expect(errorEl.getAttribute("role")).toBe("alert");
+    expect(errorEl.hasAttribute("role")).toBe(false);
     expect(bad.container.querySelector("fieldset")!.hasAttribute("aria-invalid")).toBe(false);
     expect(bad.container.querySelector("fieldset")!.getAttribute("aria-describedby")).toBe(errorEl.id);
   });

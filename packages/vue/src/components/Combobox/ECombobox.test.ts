@@ -472,7 +472,7 @@ describe("ECombobox", () => {
     });
     await expect.poll(() => input.getAttribute("aria-invalid")).toBe("true");
     expect(container.querySelector(".e-input-wrap")!.hasAttribute("data-invalid")).toBe(true);
-    expect(container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
   });
 
   test("disabled: the input is disabled, the field is dashed, the list never opens", async () => {

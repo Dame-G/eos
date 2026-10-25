@@ -154,7 +154,7 @@ describe("ERadioGroup", () => {
       props: { label: "Reminder2", hint: "Pick one", error: "Choose a way", options: ["Text"] },
     });
     expect(bad.container.querySelector(".e-field-hint")).toBeNull();
-    expect(bad.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(bad.container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
     expect(bad.container.querySelector("input")!.getAttribute("aria-invalid")).toBe("true");
   });
 
@@ -213,13 +213,12 @@ describe("ERadioGroup", () => {
     );
     container.classList.add("e-root");
     expect(container.querySelectorAll(".rv").length).toBe(0);
-    expect(container.querySelector(".e-choice--open")).toBeNull();
+    expect(container.querySelector(".e-choice-reveal")).toBeNull();
     await page.getByRole("radio", { name: "Part" }).click({ force: true });
     expect(container.querySelectorAll(".rv").length).toBe(1);
-    const open = container.querySelector(".e-choice--open")!;
-    expect(open.textContent).toContain("Part");
     const reveal = container.querySelector(".e-choice-reveal")!;
-    expect(open.nextElementSibling).toBe(reveal);
+    const open = reveal.previousElementSibling!;
+    expect(open.textContent).toContain("Part");
     const fs = container.querySelector("fieldset")!.getBoundingClientRect();
     expect(reveal.getBoundingClientRect().width).toBe(fs.width);
     expect(getComputedStyle(reveal).paddingTop).toBe("4px");
@@ -234,7 +233,6 @@ describe("ERadioGroup", () => {
       props: { label: "Pay", modelValue: "full", options: ["full", "part"] },
       slots: { reveal: () => null },
     });
-    expect(container.querySelector(".e-choice--open")).toBeNull();
     expect(container.querySelector(".e-choice-reveal")).toBeNull();
   });
 

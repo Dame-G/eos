@@ -1,16 +1,16 @@
 import { normalizeOptions, type EOption, type EOptionInput } from "../Select/options.js";
 
-/** One choice in a `ERadioGroup`. */
-export type RadioOption<T extends string = string> = Pick<EOption, "label" | "description" | "disabled"> & {
+/** One choice in an `ERadioGroup` or `ECheckboxGroup`. */
+export type ChoiceOption<T extends string = string> = Pick<EOption, "label" | "description" | "disabled"> & {
   value: T;
 };
 
-/** One choice in an `ESegmented`. */
+/** One choice in an `ESegmented`: an icon in place of the description. */
 export type SegmentedOption<T extends string = string> = Pick<EOption, "label" | "icon" | "disabled"> & {
   value: T;
 };
 
-/** The choices of `ERadioGroup` and `ESegmented`: the same normalizer as `ESelect`, so a string is both value and label. */
+/** The choices of `ERadioGroup`, `ECheckboxGroup` and `ESegmented`: the same normalizer as `ESelect`, so a string is both value and label. */
 type ChoiceInput<T extends Partial<EOption> = EOption> = string | T;
 
 /** Turns strings into `{ value, label }` objects and leaves objects as they are. */

@@ -4,7 +4,7 @@ Functions to call inside `setup()`. Each one documented here is exported from `@
 
 ## Conventions
 
-- One composable per file: `useThing.ts` exports `useThing` (and its types). A helper that is not a composable (`focusInside`, from `useFocusInside.ts`) lives here too when components share it. `scripts/gen-index.mjs` exports each name from the package, except one marked `@internal` in its JSDoc, or a whole file whose first line is `// @internal`. Mark a helper the components share but apps should not depend on (`useDetails`, `useFieldControl`, `useFormField`) that way, so it can change without a breaking release.
+- One composable per file: `useThing.ts` exports `useThing` (and its types). A helper that is not a composable (`focusInside`, from `useFocusInside.ts`) lives here too when components share it. `scripts/gen-index.mjs` exports each name from the package, except one marked `@internal` in its JSDoc, or a whole file whose first line is `// @internal`. Mark a helper the components share but apps should not depend on (`useDetails`, `useFieldControl`) that way, so it can change without a breaking release.
 - Each has a test next to it (`useThing.test.ts`) that runs in a real browser.
 - Safe for the server: touch `window`, `document` and the clipboard only inside `onMounted` or an event handler, and do nothing when they are missing.
 - Take reactive input as `MaybeRefOrGetter`, read it with `toValue`, and return refs or computeds, so callers can pass props directly.
@@ -125,6 +125,20 @@ A click handler for a boxed input: a click on the padding or an icon puts the cu
 ## `useFieldAttrs()`
 
 For a form control built on `EField`: keeps `class` and `style` on the wrapper and sends every other attribute to the real input. Use it with `defineOptions({ inheritAttrs: false })`. A control made of several inputs puts `group()` on the element around them: the consumer's `@focus` and `@blur` then fire when focus enters or leaves the group.
+
+## `useFormField(entry)` (`useFormContext.ts`)
+
+Joins a custom control to the [`EForm`](../components/Form/README.md) around it, so the error summary lists it and focuses it from its link. Outside a form it does nothing. The entry is getters, read when the form checks:
+
+```ts
+useFormField({
+  id: () => id.value, // the element the summary links to and focuses
+  label: () => props.label,
+  error: () => props.error,
+  // optional: a check the browser cannot make, read from reactive state
+  check: () => (props.required && !value.value ? "Choose a colour." : undefined),
+});
+```
 
 ## `useQuietFocus(open, inside)`
 

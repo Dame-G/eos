@@ -250,7 +250,7 @@ describe("EOtpField", () => {
     const hintId = hinted.container.querySelector(".e-field-hint")!.id;
     expect(boxesOf(hinted.container).every((b) => b.getAttribute("aria-describedby") === hintId)).toBe(true);
     const bad = await render(EOtpField, { props: { label: "Code", error: "Wrong code" } });
-    expect(bad.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(bad.container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
     expect(boxesOf(bad.container).every((b) => b.getAttribute("aria-invalid") === "true")).toBe(true);
     const errorId = bad.container.querySelector(".e-field-error")!.id;
     expect(boxesOf(bad.container).every((b) => b.getAttribute("aria-describedby") === errorId)).toBe(true);
