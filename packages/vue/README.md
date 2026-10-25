@@ -54,7 +54,7 @@ const email = ref("");
 
 ## Nuxt
 
-Import the stylesheet in `nuxt.config.ts`, install the plugin in a Nuxt plugin, and put the theme into the server-rendered `<head>` with `themeCss()`. The plugin applies the theme only in a browser, so without the `<style>` the first paint is unthemed.
+Import the stylesheet in `nuxt.config.ts`, install the plugin in a Nuxt plugin, and put the theme into the server-rendered `<head>` with `themeCss()`. `createEos` touches the document only in a browser: with a `theme` it adds the theme as a stylesheet once the app is installed, so without the `<style>` the first paint is unthemed.
 
 ```ts
 // nuxt.config.ts
@@ -63,16 +63,20 @@ export default defineNuxtConfig({ css: ["@eos-ui/vue/style.css"] });
 
 ```ts
 // plugins/eos.ts
-import { createEos, themeCss } from "@eos-ui/vue";
+import { createEos, defineTheme, themeCss } from "@eos-ui/vue";
 
-const theme = { brand: "#2c95b4", radius: "round" } as const;
+const theme = defineTheme({ brand: "#2c95b4", radius: "round" });
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.use(createEos({ locale: "en-CA", currency: "CAD", theme }));
-  useHead({ style: [{ id: "eos-theme", innerHTML: themeCss(theme) }] });
+  // The <style> below carries the theme on the server and in the browser, so the plugin adds no second copy.
+  nuxtApp.vueApp.use(createEos({ locale: "en-CA", currency: "CAD", theme, applyTheme: false }));
+  useHead({
+    style: [{ id: "eos-theme", innerHTML: themeCss(theme) }],
+    htmlAttrs: { lang: "en-CA", dir: "ltr" },
+  });
 });
 ```
 
-Components render on the server without a `document`. Pass the same `theme` to `createEos` and `themeCss` so the server and the client agree.
+Components render on the server without a `document`. Build the theme once with `defineTheme` and give the same one to `createEos` and `themeCss`, so the server and the browser agree. `applyTheme: false` is not required: without it the browser also gets the plugin's own copy of the theme, scoped to `:root[data-e-theme]`, which is the same tokens again. The plugin sets `lang` and `dir` on `<html>` only in a browser, so set them for the server with `htmlAttrs`.
 
 [Source, issues and contributing](https://github.com/Dame-G/eos). MIT licensed.
