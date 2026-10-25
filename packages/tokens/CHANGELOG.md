@@ -1,5 +1,11 @@
 # @eos-ui/tokens
 
+## 0.17.1
+
+### Patch Changes
+
+- e5fc23f: `surface-tint` in a dark theme carries the same light touch of the brand hue as in a light one (chroma 0.02, up from 0.01; never more than the brand has), and the hover and press fills follow.
+
 ## 0.17.0
 
 ### Minor Changes
