@@ -6,6 +6,7 @@
 //   layer-dependency   a component uses only components of its own layer or an earlier one
 //   duplicate-selector a selector is laid out in one stylesheet per layer, not repeated across files
 //   inset-ring-on-fill an edge is not drawn as an inset shadow over a strong fill
+//   base-component-class base.css names no component class, except in a :where() list of defaults
 //
 // Run: node scripts/check-css.mjs   (CI: `pnpm check:source`)
 import { readdirSync, readFileSync } from "node:fs";
@@ -106,6 +107,37 @@ for (const { file, root } of sheets) {
         "inset-ring-on-fill",
         `${at(file, ring)}: ${rule.selector.replace(/\s+/g, " ")} draws its edge as an inset shadow over a fill; use a border with background-clip: padding-box`,
       );
+  });
+}
+
+// base-component-class: src/styles/base.css holds the root, the shared utilities and the recipes. It sits in the first
+// layer, so a rule there that names a component's class loses to every rule of the component's own layer: an override
+// written there (a forced-colours border, say) is silently dead. A component's class belongs in its own stylesheet. The
+// one exception is a :where() list of defaults (focus, user-select), which is meant to lose.
+const BASE_CLASSES = new Set(["e-root", "e-interact", "e-interact--inset", "e-kicker", "e-numeral", "e-numeral-l", "e-sr"]);
+const withoutWhere = (selector) => {
+  let out = "";
+  for (let i = 0; i < selector.length; i++) {
+    if (selector.startsWith(":where(", i)) {
+      let depth = 0;
+      for (i += ":where".length; i < selector.length; i++) {
+        if (selector[i] === "(") depth++;
+        else if (selector[i] === ")" && --depth === 0) break;
+      }
+    } else out += selector[i];
+  }
+  return out;
+};
+for (const { file, root } of sheets) {
+  if (file !== "src/styles/base.css") continue;
+  root.walkRules((rule) => {
+    for (const [, name] of withoutWhere(rule.selector).matchAll(/\.(e-[\w-]+)/g)) {
+      if (!BASE_CLASSES.has(name))
+        report(
+          "base-component-class",
+          `${at(file, rule)}: .${name} is a component's class; style it in the component's own stylesheet and layer`,
+        );
+    }
   });
 }
 

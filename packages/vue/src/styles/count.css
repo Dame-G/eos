@@ -13,7 +13,9 @@
   }
 
   @media (forced-colors: active) {
+    /* Forced again inside a selected tab, which opts out of forced colours to paint itself Highlight. */
     .e-count {
+      forced-color-adjust: auto;
       border-color: CanvasText;
     }
   }

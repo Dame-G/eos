@@ -178,6 +178,10 @@ defineExpose({ focus, focusFirst });
   }
 
   @media (forced-colors: active) {
+    .e-results {
+      outline: var(--e-stroke-edge) solid CanvasText;
+    }
+
     .e-results .e-opt:hover,
     .e-results .e-opt:focus-visible {
       forced-color-adjust: none;

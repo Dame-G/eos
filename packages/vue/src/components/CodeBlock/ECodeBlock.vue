@@ -181,5 +181,11 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
       display: none;
     }
   }
+
+  @media (forced-colors: active) {
+    .e-code {
+      outline: var(--e-stroke-edge) solid CanvasText;
+    }
+  }
 }
 </style>

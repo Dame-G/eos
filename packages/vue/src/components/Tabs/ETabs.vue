@@ -319,10 +319,19 @@ watch(current, () => reveal(true));
   }
 
   @media (forced-colors: active) {
+    .e-tablist {
+      border-bottom: var(--e-stroke-edge) solid CanvasText;
+    }
+
     .e-tab[aria-selected="true"] {
       forced-color-adjust: none;
+      border-color: Highlight;
       background: Highlight;
       color: HighlightText;
+    }
+
+    .e-tab:focus-visible {
+      outline-color: Highlight;
     }
   }
 }

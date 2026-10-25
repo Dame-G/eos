@@ -144,14 +144,35 @@ defineExpose(choice.exposed);
   }
 
   @media (forced-colors: active) {
+    .e-switch-track {
+      border-color: ButtonText;
+    }
+
     .e-switch-input:checked + .e-switch-track {
       forced-color-adjust: none;
+      border-color: Highlight;
       background: Highlight;
+    }
+
+    .e-switch-input:focus-visible + .e-switch-track {
+      outline-color: Highlight;
     }
 
     .e-switch-track::after {
       forced-color-adjust: none;
       background: ButtonText;
+    }
+
+    .e-switch-input:checked + .e-switch-track::after {
+      background: HighlightText;
+    }
+
+    .e-switch-input:disabled + .e-switch-track {
+      outline-color: GrayText;
+    }
+
+    .e-switch-input:disabled + .e-switch-track::after {
+      background: GrayText;
     }
   }
 

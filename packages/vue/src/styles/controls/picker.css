@@ -27,4 +27,10 @@
     position: relative;
     z-index: var(--e-z-popover);
   }
+
+  @media (forced-colors: active) {
+    .e-calpanel {
+      outline: var(--e-stroke-edge) solid CanvasText;
+    }
+  }
 }

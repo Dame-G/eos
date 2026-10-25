@@ -355,6 +355,11 @@ const groupAttrs = () => ({
   }
 
   @media (forced-colors: active) {
+    /* The well is a shadow, which forced colours drop, so the track draws a border. */
+    .e-seg {
+      border: var(--e-stroke-edge) solid ButtonText;
+    }
+
     .e-seg-input[data-on] + .e-seg-text {
       forced-color-adjust: none;
       background: Highlight;

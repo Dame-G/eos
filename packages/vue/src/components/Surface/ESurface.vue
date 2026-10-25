@@ -126,8 +126,9 @@ if (props.clip && slots.actions && !isProduction()) {
   }
 
   @media (forced-colors: active) {
+    /* The frame is a shadow, which forced colours drop, so the surface draws its edge as an outline. */
     .e-surface {
-      outline-color: CanvasText;
+      outline: var(--e-stroke-edge) solid CanvasText;
     }
   }
 }

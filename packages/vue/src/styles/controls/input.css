@@ -212,6 +212,22 @@
   }
 
   @media (forced-colors: active) {
+    .e-input,
+    .e-input-wrap {
+      border-color: ButtonText;
+    }
+
+    /* The danger edge is lost to the system colours, so an invalid box draws a heavier edge instead. */
+    .e-input[aria-invalid="true"],
+    .e-input-wrap[data-invalid] {
+      border-width: calc(2 * var(--e-stroke-edge));
+    }
+
+    .e-input:disabled,
+    .e-input-wrap[data-disabled] {
+      border-color: GrayText;
+    }
+
     .e-input:disabled,
     .e-input-wrap[data-disabled],
     .e-input::placeholder,
@@ -225,7 +241,8 @@
     }
 
     .e-input:focus-visible,
-    .e-input-wrap:focus-within {
+    .e-input-wrap:focus-within,
+    .e-input-btn:focus-visible {
       outline-color: Highlight;
     }
   }
