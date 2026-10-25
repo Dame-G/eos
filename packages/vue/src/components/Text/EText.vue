@@ -4,14 +4,14 @@ import type { ElementTag, Size, Tone } from "../../types.js";
 import { warnOnce } from "../../warn.js";
 import "../../styles/base.css";
 
-/** The colour of the text. `neutral` is the deprecated name of `muted`. */
-export type TextTone = "muted" | Extract<Tone, "neutral" | "info" | "success" | "warning" | "danger">;
+/** The colour of the text. Left out, it is the ink colour; `muted` is the quieter colour of secondary copy. */
+export type TextTone = "muted" | Extract<Tone, "info" | "success" | "warning" | "danger">;
 
 const props = withDefaults(
   defineProps<{
     /** `sm` for captions and fine print, `lg` for the one-sentence reading of a statement. `textScale` rescales both. */
     size?: Extract<Size, "sm" | "md" | "lg">;
-    /** The colour of the text. Left out, it is the ink colour. `muted` is the quieter colour of secondary copy. `neutral` is the deprecated name of `muted`. */
+    /** The colour of the text. Left out, it is the ink colour. `muted` is the quieter colour of secondary copy. */
     tone?: TextTone;
     /** Aligns the lines. `start` and `end` follow the writing direction. */
     align?: "start" | "center" | "end";
@@ -36,15 +36,11 @@ defineSlots<{
   default(): unknown;
 }>();
 
-if (props.tone === "neutral")
-  warnOnce("EText-neutral", 'EText tone="neutral" is renamed tone="muted"; neutral will mean the default ink.');
 if (props.truncate && props.lines)
   warnOnce("EText-truncate-lines", "EText takes `truncate` or `lines`, not both; `lines` wins.");
 
-/** Each tone's colour token. `neutral` is still read as `muted`. */
-const toneVar = (t: string) => `var(--e-${t === "neutral" ? "muted" : t})`;
 const style = computed(() => ({
-  "--_tone": props.tone && toneVar(props.tone),
+  "--_tone": props.tone && `var(--e-${props.tone})`,
   "--_measure": props.measure ? undefined : "none",
   "--_lines": props.lines,
   textAlign: props.align,

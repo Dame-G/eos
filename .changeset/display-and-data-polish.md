@@ -6,7 +6,7 @@ Display and data components: renames, a faster `EDataGrid`, and fixes.
 
 Breaking (rename or remove, then update every use):
 
-- `EDefinition` is renamed `EToggletip` (folder `Toggletip`, class `e-definition-term` is now `e-toggletip-term`). `EDefinition` still works for this minor as a deprecated alias that warns once in development.
+- `EDefinition` is renamed `EToggletip` (folder `Toggletip`, class `e-definition-term` is now `e-toggletip-term`). The name `EDefinition` is gone: import `EToggletip`.
 - `ETable` `size="sm"` is now the boolean `dense`. `EDataGrid` takes `dense` too.
 - `EContainer` `size` is renamed `width` (`sm`, `md`, `lg`, `full`).
 - `ESurface` `size` is removed. Set `padding` to a gap name, a space number or a CSS length (`size="lg"` was `padding="section"`; `size="sm"` was `padding="var(--e-gap-base) var(--e-pad-card)"`). Left out, the padding is `pad-card` as before. `flush` is padding 0 and wins over `padding`. The classes `e-surface--pad-sm|md|lg` are gone.
@@ -14,7 +14,7 @@ Breaking (rename or remove, then update every use):
 - `EDataGrid` `cards` is opt-in, as on `ETable`: pass `cards` to keep rows turning into cards below 40rem.
 - The message `codeCopied` is renamed `copied`.
 - The table classes `e-table-wrap--striped` and `e-table-wrap--dense` are now `e-table--striped` and `e-table--dense` on the `table`, and `e-gridtable--busy` is `e-table--busy`. The `ETable` and `EDataGrid` frame is drawn in `--e-border` (the grid used `--e-border-strong`).
-- `EText` and `EMetric` take `tone="muted"` for the quieter colour. `tone="neutral"` still renders muted for this minor and warns in development; it will mean the default ink. Across the library `neutral` means no tone, the default look.
+- `EText` and `EMetric` `tone="neutral"` is renamed `tone="muted"`, the quieter colour; `neutral` is no longer a value of either. Leave `tone` out for the default ink. Across the library `neutral` means no tone, the default look.
 
 Added:
 

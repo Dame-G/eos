@@ -26,7 +26,6 @@ declare module "vue" {
     ECurrencyField: typeof Library.ECurrencyField;
     EDataGrid: typeof Library.EDataGrid;
     EDatePicker: typeof Library.EDatePicker;
-    EDefinition: typeof Library.EDefinition;
     EDescriptionList: typeof Library.EDescriptionList;
     EDialog: typeof Library.EDialog;
     EDisclosure: typeof Library.EDisclosure;

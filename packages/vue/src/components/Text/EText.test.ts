@@ -80,23 +80,14 @@ describe("EText", () => {
     expect(free.container.querySelector("p")!.getBoundingClientRect().width).toBeGreaterThan(1300);
   });
 
-  test("tone muted is the quieter colour; neutral, its old name, warns and is still muted", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  test("tone muted is the quieter colour", async () => {
     const { container } = await render(
       defineComponent({
-        render: () =>
-          h("div", [
-            h(EText, { tone: "muted" }, () => "A"),
-            h(EText, { tone: "neutral" }, () => "B"),
-            h(EText, () => "C"),
-          ]),
+        render: () => h("div", [h(EText, { tone: "muted" }, () => "A"), h(EText, () => "B")]),
       }),
     );
-    const [a, b, c] = [...container.querySelectorAll("p")].map((p) => getComputedStyle(p).color);
-    expect(a).not.toBe(c);
-    expect(b).toBe(a);
-    expect(warn.mock.calls.some(([m]) => String(m).includes("muted"))).toBe(true);
-    warn.mockRestore();
+    const [a, b] = [...container.querySelectorAll("p")].map((p) => getComputedStyle(p).color);
+    expect(a).not.toBe(b);
   });
 
   test("truncate with lines warns, and lines wins", async () => {

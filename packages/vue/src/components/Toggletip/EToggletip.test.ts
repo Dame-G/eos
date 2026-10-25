@@ -1,9 +1,8 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EToggletip from "./EToggletip.vue";
-import EDefinition from "./EDefinition.js";
 import EButton from "../Button/EButton.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
@@ -251,16 +250,5 @@ describe("EToggletip", () => {
     expect(panel()!.querySelector(".e-pop-head")!.tagName).toBe("DIV");
     expect(page.getByRole("banner").elements()).toHaveLength(0);
     await expect.element(page.getByRole("dialog", { name: "Payment plan" })).toBeVisible();
-  });
-
-  test("EDefinition, the old name, renders the same toggletip and warns once", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const slots = { trigger: () => "APR", default: () => "The yearly cost of a loan." };
-    const a = await render(EDefinition, { props: { label: "About APR" }, slots });
-    const b = await render(EDefinition, { props: { label: "About APR" }, slots });
-    expect(triggerOf(a.container).textContent).toContain("APR");
-    expect(triggerOf(b.container)).not.toBeNull();
-    expect(warn.mock.calls.filter(([m]) => String(m).includes("EToggletip"))).toHaveLength(1);
-    warn.mockRestore();
   });
 });

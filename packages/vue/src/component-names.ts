@@ -21,7 +21,6 @@ export const componentNames: ReadonlySet<string> = new Set([
   "ECurrencyField",
   "EDataGrid",
   "EDatePicker",
-  "EDefinition",
   "EDescriptionList",
   "EDialog",
   "EDisclosure",
