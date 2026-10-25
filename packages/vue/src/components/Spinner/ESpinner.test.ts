@@ -1,26 +1,42 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, ref } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ESpinner from "./ESpinner.vue";
 import { createEos } from "../../plugin.js";
+import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ESpinner", () => {
-  test("without a label it reads Loading in a status region", async () => {
+  const polite = () => document.querySelector("[data-e-announcer=polite]")?.textContent ?? "";
+
+  test("without a label it reads Loading, and says it through the shared live region as it appears", async () => {
     const { container } = await render(ESpinner);
     const sr = container.querySelector(".e-sr")!;
     expect(sr.textContent).toBe("Loading");
-    expect(container.querySelector(".e-spinner")!.getAttribute("role")).toBe("status");
+    expect(container.querySelector(".e-spinner")!.hasAttribute("role")).toBe(false);
     expect(container.querySelector(".e-spinner-label")).toBeNull();
+    await expect.poll(polite).toContain("Loading");
   });
 
-  test("a label is shown and replaces the screen-reader text", async () => {
-    const { container } = await render(ESpinner, { props: { label: "Processing your payment" } });
+  test("a label is shown, replaces the screen-reader text and is announced, again when it changes", async () => {
+    const label = ref("Processing your payment");
+    const { container } = await render(defineComponent({ render: () => h(ESpinner, { label: label.value }) }));
     expect(container.querySelector(".e-spinner-label")!.textContent).toBe("Processing your payment");
     expect(container.querySelector(".e-sr")).toBeNull();
-    expect(container.querySelector(".e-spinner")!.getAttribute("role")).toBe("status");
     await expect.element(page.getByText("Processing your payment")).toBeVisible();
+    await expect.poll(polite).toContain("Processing your payment");
+    label.value = "Almost done";
+    await expect.poll(polite).toContain("Almost done");
+  });
+
+  test("silent leaves the announcement to the parent", async () => {
+    const { announce } = useAnnouncer();
+    announce("before");
+    await expect.poll(polite).toContain("before");
+    await render(ESpinner, { props: { label: "Searching", silent: true } });
+    await new Promise((r) => setTimeout(r, 120));
+    expect(polite()).not.toContain("Searching");
   });
 
   test("the ring is hidden from assistive technology and spins", async () => {

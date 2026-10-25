@@ -73,4 +73,23 @@ describe("EHighlight", () => {
     const without = await render(EHighlight, { props: { code: true }, slots: { default: "brand" } });
     expect(without.container.querySelector(".e-highlight-swatch")).toBeNull();
   });
+
+  test("the static markup is styled the same as the component", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("p", { class: "e-root" }, [
+            h(EHighlight, { code: true }, () => "brand"),
+            h("code", { class: "e-highlight e-highlight--code", innerHTML: "brand" }),
+            h(EHighlight, null, () => "due"),
+            h("mark", { class: "e-highlight", innerHTML: "due" }),
+          ]),
+      }),
+    );
+    const [a, b, c, d] = [...container.querySelectorAll<HTMLElement>(".e-highlight")].map((e) => getComputedStyle(e));
+    for (const p of ["color", "backgroundColor", "fontFamily", "fontSize", "fontWeight"] as const) {
+      expect(b![p]).toBe(a![p]);
+      expect(d![p]).toBe(c![p]);
+    }
+  });
 });

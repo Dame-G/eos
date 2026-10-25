@@ -17,16 +17,19 @@ import { TabsContent, TabsList, TabsRoot, TabsTrigger } from "reka-ui";
 import { useDir } from "../../composables/useDir.js";
 import { useReducedMotion } from "../../composables/useReducedMotion.js";
 import "../../styles/base.css";
+import "../../styles/count.css";
 
 const props = defineProps<{
   /** The tabs, in order: `{ id, label, count?, disabled? }`. Two to five across, with short labels. A vertical list can be longer. `id` is the `v-model` value and names the `panel-<id>` slot. */
-  items?: TabItem[];
+  items: TabItem[];
   /** Gives every tab an equal share of the width instead of its own. Use it in a narrow container where all tabs must fit. Labels truncate. @default false */
   fill?: boolean;
   /** `vertical` stacks the tabs in a column beside their panel, for a long list of sections or more tabs than fit across. `fill` has no effect. @default "horizontal" */
   orientation?: "horizontal" | "vertical";
   /** Which side of the panel a `vertical` list sits on: `start` is the left in a left-to-right page, `end` the right. It has no effect on a horizontal row. @default "start" */
   side?: "start" | "end";
+  /** Makes the tabs fill the height of their container, with the panel taking what is left and scrolling its own content: for tabs in a fixed-height panel or a side column. @default false */
+  stretch?: boolean;
   /** Names the row of tabs for screen readers. Needed when a page has more than one set of tabs. */
   label?: string;
 }>();
@@ -38,7 +41,7 @@ defineSlots<{
 }>();
 
 const slots = useSlots();
-const flat = computed(() => props.items ?? []);
+const flat = computed(() => props.items);
 /** A panel slot named by the bare id is still read, unless the id is a name the component owns. */
 const RESERVED = new Set(["panel", "default"]);
 const own = (id: string) => (slots[`panel-${id}`] ? `panel-${id}` : !RESERVED.has(id) && slots[id] ? id : null);
@@ -78,6 +81,7 @@ watch(current, () => reveal(true));
       'e-tabs--fill': fill,
       'e-tabs--vertical': orientation === 'vertical',
       'e-tabs--end': orientation === 'vertical' && side === 'end',
+      'e-tabs--stretch': stretch,
     }"
     :orientation="orientation ?? 'horizontal'"
     :model-value="current"
@@ -87,7 +91,7 @@ watch(current, () => reveal(true));
     <TabsList ref="list" class="e-tablist" :aria-label="label">
       <TabsTrigger v-for="item in flat" :key="item.id" :value="item.id" :disabled="item.disabled" class="e-tab">
         {{ item.label }}
-        <span v-if="item.count != null" class="e-tab-count">{{ item.count }}</span>
+        <span v-if="item.count != null" class="e-count e-tab-count">{{ item.count }}</span>
       </TabsTrigger>
     </TabsList>
     <TabsContent v-for="item in flat" :key="item.id" :value="item.id" class="e-tabpanel">
@@ -179,18 +183,15 @@ watch(current, () => reveal(true));
     --_bc: var(--e-primary);
     --_lift: max(calc(var(--e-stroke-focus) - var(--e-stroke-edge)), var(--e-stroke-edge));
 
-    z-index: var(--e-z-sticky);
+    z-index: calc(var(--e-z-raised) + 1); /* over a hovered neighbour, which is z-raised */
     border-width: calc(var(--e-stroke-edge) + var(--_lift));
     border-bottom-color: var(--_slab);
-    background-color: var(--e-wash-hover);
+    background-color: var(--e-primary-soft);
     color: var(--e-primary);
-    font-weight: var(--e-weight-strong);
   }
 
   .e-tab:focus-visible {
     z-index: var(--e-z-focus);
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
   }
 
   /* Unavailable reads like a disabled button: dashed edge, no fill, quiet text. */
@@ -200,8 +201,6 @@ watch(current, () => reveal(true));
     z-index: auto;
     background: var(--e-disabled-fill);
     color: var(--e-disabled-ink);
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     cursor: not-allowed;
   }
 
@@ -277,15 +276,8 @@ watch(current, () => reveal(true));
     border-inline-end-color: var(--_slab);
   }
 
-  .e-tab-count {
-    min-width: var(--e-gap-section);
-    padding: 0 var(--e-gap-snug);
-    border-radius: var(--e-radius-pill);
-    border: var(--e-stroke-edge) solid var(--e-primary);
-    background: var(--e-primary-soft);
-    background-clip: padding-box;
-    font: var(--e-weight-strong) var(--e-text-xs) / calc(5 / 3) var(--e-font-mono);
-    text-align: center;
+  /* The count is the shared badge (count.css), in ink whatever the tab's own colour. */
+  .e-tab > .e-count {
     color: var(--e-ink);
   }
 
@@ -293,11 +285,48 @@ watch(current, () => reveal(true));
     padding-block-start: var(--e-gap-loose);
   }
 
+  /* `stretch`: the tabs take the height they are given and the panel fills what is left of it, scrolling its own content. The panel pads itself by a focus ring's reach on the sides and below and takes it back in margin, so a focused field at its edge is not clipped and the content still lines up. */
+  .e-tabs--stretch {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .e-tabs--stretch.e-tabs--vertical {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .e-tabs--stretch > .e-tabpanel {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-inline: calc(2 * var(--e-stroke-focus));
+    padding-block-end: calc(2 * var(--e-stroke-focus));
+    margin-inline: calc(-2 * var(--e-stroke-focus));
+  }
+
+  .e-tabs--stretch > .e-tabpanel:focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: calc(-1 * var(--e-stroke-focus));
+  }
+
   @media (forced-colors: active) {
+    .e-tablist {
+      border-bottom: var(--e-stroke-edge) solid CanvasText;
+    }
+
     .e-tab[aria-selected="true"] {
       forced-color-adjust: none;
+      border-color: Highlight;
       background: Highlight;
       color: HighlightText;
+    }
+
+    .e-tab:focus-visible {
+      outline-color: Highlight;
     }
   }
 }

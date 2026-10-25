@@ -42,7 +42,7 @@ defineSlots<{
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
     text-decoration-color: currentcolor;
-    text-underline-offset: var(--e-underline-offset);
+    text-underline-offset: var(--e-stroke-underline-offset);
   }
 
   /* The square sits on the text's baseline, a little smaller than the letters, with a faint edge so a pale colour is still seen on a pale page. */

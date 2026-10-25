@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useGap, type GapToken } from "../Stack/gap.js";
 import { useListRole } from "../Stack/list.js";
-import type { ElementTag } from "../../composables/useSize.js";
+import type { ElementTag } from "../../types.js";
 import "../../styles/base.css";
 
 const props = withDefaults(

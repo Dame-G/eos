@@ -6,7 +6,7 @@ import EDataGridColumnChooser from "./EDataGridColumnChooser.vue";
 import type { EOption } from "../Select/options.js";
 import { useMessages } from "../../config.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
+import "../../styles/controls/input.css";
 
 /** The bar above the table: search, the selection count and its actions, the sort menu for cards, and the tools. */
 defineProps<{

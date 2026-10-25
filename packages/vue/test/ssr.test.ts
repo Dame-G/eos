@@ -6,6 +6,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { createSSRApp, nextTick } from "vue";
 import { commands } from "vitest/browser";
 import * as Library from "../src/index.js";
+import { componentNames } from "../src/component-names.js";
 import { casesOf, componentsOf, OPEN_AFTER_HYDRATION, RUNS, tree, type Run } from "./ssr/fixtures.js";
 import { frames } from "./frames.js";
 
@@ -30,7 +31,7 @@ const runs = Object.keys(RUNS) as Run[];
 
 describe.each(runs)("server render and hydration (%s)", (run) => {
   test("covers every exported component", () => {
-    expect(components.length).toBeGreaterThanOrEqual(79);
+    expect(components.map(([name]) => name)).toEqual([...componentNames].sort((a, b) => a.localeCompare(b)));
   });
 
   test("the server reads the direction from the config (useDir)", async () => {

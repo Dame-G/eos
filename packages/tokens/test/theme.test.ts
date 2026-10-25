@@ -1,13 +1,16 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import {
   checkContrast,
   constants,
   contrast,
   defaults,
+  darkVariant,
   defineTheme,
   derivedFrom,
   groups,
   inputTokens,
+  themeInputs,
+  themeVariant,
   toOklch,
   type ThemeInput,
 } from "../src/index.js";
@@ -139,8 +142,8 @@ describe("mid-tone surfaces", () => {
   });
   test("a surface that already worked keeps its action colours", () => {
     const fixed = (surface: string) => defineTheme({ surface }).tokens;
-    expect(fixed("#e0e0e0")["primary"]).toBe("#624b90");
-    expect(fixed("#20202a")["primary"]).toBe("#bfa8f5");
+    expect(fixed("#e0e0e0")["primary"]).toBe("#005f7c");
+    expect(fixed("#20202a")["primary"]).toBe("#3ca1c1");
     expect(fixed("#20202a")["on-primary"]).toBe("#000000");
   });
 });
@@ -216,7 +219,7 @@ describe("ground inputs", () => {
     expect(contrast(t["primary"]!, t["on-primary"]!)).toBeGreaterThanOrEqual(7);
     expect(contrast(t["secondary"]!, t["on-secondary"]!)).toBeGreaterThanOrEqual(7);
     expect(contrast(t["danger"]!, t["on-danger"]!)).toBeGreaterThanOrEqual(7);
-    expect(contrast(t["warning-strong"]!, t["warning-soft"]!)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(t["warning"]!, t["warning-soft"]!)).toBeGreaterThanOrEqual(4.5);
   });
 
   test("a dark surface without a foreground picks white", () => {
@@ -236,12 +239,13 @@ describe("ground inputs", () => {
 });
 
 const ICON_BOXES = [
-  "icon-size",
   "icon-size-sm",
-  "icon-size-lg",
   "icon-size-md",
+  "icon-size-lg",
+  "icon-size-xl",
   "check-size",
   "avatar-size-sm",
+  "avatar-size-md",
   "avatar-size-lg",
 ];
 
@@ -263,7 +267,7 @@ describe("derived inputs", () => {
       { controlHeight: 48 },
       { strokes: { hair: 1, focus: 2 } },
       { strokes: {} },
-      { danger: defaults["danger"], warning: defaults["warning-strong"] },
+      { danger: defaults["danger"], warning: defaults["warning"], success: defaults["success"] },
     ]) {
       expect(defineTheme(input).tokens, JSON.stringify(input)).toEqual(base);
     }
@@ -292,12 +296,12 @@ describe("derived inputs", () => {
         const t = defineTheme({ ...ground, warning });
         const k = t.tokens;
         const label = JSON.stringify({ warning, ground });
-        expect(contrast(k["warning-strong"]!, k["surface"]!), label).toBeGreaterThanOrEqual(4.5);
-        expect(contrast(k["warning-strong"]!, k["warning-soft"]!), label).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(k["warning"]!, k["surface"]!), label).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(k["warning"]!, k["warning-soft"]!), label).toBeGreaterThanOrEqual(4.5);
         expect(t.issues, label).toEqual([]);
       }
     }
-    expect(changed({ warning: "#c2410c" }).sort()).toEqual(["warning-soft", "warning-strong"]);
+    expect(changed({ warning: "#c2410c" }).sort()).toEqual(["warning", "warning-soft"]);
   });
 
   test("textScale and spaceScale scale only their own tokens, in whole pixels", () => {
@@ -323,9 +327,9 @@ describe("derived inputs", () => {
     expect(t["stroke-edge"]).toBe("3px");
     expect(t["stroke-focus"]).toBe("4px");
     expect(t["focus-gap"]).toBeUndefined();
-    expect(t["focus-gap-field"]).toBe("calc(-1 * var(--e-stroke-edge))");
+    expect(t["stroke-focus-gap-field"]).toBe("calc(-1 * var(--e-stroke-edge))");
     expect(t["stroke-card"]).toBe("2px");
-    expect(t["frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
+    expect(t["shadow-frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
     expect(changed({ strokes: { focus: 3 } }).sort()).toEqual(["stroke-focus"]);
   });
 
@@ -338,7 +342,7 @@ describe("derived inputs", () => {
     expect(t["stroke-hair"]).toBe("2px");
     expect(t["stroke-edge"]).toBe("2px");
     expect(t["stroke-card"]).toBe("3px");
-    expect(t["frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
+    expect(t["shadow-frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
   });
 
   test("contrast high pins lines to the foreground and neutralises the tint", () => {
@@ -348,7 +352,7 @@ describe("derived inputs", () => {
     expect(t["scrim"]).toBe("rgb(0 0 0 / 0.75)");
     expect(contrast(t["muted"]!, t["surface"]!)).toBeGreaterThanOrEqual(14.9);
     expect(toOklch(t["surface-tint"]!).c).toBeLessThan(0.005);
-    expect(t["frame"]).toContain("var(--e-border)");
+    expect(t["shadow-frame"]).toContain("var(--e-border)");
     expect(defineTheme({ contrast: "standard" }).tokens).toEqual(base);
     expect(defineTheme({ contrast: "high" }).issues).toEqual([]);
     const dark = defineTheme({ surface: "#0f1418", background: "#0a0e11", foreground: "#ffffff", contrast: "high" });
@@ -357,7 +361,7 @@ describe("derived inputs", () => {
   });
 
   test("the scrim is a deep shade of the brand, and black on a dark or high-contrast theme", () => {
-    expect(base["scrim"]).toBe("rgb(39 32 54 / 0.55)");
+    expect(base["scrim"]).toBe("rgb(8 41 50 / 0.55)");
     const rose = defineTheme({ brand: "#e91e63" }).tokens["scrim"]!;
     expect(rose).toMatch(/^rgb\(\d+ \d+ \d+ \/ 0\.55\)$/);
     const [r, , b] = rose.match(/\d+/g)!.map(Number);
@@ -377,30 +381,51 @@ describe("derived inputs", () => {
   });
 
   test("the shadow tint comes from the ground, not the brand", () => {
-    const plain = defineTheme({ elevation: "lifted" }).tokens["float"];
-    expect(defineTheme({ elevation: "lifted", brand: "#e91e63" }).tokens["float"]).toBe(plain);
+    const plain = defineTheme({ elevation: "lifted" }).tokens["shadow-drop"];
+    expect(defineTheme({ elevation: "lifted", brand: "#e91e63" }).tokens["shadow-drop"]).toBe(plain);
     expect(plain).toContain("rgba(36, 36, 36,");
-    expect(defineTheme({ elevation: "lifted", background: "#f6efe0" }).tokens["float"]).not.toBe(plain);
+    expect(defineTheme({ elevation: "lifted", background: "#f6efe0" }).tokens["shadow-drop"]).not.toBe(plain);
   });
 
-  test("elevation presets set the shadows from the border and ink", () => {
+  test("elevation presets keep the material: a flush frame or a card slab, and a floating slab with one drop", () => {
+    const ring = "0 0 0 var(--e-stroke-card) var(--e-border)";
+    const floatSlab = "0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-border)";
+    // The default theme is the outline elevation, written out in tokens.json.
+    expect(changed({ elevation: "outline" })).toEqual([]);
+    expect(base["shadow-float"]).toBe(`${ring}, ${floatSlab}, var(--e-shadow-drop)`);
+    expect(base["shadow-drop"]).toBe("0 12px 32px -8px rgba(36, 36, 36, 0.18)");
     const lifted = defineTheme({ elevation: "lifted" }).tokens;
-    expect(lifted["frame"]).toBe(
-      "0 0 0 var(--e-stroke-card) var(--e-border), 0 1px 2px 0px rgba(36, 36, 36, 0.1), 0 4px 10px -2px rgba(36, 36, 36, 0.12), 0 14px 28px -10px rgba(36, 36, 36, 0.16)",
-    );
-    expect(lifted["float"]!.split("rgba(").length - 1).toBe(4);
-    expect(lifted["well"]).toBe(base["well"]);
-    expect(changed({ elevation: "lifted" }).sort()).toEqual(["float", "frame"]);
+    expect(lifted["shadow-frame"]).toBe(`${ring}, 0 var(--e-depth) 0 var(--e-stroke-card) var(--e-border)`);
+    expect(lifted["shadow-float"]).toBe(base["shadow-float"]);
+    expect(lifted["shadow-drop"]).toBe("0 20px 48px -12px rgba(36, 36, 36, 0.24)");
+    expect(lifted["shadow-well"]).toBe(base["shadow-well"]);
+    expect(changed({ elevation: "lifted" }).sort()).toEqual(["shadow-drop", "shadow-frame"]);
     const bold = defineTheme({ elevation: "bold" }).tokens;
-    expect(bold["float"]).toBe(
-      "0 0 0 var(--e-stroke-card) var(--e-border), 4px 4px 0 0 rgba(36, 36, 36, 0.32), 0 14px 28px -10px rgba(36, 36, 36, 0.22)",
-    );
-    expect(changed({ elevation: "bold" }).sort()).toEqual(["float", "stroke-card", "well"]);
+    expect(bold["shadow-drop"]).toBe("0 14px 28px -10px rgba(36, 36, 36, 0.22)");
+    expect(bold["shadow-well"]).toBe("inset 0 3px 0 0 rgba(36, 36, 36, 0.09)");
+    expect(changed({ elevation: "bold" }).sort()).toEqual(["shadow-drop", "shadow-well", "stroke-card"]);
     expect(bold["stroke-card"]).toBe("2px");
     const darkOutline = defineTheme({ ...dark, elevation: "outline" }).tokens;
-    expect(darkOutline["frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
-    expect(darkOutline["float"]).toContain("0.43)");
-    expect(darkOutline["well"]).toBe(defineTheme(dark).tokens["well"]);
+    expect(darkOutline["shadow-frame"]).toBe(ring);
+    expect(darkOutline["shadow-drop"]).toContain("0.45)");
+    expect(darkOutline["shadow-well"]).toBe(defineTheme(dark).tokens["shadow-well"]);
+  });
+
+  test("every shadow of a theme is drawn in one shade, the well too", () => {
+    for (const input of [{}, { background: "#f6efe0" }, dark, { elevation: "bold" as const }]) {
+      const t = defineTheme({ elevation: "outline", ...input }).tokens;
+      const shades = new Set(
+        [...(t["shadow-well"]! + " " + t["shadow-drop"]!).matchAll(/rgba\((\d+, \d+, \d+),/g)].map((m) => m[1]),
+      );
+      expect(shades.size, JSON.stringify(input)).toBe(1);
+    }
+  });
+
+  test("depth sets the slab and derives the thin and bold slabs in whole pixels", () => {
+    expect(changed({ depth: 3 }).sort()).toEqual(["depth", "depth-bold", "depth-thin"]);
+    expect(defineTheme({ depth: 3 }).tokens["depth-thin"]).toBe("1px");
+    expect(defineTheme({ depth: 4 }).tokens["depth-thin"]).toBe("2px");
+    expect(defineTheme({ depth: 1 }).tokens["depth-bold"]).toBe("2px");
   });
 
   test("controlHeight sets the control and an even chip height", () => {
@@ -418,12 +443,18 @@ describe("derived inputs", () => {
       motion: "snappy",
       elevation: "bold",
       controlHeight: 56,
-      tokens: { danger: "#111111", "text-md": "17px", "duration-tap": "10ms", float: "none", "chip-height": "30px" },
+      tokens: {
+        danger: "#111111",
+        "text-md": "17px",
+        "duration-tap": "10ms",
+        "shadow-float": "none",
+        "chip-height": "30px",
+      },
     }).tokens;
     expect(t["danger"]).toBe("#111111");
     expect(t["text-md"]).toBe("17px");
     expect(t["duration-tap"]).toBe("10ms");
-    expect(t["float"]).toBe("none");
+    expect(t["shadow-float"]).toBe("none");
     expect(t["chip-height"]).toBe("30px");
   });
 
@@ -438,6 +469,9 @@ describe("derived inputs", () => {
 describe("scheme, contrast and density", () => {
   test("the default theme derives to exactly the defaults", () => {
     expect(defineTheme().tokens).toEqual({ ...defaults });
+  });
+  test("the baked colours are what the default brand and accent derive", () => {
+    expect(defineTheme({ brand: defaults["brand"], accent: defaults["brand-accent"] }).tokens).toEqual({ ...defaults });
   });
   test("scheme auto emits the dark tokens inside prefers-color-scheme and keeps the light ones at the root", () => {
     const t = defineTheme({ scheme: "auto", brand: "#8a2be2" });
@@ -499,6 +533,19 @@ describe("scheme, contrast and density", () => {
     expect(css).toMatch(/@media print \{[^}]*--e-ink: #000000 !important;[^}]*--e-surface: #ffffff !important;/);
     expect(defineTheme({ motion: "snappy" }).css()).toMatch(/--e-duration-tap: 50ms;/);
   });
+  test("a dark page prints in the light palette: every token the dark variant changes is set back", () => {
+    const t = defineTheme({ scheme: "auto" });
+    const print = /@media print \{\n {2}[^{]+\{([^}]*)\}/.exec(t.css())![1]!;
+    for (const k of Object.keys(t.alternates[0]!.tokens)) expect(print, k).toContain(`--e-${k}: `);
+    expect(print).toContain(`--e-primary-soft: ${t.tokens["primary-soft"]} !important;`);
+    expect(print).toContain("color-scheme: light;");
+    // A theme that is dark itself prints on white, with an action colour that holds against it.
+    const dark = defineTheme({ scheme: "dark", surface: "#10151a" });
+    expect(dark.css()).toMatch(/@media print \{[^}]*--e-surface: #ffffff !important;/);
+    expect(dark.css()).not.toMatch(
+      new RegExp(`@media print \\{[^}]*--e-primary-soft: ${dark.tokens["primary-soft"]} !important`),
+    );
+  });
   test("loop durations are left alone under reduced motion", () => {
     expect(defineTheme().css()).not.toMatch(/--e-duration-loop: 0.01ms/);
   });
@@ -513,10 +560,10 @@ describe("scheme, contrast and density", () => {
   });
   test("icon, check and avatar boxes follow textScale", () => {
     const t = defineTheme({ textScale: 1.5 }).tokens;
-    expect(t["icon-size"]).toBe("1.875rem");
+    expect(t["icon-size-md"]).toBe("1.875rem");
     expect(t["check-size"]).toBe("2.25rem");
     expect(t["avatar-size-lg"]).toBe("6rem");
-    expect(defineTheme({ spaceScale: 2 }).tokens["icon-size"]).toBe("1.25rem");
+    expect(defineTheme({ spaceScale: 2 }).tokens["icon-size-md"]).toBe("1.25rem");
   });
   test("the script font follows fonts.script", () => {
     expect(defineTheme({ fonts: { script: "Caveat, cursive" } }).tokens["font-script"]).toBe("Caveat, cursive");
@@ -538,8 +585,8 @@ describe("scheme, contrast and density", () => {
   });
   test("the paper shadow is the frame ring and the well", () => {
     for (const elevation of ["outline", "lifted", "bold"] as const)
-      expect(defineTheme({ elevation }).tokens["paper"], elevation).toBe(
-        "0 0 0 var(--e-stroke-card) var(--e-border), var(--e-well)",
+      expect(defineTheme({ elevation }).tokens["shadow-paper"], elevation).toBe(
+        "0 0 0 var(--e-stroke-card) var(--e-border), var(--e-shadow-well)",
       );
   });
   test("the frame, float and paper rings follow border and stroke-card, so an override in CSS reaches them", () => {
@@ -554,19 +601,17 @@ describe("scheme, contrast and density", () => {
       { tokens: { border: "#ff0000", "stroke-card": "3px" } },
     ]) {
       const t = defineTheme(input).tokens;
-      for (const name of ["frame", "float", "paper"]) {
+      for (const name of ["shadow-frame", "shadow-float", "shadow-paper"]) {
         expect(t[name]!.startsWith(ring), `${name} ${JSON.stringify(input)}`).toBe(true);
         expect(t[name], name).not.toMatch(/0 0 0 \d+px #/);
       }
     }
-    expect(defaults["frame"]).toBe(ring);
+    expect(defaults["shadow-frame"]).toBe(ring);
   });
-  test("a tone reads the same through its alias", () => {
+  test("the information tone reads the same through its alias", () => {
     const t = defineTheme({ brand: "#8a2be2", accent: "#2e7d32" }).tokens;
     expect(t["info"]).toBe("var(--e-primary)");
-    expect(t["success"]).toBe("var(--e-secondary)");
-    expect(t["warning"]).toBe("var(--e-warning-strong)");
-    expect(checkContrast(t).filter((i) => ["info", "success", "warning", "text-link"].includes(i.pair[0]))).toEqual([]);
+    expect(checkContrast(t).filter((i) => ["info", "success", "warning", "link"].includes(i.pair[0]))).toEqual([]);
   });
   test("z-index tokens rise in the order they are listed, with the skip link on top", () => {
     const values = groups.zIndex.map((z) => Number(defaults[z]));
@@ -578,9 +623,30 @@ describe("scheme, contrast and density", () => {
     expect(groups.spacing).not.toContain("space-7");
   });
   test("renamed and removed tokens are gone", () => {
-    for (const gone of ["edge", "focus-gap", "print-ink", "print-paper"])
+    for (const gone of [
+      "edge",
+      "focus-gap",
+      "print-ink",
+      "print-paper",
+      "icon-size",
+      "text-link",
+      "warning-strong",
+      "frame",
+      "well",
+      "float",
+      "paper",
+      "slab-sink",
+      "ring-hover",
+      "ring-press",
+      "slab-thin",
+      "slab-bold",
+      "focus-gap-field",
+      "underline-offset",
+      "size-panel-sm",
+      "size-list-max",
+    ])
       expect(Object.keys(defaults)).not.toContain(gone);
-    expect(Object.keys(defaults)).toContain("frame");
+    expect(Object.keys(defaults)).toContain("shadow-frame");
   });
 });
 
@@ -592,6 +658,42 @@ describe("token metadata", () => {
     }
     for (const z of groups.zIndex) expect(constants).toContain(z);
     expect(derivedFrom["danger"]).toBe("danger,surface");
+  });
+  test("themeInputs lists every input of ThemeInput, each with its doc comment and type", () => {
+    // Type-checked both ways: a missing or an extra key here fails `pnpm typecheck`.
+    const keys: Record<keyof ThemeInput, true> = {
+      name: true,
+      brand: true,
+      accent: true,
+      background: true,
+      surface: true,
+      foreground: true,
+      danger: true,
+      warning: true,
+      success: true,
+      fonts: true,
+      radius: true,
+      textScale: true,
+      spaceScale: true,
+      strokes: true,
+      contrast: true,
+      scheme: true,
+      dark: true,
+      density: true,
+      motion: true,
+      elevation: true,
+      preset: true,
+      depth: true,
+      controlHeight: true,
+      tokens: true,
+      strict: true,
+    };
+    expect(themeInputs.map((i) => i.name).sort()).toEqual(Object.keys(keys).sort());
+    for (const input of themeInputs) {
+      expect(input.doc, input.name).not.toBe("");
+      expect(input.type, input.name).not.toBe("");
+    }
+    expect(themeInputs.find((i) => i.name === "contrast")!.type).toBe('"standard" | "high" | "auto"');
   });
 });
 
@@ -610,12 +712,12 @@ describe("dtcg", () => {
     expect(tree.color!["focus-ring"]!.$value).toBe("{color.ink}");
   });
   test("a CSS expression with no DTCG type keeps its string and has no type", () => {
-    expect(tree.shadow!["frame"]!.$type).toBeUndefined();
+    expect(tree.shadow!["shadow-frame"]!.$type).toBeUndefined();
     expect(tree.color!["wash-hover"]!.$type).toBeUndefined();
     expect(typeof tree.color!["wash-hover"]!.$value).toBe("string");
   });
   test("carries the usage note as the description, and every token appears once", () => {
-    expect(tree.color!["primary"]!.$description).toMatch(/Action violet/);
+    expect(tree.color!["primary"]!.$description).toMatch(/Action blue/);
     const count = Object.values(tree).reduce((n, g) => n + Object.keys(g).length, 0);
     expect(count).toBe(Object.keys(defineTheme({ name: "light" }).tokens).length);
   });
@@ -647,13 +749,13 @@ describe("brand, wash and tone tokens", () => {
     expect(b["brand-accent"]).toBe("#2e7d32");
   });
   test("the hover and press washes are the one contrast-fitted pair", () => {
-    expect(t["wash-hover"]).toBe("color-mix(in srgb, #bfb7d5 50%, transparent)");
-    expect(t["wash-press"]).toBe("color-mix(in srgb, #bfb7d5 74%, transparent)");
+    expect(t["wash-hover"]).toBe("color-mix(in srgb, #a1c3d1 50%, transparent)");
+    expect(t["wash-press"]).toBe("color-mix(in srgb, #a1c3d1 75%, transparent)");
     const grey = defineTheme({ surface: "#808080" });
     expect(grey.issues).toEqual([]);
   });
   test("each tone is checked once, through the name components use", () => {
-    const issues = checkContrast({ ...t, "warning-strong": "#fdf3dc", secondary: "#e8f5e1" });
+    const issues = checkContrast({ ...t, warning: "#fdf3dc", success: "#e8f5e1" });
     for (const role of ["Warning notice text", "Success notice text"])
       expect(issues.filter((i) => i.role === role).length, role).toBe(1);
   });
@@ -666,8 +768,8 @@ describe("brand, wash and tone tokens", () => {
     expect(t["easing-linear"]).toBe("linear");
     expect(t["shell-width"]).toBe("72rem");
     expect(t["shell-rail"]).toBe("var(--e-border)");
-    expect(t["underline-offset"]).toBe("0.25em");
-    expect(t["radius-row"]).toBe("max(0px, calc(var(--e-radius-md) - var(--e-gap-tight)))");
+    expect(t["stroke-underline-offset"]).toBe("0.25em");
+    expect(t["radius-row"]).toBe("max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))");
   });
 });
 
@@ -687,5 +789,156 @@ describe("theming API shorthands", () => {
     expect(t.warnings).toEqual([]);
     expect([t.tokens["stroke-hair"], t.tokens["stroke-edge"], t.tokens["stroke-card"]]).toEqual(["2px", "3px", "2px"]);
     expect(defineTheme({ preset: "ink" }).warnings).toEqual([]);
+  });
+});
+
+describe("the success tone", () => {
+  const light = { surface: "#fffdf7", foreground: "#1f1a14" };
+  const dark = { surface: "#0f1418", foreground: "#ffffff" };
+  test("an accent recolours the secondary action, not the success tone", () => {
+    const t = defineTheme({ accent: "#e0218a" }).tokens;
+    expect(t["success"]).toBe(defaults["success"]);
+    expect(t["success-soft"]).toBe(defaults["success-soft"]);
+    expect(t["secondary"]).not.toBe(defaults["secondary"]);
+  });
+  test("success derives its text and tint, and meets its targets on light and dark surfaces", () => {
+    for (const success of ["#2e7d32", "#00c853", "#a5d6a7", "#0f766e"]) {
+      for (const ground of [{}, light, dark]) {
+        const t = defineTheme({ ...ground, success });
+        const k = t.tokens;
+        const label = JSON.stringify({ success, ground });
+        expect(contrast(k["success"]!, k["surface"]!), label).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(k["success"]!, k["success-soft"]!), label).toBeGreaterThanOrEqual(4.5);
+        expect(t.issues, label).toEqual([]);
+      }
+    }
+    const base = defineTheme().tokens;
+    const t = defineTheme({ success: "#0f766e" }).tokens;
+    expect(
+      Object.keys(t)
+        .filter((k) => t[k] !== base[k])
+        .sort(),
+    ).toEqual(["success", "success-soft"]);
+  });
+  test("every preset keeps every pair in light, dark and high contrast, with a brand and accent of any hue", () => {
+    for (const preset of ["paper", "ink", "quiet"] as const)
+      for (const contrastPreset of ["standard", "high", "auto"] as const)
+        for (const ground of [{}, light, dark, { surface: "#808080" }]) {
+          const input = { preset, contrast: contrastPreset, brand: "#8a2be2", accent: "#e0218a", ...ground };
+          expect(defineTheme(input).issues, JSON.stringify(input)).toEqual([]);
+          expect(defineTheme({ ...input, scheme: "auto" }).issues, JSON.stringify(input)).toEqual([]);
+        }
+  });
+});
+
+describe("colour inputs", () => {
+  const quiet = <T>(fn: () => T): T => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      return fn();
+    } finally {
+      warn.mockRestore();
+    }
+  };
+  test("takes 4 and 8 digit hex, rgb(), color-mix() and black or white", () => {
+    const hex = defineTheme({ brand: "#8a2be2" }).tokens;
+    for (const brand of ["#8a2be2ff", "rgb(138 43 226)", "rgb(138, 43, 226)", "rgba(138, 43, 226, 1)"])
+      expect(defineTheme({ brand }).tokens["primary"], brand).toBe(hex["primary"]);
+    expect(defineTheme({ brand: "#f0a" }).tokens["brand"]).toBe("#ff00aa");
+    expect(defineTheme({ brand: "#f0af" }).tokens["brand"]).toBe("#ff00aa");
+    expect(defineTheme({ surface: "black" }).tokens["surface"]).toBe("#000000");
+    expect(defineTheme({ brand: "color-mix(in srgb, #ff0000, #0000ff)" }).tokens["brand"]).toBe("#800080");
+  });
+  test("drops alpha and says so", () => {
+    const t = quiet(() => defineTheme({ brand: "#8a2be280" }));
+    expect(t.tokens["brand"]).toBe("#8a2be2");
+    expect(t.warnings.join("\n")).toMatch(/brand: the alpha of #8a2be280 is dropped/);
+  });
+  test("ignores a colour it cannot read and reports it, instead of throwing", () => {
+    const t = quiet(() =>
+      defineTheme({
+        brand: "rebeccapurple",
+        surface: "oklch(0.2 0 0)",
+        accent: "transparent",
+        scheme: "auto",
+        dark: { surface: "nope" },
+      }),
+    );
+    expect(t.tokens).toEqual(defineTheme().tokens);
+    const w = t.warnings.join("\n");
+    for (const key of ["brand", "surface", "accent", "dark.surface"]) expect(w).toContain(`${key}: "`);
+  });
+});
+
+describe("variants and apply", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const fakeElement = () => {
+    const props = new Map<string, string>();
+    const attrs = new Map<string, string>();
+    return {
+      props,
+      attrs,
+      style: {
+        colorScheme: "",
+        setProperty: (k: string, v: string) => props.set(k, v),
+        removeProperty: (k: string) => props.delete(k),
+      },
+      setAttribute: (k: string, v: string) => attrs.set(k, v),
+      removeAttribute: (k: string) => attrs.delete(k),
+    };
+  };
+  test("themeVariant lays the alternate that matches the query over the base", () => {
+    const theme = defineTheme({ scheme: "auto", contrast: "auto" });
+    expect(themeVariant(theme)).toEqual({ tokens: theme.tokens, colorScheme: "light" });
+    const night = themeVariant(theme, { dark: true });
+    expect(night.colorScheme).toBe("dark");
+    expect(night.tokens).toEqual(defineTheme(darkVariant({})).tokens);
+    expect(themeVariant(theme, { more: true }).tokens).toEqual(defineTheme({ contrast: "high" }).tokens);
+    expect(themeVariant(defineTheme({ surface: "#10151a" }), { dark: false }).colorScheme).toBe("dark");
+  });
+  test("apply works without matchMedia, and its disposer removes what it set", () => {
+    vi.stubGlobal("matchMedia", undefined);
+    const el = fakeElement();
+    const dispose = defineTheme({ name: "t", contrast: "auto" }).apply(el as never);
+    expect(el.props.get("--e-primary")).toBe(defaults["primary"]);
+    expect(el.attrs.get("data-e-theme")).toBe("t");
+    dispose();
+    expect(el.props.size).toBe(0);
+    expect(el.attrs.has("data-e-theme")).toBe(false);
+  });
+  test("apply follows the media queries until it is disposed of", () => {
+    const listeners = new Set<() => void>();
+    let dark = false;
+    vi.stubGlobal("matchMedia", (media: string) => ({
+      get matches() {
+        return media.includes("dark") && dark;
+      },
+      addEventListener: (_: string, fn: () => void) => listeners.add(fn),
+      removeEventListener: (_: string, fn: () => void) => listeners.delete(fn),
+    }));
+    const el = fakeElement();
+    const dispose = defineTheme({ scheme: "auto" }).apply(el as never);
+    expect(el.props.get("--e-surface")).toBe("#ffffff");
+    dark = true;
+    for (const fn of listeners) fn();
+    expect(el.props.get("--e-surface")).toBe(darkVariant({}).surface);
+    expect(el.style.colorScheme).toBe("dark");
+    dispose();
+    expect(listeners.size).toBe(0);
+    expect(el.props.size).toBe(0);
+  });
+});
+
+describe("development warnings", () => {
+  test("are not printed in production", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.stubEnv("NODE_ENV", "production");
+    try {
+      expect(defineTheme({ textScale: -1 }).warnings.length).toBe(1);
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllEnvs();
+      warn.mockRestore();
+    }
   });
 });

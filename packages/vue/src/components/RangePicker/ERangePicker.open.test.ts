@@ -8,7 +8,7 @@ import { expectNoViolations } from "../../../test/axe.js";
 import { frames, settled } from "../../../test/frames.js";
 
 const panel = () => document.querySelector<HTMLElement>(".e-calpanel");
-const trigger = (c: Element) => c.querySelector<HTMLElement>("button.e-combo-btn")!;
+const trigger = (c: Element) => c.querySelector<HTMLElement>("button.e-input-btn")!;
 const openIt = async (c: Element) => {
   await userEvent.click(trigger(c));
 };

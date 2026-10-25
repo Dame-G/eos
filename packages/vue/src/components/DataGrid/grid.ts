@@ -1,3 +1,4 @@
+import { collator } from "../../composables/useLocale.js";
 import type { DataGridColumn, DataGridFilterValue, DataGridRow } from "./types.js";
 
 /** What a column shows to sort, filter and search on: `value(row)`, or `row[key]`. */
@@ -27,11 +28,7 @@ export function compareValues(a: unknown, b: unknown, locale?: string): number {
   if (b == null) return -1;
   if (typeof a === "number" && typeof b === "number") return a - b;
   if (a instanceof Date && b instanceof Date) return a.getTime() - b.getTime();
-  try {
-    return String(a).localeCompare(String(b), locale, { numeric: true, sensitivity: "base" });
-  } catch {
-    return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: "base" });
-  }
+  return collator(locale).compare(String(a), String(b));
 }
 
 /** A width in pixels from a number or a "120px" string, or nothing for any other unit. */
@@ -48,12 +45,12 @@ export function filterActive(f: DataGridFilterValue | undefined): boolean {
   return true;
 }
 
-/** Whether a cell value passes a column's filter. `shown` is the text the cell displays, which a text filter also matches. */
+/** Whether a cell value passes a column's filter. `shown` gives the text the cell displays, which a text filter also matches; it is only asked for when the value itself does not match. */
 export function passesFilter<Row extends DataGridRow>(
   col: DataGridColumn<Row>,
   value: unknown,
   f: DataGridFilterValue,
-  shown?: string,
+  shown?: () => string,
 ): boolean {
   if (col.filter?.type === "select") return String(value) === String(f);
   if (col.filter?.type === "number" && typeof f === "object") {
@@ -68,5 +65,5 @@ export function passesFilter<Row extends DataGridRow>(
     return true;
   }
   const q = foldText(f);
-  return foldText(value).includes(q) || (shown !== undefined && foldText(shown).includes(q));
+  return foldText(value).includes(q) || (shown !== undefined && foldText(shown()).includes(q));
 }

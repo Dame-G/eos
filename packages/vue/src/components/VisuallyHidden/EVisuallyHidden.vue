@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ElementTag } from "../../composables/useSize.js";
+import type { ElementTag } from "../../types.js";
 import "../../styles/base.css";
 
 withDefaults(

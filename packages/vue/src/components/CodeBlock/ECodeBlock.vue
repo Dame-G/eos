@@ -2,13 +2,16 @@
 import { computed, ref } from "vue";
 import ECopyButton from "../CopyButton/ECopyButton.vue";
 import { useMessages } from "../../config.js";
+import { useOverflow } from "../../composables/useOverflow.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
   /** The text to show, as plain text. Leave it out to use the slot and put your own highlighted markup there. */
   code?: string;
-  /** The language, named for screen readers (the name of the scrollable code group). @default "Code" */
+  /** The language, such as `ts` or `vue`. A common one is read by its name ("TypeScript") as the name of the code group. */
   lang?: string;
+  /** Names the code group for screen readers, instead of the language. @default the language's name, else "Code" */
+  label?: string;
   /** The copy button's name. Say what is copied when a page has several. @default "Copy code" */
   copyLabel?: string;
   /** Wraps long lines instead of scrolling sideways. */
@@ -22,16 +25,48 @@ defineSlots<{
   default?(): unknown;
 }>();
 
+/** Readable names for the languages people write most, so a screen reader does not spell out "t s". */
+const LANGS: Record<string, string> = {
+  bash: "Bash",
+  css: "CSS",
+  diff: "Diff",
+  html: "HTML",
+  js: "JavaScript",
+  javascript: "JavaScript",
+  json: "JSON",
+  jsx: "JSX",
+  md: "Markdown",
+  markdown: "Markdown",
+  py: "Python",
+  python: "Python",
+  scss: "SCSS",
+  sh: "Shell",
+  shell: "Shell",
+  sql: "SQL",
+  ts: "TypeScript",
+  tsx: "TSX",
+  typescript: "TypeScript",
+  vue: "Vue",
+  xml: "XML",
+  yaml: "YAML",
+  yml: "YAML",
+};
+
 const t = useMessages();
 const root = ref<HTMLElement | null>(null);
+const body = ref<HTMLElement | null>(null);
+const name = computed(
+  () => props.label || (props.lang && (LANGS[props.lang.toLowerCase()] ?? props.lang)) || t("codeBlock"),
+);
+// The body is a tab stop only while it scrolls (never with `wrap`), so the keys can scroll it.
+const overflows = useOverflow(body, [], { children: true });
 const text = () => props.code ?? root.value?.querySelector("pre")?.textContent ?? "";
 const lines = computed(() => (props.lineNumbers && props.code !== undefined ? props.code.split("\n") : undefined));
 </script>
 
 <template>
   <div ref="root" class="e-code" :class="{ 'e-code--wrap': wrap, 'e-code--numbered': lineNumbers }">
-    <!-- The body scrolls, so it takes focus: the keys scroll it, with the built-in pre or your own markup. -->
-    <div class="e-code-body" role="group" tabindex="0" :aria-label="lang || t('codeBlock')">
+    <div ref="body" class="e-code-body" role="group" :tabindex="overflows ? 0 : undefined" :aria-label="name">
       <slot>
         <pre><code v-if="lines"><span v-for="(line, i) in lines" :key="i" class="line">{{ line }}</span></code><code v-else>{{ code }}</code></pre>
       </slot>
@@ -53,7 +88,7 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     --shiki-token-function: var(--e-primary);
     --shiki-token-string: var(--e-secondary);
     --shiki-token-string-expression: var(--e-secondary);
-    --shiki-token-constant: var(--e-warning-strong);
+    --shiki-token-constant: var(--e-warning);
     --shiki-token-parameter: var(--e-ink);
     --shiki-token-punctuation: var(--e-muted);
     --shiki-token-link: var(--e-primary);
@@ -63,7 +98,7 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     min-width: 0;
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
-    box-shadow: var(--e-frame);
+    box-shadow: var(--e-shadow-frame);
   }
 
   /* Code blocks stacked back to back share one seam: the rings overlap into a single line. */
@@ -84,9 +119,35 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     min-width: 0;
     overflow-x: auto;
 
+    /* Overflow shows as a shade at the end edge that the content covers once it is scrolled to the end, not only as a bar. A background has no logical position, so the end side is a property that flips in a right-to-left page. */
+    --_end: right;
+    --_toward-end: to left;
+
+    /* The shades run the full height, except a ring's width short of a side that meets another block: the body paints after the blocks around it (a flex item), and a stacked block's ring reaches that far into it, so a shade there would cut the seam. */
+    --_h: calc(100% - var(--_cut-top, 0px) - var(--_cut-bottom, 0px));
+
+    background:
+      linear-gradient(var(--_toward-end), var(--e-surface) 40%, transparent) var(--_end) 0 top var(--_cut-top, 0) /
+        var(--e-space-6) var(--_h) no-repeat local,
+      linear-gradient(var(--_toward-end), var(--e-wash-ring), transparent) var(--_end) 0 top var(--_cut-top, 0) /
+        var(--e-space-2) var(--_h) no-repeat scroll;
+
     /* Flush against the block's start edge, so the block's corners (its own, which differ where blocks are stacked): the body scrolls itself and the block does not clip, so the ring around the block is painted once on a curve nothing else clips; the body takes the corner so its focus ring follows it. The block has no border of its own, so inheriting fills it exactly. */
     border-start-start-radius: inherit;
     border-end-start-radius: inherit;
+  }
+
+  .e-code + .e-code > .e-code-body {
+    --_cut-top: var(--e-stroke-card);
+  }
+
+  .e-code:has(+ .e-code) > .e-code-body {
+    --_cut-bottom: var(--e-stroke-card);
+  }
+
+  .e-code-body:dir(rtl) {
+    --_end: left;
+    --_toward-end: to right;
   }
 
   .e-code pre {
@@ -97,9 +158,15 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     color: var(--e-ink);
   }
 
-  .e-code-body:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
+  /* On a touch screen the code scrolls with a swipe and the shade says there is more, so the bar is not drawn. The region stays focusable and scrolls with the keys. */
+  @media (pointer: coarse) {
+    .e-code-body {
+      scrollbar-width: none;
+    }
+
+    .e-code-body::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   .e-code code {
@@ -141,9 +208,27 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     padding: var(--e-gap-tight);
   }
 
+  /* Paper does not scroll: a long line wraps, and the shades that say there is more are left out with the copy button. */
   @media print {
     .e-code-side {
       display: none;
+    }
+
+    .e-code-body {
+      overflow: visible;
+      background: none;
+    }
+
+    .e-code code {
+      width: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-code {
+      outline: var(--e-stroke-edge) solid CanvasText;
     }
   }
 }

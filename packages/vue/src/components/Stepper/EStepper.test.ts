@@ -232,9 +232,13 @@ describe("EStepper", () => {
     const dot = container.querySelector(".e-step-dot")!;
     const inset = parseFloat(getComputedStyle(body).paddingTop);
     for (const md of ["2px", "8px", "14px"]) {
-      container.style.setProperty("--e-radius-md", md);
+      {
+        container.style.setProperty("--e-radius-md", md);
+        container.style.setProperty("--e-radius-row", "max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))");
+      }
       const outer = parseFloat(getComputedStyle(body).borderTopLeftRadius);
-      expect(parseFloat(getComputedStyle(dot).borderTopLeftRadius)).toBeCloseTo(Math.max(0, outer - inset), 0);
+      // The dot is a small part of the face: radius-row, the face's radius less pad-inset (half the face's padding).
+      expect(parseFloat(getComputedStyle(dot).borderTopLeftRadius)).toBeCloseTo(Math.max(0, outer - inset / 2), 0);
     }
   });
 });

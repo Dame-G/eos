@@ -1,7 +1,8 @@
 @layer e.controls {
   .e-input,
   .e-input-wrap {
-    --e-ring: var(--e-border-strong);
+    --_ring: var(--e-border-strong);
+    --_veil: transparent;
   }
 
   .e-input[data-size="sm"],
@@ -24,11 +25,15 @@
 
     /* The edge is a border and the fill stops inside it: a fill under an inset-shadow edge leaks into the antialiased corner. */
     box-sizing: border-box;
-    border: var(--e-stroke-edge) solid var(--e-ring);
+    border: var(--e-stroke-edge) solid var(--_ring);
     border-radius: var(--e-radius-md);
     background-color: var(--e-surface);
     background-clip: padding-box;
-    box-shadow: var(--e-well);
+
+    /* The hover fill is a full-size inset laid over the well, so it runs unbroken to the top edge. It is always there, transparent at rest, so a hover fades its colour and never sweeps in from the edges. */
+    box-shadow:
+      inset 0 0 0 100vmax var(--_veil, transparent),
+      var(--e-shadow-well);
     color: var(--e-ink);
     font: var(--e-type-body);
     transition: var(--e-transition-state);
@@ -38,29 +43,28 @@
     color: var(--e-muted);
   }
 
-  /* The hover fill is laid over the well, so it runs unbroken to the top edge. */
   .e-input:hover,
   .e-input-wrap:hover {
-    box-shadow: inset 0 0 0 100vmax var(--_over, var(--e-wash-hover));
+    --_veil: var(--_over, var(--e-wash-hover));
   }
 
   .e-input:focus {
-    --e-ring: var(--e-focus-field);
+    --_ring: var(--e-focus-field);
+    --_veil: transparent;
 
     background-color: var(--e-surface);
-    box-shadow: var(--e-well);
   }
 
   /* A field's focus outline lies over its border and then reaches at least as far outside it again, so the field looks thicker on every stroke preset. */
   .e-input:focus-visible {
     outline-width: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge)));
     outline-color: var(--e-focus-field);
-    outline-offset: var(--e-focus-gap-field);
+    outline-offset: var(--e-stroke-focus-gap-field);
   }
 
   .e-input[aria-invalid="true"],
   .e-input-wrap[data-invalid] {
-    --e-ring: var(--e-danger);
+    --_ring: var(--e-danger);
   }
 
   .e-input[aria-invalid="true"]:hover,
@@ -98,23 +102,25 @@
     min-width: 0;
     min-height: var(--_h, var(--e-control-height));
     box-sizing: border-box;
-    border: var(--e-stroke-edge) solid var(--e-ring);
+    border: var(--e-stroke-edge) solid var(--_ring);
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     background-clip: padding-box;
-    box-shadow: var(--e-well);
+    box-shadow:
+      inset 0 0 0 100vmax var(--_veil, transparent),
+      var(--e-shadow-well);
     transition: var(--e-transition-state);
   }
 
   .e-input-wrap:focus-within {
-    --e-ring: var(--e-focus-field);
+    --_ring: var(--e-focus-field);
 
     outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
-    outline-offset: var(--e-focus-gap-field);
+    outline-offset: var(--e-stroke-focus-gap-field);
   }
 
   .e-input-wrap[data-invalid]:focus-within {
-    --e-ring: var(--e-danger);
+    --_ring: var(--e-danger);
 
     outline-color: var(--e-danger);
   }
@@ -160,7 +166,7 @@
     padding-inline-start: 0;
   }
 
-  /* A button beside the text inside a box: clear, show password. Its hover, press and focus are `.e-interact e-interact--inset`. */
+  /* The one button beside the text inside a box: clear, show password, open a list or a calendar. Its hover, press and focus are `.e-interact e-interact--inset`. */
   .e-input-btn {
     --_side: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--e-gap-tight)));
 
@@ -175,8 +181,8 @@
     padding: 0;
     border: 0;
 
-    /* Inset by the wrap's edge and a tight gap on every side. */
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-gap-tight)));
+    /* A small part inside the wrap's border. */
+    border-radius: max(0px, calc(var(--e-radius-row) - var(--e-stroke-edge)));
     background: transparent;
     color: var(--e-ink);
     cursor: pointer;
@@ -192,7 +198,7 @@
   }
 
   .e-input-btn[aria-pressed="true"] {
-    box-shadow: var(--e-slab-sink);
+    box-shadow: var(--e-shadow-sink);
   }
 
   .e-input-btn:disabled {
@@ -212,6 +218,23 @@
   }
 
   @media (forced-colors: active) {
+    .e-input,
+    .e-input-wrap {
+      border-color: ButtonText;
+    }
+
+    /* The danger edge is lost to the system colours, so an invalid box draws a heavier edge instead. */
+    .e-input[aria-invalid="true"],
+    .e-input-wrap[data-invalid] {
+      border-width: calc(2 * var(--e-stroke-edge));
+    }
+
+    .e-input:disabled,
+    .e-input-wrap[data-disabled] {
+      border-color: GrayText;
+      outline-color: GrayText;
+    }
+
     .e-input:disabled,
     .e-input-wrap[data-disabled],
     .e-input::placeholder,
@@ -219,13 +242,9 @@
       color: GrayText;
     }
 
-    .e-input:disabled,
-    .e-input-wrap[data-disabled] {
-      outline-color: GrayText;
-    }
-
     .e-input:focus-visible,
-    .e-input-wrap:focus-within {
+    .e-input-wrap:focus-within,
+    .e-input-btn:focus-visible {
       outline-color: Highlight;
     }
   }

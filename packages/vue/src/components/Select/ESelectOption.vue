@@ -16,7 +16,7 @@ defineProps<{
     :value="option.value"
     :disabled="option.disabled"
     :text-value="option.label"
-    class="e-opt"
+    class="e-opt e-interact e-interact--inset"
     :class="{ 'e-opt--selected': selected, 'e-opt--disabled': option.disabled }"
   >
     <EIcon v-if="option.icon" :name="option.icon" />

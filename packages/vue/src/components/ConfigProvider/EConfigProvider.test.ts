@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from "vitest";
 import { defineComponent, h, markRaw, nextTick } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
-import { defineTheme } from "@eos-ui/tokens";
+import { darkVariant, defineTheme, themeVariant } from "@eos-ui/tokens";
 import EConfigProvider from "./EConfigProvider.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EMenu from "../Menu/EMenu.vue";
@@ -132,6 +132,39 @@ describe("EConfigProvider", () => {
     expect(dark.style.getPropertyValue("color-scheme")).toBe("dark");
     expect(light.style.getPropertyValue("color-scheme")).toBe("light");
     expect(dark.style.getPropertyValue("--e-surface")).not.toBe(light.style.getPropertyValue("--e-surface"));
+    expect(dark.style.getPropertyValue("--e-surface")).toBe(defineTheme(darkVariant(input)).tokens["surface"]);
+  });
+
+  test("scheme picks the variant of a built theme that has one, and leaves a fixed one as built", async () => {
+    const auto = defineTheme({ name: "auto", brand: "#2c95b4", scheme: "auto" });
+    const fixed = defineTheme({ name: "fixed", brand: "#2c95b4" });
+    const { container } = await render(
+      defineComponent({
+        render: () => [
+          h(EConfigProvider, { theme: auto, scheme: "dark", class: "a" }, () => "Auto"),
+          h(EConfigProvider, { theme: fixed, scheme: "dark", class: "f" }, () => "Fixed"),
+        ],
+      }),
+    );
+    const a = container.querySelector<HTMLElement>(".a")!;
+    const f = container.querySelector<HTMLElement>(".f")!;
+    expect(a.style.getPropertyValue("color-scheme")).toBe("dark");
+    expect(a.style.getPropertyValue("--e-surface")).toBe(themeVariant(auto, { dark: true }).tokens["surface"]);
+    expect(f.style.getPropertyValue("color-scheme")).toBe("light");
+    expect(f.style.getPropertyValue("--e-surface")).toBe(fixed.tokens["surface"]);
+  });
+
+  test("floating parts render inside only when the provider sets a theme or scheme", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(EConfigProvider, { currency: "EUR" }, () => h(EMenu, { label: "Money", items: [{ label: "Edit" }] })),
+      }),
+    );
+    await userEvent.click(page.getByRole("button", { name: "Money" }));
+    await expect.poll(() => document.querySelector("[role=menu]")).not.toBeNull();
+    expect(container.querySelector(".e-config")!.contains(document.querySelector("[role=menu]"))).toBe(false);
+    await userEvent.keyboard("{Escape}");
   });
 
   test("a menu opened inside renders inside, so it keeps the theme", async () => {

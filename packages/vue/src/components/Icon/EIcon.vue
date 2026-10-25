@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useIconResolver } from "../../config.js";
-import type { Size } from "../../composables/useSize.js";
+import type { Size } from "../../types.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
@@ -22,13 +22,6 @@ const props = withDefaults(
 );
 
 const resolve = useIconResolver();
-/** The token of each size. `md` is the icon size every component uses, so it sets nothing and a component can still change it. */
-const SIZE_TOKEN: Record<Size, string | undefined> = {
-  sm: "--e-icon-size-sm",
-  md: undefined,
-  lg: "--e-icon-size-md",
-  xl: "--e-icon-size-lg",
-};
 const resolved = computed(() => resolve(props.name as string, props.size === "sm" || !!props.bold));
 /** An arrow or chevron that points left or right turns around in a right-to-left page. A physical alignment (`text-align-left`) does not. */
 const directional = computed(
@@ -38,7 +31,8 @@ const directional = computed(
 );
 const common = computed(() => ({
   class: ["e-icon", { "e-icon--s": props.size === "sm", "e-icon--dir": directional.value }],
-  style: SIZE_TOKEN[props.size] && { "--_size": `var(${SIZE_TOKEN[props.size]})` },
+  // Each size reads the token of its name. `md` is the icon size every component uses, so it sets nothing and a component can still change it.
+  style: props.size === "md" ? undefined : { "--_size": `var(--e-icon-size-${props.size})` },
   role: props.label ? "img" : undefined,
   "aria-label": props.label || undefined,
   "aria-hidden": props.label ? undefined : (true as const),
@@ -62,8 +56,8 @@ const common = computed(() => ({
 @layer e.primitives {
   .e-icon {
     flex: none;
-    width: var(--_size, var(--e-icon-size));
-    height: var(--_size, var(--e-icon-size));
+    width: var(--_size, var(--e-icon-size-md));
+    height: var(--_size, var(--e-icon-size-md));
   }
 
   .e-icon--glyph {

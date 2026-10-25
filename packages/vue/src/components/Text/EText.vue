@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { ElementTag, Size, Tone } from "../../composables/useSize.js";
+import type { ElementTag, Size, Tone } from "../../types.js";
+import { warnOnce } from "../../env.js";
 import "../../styles/base.css";
 
-/** The colour of the text. */
-export type TextTone = Extract<Tone, "neutral" | "info" | "success" | "warning" | "danger">;
+/** The colour of the text. Left out, it is the ink colour; `muted` is the quieter colour of secondary copy. */
+export type TextTone = "muted" | Extract<Tone, "info" | "success" | "warning" | "danger">;
 
 const props = withDefaults(
   defineProps<{
     /** `sm` for captions and fine print, `lg` for the one-sentence reading of a statement. `textScale` rescales both. */
     size?: Extract<Size, "sm" | "md" | "lg">;
-    /** The colour of the text. Left out, it is the ink colour. `neutral` is the quieter colour of secondary copy. */
+    /** The colour of the text. Left out, it is the ink colour. `muted` is the quieter colour of secondary copy. */
     tone?: TextTone;
     /** Aligns the lines. `start` and `end` follow the writing direction. */
     align?: "start" | "center" | "end";
@@ -18,7 +19,7 @@ const props = withDefaults(
     weight?: "medium" | "strong";
     /** Sets the text in the mono font, for codes and amounts. */
     mono?: boolean;
-    /** Keeps the text to one line and ends it with an ellipsis where it does not fit. Give the element a width to cut it to. */
+    /** Keeps the text to one line and ends it with an ellipsis where it does not fit. Give the element a width to cut it to. `lines` wins over it. */
     truncate?: boolean;
     /** Cuts the text after this many lines with an ellipsis. */
     lines?: number;
@@ -35,10 +36,11 @@ defineSlots<{
   default(): unknown;
 }>();
 
-/** Each tone's colour token. `neutral` is the muted ink. */
-const toneVar = (t: string) => `var(--e-${t === "neutral" ? "muted" : t})`;
+if (props.truncate && props.lines)
+  warnOnce("EText-truncate-lines", "EText takes `truncate` or `lines`, not both; `lines` wins.");
+
 const style = computed(() => ({
-  "--_tone": props.tone && toneVar(props.tone),
+  "--_tone": props.tone && `var(--e-${props.tone})`,
   "--_measure": props.measure ? undefined : "none",
   "--_lines": props.lines,
   textAlign: props.align,
@@ -53,9 +55,8 @@ const style = computed(() => ({
     :class="[
       size === 'sm' && 'e-text--small',
       size === 'lg' && 'e-text--large',
-      tone === 'neutral' && 'e-text--muted',
       mono && 'e-text--mono',
-      truncate && 'e-text--truncate',
+      truncate && !lines && 'e-text--truncate',
       lines && 'e-text--clamp',
     ]"
     :style="style"

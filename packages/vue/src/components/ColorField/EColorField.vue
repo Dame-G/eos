@@ -6,7 +6,7 @@ import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 import { useFieldControl } from "../../composables/useFieldControl.js";
 import { useMessages } from "../../config.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
+import "../../styles/controls/input.css";
 
 defineOptions({ inheritAttrs: false });
 
@@ -19,6 +19,11 @@ const props = defineProps<
       name?: string;
     }
 >();
+
+const emit = defineEmits<{
+  /** The typed text is not a colour, when focus leaves it. The field shows `message`, keeps the model as it was and posts nothing until the text is fixed. */
+  invalid: [text: string, message: string];
+}>();
 
 /** `#rrggbb`, lower case. Only complete, valid colours are written, and clearing the text writes an empty string. `#abc` expands to `#aabbcc`. */
 const model = defineModel<string>({ default: "" });
@@ -41,9 +46,8 @@ watch(model, (v) => {
 });
 
 const invalid = computed(() => touched.value && text.value.trim() !== "" && normalize(text.value) === null);
-const shownError = computed(
-  () => props.error || (invalid.value ? t("colorInvalid", { example: t("colorPlaceholder") }) : undefined),
-);
+const invalidMessage = () => t("colorInvalid", { example: t("colorPlaceholder") });
+const shownError = computed(() => props.error || (invalid.value ? invalidMessage() : undefined));
 // An <input type="color"> always has a value, so an empty field gives it black and an overlay hides that.
 const swatch = computed(() => normalize(model.value) ?? "#000000");
 const empty = computed(() => normalize(model.value) === null);
@@ -61,6 +65,7 @@ function onBlur() {
   touched.value = true;
   const hex = normalize(text.value);
   if (hex) text.value = hex;
+  else if (text.value.trim() && !props.readonly) emit("invalid", text.value.trim(), invalidMessage());
 }
 
 function onPick(e: Event) {
@@ -137,7 +142,7 @@ defineExpose(control.exposed);
 
   /* No colour yet: a neutral struck-through chip over the picker's black, which still opens on click. */
   .e-color-empty {
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-pad-inset)));
+    border-radius: max(0px, calc(var(--e-radius-row) - var(--e-stroke-edge)));
     background:
       linear-gradient(
         to top right,
@@ -156,7 +161,7 @@ defineExpose(control.exposed);
     height: calc(var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--_inset)));
     padding: 0;
     border: 0;
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-pad-inset)));
+    border-radius: max(0px, calc(var(--e-radius-row) - var(--e-stroke-edge)));
     background: none;
     cursor: pointer;
   }
@@ -167,13 +172,13 @@ defineExpose(control.exposed);
 
   .e-color-swatch::-webkit-color-swatch {
     border: 0;
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-pad-inset)));
+    border-radius: max(0px, calc(var(--e-radius-row) - var(--e-stroke-edge)));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 
   .e-color-swatch::-moz-color-swatch {
     border: 0;
-    border-radius: max(0px, calc(var(--e-radius-md) - var(--e-stroke-edge) - var(--e-pad-inset)));
+    border-radius: max(0px, calc(var(--e-radius-row) - var(--e-stroke-edge)));
     box-shadow: inset 0 0 0 var(--e-stroke-hair) var(--e-border-strong);
   }
 

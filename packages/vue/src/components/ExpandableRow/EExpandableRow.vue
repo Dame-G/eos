@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import EActions from "../Actions/EActions.vue";
+import EIcon from "../Icon/EIcon.vue";
 import { useDetails } from "../../composables/useDetails.js";
 import "../../styles/base.css";
 import "../../styles/details.css";
@@ -41,7 +42,10 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
         <span class="e-xrow-title">{{ title }}</span>
         <span v-if="subtitle" class="e-xrow-sub">{{ subtitle }}</span>
       </span>
-      <span v-if="$slots.trailing" class="e-xrow-trail"><slot name="trailing" /></span>
+      <span class="e-xrow-end">
+        <span v-if="$slots.trailing" class="e-xrow-trail"><slot name="trailing" /></span>
+        <EIcon class="e-details-chevron" name="chevron-down" />
+      </span>
     </summary>
     <div class="e-xrow-body">
       <div v-if="$slots.default" class="e-xrow-content"><slot /></div>
@@ -54,17 +58,21 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 @layer e.containers {
   /* The slab contract: a border on every side, thicker at the bottom by the lift. Hover darkens the edge, press inks it, and opening lays the row flat. */
   .e-xrow {
-    --_slab: var(--e-border-strong);
+    --_slab: var(--e-slab-ink);
     --_ring: var(--_slab);
     --_lift: var(--e-depth);
 
     /* How far a child sits inside the row's rounded edge; each child works its own radius from it. */
     --_inset: var(--e-stroke-edge);
 
+    /* The least width of the value at the end, so amounts in a list of rows line up. */
+    --_trail-w: 5.5rem;
+
     container-type: inline-size;
     border: var(--e-stroke-edge) solid var(--_ring);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-md);
+    border-radius: var(--e-radius-md) / var(--e-radius-md) var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift))
+      calc(var(--e-radius-md) + var(--_lift));
     background-color: var(--e-surface);
     background-clip: padding-box;
     transition: var(--e-transition-state);
@@ -99,12 +107,9 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     cursor: not-allowed;
   }
 
-  /* The summary and body sit inside the row's border (edge wide, the bottom edge plus the lift while closed), so their corners are the row's less that. */
+  /* The summary and body sit inside the row's border, so their corners are the row's less the edge; the slab corners keep the inside round at the bottom too. */
   .e-xrow > summary {
-    border-start-start-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
-    border-start-end-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
-    border-end-start-radius: max(0px, calc(var(--e-radius-md) - var(--_inset) - var(--_lift)));
-    border-end-end-radius: max(0px, calc(var(--e-radius-md) - var(--_inset) - var(--_lift)));
+    border-radius: max(0px, calc(var(--e-radius-md) - var(--_inset)));
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
@@ -123,11 +128,6 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 
   .e-xrow > summary::-webkit-details-marker {
     display: none;
-  }
-
-  .e-xrow > summary:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
   }
 
   .e-xrow-lead {
@@ -159,8 +159,15 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     overflow-wrap: anywhere;
   }
 
+  /* The end of the summary: the value, then the open and closed chevron. */
+  .e-xrow-end {
+    display: flex;
+    align-items: center;
+    gap: var(--e-gap-base);
+  }
+
   .e-xrow-trail {
-    min-width: 5.5rem;
+    min-width: var(--_trail-w);
     font: var(--e-weight-medium) var(--e-text-md) / var(--e-leading-snug) var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;

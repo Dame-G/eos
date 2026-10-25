@@ -50,4 +50,4 @@ A display-only stepper takes no keys. With `interactive`:
 
 ## Related
 
-[`EProgress`](../Progress/README.md) for a bar, [`ETabs`](../Tabs/README.md) to move between views.
+[`ETabs`](../Tabs/README.md) to move between views.

@@ -13,6 +13,12 @@ describe("fold", () => {
     expect(foldedRange("Zürich", "uri")).toEqual([1, 4]);
   });
 
+  test("plain ASCII text takes the short path and still matches an accented query", () => {
+    expect(fold("Hello World")).toBe("hello world");
+    expect(foldedRange("Cafe au lait", "CAFÉ")).toEqual([0, 4]);
+    expect(foldedRange("Lyon", "yo")).toEqual([1, 3]);
+  });
+
   test("no match or no query gives null", () => {
     expect(foldedRange("Zürich", "x")).toBeNull();
     expect(foldedRange("Zürich", "")).toBeNull();

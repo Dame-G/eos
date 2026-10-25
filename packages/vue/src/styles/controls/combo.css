@@ -1,0 +1,17 @@
+@layer e.composites {
+  /* A box whose input sits beside buttons (a combobox, a date field): the buttons are `.e-input-btn`, which keep their own end margin. */
+  .e-combo {
+    position: relative;
+    flex-wrap: nowrap;
+    align-items: center;
+    min-height: var(--_h, var(--e-control-height));
+  }
+
+  .e-combo:not(.e-combo--multi) .e-input {
+    flex: 1 1 6rem;
+    min-width: 4rem;
+    height: auto;
+    align-self: stretch;
+    padding-inline: calc(var(--e-pad-control) - var(--e-stroke-edge)) calc(var(--e-gap-snug) - var(--e-stroke-edge));
+  }
+}

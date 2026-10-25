@@ -25,7 +25,7 @@ A one-line row that opens to more: a leading item, a title with a subtitle, and 
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `details` element. Bind `v-model:open` to read or set the state. Rows that share a `group` open one at a time. Opening and closing slide where the browser can animate the height, and switch at once under reduced motion.
+`class`, `style` and attributes land on the `details` element. A chevron after the value shows whether the row is open. Opening and closing slide where the browser can animate the height, and switch at once under reduced motion.
 
 Rows in a list line their leading items up when the lead column has a fixed width: set `--e-xrow-lead` (for example `8.75rem`) on the rows or their parent.
 
@@ -43,6 +43,7 @@ Rows in a list line their leading items up when the lead column has a fixed widt
 - A native `details` with a `summary`, so the open state is announced.
 - `disabled` sets `aria-disabled="true"` on the summary: it stays focusable, is dimmed and does not toggle.
 - The summary holds only the title, subtitle, leading and trailing content, all as text (`span`s), because a summary may not contain a button or link. Put interactive controls in the body or the `actions` slot.
+- In print a closed row prints open, without its chevron, and is not split across pages.
 
 ## Keyboard
 
@@ -53,4 +54,4 @@ Rows in a list line their leading items up when the lead column has a fixed widt
 
 ## Related
 
-[`EDisclosure`](../Disclosure/README.md) for a section of a page, [`ETable`](../Table/README.md) for rows with columns.
+[`ETable`](../Table/README.md) for rows with columns.

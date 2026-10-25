@@ -18,7 +18,9 @@ const t = useMessages();
 <style>
 @layer e.controls {
   .e-field-flag {
-    font: var(--e-weight-regular) var(--e-text-sm)/1.2 var(--e-font-sans);
+    /* The helper style on the label's tight line, so a flag never makes a label taller than its neighbours'. */
+    font: var(--e-type-helper);
+    line-height: var(--e-leading-tight);
     letter-spacing: 0;
     text-transform: none;
     color: var(--e-muted);

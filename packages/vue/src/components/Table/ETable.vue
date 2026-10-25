@@ -4,7 +4,6 @@ import EEmptyState from "../EmptyState/EEmptyState.vue";
 import "../Skeleton/ESkeleton.vue";
 import { useMessages } from "../../config.js";
 import { useOverflow } from "../../composables/useOverflow.js";
-import type { Size } from "../../composables/useSize.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 import "./table.css";
@@ -17,11 +16,11 @@ const props = withDefaults(
     hideCaption?: boolean;
     /** Tints every other row. */
     striped?: boolean;
-    /** Smaller text and tighter cells, for reference tables with many rows. @default "md" */
-    size?: Extract<Size, "sm" | "md">;
+    /** Smaller text and tighter cells, for reference tables with many rows. */
+    dense?: boolean;
     /** Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header row. */
     maxHeight?: string;
-    /** Turns each row into a card below 40rem of the table's own width. Give every `td` a `data-label` with its column heading. */
+    /** Turns each row into a card below 40rem of the table's own width. Give every `td` a `data-label` with its column heading; a row heading (`th scope="row"`) is the card's title. */
     cards?: boolean;
     /** Marks the data as loading: the rows are dimmed, `aria-busy` is set and placeholder lines show under the table. */
     loading?: boolean;
@@ -53,26 +52,22 @@ const style = computed(() => (props.maxHeight ? { "--_max-h": props.maxHeight } 
 const scroller = ref<HTMLElement | null>(null);
 const table = ref<HTMLTableElement | null>(null);
 const overflows = useOverflow(scroller, [table]);
-const scrollable = computed(() => overflows.value || !!props.maxHeight);
 </script>
 
 <template>
-  <div
-    class="e-table-wrap"
-    :class="[striped && 'e-table-wrap--striped', size === 'sm' && 'e-table-wrap--dense', cards && 'e-cards']"
-  >
+  <div class="e-table-wrap" :class="cards && 'e-cards'">
     <div
       ref="scroller"
       class="e-table-scroll"
-      :tabindex="scrollable ? 0 : undefined"
-      :role="scrollable ? 'region' : undefined"
-      :aria-label="scrollable ? caption : undefined"
+      :tabindex="overflows ? 0 : undefined"
+      :role="overflows ? 'region' : undefined"
+      :aria-label="overflows ? caption : undefined"
       :style="style"
     >
       <table
         ref="table"
         class="e-table"
-        :class="{ 'e-table--busy': loading }"
+        :class="{ 'e-table--busy': loading, 'e-table--striped': striped, 'e-table--dense': dense }"
         :aria-busy="loading ? 'true' : undefined"
       >
         <caption :class="hideCaption ? 'e-sr' : 'e-table-caption'">
@@ -106,27 +101,9 @@ const scrollable = computed(() => overflows.value || !!props.maxHeight);
     border-radius: var(--e-radius-md);
   }
 
-  /* The outline is drawn once, above the scroller and its sticky headings, so nothing covers it. */
-  .e-table-wrap::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    z-index: var(--e-z-sticky);
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border);
-    pointer-events: none;
-  }
-
   .e-table-scroll {
-    overflow: auto;
-    max-height: var(--_max-h, none);
     border-radius: inherit;
     background: var(--e-surface);
-  }
-
-  .e-table-scroll:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-table-caption {
@@ -143,24 +120,11 @@ const scrollable = computed(() => overflows.value || !!props.maxHeight);
     z-index: var(--e-z-raised);
   }
 
-  .e-table-wrap--striped tbody tr:nth-child(even) :is(td, th) {
-    background: var(--e-surface-tint);
-  }
-
-  .e-table-wrap--striped tbody tr:hover :is(td, th) {
-    background: var(--e-wash-hover);
-  }
-
-  .e-table-wrap--dense .e-table {
-    font-size: var(--e-text-sm);
-  }
-
-  .e-table-wrap--dense .e-table :is(th, td, tbody th) {
-    padding: var(--e-space-2) var(--e-space-3);
-  }
-
-  .e-table--busy tbody {
-    opacity: 0.5;
+  /* On paper the head is in the flow, so the browser repeats it at the top of each page the table runs onto. */
+  @media print {
+    .e-table-wrap thead th {
+      position: static;
+    }
   }
 
   .e-table-loading {
@@ -177,23 +141,6 @@ const scrollable = computed(() => overflows.value || !!props.maxHeight);
   @container (max-width: 40rem) {
     .e-cards.e-table-wrap::after {
       content: none;
-    }
-  }
-
-  @media print {
-    .e-table-scroll {
-      overflow: visible;
-      max-height: none;
-    }
-
-    .e-table-wrap::after {
-      display: none;
-    }
-  }
-
-  @media (forced-colors: active) {
-    .e-table-wrap {
-      outline: 1px solid CanvasText;
     }
   }
 }

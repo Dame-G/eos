@@ -22,7 +22,7 @@ A button for an action: one `primary` per screen, the other variants rank below 
 | `block`    | `boolean`                                                      | `false`     | Makes the button fill the width of its container.                                                                                                                                    |
 | `disabled` | `boolean`                                                      | `false`     | Stops the button taking focus and ignores clicks. With `href` the link gets `aria-disabled="true"` and `tabindex="-1"` and does not navigate.                                        |
 | `type`     | `"button" \| "submit" \| "reset"`                              | `"button"`  | `submit` submits a form. Use it on the one button that submits.                                                                                                                      |
-| `href`     | `string`                                                       | None        | Renders a link that looks like the button, for a destination rather than an action (a call to action that goes to a page). A link does not activate on Space, like a native link.    |
+| `href`     | `string`                                                       | None        | Renders a link that looks like the button, for a destination rather than an action (a call to action that goes to a page).                                                           |
 | `external` | `boolean`                                                      | `false`     | Opens the link in a new tab and tells screen readers so. Needs `href`.                                                                                                               |
 | `loading`  | `boolean`                                                      | `false`     | Shows a spinner in place of the icon and ignores clicks while an action runs. The button stays focusable, is marked busy and "Loading" is announced.                                 |
 
@@ -54,4 +54,4 @@ A button for an action: one `primary` per screen, the other variants rank below 
 
 ## Related
 
-[`EIconButton`](../IconButton/README.md) when the button is only an icon, [`ELink`](../Link/README.md) for a link inside text, [`EActions`](../Actions/README.md) to group several.
+[`ECopyButton`](../CopyButton/README.md) to copy text, [`EMenu`](../Menu/README.md) for a list of actions.

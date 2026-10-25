@@ -7,7 +7,9 @@ import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import layers from "./scripts/postcss-layers.ts";
 import hover from "./scripts/postcss-hover.ts";
+import { writeFonts } from "./scripts/fonts.ts";
 import { ssrRender } from "./test/ssr/command.ts";
+import { forcedColors } from "./test/forcedColors.ts";
 import { LAYER_ORDER } from "@eos-ui/tokens";
 
 const src = (p: string) => fileURLToPath(new URL(p, import.meta.url));
@@ -84,6 +86,8 @@ export default defineConfig(({ command }) => ({
       closeBundle() {
         mkdirSync(src("./dist"), { recursive: true });
         copyFileSync(src("./src/styles/fonts.css"), src("./dist/fonts.css"));
+        // fonts-self-hosted.css with its woff2 files, and fonts-fallback.css.
+        writeFonts(src("."));
       },
     },
     {
@@ -102,7 +106,12 @@ export default defineConfig(({ command }) => ({
   css: { postcss: { plugins: [layers(), hover()] } },
   build: {
     target: "es2022",
-    sourcemap: true,
+    // The JavaScript ships as readable modules, one per source file: a consumer's bundler minifies it, and a stack trace
+    // or a debugger step already reads like the source. So there is no minifying here, and no source maps, which would
+    // point at .vue and .ts files the package does not ship unless they carried every source in sourcesContent (about
+    // 1.5 MB). scripts/size.mjs minifies before it measures, as a production bundle would.
+    minify: false,
+    sourcemap: false,
     cssCodeSplit: false,
     cssMinify: "lightningcss",
     cssTarget: "esnext",
@@ -147,7 +156,7 @@ export default defineConfig(({ command }) => ({
       })),
       viewport: { width: 640, height: 800 },
       // test/ssr.test.ts asks Node for the server render of a component, through the dev server's SSR module graph.
-      commands: { ssrRender },
+      commands: { ssrRender, forcedColors },
     },
   },
 }));

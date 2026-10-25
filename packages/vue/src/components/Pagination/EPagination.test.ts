@@ -142,6 +142,47 @@ describe("EPagination", () => {
     await expect.poll(() => live.textContent).toContain("Page 2 of 5");
   });
 
+  test("a page set from outside is not announced: only a person's choice is", async () => {
+    const model = ref(1);
+    await render(
+      defineComponent({
+        render: () => h(EPagination, { modelValue: model.value, pageCount: 5, "onUpdate:modelValue": () => {} }),
+      }),
+    );
+    const live = document.querySelector("[data-e-announcer=polite]");
+    const before = live?.textContent ?? "";
+    model.value = 3;
+    await new Promise((r) => setTimeout(r, 150));
+    expect(document.querySelector("[data-e-announcer=polite]")?.textContent ?? "").toBe(before);
+    expect(before).not.toContain("Page 3 of 5");
+  });
+
+  test("a page restored before the count arrives is kept: with no pages the clamp is not written back", async () => {
+    const model = ref(7);
+    const count = ref(0);
+    const writes: number[] = [];
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(EPagination, {
+            modelValue: model.value,
+            pageCount: count.value,
+            "onUpdate:modelValue": (v: number) => {
+              writes.push(v);
+              model.value = v;
+            },
+          }),
+      }),
+    );
+    expect(writes).toEqual([]);
+    count.value = 10;
+    await expect.poll(() => container.querySelector(".e-page[aria-current=page]")?.textContent?.trim()).toBe("7");
+    expect(writes).toEqual([]);
+    expect(model.value).toBe(7);
+    count.value = 4;
+    await expect.poll(() => model.value).toBe(4);
+  });
+
   test("href makes the pages and steps links", async () => {
     const { container } = await render(EPagination, {
       props: { modelValue: 2, pageCount: 3, href: (n: number) => `/list?page=${n}` },

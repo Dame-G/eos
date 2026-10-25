@@ -1,15 +1,15 @@
-# EDefinition
+# EToggletip
 
-A term that opens a small floating panel with a definition or short explanation. Use a dialog when the reader must decide something and [`EMenu`](../Menu/README.md) for actions.
+A term that opens a small non-modal panel with a short explanation when it is pressed (a toggletip). Use [`ETooltip`](../Tooltip/README.md) for a one-line name on hover, [`EDialog`](../Dialog/README.md) when the reader must decide something, and [`EDescriptionList`](../DescriptionList/README.md) for terms and their values on the page.
 
 ```vue
-<EDefinition label="About payment plans" title="Payment plan">
+<EToggletip label="About payment plans" title="Payment plan">
   <template #trigger>What is a payment plan?</template>
   Split your balance into equal monthly payments. There is no interest and no fee.
   <template #actions>
     <EButton variant="outline">Set up a plan</EButton>
   </template>
-</EDefinition>
+</EToggletip>
 ```
 
 ## Props
@@ -26,7 +26,7 @@ A term that opens a small floating panel with a definition or short explanation.
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the term `button` element. `inline` sets the term inside running text (`Licensed under <EDefinition inline ...>MIT</EDefinition>`): the sentence's font and baseline, and no info icon.
+`class`, `style` and attributes land on the term `button` element. With `inline`: `Licensed under <EToggletip inline ...>MIT</EToggletip>`.
 
 ## Slots
 
@@ -52,4 +52,4 @@ A term that opens a small floating panel with a definition or short explanation.
 
 ## Related
 
-[`EDialog`](../Dialog/README.md) when the reader must decide something, [`ETooltip`](../Tooltip/README.md) for a one-line hint.
+[`EMenu`](../Menu/README.md) for a list of actions.

@@ -10,13 +10,14 @@ import "../Skeleton/ESkeleton.vue";
 import EDataGridFilterRow from "./EDataGridFilterRow.vue";
 import EDataGridResizer from "./EDataGridResizer.vue";
 import EDataGridToolbar from "./EDataGridToolbar.vue";
-import "../Definition/EDefinition.vue";
 import type { EOption } from "../Select/options.js";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
+import { warnOnce } from "../../env.js";
 import { useLocale } from "../../composables/useLocale.js";
 import { useOverflow } from "../../composables/useOverflow.js";
-import { cellValue, compareValues, filterActive, foldText, parsePx, passesFilter } from "./grid.js";
+import { cellValue, filterActive, foldText, parsePx } from "./grid.js";
+import { useDataGrid } from "./useDataGrid.js";
 import type {
   DataGridColumn,
   DataGridFilterValue,
@@ -27,6 +28,7 @@ import type {
 } from "./types.js";
 import "../../styles/base.css";
 import "../Table/table.css";
+import "./grid.css";
 
 const props = withDefaults(
   defineProps<{
@@ -50,6 +52,10 @@ const props = withDefaults(
     columnToggle?: boolean;
     /** Shows a checkbox on each row and a select-all in the heading. */
     selectable?: boolean;
+    /** Tints every other row. */
+    striped?: boolean;
+    /** Smaller text and tighter cells, for a grid with many rows. */
+    dense?: boolean;
     /** Rows per page. 0 turns paging off. */
     pageSize?: number;
     /** Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header. */
@@ -58,11 +64,11 @@ const props = withDefaults(
     virtual?: boolean | DataGridVirtual;
     /** Turns rows into cards below 40rem of the grid's own width. `virtual` and `resizable` grids keep the table. */
     cards?: boolean;
-    /** Marks the data as living on a server. The grid shows the rows given, in the order given, and reports every change through `queryChange`, once on mount too, so the first fetch needs no code of its own. */
+    /** Marks the data as living on a server. The grid shows the rows given, in the order given, and reports every change through `queryChange`, once on mount too, so the first fetch needs no code of its own. Give it `total` to page. */
     manual?: boolean;
-    /** With `manual`, how many milliseconds to wait after the last keystroke in the search box or a text or number filter before `queryChange`. Other changes report at once. */
+    /** How many milliseconds to wait after the last keystroke in the search box or a text or number filter before the rows are filtered (or, with `manual`, before `queryChange`). Other changes apply at once. */
     searchDebounce?: number;
-    /** With `manual`, how many rows there are in all. */
+    /** With `manual`, how many rows there are in all. Without it the grid cannot page. */
     total?: number;
     /** Marks the data as loading, with `aria-busy`. With no rows yet it shows placeholder rows; with rows (the previous page) they stay, dimmed, until the new ones arrive. */
     loading?: boolean;
@@ -79,7 +85,7 @@ const props = withDefaults(
     /** The name of a row for its checkbox ("Select Annual check-up"), when the first column's text is not a good one. */
     rowLabel?: (row: Row) => string;
   }>(),
-  { pageSize: 10, cards: true, searchDebounce: 0, skeletonRows: 5 },
+  { pageSize: 10, searchDebounce: 0, skeletonRows: 5 },
 );
 
 const emit = defineEmits<{
@@ -96,6 +102,8 @@ const slots = defineSlots<{
   "bulk-actions"?: () => unknown;
   /** Anything else for the bar above the table. */
   toolbar?: () => unknown;
+  /** Your own empty state, when there are no rows. `filtered` is true when a search or filter hid them, and `clearFilters` clears both. */
+  empty?: (props: { filtered: boolean; clearFilters: () => void }) => unknown;
   /** Your own failed-load state, in place of the sentence and button, when `error` is set. */
   error?: () => unknown;
 }>();
@@ -124,13 +132,6 @@ const columnSizing = ref<Record<string, number>>({});
 const colByKey = computed(() => new Map(props.columns.map((c) => [c.key, c])));
 
 // What a default cell writes: a column's `format`, else a date or a figure in the configured locale.
-const numberFormat = computed(() => {
-  try {
-    return new Intl.NumberFormat(loc.locale.value);
-  } catch {
-    return new Intl.NumberFormat();
-  }
-});
 function show(row: Row, c: DataGridColumn<Row>): string {
   const v = cellValue(row, c);
   if (v == null) return "";
@@ -140,7 +141,7 @@ function show(row: Row, c: DataGridColumn<Row>): string {
   if (f === "date" || (!f && v instanceof Date))
     return v instanceof Date || typeof v === "string" ? fmtDate(v) : String(v);
   if (f === "currency") return isNumber ? loc.formatMoney(v) : String(v);
-  if (f === "number" || (!f && c.numeric && isNumber)) return isNumber ? numberFormat.value.format(v) : String(v);
+  if (f === "number" || (!f && c.numeric && isNumber)) return isNumber ? loc.formatNumber(v) : String(v);
   return String(v);
 }
 function fmtDate(v: Date | string): string {
@@ -151,8 +152,7 @@ const vopt = computed(() =>
   props.virtual ? { rowHeight: 48, height: 440, overscan: 8, ...(props.virtual === true ? {} : props.virtual) } : null,
 );
 const pageSize = computed(() => (vopt.value ? 0 : props.pageSize));
-const paging = computed(() => pageSize.value > 0 && !props.manual);
-const cards = computed(() => props.cards !== false && !vopt.value && !props.resizable);
+const cards = computed(() => !!props.cards && !vopt.value && !props.resizable);
 const q = computed(() => foldText(search.value.trim()));
 const anyFilter = computed(() => Object.values(filters.value).some(filterActive));
 
@@ -160,54 +160,72 @@ const anyFilter = computed(() => Object.values(filters.value).some(filterActive)
 const cols = computed(() => props.columns.filter((c) => columnVisibility.value[c.key] !== false));
 
 /*
- * The rows go through three steps, each a computed over the one before: filter (the column filters, then the search
- * over the shown columns), sort, then the page. A `manual` grid does none of it: the server sent the answer.
+ * What is typed (the search and the text and number filters) applies after `searchDebounce`; a click on a heading, a
+ * page or a choice applies at once. `applied` is what the rows are filtered by, or, with `manual`, what was reported.
  */
-const filteredRows = computed<Row[]>(() => {
-  if (props.manual) return props.rows;
-  const active = Object.entries(filters.value).flatMap(([key, f]) => {
-    const c = colByKey.value.get(key);
-    return c && filterActive(f) ? [{ c, f }] : [];
-  });
-  const needle = q.value;
-  if (!active.length && !needle) return props.rows;
-  const searched = cols.value;
-  return props.rows.filter(
-    (row) =>
-      active.every(({ c, f }) => passesFilter(c, cellValue(row, c), f, show(row, c))) &&
-      (!needle ||
-        searched.some((c) => {
-          const v = cellValue(row, c);
-          return v != null && (foldText(v).includes(needle) || foldText(show(row, c)).includes(needle));
-        })),
-  );
+const typed = () =>
+  JSON.stringify([
+    search.value,
+    Object.entries(filters.value).filter(([key]) => colByKey.value.get(key)?.filter?.type !== "select"),
+  ]);
+const applied = ref({ search: search.value, filters: filters.value, typed: typed() });
+let queryTimer: ReturnType<typeof setTimeout> | undefined;
+function commit() {
+  clearTimeout(queryTimer);
+  applied.value = { search: search.value, filters: filters.value, typed: typed() };
+  if (props.manual)
+    emit("queryChange", {
+      sort: sort.value,
+      page: page.value,
+      pageSize: pageSize.value,
+      search: search.value,
+      filters: filters.value,
+    });
+}
+watch([sort, page, search, filters], () => {
+  if (props.searchDebounce > 0 && typed() !== applied.value.typed) {
+    clearTimeout(queryTimer);
+    queryTimer = setTimeout(commit, props.searchDebounce);
+  } else commit();
+});
+onMounted(() => {
+  if (props.manual) commit();
 });
 
-const sortedRows = computed<Row[]>(() => {
-  const s = sort.value;
-  const c = s ? colByKey.value.get(s.key) : undefined;
-  if (props.manual || !s || !c?.sortable) return filteredRows.value;
-  const sign = s.dir === "desc" ? -1 : 1;
-  const locale = loc.locale.value;
-  // Equal values keep the order they were given in.
-  return filteredRows.value
-    .map((row, i) => ({ row, i, v: cellValue(row, c) }))
-    .sort((a, b) => sign * compareValues(a.v, b.v, locale) || a.i - b.i)
-    .map((x) => x.row);
-});
-
-/** The rows on the current page, or every row when the grid does not page. */
-const view = computed<Row[]>(() => {
-  if (!paging.value) return sortedRows.value;
-  const start = Math.max(0, page.value - 1) * pageSize.value;
-  return sortedRows.value.slice(start, start + pageSize.value);
-});
-const total = computed(() => (props.manual ? (props.total ?? props.rows.length) : sortedRows.value.length));
-const pages = computed(() => (pageSize.value > 0 ? Math.max(1, Math.ceil(total.value / pageSize.value)) : 1));
-const cur = computed(() => Math.min(page.value, pages.value));
+/* Filter, sort and page, unless the grid is `manual` and the server sent the answer. */
+const {
+  view,
+  total,
+  pages,
+  page: cur,
+} = useDataGrid(
+  () => props.rows,
+  () => props.columns,
+  {
+    searched: cols,
+    sort,
+    search: () => applied.value.search,
+    filters: () => applied.value.filters,
+    page,
+    pageSize,
+    manual: () => props.manual,
+    total: () => props.total,
+    locale: loc.locale,
+    show,
+  },
+);
 watch(pages, (n) => {
   if (page.value > n) page.value = n;
 });
+// A server grid pages only when it says how many rows there are in all.
+watch(
+  () => props.manual && props.total === undefined && pageSize.value > 0 && props.rows.length > 0,
+  (missing) => {
+    if (missing)
+      warnOnce("EDataGrid-total", "EDataGrid `manual` needs `total` to page; without it every row is one page.");
+  },
+  { immediate: true },
+);
 const hasFilterRow = computed(() => !!props.filterable && cols.value.some((c) => c.filter));
 const colCount = computed(() => cols.value.length + (props.selectable ? 1 : 0));
 const from = computed(() =>
@@ -241,17 +259,38 @@ function toggleColumn(key: string, visible: boolean) {
   columnVisibility.value = { ...columnVisibility.value, [key]: visible };
 }
 
+/*
+ * Virtual rows: each rendered row is measured, so a row that the text size or the theme makes taller than `rowHeight`
+ * keeps the scroll exact. Rows are one line (see grid.css), so the first row measured is the estimate for the rest.
+ */
 const scrollEl = ref<HTMLElement | null>(null);
 const tableEl = ref<HTMLElement | null>(null);
+const rowPx = ref<number | undefined>(undefined);
 const virtualizer = useVirtualizer(
   computed(() => ({
     count: vopt.value ? view.value.length : 0,
     getScrollElement: () => scrollEl.value,
-    estimateSize: () => vopt.value?.rowHeight ?? 48,
+    estimateSize: () => rowPx.value ?? vopt.value?.rowHeight ?? 48,
     overscan: vopt.value?.overscan ?? 8,
     getItemKey: (i: number) => view.value[i]?.id ?? i,
-    initialRect: { width: 0, height: vopt.value?.height ?? 0 },
+    initialRect: { width: 0, height: parsePx(vopt.value?.height) ?? 0 },
   })),
+);
+function measureRow(el: unknown) {
+  if (!(el instanceof HTMLElement) || !vopt.value) return;
+  // The first row of the body has no rule above it, so it is a pixel shorter than the rest: the next one is the estimate.
+  if (rowPx.value === undefined && el.previousElementSibling) {
+    const h = el.getBoundingClientRect().height;
+    if (h > 0) {
+      rowPx.value = Math.round(h); // as the virtualizer rounds what it measures
+      virtualizer.value.measure();
+    }
+  }
+  virtualizer.value.measureElement(el);
+}
+watch(
+  () => vopt.value?.rowHeight,
+  () => (rowPx.value = undefined),
 );
 const items = computed(() => (vopt.value ? virtualizer.value.getVirtualItems() : []));
 const shown = computed(() => (vopt.value ? items.value.flatMap((i) => (view.value[i.index] ? [i] : [])) : []));
@@ -299,33 +338,36 @@ onBeforeUnmount(() => {
   headObserver?.disconnect();
   clearTimeout(queryTimer);
 });
-const scrollStyle = computed(
-  () =>
-    ({
-      height: vopt.value ? `${vopt.value.height}px` : undefined,
-      "--_max-h": !vopt.value && props.maxHeight ? props.maxHeight : undefined,
-      "--_head-h": headH.value ? `${headH.value}px` : undefined,
-    }) as CSSProperties,
-);
+const scrollStyle = computed(() => {
+  const h = vopt.value?.height;
+  return {
+    height: typeof h === "number" ? `${h}px` : h,
+    "--_max-h": !vopt.value && props.maxHeight ? props.maxHeight : undefined,
+    "--_head-h": headH.value ? `${headH.value}px` : undefined,
+  } as CSSProperties;
+});
 const role = (r: string) => (cards.value ? r : undefined);
 
-// Below 40rem of its own width a card grid hides its headings, so nothing in them may take focus.
+/*
+ * As cards, below 40rem of its own width, the grid hides its headings, so nothing in them may take focus. The width is
+ * decided once, by the container query in table.css that hides the heading row: the grid reads whether it did.
+ */
 const root = ref<HTMLElement | null>(null);
 const narrow = ref(false);
 const overflows = useOverflow(scrollEl, [() => tableEl.value]);
-const scrollable = computed(() => overflows.value || !!props.maxHeight || !!vopt.value);
 const headInert = computed(() => cards.value && narrow.value);
 let widthObserver: ResizeObserver | undefined;
+function measureNarrow() {
+  const head = tableEl.value?.querySelector("thead");
+  narrow.value = !!head && getComputedStyle(head).position === "absolute";
+}
 onMounted(() => {
+  measureNarrow();
   if (typeof ResizeObserver === "undefined" || !root.value) return;
-  const measure = () => {
-    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-    narrow.value = (root.value?.clientWidth ?? Infinity) <= 40 * rem;
-  };
-  widthObserver = new ResizeObserver(measure);
+  widthObserver = new ResizeObserver(measureNarrow);
   widthObserver.observe(root.value);
-  measure();
 });
+watch(cards, measureNarrow, { flush: "post" });
 onBeforeUnmount(() => widthObserver?.disconnect());
 
 // A row's checkbox is named after the row: the first shown column's text, else its id.
@@ -337,8 +379,10 @@ const labelOf = (row: Row): string => {
 };
 const busyRows = computed(() => !!props.loading && view.value.length > 0);
 const failed = computed(() => !!props.error);
+const errorText = computed(() => (typeof props.error === "string" ? props.error : t("loadFailed")));
+const filtered = computed(() => anyFilter.value || !!q.value);
 
-const sortables = computed(() => props.columns.filter((c) => c.sortable));
+const sortables = computed(() => cols.value.filter((c) => c.sortable));
 const sortOptions = computed<EOption[]>(() => [
   { value: NONE, label: t("sortBy") },
   ...sortables.value.flatMap((c) =>
@@ -385,35 +429,6 @@ function resetWidth(key: string) {
   delete next[key];
   columnSizing.value = next;
 }
-let queryTimer: ReturnType<typeof setTimeout> | undefined;
-/** What is typed: the search and the text and number filters. A choice from a select filter is not typing. */
-const typed = () =>
-  JSON.stringify([
-    search.value,
-    Object.entries(filters.value).filter(([key]) => colByKey.value.get(key)?.filter?.type !== "select"),
-  ]);
-let reportedTyped = typed();
-function report() {
-  clearTimeout(queryTimer);
-  reportedTyped = typed();
-  emit("queryChange", {
-    sort: sort.value,
-    page: page.value,
-    pageSize: pageSize.value,
-    search: search.value,
-    filters: filters.value,
-  });
-}
-watch([sort, page, search, filters], () => {
-  // Typing in the search box or a filter field waits for a pause; a click on a heading, a page or a choice goes at once.
-  if (props.manual && props.searchDebounce > 0 && typed() !== reportedTyped) {
-    clearTimeout(queryTimer);
-    queryTimer = setTimeout(report, props.searchDebounce);
-  } else report();
-});
-onMounted(() => {
-  if (props.manual) report();
-});
 </script>
 
 <template>
@@ -427,7 +442,7 @@ onMounted(() => {
         :picked="nPicked"
         :sort-options="showSortSelect ? sortOptions : undefined"
         :sort-value="sortSelectValue"
-        :filtered="anyFilter || !!q"
+        :filtered="filtered"
         :columns="
           columnToggle
             ? columns.map((c) => ({ id: c.key, label: c.label, visible: columnVisibility[c.key] !== false }))
@@ -456,14 +471,20 @@ onMounted(() => {
         ref="scrollEl"
         class="e-grid-scroll"
         :style="scrollStyle"
-        :tabindex="scrollable ? 0 : undefined"
-        :role="scrollable ? 'region' : undefined"
-        :aria-label="scrollable ? caption : undefined"
+        :tabindex="overflows ? 0 : undefined"
+        :role="overflows ? 'region' : undefined"
+        :aria-label="overflows ? caption : undefined"
       >
         <table
           ref="tableEl"
           class="e-table e-gridtable"
-          :class="{ 'e-gridtable--virtual': vopt, 'e-gridtable--fixed': fixedLayout, 'e-gridtable--busy': busyRows }"
+          :class="{
+            'e-gridtable--virtual': vopt,
+            'e-gridtable--fixed': fixedLayout,
+            'e-table--busy': busyRows,
+            'e-table--striped': striped,
+            'e-table--dense': dense,
+          }"
           :style="tableStyle"
           :role="role('table')"
           :aria-busy="loading ? 'true' : undefined"
@@ -475,14 +496,14 @@ onMounted(() => {
             }}
           </caption>
           <colgroup v-if="fixedLayout">
-            <col v-if="selectable" style="width: var(--_check-w)" />
+            <col v-if="selectable" class="e-col-check" />
             <col v-for="c in cols" :key="c.key" :style="widthOf(c) ? { width: `${widthOf(c)}px` } : undefined" />
           </colgroup>
           <thead :role="role('rowgroup')" :inert="headInert || undefined">
             <tr ref="headRow" :role="role('row')">
               <th v-if="selectable" scope="col" class="e-cell-check" :role="role('columnheader')">
                 <ECheckbox
-                  bare
+                  hide-label
                   :label="vopt ? t('selectAll') : t('selectAllPage')"
                   :model-value="allOn"
                   :indeterminate="someOn && !allOn"
@@ -539,7 +560,7 @@ onMounted(() => {
             <tr v-if="failed" :role="role('row')">
               <td :colspan="colCount" class="e-grid-empty" :role="role('cell')">
                 <slot name="error">
-                  <EEmptyState bare icon="alert" :title="typeof error === 'string' ? error : t('loadFailed')">
+                  <EEmptyState bare tone="danger" icon="alert" :title="errorText">
                     <template #action>
                       <EButton variant="outline" @click="emit('retry')">{{ t("retry") }}</EButton>
                     </template>
@@ -557,12 +578,14 @@ onMounted(() => {
             </template>
             <tr v-else-if="view.length === 0" :role="role('row')">
               <td :colspan="colCount" class="e-grid-empty" :role="role('cell')">
-                <EEmptyState bare :icon="emptyIcon || 'search'" :title="emptyTitle || t('noResults')">
-                  {{ emptyText || (anyFilter || q ? t("noMatchesFilters") : t("nothingYet")) }}
-                  <template v-if="anyFilter || q" #action>
-                    <EButton variant="outline" @click="clearFilters">{{ t("clearFilters") }}</EButton>
-                  </template>
-                </EEmptyState>
+                <slot name="empty" :filtered="filtered" :clear-filters="clearFilters">
+                  <EEmptyState bare :icon="emptyIcon || 'search'" :title="emptyTitle || t('noResults')">
+                    {{ emptyText || (filtered ? t("noMatchesFilters") : t("nothingYet")) }}
+                    <template v-if="filtered" #action>
+                      <EButton variant="outline" @click="clearFilters">{{ t("clearFilters") }}</EButton>
+                    </template>
+                  </EEmptyState>
+                </slot>
               </td>
             </tr>
             <template v-else>
@@ -572,13 +595,15 @@ onMounted(() => {
               <tr
                 v-for="{ row, index } in rowsToRender"
                 :key="row.id"
+                :ref="vopt ? measureRow : undefined"
                 :role="role('row')"
+                :data-index="vopt ? index : undefined"
                 :data-selected="isPicked(row) ? '' : undefined"
                 :aria-rowindex="vopt ? index + 2 + (hasFilterRow ? 1 : 0) : undefined"
               >
                 <td v-if="selectable" class="e-cell-check" :role="role('cell')">
                   <ECheckbox
-                    bare
+                    hide-label
                     :label="t('selectRowNamed', { label: labelOf(row) })"
                     :model-value="isPicked(row)"
                     @update:model-value="pick([row], $event)"
@@ -623,6 +648,7 @@ onMounted(() => {
           @update:model-value="page = $event"
         />
       </div>
+      <!-- Always in the page, so a screen reader hears the text change; a live region that arrives with its text is missed. -->
       <span class="e-sr" role="status">{{
         failed
           ? ""
@@ -632,464 +658,7 @@ onMounted(() => {
               t("rowsAnnounce", { n: total })
       }}</span>
       <span class="e-sr" role="status">{{ nPicked ? t("selected", { n: nPicked }) : "" }}</span>
+      <span class="e-sr" role="alert">{{ failed ? errorText : "" }}</span>
     </div>
   </div>
 </template>
-
-<style>
-@layer e.containers {
-  .e-grid {
-    --_check-w: calc(var(--e-check-size) + var(--e-space-4) + var(--e-space-3));
-    --_head-h: var(--e-control-height);
-
-    isolation: isolate;
-    border-radius: var(--e-radius-md);
-    min-width: 0;
-    container-type: inline-size;
-  }
-
-  .e-grid-frame::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: var(--e-z-sticky);
-    border-radius: inherit;
-    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border-strong);
-    pointer-events: none;
-  }
-
-  /* The frame does not clip: its bar and foot paint no background, and the scroller takes the frame's corners itself, so the edge is painted once on each curve. */
-  .e-grid-frame {
-    position: relative;
-    border-radius: inherit;
-    background: var(--e-surface);
-  }
-
-  /* A wrapping cluster: the controls share one left edge, and below 26rem each takes a full row. */
-  .e-grid-bar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--e-gap-snug);
-    padding: var(--e-gap-base) var(--e-pad-card);
-    border-bottom: var(--e-stroke-hair) solid var(--e-border);
-  }
-
-  .e-grid-search {
-    flex: 1 1 10rem;
-    max-width: 24rem;
-  }
-
-  .e-grid-search .e-input {
-    padding-inline-start: var(--e-gap-snug);
-  }
-
-  .e-grid-picked,
-  .e-grid-tools {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--e-gap-snug);
-  }
-
-  .e-grid-count {
-    font: var(--e-type-kicker);
-    letter-spacing: var(--e-tracking-label);
-  }
-
-  .e-grid-tools {
-    margin-inline-start: auto;
-  }
-
-  .e-grid-scroll {
-    overflow: auto;
-    max-height: var(--_max-h, none);
-  }
-
-  /* The scroller sits flush in the frame, which has no border of its own (its outline is drawn over it). Where it meets a frame edge it takes that corner, so the frame's clip does not cut off its focus ring. */
-  .e-grid-scroll:first-child {
-    border-start-start-radius: inherit;
-    border-start-end-radius: inherit;
-  }
-
-  .e-grid-scroll:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
-  }
-
-  .e-gridtable--busy tbody {
-    opacity: 0.5;
-  }
-
-  .e-gridtable--fixed {
-    table-layout: fixed;
-  }
-
-  .e-gridtable {
-    border-radius: 0;
-    box-shadow: none;
-    min-width: var(--_min-w, 0);
-  }
-
-  .e-gridtable thead th {
-    position: sticky;
-    top: 0;
-    z-index: var(--e-z-raised);
-    height: var(--_head-h);
-    box-sizing: border-box;
-  }
-
-  .e-gridtable th[aria-sort="ascending"],
-  .e-gridtable th[aria-sort="descending"] {
-    color: var(--e-ink);
-  }
-
-  .e-sortbtn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--e-gap-tight);
-    min-height: var(--e-control-height);
-    padding: var(--e-gap-tight) 0;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    letter-spacing: inherit;
-    text-transform: inherit;
-    cursor: pointer;
-  }
-
-  .e-sortbtn:hover {
-    color: var(--e-ink);
-  }
-
-  .e-sortbtn:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
-    border-radius: var(--e-radius-sm);
-  }
-
-  .e-gridtable .e-cell-check {
-    width: var(--_check-w);
-    padding-inline-end: 0;
-    vertical-align: middle;
-  }
-
-  .e-gridtable tbody tr[data-selected] td {
-    background: var(--e-surface-tint);
-  }
-
-  .e-gridtable tbody tr[data-selected]:hover td {
-    background: var(--e-wash-hover);
-    box-shadow: inset 0 0 0 0 transparent;
-  }
-
-  .e-table td.e-grid-empty {
-    padding: 0;
-  }
-
-  .e-grid-foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--e-gap-snug);
-    padding: var(--e-gap-base) var(--e-pad-card);
-    border-top: var(--e-stroke-hair) solid var(--e-border);
-  }
-
-  .e-grid-range {
-    font: var(--e-type-meta);
-    color: var(--e-muted);
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* The pager sizes itself to its container, so it needs a width of its own here, not the nothing its content gives. */
-  .e-grid-foot .e-pager {
-    flex: 1 1 26rem;
-    justify-content: flex-end;
-  }
-
-  .e-filterrow td {
-    padding: var(--e-gap-tight) var(--e-pad-control-sm);
-    background: var(--e-surface);
-    box-shadow: inset 0 calc(-1 * var(--e-stroke-card)) 0 var(--e-border-strong);
-    border-top: 0;
-    position: sticky;
-    top: var(--_head-h);
-    z-index: var(--e-z-raised);
-  }
-
-  .e-filterrow .e-input {
-    height: var(--e-control-height);
-    font-size: var(--e-text-md);
-    padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
-  }
-
-  .e-filterrow .e-sel-trigger {
-    height: var(--e-control-height);
-    padding-inline-end: calc(var(--e-gap-snug) - var(--e-stroke-edge));
-  }
-
-  .e-grid-filters {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
-    gap: var(--e-gap-snug);
-    align-items: end;
-    padding-block: var(--e-gap-base);
-  }
-
-  .e-grid-filters > .e-filter-range {
-    grid-column: 1 / -1;
-  }
-
-  .e-filter-range {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--e-gap-tight);
-  }
-
-  .e-gridtable thead th,
-  .e-gridtable thead td {
-    white-space: nowrap;
-  }
-
-  .e-resizer {
-    position: absolute;
-    top: 0;
-    inset-inline-end: calc(var(--e-space-6) / -2);
-    z-index: var(--e-z-raised);
-    width: var(--e-space-6);
-    height: 100%;
-    cursor: col-resize;
-    touch-action: none;
-
-    --_bar-w: var(--e-stroke-hair);
-  }
-
-  .e-resizer:hover,
-  .e-resizer:focus-visible {
-    --_bar-w: calc(var(--e-stroke-focus) + var(--e-stroke-hair));
-  }
-
-  .e-resizer::before {
-    content: "";
-    position: absolute;
-    inset-block: 0;
-    inset-inline: calc(-1 * var(--e-space-2));
-  }
-
-  .e-resizer::after {
-    content: "";
-    position: absolute;
-    top: 22%;
-    inset-inline-start: calc(50% - var(--_bar-w) / 2);
-    width: var(--_bar-w);
-    height: 56%;
-    background: var(--e-border-strong);
-    transition:
-      width var(--e-duration-tap) var(--e-easing-out),
-      inset-inline-start var(--e-duration-tap) var(--e-easing-out);
-  }
-
-  .e-resizer:hover::after,
-  .e-resizer:focus-visible::after {
-    background: var(--e-primary);
-    border-radius: var(--e-radius-sm);
-  }
-
-  .e-resizer:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
-    border-radius: var(--e-radius-sm);
-  }
-
-  .e-gridtable--fixed td,
-  .e-gridtable--fixed th {
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .e-gridtable .e-sticky {
-    position: sticky;
-    z-index: var(--e-z-raised);
-    box-shadow: inset calc(-1 * var(--e-stroke-hair)) 0 0 var(--e-border);
-  }
-
-  .e-gridtable thead th.e-sticky {
-    z-index: var(--e-z-sticky);
-    background: var(--e-surface-tint);
-  }
-
-  .e-gridtable tbody td.e-sticky {
-    background: var(--e-surface);
-  }
-
-  /* A sticky cell stays opaque, so the hover wash is laid over the surface. */
-  .e-gridtable tbody tr:hover td.e-sticky {
-    background: linear-gradient(var(--e-wash-hover), var(--e-wash-hover)) var(--e-surface);
-  }
-
-  .e-gridtable tbody tr[data-selected] td.e-sticky {
-    background: var(--e-surface-tint);
-  }
-
-  .e-gridtable--virtual td {
-    height: var(--_row-h);
-    padding-block: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .e-spacer td {
-    padding: 0;
-    border: 0;
-  }
-
-  @media (forced-colors: active) {
-    .e-grid-frame::after {
-      border: var(--e-stroke-card) solid CanvasText;
-      box-shadow: none;
-    }
-
-    .e-gridtable tbody tr[data-selected] td {
-      forced-color-adjust: none;
-      background: Highlight;
-      color: HighlightText;
-    }
-
-    .e-resizer::after {
-      background: CanvasText;
-    }
-
-    .e-resizer:hover::after,
-    .e-resizer:focus-visible::after {
-      background: Highlight;
-    }
-  }
-
-  @media print {
-    .e-grid-scroll {
-      overflow: visible;
-      max-height: none;
-    }
-  }
-
-  .e-grid-sortsel {
-    display: none;
-    min-width: 11rem;
-  }
-
-  .e-grid-bar--sortonly {
-    display: none;
-  }
-
-  @container (max-width: 40rem) {
-    .e-grid-sortsel {
-      display: block;
-      flex: 1 1 11rem;
-    }
-
-    .e-grid-bar--sortonly {
-      display: flex;
-    }
-
-    /* The cards have no frame to close, so the bars sit flush with them and draw no rule. */
-    .e-grid--cards .e-grid-frame {
-      background: transparent;
-    }
-
-    .e-grid--cards .e-grid-frame::after {
-      content: none;
-    }
-
-    .e-grid--cards :is(.e-grid-bar, .e-grid-foot) {
-      padding-inline: 0;
-      border: 0;
-    }
-
-    .e-grid--cards .e-gridtable tbody tr:hover td {
-      background: transparent;
-    }
-
-    .e-grid--cards .e-gridtable tbody tr[data-selected] {
-      background: var(--e-surface-tint);
-    }
-
-    .e-grid--cards .e-gridtable tbody tr[data-selected] td {
-      background: transparent;
-    }
-
-    .e-grid--cards .e-gridtable td.e-cell-check {
-      display: flex;
-      width: auto;
-      padding: var(--e-gap-snug) 0;
-    }
-
-    .e-grid--cards .e-gridtable td.e-cell-check::before {
-      content: none;
-    }
-
-    .e-grid--cards .e-gridtable .e-sticky {
-      position: static;
-      box-shadow: none;
-    }
-
-    .e-grid--cards .e-gridtable .e-grid-empty {
-      display: block;
-    }
-
-    .e-grid--cards .e-gridtable .e-grid-empty::before {
-      content: none;
-    }
-
-    .e-grid--cards .e-filterrow {
-      display: none;
-    }
-
-    .e-grid--cards .e-gridtable--fixed td {
-      overflow: visible;
-      text-overflow: clip;
-    }
-
-    .e-grid--cards .e-grid-foot {
-      padding-block-end: 0;
-    }
-  }
-
-  @container (max-width: 26rem) {
-    .e-grid-search,
-    .e-grid-sortsel,
-    .e-grid-picked,
-    .e-grid-tools {
-      flex: 1 1 100%;
-      max-width: none;
-    }
-
-    .e-grid-picked > :not(.e-grid-count),
-    .e-grid-tools > * {
-      flex: 1 1 auto;
-    }
-
-    /* The pager stacks above the range text: its page status on top, Previous and Next side by side below it. */
-    .e-grid-foot .e-pager {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      flex-basis: 100%;
-      order: -1;
-    }
-
-    .e-grid-foot .e-pager-status {
-      grid-column: 1 / -1;
-      order: -1;
-      text-align: center;
-    }
-
-    .e-grid-range {
-      flex: 1 1 100%;
-      text-align: center;
-    }
-  }
-}
-</style>

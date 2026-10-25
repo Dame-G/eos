@@ -28,9 +28,17 @@ describe("ESegmented", () => {
     await expect.element(page.getByRole("radio", { name: "Week" })).toBeVisible();
   });
 
-  test("the first option is active when nothing is bound", async () => {
-    await render(ESegmented, { props: { label: "View", options } });
-    await expect.element(page.getByRole("radio", { name: "Day" })).toBeChecked();
+  test("the first option shows as active when nothing is bound, but no radio is checked, so nothing posts", async () => {
+    const { container } = await render(ESegmented, { props: { label: "View", options, name: "view", required: true } });
+    const day = container.querySelector<HTMLInputElement>("input")!;
+    expect(day.hasAttribute("data-on")).toBe(true);
+    expect(day.checked).toBe(false);
+    const form = document.createElement("form");
+    form.append(container.firstElementChild!);
+    document.body.append(form);
+    expect(new FormData(form).getAll("view")).toEqual([]);
+    expect(form.checkValidity()).toBe(false);
+    form.remove();
   });
 
   test("an unset v-model shows the first option without emitting, so a form stays clean", async () => {
@@ -50,7 +58,7 @@ describe("ESegmented", () => {
           }),
       }),
     );
-    await expect.element(page.getByRole("radio", { name: "Day" })).toBeChecked();
+    expect(document.querySelector(".e-seg-input[data-on]")!.getAttribute("value")).toBe("Day");
     await frames();
     expect(got).toEqual([]);
     expect(model.value).toBeUndefined();
@@ -71,7 +79,7 @@ describe("ESegmented", () => {
           }),
       }),
     );
-    await expect.element(page.getByRole("radio", { name: "B" })).toBeChecked();
+    expect(document.querySelector(".e-seg-input[data-on]")!.getAttribute("value")).toBe("B");
     expect(model.value).toBeUndefined();
   });
 
@@ -92,8 +100,8 @@ describe("ESegmented", () => {
     await expect.element(page.getByRole("radio", { name: "Week" })).toBeChecked();
   });
 
-  test("required marks the group and its name", async () => {
-    await render(ESegmented, { props: { label: "View", options, required: true } });
+  test("required marks the group, and a hidden label puts the word in its name", async () => {
+    await render(ESegmented, { props: { label: "View", options, required: true, hideLabel: true } });
     const group = page.getByRole("radiogroup", { name: "View, Required" });
     await expect.element(group).toHaveAttribute("aria-required", "true");
   });
@@ -166,8 +174,11 @@ describe("ESegmented", () => {
     container.classList.add("e-root");
     const seg = container.querySelector(".e-seg")!;
     expect(seg.getBoundingClientRect().height).toBe(48);
-    const active = container.querySelector(".e-seg-input:checked + .e-seg-text")!;
-    expect(getComputedStyle(active).fontWeight).toBe("600");
+    const active = container.querySelector(".e-seg-input[data-on] + .e-seg-text")!;
+    // Choosing never changes the weight, so the label keeps its width.
+    expect(getComputedStyle(active).fontWeight).toBe(
+      getComputedStyle(container.querySelector(".e-seg-text")!).fontWeight,
+    );
     expect(getComputedStyle(seg).width).not.toBe("100%");
   });
 
@@ -182,11 +193,11 @@ describe("ESegmented", () => {
     await expect.element(page.getByRole("radiogroup", { name: "View" })).toHaveAccessibleDescription("Pick a range");
 
     const bad = await render(ESegmented, { props: { label: "View2", options, error: "Choose one" } });
-    expect(bad.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(bad.container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
   });
 
-  test("optional adds the word to the group's accessible name", async () => {
-    await render(ESegmented, { props: { label: "View", options, optional: true } });
+  test("optional adds the word to the accessible name of a group with a hidden label", async () => {
+    await render(ESegmented, { props: { label: "View", options, optional: true, hideLabel: true } });
     await expect.element(page.getByRole("radiogroup", { name: "View, Optional" })).toBeVisible();
   });
 
@@ -257,7 +268,7 @@ describe("ESegmented", () => {
     const { container } = await render(ESegmented, {
       props: { label: "Currency", options: ["USD", "CAD"], modelValue: "USD", disabled: true },
     });
-    const text = container.querySelector<HTMLElement>(".e-seg-input:checked + .e-seg-text")!;
+    const text = container.querySelector<HTMLElement>(".e-seg-input[data-on] + .e-seg-text")!;
     const probe = document.createElement("div");
     probe.style.cssText = "background: var(--e-primary); color: var(--e-ink)";
     container.append(probe);
@@ -327,10 +338,10 @@ describe("ESegmented", () => {
       props: { label: "Currency", options: ["USD", "CAD"], modelValue: "USD", disabled: true },
     });
     container.classList.add("e-root");
-    const chosen = getComputedStyle(container.querySelector(".e-seg-input:checked + .e-seg-text")!);
+    const chosen = getComputedStyle(container.querySelector(".e-seg-input[data-on] + .e-seg-text")!);
     expect(chosen.outlineStyle).toBe("none");
     expect(chosen.boxShadow).toBe("none");
-    expect(getComputedStyle(container.querySelector(".e-seg")!).outlineStyle).toBe("dashed");
+    expect(getComputedStyle(container.querySelector(".e-seg")!, "::before").borderTopStyle).toBe("dashed");
   });
 
   test("in a narrow space the options scroll, and the chosen one is brought into view", async () => {
@@ -343,7 +354,7 @@ describe("ESegmented", () => {
     expect(getComputedStyle(track).overflowX).toBe("auto");
     const inView = () => {
       const chosen = container
-        .querySelector<HTMLElement>(".e-seg-input:checked")!
+        .querySelector<HTMLElement>(".e-seg-input[data-on]")!
         .parentElement!.getBoundingClientRect();
       const box = track.getBoundingClientRect();
       return chosen.right <= box.right + 1 && chosen.left >= box.left - 1;
@@ -405,6 +416,35 @@ describe("ESegmented", () => {
     expect(getComputedStyle(container.querySelectorAll(".e-seg-text")[1]!).backgroundColor).toBe(
       colourOf(container, "--e-danger-soft"),
     );
+  });
+
+  test("id names the group and its options; size sm is a shorter control with smaller text", async () => {
+    const { container } = await render(ESegmented, { props: { label: "View", options, id: "view", size: "sm" } });
+    container.classList.add("e-root");
+    const group = container.querySelector<HTMLElement>("[role=radiogroup]")!;
+    expect(group.id).toBe("view");
+    expect(container.querySelector("input")!.id).toBe("view-0");
+    expect(Math.round(group.getBoundingClientRect().height)).toBe(40);
+    expect(getComputedStyle(container.querySelector(".e-seg-text")!).fontSize).toBe("14px");
+  });
+
+  test("the label shows above the control and names the group with it, flag included", async () => {
+    const { container } = await render(ESegmented, {
+      props: { label: "View", options, required: true },
+    });
+    const label = container.querySelector(".e-seg-field > .e-field-label")!;
+    expect(label.textContent).toContain("View");
+    expect(label.textContent).toContain("Required");
+    const group = container.querySelector("[role=radiogroup]")!;
+    expect(group.getAttribute("aria-labelledby")).toBe(label.id);
+    expect(group.hasAttribute("aria-label")).toBe(false);
+    await expect.element(page.getByRole("radiogroup", { name: "View Required" })).toBeVisible();
+  });
+
+  test("hideLabel keeps the label for screen readers only", async () => {
+    const { container } = await render(ESegmented, { props: { label: "View", options, hideLabel: true } });
+    expect(container.querySelector(".e-field-label")).toBeNull();
+    expect(container.querySelector("[role=radiogroup]")!.getAttribute("aria-label")).toBe("View");
   });
 
   test("exposes focus() and the chosen radio as input", async () => {

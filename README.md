@@ -135,7 +135,7 @@ phosphorVue(ph);
 iconify("lucide");
 ```
 
-`<EButton icon="credit-card">` then finds the icon in your set. The names eos uses itself (`card`, `alert`, `home`) map to your set's names. Anything your set lacks falls back to the built-in icon. `builtin: false` turns that off. An `icon` prop also takes a component (`:icon="CreditCard"`). All 41 names, the options and the custom resolver are in [packages/vue/src/icons/README.md](packages/vue/src/icons/README.md).
+`<EButton icon="credit-card">` then finds the icon in your set. The names eos uses itself (`card`, `alert`, `home`) map to your set's names. Anything your set lacks falls back to the built-in icon. `builtin: false` turns that off. An `icon` prop also takes a component (`:icon="CreditCard"`). The list of names, the options and the custom resolver are in [packages/vue/src/icons/README.md](packages/vue/src/icons/README.md).
 
 ## Contributing
 

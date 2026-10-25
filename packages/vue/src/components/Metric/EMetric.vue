@@ -6,8 +6,9 @@ export type MetricTrend = "up" | "down" | "flat";
 import { computed } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EKicker from "../Kicker/EKicker.vue";
-import { useConfig, useMessages } from "../../config.js";
-import type { Tone } from "../../composables/useSize.js";
+import { useMessages } from "../../config.js";
+import { useLocale } from "../../composables/useLocale.js";
+import type { Tone } from "../../types.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
@@ -19,8 +20,8 @@ const props = defineProps<{
   delta?: string;
   /** The direction of the change. It chooses the arrow and the colour, and is read out with the delta ("Up +4.2%"). */
   trend?: MetricTrend;
-  /** The colour of the change, when it is not what the direction suggests: `danger` for a cost that went up. Left out, up is `success`, down is `danger` and flat is quiet. */
-  tone?: Extract<Tone, "success" | "danger" | "neutral">;
+  /** The colour of the change, when it is not what the direction suggests: `danger` for a cost that went up. Left out, up is `success`, down is `danger` and flat is `muted`. */
+  tone?: "muted" | Extract<Tone, "success" | "danger">;
   /** A line of explanation under the figure, such as the period it covers. */
   help?: string;
 }>();
@@ -30,14 +31,12 @@ defineSlots<{
   help?(): unknown;
 }>();
 
-const config = useConfig();
 const t = useMessages();
-const shown = computed(() =>
-  typeof props.value === "number" ? new Intl.NumberFormat(config.locale).format(props.value) : props.value,
-);
-const tone = computed(
-  () => props.tone ?? (props.trend === "up" ? "success" : props.trend === "down" ? "danger" : "neutral"),
-);
+const loc = useLocale();
+const shown = computed(() => (typeof props.value === "number" ? loc.formatNumber(props.value) : props.value));
+const tone = computed(() => {
+  return props.tone ?? (props.trend === "up" ? "success" : props.trend === "down" ? "danger" : "muted");
+});
 const deltaText = computed(() =>
   props.delta && props.trend
     ? t(props.trend === "up" ? "trendUp" : props.trend === "down" ? "trendDown" : "trendFlat", { delta: props.delta })

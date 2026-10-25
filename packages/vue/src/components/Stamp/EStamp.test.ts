@@ -78,7 +78,7 @@ describe("EStamp", () => {
       { tone: "warning" },
       { status: "paid", size: "sm" },
     ] as Record<string, unknown>[]) {
-      const { container } = await render(EStamp, { props });
+      const { container } = await render(EStamp, { props: props as never });
       container.classList.add("e-root");
       const style = getComputedStyle(container.querySelector(".e-stamp")!);
       expect(parseFloat(style.borderInlineStartWidth), JSON.stringify(props)).toBeGreaterThan(
@@ -89,16 +89,6 @@ describe("EStamp", () => {
       // Tinted, not filled: the edge is a stronger colour than the background behind the word.
       expect(style.borderTopColor, JSON.stringify(props)).not.toBe(style.backgroundColor);
     }
-  });
-
-  test("the side takes no room from the text: the word starts where it did", async () => {
-    const { container } = await render(EStamp, { props: { status: "paid" } });
-    container.classList.add("e-root");
-    const el = container.querySelector(".e-stamp")!;
-    const style = getComputedStyle(el);
-    const start = parseFloat(style.borderInlineStartWidth) + parseFloat(style.paddingInlineStart);
-    const end = parseFloat(style.borderInlineEndWidth) + parseFloat(style.paddingInlineEnd);
-    expect(Math.abs(start - end)).toBeLessThanOrEqual(0.5);
   });
 
   test("a final stamp is a ring and has no side", async () => {
@@ -243,6 +233,50 @@ describe("EStamp", () => {
     );
     for (const sel of [".e-stamp", ".e-tag", ".e-kbd"]) {
       expect(container.querySelector<HTMLElement>(sel)!.getBoundingClientRect().width).toBeLessThan(200);
+    }
+  });
+});
+
+describe("fitting", () => {
+  test("in a column too narrow for it, nothing is painted outside the stamp's own box", async () => {
+    for (const props of [
+      { status: "overdue", detail: "12 days late" },
+      { status: "action" },
+      { status: "paid", final: true },
+      { status: "due", size: "sm", detail: "Nov 1" },
+    ] as const) {
+      const { container } = await render(EStamp, { props: props as never });
+      const box = container as HTMLElement;
+      box.style.width = "4rem";
+      const stamp = box.querySelector<HTMLElement>(".e-stamp")!;
+      const edge = stamp.getBoundingClientRect();
+      expect(edge.right).toBeLessThanOrEqual(box.getBoundingClientRect().right + 0.5);
+      expect(stamp.scrollWidth).toBeLessThanOrEqual(stamp.clientWidth);
+      for (const part of stamp.querySelectorAll<HTMLElement>(".e-stamp-word, .e-stamp-detail")) {
+        expect(part.getBoundingClientRect().right, JSON.stringify(props)).toBeLessThanOrEqual(edge.right + 0.5);
+        expect(getComputedStyle(part).textOverflow).toBe("ellipsis");
+      }
+      // The whole text is still in the stamp for screen readers.
+      expect(stamp.textContent).toMatch(/\w{4,}/);
+    }
+  });
+
+  test("the tinted space is the same on both sides of the text", async () => {
+    for (const props of [
+      { status: "overdue" },
+      { status: "overdue", size: "sm" },
+      { status: "paid", final: true },
+    ] as const) {
+      const { container } = await render(EStamp, { props: props as never });
+      const stamp = container.querySelector<HTMLElement>(".e-stamp")!;
+      const word = stamp.querySelector<HTMLElement>(".e-stamp-word")!;
+      const cs = getComputedStyle(stamp);
+      const s = stamp.getBoundingClientRect();
+      const w = word.getBoundingClientRect();
+      // The word's box ends at its last letter: the trailing tracking is taken back by its end margin.
+      const start = w.left - s.left - parseFloat(cs.borderInlineStartWidth);
+      const end = s.right - parseFloat(cs.borderInlineEndWidth) - w.right;
+      expect(Math.abs(start - end), JSON.stringify(props)).toBeLessThanOrEqual(1.5);
     }
   });
 });

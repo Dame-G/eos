@@ -18,18 +18,21 @@ A joined set of two to five options where exactly one is active. Use it to chang
 
 <!-- props:start -->
 
-| Prop         | Type                          | Default        | Notes                                                                                                                                               |
-| ------------ | ----------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `modelValue` | `T`                           | `first option` | `v-model`: the active value. Left unset, the first option that can be chosen is shown as active and `v-model` is not told until the person chooses. |
-| `label`      | `string`                      | **Required**   | Read by screen readers as the name of the group.                                                                                                    |
-| `options`    | `(T \| SegmentedOption<T>)[]` | **Required**   | Two to five. A string is both value and label. `SegmentedOption` is `{ value, label, icon?, disabled? }`.                                           |
-| `hint`       | `string`                      | None           | Help under the control, linked with `aria-describedby`.                                                                                             |
-| `error`      | `string`                      | None           | What to fix. Replaces the hint and is announced.                                                                                                    |
-| `optional`   | `boolean`                     | `false`        | Adds the word "Optional" to the group's accessible name and shows nothing. Use it when most fields in the form are required.                        |
-| `required`   | `boolean`                     | `false`        | Marks the group `aria-required` and adds the word "Required" to its accessible name.                                                                |
-| `disabled`   | `boolean`                     | `false`        | Disables every option.                                                                                                                              |
-| `readonly`   | `boolean`                     | `false`        | Shows the choice but blocks changing it. The options stay focusable and the value is still submitted.                                               |
-| `name`       | `string`                      | `generated`    | The name the radios share, submitted with a form.                                                                                                   |
+| Prop         | Type                                   | Default        | Notes                                                                                                                                                                                              |
+| ------------ | -------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue` | `T`                                    | `first option` | `v-model`: the active value. Left unset, the first option that can be chosen is shown as active, but no radio is checked: `v-model` is not told and a form posts nothing until the person chooses. |
+| `label`      | `string`                               | **Required**   | The name of the group, shown above the control as a field's label, with the Required or Optional word beside it.                                                                                   |
+| `hideLabel`  | `boolean`                              | `false`        | Keeps the label for screen readers only, where the context already names the control (a view switch in a toolbar).                                                                                 |
+| `options`    | `readonly (T \| SegmentedOption<T>)[]` | **Required**   | Two to five. A string is both value and label. `SegmentedOption` is `{ value, label, icon?, disabled? }`.                                                                                          |
+| `size`       | `"sm" \| "md" \| "lg"`                 | `"md"`         | The height: `sm` is a compact control for a toolbar, with smaller text; `lg` is a step over the control height.                                                                                    |
+| `id`         | `string`                               | `generated`    | The id of the group. The options are `{id}-0`, `{id}-1` and so on.                                                                                                                                 |
+| `hint`       | `string`                               | None           | Help under the control, linked with `aria-describedby`.                                                                                                                                            |
+| `error`      | `string`                               | None           | What to fix. Replaces the hint and is announced.                                                                                                                                                   |
+| `optional`   | `boolean`                              | `false`        | Adds the word "Optional" to the group's accessible name and to the label. Use it when most fields in the form are required.                                                                        |
+| `required`   | `boolean`                              | `false`        | Marks the group `aria-required` and adds the word "Required" to its accessible name and to the label.                                                                                              |
+| `disabled`   | `boolean`                              | `false`        | Disables every option.                                                                                                                                                                             |
+| `readonly`   | `boolean`                              | `false`        | Shows the choice but blocks changing it. The options stay focusable and the value is still submitted.                                                                                              |
+| `name`       | `string`                               | `generated`    | The name the radios share, submitted with a form.                                                                                                                                                  |
 
 `T` is a type parameter, inferred from the props you pass. It extends `string` (default `string`).
 
@@ -40,8 +43,8 @@ A joined set of two to five options where exactly one is active. Use it to chang
 ## Accessibility
 
 - A radio group: arrow keys move between options.
-- `label` is the group's accessible name.
-- With no value bound it shows the first option as active but does not tell `v-model`, so a form is not dirtied. The model stays empty until the person chooses. A bound value must be one of the options.
+- `label` shows above the control and names the group, with the Required or Optional word. With `hideLabel` it is the group's `aria-label` instead.
+- With no value bound it shows the first option that can be chosen as active, but checks no radio: `v-model` is not told, a form posts nothing and a `required` group fails its check until the person chooses. A bound value must be one of the options.
 
 ## Keyboard
 
@@ -52,4 +55,4 @@ A joined set of two to five options where exactly one is active. Use it to chang
 
 ## Related
 
-[`ERadioGroup`](../RadioGroup/README.md) for options that need descriptions, [`ETabs`](../Tabs/README.md) for switching content.
+[`ERadioGroup`](../RadioGroup/README.md) for options that need descriptions.

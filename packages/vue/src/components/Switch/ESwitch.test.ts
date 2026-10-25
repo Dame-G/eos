@@ -7,28 +7,32 @@ import { expectNoViolations } from "../../../test/axe.js";
 import { settled } from "../../../test/frames.js";
 
 describe("ESwitch", () => {
-  test("the thumb is plain: no border at all, on or off", async () => {
+  test("the thumb is a small button face: the surface on a thin slab, on or off", async () => {
     for (const modelValue of [false, true]) {
       const { container } = await render(ESwitch, { props: { label: "Autopay", modelValue } });
       container.classList.add("e-root");
       const thumb = getComputedStyle(container.querySelector(".e-switch-track")!, "::after");
-      for (const side of ["Top", "Right", "Bottom", "Left"])
-        expect(parseFloat(thumb.getPropertyValue(`border-${side.toLowerCase()}-width`))).toBe(0);
+      expect(parseFloat(thumb.borderBottomWidth)).toBeGreaterThan(parseFloat(thumb.borderTopWidth));
     }
   });
 
-  test("on or off the track is flat and the thumb sits at the same height", async () => {
-    const heights = async (modelValue: boolean) => {
+  test("off the track is pressed in; on it rises on a thin slab and keeps its height", async () => {
+    const measure = async (modelValue: boolean) => {
       const { container } = await render(ESwitch, { props: { label: "Autopay", modelValue } });
       container.classList.add("e-root");
       await settled();
       const track = container.querySelector(".e-switch-track")!;
       const css = getComputedStyle(track);
-      expect(css.borderBottomWidth).toBe(css.borderTopWidth);
-      const thumb = getComputedStyle(track, "::after");
-      return [track.getBoundingClientRect().height, parseFloat(thumb.top), parseFloat(thumb.height)];
+      return {
+        height: track.getBoundingClientRect().height,
+        lift: parseFloat(css.borderBottomWidth) - parseFloat(css.borderTopWidth),
+      };
     };
-    expect(await heights(true)).toEqual(await heights(false));
+    const off = await measure(false);
+    const on = await measure(true);
+    expect(on.height).toBe(off.height);
+    expect(off.lift).toBe(0);
+    expect(on.lift).toBeGreaterThan(0);
   });
 
   test("the track is pressed in while off and flat while on, as a checkbox is", async () => {
@@ -143,7 +147,7 @@ describe("ESwitch", () => {
   test("an error marks the switch invalid and is announced", async () => {
     const { container } = await render(ESwitch, { props: { label: "Reminders", error: "Turn this on" } });
     expect(container.querySelector("input")!.getAttribute("aria-invalid")).toBe("true");
-    expect(container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
   });
 
   test("readonly keeps the state and blocks the flip", async () => {

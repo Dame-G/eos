@@ -1,11 +1,19 @@
+<script lang="ts">
+/** Navigations mounted on the default name, page-wide, for the development warning. */
+let unlabelled = 0;
+let warnedUnlabelled = false;
+</script>
+
 <script setup lang="ts">
-import { computed, type Component } from "vue";
+import { computed, onBeforeUnmount, onMounted, type Component } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import LinkNavNode, { keyOf, type LinkItem } from "./LinkNavNode.vue";
 import { useMessages } from "../../config.js";
 import { useUid } from "../../composables/useUid.js";
+import { isProduction } from "../../env.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
+import "../../styles/count.css";
 
 export interface NavItem extends LinkItem {
   /** An icon before the label. */
@@ -25,34 +33,64 @@ export interface NavSection {
   items: NavItem[];
 }
 
+/** The props of ENavList other than its items or sections. Exported so the built declarations can name it. @public */
+export interface NavListOptions {
+  /** `vertical` stacks the links, for a sidebar or a menu. `horizontal` lays them in a row, for a header. */
+  orientation?: "vertical" | "horizontal";
+  /** The landmark's name. Each navigation on a page needs its own; with two left on the default, development warns. @default "Main" */
+  label?: string;
+  /** What renders each link: `RouterLink` or any component that takes `href` or `to` and a default slot. It receives `to` or `href`, the class `e-nav-item` and `aria-current`. Items then use `to`. */
+  linkComponent?: string | Component;
+  /** Says which item is the current page, for every item whose `current` is not set: `(item) => item.href === route.path`. It runs again when what it reads changes. */
+  isCurrent?: (item: NavItem) => boolean;
+  /** `sm` gives short rows with no rule between them, for a long list such as a documentation sidebar. Rows stay a full tap target on a touch screen. */
+  size?: "sm" | "md";
+}
+
 const props = withDefaults(
-  defineProps<{
-    /** The destinations, in order: `{ label, href?, to?, icon?, count?, countLabel?, current?, disabled?, children? }`. With no `href` or `to` the item is plain text, not a link. `current` marks the current page and wins over `isCurrent`. */
-    items?: NavItem[];
-    /** Destinations in labelled groups, instead of `items`: `{ label?, items }`. A label is needed only when there is more than one section. */
-    sections?: NavSection[];
-    /** `vertical` stacks the links, for a sidebar or a menu. `horizontal` lays them in a row, for a header. */
-    orientation?: "vertical" | "horizontal";
-    /** The landmark's name. Each navigation on a page needs its own. @default "Main" */
-    label?: string;
-    /** What renders each link: `RouterLink` or any component that takes `href` or `to` and a default slot. It receives `to` or `href`, the class `e-nav-item` and `aria-current`. Items then use `to`. */
-    linkComponent?: string | Component;
-    /** Says which item is the current page, for every item whose `current` is not set: `(item) => item.href === route.path`. It runs again when what it reads changes. */
-    isCurrent?: (item: NavItem) => boolean;
-  }>(),
-  { orientation: "vertical", linkComponent: "a" },
+  defineProps<
+    NavListOptions & {
+      /** The destinations, in order: `{ label, href?, to?, icon?, count?, countLabel?, current?, disabled?, children? }`. With no `href` or `to` the item is plain text, not a link. `current` marks the current page and wins over `isCurrent`. Give `items` or `sections`. */
+      items?: NavItem[];
+      /** Destinations in labelled groups, instead of `items`: `{ label?, items }`. A label is needed only when there is more than one section. */
+      sections?: NavSection[];
+    } & ({ items: NavItem[] } | { sections: NavSection[] })
+  >(),
+  { orientation: "vertical", linkComponent: "a", size: "md" },
 );
 
 const t = useMessages();
 const uid = useUid();
 const groups = computed<NavSection[]>(() => props.sections ?? [{ items: props.items ?? [] }]);
+
+/*
+ * Two navigations on the default name read as two "Main" landmarks. Development counts the ones mounted without a
+ * label and warns once when there is more than one.
+ */
+if (!isProduction()) {
+  onMounted(() => {
+    if (props.label) return;
+    unlabelled++;
+    if (unlabelled > 1 && !warnedUnlabelled) {
+      warnedUnlabelled = true;
+      console.warn('[eos] More than one ENavList is named "Main". Give each navigation its own `label`.');
+    }
+  });
+  onBeforeUnmount(() => {
+    if (!props.label) unlabelled--;
+  });
+}
 /** The recursive node knows only the link fields; every item it hands back is one of ours. */
 const nav = (item: LinkItem) => item as NavItem;
 const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item)) ?? false;
 </script>
 
 <template>
-  <nav class="e-nav" :class="orientation === 'horizontal' && 'e-nav--horizontal'" :aria-label="label || t('mainNav')">
+  <nav
+    class="e-nav"
+    :class="[orientation === 'horizontal' && 'e-nav--horizontal', size === 'sm' && 'e-nav--sm']"
+    :aria-label="label || t('mainNav')"
+  >
     <template v-for="(group, g) in groups" :key="group.label ?? g">
       <p v-if="group.label" :id="`${uid}-${g}`" class="e-nav-heading">{{ group.label }}</p>
       <ul :aria-labelledby="group.label ? `${uid}-${g}` : undefined">
@@ -63,7 +101,7 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
               <span class="e-nav-label">{{ node.label }}</span>
               <span
                 v-if="nav(node).count != null"
-                class="e-nav-count"
+                class="e-count"
                 :aria-hidden="nav(node).countLabel ? 'true' : undefined"
                 >{{ nav(node).count }}</span
               >
@@ -119,12 +157,8 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
     background: var(--e-border);
   }
 
-  /* A row uses the slab contract with no edge at rest, so the current page can rise without the row changing size. */
+  /* A row has a clear edge at rest, so the current page can show one without the row changing size. */
   .e-nav-item {
-    --_slab: transparent;
-    --_ring: var(--_slab);
-    --_lift: 0px;
-
     display: flex;
     align-items: center;
     gap: var(--e-gap-base);
@@ -132,40 +166,32 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
     height: var(--e-control-height);
     padding-block: 0;
     padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
-    border: var(--e-stroke-edge) solid var(--_ring);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-md) / var(--e-radius-md) var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift))
-      calc(var(--e-radius-md) + var(--_lift));
+    border: var(--e-stroke-edge) solid transparent;
+    border-radius: var(--e-radius-md);
+    background-clip: padding-box;
     color: var(--e-ink);
     font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-none) var(--e-font-sans);
     text-decoration: none;
     transition: var(--e-transition-state);
   }
 
-  .e-nav-item:is(a, button, summary):not([aria-current="page"], [aria-disabled="true"]):hover {
-    background-color: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
-  }
-
-  .e-nav-item:is(a, button, summary):not([aria-current="page"], [aria-disabled="true"]):active {
-    background-color: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
-  }
-
-  .e-nav-item:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
-  }
-
-  /* Where you are: a washed face with the primary slab, in the voice tabs use. */
+  /* Where you are: the pastel brand tint with a primary edge and primary text, and no slab (a slab is something to press). The weight stays, so the row does not change width. */
   .e-nav-item[aria-current="page"] {
-    --_slab: var(--e-primary);
-    --_lift: var(--e-depth);
-
-    background-color: var(--e-wash-hover);
+    border-color: var(--e-primary);
+    background-color: var(--e-primary-soft);
     background-clip: padding-box;
     color: var(--e-primary);
-    font-weight: var(--e-weight-strong);
+  }
+
+  /* A row has its own edge, so it answers the pointer as a bordered item does: the edge darkens and the wash fills inside it. No ring is added, so the hover never reaches past the edge. */
+  .e-nav-item:not([aria-current="page"], [aria-disabled="true"]):hover {
+    border-color: var(--e-wash-ring);
+    background-color: var(--e-wash-hover);
+  }
+
+  .e-nav-item:not([aria-current="page"], [aria-disabled="true"]):active {
+    border-color: var(--e-ink);
+    background-color: var(--e-wash-press);
   }
 
   /* An unavailable row only dims its text and stops answering the pointer. */
@@ -181,21 +207,6 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
 
   .e-nav-summary::-webkit-details-marker {
     display: none;
-  }
-
-  .e-nav-summary::after {
-    content: "";
-    flex: none;
-    width: var(--e-gap-snug);
-    height: var(--e-gap-snug);
-    border-inline-end: var(--e-stroke-card) solid currentcolor;
-    border-bottom: var(--e-stroke-card) solid currentcolor;
-    transform: translateY(-2px) rotate(45deg);
-    transition: transform var(--e-duration-tap) var(--e-easing-out);
-  }
-
-  .e-nav-group[open] > .e-nav-summary::after {
-    transform: translateY(2px) rotate(-135deg);
   }
 
   .e-nav-summary[data-current]:not([aria-disabled="true"]) {
@@ -232,7 +243,7 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
   .e-nav--horizontal li + li::before {
     content: "";
     width: var(--e-stroke-hair);
-    height: var(--e-icon-size-md);
+    height: var(--e-icon-size-lg);
     margin-inline: var(--e-gap-snug);
     background: var(--e-border);
   }
@@ -242,16 +253,30 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
     padding-inline: 0;
   }
 
-  .e-nav-count {
-    min-width: var(--e-gap-section);
-    padding-block: 0;
-    padding-inline: var(--e-gap-snug);
-    border-radius: var(--e-radius-pill);
-    background: var(--e-primary-soft);
-    border: var(--e-stroke-edge) solid var(--e-primary);
-    background-clip: padding-box;
-    font: var(--e-weight-strong) var(--e-text-xs) / calc(5 / 3) var(--e-font-mono);
-    text-align: center;
+  /* Short rows: no rule between them, a small gap instead, and a long label wraps inside its row. A touch screen keeps the full tap target. */
+  .e-nav--sm {
+    --_row-h: 2rem;
+  }
+
+  .e-nav--sm:not(.e-nav--horizontal) ul {
+    gap: var(--e-gap-tight);
+  }
+
+  .e-nav--sm:not(.e-nav--horizontal) li + li::before {
+    content: none;
+  }
+
+  .e-nav--sm .e-nav-item {
+    height: auto;
+    min-height: var(--_row-h);
+    padding-block: var(--e-gap-tight);
+    line-height: var(--e-leading-snug);
+  }
+
+  @media (pointer: coarse) {
+    .e-nav--sm {
+      --_row-h: var(--e-tap);
+    }
   }
 
   @media (forced-colors: active) {

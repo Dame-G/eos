@@ -13,7 +13,7 @@ const inPage = (width: number, props: Record<string, unknown> = {}) =>
   );
 
 describe("EContainer", () => {
-  test("is as wide as its size allows and centred", async () => {
+  test("is as wide as its width allows and centred", async () => {
     const { container } = await inPage(2000);
     const rect = container.querySelector(".e-container")!.getBoundingClientRect();
     expect(rect.width).toBe(80 * 16);
@@ -21,10 +21,10 @@ describe("EContainer", () => {
     expect(Math.round(rect.left - outer.left)).toBe(Math.round(outer.right - rect.right));
   });
 
-  test("each size sets its own maximum, and full has none", async () => {
+  test("each width sets its own maximum, and full has none", async () => {
     const widths: number[] = [];
-    for (const size of ["sm", "md", "lg", "full"]) {
-      const { container } = await inPage(2000, { size });
+    for (const width of ["sm", "md", "lg", "full"]) {
+      const { container } = await inPage(2000, { width });
       widths.push(container.querySelector(".e-container")!.getBoundingClientRect().width);
     }
     expect(widths).toEqual([640, 960, 1280, 2000]);

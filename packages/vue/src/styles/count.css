@@ -1,0 +1,22 @@
+@layer e.primitives {
+  /* A count after a label: the badge of a tab (`ETabs`) and of a navigation item (`ENavList`). A pill in the primary tint with a primary edge, mono figures, at least as wide as it is tall. */
+  .e-count {
+    min-width: var(--e-gap-section);
+    padding-block: 0;
+    padding-inline: var(--e-gap-snug);
+    border: var(--e-stroke-edge) solid var(--e-primary);
+    border-radius: var(--e-radius-pill);
+    background: var(--e-primary-soft);
+    background-clip: padding-box;
+    font: var(--e-type-count);
+    text-align: center;
+  }
+
+  @media (forced-colors: active) {
+    /* Forced again inside a selected tab, which opts out of forced colours to paint itself Highlight. */
+    .e-count {
+      forced-color-adjust: auto;
+      border-color: CanvasText;
+    }
+  }
+}

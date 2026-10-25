@@ -1,4 +1,14 @@
 @layer e.containers {
+  /* The open and closed mark of every summary (EDisclosure, EExpandableRow, a group of ENavList): the library's chevron, turned up while open. */
+  .e-details-chevron {
+    flex: none;
+    transition: transform var(--e-duration-tap) var(--e-easing-out);
+  }
+
+  :is(.e-details, .e-xrow, .e-nav-group)[open] > summary .e-details-chevron {
+    transform: rotate(180deg);
+  }
+
   /* Opening and closing slide, where the browser can animate to the content's own height. Elsewhere it simply switches. */
   .e-details,
   .e-nav-group,
@@ -25,5 +35,17 @@
       block-size var(--e-duration-move) var(--e-easing-out),
       content-visibility var(--e-duration-move) allow-discrete,
       overflow-clip-margin 0s var(--e-duration-move) allow-discrete;
+  }
+
+  /* Paper cannot be clicked open, so a closed disclosure or row prints open, with no mark that says it opens. A group of a nav list is left as it is: the nav is for a screen. */
+  @media print {
+    :is(.e-details, .e-xrow)::details-content {
+      block-size: auto;
+      content-visibility: visible;
+    }
+
+    :is(.e-details, .e-xrow) > summary .e-details-chevron {
+      display: none;
+    }
   }
 }

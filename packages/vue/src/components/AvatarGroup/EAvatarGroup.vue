@@ -9,48 +9,57 @@ export interface AvatarGroupItem {
 
 <script setup lang="ts">
 import { computed } from "vue";
-import EAvatar from "../Avatar/EAvatar.vue";
-import { useConfig, useMessages } from "../../config.js";
-import type { Size } from "../../composables/useSize.js";
+import EAvatar, { avatarSizeClass } from "../Avatar/EAvatar.vue";
+import { useMessages } from "../../config.js";
+import { useLocale } from "../../composables/useLocale.js";
+import type { Size } from "../../types.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
     /** The people, in order. Each is `{ name, src? }`. */
     items: AvatarGroupItem[];
-    /** How many avatars show before the rest collapse into a "+N" tile. */
+    /** How many avatars show before the rest collapse into a "+N" tile. With one person over, all of them show, since a "+1" tile would take the same room. */
     max?: number;
     /** `sm` 32px, `md` 44px or `lg` 64px, for every avatar. */
     size?: Extract<Size, "sm" | "md" | "lg">;
     /** Names the group, instead of the list of names. */
     label?: string;
   }>(),
-  { max: 4 },
+  { max: 4, size: "md" },
 );
 
-const config = useConfig();
 const t = useMessages();
-const size = computed(() => props.size ?? "md");
-const shown = computed(() => props.items.slice(0, Math.max(1, props.max)));
+const loc = useLocale();
+/** A "+1" tile would take the place the one person left over fits in, so the tile only stands for two or more. */
+const shown = computed(() => {
+  const max = Math.max(1, props.max);
+  return props.items.length <= max + 1 ? props.items : props.items.slice(0, max);
+});
 const rest = computed(() => props.items.length - shown.value.length);
+/** A key per person that survives the list changing: the photo or the name, made unique. */
+const keys = computed(() => {
+  const seen = new Map<string, number>();
+  return shown.value.map((p) => {
+    const base = p.src ?? p.name;
+    const n = seen.get(base) ?? 0;
+    seen.set(base, n + 1);
+    return n ? `${base}#${n}` : base;
+  });
+});
 /** "Ada, Grace and 3 more", in the order and with the joining word of the locale. */
 const name = computed(
   () =>
     props.label ??
-    new Intl.ListFormat(config.locale, { style: "long", type: "conjunction" }).format([
-      ...shown.value.map((p) => p.name),
-      ...(rest.value > 0 ? [t("nMore", { n: rest.value })] : []),
-    ]),
+    loc.formatList([...shown.value.map((p) => p.name), ...(rest.value > 0 ? [t("nMore", { n: rest.value })] : [])]),
 );
 </script>
 
 <template>
   <!-- One image with one name: the avatars and the tile are the picture, so they are not announced one by one. -->
   <span class="e-avatar-group" role="img" :aria-label="name">
-    <EAvatar v-for="(person, i) in shown" :key="i" :name="person.name" :src="person.src" :size="size" />
-    <span v-if="rest > 0" class="e-avatar" :class="size !== 'md' && `e-avatar--${size === 'sm' ? 's' : 'l'}`">
-      +{{ rest }}
-    </span>
+    <EAvatar v-for="(person, i) in shown" :key="keys[i]" :name="person.name" :src="person.src" :size="size" />
+    <span v-if="rest > 0" class="e-avatar e-avatar-more" :class="avatarSizeClass(size)">+{{ rest }}</span>
   </span>
 </template>
 
@@ -61,13 +70,15 @@ const name = computed(
     align-items: center;
   }
 
-  /* The overlap: each avatar covers the edge of the one before it, and a ring of the page colour keeps them apart. */
+  /* A stack of tiles, each covering a quarter of the one before it, clear of its initials. Each tile's own edge draws the line where it lies over the last, so the stack needs no gap. */
   .e-avatar-group > * + * {
-    margin-inline-start: calc(-1 * var(--e-gap-snug));
+    margin-inline-start: calc(var(--_size) / -4);
   }
 
-  .e-avatar-group > .e-avatar {
-    box-shadow: 0 0 0 var(--e-stroke-edge) var(--e-surface);
+  /* The count of the rest is a tile in the page colour with muted figures, so it reads as a number and not one more person. */
+  .e-avatar-group > .e-avatar-more {
+    background-color: var(--e-surface);
+    color: var(--e-muted);
   }
 }
 </style>

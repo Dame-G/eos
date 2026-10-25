@@ -18,15 +18,15 @@ describe("EFieldset", () => {
     expect(fs.querySelector(".e-fieldset-body")).not.toBeNull();
   });
 
-  test("bare drops the box: a kicker legend above the controls", async () => {
+  test("variant plain drops the box: a kicker legend above the controls", async () => {
     const { container } = await render(EFieldset, {
-      props: { legend: "Reminder", bare: true },
+      props: { legend: "Reminder", variant: "plain" },
       slots: { default: street },
     });
     const fs = container.querySelector("fieldset")!;
-    expect(fs.className).toBe("e-fieldset");
+    expect(fs.className).toBe("e-fieldset e-fieldset--plain");
     expect(fs.querySelector("legend")!.classList.contains("e-kicker")).toBe(true);
-    expect(fs.querySelector(".e-fieldset-body")!.classList.contains("e-fieldset-body--bare")).toBe(true);
+    expect(fs.querySelector(".e-fieldset-body")!.classList.contains("e-fieldset-body--plain")).toBe(true);
     expect(fs.querySelector(".e-fieldset-rule")).toBeNull();
     expect(getComputedStyle(fs).borderTopWidth).toBe("0px");
   });
@@ -43,7 +43,7 @@ describe("EFieldset", () => {
 
   test("hideLegend keeps the legend for screen readers only", async () => {
     const { container } = await render(EFieldset, {
-      props: { legend: "Hidden", hideLegend: true, bare: true },
+      props: { legend: "Hidden", hideLegend: true, variant: "plain" },
       slots: { default: street },
     });
     const legend = container.querySelector("legend")!;
@@ -82,9 +82,9 @@ describe("EFieldset", () => {
     expect(container.querySelector(".e-field-flag")!.textContent).toBe("Optional");
   });
 
-  test("section is an unboxed titled group with the hint under the legend", async () => {
+  test("variant section is an unboxed titled group with the hint under the legend", async () => {
     const { container } = await render(EFieldset, {
-      props: { legend: "Your details", section: true, hint: "As on your card." },
+      props: { legend: "Your details", variant: "section", hint: "As on your card." },
       slots: { default: street },
     });
     const fs = container.querySelector("fieldset")!;
@@ -112,7 +112,7 @@ describe("EFieldset", () => {
     });
     const errorEl = bad.container.querySelector(".e-field-error")!;
     expect(bad.container.querySelector(".e-field-hint")).toBeNull();
-    expect(errorEl.getAttribute("role")).toBe("alert");
+    expect(errorEl.hasAttribute("role")).toBe(false);
     expect(bad.container.querySelector("fieldset")!.hasAttribute("aria-invalid")).toBe(false);
     expect(bad.container.querySelector("fieldset")!.getAttribute("aria-describedby")).toBe(errorEl.id);
   });
@@ -139,10 +139,10 @@ describe("EFieldset", () => {
     expect(container.querySelector("input")!.matches(":disabled")).toBe(true);
   });
 
-  test("bare controls are spaced as the boxed ones are", async () => {
+  test("plain controls are spaced as the boxed ones are", async () => {
     const gaps = async (bare: boolean) => {
       const { container } = await render(EFieldset, {
-        props: { legend: "Phones", bare },
+        props: { legend: "Phones", variant: bare ? "plain" : "box" },
         slots: {
           default: () => [
             h("input", { class: "e-input", "aria-label": "a" }),
@@ -166,7 +166,7 @@ describe("EFieldset", () => {
     expect(hint.top - input.bottom).toBe(8);
 
     const bare = await render(EFieldset, {
-      props: { legend: "Bare", bare: true, hint: "Hint" },
+      props: { legend: "Bare", variant: "plain", hint: "Hint" },
       slots: { default: () => h("input", { class: "e-input", "aria-label": "x" }) },
     });
     bare.container.classList.add("e-root");
@@ -184,8 +184,8 @@ describe("EFieldset", () => {
             h(EFieldset, { legend: "Hinted", hint: "A hint", optional: true }, { default: street }),
             h(EFieldset, { legend: "Invalid", error: "Fix this" }, { default: street }),
             h(EFieldset, { legend: "Disabled", disabled: true }, { default: street }),
-            h(EFieldset, { legend: "Bare", bare: true, hint: "Hint" }, { default: street }),
-            h(EFieldset, { legend: "Bare invalid", bare: true, error: "Bad" }, { default: street }),
+            h(EFieldset, { legend: "Bare", variant: "plain", hint: "Hint" }, { default: street }),
+            h(EFieldset, { legend: "Bare invalid", variant: "plain", error: "Bad" }, { default: street }),
           ]),
       }),
     );

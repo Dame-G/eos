@@ -1,5 +1,6 @@
 // Checks every Iconify alias in src/icons/aliases.ts against the Iconify API, so a renamed icon upstream is caught.
-// Needs the network, so CI does not run it. Run before a release that touches the aliases:
+// Needs the network, so pull requests do not run it: the nightly CI run does (the icon-aliases job). Run it by hand
+// after changing the aliases:
 //   pnpm --filter @eos-ui/vue check:icon-aliases
 
 import { iconifyAliases, iconifyBoldSuffix } from "../src/icons/aliases.ts";

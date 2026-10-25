@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { createSSRApp, defineComponent, h } from "vue";
+import { createSSRApp, defineComponent, h, ref } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EToastProvider from "./EToastProvider.vue";
 import EButton from "../Button/EButton.vue";
+import EDialog from "../Dialog/EDialog.vue";
 import { createToasts, TOAST_KEY, useToast, type ToastApi } from "../../composables/useToast.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
@@ -37,7 +38,7 @@ describe("EToastProvider", () => {
     api.show({ title: "Saved" });
     await expect.poll(() => document.querySelectorAll(".e-toast-region").length).toBe(1);
     await expect.element(page.getByRole("region", { name: "Notifications" })).toBeInTheDocument();
-    expect(document.querySelector(".e-toast-region")!.hasAttribute("aria-live")).toBe(false);
+    expect(document.querySelector(".e-toast-region")!.getAttribute("aria-live")).toBe("off");
     api.clear();
     await expect.poll(() => document.querySelectorAll(".e-toast-region").length).toBe(0);
   });
@@ -178,7 +179,7 @@ describe("EToastProvider", () => {
     expect(getComputedStyle(region).position).toBe("fixed");
   });
 
-  test("toasts keep their size-panel-sm width in the region, and 40rem with an action", async () => {
+  test("toasts keep their panel-width-sm width in the region, and 40rem with an action", async () => {
     await mountApp();
     api.show({ title: "Saved", tone: "danger" });
     api.show({ title: "Deleted", action: () => h(EButton, null, () => "Undo") });
@@ -187,12 +188,15 @@ describe("EToastProvider", () => {
     expect(Math.round(toasts()[1]!.getBoundingClientRect().width)).toBe(608);
   });
 
-  test("a toast has no motion of its own, so reduced motion has nothing to turn off", async () => {
+  test("a toast arrives with the shared pop-in, timed by duration-fade, so reduced motion stops it", async () => {
     await mountApp();
     api.show({ title: "Saved", tone: "danger" });
     await expect.poll(() => toasts().length).toBe(1);
-    expect(getComputedStyle(toasts()[0]!).animationName).toBe("none");
-    expect(getComputedStyle(toasts()[0]!).transitionDuration).toBe("0s");
+    const toast = toasts()[0]! as HTMLElement;
+    expect(getComputedStyle(toast).animationName).toBe("e-pop-in");
+    toast.style.setProperty("--e-duration-fade", "0.01ms");
+    expect(parseFloat(getComputedStyle(toast).animationDuration)).toBeLessThan(0.001);
+    expect(getComputedStyle(toast).transitionDuration).toBe("0s");
   });
 
   test("axe finds nothing with toasts of every tone showing", async () => {
@@ -205,6 +209,31 @@ describe("EToastProvider", () => {
 });
 
 describe("EToastProvider behaviour", () => {
+  test("a toast that exists before a modal opens stays visible to assistive technology", async () => {
+    const open = ref(false);
+    await render(
+      defineComponent({
+        render: () =>
+          h(EToastProvider, null, {
+            default: () => [
+              h(Grab),
+              h(EDialog, { open: open.value, title: "Sure?", "onUpdate:open": (v?: boolean) => (open.value = !!v) }),
+            ],
+          }),
+      }),
+    );
+    api.show({ title: "Saved", duration: 0 });
+    await expect.poll(() => toasts().length).toBe(1);
+    open.value = true;
+    await expect.poll(() => document.querySelector("[role=dialog]")).not.toBeNull();
+    // The rest of the page is hidden behind the modal, the notifications are not.
+    await expect.poll(() => document.getElementById("app")?.closest("[aria-hidden=true]")).not.toBeNull();
+    const region = document.querySelector(".e-toast-region")!;
+    expect(region.closest("[aria-hidden=true]")).toBeNull();
+    await expect.element(page.getByRole("region", { name: "Notifications" })).toBeInTheDocument();
+    open.value = false;
+  });
+
   test("a toast with no duration keeps its close button even when closable is false", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     await mountApp();

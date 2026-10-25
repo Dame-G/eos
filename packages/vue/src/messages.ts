@@ -77,6 +77,15 @@ export const defaultMessages = {
   filesRejected: { one: "{n} file was not accepted", other: "{n} files were not accepted" },
   filesTooLarge: { one: "{n} file is larger than {max}", other: "{n} files are larger than {max}" },
   filesTooMany: { one: "Only {n} file can be added", other: "Only {n} files can be added" },
+  /** Under the dropzone prompt, with `maxSize`: the largest file allowed. */
+  fileSizeLimit: "Up to {max}",
+  /** Under the dropzone prompt, with `multiple` and `maxFiles`. */
+  fileCountLimit: { one: "{n} file at most", other: "{n} files at most" },
+  /** In the corner of the dropzone, with `multiple` and `maxFiles`: how full the list is. */
+  fileCount: "{n} of {max}",
+  /** Why a file was left out, on its row under the dropzone. A file over the count says `filesTooMany`. */
+  fileRejectedType: "Not an accepted type",
+  fileRejectedSize: "Larger than {max}",
   searching: "Searching",
   noMatches: "No matches",
   startDate: "Start date",
@@ -90,7 +99,7 @@ export const defaultMessages = {
   colorInvalid: "Enter a colour like {example}",
   copyCode: "Copy code",
   codeBlock: "Code",
-  codeCopied: "Copied",
+  copied: "Copied",
   copy: "Copy",
   copyFailed: "Couldn't copy",
   resultsCount: { one: "{n} result", other: "{n} results" },
@@ -157,6 +166,8 @@ export const defaultMessages = {
   passwordRules: "Your password needs:",
   ruleMet: "met",
   ruleNotMet: "not met yet",
+  /** What a password field is described by: how many of its rules are met, rather than every rule on each focus. */
+  passwordRulesMet: "{n} of {total} password rules met",
   errorSummary: "There is a problem",
   formIssue: "{label}: {message}",
   charCount: "{n} of {max} characters",

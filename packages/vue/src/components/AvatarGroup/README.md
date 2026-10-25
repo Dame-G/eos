@@ -10,12 +10,12 @@ Several people as overlapping avatars, with a "+N" tile for the rest. Use [`EAva
 
 <!-- props:start -->
 
-| Prop    | Type                   | Default      | Notes                                                            |
-| ------- | ---------------------- | ------------ | ---------------------------------------------------------------- |
-| `items` | `AvatarGroupItem[]`    | **Required** | The people, in order. Each is `{ name, src? }`.                  |
-| `max`   | `number`               | `4`          | How many avatars show before the rest collapse into a "+N" tile. |
-| `size`  | `"sm" \| "md" \| "lg"` | None         | `sm` 32px, `md` 44px or `lg` 64px, for every avatar.             |
-| `label` | `string`               | None         | Names the group, instead of the list of names.                   |
+| Prop    | Type                   | Default      | Notes                                                                                                                                                |
+| ------- | ---------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `items` | `AvatarGroupItem[]`    | **Required** | The people, in order. Each is `{ name, src? }`.                                                                                                      |
+| `max`   | `number`               | `4`          | How many avatars show before the rest collapse into a "+N" tile. With one person over, all of them show, since a "+1" tile would take the same room. |
+| `size`  | `"sm" \| "md" \| "lg"` | `"md"`       | `sm` 32px, `md` 44px or `lg` 64px, for every avatar.                                                                                                 |
+| `label` | `string`               | None         | Names the group, instead of the list of names.                                                                                                       |
 
 <!-- props:end -->
 
@@ -30,4 +30,4 @@ Not focusable.
 
 ## Related
 
-[`EAvatar`](../Avatar/README.md) for one person, [`ETag`](../Tag/README.md) for a labelled chip.
+[`ETag`](../Tag/README.md) for a labelled chip.

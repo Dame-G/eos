@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { Tone } from "../../composables/useSize.js";
+import type { Tone } from "../../types.js";
 
 export type TagTone = Extract<Tone, "neutral" | "info" | "success" | "warning" | "danger">;
 </script>
@@ -62,9 +62,12 @@ const t = useMessages();
 @layer e.primitives {
   .e-tag {
     --_ink: var(--e-ink);
-    --_edge: var(--e-border-strong);
-    --_bg: var(--e-surface-tint);
-    --_lift: var(--e-slab-thin);
+    --_edge: var(--e-slab-ink);
+
+    /* Half the surface tint: a soft ground, quieter than a well, so the edge and the text carry the tag. */
+    --_bg: color-mix(in srgb, var(--e-surface-tint) 50%, var(--e-surface));
+    --_lift: var(--e-depth-thin);
+    --_r: var(--e-radius-sm);
 
     display: inline-flex;
 
@@ -78,7 +81,7 @@ const t = useMessages();
     padding-block-start: var(--_lift);
     border: var(--e-stroke-edge) solid var(--_edge);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-sm);
+    border-radius: var(--_r) / var(--_r) var(--_r) calc(var(--_r) + var(--_lift)) calc(var(--_r) + var(--_lift));
     background: var(--_bg);
     background-clip: padding-box;
     color: var(--_ink);
@@ -106,9 +109,10 @@ const t = useMessages();
     --_ink: var(--e-danger);
   }
 
+  /* Cut sideways only, so no font is clipped above or below the line. */
   .e-tag-text {
     min-inline-size: 0;
-    overflow: hidden;
+    overflow: clip visible;
     text-overflow: ellipsis;
     white-space: nowrap;
   }

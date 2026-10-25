@@ -1,13 +1,25 @@
 @import url("@eos-ui/tokens/tokens.css");
 
+/*
+ * The material. Every surface is exactly one of three, and says which:
+ *
+ *   Raised   it stands on a slab: a border on every side in the slab colour, the bottom one thicker by the lift. Anything you press (a button, a checked box, a chosen segment, day or page, a tag, a key) and anything that floats over the page (a popover, a menu, a dialog: `--e-shadow-float`, a slab twice `--e-depth` deep lifted off the page). A toast is the one floating panel with no slab: its tone edge marks it, so it takes a plain ring and `--e-shadow-drop`.
+ *   Flush    it lies on the page: one flat `--e-stroke-card` ring in `--e-border` (3.4:1), `--e-shadow-frame`, never a drop shadow. A card, a summary, a table, a code block, the search results.
+ *   Sunk     it is pressed into the page: `--e-shadow-well`, a shade along the top inner edge, on a tinted ground. A field, a track, a meter, a segmented control's groove; and `--e-shadow-sink` for a quiet control toggled on.
+ *
+ * A tone edge (Notice, Stamp, Toast) is a slab turned on its side: the inline-start border, `calc(var(--e-stroke-edge) + var(--e-depth-bold))`, in the tone colour. A raised or pressed state never changes the box's size: the lift moves between the bottom border and nothing.
+ */
 @layer e.base {
+  /* Reduced motion has one mechanism: the theme sets `--e-duration-tap`, `-fade` and `-move` to 0.01ms under `prefers-reduced-motion`, so every transition and every arriving or leaving animation built on them stops with no rule of its own. Only an infinite loop (the ring of SpinnerRing, the indeterminate bar of EProgress, the pulse of skeleton.css) sets `animation: none` in a media block, since a loop at 0.01ms would flicker. */
   .e-root,
   .e-root * {
     box-sizing: border-box;
   }
 
+  /* Bricolage Grotesque has an optical size axis: at display sizes the letterforms tighten and the contrast grows by themselves. `auto` is the default; it is set here so a site reset cannot switch it off. */
   .e-root {
     font-family: var(--e-font-sans);
+    font-optical-sizing: auto;
     color: var(--e-ink);
 
     /* Native checkboxes, radios, ranges and progress bars take the action colour. `color-scheme` comes from the theme. */
@@ -24,9 +36,42 @@
     text-wrap: balance;
   }
 
-  :where(.e-btn, .e-icon-btn, .e-input, .e-definition-term):focus-visible {
+  /* The focus ring, in its two placements. Default: outside the box, for anything that stands apart. Inset: inside it, for a row that touches its neighbours, a region that scrolls, or anything in a clipped column that would cut a ring drawn outside. A component that needs another placement (a field, a thumb under the pointer) says so in its own layer. */
+  :where(
+    .e-btn,
+    .e-input,
+    .e-interact,
+    .e-tab,
+    .e-check,
+    .e-radio,
+    .e-avatar--button,
+    .e-nav-item,
+    .e-slider-thumb,
+    .e-link,
+    .e-crumb-current,
+    .e-sortbtn,
+    .e-toast-region,
+    .e-toggletip-term,
+    .e-appheader-logo a,
+    .e-xrow > summary
+  ):focus-visible,
+  :where(.e-switch-input:focus-visible + .e-switch-track) {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: var(--e-stroke-focus);
+  }
+
+  :where(
+    .e-interact--inset,
+    .e-code-body,
+    .e-details > summary,
+    .e-table-scroll,
+    .e-grid-scroll,
+    .e-appheader-nav,
+    .e-shell-main
+  ):focus-visible,
+  :where(.e-seg-input:focus-visible + .e-seg-text) {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   :where(
@@ -39,10 +84,9 @@
     .e-cal-pick,
     .e-page,
     .e-step,
-    .e-combo-btn,
     .e-menu-item,
     .e-nav-item,
-    .e-definition-term
+    .e-toggletip-term
   ) {
     user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -82,13 +126,13 @@
     color: var(--e-muted);
   }
 
-  /* Amounts, counts and dates in a row: mono, with tabular figures so columns line up. */
+  /* Amounts, counts and dates in a row: mono, with tabular figures so columns line up. Geist Mono is the voice of data: every figure a component shows (a day, a page, a count, a step, a value) is set in it. */
   .e-numeral {
     font: var(--e-type-numeral);
     font-variant-numeric: tabular-nums;
   }
 
-  /* The one amount a statement leads with. */
+  /* The one amount a statement leads with: display size, so it takes the display tracking. */
   .e-numeral-l {
     font: var(--e-type-numeral-l);
     font-variant-numeric: tabular-nums;
@@ -96,46 +140,49 @@
   }
 
   /*
-   * The recipes. Each component writes these in its own rules (inner classes are not API), so they live here as the rules every component follows, not as classes. `edges.test.ts` checks what the components render against them.
+   * The recipes. Each component writes these in its own rules (inner classes are not API), so they live here as the rules every component follows. `edges.test.ts` checks what the components render against them.
    *
-   * The slab: a raised bottom edge under a face, so a button, a checked box, a chosen day and a current page all stand out the same way. A border on every side in the slab colour (a tone's `-slab` colour, or `--e-slab-ink` on a neutral face), the bottom one thicker by --_lift: `--e-depth` (the default), `--e-slab-thin` for a small part or 0 when pressed or disabled, so the box is the same height raised or pressed.
+   * The slab (Raised): a raised bottom edge under a face. A border on every side in the slab colour (a fill's `-slab` colour, or `--e-slab-ink` on a neutral face), the bottom one thicker by --_lift, so the box is the same height raised or pressed:
    *     border: var(--e-stroke-edge) solid var(--_slab);
    *     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-   *   Never a thicker border on one side alone, a shadow, a gradient band or a ::before bar. A face that cannot grow a border uses `--e-slab-edge` (and is shorter by `--e-depth`); a quiet control toggled on, `--e-slab-sink`.
-   *   A tone edge (Notice, Stamp, Toast) is the one side edge: the inline-start border, calc(var(--e-stroke-edge) + var(--e-slab-bold)), in the tone colour.
+   *     border-radius: var(--_r) / var(--_r) var(--_r) calc(var(--_r) + var(--_lift)) calc(var(--_r) + var(--_lift));
+   *   The bottom corners are as much taller than wide as the slab is thick, so the face inside them is a true circle like the top ones (a corner whose border is thicker on one side has an elliptical inside, which reads as a diagonal). A child that fills the face takes `--_r` less the edge on every corner.
+   *   The lift follows the face's height: `--e-depth-thin` up to `--e-chip-height` (a key, a tag, a checkbox or radio, the switch, a slider thumb), `--e-depth` up to `--e-control-height` (a button, a segment, a day, a page, a row), and 0 when pressed or disabled. Never a thicker border on one side alone, a gradient band or a ::before bar.
+   *   A tone edge (Notice, Stamp, Toast) is the one side edge: the inline-start border, calc(var(--e-stroke-edge) + var(--e-depth-bold)), in the tone colour. Its start corners take the same correction sideways: `border-start-start-radius: calc(r + depth-bold) r` and the same at the end-start corner.
    *
-   * Hover and press. A bordered item recolours its own border and never adds a ring, so its edge never thickens: Tabs and Segmented go to `--e-wash-ring` on hover and `--e-ink` on press. An unbordered row, tile or quiet button gets `--e-wash-hover` plus `--e-ring-hover`, then `--e-wash-press` plus `--e-ring-press` (the `.e-interact` rules below). Filled controls keep their own `-hover` and `-press` fills. All of them use `--e-transition-state`.
+   * The ladder of selection: three steps, each its own colour, so hovering never looks like choosing and choosing never looks like being somewhere.
+   *   Hover             the neutral wash, `--e-wash-hover` (`--e-wash-press` when pressed). Never a colour: hover does not preview what pressing will do.
+   *   Where you are     the pastel brand tint, `--e-primary-soft`, with `--e-primary` text, and no slab: a selected tab (whose four edges thicken in primary, as it sits in a bordered strip), the current nav item, the current step, the days of a calendar range.
+   *   A value you set   filled `--e-primary` with `--e-on-primary` text on a `--e-primary-slab` slab: a toggle, a check, a radio, a switch, a segment, a page, a day.
+   *   Selection never changes the weight of a label, so a selected tab, segment or page keeps its width.
+   *
+   * Hover and press. A bordered item (a tab, a segment, a checkbox, a radio, the switch, an expandable row, a nav item, an outline button) recolours its own border, `--e-wash-ring` on hover and `--e-ink` on press, and takes the wash; it never adds a ring, so its edge never thickens. An unbordered item (a row, a tile, a day, a page, a quiet button) takes the wash plus the ring, `--e-shadow-ring-hover` then `--e-shadow-ring-press`: one shared rule in `e.state` below, so a component lists itself there instead of copying it. Filled controls keep their own `-hover` and `-press` fills. All of them use `--e-transition-state`.
    *   Named exceptions, which draw no ring: a text link (`ELink`: the ink colour only, no wash), a breadcrumb (a wash under the link text) and a disclosure summary (`EDisclosure`: a wash only, no ring and no underline).
    *
-   * Selected, in two voices; a component uses one. A value you set (a toggle, a check, a segment, a page, a day) is filled `--e-primary` with `--e-on-primary` text on a `--e-primary-slab` slab. Where you are (a tab, a nav item) is a `--e-wash-hover` face with `--e-primary` text and a primary edge, drawn two ways:
-   *   a tab sits in a bordered strip, so the selected one thickens all four of its edges evenly (the bottom one primary) and its neighbours' shared edges stay put;
-   *   a nav item stands alone, so it takes a real slab: the bottom border thicker by `--e-depth`.
+   * Disabled, in two voices. A control keeps its box, drops its lift, dims to `--e-disabled-ink` on `--e-disabled-fill` and draws a dashed `--e-border-strong` edge over its own (the shared ::before in `e.state`, which a page's focus or outline reset cannot remove), so colour is never the only cue. A list row (a menu item, an option, a nav item) only dims its text. Both use `cursor: not-allowed` and stop answering the pointer.
    *
-   * Disabled, in two voices. A control keeps its box, drops its lift, dims to `--e-disabled-ink` on `--e-disabled-fill` and draws a dashed `--e-border-strong` outline inside its edge, so colour is never the only cue. A list row (a menu item, an option, a nav item) only dims its text. Both use `cursor: not-allowed` and stop answering the pointer.
+   * Arriving. Every floating surface (a popover, a menu, a list panel, a tooltip, a date panel, a toast) arrives the same way: `e-pop-in`, a short drop onto its slab over `--e-duration-fade` on `--e-easing-enter`. Dialogs scale in over the same duration; only a drawer travels (`--e-duration-move`).
    */
 
-  /* An unbordered button beside the text in a field (clear, reveal, step) or a chip's remove button: the hover and press of a quiet item. --inset draws the focus outline inside the box, for one that touches its neighbours or sits in a clipped box. */
+  /* An unbordered button beside the text in a field (clear, reveal, step) or a chip's remove button: the hover and press of a quiet item (the shared rule in `e.state`). --inset draws the focus outline inside the box, for one that touches its neighbours or sits in a clipped box. */
   .e-interact {
     transition: var(--e-transition-state);
   }
 
-  .e-interact:not(:disabled, [aria-disabled="true"]):hover {
-    background-color: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
+  :where(.e-popover, .e-calpanel, .e-tip-bubble, .e-toast) {
+    animation: e-pop-in var(--e-duration-fade) var(--e-easing-enter);
   }
 
-  .e-interact:not(:disabled, [aria-disabled="true"]):active {
-    background-color: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
+  /* Closing has no animation of its own, so a closing panel leaves at once, even in the middle of arriving. */
+  :where(.e-popover, .e-calpanel, .e-tip-bubble)[data-state="closed"] {
+    animation: none;
   }
 
-  .e-interact:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
-  }
-
-  .e-interact--inset:focus-visible {
-    outline-offset: calc(-1 * var(--e-stroke-focus));
+  @keyframes e-pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(calc(-2 * var(--e-depth)));
+    }
   }
 
   /* The one visually-hidden rule: `EVisuallyHidden` renders this class, and so does every component that hides a label. */
@@ -146,6 +193,58 @@
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
+  }
+
+  /*
+   * Paper. Under print the theme swaps in its light palette (tokens.css), and the page prints with its colours exactly,
+   * so a fill that carries meaning (a checked box, a progress bar, a chosen day) is on the paper even where the browser
+   * leaves background graphics out. A heading stays with what follows it, a paragraph leaves no lone line at a page
+   * edge, and a block that only makes sense whole (a card, a field, a row, a figure) moves to the next page rather than
+   * being cut. A block taller than a page still breaks.
+   */
+  @media print {
+    .e-root {
+      print-color-adjust: exact;
+    }
+
+    .e-root :where(h1, h2, h3, h4, h5, h6),
+    :where(.e-heading, .e-kicker, .e-pagehead, .e-table-caption, .e-fieldset-title, legend) {
+      break-after: avoid;
+      break-inside: avoid;
+    }
+
+    .e-root :where(p, li, dd, blockquote) {
+      orphans: 3;
+      widows: 3;
+    }
+
+    .e-root :where(img, svg, canvas, video, figure, tr, pre),
+    :where(
+      .e-surface,
+      .e-notice,
+      .e-toast,
+      .e-metric,
+      .e-linkcard,
+      .e-empty,
+      .e-field,
+      .e-seg-field,
+      .e-sel,
+      .e-combo-root,
+      .e-cal,
+      .e-steps,
+      .e-pad,
+      .e-sign,
+      .e-stamp,
+      .e-tag,
+      .e-file,
+      .e-progress,
+      .e-slider,
+      .e-code,
+      .e-avatar-group,
+      .e-results li
+    ) {
+      break-inside: avoid;
+    }
   }
 
   .e-root * {
@@ -183,92 +282,76 @@
       background: transparent;
     }
   }
+}
 
-  @media (forced-colors: active) {
-    .e-input,
-    .e-input-wrap,
-    .e-check,
-    .e-radio,
-    .e-sel-trigger,
-    .e-combo,
-    .e-search,
-    .e-seg,
-    .e-avatar {
-      border: 1px solid ButtonText;
+/* The shared states, last in the cascade so no component's resting face (a `background: transparent` on a button) can hide them. An unbordered item joins by carrying `.e-interact` (and `.e-interact--inset` for the inset focus ring); a state it must not answer is in the `:not()`. Pressing swaps the wash and the ring for their press values. */
+@layer e.state {
+  @media not (forced-colors: active) {
+    :where(.e-interact, .e-btn--quiet):not(
+        :where(
+          span,
+          :disabled,
+          [aria-disabled="true"],
+          [data-disabled],
+          [aria-current="page"],
+          [aria-busy="true"],
+          [aria-pressed="true"],
+          .e-day--sel,
+          .e-opt--disabled,
+          .e-btn--loading
+        )
+      ):hover,
+    :where(.e-interact, .e-btn--quiet):not(
+        :where(
+          span,
+          :disabled,
+          [aria-disabled="true"],
+          [data-disabled],
+          [aria-current="page"],
+          [aria-busy="true"],
+          [aria-pressed="true"],
+          .e-day--sel,
+          .e-opt--disabled,
+          .e-btn--loading
+        )
+      ):active,
+    .e-interact[data-highlighted] {
+      background-color: var(--_sw, var(--e-wash-hover));
+      box-shadow: var(--_sr, var(--e-shadow-ring-hover));
     }
 
-    .e-input-wrap .e-input {
-      border: 0;
+    :where(.e-interact, .e-btn--quiet):active {
+      --_sw: var(--e-wash-press);
+      --_sr: var(--e-shadow-ring-press);
     }
+  }
 
-    .e-input:disabled,
-    .e-input-wrap[data-disabled],
-    .e-search[data-disabled],
-    .e-check:disabled,
-    .e-radio:disabled {
-      border-color: GrayText;
-    }
+  /* The dashed edge of a disabled or busy control, drawn over its own edge. The host is positioned and its own border is transparent; a busy button sets --_dash to its own colour. */
+  :where(
+    .e-btn[disabled],
+    .e-btn[aria-disabled="true"],
+    .e-btn--loading,
+    .e-icon-btn:disabled,
+    .e-tab:disabled,
+    .e-check:disabled:not(:checked, :indeterminate),
+    .e-radio:disabled:not(:checked),
+    .e-switch-input:disabled + .e-switch-track,
+    .e-seg--disabled,
+    .e-slider[data-disabled] .e-slider-track,
+    .e-slider-thumb[data-disabled]
+  )::before {
+    content: "";
+    position: absolute;
+    inset: var(--_dash-inset, calc(-1 * var(--e-stroke-edge)));
+    border: var(--e-stroke-edge) dashed var(--_dash, var(--e-border-strong));
+    border-radius: inherit;
+    pointer-events: none;
+  }
 
-    .e-input-wrap[data-invalid] {
-      border-width: 2px;
-    }
-
-    .e-tablist {
-      border-bottom: 1px solid CanvasText;
-    }
-
-    .e-tab[aria-selected="true"] {
-      border-bottom-color: Highlight;
-    }
-
-    .e-tab-count {
-      border: 1px solid CanvasText;
-    }
-
-    .e-dialog,
-    .e-drawer,
-    .e-popover,
-    .e-listpanel,
-    .e-calpanel,
-    .e-surface,
-    .e-menu,
-    .e-code,
-    .e-results,
-    .e-tip-bubble {
-      outline: 1px solid CanvasText;
-    }
-
-    .e-divider {
-      border-color: CanvasText;
-    }
-
-    .e-divider-label::before,
-    .e-divider-label::after {
-      border-color: CanvasText;
-    }
-
-    .e-switch-track {
-      border: 1px solid ButtonText;
-    }
-
-    .e-switch-input:checked + .e-switch-track {
-      forced-color-adjust: none;
-      background: Highlight;
-      border-color: Highlight;
-    }
-
-    .e-switch-input:checked + .e-switch-track::after {
-      forced-color-adjust: none;
-      background: HighlightText;
-    }
-
-    .e-input-wrap:focus-within,
-    .e-check:focus-visible,
-    .e-radio:focus-visible,
-    .e-switch-input:focus-visible + .e-switch-track,
-    .e-tab:focus-visible,
-    .e-combo-btn:focus-visible {
-      outline-color: Highlight;
+  /* A floating panel answers a pointer that paper does not have, and its fixed position would land it anywhere on the page, so an open menu, list, date panel or tooltip is not printed. */
+  @media print {
+    :where(.e-popover, .e-calpanel, .e-tip-bubble) {
+      display: none;
     }
   }
 }

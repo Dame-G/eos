@@ -6,12 +6,15 @@
     text-wrap: balance;
   }
 
+  /* Display sizes close up: the optical size axis tightens the letters, the tracking the gaps between them. */
   .e-h1 {
     font: var(--e-type-h1);
+    letter-spacing: var(--e-tracking-tight);
   }
 
   .e-h2 {
     font: var(--e-type-h2);
+    letter-spacing: var(--e-tracking-tight);
   }
 
   .e-h3 {

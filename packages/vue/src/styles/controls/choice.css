@@ -18,6 +18,7 @@
 
   .e-choice-text {
     display: grid;
+    flex: 1;
     gap: var(--e-pad-inset);
     min-width: 0;
     font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-normal) var(--e-font-sans);
@@ -30,8 +31,13 @@
     gap: 0 var(--e-gap-tight);
   }
 
+  /* Required or Optional sits at the end of the row, as it does on a field's label, and still there when the label wraps. */
+  .e-choice-label > .e-field-flag {
+    margin-inline-start: auto;
+  }
+
   .e-choice-desc {
-    font: var(--e-weight-regular) var(--e-text-sm)/1.4 var(--e-font-sans);
+    font: var(--e-type-helper);
     color: var(--e-muted);
   }
 
@@ -45,7 +51,9 @@
 
     --_ring: var(--e-border-strong);
     --_lift: 0px;
+    --_r: var(--e-radius-sm);
 
+    position: relative;
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--_ring);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
@@ -55,35 +63,36 @@
     transition: var(--e-transition-state);
   }
 
+  /* The slab corners: the bottom ones as much taller as the slab is thick, so the face inside stays round. */
   .e-check {
-    border-radius: var(--e-radius-sm);
+    border-radius: var(--_r) / var(--_r) var(--_r) calc(var(--_r) + var(--_lift)) calc(var(--_r) + var(--_lift));
   }
 
   .e-radio {
-    border-radius: 50%;
+    border-radius: var(--e-radius-round);
   }
 
-  /* Pointing at the label counts as pointing at the box: the outline darkens and the face takes the soft primary wash. Pressing darkens the outline to ink. */
+  /* Pointing at the label counts as pointing at the box. A bordered item answers as every bordered item does: the edge darkens and the face takes the neutral wash (hover never previews the primary), and pressing darkens the edge to ink. */
   .e-choice:hover .e-check:not(:checked, :indeterminate, :disabled),
   .e-choice:hover .e-radio:not(:checked, :disabled) {
     --_ring: var(--e-wash-ring);
 
-    background-color: var(--e-primary-soft);
+    background-color: var(--e-wash-hover);
   }
 
   .e-choice:active .e-check:not(:checked, :indeterminate, :disabled),
   .e-choice:active .e-radio:not(:checked, :disabled) {
     --_ring: var(--e-ink);
 
-    background-color: var(--e-primary-soft);
+    background-color: var(--e-wash-press);
   }
 
-  /* Checked, it is a small button face: the primary colour with a slab under it, which sinks away when pressed. */
+  /* Checked, it is a small button face: the primary colour on a thin slab (the box is no taller than a chip), which sinks away when pressed. */
   .e-check:checked,
   .e-check:indeterminate,
   .e-radio:checked {
     --_slab: var(--e-primary-slab);
-    --_lift: var(--e-depth);
+    --_lift: var(--e-depth-thin);
 
     border-color: var(--_slab);
     background-color: var(--e-primary);
@@ -111,14 +120,16 @@
     background: var(--e-disabled-ink);
   }
 
-  /* A circle with an uneven border has an elliptical inner edge that steps against the fill, so the radio keeps an even ring and draws its slab as an inset crescent. */
+  /* A circle with an uneven border has an elliptical inner edge that steps against the fill, and a thin dark ring round a circle steps at every pixel. So the chosen radio has no ring: it is a coin, the primary face with its slab as one crescent under it (the edge and the lift together, as thick at the bottom as a box's), and the dot sits in the middle of the face above the crescent. */
   .e-radio:checked {
-    border-bottom-width: var(--e-stroke-edge);
-    box-shadow: inset 0 calc(-1 * var(--_lift)) 0 var(--_slab);
+    --_rim: calc(var(--e-stroke-edge) + var(--_lift));
+
+    border-width: 0;
+    box-shadow: inset 0 calc(-1 * var(--_rim)) 0 var(--_slab);
     background-image: radial-gradient(
-      circle,
-      var(--e-on-primary) 0 calc(var(--e-check-size) / 6),
-      transparent calc(var(--e-check-size) / 6 + 1px)
+      circle at 50% calc(50% - var(--_rim) / 2),
+      var(--e-on-primary) calc(var(--e-check-size) / 6 - 0.5px),
+      transparent calc(var(--e-check-size) / 6 + 0.5px)
     );
   }
 
@@ -132,13 +143,6 @@
     --_lift: 0px;
 
     background-color: var(--e-primary-press);
-  }
-
-  .e-check:focus-visible,
-  .e-radio:focus-visible,
-  .e-switch-input:focus-visible + .e-switch-track {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
   }
 
   /* Invalid: the edge turns danger and pointing at it tints the face danger-soft. A chosen box keeps its primary fill, so the danger shows as a ring just outside it. Disabled comes after and stays neutral. */
@@ -163,17 +167,15 @@
 
   .e-radio[aria-invalid="true"]:checked:not(:active, :disabled) {
     box-shadow:
-      inset 0 calc(-1 * var(--_lift)) 0 var(--_slab),
+      inset 0 calc(-1 * var(--_rim)) 0 var(--_slab),
       0 0 0 var(--e-stroke-edge) var(--e-surface),
       0 0 0 calc(2 * var(--e-stroke-edge)) var(--e-danger);
   }
 
   .e-check:disabled,
   .e-radio:disabled {
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-color: transparent;
-    background-color: var(--e-surface-tint);
+    background-color: var(--e-disabled-fill);
     box-shadow: none;
   }
 
@@ -181,13 +183,39 @@
   .e-radio:checked:disabled {
     --_lift: 0px;
 
-    outline: 0;
     border-color: var(--e-border-strong);
-    background-color: var(--e-surface-tint);
+    background-color: var(--e-disabled-fill);
     box-shadow: none;
   }
 
+  /* The disabled fill may be clear, so the chosen radio's dot takes the disabled ink, as the check does. */
+  .e-radio:checked:disabled {
+    border-width: var(--e-stroke-edge);
+    background-image: radial-gradient(
+      circle,
+      var(--e-disabled-ink) calc(var(--e-check-size) / 6 - 0.5px),
+      transparent calc(var(--e-check-size) / 6 + 0.5px)
+    );
+  }
+
   @media (forced-colors: active) {
+    .e-check,
+    .e-radio {
+      border-color: ButtonText;
+    }
+
+    .e-check:disabled,
+    .e-radio:disabled {
+      --_dash: GrayText;
+
+      border-color: GrayText;
+    }
+
+    .e-check:focus-visible,
+    .e-radio:focus-visible {
+      outline-color: Highlight;
+    }
+
     .e-check:checked,
     .e-check:indeterminate,
     .e-radio:checked {

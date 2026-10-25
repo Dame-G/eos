@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
 import EText from "./EText.vue";
@@ -35,7 +35,7 @@ describe("EText", () => {
           h("div", [
             h(EText, null, () => "A"),
             h(EText, { tone: "danger" }, () => "B"),
-            h(EText, { tone: "neutral" }, () => "C"),
+            h(EText, { tone: "muted" }, () => "C"),
           ]),
       }),
     );
@@ -80,15 +80,24 @@ describe("EText", () => {
     expect(free.container.querySelector("p")!.getBoundingClientRect().width).toBeGreaterThan(1300);
   });
 
-  test("tone neutral is the quieter colour, with its class", async () => {
+  test("tone muted is the quieter colour", async () => {
     const { container } = await render(
       defineComponent({
-        render: () => h("div", [h(EText, { tone: "neutral" }, () => "A"), h(EText, () => "B")]),
+        render: () => h("div", [h(EText, { tone: "muted" }, () => "A"), h(EText, () => "B")]),
       }),
     );
-    const [a, b] = [...container.querySelectorAll("p")];
-    expect(a!.className).toBe("e-text e-text--muted");
-    expect(getComputedStyle(a!).color).not.toBe(getComputedStyle(b!).color);
+    const [a, b] = [...container.querySelectorAll("p")].map((p) => getComputedStyle(p).color);
+    expect(a).not.toBe(b);
+  });
+
+  test("truncate with lines warns, and lines wins", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { container } = await render(EText, { props: { truncate: true, lines: 2 }, slots: { default: "x" } });
+    const p = container.querySelector("p")!;
+    expect(p.classList.contains("e-text--clamp")).toBe(true);
+    expect(p.classList.contains("e-text--truncate")).toBe(false);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   test("as changes the element", async () => {
@@ -121,7 +130,7 @@ describe("EText", () => {
           h("div", [
             h(EText, null, () => "Body"),
             h(EText, { size: "lg" }, () => "Large"),
-            h(EText, { size: "sm", tone: "neutral" }, () => "Small neutral"),
+            h(EText, { size: "sm", tone: "muted" }, () => "Small muted"),
           ]),
       }),
     );

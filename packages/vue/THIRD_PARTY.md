@@ -1,4 +1,4 @@
 # Third-party notices
 
 - **Phosphor Icons** (https://phosphoricons.com), MIT License, Copyright (c) 2020 Phosphor Icons. The icon paths in `packages/vue/src/icons/phosphor.ts` are taken from this set.
-- **Bricolage Grotesque** and **Geist Mono** are the default typefaces (SIL Open Font License 1.1). They are not bundled; `fonts.css` loads them from Google Fonts, and any other font can be set with `defineTheme({ fonts })`.
+- **Bricolage Grotesque** and **Geist Mono** are the default typefaces, under the SIL Open Font License 1.1 (Copyright 2022 The Bricolage Grotesque Project Authors; Copyright 2024 The Geist Project Authors). `fonts-self-hosted.css` bundles their woff2 files, taken unmodified from the Fontsource packages `@fontsource-variable/bricolage-grotesque` and `@fontsource-variable/geist-mono`, in `dist/fonts`, with each licence beside them (`BricolageGrotesque-OFL.txt`, `GeistMono-OFL.txt`). `fonts.css` (opt-in; importing it makes visitors' browsers request the fonts from Google, which shares their IP addresses with Google) loads them from Google Fonts instead, and any other font can be set with `defineTheme({ fonts })`.

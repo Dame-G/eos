@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, inject, type Component } from "vue";
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch, type Component } from "vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { shellKey } from "../AppShell/shellContext.js";
 import { useMessages } from "../../config.js";
+import { linkTarget } from "../../composables/useLink.js";
+import { useOverflow } from "../../composables/useOverflow.js";
 import "../../styles/base.css";
 import "./shell.css";
 
@@ -43,24 +45,62 @@ const navOpen = defineModel<boolean>("navOpen", { default: false });
 const t = useMessages();
 const shell = inject(shellKey, null);
 const brandTarget = computed(() =>
-  props.brandTo !== undefined ? { to: props.brandTo } : { href: props.brandHref ?? "/" },
+  linkTarget(
+    { href: props.brandHref ?? (props.brandTo === undefined ? "/" : undefined), to: props.brandTo },
+    props.linkComponent,
+  ),
 );
 
 function toggle() {
   if (shell?.drawer.value) shell.toggle();
   else navOpen.value = !navOpen.value;
 }
+
+/** The shell's menu button is drawn from the first render; CSS shows it only below 48rem, where the sidebar is a drawer. */
+const shellButton = computed(() => !props.navToggle && !!shell?.toggleable.value);
+const expanded = computed(() => (shell?.drawer.value ? shell.open.value : navOpen.value));
+
+/*
+ * The navigation row scrolls sideways when its content cannot wrap, so while it scrolls it is a tab stop: the keyboard
+ * can then scroll it too.
+ */
+const navRow = ref<HTMLElement | null>(null);
+const navScrolls = useOverflow(navRow, [], { children: true });
+
+/*
+ * `--e-header-height` on the page root: the height of a sticky header, and 0px for one that scrolls away, so a sticky
+ * part of the page (a sidebar, a table head) can sit under it with `top: var(--e-header-height, 0px)`.
+ */
+const root = ref<HTMLElement | null>(null);
+let sizes: ResizeObserver | undefined;
+function publishHeight() {
+  const height = props.sticky && root.value ? root.value.offsetHeight : 0;
+  document.documentElement.style.setProperty("--e-header-height", `${height}px`);
+}
+onMounted(() => {
+  publishHeight();
+  if (typeof ResizeObserver === "undefined" || !root.value) return;
+  sizes = new ResizeObserver(publishHeight);
+  sizes.observe(root.value);
+});
+watch(() => props.sticky, publishHeight);
+onBeforeUnmount(() => {
+  sizes?.disconnect();
+  document.documentElement.style.removeProperty("--e-header-height");
+});
 </script>
 
 <template>
-  <header class="e-appheader" :class="sticky && 'e-appheader--sticky'">
+  <header ref="root" class="e-appheader" :class="sticky && 'e-appheader--sticky'">
     <div class="e-appheader-bar e-shell-inner">
       <EIconButton
-        v-if="navToggle || shell?.drawer.value"
+        v-if="navToggle || shellButton"
         class="e-appheader-toggle"
+        :class="shellButton && 'e-appheader-toggle--shell'"
         icon="menu"
         :label="t('menu')"
-        :aria-expanded="shell?.drawer.value ? shell.open.value : navOpen"
+        :aria-expanded="expanded"
+        :aria-controls="shell?.drawer.value && expanded ? shell.drawerId : undefined"
         @click="toggle"
       />
       <div class="e-appheader-logo">
@@ -77,7 +117,7 @@ function toggle() {
       </div>
       <div v-if="$slots.actions" class="e-appheader-actions"><slot name="actions" /></div>
     </div>
-    <div v-if="$slots.default" class="e-appheader-nav">
+    <div v-if="$slots.default" ref="navRow" class="e-appheader-nav" :tabindex="navScrolls ? 0 : undefined">
       <div class="e-shell-inner"><slot /></div>
     </div>
   </header>
@@ -90,11 +130,11 @@ function toggle() {
     border-bottom: var(--e-stroke-hair) solid var(--e-border);
   }
 
-  /* Above everything the page raises in its own flow (z-raised, z-sticky, z-focus: a sticky table head, a selected tab, a focused control), which would otherwise paint over it as it scrolls under, and below every dialog, menu and toast. */
+  /* Above everything the page raises in its own flow (a sticky table head, a selected tab, a focused control), which would otherwise paint over it as it scrolls under, and below every dialog, menu and toast. */
   .e-appheader--sticky {
     position: sticky;
     top: 0;
-    z-index: calc(var(--e-z-focus) + 1);
+    z-index: var(--e-z-header);
   }
 
   .e-appheader-bar {
@@ -128,17 +168,11 @@ function toggle() {
     transition: var(--e-transition-state);
   }
 
-  .e-appheader-brand:not(:last-child) {
-    margin-inline-end: var(--e-gap-loose);
-  }
-
   .e-appheader-logo a.e-appheader-brand:hover {
     color: var(--e-primary);
   }
 
   .e-appheader-logo a:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
     border-radius: var(--e-radius-sm);
   }
 
@@ -154,10 +188,23 @@ function toggle() {
     padding-block: var(--e-gap-snug);
   }
 
+  /* The shell's menu button, drawn from the first render, shows only where the sidebar is a drawer (the page-frame breakpoint). */
+  @media (min-width: 48rem) {
+    .e-appheader-toggle--shell {
+      display: none;
+    }
+  }
+
+  /* On paper the header prints once, at the top of the first page, as the masthead: the brand alone, with no nav, menu button or actions (search, settings, an account menu), which only answer a pointer. */
   @media print {
     .e-appheader-nav,
-    .e-appheader-toggle {
+    .e-appheader-toggle,
+    .e-appheader-actions {
       display: none;
+    }
+
+    .e-appheader--sticky {
+      position: static;
     }
   }
 

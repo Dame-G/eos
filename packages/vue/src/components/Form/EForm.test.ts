@@ -145,6 +145,22 @@ describe("EForm", () => {
     await expect
       .poll(() => container.querySelector(".e-notice a")?.textContent ?? "")
       .toContain("Code: Code not found");
+    // The summary is the one announcement: the field's own error is not said over it.
+    await new Promise((r) => setTimeout(r, 120));
+    expect(document.querySelector('[data-e-announcer="assertive"]')?.textContent ?? "").not.toContain("Code not found");
+  });
+
+  test("an error that appears outside a submit is announced by the form", async () => {
+    const error = ref<string | undefined>();
+    await render(
+      defineComponent({
+        render: () => h(EForm, null, () => [h(ETextField, { label: "Code", modelValue: "x", error: error.value })]),
+      }),
+    );
+    error.value = "Too short";
+    await expect
+      .poll(() => document.querySelector('[data-e-announcer="assertive"]')?.textContent ?? "")
+      .toContain("Too short");
   });
 
   test("submitting sets aria-busy and ignores a second submit", async () => {

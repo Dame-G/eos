@@ -4,7 +4,7 @@ Functions to call inside `setup()`. Each one documented here is exported from `@
 
 ## Conventions
 
-- One composable per file: `useThing.ts` exports `useThing` (and its types). A helper that is not a composable (`focusInside`, from `useFocusInside.ts`) lives here too when components share it. `scripts/gen-index.mjs` exports each name from the package, except one marked `@internal` in its JSDoc, or a whole file whose first line is `// @internal`. Mark a helper the components share but apps should not depend on (`useDetails`, `useFieldControl`, `useFormField`) that way, so it can change without a breaking release.
+- One composable per file: `useThing.ts` exports `useThing` (and its types). A helper that is not a composable lives here too when components share it, in a file named after it (`focusInside.ts` exports `focusInside`). Shared types (`Size`, `Tone`, `ElementTag`) are in `src/types.ts`. `scripts/gen-index.mjs` exports each name from the package, except one marked `@internal` in its JSDoc, or a whole file whose first line is `// @internal`. Mark a helper the components share but apps should not depend on (`useDetails`, `useFieldControl`) that way, so it can change without a breaking release.
 - Each has a test next to it (`useThing.test.ts`) that runs in a real browser.
 - Safe for the server: touch `window`, `document` and the clipboard only inside `onMounted` or an event handler, and do nothing when they are missing.
 - Take reactive input as `MaybeRefOrGetter`, read it with `toValue`, and return refs or computeds, so callers can pass props directly.
@@ -25,7 +25,7 @@ announce("3 rows selected");
 announce("Payment failed", { assertive: true }); // interrupts: for errors
 ```
 
-Announce the result of an action the person cannot otherwise see. Do not repeat what is already in a live region on screen. The same message twice in a row is still spoken.
+Announce the result of an action the person cannot otherwise see. Do not repeat what is already in a live region on screen. The same message twice in a row is still spoken. A message is written a moment after the call, and another of the same politeness in that moment replaces it, so a burst (a count updated on each keystroke) says only its last.
 
 ## `useShortcuts(map, options?)`
 
@@ -46,7 +46,7 @@ Combine `mod`, `ctrl`, `cmd` (or `meta`), `alt` and `shift` with `+`. Key names 
 - A held key does not repeat, and text being composed (an IME) is left alone.
 - Options: `target` (an element or ref, the document by default), `enabled` (a ref or getter), `allowInInputs`, `preventDefault` (on by default).
 
-`formatShortcut("mod+k")` gives the keycaps to show in [`EKbd`](../components/Kbd/README.md): `["⌘", "K"]` on a Mac, `["Ctrl", "K"]` elsewhere.
+`formatShortcut("mod+k")` gives the keycaps to show in [`EKbd`](../components/Kbd/README.md): `["⌘", "K"]` on a Mac, `["Ctrl", "K"]` elsewhere. It reads the browser, so in a server-rendered page pass `formatShortcut(combo, apple)` with an `apple` ref that is `false` until mounted, as `ECommandPalette` does; otherwise the server and the first render in the browser disagree.
 
 ## `useCopy(options?)`
 
@@ -87,7 +87,7 @@ A stable id for wiring a label, hint and error to a control. It matches between 
 
 ## `useDir()`, `useLogicalSide(side)`
 
-The direction to use: `createEos({ dir })` when set, otherwise the one the locale is written in (`ar`, `he`, `fa`, `ur` give `rtl`). Reka UI assumes left to right unless told, so every Reka root that takes `dir` (Select, Menu, Popover, Tabs, Calendar...) needs it, and so does anything teleported out of the tree. One place for all of a component's Reka parts is Reka's `ConfigProvider`:
+The direction to use: `createEos({ dir })` (or an `EConfigProvider`'s) when set, otherwise the direction of the page around the component once it is mounted, so it agrees with CSS `:dir()`. On the server it is the one the locale is written in (`ar`, `he`, `fa`, `ur` give `rtl`). Reka UI assumes left to right unless told, so every Reka root that takes `dir` (Select, Menu, Popover, Tabs, Calendar...) needs it, and so does anything teleported out of the tree. One place for all of a component's Reka parts is Reka's `ConfigProvider`:
 
 ```vue
 <script setup lang="ts">
@@ -118,13 +118,27 @@ el.scrollBy({ left, behavior: calm() ? "auto" : "smooth" });
 
 Everything date and money components need from the configured locale: month and weekday names, the first day of the week, date order and separator, and formatting and parsing of dates and money.
 
-## `focusInside(event)` (`useFocusInside.ts`)
+## `focusInside(event)` (`focusInside.ts`)
 
 A click handler for a boxed input: a click on the padding or an icon puts the cursor in the input, while a button or link inside keeps its own click. Bind it with `@click="focusInside"` on the wrapper.
 
 ## `useFieldAttrs()`
 
 For a form control built on `EField`: keeps `class` and `style` on the wrapper and sends every other attribute to the real input. Use it with `defineOptions({ inheritAttrs: false })`. A control made of several inputs puts `group()` on the element around them: the consumer's `@focus` and `@blur` then fire when focus enters or leaves the group.
+
+## `useFormField(entry)` (`useFormField.ts`)
+
+Joins a custom control to the [`EForm`](../components/Form/README.md) around it, so the error summary lists it and focuses it from its link. Outside a form it does nothing. The entry is getters, read when the form checks:
+
+```ts
+useFormField({
+  id: () => id.value, // the element the summary links to and focuses
+  label: () => props.label,
+  error: () => props.error,
+  // optional: a check the browser cannot make, read from reactive state
+  check: () => (props.required && !value.value ? "Choose a colour." : undefined),
+});
+```
 
 ## `useQuietFocus(open, inside)`
 

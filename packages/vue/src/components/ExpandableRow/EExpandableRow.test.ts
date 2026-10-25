@@ -15,6 +15,16 @@ const slots = {
 };
 
 describe("EExpandableRow", () => {
+  test("a chevron after the value shows whether it is open, and turns when it opens", async () => {
+    const { container } = await render(EExpandableRow, { props: { title: "Lab work" }, slots });
+    const chevron = container.querySelector(".e-xrow-end > .e-details-chevron")!;
+    expect(chevron.classList.contains("e-icon")).toBe(true);
+    expect(chevron.previousElementSibling?.classList.contains("e-xrow-trail")).toBe(true);
+    const closed = getComputedStyle(chevron).transform;
+    await page.getByText("Lab work").click();
+    await expect.poll(() => getComputedStyle(chevron).transform).not.toBe(closed);
+  });
+
   test("the summary is the same height open and closed", async () => {
     const { container } = await render(EExpandableRow, { props: { title: "Visit" }, slots });
     container.classList.add("e-root");
@@ -197,7 +207,9 @@ describe("EExpandableRow corners", () => {
     const close = (a: number, b: number) => expect(Math.abs(a - Math.max(0, b))).toBeLessThan(0.5);
     const summary = details.querySelector("summary")!;
     close(r(summary, "borderTopLeftRadius"), outer - edge);
-    close(r(summary, "borderBottomLeftRadius"), outer - edge - lift);
+    // The slab corners are taller by the lift, so the inside stays round: the summary's corner is the row's less the edge.
+    expect(lift).toBeGreaterThan(0);
+    close(r(summary, "borderBottomLeftRadius"), outer - edge);
     details.open = true;
     await new Promise((resolve) => setTimeout(resolve, 400));
     close(r(details.querySelector(".e-xrow-body")!, "borderBottomLeftRadius"), outer - edge);

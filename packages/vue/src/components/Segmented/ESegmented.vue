@@ -5,7 +5,9 @@ export type { SegmentedOption } from "../RadioGroup/options.js";
 <script setup lang="ts" generic="T extends string = string">
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import EIcon from "../Icon/EIcon.vue";
+import EFieldFlag from "../Field/EFieldFlag.vue";
 import EFieldMessage from "../Field/EFieldMessage.vue";
+import { sizeAttr, type EFieldSize } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
 import { normalizeChoices } from "../RadioGroup/options.js";
 import type { SegmentedOption } from "../RadioGroup/options.js";
@@ -14,23 +16,30 @@ import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useUid } from "../../composables/useUid.js";
 import { useOverflow } from "../../composables/useOverflow.js";
 import { useReducedMotion } from "../../composables/useReducedMotion.js";
-import { useFormField } from "../../composables/useFormContext.js";
+import { useFormField } from "../../composables/useFormField.js";
 import "../../styles/base.css";
+import "../../styles/controls/label.css";
 
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
-  /** Read by screen readers as the name of the group. */
+  /** The name of the group, shown above the control as a field's label, with the Required or Optional word beside it. */
   label: string;
+  /** Keeps the label for screen readers only, where the context already names the control (a view switch in a toolbar). */
+  hideLabel?: boolean;
   /** Two to five. A string is both value and label. `SegmentedOption` is `{ value, label, icon?, disabled? }`. */
-  options: (T | SegmentedOption<T>)[];
+  options: readonly (T | SegmentedOption<T>)[];
+  /** The height: `sm` is a compact control for a toolbar, with smaller text; `lg` is a step over the control height. @default "md" */
+  size?: EFieldSize;
+  /** The id of the group. The options are `{id}-0`, `{id}-1` and so on. @default generated */
+  id?: string;
   /** Help under the control, linked with `aria-describedby`. */
   hint?: string;
   /** What to fix. Replaces the hint and is announced. */
   error?: string;
-  /** Adds the word "Optional" to the group's accessible name and shows nothing. Use it when most fields in the form are required. */
+  /** Adds the word "Optional" to the group's accessible name and to the label. Use it when most fields in the form are required. */
   optional?: boolean;
-  /** Marks the group `aria-required` and adds the word "Required" to its accessible name. */
+  /** Marks the group `aria-required` and adds the word "Required" to its accessible name and to the label. */
   required?: boolean;
   /** Disables every option. */
   disabled?: boolean;
@@ -40,11 +49,12 @@ const props = defineProps<{
   name?: string;
 }>();
 
-/** The active value. Left unset, the first option that can be chosen is shown as active and `v-model` is not told until the person chooses. @default first option */
+/** The active value. Left unset, the first option that can be chosen is shown as active, but no radio is checked: `v-model` is not told and a form posts nothing until the person chooses. @default first option */
 const model = defineModel<T>();
 
 const t = useMessages();
-const uid = useUid();
+const uid = useUid(() => props.id);
+const labelId = computed(() => `${uid.value}-label`);
 const name = useUid(() => props.name);
 const message = computed(() => ({ hint: props.hint, error: props.error }));
 const { messageId: hintId, describedBy } = useChoiceMessage(uid, message);
@@ -77,7 +87,7 @@ const scrolls = useOverflow(track);
 async function reveal(smooth: boolean) {
   await nextTick();
   const el = track.value;
-  const opt = el?.querySelector<HTMLElement>(".e-seg-input:checked")?.parentElement;
+  const opt = el?.querySelector<HTMLElement>(".e-seg-input[data-on]")?.parentElement;
   if (!el || !opt || el.scrollWidth <= el.clientWidth) return;
   const a = opt.getBoundingClientRect();
   const b = el.getBoundingClientRect();
@@ -94,7 +104,7 @@ async function reveal(smooth: boolean) {
 onMounted(() => reveal(false));
 watch(current, () => reveal(true));
 const pick = () =>
-  track.value?.querySelector<HTMLInputElement>(".e-seg-input:checked") ??
+  track.value?.querySelector<HTMLInputElement>(".e-seg-input[data-on]") ??
   track.value?.querySelector<HTMLInputElement>(".e-seg-input") ??
   null;
 
@@ -107,12 +117,17 @@ defineExpose({
 });
 
 const groupAttrs = () => ({
+  id: uid.value,
   role: "radiogroup",
-  "aria-label": props.required
-    ? `${props.label}, ${t("required")}`
-    : props.optional
-      ? `${props.label}, ${t("optional")}`
-      : props.label,
+  // A shown label names the group, Required or Optional word and all.
+  "aria-labelledby": props.hideLabel ? undefined : labelId.value,
+  "aria-label": !props.hideLabel
+    ? undefined
+    : props.required
+      ? `${props.label}, ${t("required")}`
+      : props.optional
+        ? `${props.label}, ${t("optional")}`
+        : props.label,
   "aria-required": props.required ? ("true" as const) : undefined,
   "aria-readonly": props.readonly ? ("true" as const) : undefined,
   "aria-invalid": props.error ? ("true" as const) : undefined,
@@ -122,10 +137,15 @@ const groupAttrs = () => ({
 
 <template>
   <div class="e-seg-field" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
+    <span v-if="!hideLabel" :id="labelId" class="e-field-label e-kicker">
+      {{ label }}
+      <EFieldFlag :required="required" :optional="optional" />
+    </span>
     <div
       ref="track"
       class="e-seg"
       :class="{ 'e-seg--disabled': disabled, 'e-seg--scroll': scrolls }"
+      :data-size="sizeAttr(size)"
       v-bind="groupAttrs()"
     >
       <label v-for="(o, i) in options" :key="o.value" class="e-seg-opt">
@@ -135,7 +155,8 @@ const groupAttrs = () => ({
           class="e-seg-input"
           :name="name"
           :value="o.value"
-          :checked="current === o.value"
+          :checked="model === o.value"
+          :data-on="current === o.value ? '' : undefined"
           :disabled="o.disabled || disabled"
           :required="required"
           @click="guard"
@@ -154,13 +175,29 @@ const groupAttrs = () => ({
   .e-seg {
     display: inline-flex;
     box-sizing: border-box;
-    height: var(--e-control-height);
+    height: var(--_h, var(--e-control-height));
     position: relative;
     border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
-    box-shadow: var(--e-well);
+    box-shadow: var(--e-shadow-well);
     max-width: 100%;
     width: fit-content;
+  }
+
+  /* The heights of a field: a step under and over the control height. Small is for a toolbar, so its text and padding shrink too. */
+  .e-seg[data-size="sm"] {
+    --_h: calc(var(--e-control-height) - var(--e-gap-snug));
+  }
+
+  .e-seg[data-size="lg"] {
+    --_h: calc(var(--e-control-height) + var(--e-gap-snug));
+  }
+
+  .e-seg[data-size="sm"] .e-seg-text {
+    gap: var(--e-gap-tight);
+    min-width: var(--_h);
+    padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
+    font-size: var(--e-text-sm);
   }
 
   .e-seg--scroll {
@@ -191,7 +228,7 @@ const groupAttrs = () => ({
     z-index: var(--e-z-raised);
   }
 
-  .e-seg-opt:has(.e-seg-input:checked) {
+  .e-seg-opt:has(.e-seg-input[data-on]) {
     z-index: var(--e-z-sticky);
   }
 
@@ -227,50 +264,44 @@ const groupAttrs = () => ({
   /* The end pieces have the track's corners themselves. A piece fills the track edge to edge, so its border is the track's edge there; left square, the track's clip would cut off the corner of a ring, a focus outline or a slab at an end. */
   .e-seg-opt:first-child .e-seg-text {
     border-start-start-radius: var(--e-radius-md);
-    border-end-start-radius: var(--e-radius-md);
+    border-end-start-radius: var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift));
   }
 
   .e-seg-opt:last-child .e-seg-text {
     border-start-end-radius: var(--e-radius-md);
-    border-end-end-radius: var(--e-radius-md);
+    border-end-end-radius: var(--e-radius-md) calc(var(--e-radius-md) + var(--_lift));
   }
 
   /* An option that is not chosen answers the pointer as an inactive tab does: ink text, a wash and a darker edge of the same width, darker again when pressed. No ring is added, so the edge never gets thicker. */
-  .e-seg-opt:hover .e-seg-input:enabled:not(:checked) + .e-seg-text {
+  .e-seg-opt:hover .e-seg-input:enabled:not([data-on]) + .e-seg-text {
     --_slab: var(--e-wash-ring);
 
     color: var(--e-ink);
     background: var(--e-wash-hover);
   }
 
-  .e-seg-opt:active .e-seg-input:enabled:not(:checked) + .e-seg-text {
+  .e-seg-opt:active .e-seg-input:enabled:not([data-on]) + .e-seg-text {
     --_slab: var(--e-ink);
 
     background: var(--e-wash-press);
   }
 
-  .e-seg-input:checked + .e-seg-text {
+  .e-seg-input[data-on] + .e-seg-text {
     --_slab: var(--e-primary-slab);
     --_lift: var(--e-depth);
 
     background-color: var(--e-primary);
     color: var(--e-on-primary);
-    font-weight: var(--e-weight-strong);
   }
 
-  .e-seg-opt:hover .e-seg-input:enabled:checked + .e-seg-text {
+  .e-seg-opt:hover .e-seg-input:enabled[data-on] + .e-seg-text {
     background-color: var(--e-primary-hover);
   }
 
-  .e-seg-opt:active .e-seg-input:enabled:checked + .e-seg-text {
+  .e-seg-opt:active .e-seg-input:enabled[data-on] + .e-seg-text {
     --_lift: 0px;
 
     background-color: var(--e-primary-press);
-  }
-
-  .e-seg-input:focus-visible + .e-seg-text {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   /* An option that cannot be chosen only dims; a fully disabled track draws the dashed edge. */
@@ -284,14 +315,14 @@ const groupAttrs = () => ({
   }
 
   .e-seg--disabled {
+    --_dash-inset: 0;
+
     background: var(--e-disabled-fill);
     box-shadow: none;
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
   }
 
   /* Chosen but unavailable: a flat, tinted piece with ink text, so it stays readable. It has no edge of its own, only the track's dashed one, so its corners follow the track's. */
-  .e-seg-input:disabled:checked + .e-seg-text {
+  .e-seg-input:disabled[data-on] + .e-seg-text {
     --_slab: transparent;
     --_lift: 0px;
 
@@ -300,11 +331,11 @@ const groupAttrs = () => ({
   }
 
   /* Invalid: the edge of every option that is not chosen turns danger, and an option under the pointer tints danger-soft. The chosen option is still primary. A fully disabled track stays neutral. */
-  .e-seg[aria-invalid="true"]:has(.e-seg-input:enabled) .e-seg-input:not(:checked) + .e-seg-text {
+  .e-seg[aria-invalid="true"]:has(.e-seg-input:enabled) .e-seg-input:not([data-on]) + .e-seg-text {
     --_slab: var(--e-danger);
   }
 
-  .e-seg[aria-invalid="true"] .e-seg-opt:hover .e-seg-input:enabled:not(:checked) + .e-seg-text {
+  .e-seg[aria-invalid="true"] .e-seg-opt:hover .e-seg-input:enabled:not([data-on]) + .e-seg-text {
     background: var(--e-danger-soft);
   }
 
@@ -318,7 +349,12 @@ const groupAttrs = () => ({
   }
 
   @media (forced-colors: active) {
-    .e-seg-input:checked + .e-seg-text {
+    /* The well is a shadow, which forced colours drop, so the track draws a border. */
+    .e-seg {
+      border: var(--e-stroke-edge) solid ButtonText;
+    }
+
+    .e-seg-input[data-on] + .e-seg-text {
       forced-color-adjust: none;
       background: Highlight;
       color: HighlightText;

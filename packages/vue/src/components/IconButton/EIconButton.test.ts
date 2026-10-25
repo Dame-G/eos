@@ -10,7 +10,7 @@ describe("EIconButton", () => {
     const { container } = await render(EIconButton, { props: { icon: "download", label: "Download receipt" } });
     await expect.element(page.getByRole("button", { name: "Download receipt", exact: true })).toBeVisible();
     const button = container.querySelector("button")!;
-    expect(button.className).toBe("e-icon-btn");
+    expect(button.className).toBe("e-icon-btn e-interact");
     expect(button.type).toBe("button");
     expect(button.querySelector("svg.e-icon")!.getAttribute("aria-hidden")).toBe("true");
   });
@@ -66,7 +66,7 @@ describe("EIconButton", () => {
 
   test("a disabled button is drawn with a dashed edge, like a disabled EButton", async () => {
     const { container } = await render(EIconButton, { props: { icon: "trash", label: "Delete", disabled: true } });
-    expect(getComputedStyle(container.querySelector("button")!).outlineStyle).toBe("dashed");
+    expect(getComputedStyle(container.querySelector("button")!, "::before").borderTopStyle).toBe("dashed");
   });
 
   test("other attributes fall through to the button, such as popovertarget", async () => {
@@ -100,7 +100,7 @@ describe("EIconButton", () => {
     const box = button.getBoundingClientRect();
     expect(box.width).toBe(box.height);
     const quiet = await render(EIconButton, { props: { icon: "plus", label: "Quiet" } });
-    expect(quiet.container.querySelector("button")!.className).toBe("e-icon-btn");
+    expect(quiet.container.querySelector("button")!.className).toBe("e-icon-btn e-interact");
   });
 
   test("size changes the square and keeps a 44px target", async () => {
@@ -130,6 +130,14 @@ describe("EIconButton", () => {
     expect(clicks).toBe(0);
   });
 
+  test("the quiet (default) variant takes the busy style too", async () => {
+    const { container } = await render(EIconButton, { props: { icon: "download", label: "Download", loading: true } });
+    container.classList.add("e-root");
+    const button = container.querySelector("button")!;
+    expect(button.classList.contains("e-btn--loading")).toBe(true);
+    expect(getComputedStyle(button, "::before").borderTopStyle).toBe("dashed");
+  });
+
   test("type submits a form", async () => {
     let submitted = 0;
     const { container } = await render(
@@ -152,7 +160,9 @@ describe("EIconButton", () => {
       attrs: { onClick: () => clicks++, "data-x": "1" },
     });
     await userEvent.tab();
-    await expect.element(page.getByRole("tooltip")).toHaveTextContent("Download receipt");
+    // The bubble repeats the button's own name, so it is hidden from assistive technology; read the bubble itself.
+    await expect.poll(() => document.querySelector(".e-tip-bubble")?.textContent).toContain("Download receipt");
+    expect(document.querySelector(".e-tip-bubble")!.getAttribute("aria-hidden")).toBe("true");
     expect(document.activeElement!.getAttribute("data-x")).toBe("1");
     await userEvent.keyboard("{Enter}");
     expect(clicks).toBe(1);

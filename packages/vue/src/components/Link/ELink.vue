@@ -2,6 +2,7 @@
 import { computed, type Component } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import { useMessages } from "../../config.js";
+import { linkTarget } from "../../composables/useLink.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
@@ -9,7 +10,7 @@ const props = withDefaults(
   defineProps<{
     /** Where the link goes. Give `href` or, with a `linkComponent`, `to`. */
     href?: string;
-    /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). Use it instead of `href`. */
+    /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). Use it instead of `href`. Without a `linkComponent`, a string `to` is the `href`. */
     to?: unknown;
     /** What renders the link: `RouterLink` or any component that takes `href` or `to` and a default slot. It receives `to` or `href` and the class `e-link`. */
     linkComponent?: string | Component;
@@ -27,7 +28,7 @@ defineSlots<{
 }>();
 
 const t = useMessages();
-const target = computed(() => (props.to !== undefined ? { to: props.to } : { href: props.href }));
+const target = computed(() => linkTarget(props, props.linkComponent));
 </script>
 
 <template>
@@ -50,11 +51,11 @@ const target = computed(() => (props.to !== undefined ? { to: props.to } : { hre
 <style>
 @layer e.primitives {
   .e-link {
-    color: var(--e-text-link);
+    color: var(--e-link);
     font-weight: var(--e-weight-medium);
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
-    text-underline-offset: var(--e-underline-offset);
+    text-underline-offset: var(--e-stroke-underline-offset);
     text-decoration-color: currentcolor;
     border-radius: var(--e-radius-sm);
     transition: var(--e-transition-state);
@@ -62,11 +63,6 @@ const target = computed(() => (props.to !== undefined ? { to: props.to } : { hre
 
   .e-link:is(:hover, :active) {
     color: var(--e-ink);
-  }
-
-  .e-link:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
   }
 
   .e-link--icon {
@@ -79,7 +75,7 @@ const target = computed(() => (props.to !== undefined ? { to: props.to } : { hre
   .e-link--icon .e-link-text {
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
-    text-underline-offset: var(--e-underline-offset);
+    text-underline-offset: var(--e-stroke-underline-offset);
   }
 
   .e-link--icon .e-icon {
@@ -87,18 +83,12 @@ const target = computed(() => (props.to !== undefined ? { to: props.to } : { hre
     height: 1.25em;
   }
 
+  /* On paper a link to another site prints its address after the text, so the reader can still follow it. A path on this site, an in-page anchor, a mail or phone link say nothing without the page around them, so they print as text. */
   @media print {
-    .e-link::after {
+    .e-link:is([href^="http:"], [href^="https:"])::after {
       content: " (" attr(href) ")";
       font-size: 0.85em;
-    }
-
-    /* An in-page anchor, a mail or phone link and a link without an address say nothing on paper. */
-    .e-link[href^="#"]::after,
-    .e-link[href^="mailto:"]::after,
-    .e-link[href^="tel:"]::after,
-    .e-link:not([href])::after {
-      content: none;
+      overflow-wrap: anywhere;
     }
   }
 }

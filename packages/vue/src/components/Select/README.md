@@ -48,12 +48,18 @@ A dropdown for choosing one option from a list, when options need more than a li
 
 `class` and `style` land on the wrapper `div`. Other attributes and listeners land on the `button` element. Exposes `input` (the button) and `focus()`.
 
+## Events
+
+| Event   | Payload | Notes                                                            |
+| ------- | ------- | ---------------------------------------------------------------- |
+| `clear` | None    | The person pressed the clear button. The model is already empty. |
+
 ## Accessibility
 
 - `readonly` keeps the button focusable (`aria-readonly`) but it never opens and typing does not choose; the value is still submitted. `disabled` posts nothing.
 - `multiple` keeps the list open while choosing and the button reads "N selected". The model is then an array.
 - Empty is `""` for a single select and `[]` with `multiple`. A date or number control uses `null` instead.
-- `loading` sets `aria-busy`. `clearable` adds a Clear button next to the arrow.
+- `loading` shows its spinner in place of the arrow.
 - Provide `label`, or `bare` with `ariaLabel`. The types require one of them.
 
 ## Keyboard
@@ -71,4 +77,4 @@ With the list closed, letters choose the matching option without opening it.
 
 ## Related
 
-[`ECombobox`](../Combobox/README.md) when the list needs searching, [`ERadioGroup`](../RadioGroup/README.md) for a few options.
+[`ECheckboxGroup`](../CheckboxGroup/README.md) for several choices that should all stay in view.

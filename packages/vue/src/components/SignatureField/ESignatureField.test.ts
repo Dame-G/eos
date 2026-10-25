@@ -68,19 +68,19 @@ describe("ESignatureField", () => {
     expect(container.textContent).not.toContain("Sign as the patient");
     const input = container.querySelector<HTMLInputElement>("input[type=text]")!;
     expect(input.getAttribute("aria-invalid")).toBe("true");
-    const alerts = container.querySelectorAll("[role=alert]");
-    expect(alerts).toHaveLength(1);
-    expect(alerts[0]!.textContent).toContain("Sign the form");
-    expect(input.getAttribute("aria-describedby")).toContain(alerts[0]!.id);
+    const errors = container.querySelectorAll(".e-field-error");
+    expect(errors).toHaveLength(1);
+    expect(errors[0]!.textContent).toContain("Sign the form");
+    expect(input.getAttribute("aria-describedby")).toContain(errors[0]!.id);
   });
 
   test("in draw mode the error marks the pad", async () => {
     const { container } = await mount({ mode: "draw", error: "Sign the form" });
     expect(container.querySelector(".e-pad-surface")!.hasAttribute("data-invalid")).toBe(true);
     expect(container.querySelector("canvas")!.getAttribute("aria-describedby")).toContain(
-      container.querySelector("[role=alert]")!.id,
+      container.querySelector(".e-field-error")!.id,
     );
-    expect(container.querySelectorAll("[role=alert]")).toHaveLength(1);
+    expect(container.querySelectorAll(".e-field-error")).toHaveLength(1);
   });
 
   test("name submits the typed name, or the drawn image, through a hidden input", async () => {
@@ -177,7 +177,11 @@ describe("ESignatureField", () => {
     expect(input.autocomplete).toBe("name");
     const req = await mount({ required: true });
     expect(req.container.querySelector<HTMLInputElement>("input[type=text]")!.required).toBe(true);
-    expect(req.container.querySelectorAll(".e-field-flag")).toHaveLength(1);
+    // One visible Required, on the legend; the name and the agreement are required without the word again.
+    const flags = [...req.container.querySelectorAll<HTMLElement>(".e-field-flag")].filter((el) => el.offsetParent);
+    expect(flags).toHaveLength(1);
+    expect(flags[0]!.closest("legend")).not.toBeNull();
+    expect(req.container.querySelector<HTMLInputElement>("input[type=checkbox]")!.required).toBe(true);
     const drawn = await mount({ required: true, mode: "draw" });
     expect(drawn.container.querySelector(".e-fieldset-legend .e-field-flag")!.textContent).toBe("Required");
   });

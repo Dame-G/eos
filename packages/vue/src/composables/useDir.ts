@@ -1,19 +1,51 @@
-import { computed, type ComputedRef } from "vue";
+import { computed, getCurrentInstance, onMounted, ref, type ComputedRef } from "vue";
 import { useConfig } from "../config.js";
 import { localeDirection } from "./useLocale.js";
 
+type Dir = "ltr" | "rtl";
+
+/** The direction the browser gives a node: its own or an inherited `dir`, or a CSS `direction`. */
+function domDirection(node: Node | null | undefined): Dir {
+  const own = node instanceof Element ? node : node?.parentElement;
+  const el = own?.isConnected ? own : document.documentElement;
+  return getComputedStyle(el).direction === "rtl" ? "rtl" : "ltr";
+}
+
+/** Counts changes of any `dir` attribute in the page (the plugin sets one when the locale changes), so a mounted part reads its direction again. One observer serves the whole page. */
+const dirChanges = ref(0);
+let observer: MutationObserver | undefined;
+function watchDirChanges() {
+  if (observer || typeof MutationObserver === "undefined") return;
+  observer = new MutationObserver(() => dirChanges.value++);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["dir"], subtree: true });
+}
+
 /**
- * The text direction every part should use: `createEos({ dir })` when set, otherwise the one the locale is written in
- * (`ar`, `he`, `fa` and `ur` are right to left). Reka UI falls back to left to right when it is not told, so give this to
- * every Reka root that takes `dir`, or wrap the component in Reka's `ConfigProvider`:
+ * The text direction every part should use: `createEos({ dir })` (or an `EConfigProvider`'s) when set, otherwise the
+ * direction of the page around the component once it is mounted, so the script agrees with CSS `:dir()`. On the
+ * server, and before mounting, it is the one the locale is written in (`ar`, `he`, `fa` and `ur` are right to left).
+ * Reka UI falls back to left to right when it is not told, so give this to every Reka root that takes `dir`, or wrap the
+ * component in Reka's `ConfigProvider`:
  *
  * ```vue
  * <ConfigProvider :dir="dir"><SelectRoot>...</SelectRoot></ConfigProvider>
  * ```
  */
-export function useDir(): ComputedRef<"ltr" | "rtl"> {
+export function useDir(): ComputedRef<Dir> {
   const config = useConfig();
-  return computed(() => config.dir ?? localeDirection(config.locale));
+  const mounted = ref(false);
+  const instance = getCurrentInstance();
+  if (instance)
+    onMounted(() => {
+      watchDirChanges();
+      mounted.value = true;
+    });
+  return computed(() => {
+    if (config.dir) return config.dir;
+    if (!mounted.value) return localeDirection(config.locale);
+    void dirChanges.value;
+    return domDirection(instance?.proxy?.$el as Node | undefined);
+  });
 }
 
 /** A side that follows the reading direction (`start`, `end`), or `top` or `bottom`. */
@@ -33,3 +65,14 @@ export function useLogicalSide(side: () => LogicalSide): ComputedRef<"top" | "bo
     return s;
   });
 }
+
+/** Pixels between a floating panel (a menu, a tooltip) and the control that opened it. @internal */
+export const FLOAT_OFFSET = 8;
+/** Pixels between a submenu and the row that opened it: closer, so it reads as part of the same menu. @internal */
+export const SUBMENU_OFFSET = 4;
+/** Pixels a menu keeps from the edge of the screen. @internal */
+export const EDGE_PADDING = 16;
+/** Pixels a small floating part (a tooltip, a submenu) keeps from the edge of the screen. @internal */
+export const EDGE_PADDING_TIGHT = 8;
+/** Where the popup of a field (a list of options, a calendar) sits: this far from the box, and kept this far inside the viewport. Bind it on the popup content. @internal */
+export const FIELD_POPPER = { sideOffset: 6, collisionPadding: EDGE_PADDING_TIGHT } as const;

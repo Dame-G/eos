@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { createApp, defineComponent, h, isReactive, nextTick } from "vue";
+import { createApp, defineComponent, h, isReactive, nextTick, type App } from "vue";
 import { contrast } from "@eos-ui/tokens";
 import { createEos, themeCss } from "./plugin.js";
 import { useConfig, useMessages } from "./config.js";
@@ -8,6 +8,7 @@ import ETextField from "./components/TextField/ETextField.vue";
 import EIcon from "./components/Icon/EIcon.vue";
 
 const hosts: HTMLElement[] = [];
+const apps: App[] = [];
 function mountApp(component: ReturnType<typeof defineComponent>, plugin?: ReturnType<typeof createEos>) {
   const host = document.createElement("div");
   document.body.append(host);
@@ -15,10 +16,14 @@ function mountApp(component: ReturnType<typeof defineComponent>, plugin?: Return
   const app = createApp(component);
   if (plugin) app.use(plugin);
   app.mount(host);
+  apps.push(app);
   return { host, app };
 }
 
+const token = (el: Element, name: string) => getComputedStyle(el).getPropertyValue(`--e-${name}`).trim();
+
 afterEach(() => {
+  for (const a of apps.splice(0)) a.unmount();
   for (const h of hosts.splice(0)) h.remove();
   document.documentElement.removeAttribute("style");
   document.documentElement.removeAttribute("data-e-theme");
@@ -32,16 +37,53 @@ describe("createEos", () => {
     mountApp(defineComponent({ render: () => h("div") }), eos);
     const root = document.documentElement;
     expect(root.getAttribute("data-e-theme")).toBe("clinic");
-    const primary = root.style.getPropertyValue("--e-primary");
-    expect(primary).toMatch(/^#[0-9a-f]{6}$/);
+    const primary = token(root, "primary");
+    expect(primary).toBe(eos.theme.tokens["primary"]);
     expect(contrast(primary, "#ffffff")).toBeGreaterThanOrEqual(7);
+    expect(root.style.getPropertyValue("--e-primary")).toBe("");
+  });
+
+  test("with no theme, nothing is applied: the stylesheet carries the default", () => {
+    const sheets = document.adoptedStyleSheets.length;
+    mountApp(defineComponent({ render: () => h("div") }), createEos());
+    const root = document.documentElement;
+    expect(root.hasAttribute("data-e-theme")).toBe(false);
+    expect(root.getAttribute("style")).toBeNull();
+    expect(document.adoptedStyleSheets.length).toBe(sheets);
+  });
+
+  test("the page's own CSS wins over the theme, and the media-query variants are kept", () => {
+    const own = document.createElement("style");
+    own.textContent = ":root { --e-primary: #0b4f6c; }";
+    document.head.append(own);
+    try {
+      mountApp(
+        defineComponent({ render: () => h("div") }),
+        createEos({ theme: { brand: "#8a2be2", contrast: "auto" } }),
+      );
+      expect(token(document.documentElement, "primary")).toBe("#0b4f6c");
+      const css = document.adoptedStyleSheets.flatMap((s) => [...s.cssRules].map((r) => r.cssText)).join("\n");
+      expect(css).toContain("prefers-contrast: more");
+    } finally {
+      own.remove();
+    }
+  });
+
+  test("unmounting the app removes the theme", () => {
+    const sheets = document.adoptedStyleSheets.length;
+    const { app } = mountApp(defineComponent({ render: () => h("div") }), createEos({ theme: { name: "gone" } }));
+    expect(document.documentElement.getAttribute("data-e-theme")).toBe("gone");
+    apps.splice(apps.indexOf(app), 1);
+    app.unmount();
+    expect(document.documentElement.hasAttribute("data-e-theme")).toBe(false);
+    expect(document.adoptedStyleSheets.length).toBe(sheets);
   });
 
   test("applyTheme: false leaves the theme to the page's own CSS, and still sets lang and dir", () => {
     const eos = createEos({ theme: { name: "mine", brand: "#8a2be2" }, applyTheme: false, locale: "ar" });
     mountApp(defineComponent({ render: () => h("div") }), eos);
     const root = document.documentElement;
-    expect(root.style.getPropertyValue("--e-primary")).toBe("");
+    expect(token(root, "primary")).not.toBe(eos.theme.tokens["primary"]);
     expect(root.hasAttribute("data-e-theme")).toBe(false);
     expect(root.getAttribute("lang")).toBe("ar");
     expect(root.getAttribute("dir")).toBe("rtl");
@@ -55,7 +97,9 @@ describe("createEos", () => {
     const eos = createEos({ theme: { name: "scoped", brand: "#b00020" }, themeTarget: scope });
     mountApp(defineComponent({ render: () => h("div") }), eos);
     expect(scope.getAttribute("data-e-theme")).toBe("scoped");
+    expect(token(scope, "primary")).toBe(eos.theme.tokens["primary"]);
     expect(document.documentElement.getAttribute("data-e-theme")).toBeNull();
+    expect(token(document.documentElement, "primary")).not.toBe(eos.theme.tokens["primary"]);
   });
 
   test("the theme changes what a component looks like", async () => {
@@ -91,7 +135,7 @@ describe("createEos", () => {
 
   test("a failing theme is reported in the console, once, with the pair that fails", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    createEos({ theme: { tokens: { primary: "#9fd3e3" } } }).install(
+    createEos({ theme: { tokens: { primary: "#9fd3e3" } }, applyTheme: false }).install(
       createApp(defineComponent({ render: () => h("div") })),
     );
     expect(warn).toHaveBeenCalledTimes(1);
@@ -146,6 +190,27 @@ describe("createEos", () => {
     expect(scope.getAttribute("dir")).toBe("rtl");
     expect(scope.getAttribute("lang")).toBe("he");
     expect(document.documentElement.hasAttribute("dir")).toBe(false);
+  });
+
+  test("themeTarget: null touches no element: no theme, lang or dir, while the config keeps them", () => {
+    const eos = createEos({ themeTarget: null, theme: { name: "nowhere" }, locale: "he-IL", dir: "rtl" });
+    mountApp(defineComponent({ render: () => h("div") }), eos);
+    const root = document.documentElement;
+    expect(root.hasAttribute("dir")).toBe(false);
+    expect(root.hasAttribute("data-e-theme")).toBe(false);
+    expect(root.getAttribute("lang")).not.toBe("he-IL");
+    expect(eos.config.dir).toBe("rtl");
+  });
+
+  test("unmounting puts back the lang and dir the target had", () => {
+    const root = document.documentElement;
+    root.setAttribute("lang", "en");
+    const { app } = mountApp(defineComponent({ render: () => h("div") }), createEos({ locale: "ar" }));
+    expect(root.getAttribute("dir")).toBe("rtl");
+    app.unmount();
+    apps.splice(apps.indexOf(app), 1);
+    expect(root.getAttribute("lang")).toBe("en");
+    expect(root.hasAttribute("dir")).toBe(false);
   });
 
   test("portalTarget defaults to body and can point at a themed container", () => {

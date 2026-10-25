@@ -60,6 +60,27 @@ describe("EActions", () => {
     }
   });
 
+  test('stack="narrow" stacks full width in a narrow container and not in a wide one; always stacks at every width', async () => {
+    const at = (width: number, stack: "narrow" | "always") =>
+      render(
+        defineComponent({
+          render: () => h("div", { style: { width: `${width}px` } }, [h(EActions, { stack }, buttons)]),
+        }),
+      );
+    const stacked = (c: Element) => {
+      const [a, b] = [...c.querySelectorAll<HTMLElement>(".e-btn")];
+      return (
+        b!.getBoundingClientRect().top >= a!.getBoundingClientRect().bottom - 1 &&
+        a!.getBoundingClientRect().width > 300
+      );
+    };
+    expect(stacked((await at(340, "narrow")).container)).toBe(true);
+    expect(stacked((await at(900, "narrow")).container)).toBe(false);
+    const always = (await at(900, "always")).container;
+    const [a] = [...always.querySelectorAll<HTMLElement>(".e-btn")];
+    expect(a!.getBoundingClientRect().width).toBeGreaterThan(800);
+  });
+
   test("class, style and attributes fall through to the root", async () => {
     const { container } = await render(EActions, {
       attrs: { class: "mine", style: "margin-top: 3px", "aria-label": "Row actions", role: "group", "data-x": "1" },

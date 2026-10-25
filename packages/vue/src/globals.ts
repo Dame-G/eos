@@ -26,7 +26,6 @@ declare module "vue" {
     ECurrencyField: typeof Library.ECurrencyField;
     EDataGrid: typeof Library.EDataGrid;
     EDatePicker: typeof Library.EDatePicker;
-    EDefinition: typeof Library.EDefinition;
     EDescriptionList: typeof Library.EDescriptionList;
     EDialog: typeof Library.EDialog;
     EDisclosure: typeof Library.EDisclosure;
@@ -83,6 +82,7 @@ declare module "vue" {
     ETextarea: typeof Library.ETextarea;
     EToast: typeof Library.EToast;
     EToastProvider: typeof Library.EToastProvider;
+    EToggletip: typeof Library.EToggletip;
     ETooltip: typeof Library.ETooltip;
     EUpload: typeof Library.EUpload;
     EVisuallyHidden: typeof Library.EVisuallyHidden;

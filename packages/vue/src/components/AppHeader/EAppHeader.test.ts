@@ -54,6 +54,8 @@ describe("EAppHeader", () => {
       const nav = container.querySelector<HTMLElement>(".e-appheader-nav")!;
       expect(getComputedStyle(nav).overflowX).toBe("auto");
       expect(nav.scrollWidth).toBeGreaterThan(nav.clientWidth);
+      // While it scrolls it is a tab stop, so the keyboard can scroll it.
+      await expect.poll(() => nav.getAttribute("tabindex")).toBe("0");
     } finally {
       await page.viewport(1024, 768);
     }
@@ -175,6 +177,7 @@ describe("EAppHeader", () => {
     const token = (name: string) =>
       Number(getComputedStyle(document.documentElement).getPropertyValue(`--e-z-${name}`));
     const z = Number(getComputedStyle(header).zIndex);
+    expect(z).toBe(token("header"));
     expect(z).toBeGreaterThan(token("focus"));
     expect(z).toBeLessThan(token("modal"));
     const box = header.getBoundingClientRect();
@@ -190,6 +193,32 @@ describe("EAppHeader", () => {
     await userEvent.tab();
     expect(document.activeElement).toBe(link);
     expect(getComputedStyle(link).outlineStyle).toBe("solid");
+  });
+
+  test("the brand link and the logo slot are one gap apart, not two", async () => {
+    const { container } = await render(EAppHeader, {
+      props: { brand: "Acme" },
+      slots: { logo: () => h("button", { type: "button" }, "Search") },
+    });
+    const link = container.querySelector<HTMLElement>(".e-appheader-brand")!;
+    const gap = parseFloat(getComputedStyle(container.querySelector(".e-appheader-logo")!).columnGap);
+    const search = container.querySelector("button")!;
+    expect(parseFloat(getComputedStyle(link).marginInlineEnd)).toBe(0);
+    expect(Math.round(search.getBoundingClientRect().left - link.getBoundingClientRect().right)).toBe(Math.round(gap));
+  });
+
+  test("a sticky header publishes its height as --e-header-height; one that scrolls away publishes 0px", async () => {
+    const sticky = ref(true);
+    const { container, unmount } = await render(
+      defineComponent({ render: () => h(EAppHeader, { sticky: sticky.value }, slots) }),
+    );
+    const root = document.documentElement;
+    const height = container.querySelector<HTMLElement>(".e-appheader")!.offsetHeight;
+    await expect.poll(() => root.style.getPropertyValue("--e-header-height")).toBe(`${height}px`);
+    sticky.value = false;
+    await expect.poll(() => root.style.getPropertyValue("--e-header-height")).toBe("0px");
+    unmount();
+    expect(root.style.getPropertyValue("--e-header-height")).toBe("");
   });
 
   test("the brand slot holds a logo, named by brandLabel, before the logo slot", async () => {

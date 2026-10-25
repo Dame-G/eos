@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import EIcon from "../Icon/EIcon.vue";
 import type { IconProp } from "../../icons/types.js";
-import type { Tone } from "../../composables/useSize.js";
+import type { Tone } from "../../types.js";
 import "../../styles/base.css";
 import "../Heading/scale.css";
 
@@ -15,7 +15,7 @@ withDefaults(
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     /** Removes the outline, for use inside a table or panel. */
     bare?: boolean;
-    /** `danger` colours the icon in the error colour, for a failed load or a search that broke rather than one that found nothing. */
+    /** `danger` colours the icon in the error colour, for a failed load or a search that broke rather than one that found nothing. `neutral` is the default look. */
     tone?: Extract<Tone, "neutral" | "danger">;
     /** `sm` is more compact with a smaller icon, for use inside a panel or a table. */
     size?: "sm" | "md";
@@ -38,7 +38,7 @@ defineSlots<{
   >
     <span v-if="icon" class="e-empty-icon"><EIcon :name="icon" :size="size === 'sm' ? 'lg' : 'xl'" /></span>
     <component :is="`h${headingLevel}`" class="e-empty-title e-h e-h3">{{ title }}</component>
-    <p v-if="$slots.default" class="e-empty-text"><slot /></p>
+    <div v-if="$slots.default" class="e-empty-text"><slot /></div>
     <slot name="action" />
   </div>
 </template>
@@ -75,11 +75,17 @@ defineSlots<{
     color: var(--e-danger);
   }
 
+  /* A div, so the slot may hold paragraphs; they are spaced as blocks in a stack. */
   .e-empty-text {
-    margin: 0;
-    max-width: 38ch;
+    display: grid;
+    gap: var(--e-gap-snug);
+    max-width: var(--e-measure);
     font: var(--e-type-body);
     color: var(--e-muted);
+  }
+
+  .e-empty-text > p {
+    margin: 0;
   }
 
   @media (forced-colors: active) {

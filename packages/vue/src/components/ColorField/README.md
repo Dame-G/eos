@@ -29,6 +29,12 @@ A colour input as `#rrggbb`: a swatch that opens the native picker plus a text b
 
 `class` and `style` land on the wrapper `div`. Other attributes and listeners land on the text `input` element. `name` submits the normalised `#rrggbb` through a hidden input; a disabled field posts nothing. An empty value shows a struck-through chip, not black. The text box's example placeholder is the `colorPlaceholder` message. Exposes `input` and `focus()`. It does not check contrast, so pair it with `defineTheme()`.
 
+## Events
+
+| Event     | Payload                         | Notes                                                                                                                                                 |
+| --------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `invalid` | `text: string, message: string` | The typed text is not a colour, when focus leaves it. The field shows `message`, keeps the model as it was and posts nothing until the text is fixed. |
+
 ## Accessibility
 
 - The label points at the text input. The swatch is a native `<input type="color">` named by the `pickColor` message.

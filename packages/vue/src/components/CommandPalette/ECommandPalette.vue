@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import DialogFrame from "../Dialog/DialogFrame.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EKbd from "../Kbd/EKbd.vue";
@@ -9,10 +9,10 @@ import { fold } from "../Combobox/fold.js";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
-import { formatShortcut, useShortcuts } from "../../composables/useShortcuts.js";
+import { formatShortcut, isApple, useShortcuts } from "../../composables/useShortcuts.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
-import "../Select/panel.css";
+import "../../styles/controls/panel.css";
 import "../Dialog/dialog.css";
 
 export interface CommandItem {
@@ -77,6 +77,9 @@ const query = defineModel<string>("query", { default: "" });
 const t = useMessages();
 const { announce } = useAnnouncer();
 const uid = useUid();
+/** Cmd or Ctrl in the keycaps. The server cannot tell, so the first render says Ctrl on both sides and the browser's answer follows once mounted. */
+const apple = ref(false);
+onMounted(() => (apple.value = isApple()));
 
 const activeId = ref<string | null>(null);
 const list = ref<HTMLElement | null>(null);
@@ -137,8 +140,16 @@ const choosable = computed(() => flat.value.filter((i) => !i.disabled));
 const optionId = (item: CommandItem) => `${uid.value}-${item.id}`;
 const activeItem = computed(() => flat.value.find((i) => i.id === activeId.value) ?? null);
 
+/*
+ * The one place the active command moves by itself: when the list changes. A new query starts again from the first
+ * command; otherwise the active one stays while it is still there and choosable.
+ */
+let seenQuery = query.value;
+let reportTimer: ReturnType<typeof setTimeout> | undefined;
 watch(flat, () => {
-  if (!activeItem.value || activeItem.value.disabled) activeId.value = choosable.value[0]?.id ?? null;
+  const typed = query.value !== seenQuery;
+  seenQuery = query.value;
+  if (typed || !activeItem.value || activeItem.value.disabled) activeId.value = choosable.value[0]?.id ?? null;
 });
 
 watch(
@@ -146,23 +157,27 @@ watch(
   (isOpen) => {
     if (isOpen) {
       query.value = "";
+      seenQuery = "";
       activeId.value = choosable.value[0]?.id ?? null;
-    }
+    } else clearTimeout(reportTimer);
   },
   { immediate: true },
 );
 
 const emptyMessage = computed(() => props.emptyText || t("noResults"));
 
+/** The count is said once the typing pauses, not after every key. */
+const REPORT_DELAY = 400;
+onBeforeUnmount(() => clearTimeout(reportTimer));
 function report() {
-  if (!choosable.value.length) announce(props.loading ? t("searching") : emptyMessage.value);
-  else announce(t("resultsCount", { n: choosable.value.length }));
+  clearTimeout(reportTimer);
+  reportTimer = setTimeout(() => {
+    if (!choosable.value.length) announce(props.loading ? t("searching") : emptyMessage.value);
+    else announce(t("resultsCount", { n: choosable.value.length }));
+  }, REPORT_DELAY);
 }
 
-watch(query, () => {
-  activeId.value = choosable.value[0]?.id ?? null;
-  report();
-});
+watch(query, report);
 
 watch(
   () => props.loading,
@@ -207,12 +222,28 @@ function onKeydown(e: KeyboardEvent) {
   e.preventDefault();
 }
 
-if (props.shortcut) useShortcuts({ [props.shortcut]: () => setOpen(!open.value) });
+/** Whether a modal dialog other than this palette is open: the shortcut must not open a second layer over it. */
+function otherModalOpen(): boolean {
+  const mine = list.value?.closest("[role=dialog]");
+  return [...document.querySelectorAll('[aria-modal="true"], dialog:modal')].some((el) => el !== mine);
+}
+
+/*
+ * The shortcut closes this palette when it is open. Closed, it opens it unless another modal is open. Only a palette
+ * that acts claims the key (`preventDefault`), so with two palettes on a page only one of them answers.
+ */
+function onShortcut(event: KeyboardEvent) {
+  if (!open.value && otherModalOpen()) return;
+  event.preventDefault();
+  setOpen(!open.value);
+}
+
+if (props.shortcut) useShortcuts({ [props.shortcut]: onShortcut }, { preventDefault: false });
 
 defineExpose({
   /** Opens the palette. */
   show: () => (open.value = true),
-  /** Closes it. */
+  /** Closes it. Unlike a person closing it, this does not fire `close`. */
   hide: () => (open.value = false),
 });
 </script>
@@ -261,7 +292,7 @@ defineExpose({
             v-for="item in section.items"
             :id="optionId(item)"
             :key="item.id"
-            class="e-opt e-cmd-opt"
+            class="e-opt e-cmd-opt e-interact e-interact--inset"
             :class="{ 'e-opt--active': item.id === activeId, 'e-opt--disabled': item.disabled }"
             role="option"
             :aria-selected="item.id === activeId"
@@ -280,14 +311,14 @@ defineExpose({
                 </span>
               </span>
               <span v-if="item.shortcut" class="e-cmd-keys" aria-hidden="true">
-                <EKbd v-for="key in formatShortcut(item.shortcut)" :key="key" size="sm">{{ key }}</EKbd>
+                <EKbd v-for="key in formatShortcut(item.shortcut, apple)" :key="key" size="sm">{{ key }}</EKbd>
               </span>
             </slot>
           </div>
         </div>
       </template>
       <p v-if="!flat.length" class="e-opt-status" aria-hidden="true">
-        <ESpinner v-if="loading" :label="t('searching')" />
+        <ESpinner v-if="loading" :label="t('searching')" silent />
         <template v-else>{{ emptyMessage }}</template>
       </p>
     </div>
@@ -297,20 +328,24 @@ defineExpose({
 <style>
 @layer e.containers {
   .e-cmd {
+    /* How far down the screen it opens, and the most height it takes: the search row and a list of options. */
+    --_top: min(20dvh, 8rem);
+    --_max-h: calc(var(--e-control-height) + var(--e-stroke-hair) + var(--e-list-max-height));
+
     position: fixed;
-    inset-block-start: min(20dvh, 8rem);
+    inset-block-start: var(--_top);
     inset-inline: 0;
     z-index: var(--e-z-modal);
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);
-    width: min(var(--e-size-panel-lg), calc(100vw - var(--e-space-8)));
-    max-height: min(26rem, calc(100dvh - 10rem));
+    width: min(var(--e-panel-width-lg), calc(100vw - var(--e-space-8)));
+    max-height: min(var(--_max-h), calc(100dvh - var(--_top) - var(--e-space-8)));
     margin-inline: auto;
     overflow: hidden;
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     color: var(--e-ink);
-    box-shadow: var(--e-float);
+    box-shadow: var(--e-shadow-float);
     font-family: var(--e-font-sans);
   }
 

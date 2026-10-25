@@ -34,6 +34,7 @@ A section that opens and closes, for secondary detail. Give several the same `gr
 
 - A native `details`, so the open state is announced.
 - `disabled` sets `aria-disabled="true"` on the summary: it stays focusable, is dimmed and does not toggle.
+- In print a closed disclosure prints open, without its chevron, so nothing in it is lost on paper.
 
 ## Keyboard
 
@@ -44,4 +45,4 @@ A section that opens and closes, for secondary detail. Give several the same `gr
 
 ## Related
 
-[`EExpandableRow`](../ExpandableRow/README.md) for a row in a list that opens to more, [`ETabs`](../Tabs/README.md) to switch between panels.
+[`ENavList`](../NavList/README.md) for a group of links that opens and closes.

@@ -1,7 +1,9 @@
 name: Site check
 
-# Builds and checks the docs site (Dame-G/eos-site, main) against this pull request, with the site's own CI steps, so a
-# token or API rename that would break the site shows up here. Not a required check.
+# Builds and checks the docs site (Dame-G/eos-site) against this pull request, with the site's own CI steps, so a token
+# or API rename that would break the site shows up here. The site is checked out at the branch of the same name as this
+# pull request's branch when there is one, so a change made in both repositories together is checked as a pair, and at
+# main otherwise. Not a required check.
 on:
   pull_request:
     paths:
@@ -20,9 +22,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
+      - name: Pick the site branch
+        id: site
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [ -n "$HEAD_REF" ] && git ls-remote --exit-code --heads https://github.com/Dame-G/eos-site.git "refs/heads/$HEAD_REF" > /dev/null; then
+            echo "ref=$HEAD_REF" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=main" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@v7
         with:
           repository: Dame-G/eos-site
+          ref: ${{ steps.site.outputs.ref }}
           path: eos-site
           persist-credentials: false
       - uses: ./eos-site/.github/actions/verify

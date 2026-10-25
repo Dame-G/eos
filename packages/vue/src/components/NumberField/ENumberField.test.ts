@@ -192,15 +192,32 @@ describe("ENumberField", () => {
     expect(got.at(-1)).toBe(2.5);
   });
 
-  test("the buttons are reachable by keyboard", async () => {
-    const { got } = await bound({ label: "Visits" }, 1);
+  test("one Tab stop: the buttons are for the pointer, and the arrow keys step from the keyboard", async () => {
+    const { got, container } = await bound({ label: "Visits" }, 1);
     await userEvent.tab();
-    expect(document.activeElement).toBe(page.getByRole("button", { name: "Decrease" }).element());
-    await userEvent.tab();
-    await userEvent.tab();
-    expect(document.activeElement).toBe(page.getByRole("button", { name: "Increase" }).element());
-    await userEvent.keyboard("{Enter}");
+    expect(document.activeElement).toBe(container.querySelector("input"));
+    for (const b of container.querySelectorAll("button")) expect(b.tabIndex).toBe(-1);
+    await userEvent.keyboard("{ArrowUp}");
     expect(got.at(-1)).toBe(2);
+  });
+
+  test("a step lands on the grid of min plus whole steps, from a value between two points", async () => {
+    const up = await bound({ label: "A", min: 1, step: 5 }, 8);
+    await up.container.querySelector<HTMLElement>("button[aria-label=Increase]")!.click();
+    expect(up.got.at(-1)).toBe(11);
+    const down = await bound({ label: "B", min: 1, step: 5 }, 8);
+    await down.container.querySelector<HTMLElement>("button[aria-label=Decrease]")!.click();
+    expect(down.got.at(-1)).toBe(6);
+    const on = await bound({ label: "C", min: 1, step: 5 }, 6);
+    await on.container.querySelector<HTMLElement>("button[aria-label=Increase]")!.click();
+    expect(on.got.at(-1)).toBe(11);
+  });
+
+  test("a step written in exponent form keeps its decimals", async () => {
+    const { got, container } = await bound({ label: "Tiny", step: 1e-7 }, 0);
+    await container.querySelector<HTMLElement>("button[aria-label=Increase]")!.click();
+    expect(got.at(-1)).toBe(1e-7);
+    expect(container.querySelector("input")!.value).toBe("0.0000001");
   });
 
   test("an empty field starts at the minimum, or zero", async () => {
@@ -343,7 +360,7 @@ describe("ENumberField", () => {
     const bad = await render(ENumberField, { props: { label: "Visits", error: "Too many", required: true } });
     expect(bad.container.querySelector("input")!.getAttribute("aria-invalid")).toBe("true");
     expect(bad.container.querySelector(".e-input-wrap")!.hasAttribute("data-invalid")).toBe(true);
-    expect(bad.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(bad.container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
     expect(bad.container.querySelector(".e-field-flag")!.textContent).toBe("Required");
     const opt = await render(ENumberField, { props: { label: "Visits", optional: true } });
     expect(opt.container.querySelector(".e-field-flag")!.textContent).toBe("Optional");

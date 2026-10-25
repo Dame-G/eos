@@ -2,7 +2,8 @@
 import { computed, type Component } from "vue";
 import ESurface from "../Surface/ESurface.vue";
 import { useMessages } from "../../config.js";
-import type { ElementTag, Size } from "../../composables/useSize.js";
+import { linkTarget } from "../../composables/useLink.js";
+import type { ElementTag, Size } from "../../types.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
@@ -11,7 +12,7 @@ const props = withDefaults(
     title: string;
     /** Where the card goes. Give `href` or, with a `linkComponent`, `to`. */
     href?: string;
-    /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). Use it instead of `href`. */
+    /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). Use it instead of `href`. Without a `linkComponent`, a string `to` is the `href`. */
     to?: unknown;
     /** What renders the link: `RouterLink` or any component that takes `href` or `to` and a default slot. */
     linkComponent?: string | Component;
@@ -31,7 +32,7 @@ defineSlots<{
 }>();
 
 const t = useMessages();
-const target = computed(() => (props.to !== undefined ? { to: props.to } : { href: props.href }));
+const target = computed(() => linkTarget(props, props.linkComponent));
 </script>
 
 <template>
@@ -90,11 +91,11 @@ const target = computed(() => (props.to !== undefined ? { to: props.to } : { hre
   }
 
   .e-linkcard-link {
-    color: var(--e-text-link);
+    color: var(--e-link);
     font: var(--e-weight-medium) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
-    text-underline-offset: var(--e-gap-tight);
+    text-underline-offset: var(--e-stroke-underline-offset);
   }
 
   .e-linkcard-link::after {

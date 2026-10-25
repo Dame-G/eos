@@ -11,14 +11,14 @@ describe("ESurface", () => {
   test("is a padded card with the slot inside", async () => {
     const { container } = await render(ESurface, { slots: { default: "x" } });
     const el = container.querySelector("div")!;
-    expect(el.className).toBe("e-surface e-surface--pad-md");
+    expect(el.className).toBe("e-surface");
     expect(el.textContent).toBe("x");
     expect(getComputedStyle(el).paddingTop).toBe("16px");
   });
 
-  test("size sm and lg and flush set the padding from the space scale", async () => {
+  test("padding names and flush set the padding from the space scale", async () => {
     const pads: string[] = [];
-    for (const props of [{ size: "sm" }, { size: "lg" }, { flush: true }] as Record<string, unknown>[]) {
+    for (const props of [{ padding: "base" }, { padding: "section" }, { flush: true }] as Record<string, unknown>[]) {
       const { container } = await render(ESurface, { props, slots: { default: "x" } });
       pads.push(getComputedStyle(container.querySelector(".e-surface")!).paddingTop);
     }
@@ -27,7 +27,7 @@ describe("ESurface", () => {
 
   test("clip adds a class", async () => {
     const { container } = await render(ESurface, { props: { clip: true }, slots: { default: "x" } });
-    expect(container.querySelector("div")!.className).toBe("e-surface e-surface--pad-md e-surface--clip");
+    expect(container.querySelector("div")!.className).toBe("e-surface e-surface--clip");
   });
 
   test("variant raised adds its class", async () => {
@@ -72,7 +72,7 @@ describe("ESurface", () => {
     expect(root.className).toBe("e-surface e-surface--actions");
     expect(container.querySelectorAll(".e-surface > .e-actions--bar").length).toBe(1);
     const body = root.querySelector(":scope > .e-surface-body")!;
-    expect(body.className).toBe("e-surface-body e-surface--pad-md");
+    expect(body.className).toBe("e-surface-body");
     expect(body.textContent).toBe("Body");
     expect(root.lastElementChild!.className).toBe("e-actions e-actions--bar");
     await expect.element(page.getByRole("button", { name: "Pay" })).toBeVisible();
@@ -107,13 +107,17 @@ describe("ESurface", () => {
     }
   });
 
-  test("size sets the padding, md by default", async () => {
-    const pad = async (props: Record<string, unknown>) => {
-      const { container } = await render(ESurface, { props, slots: { default: "x" } });
-      return getComputedStyle(container.querySelector(".e-surface")!).paddingTop;
-    };
-    expect(await pad({ size: "md" })).toBe(await pad({}));
-    expect(await pad({ size: "sm" })).not.toBe(await pad({ size: "lg" }));
+  test("flush with padding warns, and flush wins, with or without a bar", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { container } = await render(ESurface, {
+      props: { flush: true, padding: "section" },
+      slots: { default: "x" },
+    });
+    expect(getComputedStyle(container.querySelector(".e-surface")!).paddingTop).toBe("0px");
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+    const bar = await render(ESurface, { props: { flush: true }, slots: { default: "x", actions: () => "A" } });
+    expect(getComputedStyle(bar.container.querySelector(".e-surface-body")!).paddingTop).toBe("0px");
   });
 
   test("padding takes a gap name, a space number or a length, on the body when there is a bar", async () => {
@@ -182,8 +186,8 @@ describe("ESurface", () => {
       defineComponent({
         render: () =>
           h("div", [
-            h(ESurface, { size: "sm" }, () => h("h2", "Plain")),
-            h(ESurface, { size: "lg", clip: true, as: "section", "aria-label": "Padded" }, () => "Padded"),
+            h(ESurface, { padding: "base" }, () => h("h2", "Plain")),
+            h(ESurface, { padding: "section", clip: true, as: "section", "aria-label": "Padded" }, () => "Padded"),
             h(ESurface, { variant: "raised" }, () => "Raised"),
             h(ESurface, { variant: "paper", flush: true }, () => "Statement"),
             h(

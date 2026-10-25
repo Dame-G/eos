@@ -21,26 +21,17 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
+import { checking as check, writeGenerated } from "../../../scripts/generated.mjs";
 
 const require = createRequire(import.meta.url);
 const ts = require("typescript");
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "src", "components");
-const check = process.argv.includes("--check");
 const jsonOut = process.argv.find((a) => a.startsWith("--json="))?.slice(7); // dev aid: where each row's JSDoc sits
 const dump = [];
 const START = "<!-- props:start -->";
 const END = "<!-- props:end -->";
-
-// Prettier belongs to the repo root, so it is looked up from there. The READMEs are written through it,
-// so the tables are already formatted and `prettier --check` passes right after a run.
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
-const loadPrettier = async () => {
-  const mod = await import(pathToFileURL(createRequire(join(repoRoot, "package.json")).resolve("prettier")).href);
-  return mod.default ?? mod;
-};
-const prettier = check ? null : await loadPrettier();
 
 const warnings = [];
 const warn = (m) => warnings.push(m);
@@ -513,9 +504,7 @@ for (const d of readdirSync(root, { withFileTypes: true })
     process.exitCode = 1;
     continue;
   }
-  const raw = readFileSync(readmePath, "utf8");
-  const crlf = raw.includes("\r\n");
-  const readme = raw.replace(/\r\n/g, "\n");
+  const readme = readFileSync(readmePath, "utf8").replace(/\r\n/g, "\n");
   if (info.props.length + info.models.length === 0) {
     if (/^## Props\s*$/m.test(readme) || readme.includes(START)) {
       console.error(`${d.name}: README has a Props section but the component declares no props`);
@@ -534,16 +523,8 @@ for (const d of readdirSync(root, { withFileTypes: true })
   }
   components++;
   propCount += count;
-  // Padding is ignored, so running prettier over the tables does not make them "stale".
-  const squashTable = (s) => s.replace(/[ \t]+/g, " ").replace(/-{3,}/g, "---");
-  if (squashTable(next) !== squashTable(readme)) {
-    stale.push(d.name);
-    if (!check) {
-      const options = (await prettier.resolveConfig(readmePath)) ?? {};
-      const formatted = await prettier.format(next, { ...options, filepath: readmePath });
-      writeFileSync(readmePath, crlf ? formatted.replace(/\n/g, "\r\n") : formatted);
-    }
-  }
+  // Written through Prettier (scripts/generated.mjs), so the table is formatted and `prettier --check` passes after a run.
+  if (await writeGenerated(readmePath, next)) stale.push(d.name);
 }
 
 if (jsonOut) writeFileSync(jsonOut, JSON.stringify(dump, null, 1));

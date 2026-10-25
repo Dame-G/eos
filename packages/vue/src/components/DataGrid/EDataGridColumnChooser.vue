@@ -6,7 +6,8 @@ import ECheckbox from "../Checkbox/ECheckbox.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages, usePortalTarget } from "../../config.js";
 import "../../styles/base.css";
-import "../Select/panel.css";
+import "../../styles/controls/panel.css";
+import "../../styles/popover.css";
 
 /** The Columns menu: a popover with a checkbox per column. */
 defineProps<{
@@ -31,7 +32,7 @@ const open = ref(false);
     <PopoverPortal :to="portal">
       <PopoverContent class="e-popover e-root" side="bottom" align="start" :side-offset="8" :collision-padding="16">
         <header class="e-pop-head">
-          <h3 class="e-pop-title">{{ t("showColumns") }}</h3>
+          <p class="e-pop-title">{{ t("showColumns") }}</p>
           <PopoverClose as-child>
             <EIconButton icon="x" :label="t('close')" />
           </PopoverClose>

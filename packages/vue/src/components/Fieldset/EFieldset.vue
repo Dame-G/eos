@@ -4,33 +4,34 @@ import EFieldFlag from "../Field/EFieldFlag.vue";
 import EFieldMessage from "../Field/EFieldMessage.vue";
 import { isProduction } from "../../env.js";
 import { useUid } from "../../composables/useUid.js";
-import { useFormField } from "../../composables/useFormContext.js";
+import { useFormField } from "../../composables/useFormField.js";
 import "../../styles/base.css";
 
-const props = defineProps<{
-  /** The question the controls answer. Names the group for screen readers. A group without one needs an `aria-label` or `aria-labelledby`, and warns in development when it has none. */
-  legend?: string;
-  /** Removes the box and shows the legend as a plain label above the controls, as `ERadioGroup` does. */
-  bare?: boolean;
-  /** Help that is announced with the group. */
-  hint?: string;
-  /** What to fix. Replaces the hint and is announced with the group. */
-  error?: string;
-  /** Shows "Required" at the end of the legend. */
-  required?: boolean;
-  /** Shows "Optional" at the end of the legend. Only the rarer of required and optional needs a flag. */
-  optional?: boolean;
-  /** Makes a titled form section without a box, with the hint under the legend. */
-  section?: boolean;
-  /** Disables every control inside. */
-  disabled?: boolean;
-  /** Classes added to the legend. */
-  legendClass?: string;
-  /** Hides the legend from the page and keeps it for screen readers. */
-  hideLegend?: boolean;
-  /** The id of the `fieldset`, which an `EForm` summary links to. The hint and error ids are built from it. @default generated */
-  id?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    /** The question the controls answer. Names the group for screen readers. A group without one needs an `aria-label` or `aria-labelledby`, and warns in development when it has none. */
+    legend?: string;
+    /** How the group is drawn: `box` outlines it with the legend on the line, `plain` shows the legend as a label above the controls (as `ERadioGroup` does), `section` is a titled form section with a rule above and the hint under the title. */
+    variant?: "box" | "plain" | "section";
+    /** Help that is announced with the group. */
+    hint?: string;
+    /** What to fix. Replaces the hint and is announced with the group. */
+    error?: string;
+    /** Shows "Required" at the end of the legend. */
+    required?: boolean;
+    /** Shows "Optional" at the end of the legend. Only the rarer of required and optional needs a flag. */
+    optional?: boolean;
+    /** Disables every control inside. */
+    disabled?: boolean;
+    /** Classes added to the legend. */
+    legendClass?: string;
+    /** Hides the legend from the page and keeps it for screen readers. */
+    hideLegend?: boolean;
+    /** The id of the `fieldset`, which an `EForm` summary links to. The hint and error ids are built from it. @default generated */
+    id?: string;
+  }>(),
+  { variant: "box" },
+);
 
 defineSlots<{
   /** The controls. */
@@ -38,6 +39,9 @@ defineSlots<{
 }>();
 
 const id = useUid(() => props.id);
+const box = computed(() => props.variant === "box");
+const plain = computed(() => props.variant === "plain");
+const section = computed(() => props.variant === "section");
 const hintId = computed(() => `${id.value}-hint`);
 
 const attrs = useAttrs();
@@ -56,23 +60,23 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
   <fieldset
     :id="id"
     class="e-fieldset"
-    :class="{ 'e-fieldset--box': !bare && !section, 'e-fieldset--section': section }"
+    :class="`e-fieldset--${variant}`"
     :disabled="disabled"
     :aria-describedby="error || hint ? hintId : undefined"
   >
     <!-- A hidden legend is only the screen reader text (`e-sr`), with none of the legend's layout. -->
-    <legend v-if="legend" :class="[hideLegend ? 'e-sr' : ['e-fieldset-legend', bare && 'e-kicker'], legendClass]">
+    <legend v-if="legend" :class="[hideLegend ? 'e-sr' : ['e-fieldset-legend', plain && 'e-kicker'], legendClass]">
       <span class="e-fieldset-title">{{ legend }}</span>
-      <span v-if="!bare && !section && !hideLegend" class="e-fieldset-rule" aria-hidden="true" />
+      <span v-if="box && !hideLegend" class="e-fieldset-rule" aria-hidden="true" />
       <EFieldFlag :required="required" :optional="optional" />
     </legend>
-    <div class="e-fieldset-body" :class="bare && 'e-fieldset-body--bare'">
+    <div class="e-fieldset-body" :class="plain && 'e-fieldset-body--plain'">
       <!-- In a section the hint sits under the legend, ahead of the controls; the error always follows them. -->
       <EFieldMessage v-if="section && !error" :id="hintId" :hint="hint" />
       <slot />
-      <EFieldMessage v-if="!bare && (!section || error)" :id="hintId" :error="error" :hint="hint" />
+      <EFieldMessage v-if="!plain && (!section || error)" :id="hintId" :error="error" :hint="hint" />
     </div>
-    <EFieldMessage v-if="bare" :id="hintId" :error="error" :hint="hint" />
+    <EFieldMessage v-if="plain" :id="hintId" :error="error" :hint="hint" />
   </fieldset>
 </template>
 
@@ -98,12 +102,12 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
     padding: 0;
   }
 
-  .e-fieldset:not(.e-fieldset--box, .e-fieldset--section) > .e-fieldset-legend {
+  .e-fieldset--plain > .e-fieldset-legend {
     float: inline-start;
     margin-block-end: var(--e-gap-snug);
   }
 
-  .e-fieldset:not(.e-fieldset--box, .e-fieldset--section) > .e-fieldset-legend + * {
+  .e-fieldset--plain > .e-fieldset-legend + * {
     clear: both;
   }
 
@@ -188,12 +192,12 @@ if (!props.legend && !attrs["aria-label"] && !attrs["aria-labelledby"] && !isPro
     padding-block-start: var(--e-gap-tight);
   }
 
-  /* A bare group has its controls in the body too, so they are spaced as in any other; its message follows the body, outside it. */
-  .e-fieldset-body--bare {
+  /* A plain group has its controls in the body too, so they are spaced as in any other; its message follows the body, outside it. */
+  .e-fieldset-body--plain {
     padding-block-start: 0;
   }
 
-  /* In a bare group the message follows the controls directly, so it pulls up by the space the controls leave. */
+  /* In a plain group the message follows the controls directly, so it pulls up by the space the controls leave. */
   .e-fieldset > .e-field-hint,
   .e-fieldset > .e-field-error {
     margin-block-start: calc(-1 * (var(--e-gap-tight) + var(--e-stroke-focus)));

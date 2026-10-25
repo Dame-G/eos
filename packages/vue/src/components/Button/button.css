@@ -30,7 +30,6 @@
     background-clip: border-box;
     color: var(--_on);
     font: var(--e-type-button);
-    letter-spacing: var(--e-tracking-snug);
     white-space: nowrap;
     text-decoration: none;
     cursor: pointer;
@@ -82,23 +81,28 @@
     --_hover: var(--_fill);
     --_press: var(--_fill);
     --_wash: var(--e-wash-hover);
-    --_slab: var(--e-border-strong);
+    --_slab: var(--e-slab-ink);
 
     background-clip: padding-box;
+
+    /* The wash is a full-size inset over the surface fill, always there and transparent at rest, so a hover fades its colour and never sweeps in from the edges. */
+    --_veil: transparent;
+
+    box-shadow: inset 0 0 0 100vmax var(--_veil);
   }
 
   .e-btn--outline:not(:disabled, [aria-disabled="true"], [aria-pressed="true"], .e-btn--loading):is(:hover, :active) {
     --_slab: var(--e-ink);
 
     /* The face stays opaque: the wash is laid over the surface fill. */
-    box-shadow: inset 0 0 0 100vmax var(--_wash);
+    --_veil: var(--_wash);
   }
 
   .e-btn--outline:active {
     --_wash: var(--e-wash-press);
   }
 
-  /* No fill: the quiet item recipe, a wash and a ring, under an underlined label. */
+  /* No fill: the quiet item recipe (the wash and the ring are the shared rule in `base.css`), under an underlined label. */
   .e-btn--quiet {
     --_fill: transparent;
     --_on: var(--e-ink);
@@ -109,18 +113,13 @@
 
     padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
     text-decoration: underline;
-    text-underline-offset: var(--e-underline-offset);
+    text-underline-offset: var(--e-stroke-underline-offset);
     text-decoration-thickness: var(--e-stroke-edge);
     text-decoration-color: var(--e-border-strong);
   }
 
   .e-btn--quiet:not(:disabled, [aria-disabled="true"], .e-btn--loading):hover {
-    box-shadow: var(--e-ring-hover);
     text-decoration-color: currentcolor;
-  }
-
-  .e-btn--quiet:not(:disabled, [aria-disabled="true"], .e-btn--loading):active {
-    box-shadow: var(--e-ring-press);
   }
 
   .e-btn .e-btn-spinner {
@@ -134,11 +133,12 @@
     padding: 0;
   }
 
-  /* Busy reads as unavailable and in progress: a soft tint of the button's colour with a dashed edge like a disabled button, and the spinner. The edge is a pseudo-element, so a page's focus reset cannot remove it. */
+  /* Busy reads as unavailable and in progress: a soft tint of the button's colour with the dashed edge of a disabled button in that colour (the shared ::before in `base.css`), and the spinner. */
   .e-btn--loading {
     --_lift: 0px;
     --_tint: var(--_fill);
     --_busy: color-mix(in srgb, var(--_tint) 80%, var(--e-ink));
+    --_dash: var(--_busy);
 
     background-color: color-mix(in srgb, var(--_tint) 14%, var(--e-surface));
     background-clip: padding-box;
@@ -148,16 +148,7 @@
   }
 
   .e-btn--outline.e-btn--loading {
-    --_tint: var(--e-border-strong);
-  }
-
-  .e-btn--loading::before {
-    content: "";
-    position: absolute;
-    inset: calc(-1 * var(--e-stroke-edge));
-    border: var(--e-stroke-edge) dashed var(--_busy);
-    border-radius: inherit;
-    pointer-events: none;
+    --_tint: var(--e-slab-ink);
   }
 
   .e-btn--block {
@@ -182,8 +173,6 @@
     cursor: not-allowed;
     background: var(--e-disabled-fill);
     color: var(--e-disabled-ink);
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
     border-color: transparent;
     box-shadow: none;
   }
@@ -207,7 +196,8 @@
 
     .e-btn[disabled],
     .e-btn[aria-disabled="true"] {
-      outline-color: GrayText;
+      --_dash: GrayText;
+
       color: GrayText;
     }
   }

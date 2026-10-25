@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ElementTag } from "../../composables/useSize.js";
+import type { ElementTag } from "../../types.js";
 import "../../styles/base.css";
 
 withDefaults(
@@ -7,11 +7,11 @@ withDefaults(
     /** The element to render, such as `main` or `section`. */
     as?: ElementTag;
     /** The widest it grows: `sm` 40rem, `md` 60rem, `lg` 80rem, or `full` for the whole width. It is centred when narrower than its parent. */
-    size?: "sm" | "md" | "lg" | "full";
+    width?: "sm" | "md" | "lg" | "full";
     /** Keeps the page gutter at its sides, so content never touches the screen edge. `false` for a container that sits inside another that already has one. */
     gutter?: boolean;
   }>(),
-  { as: "div", size: "lg", gutter: true },
+  { as: "div", width: "lg", gutter: true },
 );
 
 defineSlots<{
@@ -21,7 +21,7 @@ defineSlots<{
 </script>
 
 <template>
-  <component :is="as" class="e-container" :class="[`e-container--${size}`, !gutter && 'e-container--flush']">
+  <component :is="as" class="e-container" :class="[`e-container--${width}`, !gutter && 'e-container--flush']">
     <slot />
   </component>
 </template>
@@ -29,7 +29,7 @@ defineSlots<{
 <style>
 @layer e.blocks {
   .e-container {
-    --_max: 80rem;
+    --_max: var(--e-container-width-lg);
 
     box-sizing: border-box;
     inline-size: 100%;
@@ -40,11 +40,11 @@ defineSlots<{
   }
 
   .e-container--sm {
-    --_max: 40rem;
+    --_max: var(--e-container-width-sm);
   }
 
   .e-container--md {
-    --_max: 60rem;
+    --_max: var(--e-container-width-md);
   }
 
   .e-container--full {

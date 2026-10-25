@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Size } from "../../composables/useSize.js";
+import type { Size } from "../../types.js";
 import "../../styles/base.css";
 
 withDefaults(
@@ -28,12 +28,14 @@ defineSlots<{
     /* As wide as its content, also as the child of a grid or a column, which would otherwise stretch it. */
     inline-size: fit-content;
     max-inline-size: 100%;
-    min-width: 1.5em;
+
+    /* At least as wide as its line is tall, so a one-letter key is square. */
+    min-width: calc(var(--e-leading-normal) * 1em);
     padding: 0 var(--e-gap-tight);
-    border: var(--e-stroke-edge) solid var(--e-border-strong);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-slab-thin));
+    border: var(--e-stroke-edge) solid var(--e-slab-ink);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth-thin));
     border-radius: var(--e-radius-sm) / var(--e-radius-sm) var(--e-radius-sm)
-      calc(var(--e-radius-sm) + var(--e-slab-thin)) calc(var(--e-radius-sm) + var(--e-slab-thin));
+      calc(var(--e-radius-sm) + var(--e-depth-thin)) calc(var(--e-radius-sm) + var(--e-depth-thin));
     background: var(--e-surface-tint);
     background-clip: padding-box;
     color: var(--e-muted);

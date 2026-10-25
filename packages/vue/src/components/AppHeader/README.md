@@ -26,7 +26,9 @@ The bar across the top of the page, with logo, actions and a navigation row that
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `header` element. `brand` draws the site name as a styled link to the home page (`brandHref`, default `/`, or `brandTo` with a `linkComponent`): a tap target in the ink colour that takes the primary colour on hover. Put a logo in the `brand` slot instead of text, and name it with `brandLabel`. A sticky header stays above anything the page raises (a sticky table head, a selected tab, a focused control) and below every dialog, menu and toast. `navToggle` adds a menu button before the logo and `v-model:navOpen` holds its `aria-expanded` state. Inside an [`EAppShell`](../AppShell/README.md) the button appears by itself while the sidebar is in a drawer.
+`class`, `style` and attributes land on the `header` element. The brand link is a tap target in the ink colour that takes the primary colour on hover; put a logo in the `brand` slot and name it with `brandLabel`. Inside an [`EAppShell`](../AppShell/README.md) the menu button appears by itself below 48rem, where the sidebar is a drawer.
+
+The header sets `--e-header-height` on the page root: its height while `sticky`, and `0px` otherwise. Use it to keep a sticky part of the page under the header (`top: var(--e-header-height, 0px)`) or to offset anchors (`scroll-padding-top`).
 
 ## Slots
 
@@ -41,8 +43,9 @@ The bar across the top of the page, with logo, actions and a navigation row that
 
 - Renders the `banner` landmark: use one per page.
 - Give the navigation a `label` (on `ENavList`) so it differs from other navigations.
-- The navigation row and the menu button are hidden in print.
-- The menu button is named "Menu" (message `menu`) and carries `aria-expanded`.
+- In print the header is the brand alone: the navigation row, the menu button and the actions are hidden, and a sticky header prints once, at the top of the first page.
+- The menu button is named "Menu" (message `menu`) and carries `aria-expanded`; inside an `EAppShell` it points at the open drawer with `aria-controls`.
+- A navigation row that scrolls sideways is a tab stop while it scrolls, so the keyboard can scroll it.
 
 ## Keyboard
 
@@ -50,4 +53,4 @@ The menu button (when shown), the logo, the actions and the navigation links are
 
 ## Related
 
-[`ENavList`](../NavList/README.md) for the navigation inside it, [`EAppShell`](../AppShell/README.md) for the whole page frame.
+[`ENavList`](../NavList/README.md) for the navigation inside it.

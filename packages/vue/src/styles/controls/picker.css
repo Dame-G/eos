@@ -18,7 +18,7 @@
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     color: var(--e-ink);
-    box-shadow: var(--e-float);
+    box-shadow: var(--e-shadow-float);
     font-family: var(--e-font-sans);
   }
 
@@ -26,5 +26,11 @@
   [data-reka-popper-content-wrapper] > .e-calpanel {
     position: relative;
     z-index: var(--e-z-popover);
+  }
+
+  @media (forced-colors: active) {
+    .e-calpanel {
+      outline: var(--e-stroke-edge) solid CanvasText;
+    }
   }
 }

@@ -38,7 +38,7 @@ Inside an [`EForm`](../Form/README.md) the field tells the form its id, label an
 ## Accessibility
 
 - The control must carry `id`, `aria-invalid` and `aria-describedby` from the slot scope.
-- The error is announced with `role="alert"` and has an icon, so colour is not the only signal.
+- The error has an icon, so colour is not the only signal. One there when the page loads is read with the control; one that appears or changes later is announced once (inside an `EForm`, by the form, which leaves a failed submit to its summary).
 - The label element has the id `<id>-label`, for a group named by it.
 
 ## Keyboard
@@ -49,4 +49,4 @@ Inside an [`EForm`](../Form/README.md) the field tells the form its id, label an
 
 ## Related
 
-[`ETextField`](../TextField/README.md) and the other `*Field` components are built on it; [`EFieldset`](../Fieldset/README.md) groups several.
+[`EFieldset`](../Fieldset/README.md) groups several.

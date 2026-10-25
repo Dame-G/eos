@@ -1,7 +1,13 @@
+<script lang="ts">
+/** The size class of an avatar tile, shared with the "+N" tile of `EAvatarGroup`. @internal */
+export const avatarSizeClass = (size: "sm" | "md" | "lg") =>
+  size === "sm" ? "e-avatar--s" : size === "lg" ? "e-avatar--l" : undefined;
+</script>
+
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useConfig, useMessages } from "../../config.js";
-import type { Size } from "../../composables/useSize.js";
+import type { Size } from "../../types.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
@@ -14,10 +20,10 @@ const props = withDefaults(
     size?: Extract<Size, "sm" | "md" | "lg">;
     /** A presence dot at the corner. The name is read with it, as "Ada Lovelace, Online". */
     presence?: "online" | "away" | "busy" | "offline";
-    /** `button` renders a `button` with `type="button"`, named by `name`, for use as the `trigger` of an `EMenu`, for example. */
-    as?: "span" | "button";
+    /** Renders a `button` with `type="button"`, named by `name`, for use as the `trigger` of an `EMenu`, for example. */
+    interactive?: boolean;
   }>(),
-  { size: "md", as: "span" },
+  { size: "md" },
 );
 
 const t = useMessages();
@@ -57,18 +63,18 @@ const label = computed(() =>
 
 <template>
   <component
-    :is="as"
+    :is="interactive ? 'button' : 'span'"
     class="e-avatar"
-    :class="[size === 'sm' && 'e-avatar--s', size === 'lg' && 'e-avatar--l', as === 'button' && 'e-avatar--button']"
-    :type="as === 'button' ? 'button' : undefined"
-    :role="as === 'button' ? undefined : 'img'"
-    :aria-label="as === 'button' ? undefined : label"
+    :class="[avatarSizeClass(size), interactive && 'e-avatar--button']"
+    :type="interactive ? 'button' : undefined"
+    :role="interactive ? undefined : 'img'"
+    :aria-label="interactive ? undefined : label"
   >
     <img v-if="src && !failed" class="e-avatar-img" :src="src" alt="" @error="failed = true" />
-    <span v-else-if="as === 'button'" aria-hidden="true">{{ initials }}</span>
+    <span v-else-if="interactive" aria-hidden="true">{{ initials }}</span>
     <template v-else>{{ initials }}</template>
     <span v-if="presence" class="e-avatar-status" :class="`e-avatar-status--${presence}`" aria-hidden="true"></span>
-    <span v-if="as === 'button'" class="e-sr">{{ label }}</span>
+    <span v-if="interactive" class="e-sr">{{ label }}</span>
   </component>
 </template>
 
@@ -77,14 +83,15 @@ const label = computed(() =>
   .e-avatar {
     --_ring: var(--e-border-strong);
     --_r: var(--e-radius-md);
+    --_size: var(--e-avatar-size-md);
 
     position: relative;
     display: inline-grid;
     place-items: center;
     flex: none;
     box-sizing: border-box;
-    width: var(--e-tap);
-    height: var(--e-tap);
+    width: var(--_size);
+    height: var(--_size);
     border: var(--e-stroke-edge) solid var(--_ring);
     border-radius: var(--_r);
     background: var(--e-surface-tint);
@@ -99,9 +106,11 @@ const label = computed(() =>
   /* One you can press has the button's slab under it, which sinks away when pressed. */
   .e-avatar--button {
     --_lift: var(--e-depth);
+    --_ring: var(--e-slab-ink);
 
     padding: 0;
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
+    border-radius: var(--_r) / var(--_r) var(--_r) calc(var(--_r) + var(--_lift)) calc(var(--_r) + var(--_lift));
     cursor: pointer;
   }
 
@@ -115,23 +124,16 @@ const label = computed(() =>
     background-color: var(--e-wash-hover);
   }
 
-  .e-avatar--button:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
-  }
-
   .e-avatar--s {
-    width: var(--e-avatar-size-sm);
-    height: var(--e-avatar-size-sm);
-    font-size: var(--e-text-xs);
-    border-radius: var(--_r);
-
     --_r: var(--e-radius-sm);
+    --_size: var(--e-avatar-size-sm);
+
+    font-size: var(--e-text-xs);
   }
 
   .e-avatar--l {
-    width: var(--e-avatar-size-lg);
-    height: var(--e-avatar-size-lg);
+    --_size: var(--e-avatar-size-lg);
+
     font-size: var(--e-text-lg);
   }
 
@@ -141,12 +143,6 @@ const label = computed(() =>
     height: 100%;
     border-radius: max(0px, calc(var(--_r) - var(--e-stroke-edge)));
     object-fit: cover;
-  }
-
-  /* The picture is flush inside the ring, so its corners are the ring's less its width; a pressable avatar's slab deepens the bottom corners. */
-  .e-avatar--button .e-avatar-img {
-    border-end-start-radius: max(0px, calc(var(--_r) - var(--e-stroke-edge) - var(--_lift)));
-    border-end-end-radius: max(0px, calc(var(--_r) - var(--e-stroke-edge) - var(--_lift)));
   }
 
   .e-avatar-status {

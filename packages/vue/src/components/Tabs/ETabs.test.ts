@@ -13,6 +13,35 @@ const items = [
 ];
 const slots = { a: () => "Panel A", b: () => "Panel B", c: () => "Panel C" };
 
+describe("ETabs stretch", () => {
+  test("stretch fills the container's height and the panel scrolls its own content", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: "height: 300px; display: flex; flex-direction: column" }, [
+            h(
+              ETabs,
+              {
+                stretch: true,
+                items: [
+                  { id: "a", label: "A" },
+                  { id: "b", label: "B" },
+                ],
+              },
+              { "panel-a": () => h("div", { style: "height: 1000px" }, "Tall") },
+            ),
+          ]),
+      }),
+    );
+    const tabs = container.querySelector<HTMLElement>(".e-tabs")!;
+    const panel = container.querySelector<HTMLElement>(".e-tabpanel")!;
+    expect(Math.round(tabs.getBoundingClientRect().height)).toBe(300);
+    expect(getComputedStyle(panel).overflowY).toBe("auto");
+    expect(panel.scrollHeight).toBeGreaterThan(panel.clientHeight);
+    expect(panel.getBoundingClientRect().bottom).toBeLessThanOrEqual(tabs.getBoundingClientRect().bottom + 1);
+  });
+});
+
 describe("ETabs", () => {
   test("is a tablist of tabs with one selected tab and its panel", async () => {
     const { container } = await render(ETabs, { props: { items }, slots });
@@ -174,12 +203,18 @@ describe("ETabs", () => {
     await expect.element(page.getByRole("tabpanel")).toHaveTextContent("Fallback c");
   });
 
-  test("the selected tab has the primary underline and heavier text", async () => {
+  test("the selected tab has primary edges on the place tint, and keeps its weight", async () => {
     const { container } = await render(ETabs, { props: { items }, slots });
     container.classList.add("e-root");
     const [first, second] = [...container.querySelectorAll<HTMLElement>("[role=tab]")] as [HTMLElement, HTMLElement];
-    expect(getComputedStyle(first).fontWeight).toBe("600");
-    expect(getComputedStyle(second).fontWeight).toBe("500");
+    // Selecting never changes the weight, so a label keeps its width.
+    expect(getComputedStyle(first).fontWeight).toBe(getComputedStyle(second).fontWeight);
+    // Where you are is its own colour, not the hover wash.
+    const probe = document.createElement("i");
+    probe.style.color = "var(--e-primary-soft)";
+    container.append(probe);
+    expect(getComputedStyle(first).backgroundColor).toBe(getComputedStyle(probe).color);
+    probe.remove();
     // The selected tab's edges are all all one thickness, and thicker than the even edge of the others. No tab uses a shadow.
     const chosen = getComputedStyle(first);
     const other = getComputedStyle(second);

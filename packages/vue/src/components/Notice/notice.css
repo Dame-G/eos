@@ -1,4 +1,35 @@
 @layer e.containers {
+  /* The tones of ENotice and EToast: `--_tone` is the edge and the icon, `--_tone-bg` the notice's ground. */
+  .e-notice,
+  .e-toast {
+    --_tone: var(--e-info);
+    --_tone-bg: var(--e-info-soft);
+  }
+
+  .e-notice--neutral,
+  .e-toast--neutral {
+    --_tone: var(--e-muted);
+    --_tone-bg: var(--e-surface-tint);
+  }
+
+  .e-notice--success,
+  .e-toast--success {
+    --_tone: var(--e-success);
+    --_tone-bg: var(--e-success-soft);
+  }
+
+  .e-notice--warning,
+  .e-toast--warning {
+    --_tone: var(--e-warning);
+    --_tone-bg: var(--e-warning-soft);
+  }
+
+  .e-notice--danger,
+  .e-toast--danger {
+    --_tone: var(--e-danger);
+    --_tone-bg: var(--e-danger-soft);
+  }
+
   .e-notice-grid {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
@@ -18,12 +49,12 @@
     grid-area: icon;
     display: grid;
     place-items: center;
-    color: var(--e-tone);
+    color: var(--_tone);
   }
 
   .e-notice-icon .e-icon {
-    width: var(--e-icon-size-md);
-    height: var(--e-icon-size-md);
+    width: var(--e-icon-size-lg);
+    height: var(--e-icon-size-lg);
   }
 
   .e-notice-body {

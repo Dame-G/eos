@@ -3,7 +3,7 @@ import { computed, ref, watch, type Component } from "vue";
 import EMatchHighlight from "../Combobox/matchHighlight.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import "../../styles/base.css";
-import "../Select/panel.css";
+import "../../styles/controls/panel.css";
 
 export interface SearchResultItem {
   /** The title of the result. */
@@ -93,8 +93,10 @@ function onKeydown(e: KeyboardEvent) {
   else all[at - 1]?.focus();
 }
 
+// A modified click on a link opens it in a new tab or window, so it is the browser's, not a select. A button has no such meaning.
 function onClick(item: SearchResultItem, e: MouseEvent) {
-  if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+  const modified = e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey;
+  if (modified && linkAttrs(item)) return;
   emit("select", item, e);
 }
 
@@ -108,7 +110,7 @@ defineExpose({ focus, focusFirst });
       <li v-for="(item, i) in items" :key="keys[i]">
         <component
           :is="linkAttrs(item) ? linkComponent : 'button'"
-          class="e-opt"
+          class="e-opt e-interact e-interact--inset"
           v-bind="linkAttrs(item) ?? { type: 'button' }"
           @click="onClick(item, $event)"
         >
@@ -128,13 +130,13 @@ defineExpose({ focus, focusFirst });
 <style>
 @layer e.controls {
   .e-results {
-    max-height: min(24rem, 50vh);
+    max-height: min(var(--e-list-max-height), 60dvh);
     min-height: var(--e-tap);
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: var(--e-gap-tight);
     border-radius: var(--e-radius-md);
-    box-shadow: var(--e-frame);
+    box-shadow: var(--e-shadow-frame);
     color: var(--e-ink);
   }
 
@@ -159,23 +161,15 @@ defineExpose({ focus, focusFirst });
     text-align: start;
   }
 
-  .e-results .e-opt:hover {
-    background: var(--e-wash-hover);
-    box-shadow: var(--e-ring-hover);
-  }
-
-  .e-results .e-opt:active {
-    background: var(--e-wash-press);
-    box-shadow: var(--e-ring-press);
-  }
-
   .e-results .e-opt:focus-visible {
     background: var(--e-wash-hover);
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   @media (forced-colors: active) {
+    .e-results {
+      outline: var(--e-stroke-edge) solid CanvasText;
+    }
+
     .e-results .e-opt:hover,
     .e-results .e-opt:focus-visible {
       forced-color-adjust: none;

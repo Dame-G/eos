@@ -1,0 +1,9 @@
+@layer e.controls {
+  /* A field's visible label, with the Required or Optional word at the end of the line: EField, and a control that labels itself (ESegmented, ESignaturePad). */
+  .e-field-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--e-gap-base);
+  }
+}

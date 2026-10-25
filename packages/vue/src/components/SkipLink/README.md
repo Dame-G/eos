@@ -41,4 +41,4 @@ A link, hidden until focused, that lets keyboard users jump past navigation to t
 
 ## Related
 
-[`EAppShell`](../AppShell/README.md) renders one for you.
+[`EVisuallyHidden`](../VisuallyHidden/README.md) for other text only screen readers need.

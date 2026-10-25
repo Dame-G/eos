@@ -6,7 +6,7 @@ import ECodeBlock from "./ECodeBlock.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ECodeBlock", () => {
-  test("shows the code in a focusable group named by the language, with a copy button beside it", async () => {
+  test("shows the code in a group named by the language, with a copy button beside it", async () => {
     const { container } = await render(ECodeBlock, { props: { code: "npm install @eos-ui/vue", lang: "bash" } });
     const pre = container.querySelector("pre")!;
     expect(pre.textContent).toBe("npm install @eos-ui/vue");
@@ -14,8 +14,9 @@ describe("ECodeBlock", () => {
     expect(pre.tabIndex).toBe(-1);
     const region = container.querySelector(".e-code-body") as HTMLElement;
     expect(region.getAttribute("role")).toBe("group");
-    expect(region.tabIndex).toBe(0);
-    await expect.element(page.getByRole("group", { name: "bash" })).toBeVisible();
+    await new Promise((r) => requestAnimationFrame(r));
+    expect(region.hasAttribute("tabindex")).toBe(false);
+    await expect.element(page.getByRole("group", { name: "Bash" })).toBeVisible();
     await expect.element(page.getByRole("button", { name: "Copy code" })).toBeVisible();
   });
 
@@ -23,6 +24,18 @@ describe("ECodeBlock", () => {
     await render(ECodeBlock, { props: { code: "x".repeat(400) } });
     await userEvent.tab();
     await expect.element(page.getByRole("group", { name: "Code" })).toHaveFocus();
+  });
+
+  test("the group is a tab stop only while it scrolls, never with wrap; label names it", async () => {
+    const long = "x".repeat(400);
+    const scrolls = await render(ECodeBlock, { props: { code: long, lang: "ts" } });
+    const body = () => scrolls.container.querySelector<HTMLElement>(".e-code-body")!;
+    await expect.poll(() => body().getAttribute("tabindex")).toBe("0");
+    await expect.element(page.getByRole("group", { name: "TypeScript" })).toBeVisible();
+    const wrapped = await render(ECodeBlock, { props: { code: long, wrap: true, label: "Install command" } });
+    await new Promise((r) => requestAnimationFrame(r));
+    expect(wrapped.container.querySelector(".e-code-body")!.hasAttribute("tabindex")).toBe(false);
+    await expect.element(page.getByRole("group", { name: "Install command" })).toBeVisible();
   });
 
   test("custom slot content scrolls inside the same focusable group", async () => {
@@ -66,6 +79,18 @@ describe("ECodeBlock", () => {
     expect(getComputedStyle(middle!).borderEndStartRadius).toBe("0px");
     expect(getComputedStyle(last!).borderStartStartRadius).toBe("0px");
     expect(getComputedStyle(last!).borderEndStartRadius).not.toBe("0px");
+    // The overflow shades stop a ring short only of a side that meets another block, where that block's ring reaches in.
+    const shade = (el: HTMLElement) => {
+      const cs = getComputedStyle(el.querySelector(".e-code-body")!);
+      return [
+        cs.backgroundPositionY.split(",")[0]!.trim(),
+        cs.backgroundSize.split(",")[0]!.trim().split(" ").slice(1).join(" "),
+      ];
+    };
+    const ring = String(parseFloat(getComputedStyle(first!).getPropertyValue("--e-stroke-card")) || 1);
+    expect(shade(first!)).toEqual(["0px", `calc(100% - ${ring}px)`]);
+    expect(shade(middle!)).toEqual([`${ring}px`, `calc(100% - ${2 * Number(ring)}px)`]);
+    expect(shade(last!)).toEqual([`${ring}px`, `calc(100% - ${ring}px)`]);
     expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(document.documentElement.clientWidth);
   });
 
@@ -129,6 +154,20 @@ describe("ECodeBlock", () => {
     await page.getByRole("button", { name: "Copy code" }).click();
     expect(writeText).toHaveBeenCalledWith("const a = 1");
     vi.unstubAllGlobals();
+  });
+
+  test("the overflow shade sits at the end edge, on the left in a right-to-left page", async () => {
+    const { container } = await render({
+      render: () =>
+        h("div", [
+          h("div", { dir: "ltr" }, h(ECodeBlock, { code: "x" })),
+          h("div", { dir: "rtl" }, h(ECodeBlock, { code: "x" })),
+        ]),
+    });
+    const [ltr, rtl] = Array.from(container.querySelectorAll(".e-code-body"), (el) => getComputedStyle(el));
+    expect(ltr!.backgroundPositionX).toBe("100%, 100%");
+    expect(rtl!.backgroundPositionX).toBe("0px, 0px");
+    expect(rtl!.backgroundImage).toContain("to right");
   });
 
   test("has no accessibility violations", async () => {

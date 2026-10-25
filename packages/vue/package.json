@@ -29,6 +29,8 @@
       "default": "./dist/components/*/index.js"
     },
     "./fonts.css": "./dist/fonts.css",
+    "./fonts-fallback.css": "./dist/fonts-fallback.css",
+    "./fonts-self-hosted.css": "./dist/fonts-self-hosted.css",
     "./globals": {
       "types": "./dist/globals.d.ts",
       "default": "./dist/globals.js"
@@ -76,14 +78,14 @@
     "test:watch": "vitest",
     "prepare:gen": "node scripts/gen-index.mjs",
     "gen:check": "node scripts/gen-index.mjs --check",
-    "check:source": "pnpm gen:check && pnpm check:css && pnpm check:layers && pnpm check:props && pnpm check:docs",
+    "check:source": "pnpm gen:check && pnpm check:css && pnpm check:props && pnpm check:docs",
     "check:css": "node scripts/check-css.mjs",
-    "check:layers": "node scripts/check-layers.mjs",
+    "report:spacing": "node scripts/report-spacing.mjs",
     "gen:props": "node scripts/gen-props.mjs",
     "check:props": "node scripts/gen-props.mjs --check",
     "check:docs": "node scripts/check-docs.mjs",
     "check:icon-aliases": "node scripts/validate-icon-aliases.mjs",
-    "check:dist": "node scripts/check-dist.mjs"
+    "check:dist": "node scripts/check-dist.mjs && node scripts/check-api-types.mjs"
   },
   "peerDependencies": {
     "@iconify/vue": "^5.0.0",
@@ -97,11 +99,12 @@
   "dependencies": {
     "@eos-ui/tokens": "workspace:*",
     "@tanstack/vue-virtual": "^3.13.47",
-    "@vueuse/core": "^15.0.0",
     "reka-ui": "^2.11.0"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
     "@vitejs/plugin-vue": "^6.0.10",
     "@vitest/browser-playwright": "^5.0.5",
     "@vue/tsconfig": "^0.9.1",

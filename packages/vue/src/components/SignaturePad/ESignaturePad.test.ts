@@ -208,7 +208,7 @@ describe("ESignaturePad", () => {
     expect(container.querySelector(".e-pad-surface")!.hasAttribute("data-invalid")).toBe(true);
     expect(canvas.getAttribute("aria-describedby")).toBe("p-hint p-msg");
     const msg = container.querySelector("#p-msg")!;
-    expect(msg.getAttribute("role")).toBe("alert");
+    expect(msg.hasAttribute("role")).toBe(false);
     expect(msg.textContent).toContain("Sign here");
     expect(container.querySelector(".e-pad-surface")!.hasAttribute("data-invalid")).toBe(true);
     expect(container.textContent).not.toContain("Sign inside the box");
@@ -242,6 +242,42 @@ describe("ESignaturePad", () => {
     await nextTick();
     expect(got).toEqual([]);
     expect(container.querySelector(".e-pad-placeholder")).not.toBeNull();
+  });
+
+  test("readonly and disabled look as a field's do: no well and a plain cursor; a dashed edge for disabled", async () => {
+    const ro = await render(ESignaturePad, { props: { readonly: true } });
+    ro.container.classList.add("e-root");
+    const roSurface = ro.container.querySelector<HTMLElement>(".e-pad-surface")!;
+    expect(roSurface.hasAttribute("data-readonly")).toBe(true);
+    expect(getComputedStyle(roSurface).boxShadow).toBe("none");
+    expect(getComputedStyle(ro.container.querySelector("canvas")!).cursor).toBe("default");
+    const off = await render(ESignaturePad, { props: { disabled: true } });
+    off.container.classList.add("e-root");
+    const offSurface = off.container.querySelector<HTMLElement>(".e-pad-surface")!;
+    expect(offSurface.hasAttribute("data-disabled")).toBe(true);
+    expect(getComputedStyle(offSurface).outlineStyle).toBe("dashed");
+    expect(getComputedStyle(off.container.querySelector("canvas")!).cursor).toBe("not-allowed");
+  });
+
+  test("a label shows above the pad and names it; hideLabel keeps it for screen readers; optional shows the word", async () => {
+    const { container } = await render(ESignaturePad, { props: { label: "Patient signature", optional: true } });
+    await expect.element(page.getByRole("img", { name: /^Patient signature/ })).toBeVisible();
+    expect(container.querySelector(".e-field-flag")!.textContent).toBe("Optional");
+    const hidden = await render(ESignaturePad, { props: { label: "Witness", hideLabel: true } });
+    expect(hidden.container.querySelector(".e-field-label")!.classList.contains("e-sr")).toBe(true);
+    const label = hidden.container.querySelector(".e-field-label")!;
+    expect(hidden.container.querySelector("canvas")!.getAttribute("aria-labelledby")).toBe(label.id);
+    expect(label.textContent!.trim()).toBe("Witness");
+  });
+
+  test("name posts the image through a hidden input, nothing while disabled; height takes a CSS length", async () => {
+    const url = dataUrl();
+    const { container } = await render(ESignaturePad, { props: { name: "sig", modelValue: url, height: "10rem" } });
+    const hidden = container.querySelector<HTMLInputElement>("input[type=hidden][name=sig]")!;
+    expect(hidden.value).toBe(url);
+    expect(container.querySelector("canvas")!.getBoundingClientRect().height).toBe(160);
+    const off = await render(ESignaturePad, { props: { name: "sig", modelValue: url, disabled: true } });
+    expect(off.container.querySelector<HTMLInputElement>("input[type=hidden]")!.disabled).toBe(true);
   });
 
   test("the canvas takes the id and draws on a touch-safe surface", async () => {

@@ -252,8 +252,24 @@ describe("ESearchBar", () => {
     const btn = wrap.querySelector(".e-btn")!;
 
     for (const md of [null, "14px", "2px"]) {
-      if (md) root.style.setProperty("--e-radius-md", md);
-      expect(corner(btn)).toBeCloseTo(Math.max(0, corner(wrap) - 5), 0);
+      if (md) {
+        root.style.setProperty("--e-radius-md", md);
+        root.style.setProperty("--e-radius-row", "max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))");
+      }
+      expect(corner(btn)).toBeCloseTo(Math.max(0, corner(wrap) - 3), 0); // radius-row less the edge
     }
+  });
+  test("id goes on the input; readonly keeps the text, hides Clear and still searches", async () => {
+    const got: string[] = [];
+    const { container } = await render(ESearchBar, {
+      props: { id: "q", readonly: true, clearable: true, modelValue: "rent", onSubmit: (v: string) => got.push(v) },
+    });
+    const input = container.querySelector("input")!;
+    expect(input.id).toBe("q");
+    expect(input.readOnly).toBe(true);
+    expect(container.querySelector(".e-input-wrap")!.hasAttribute("data-readonly")).toBe(true);
+    expect(container.querySelector("[aria-label=Clear]")).toBeNull();
+    await page.getByRole("button", { name: "Search" }).click();
+    expect(got).toEqual(["rent"]);
   });
 });

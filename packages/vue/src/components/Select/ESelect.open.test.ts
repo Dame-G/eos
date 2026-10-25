@@ -108,7 +108,10 @@ describe("ESelect corners", () => {
     await openIt(container);
     await expect.poll(() => panel()).not.toBeNull();
     const p = panel()!;
-    if (md) p.style.setProperty("--e-radius-md", md);
+    if (md) {
+      p.style.setProperty("--e-radius-md", md);
+      p.style.setProperty("--e-radius-row", "max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))");
+    }
     const css = getComputedStyle(p);
     const outer = parseFloat(css.borderTopLeftRadius);
     const inset = parseFloat(css.paddingTop) / 2 + parseFloat(css.borderTopWidth); /* pad-inset is half the padding */

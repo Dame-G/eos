@@ -10,7 +10,8 @@ defineProps<{
   description?: string | undefined;
   descId: string;
   messageId: string;
-  bare?: boolean | undefined;
+  /** The label and description are for screen readers only; the hint or error still shows. */
+  hideLabel?: boolean | undefined;
   disabled?: boolean | undefined;
   required?: boolean | undefined;
   optional?: boolean | undefined;
@@ -23,10 +24,13 @@ defineProps<{
 
 <template>
   <div class="e-choice-wrap">
-    <label class="e-choice" :class="[rowClass, { 'e-choice--bare': bare, 'e-choice--disabled': disabled }]" :for="id">
+    <label
+      class="e-choice"
+      :class="[rowClass, { 'e-choice--label-hidden': hideLabel, 'e-choice--disabled': disabled }]"
+      :for="id"
+    >
       <slot />
-      <span v-if="bare" class="e-sr">{{ label }}</span>
-      <span v-else class="e-choice-text">
+      <span class="e-choice-text" :class="{ 'e-sr': hideLabel }">
         <span class="e-choice-label">
           {{ label }}
           <EFieldFlag :required="required" :optional="optional" />
@@ -35,6 +39,6 @@ defineProps<{
         <span v-if="description" :id="descId" class="e-choice-desc" aria-hidden="true">{{ description }}</span>
       </span>
     </label>
-    <EFieldMessage v-if="!bare" :id="messageId" :error="error" :hint="hint" />
+    <EFieldMessage :id="messageId" :error="error" :hint="hint" />
   </div>
 </template>

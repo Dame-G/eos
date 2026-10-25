@@ -22,15 +22,16 @@ Tabs for switching between views of the same record or list. It switches panels 
 | Prop          | Type                         | Default        | Notes                                                                                                                                                                                      |
 | ------------- | ---------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `modelValue`  | `string`                     | `first tab`    | `v-model`: the `id` of the selected tab. Keeps its own state when unbound.                                                                                                                 |
-| `items`       | `TabItem[]`                  | None           | The tabs, in order: `{ id, label, count?, disabled? }`. Two to five across, with short labels. A vertical list can be longer. `id` is the `v-model` value and names the `panel-<id>` slot. |
+| `items`       | `TabItem[]`                  | **Required**   | The tabs, in order: `{ id, label, count?, disabled? }`. Two to five across, with short labels. A vertical list can be longer. `id` is the `v-model` value and names the `panel-<id>` slot. |
 | `fill`        | `boolean`                    | `false`        | Gives every tab an equal share of the width instead of its own. Use it in a narrow container where all tabs must fit. Labels truncate.                                                     |
 | `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | `vertical` stacks the tabs in a column beside their panel, for a long list of sections or more tabs than fit across. `fill` has no effect.                                                 |
 | `side`        | `"start" \| "end"`           | `"start"`      | Which side of the panel a `vertical` list sits on: `start` is the left in a left-to-right page, `end` the right. It has no effect on a horizontal row.                                     |
+| `stretch`     | `boolean`                    | `false`        | Makes the tabs fill the height of their container, with the panel taking what is left and scrolling its own content: for tabs in a fixed-height panel or a side column.                    |
 | `label`       | `string`                     | None           | Names the row of tabs for screen readers. Needed when a page has more than one set of tabs.                                                                                                |
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the root `div` element. If the tabs are wider than the space, the row scrolls sideways with no scrollbar, so keep the labels short. When a page has more than one set of tabs, give each a `label` so screen reader users can tell the tab lists apart.
+`class`, `style` and attributes land on the root `div` element. If the tabs are wider than the space, the row scrolls sideways with no scrollbar, so keep the labels short.
 
 ## Slots
 
@@ -56,4 +57,4 @@ A slot named by the bare `id` (`#open`) still works for ids other than `panel` a
 
 ## Related
 
-[`ENavList`](../NavList/README.md) for links to other pages, [`ESegmented`](../Segmented/README.md) for a value that changes how a list is shown.
+[`ESegmented`](../Segmented/README.md) for a value that changes how a list is shown.

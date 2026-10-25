@@ -2,16 +2,16 @@ import { describe, expect, test } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
-import EDefinition from "./EDefinition.vue";
+import EToggletip from "./EToggletip.vue";
 import EButton from "../Button/EButton.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
 const panel = () => document.querySelector<HTMLElement>(".e-popover");
-const triggerOf = (c: Element) => c.querySelector<HTMLButtonElement>("button.e-definition-term")!;
+const triggerOf = (c: Element) => c.querySelector<HTMLButtonElement>("button.e-toggletip-term")!;
 
 function mount(props: Record<string, unknown> = {}, extra: Record<string, unknown> = {}) {
-  return render(EDefinition, {
+  return render(EToggletip, {
     props: { label: "About payment plans", ...props },
     slots: {
       trigger: () => "What is a payment plan?",
@@ -21,7 +21,7 @@ function mount(props: Record<string, unknown> = {}, extra: Record<string, unknow
   });
 }
 
-describe("EDefinition", () => {
+describe("EToggletip", () => {
   test("inline sets the term in its sentence: no icon, the sentence's font, on its baseline, and it still opens", async () => {
     const { container } = await render(
       defineComponent({
@@ -29,7 +29,7 @@ describe("EDefinition", () => {
           h("p", { style: "font: 18px/1.5 serif" }, [
             "Licensed under ",
             h(
-              EDefinition,
+              EToggletip,
               { label: "About the licence", inline: true },
               { trigger: () => "MIT", default: () => "Use it for anything." },
             ),
@@ -108,7 +108,7 @@ describe("EDefinition", () => {
       defineComponent({
         render: () =>
           h("div", [
-            h(EDefinition, { label: "About" }, { trigger: () => "Term", default: () => "Body" }),
+            h(EToggletip, { label: "About" }, { trigger: () => "Term", default: () => "Body" }),
             h("button", { type: "button" }, "Elsewhere"),
           ]),
       }),
@@ -169,7 +169,7 @@ describe("EDefinition", () => {
       defineComponent({
         render: () =>
           h(
-            EDefinition,
+            EToggletip,
             {
               label: "About",
               modelValue: open.value,
@@ -195,14 +195,14 @@ describe("EDefinition", () => {
   });
 
   test("class, style and attributes land on the term button", async () => {
-    const { container } = await render(EDefinition, {
+    const { container } = await render(EToggletip, {
       props: { label: "About" },
       attrs: { class: "mine", "data-test": "x" },
       slots: { trigger: () => "Term", default: () => "Body" },
     });
     const trigger = triggerOf(container);
     expect(trigger.classList.contains("mine")).toBe(true);
-    expect(trigger.classList.contains("e-definition-term")).toBe(true);
+    expect(trigger.classList.contains("e-toggletip-term")).toBe(true);
     expect(trigger.dataset["test"]).toBe("x");
   });
 
@@ -210,7 +210,7 @@ describe("EDefinition", () => {
     const target = document.createElement("div");
     target.id = "themed-pop";
     document.body.appendChild(target);
-    const { container } = await render(EDefinition, {
+    const { container } = await render(EToggletip, {
       props: { label: "About", title: "Titre" },
       slots: { trigger: () => "Term", default: () => "Body" },
       global: { plugins: [createEos({ portalTarget: "#themed-pop", messages: { close: "Fermer" } })] },

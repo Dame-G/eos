@@ -2,6 +2,7 @@
 import { computed, nextTick, ref, useTemplateRef, type Component } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import { useMessages } from "../../config.js";
+import { hasLinkTarget, linkTarget } from "../../composables/useLink.js";
 import "../../styles/base.css";
 
 export interface BreadcrumbItem {
@@ -17,7 +18,7 @@ const props = withDefaults(
   defineProps<{
     /** The path as `{ label, href?, to? }`, top level first. The last item is the current page and is not a link. */
     items: BreadcrumbItem[];
-    /** What renders each link: `"a"`, `RouterLink`, or any component that takes `href` or `to` and a default slot. With `RouterLink`, give items a `to`. Items can mix `href` and `to`, and the component receives only the attributes the item has. */
+    /** What renders each link: `"a"`, `RouterLink`, or any component that takes `href` or `to` and a default slot. With `RouterLink`, give items a `to`. Items can mix `href` and `to`; each link gets one of them, `to` when the component takes it. */
     linkComponent?: string | Component;
     /** Names the navigation. Give each breadcrumb on a page its own name. @default "Breadcrumb" */
     label?: string;
@@ -55,10 +56,7 @@ async function expand() {
   focusAt.value = null;
 }
 
-const linkAttrs = (item: BreadcrumbItem) => ({
-  ...(item.href !== undefined && { href: item.href }),
-  ...(item.to !== undefined && { to: item.to }),
-});
+const linkAttrs = (item: BreadcrumbItem) => linkTarget(item, props.linkComponent);
 </script>
 
 <template>
@@ -82,7 +80,7 @@ const linkAttrs = (item: BreadcrumbItem) => ({
           >
           <component
             :is="linkComponent"
-            v-else-if="item.href !== undefined || item.to !== undefined"
+            v-else-if="hasLinkTarget(item)"
             class="e-crumb"
             :data-crumb="i"
             v-bind="linkAttrs(item)"
@@ -109,7 +107,7 @@ const linkAttrs = (item: BreadcrumbItem) => ({
     margin: 0;
     padding: 0;
     list-style: none;
-    font: var(--e-weight-regular) var(--e-text-sm) / calc(10 / 7) var(--e-font-sans);
+    font: var(--e-type-helper);
   }
 
   .e-crumbs li {
@@ -127,10 +125,10 @@ const linkAttrs = (item: BreadcrumbItem) => ({
 
   .e-crumb {
     position: relative;
-    color: var(--e-text-link);
+    color: var(--e-link);
     text-decoration: underline;
-    text-decoration-color: var(--e-text-link);
-    text-underline-offset: var(--e-underline-offset);
+    text-decoration-color: var(--e-link);
+    text-underline-offset: var(--e-stroke-underline-offset);
     border-radius: var(--e-radius-sm);
     transition: var(--e-transition-state);
   }
@@ -148,7 +146,7 @@ const linkAttrs = (item: BreadcrumbItem) => ({
   .e-crumb::after {
     content: "";
     position: absolute;
-    inset: calc((var(--e-tap) - var(--e-icon-size)) / -2) calc(-1 * var(--e-gap-tight));
+    inset: calc((var(--e-tap) - var(--e-icon-size-md)) / -2) calc(-1 * var(--e-gap-tight));
   }
 
   .e-crumb:hover {
@@ -163,8 +161,6 @@ const linkAttrs = (item: BreadcrumbItem) => ({
 
   .e-crumb:focus-visible,
   .e-crumb-current:focus-visible {
-    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
     border-radius: var(--e-radius-sm);
   }
 

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h, ref, markRaw } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -20,6 +20,23 @@ const FakeRouterLink = markRaw(
         h("a", { href: `/app${props.to}`, "data-router": "" }, slots.default?.()),
   }),
 );
+
+// First in the file: the warning is given once per page.
+describe("ENavList names", () => {
+  test("development warns once when two navigations are left on the default name", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const one = await render(ENavList, { props: { items } });
+      expect(warn).not.toHaveBeenCalledWith(expect.stringContaining("ENavList"));
+      const two = await render(ENavList, { props: { items } });
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("ENavList"));
+      one.unmount();
+      two.unmount();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+});
 
 describe("ENavList", () => {
   test("is a navigation landmark named Main by default, or by the label prop", async () => {
@@ -46,17 +63,16 @@ describe("ENavList", () => {
     expect(current[0]!.getAttribute("aria-current")).toBe("page");
     expect(current[0]!.textContent).toContain("Pay a bill");
     const cs = getComputedStyle(current[0]!);
-    expect(cs.fontWeight).toBe("600");
-    // The page is also marked by an edge with a thicker bottom (the slab), not by colour alone.
+    // The page is also marked by an edge all round, not by colour alone.
     expect(cs.borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
-    expect(parseFloat(cs.borderBottomWidth)).toBeGreaterThan(parseFloat(cs.borderTopWidth));
+    expect(cs.borderTopColor).toBe(cs.borderBottomColor);
   });
 
   test("rows are control height and the count is a pill", async () => {
     const { container } = await render(ENavList, { props: { items } });
     expect(container.querySelector("a")!.getBoundingClientRect().height).toBe(48);
-    expect(container.querySelectorAll(".e-nav-count").length).toBe(1);
-    expect(container.querySelector(".e-nav-count")!.textContent).toBe("2");
+    expect(container.querySelectorAll(".e-count").length).toBe(1);
+    expect(container.querySelector(".e-count")!.textContent).toBe("2");
     expect(container.querySelectorAll(".e-nav-item .e-icon").length).toBe(2);
   });
 
@@ -132,9 +148,7 @@ describe("ENavList", () => {
     expect(links[0]!.getBoundingClientRect().top).toBe(links[1]!.getBoundingClientRect().top);
     expect(links[0]!.getBoundingClientRect().height).toBe(48);
     const current = getComputedStyle(container.querySelector("[aria-current]")!);
-    expect(current.fontWeight).toBe("600");
     expect(current.borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
-    expect(parseFloat(current.borderBottomWidth)).toBeGreaterThan(parseFloat(current.borderTopWidth));
     await expectNoViolations(container);
   });
 
@@ -263,5 +277,45 @@ describe("ENavList", () => {
       props: { items: tree.map((i) => (i.children ? { ...i, open: true } : i)) },
     });
     await expectNoViolations(container);
+  });
+});
+
+describe("ENavList options", () => {
+  test("size sm gives short rows with no rule between them; long labels wrap inside the row", async () => {
+    const { container } = await render(ENavList, {
+      props: {
+        label: "Docs",
+        size: "sm",
+        items: [...items, { label: "A long page title that cannot fit on one line of a narrow rail", href: "/x" }],
+      },
+    });
+    (container.firstElementChild as HTMLElement).style.width = "12rem";
+    const rows = [...container.querySelectorAll<HTMLElement>(".e-nav-item")];
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    expect(rows[0]!.getBoundingClientRect().height).toBe(coarse ? 44 : 32);
+    expect(getComputedStyle(container.querySelectorAll("li")[1]!, "::before").content).toBe("none");
+    const long = rows.at(-1)!;
+    expect(long.getBoundingClientRect().height).toBeGreaterThan(rows[0]!.getBoundingClientRect().height);
+    expect(long.scrollWidth).toBeLessThanOrEqual(long.clientWidth + 1);
+  });
+
+  test("the current page is where you are: the pastel tint and a primary edge, with no slab and the same weight", async () => {
+    const { container } = await render(ENavList, { props: { label: "Outline", items } });
+    const current = getComputedStyle(container.querySelector<HTMLElement>("[aria-current=page]")!);
+    const other = getComputedStyle(container.querySelector<HTMLElement>("a:not([aria-current])")!);
+    expect(current.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(current.borderBottomWidth).toBe(current.borderTopWidth);
+    expect(current.fontWeight).toBe(other.fontWeight);
+  });
+
+  test("a group's state is the library's chevron icon, turned while open", async () => {
+    const { container } = await render(ENavList, {
+      props: { label: "Docs", items: [{ label: "Guides", children: [{ label: "Start", href: "/start" }] }] },
+    });
+    const chevron = container.querySelector(".e-nav-summary > .e-details-chevron")!;
+    expect(chevron.classList.contains("e-icon")).toBe(true);
+    const closed = getComputedStyle(chevron).transform;
+    await page.getByText("Guides").click();
+    await expect.poll(() => getComputedStyle(chevron).transform).not.toBe(closed);
   });
 });

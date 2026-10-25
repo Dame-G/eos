@@ -15,6 +15,16 @@ describe("EDisclosure", () => {
     expect(details.querySelector(".e-details-body")!.textContent).toBe("Body");
   });
 
+  test("a title with rich content stays one run of text, not spread across the summary", async () => {
+    const { container } = await render(EDisclosure, {
+      slots: { title: () => ["Getting ", h("em", "there")], default: "Body" },
+    });
+    container.classList.add("e-root");
+    const title = container.querySelector(".e-details-title")!;
+    const word = title.querySelector("em")!.getBoundingClientRect();
+    expect(word.left - title.getBoundingClientRect().left).toBeLessThan(120);
+  });
+
   test("pressing the summary does not select text (a double click on it selects nothing)", async () => {
     const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
     container.classList.add("e-root");
@@ -39,9 +49,7 @@ describe("EDisclosure", () => {
     const summary = details.querySelector("summary")!;
     const gaps = () => {
       const range = document.createRange();
-      range.selectNodeContents(
-        [...summary.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim())!,
-      );
+      range.selectNodeContents(summary.querySelector(".e-details-title")!);
       const text = range.getBoundingClientRect();
       const box = summary.getBoundingClientRect();
       return { above: text.top - box.top, below: box.bottom - text.bottom };
@@ -124,13 +132,24 @@ describe("EDisclosure", () => {
     expect(b.open).toBe(true);
   });
 
-  test("the chevron turns when open", async () => {
+  test("the library's chevron icon marks the state and turns when open", async () => {
     const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
     container.classList.add("e-root");
-    const summary = container.querySelector("summary")!;
-    const closed = getComputedStyle(summary, "::after").transform;
+    const chevron = container.querySelector("summary > .e-details-chevron")!;
+    expect(chevron.classList.contains("e-icon")).toBe(true);
+    expect(chevron.getAttribute("aria-hidden")).toBe("true");
+    const closed = getComputedStyle(chevron).transform;
     await page.getByText("History").click();
-    await expect.poll(() => getComputedStyle(summary, "::after").transform).not.toBe(closed);
+    await expect.poll(() => getComputedStyle(chevron).transform).not.toBe(closed);
+  });
+
+  test("the summary's focus ring is drawn inside it, so a clipping parent cannot cut it", async () => {
+    const { container } = await render(EDisclosure, { props: { title: "History" } });
+    container.classList.add("e-root");
+    await userEvent.tab();
+    const style = getComputedStyle(container.querySelector("summary")!);
+    expect(style.outlineStyle).toBe("solid");
+    expect(parseFloat(style.outlineOffset)).toBeLessThan(0);
   });
 
   test("class and data attributes fall through to the details", async () => {

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
-import { useLocale } from "./useLocale.js";
+import { localeDirection, useLocale } from "./useLocale.js";
 import { createEos } from "../plugin.js";
 
 async function locale(options: Parameters<typeof createEos>[0] = {}) {
@@ -31,7 +31,7 @@ describe("useLocale", () => {
     expect(api.weekdaysShort.value.slice(0, 2)).toEqual(["Su", "Mo"]);
     expect(api.formatDate(new Date(2026, 9, 5, 12))).toBe("10/05/2026");
     expect(api.dateFormatLabel()).toBe("MM/DD/YYYY");
-    expect(api.dir.value).toBe("ltr");
+    expect(localeDirection("en-US")).toBe("ltr");
     expect(api.formatLong(new Date(2026, 9, 22, 12))).toBe("Thursday, October 22, 2026");
   });
 
@@ -54,7 +54,7 @@ describe("useLocale", () => {
 
   test("he-IL: right to left, Sunday first, Hebrew names, ASCII digits in typed dates", async () => {
     const { api } = await locale({ locale: "he-IL" });
-    expect(api.dir.value).toBe("rtl");
+    expect(localeDirection("he-IL")).toBe("rtl");
     expect(api.weekStart.value).toBe(0);
     expect(api.months.value[0]).not.toBe("January");
     expect(api.formatDate(new Date(2026, 9, 22, 12))).toMatch(/^\d\d[./-]\d\d[./-]2026$/);
@@ -64,18 +64,13 @@ describe("useLocale", () => {
 
   test("ar: right to left; Arabic-Indic digits typed by the person still parse", async () => {
     const { api } = await locale({ locale: "ar" });
-    expect(api.dir.value).toBe("rtl");
+    expect(localeDirection("ar")).toBe("rtl");
     const text = api.formatDate(new Date(2026, 9, 22, 12));
     expect(text).toMatch(/^\d{2}.\d{2}.2026$/);
     const order = api.dateOrder.value;
     const parts = { day: "٢٢", month: "١٠", year: "٢٠٢٦" };
     const typed = order.map((p) => parts[p]).join("/");
     expect(api.parseDate(typed)).toEqual(new Date(2026, 9, 22, 12));
-  });
-
-  test("an explicit dir wins over the locale", async () => {
-    const { api } = await locale({ locale: "he-IL", dir: "ltr" });
-    expect(api.dir.value).toBe("ltr");
   });
 
   test("parseDate accepts slashes, dashes, dots and spaces; rejects impossible days and short years", async () => {
@@ -113,6 +108,22 @@ describe("useLocale", () => {
     expect((await locale()).api.formatMoney(5, { currency: "GBP", locale: "en-GB" })).toBe("£5.00");
   });
 
+  test("formatMoney uses the currency's own decimals", async () => {
+    const { api } = await locale({ currency: "JPY" });
+    expect(api.formatMoney(1000)).toBe("¥1,000");
+    expect(api.formatMoney(1.5, { currency: "KWD" })).toMatch(/1\.500/);
+  });
+
+  test("formatNumber and formatList follow the locale, and an unknown one does not throw", async () => {
+    const { api, eos } = await locale({ locale: "de-DE" });
+    expect(api.formatNumber(1234.5)).toBe("1.234,5");
+    expect(api.formatList(["Ada", "Grace", "Linus"])).toBe("Ada, Grace und Linus");
+    eos.config.locale = "not a locale!";
+    expect(() => api.formatNumber(1)).not.toThrow();
+    expect(api.formatList(["Ada", "Grace"])).toContain("Grace");
+    expect(api.formatMoney(5)).toBe("5");
+  });
+
   test("changing the config locale updates everything that was read", async () => {
     const { api, eos } = await locale();
     expect(api.months.value[9]).toBe("October");
@@ -138,7 +149,7 @@ describe("useLocale", () => {
   test("an unknown tag falls back to English names from Intl, keeping the direction its language implies", async () => {
     const { api } = await locale({ locale: "ar-@@bad" });
     expect(api.months.value[0]).toBe("January");
-    expect(api.dir.value).toBe("rtl");
-    expect((await locale({ locale: "zz-@@bad" })).api.dir.value).toBe("ltr");
+    expect(localeDirection("ar-@@bad")).toBe("rtl");
+    expect(localeDirection("zz-@@bad")).toBe("ltr");
   });
 });

@@ -1,0 +1,5 @@
+---
+"@eos-ui/vue": minor
+---
+
+`EUpload` in the eos materials. The dropzone is a well pressed into the page; its edge turns dashed in the primary colour while a file is dragged anywhere over the page, and over the zone it takes the brand tint and sinks a step deeper (no longer the success green). Each chosen file is a raised tile with the icon of its kind (new icons `file-image` and `file-pdf`) and its size. Files left out are listed under the zone with why ("Not an accepted type", "Larger than 5 MB", "Only 3 files can be added") until dismissed or the next choice. Without `multiple` the chosen file takes the zone's place as one large raised tile (an image file as itself, any other as a large icon of its kind) with its name and size beneath and Remove in the corner, and the tile takes the zone's hover, dragging and invalid states; choosing or dropping again replaces it. With `multiple` and `maxFiles` the corner shows "2 of 3". Image files show as themselves, as thumbnails in the list; new prop `preview` (default `true`) turns that off. New messages `fileCount`, `fileRejectedType` and `fileRejectedSize`.

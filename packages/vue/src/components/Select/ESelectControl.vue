@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, h, ref, watch, type FunctionalComponent } from "vue";
 import {
-  ConfigProvider,
   SelectContent,
   SelectGroup,
   SelectLabel,
@@ -13,17 +12,17 @@ import {
 import EIcon from "../Icon/EIcon.vue";
 import ESpinner from "../Spinner/ESpinner.vue";
 import EHiddenInputs from "../Field/EHiddenInputs.vue";
+import EInputClear from "../Field/EInputClear.vue";
 import ESelectOption from "./ESelectOption.vue";
 import { sectionOptions, type EOption } from "./options.js";
-import type { EFieldSize } from "../Field/fieldProps.js";
+import { sizeAttr, type EFieldSize } from "../Field/fieldProps.js";
 import { useMessages, usePortalTarget } from "../../config.js";
-import { useDir } from "../../composables/useDir.js";
-import { useScrollBody } from "../../composables/useScrollBody.js";
+import { FIELD_POPPER, useDir } from "../../composables/useDir.js";
+import { RekaConfig } from "../../composables/useRekaConfig.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
-import "../Combobox/combo.css";
-import "./panel.css";
+import "../../styles/controls/input.css";
+import "../../styles/controls/panel.css";
 
 const props = defineProps<{
   /** The normalised options. */
@@ -45,12 +44,16 @@ const props = defineProps<{
   triggerAttrs: Record<string, unknown>;
 }>();
 
+const emit = defineEmits<{
+  /** The clear button emptied the value. */
+  clear: [];
+}>();
+
 /** The chosen `value`, or the array of them with `multiple`. */
 const model = defineModel<string | string[]>({ default: "" });
 
 const t = useMessages();
 const dir = useDir();
-const scrollBody = useScrollBody();
 const trigger = ref<{ $el: HTMLElement } | null>(null);
 const portal = usePortalTarget();
 
@@ -60,6 +63,8 @@ const chosen = computed(() => props.options.filter((o) => values.value.includes(
 const selected = computed(() => chosen.value[0]);
 const canClear = computed(() => !!props.clearable && values.value.length > 0 && !props.disabled && !props.readonly);
 
+/** Letters typed this close together search as one word. */
+const TYPEAHEAD_PAUSE_MS = 700;
 let typed = "";
 let typedAt = 0;
 const open = defineModel<boolean>("open", { default: false });
@@ -80,6 +85,7 @@ function change(v: unknown) {
 }
 function clear() {
   model.value = props.multiple ? [] : "";
+  emit("clear");
   trigger.value?.$el.focus();
 }
 // A read-only button keeps focus but neither opens nor picks by typing: Reka never sees the key.
@@ -95,7 +101,7 @@ function typeahead(e: KeyboardEvent) {
   if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
   if (e.key === " " && !typed) return;
   const now = Date.now();
-  typed = (now - typedAt > 700 ? "" : typed) + e.key.toLowerCase();
+  typed = (now - typedAt > TYPEAHEAD_PAUSE_MS ? "" : typed) + e.key.toLowerCase();
   typedAt = now;
   const list = props.options;
   const from = list.findIndex((o) => o.value === model.value);
@@ -124,8 +130,8 @@ Section.props = ["group"];
 
 <template>
   <!-- The size is set on the wrapper, so the trigger and the clear button over it share the height. -->
-  <div class="e-sel" :class="{ 'e-sel--clear': canClear }" :data-size="size && size !== 'md' ? size : undefined">
-    <ConfigProvider :dir="dir" :scroll-body="scrollBody">
+  <div class="e-sel" :class="{ 'e-sel--clear': canClear }" :data-size="sizeAttr(size)">
+    <RekaConfig>
       <SelectRoot
         :model-value="model"
         :multiple="multiple"
@@ -162,8 +168,7 @@ Section.props = ["group"];
           <SelectContent
             position="popper"
             align="start"
-            :side-offset="6"
-            :collision-padding="8"
+            v-bind="FIELD_POPPER"
             :body-lock="false"
             class="e-popover e-listpanel e-root"
             :aria-label="label"
@@ -182,10 +187,8 @@ Section.props = ["group"];
           </SelectContent>
         </SelectPortal>
       </SelectRoot>
-    </ConfigProvider>
-    <button v-if="canClear" type="button" class="e-combo-btn e-sel-clear" :aria-label="t('clear')" @click="clear">
-      <EIcon name="x" />
-    </button>
+    </RekaConfig>
+    <EInputClear v-if="canClear" class="e-sel-clear" @click="clear" />
     <EHiddenInputs :name="name" :values="multiple ? values : [values[0]]" :disabled="disabled" :form="form" />
   </div>
 </template>
@@ -197,7 +200,7 @@ Section.props = ["group"];
   }
 
   .e-sel-trigger {
-    --_clear: calc(var(--e-pad-control-sm) + var(--e-icon-size) + var(--e-gap-tight));
+    --_clear: calc(var(--e-pad-control-sm) + var(--e-icon-size-md) + var(--e-gap-tight));
 
     display: flex;
     align-items: center;
@@ -209,8 +212,9 @@ Section.props = ["group"];
   }
 
   /* The clear button sits over the trigger, just inside its arrow, so the trigger leaves room for it. */
-  .e-sel-clear {
+  .e-sel > .e-sel-clear {
     position: absolute;
+    margin: 0;
     inset-block-start: 50%;
     inset-inline-end: var(--_clear);
     translate: 0 -50%;
@@ -218,21 +222,21 @@ Section.props = ["group"];
 
   .e-sel--clear .e-sel-trigger {
     padding-inline-end: calc(
-      var(--_clear) + var(--_h, var(--e-control-height)) - var(--e-gap-snug) - var(--e-stroke-edge)
+      var(--_clear) + var(--_h, var(--e-control-height)) - 2 * (var(--e-stroke-edge) + var(--e-gap-tight))
     );
   }
 
   /* Open, the trigger looks focused: focus moves into the list, so the field's own :focus no longer applies. */
   .e-sel-trigger[aria-expanded="true"] {
-    --e-ring: var(--e-focus-field);
+    --_ring: var(--e-focus-field);
 
     background-color: var(--e-surface);
     outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
-    outline-offset: var(--e-focus-gap-field);
+    outline-offset: var(--e-stroke-focus-gap-field);
   }
 
   .e-sel-trigger[aria-expanded="true"][aria-invalid="true"] {
-    --e-ring: var(--e-danger);
+    --_ring: var(--e-danger);
 
     outline-color: var(--e-danger);
   }

@@ -1,11 +1,19 @@
 import { readFileSync, readdirSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
 import { sourceStyles } from "../packages/vue/scripts/css-lib.mjs";
 
-const dist = join(dirname(fileURLToPath(import.meta.url)), "..", "packages", "vue", "dist");
+const pkg = join(dirname(fileURLToPath(import.meta.url)), "..", "packages", "vue");
+const dist = join(pkg, "dist");
 const gzip = (file) => gzipSync(readFileSync(file)).length;
+
+// The JavaScript ships unminified (a consumer's bundler minifies it), so it is measured as a production bundle would
+// carry it: minified with the minifier Vite builds with (rolldown's, through Vite), then gzipped. The CSS ships minified.
+const fromVite = createRequire(createRequire(join(pkg, "package.json")).resolve("vite"));
+const { minifySync } = await import(pathToFileURL(fromVite.resolve("rolldown/experimental")).href);
+const gzipMinified = (file) => gzipSync(minifySync(file, readFileSync(file, "utf8")).code).length;
 
 const jsFiles = (dir) =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -22,9 +30,26 @@ const jsFiles = (dir) =>
 //
 // THE LIMITS: change a number here, nowhere else.
 const limits = {
-  "style.css": 22000,
-  "index.js": 2250,
-  "all JavaScript files (each gzipped)": 183000,
+  // Raised from 22300 (about 770 B in all): the upload redesign (the dropzone as a well with its dragging states, each
+  // file as a raised tile, rejected-file rows with their tone edge, the corner count, thumbnails and the single-file
+  // preview card), the calendar range meeting flush (each end, today and the hover squaring toward the band, the band
+  // rounding its outer corners), and the hover veil that fades a field's and an outline button's wash without a sweep.
+  // Then from 23400 (about 260 B over it at the time): print support (the shared paper rules for colour, breaks and
+  // floating panels; the grid, table, code block, upload, disclosure and header on paper), the single-file upload tile
+  // taking the zone's states, the avatar stack, the nav item's own hover edge and the switch thumb's slab and press.
+  "style.css": 23900,
+  // Minified here before gzip since the JavaScript ships unminified; rebased then with the headroom they had.
+  "index.js": 2100,
+  // Raised from 144300 in the audit release, at 148029 B with the headroom it had (2.9%). Growth over 0.17 (about 8 kB,
+  // EDefinition -> EToggletip moved bytes without adding any): useDataGrid (the grid's search index and sort, split out
+  // so it is tested alone), useDatePopover (the calendar popup EDatePicker and ERangePicker now share, which also gives
+  // the range picker invalid-text and Alt+Arrow Down), RekaConfig/TooltipScope (one direction, scroll lock and tooltip
+  // provider for every Reka part), useLink (to and href, never both, on every link), useBusyButton, the theme mounted
+  // as a stylesheet with lang and dir restored on unmount (plugin), useDir following the page's own direction, ETooltip
+  // not reading a label twice, EAppHeader's height hook and scrolling nav, and the announcer and new props across the
+  // release. Already cut: warn.ts folded into env.ts with every one-off console.warn on warnOnce, and Field/popper.ts
+  // folded into the floating-part constants of useDir.ts.
+  "all JavaScript files (each gzipped)": 152300,
 };
 
 // The per-component paths (`@eos-ui/vue/components/EButton`) are one-line re-exports, dist/components/<Name>/index.js.
@@ -33,10 +58,10 @@ const perComponentEntry = /[\\/]components[\\/][A-Za-z]+[\\/]index\.js$/;
 
 const sizes = {
   "style.css": gzip(join(dist, "style.css")),
-  "index.js": gzip(join(dist, "index.js")),
+  "index.js": gzipMinified(join(dist, "index.js")),
   "all JavaScript files (each gzipped)": jsFiles(dist)
     .filter((f) => !perComponentEntry.test(f))
-    .reduce((sum, f) => sum + gzip(f), 0),
+    .reduce((sum, f) => sum + gzipMinified(f), 0),
 };
 
 const json = process.argv.includes("--json");

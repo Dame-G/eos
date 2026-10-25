@@ -39,9 +39,9 @@ const email = ref("");
 
 - One stylesheet (about 21 kB gzipped), imported once: `@eos-ui/vue/style.css` is required even without the plugin. All CSS ships in that file (no per-component CSS). The JavaScript has no CSS imports, so server rendering needs no bundler setup.
 - Requirements: ESM only, Node 22 or later, Vue 3.5 or later. Tree-shaking is done by your bundler. Your bundler must replace `process.env.NODE_ENV` with a literal, as Vite, webpack, Rollup, esbuild and Nuxt do by default. The library reads it to keep development warnings (a theme that fails contrast) out of production builds; with a bundler that does not define it, the warnings stay on, and you can turn the contrast one off with `warnOnContrast: false`.
-- `@eos-ui/vue/fonts.css` is opt-in: it loads the default typefaces from Google Fonts, which shares visitors' IP addresses with Google. Skip it to self-host or use system fonts.
+- Fonts are opt-in: `@eos-ui/vue/fonts-self-hosted.css` serves the default typefaces from files in the package; `@eos-ui/vue/fonts.css` loads them from Google Fonts, which shares visitors' IP addresses with Google; `@eos-ui/vue/fonts-fallback.css` has only the metric-matched fallback faces. With none of them, the theme uses system fonts.
 - Everything sits in the cascade layers `e.*`, so your own CSS wins without specificity fights.
-- Plugin options: `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget`, `portalTarget`, `warnOnContrast` and `applyTheme` (`false` when the page ships the theme CSS itself). [`EConfigProvider`](src/components/ConfigProvider/README.md) changes the theme, locale or direction for one part of the page.
+- Plugin options: `locale`, `currency`, `dir`, `messages`, `icons`, `theme`, `themeTarget`, `portalTarget`, `warnOnContrast` and `applyTheme` (`false` when the page ships the theme CSS itself). Without a `theme` nothing is applied: `style.css` carries the default theme. A `theme` goes into the document as a stylesheet in the token layer, so your own CSS wins over it. [`EConfigProvider`](src/components/ConfigProvider/README.md) changes the theme, locale or direction for one part of the page.
 - A message can be a plural object (`{ one, other }` and the locale's other categories) when it takes a count `n`. `resultsCount`, `rows`, `rowsAnnounce` and `rangeDone` do.
 - `defineTheme()` (re-exported from [`@eos-ui/tokens`](../tokens)) builds a theme from `brand`, `accent` and other inputs and checks its contrast.
 - Icons: a built-in Phosphor set, or Lucide, Tabler, Heroicons, Phosphor (Vue), Iconify or your own set (`@eos-ui/vue/icons`, see [Bring your own icons](src/icons/README.md)).
@@ -54,7 +54,7 @@ const email = ref("");
 
 ## Nuxt
 
-Import the stylesheet in `nuxt.config.ts`, install the plugin in a Nuxt plugin, and put the theme into the server-rendered `<head>` with `themeCss()`. The plugin applies the theme only in a browser, so without the `<style>` the first paint is unthemed.
+Import the stylesheet in `nuxt.config.ts`, install the plugin in a Nuxt plugin, and put the theme into the server-rendered `<head>` with `themeCss()`. `createEos` touches the document only in a browser: with a `theme` it adds the theme as a stylesheet once the app is installed, so without the `<style>` the first paint is unthemed.
 
 ```ts
 // nuxt.config.ts
@@ -63,16 +63,20 @@ export default defineNuxtConfig({ css: ["@eos-ui/vue/style.css"] });
 
 ```ts
 // plugins/eos.ts
-import { createEos, themeCss } from "@eos-ui/vue";
+import { createEos, defineTheme, themeCss } from "@eos-ui/vue";
 
-const theme = { brand: "#2c95b4", radius: "round" } as const;
+const theme = defineTheme({ brand: "#2c95b4", radius: "round" });
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.use(createEos({ locale: "en-CA", currency: "CAD", theme }));
-  useHead({ style: [{ id: "eos-theme", innerHTML: themeCss(theme) }] });
+  // The <style> below carries the theme on the server and in the browser, so the plugin adds no second copy.
+  nuxtApp.vueApp.use(createEos({ locale: "en-CA", currency: "CAD", theme, applyTheme: false }));
+  useHead({
+    style: [{ id: "eos-theme", innerHTML: themeCss(theme) }],
+    htmlAttrs: { lang: "en-CA", dir: "ltr" },
+  });
 });
 ```
 
-Components render on the server without a `document`. Pass the same `theme` to `createEos` and `themeCss` so the server and the client agree.
+Components render on the server without a `document`. Build the theme once with `defineTheme` and give the same one to `createEos` and `themeCss`, so the server and the browser agree. `applyTheme: false` is not required: without it the browser also gets the plugin's own copy of the theme, scoped to `:root[data-e-theme]`, which is the same tokens again. The plugin sets `lang` and `dir` on `<html>` only in a browser, so set them for the server with `htmlAttrs`.
 
 [Source, issues and contributing](https://github.com/Dame-G/eos). MIT licensed.
