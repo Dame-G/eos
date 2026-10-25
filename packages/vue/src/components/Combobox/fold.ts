@@ -1,5 +1,9 @@
+/** Text with no character outside ASCII has no accents to remove, so lower case is the whole fold. */
+const ascii = (text: string) => /^[\x00-\x7f]*$/.test(text);
+
 /** Lower case with accents removed, so "cafe" finds "Café" and "ZURICH" finds "Zürich". */
 export function fold(text: string): string {
+  if (ascii(text)) return text.toLowerCase();
   return text
     .normalize("NFD")
     .replace(/\p{M}+/gu, "")
@@ -13,12 +17,16 @@ export function fold(text: string): string {
 export function foldedRange(text: string, query: string): [number, number] | null {
   const q = fold(query);
   if (!q) return null;
+  if (ascii(text)) {
+    const at = text.toLowerCase().indexOf(q);
+    return at < 0 ? null : [at, at + q.length];
+  }
   let folded = "";
   const starts: number[] = [];
   const ends: number[] = [];
   let i = 0;
   for (const ch of text) {
-    const f = fold(ch);
+    const f = ch.charCodeAt(0) < 0x80 ? ch.toLowerCase() : fold(ch);
     for (let k = 0; k < f.length; k++) {
       starts.push(i);
       ends.push(i + ch.length);

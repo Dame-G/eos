@@ -376,7 +376,7 @@ describe("ECombobox multiple", () => {
     expect(container.querySelector(".e-tag")!.textContent).toContain("Text");
     expect(container.querySelector(".e-tag-remove")).toBeNull();
     expect(container.querySelector("[aria-label=Clear]")).toBeNull();
-    expect(container.querySelector(".e-combo-btn")).toBeNull();
+    expect(container.querySelector(".e-input-btn")).toBeNull();
   });
 
   test("passes aria-*, data-* and listeners to the input; class and style stay on the wrapper", async () => {
@@ -423,7 +423,7 @@ describe("ECombobox multiple", () => {
     await expectNoViolations(d.container);
   });
 
-  test("corners are concentric: chosen tags (a tight gap) and the buttons ((snug + edge) / 2) follow the wrap's radius at any theme", async () => {
+  test("corners are concentric: chosen tags (a tight gap) and the buttons (an edge and a tight gap) follow the wrap's radius at any theme", async () => {
     const { container } = await render(ECombobox, {
       props: {
         multiple: true,
@@ -437,13 +437,13 @@ describe("ECombobox multiple", () => {
     root.classList.add("e-root");
     const wrap = root.querySelector(".e-input-wrap")!;
     const tag = wrap.querySelector(".e-tag")!;
-    const btn = wrap.querySelector(".e-combo-btn")!;
+    const btn = wrap.querySelector(".e-input-btn")!;
 
     for (const md of [null, "14px", "2px"]) {
       if (md) root.style.setProperty("--e-radius-md", md);
       const outer = corner(wrap);
       expect(corner(tag)).toBeCloseTo(Math.max(0, outer - 4), 0);
-      expect(corner(btn)).toBeCloseTo(Math.max(0, outer - 4.5), 0);
+      expect(corner(btn)).toBeCloseTo(Math.max(0, outer - 5), 0);
     }
   });
 });

@@ -3,6 +3,7 @@ import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ECombobox from "./ECombobox.vue";
+import EForm from "../Form/EForm.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
 
@@ -232,7 +233,7 @@ describe("ECombobox", () => {
     expect(input.readOnly).toBe(true);
     expect(input.value).toBe("Marcus Webb");
     expect(container.querySelector("input[type=hidden]")!.getAttribute("value")).toBe("Marcus Webb");
-    expect(container.querySelector(".e-combo-btn")).toBeNull();
+    expect(container.querySelector(".e-input-btn")).toBeNull();
     await userEvent.tab();
     expect(document.activeElement).toBe(input);
     await userEvent.keyboard("{ArrowDown}");
@@ -242,7 +243,7 @@ describe("ECombobox", () => {
     expect(input.value).toBe("Marcus Webb");
   });
 
-  test("loading shows a Searching spinner in the list; inputChange lets a server answer", async () => {
+  test("loading shows a spinner in the box and Searching in the list; inputChange lets a server answer", async () => {
     const heard: string[] = [];
     const { container, rerender } = await render(ECombobox, {
       props: {
@@ -255,10 +256,11 @@ describe("ECombobox", () => {
     });
     await box("Practitioner").fill("pr");
     await expect
-      .poll(() => document.querySelector(".e-opt-status [role=status]")?.textContent?.trim())
+      .poll(() => document.querySelector(".e-opt-status")?.textContent?.trim())
       .toBe("Searching");
     expect(heard).toEqual(["pr"]);
-    expect(listbox()!.getAttribute("aria-busy")).toBe("true");
+    expect(inputOf(container).getAttribute("aria-busy")).toBe("true");
+    expect(container.querySelector(".e-input-wrap .e-input-spin")).not.toBeNull();
     await (rerender as (p: Record<string, unknown>) => Promise<void>)({
       label: "Practitioner",
       options: ["Priya Nair"],
@@ -576,7 +578,7 @@ describe("ECombobox", () => {
       props: { clearable: true, label: "Practitioner", options: [], loading: true },
     });
     await box("Practitioner").fill("x");
-    await expect.poll(() => document.querySelector(".e-opt-status [role=status]")).not.toBeNull();
+    await expect.poll(() => document.querySelector(".e-opt-status")?.textContent?.trim()).toBe("Searching");
     await expectNoViolations(document.body);
     b.unmount();
     const c = await render(ECombobox, {
@@ -614,5 +616,28 @@ describe("ECombobox", () => {
     document.body.append(form);
     expect(new FormData(form).getAll("m")).toEqual([]);
     form.remove();
+  });
+
+  test("limit shows at most that many matches", async () => {
+    const many = Array.from({ length: 50 }, (_, i) => `City ${i + 1}`);
+    await render(ECombobox, { props: { label: "City", options: many, limit: 5 } });
+    await box("City").fill("city");
+    await expect.poll(() => optionEls().length).toBe(5);
+    await box("City").fill("city 4");
+    await expect.poll(() => optionEls().map((o) => o.textContent?.trim())).toEqual(["City 4", "City 40", "City 41", "City 42", "City 43"]);
+  });
+
+  test("bare joins the EForm around it: an empty required one is listed by its accessible name", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(EForm, { onSubmit: (e: Event) => e.preventDefault() }, () => [
+            h(ECombobox, { bare: true, ariaLabel: "Filter", required: true, options: PEOPLE }),
+            h("button", { type: "submit" }, "Go"),
+          ]),
+      }),
+    );
+    await page.getByRole("button", { name: "Go" }).click();
+    await expect.poll(() => container.querySelector(".e-notice a")?.textContent ?? "").toContain("Filter");
   });
 });

@@ -4,7 +4,7 @@ import EField from "../Field/EField.vue";
 import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 import type { ELabelProps } from "../Field/labelProps.js";
 import ESelectControl from "./ESelectControl.vue";
-import { normalizeOptions } from "./options.js";
+import { isOn, normalizeOptions } from "./options.js";
 import type { ESelectFields } from "./selectProps.js";
 import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import type { FieldSlot } from "../../composables/useFieldControl.js";
@@ -20,6 +20,11 @@ const props = defineProps<
   ELabelProps & Omit<EFieldCommonProps, "hideLabel"> & Pick<EFieldBoxProps, "size"> & ESelectFields<T, M>
 >();
 
+const emit = defineEmits<{
+  /** The person pressed the clear button. The model is already empty. */
+  clear: [];
+}>();
+
 /** The chosen option's `value`, or an empty string for nothing. With `multiple` it is the array of chosen values, in the order chosen, and `[]` for nothing. */
 const model = defineModel<M extends true ? T[] : T | "">();
 
@@ -31,9 +36,10 @@ const t = useMessages();
 const bareId = useUid(() => props.id);
 const control = ref<InstanceType<typeof ESelectControl> | null>(null);
 const options = computed(() => normalizeOptions<T>(props.options));
+const multiple = computed(() => isOn(props.multiple));
 const current = computed<string | string[]>(() => {
   const v = model.value as string | string[] | undefined;
-  return props.multiple ? (Array.isArray(v) ? v : []) : typeof v === "string" ? v : "";
+  return multiple.value ? (Array.isArray(v) ? v : []) : typeof v === "string" ? v : "";
 });
 
 // The value posts through hidden inputs, which the browser never checks, so an empty required Select checks itself.
@@ -61,7 +67,7 @@ const bind = (field?: FieldSlot) => ({
   disabled: props.disabled,
   readonly: props.readonly,
   required: props.required,
-  multiple: props.multiple,
+  multiple: multiple.value,
   clearable: props.clearable,
   loading: props.loading,
   size: props.size,
@@ -84,6 +90,7 @@ defineExpose({
       v-model:open="open"
       :model-value="current"
       @update:model-value="model = $event as never"
+      @clear="emit('clear')"
     />
   </div>
   <EField
@@ -104,6 +111,7 @@ defineExpose({
         v-model:open="open"
         :model-value="current"
         @update:model-value="model = $event as never"
+        @clear="emit('clear')"
       />
     </template>
   </EField>

@@ -132,7 +132,7 @@ describe("ECombobox freeform", () => {
     await box("Street").fill("el");
     expect(heard).toEqual(["el"]);
     await expect
-      .poll(() => document.querySelector(".e-opt-status [role=status]")?.textContent?.trim())
+      .poll(() => document.querySelector(".e-opt-status")?.textContent?.trim())
       .toBe("Searching");
   });
 

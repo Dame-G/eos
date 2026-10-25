@@ -72,15 +72,22 @@ ESelect({
   multiple: true,
   "onUpdate:modelValue": (value) => expectTypeOf(value).toEqualTypeOf<("Visa" | "Bank")[]>(),
 });
-// ECombobox takes any text, so its payload is a string, and with `multiple` a string array.
+// ECombobox is generic in its values as ESelect is; a string model (freeform text) widens them to string.
 ECombobox({
   label: "City",
   options: ["Lyon", "Nice"],
+  "onUpdate:modelValue": (value) => expectTypeOf(value).toEqualTypeOf<"Lyon" | "Nice" | "" | undefined>(),
+});
+ECombobox({
+  label: "Street",
+  freeform: true,
+  modelValue: "" as string,
+  options: ["Rue Neuve"],
   "onUpdate:modelValue": (value) => expectTypeOf(value).toEqualTypeOf<string | undefined>(),
 });
 ECombobox({
   label: "Cities",
   options: ["Lyon", "Nice"],
   multiple: true,
-  "onUpdate:modelValue": (value) => expectTypeOf(value).toEqualTypeOf<string[]>(),
+  "onUpdate:modelValue": (value) => expectTypeOf(value).toEqualTypeOf<("Lyon" | "Nice")[]>(),
 });

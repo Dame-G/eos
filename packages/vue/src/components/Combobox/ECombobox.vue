@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="M extends boolean = false">
+<script setup lang="ts" generic="T extends string = string, M extends boolean = false">
 import { computed, h, nextTick, onMounted, ref, watch, type FunctionalComponent } from "vue";
 import {
   ConfigProvider,
@@ -13,18 +13,20 @@ import {
 import EField from "../Field/EField.vue";
 import EIcon from "../Icon/EIcon.vue";
 import ETag from "../Tag/ETag.vue";
-import ESpinner from "../Spinner/ESpinner.vue";
 import EHiddenInputs from "../Field/EHiddenInputs.vue";
+import EInputClear from "../Field/EInputClear.vue";
+import EInputShell from "../Field/EInputShell.vue";
+import { FIELD_POPPER } from "../Field/popper.js";
 import EComboboxOption from "./EComboboxOption.vue";
-import { normalizeOptions, sectionOptions } from "../Select/options.js";
+import { isOn, normalizeOptions, sectionOptions, type EOption } from "../Select/options.js";
 import { fold } from "./fold.js";
 import type { EComboboxProps } from "./types.js";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
-import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useUid } from "../../composables/useUid.js";
-import type { FieldSlot } from "../../composables/useFieldControl.js";
+import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
+import { useFormField } from "../../composables/useFormContext.js";
 import "../../styles/base.css";
 import "../../styles/controls/input.css";
 import "../../styles/controls/panel.css";
@@ -32,7 +34,7 @@ import "../../styles/controls/combo.css";
 
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<EComboboxProps<M>>();
+const props = defineProps<EComboboxProps<T, M>>();
 
 const emit = defineEmits<{
   /** The text in the input changed, by typing or by choosing. Use it to fetch options from a server. */
@@ -42,7 +44,7 @@ const emit = defineEmits<{
 }>();
 
 /** The `value` of the chosen option, empty for nothing. With `multiple` it holds the chosen values in the order chosen (replaced, not mutated). With `freeform` it is the typed text, updated on every key. @default "" or [] */
-const model = defineModel<M extends true ? string[] : string>();
+const model = defineModel<M extends true ? T[] : T | "">();
 
 /** Whether the list is open. Setting it moves no focus, and a disabled or readonly field never opens. */
 const wantOpen = defineModel<boolean>("open", { default: false });
@@ -51,7 +53,8 @@ const t = useMessages();
 const { announce: say } = useAnnouncer();
 
 const portal = usePortalTarget();
-const attrs = useFieldAttrs();
+const control = useFieldControl(props);
+const attrs = control.attrs;
 const dir = useDir();
 const groupId = useUid();
 const bareId = useUid(() => props.id);
@@ -67,6 +70,13 @@ const Bare: FunctionalComponent = (_, { slots }) =>
       required: !!props.required,
     }),
   );
+
+// A bare field has no EField to register it, so it joins the EForm around it itself, named by its accessible name.
+useFormField({
+  id: () => (props.bare ? bareId.value : ""),
+  label: () => props.ariaLabel ?? props.label ?? "",
+  error: () => undefined,
+});
 
 /** A run of options: under its heading in a group when it has one, else as they are. One path for both. */
 const Section: FunctionalComponent<{ group?: string | undefined; id: string }> = (p, { slots }) =>
@@ -92,11 +102,14 @@ const frame = computed(() =>
 );
 const listName = computed(() => (props.bare ? (props.ariaLabel ?? props.label) : props.label));
 
-// `multiple` is typed `M`, so Vue cannot cast the bare attribute (`<ECombobox multiple>`, which arrives as "") to a boolean.
-const multiple = computed(() => (props.multiple as unknown) === "" || !!props.multiple);
+const multiple = computed(() => isOn(props.multiple));
 // Free text is for one value, so `multiple` ignores it.
 const free = computed(() => props.freeform && !multiple.value);
-const all = computed(() => normalizeOptions(props.options));
+const all = computed(() => normalizeOptions<T>(props.options));
+/** Each option with its label and description folded once, not on every key. */
+const folded = computed(() =>
+  all.value.map((option) => ({ option, label: fold(option.label), description: fold(option.description ?? "") })),
+);
 const values = computed<string[]>(() =>
   multiple.value && Array.isArray(model.value) ? (model.value as string[]) : [],
 );
@@ -113,11 +126,13 @@ const typing = ref(false);
 const anchor = ref<{ $el: HTMLElement } | null>(null);
 const query = computed(() => (typing.value ? fold(text.value.trim()) : ""));
 
-const shown = computed(() => {
+const matches = computed<EOption<T>[]>(() => {
   const q = query.value;
   if (props.filter) return all.value.filter((o) => props.filter!(o, q));
-  return all.value.filter((o) => !q || fold(o.label).includes(q) || fold(o.description ?? "").includes(q));
+  if (!q) return all.value;
+  return folded.value.filter((f) => f.label.includes(q) || f.description.includes(q)).map((f) => f.option);
 });
+const shown = computed(() => (props.limit != null ? matches.value.slice(0, Math.max(0, props.limit)) : matches.value));
 const sections = computed(() => sectionOptions(shown.value));
 const hasList = computed(() => shown.value.length > 0 || !!props.loading || !free.value);
 const open = computed(() => wantOpen.value && hasList.value && !props.disabled && !props.readonly);
@@ -150,7 +165,7 @@ onMounted(() => {
   void nextTick(read);
 });
 
-const inputEl = () => anchor.value?.$el?.querySelector("input") ?? null;
+const inputEl = () => anchor.value?.$el?.querySelector<HTMLInputElement>("input:not([type=hidden])") ?? null;
 const focusInput = () => inputEl()?.focus();
 
 function isSelected(value: string): boolean {
@@ -236,18 +251,19 @@ function onWrapDown(e: MouseEvent) {
 }
 
 function inputBind(field: FieldSlot) {
+  const { required, readonly, ...bound } = control.bind(field);
   return {
-    id: field.id,
-    required: props.required && !(multiple.value && values.value.length) ? true : undefined,
-    readonly: props.readonly || undefined,
     placeholder: multiple.value && values.value.length ? "" : props.placeholder,
-    "aria-invalid": field.ariaInvalid,
     "aria-label": props.bare ? listName.value : undefined,
     autocomplete: "off",
     ...(listId.value ? { "aria-controls": listId.value } : {}),
     // Reka keeps pointing at the last highlighted option after the list empties; drop the stale id.
     ...(shown.value.length ? {} : { "aria-activedescendant": undefined }),
-    ...attrs.input(field.ariaDescribedby),
+    // Chosen tags satisfy `required`, though the input itself is empty.
+    required: required && !(multiple.value && values.value.length) ? true : undefined,
+    readonly: readonly || undefined,
+    // The consumer's own attributes come last, so they win.
+    ...bound,
   };
 }
 
@@ -272,65 +288,51 @@ defineExpose({
           @update:model-value="onPick"
           @update:open="wantOpen = $event"
         >
-          <ComboboxAnchor
-            ref="anchor"
-            class="e-input-wrap e-combo"
-            :class="{ 'e-combo--multi': multiple }"
-            :data-invalid="error && !bare ? '' : undefined"
-            :data-disabled="disabled ? '' : undefined"
-            :data-readonly="readonly ? '' : undefined"
-            :data-size="size && size !== 'md' ? size : undefined"
-            @mousedown="onWrapDown"
-            @focusout="onBlur"
-          >
-            <div class="e-combo-main">
-              <template v-if="multiple">
-                <ETag
-                  v-for="v in values"
-                  :key="v"
-                  :label="labelOf(v)"
-                  :removable="!disabled && !readonly"
-                  @remove="remove(v)"
+          <ComboboxAnchor ref="anchor" as-child>
+            <EInputShell
+              v-bind="control.shell(!bare && error)"
+              class="e-combo"
+              :class="{ 'e-combo--multi': multiple }"
+              @mousedown="onWrapDown"
+              @focusout="onBlur"
+            >
+              <div class="e-combo-main">
+                <template v-if="multiple">
+                  <ETag
+                    v-for="v in values"
+                    :key="v"
+                    :label="labelOf(v)"
+                    :removable="!disabled && !readonly"
+                    @remove="remove(v)"
+                  />
+                </template>
+                <ComboboxInput
+                  class="e-input e-combo-input"
+                  :model-value="text"
+                  :display-value="(v: unknown) => (typeof v === 'string' ? (free ? v : labelOf(v)) : '')"
+                  :disabled="disabled"
+                  v-bind="inputBind(field)"
+                  @input="onInput"
+                  @keydown="onKeydown"
+                  @keydown.capture="keepCaretKeys"
                 />
-              </template>
-              <ComboboxInput
-                class="e-input e-combo-input"
-                :model-value="text"
-                :display-value="(v: unknown) => (typeof v === 'string' ? (free ? v : labelOf(v)) : '')"
+              </div>
+              <EHiddenInputs
+                :name="name"
+                :values="multiple ? values : [single]"
                 :disabled="disabled"
-                v-bind="inputBind(field)"
-                @input="onInput"
-                @keydown="onKeydown"
-                @keydown.capture="keepCaretKeys"
+                :form="attrs.form()"
               />
-            </div>
-            <EHiddenInputs
-              :name="name"
-              :values="multiple ? values : [single]"
-              :disabled="disabled"
-              :form="attrs.form()"
-            />
-            <div class="e-combo-tail">
-              <button
-                v-if="hasValue && clearable && !disabled && !readonly"
-                type="button"
-                class="e-combo-btn"
-                :aria-label="t('clear')"
-                @mousedown.prevent
-                @click="clear"
-              >
-                <EIcon name="x" />
-              </button>
+              <EInputClear v-if="hasValue && clearable && !disabled && !readonly" @click="clear" />
               <ComboboxTrigger
                 v-if="!free && !disabled && !readonly"
-                class="e-combo-btn"
+                class="e-input-btn e-interact e-interact--inset"
                 :aria-label="t('showOptions')"
-                :disabled="disabled"
                 @mousedown.prevent
               >
                 <EIcon name="chevron-down" bold />
               </ComboboxTrigger>
-            </div>
+            </EInputShell>
           </ComboboxAnchor>
           <!-- The one place the empty state is announced; the row in the list is for sighted people. -->
           <span class="e-sr" role="status">{{ announce }}</span>
@@ -339,11 +341,9 @@ defineExpose({
               ref="content"
               position="popper"
               align="start"
-              :side-offset="6"
-              :collision-padding="8"
+              v-bind="FIELD_POPPER"
               class="e-popover e-listpanel e-root"
               :aria-label="listName"
-              :aria-busy="loading ? 'true' : undefined"
             >
               <ComboboxViewport>
                 <template v-if="shown.length">
@@ -359,8 +359,7 @@ defineExpose({
                   </Section>
                 </template>
                 <div v-else class="e-opt-status" aria-hidden="true">
-                  <ESpinner v-if="loading" :label="t('searching')" />
-                  <template v-else>{{ emptyText || t("noMatches") }}</template>
+                  {{ loading ? t("searching") : emptyText || t("noMatches") }}
                 </div>
               </ComboboxViewport>
             </ComboboxContent>
@@ -383,16 +382,9 @@ defineExpose({
     min-width: 0;
   }
 
-  .e-combo-tail {
-    display: flex;
-    flex: none;
-    align-items: center;
-    align-self: center;
-  }
-
   .e-combo--multi {
     padding-block: calc(var(--e-gap-tight) - var(--e-stroke-edge));
-    padding-inline: calc(var(--e-gap-snug) - var(--e-stroke-edge)) calc(var(--e-gap-tight) - var(--e-stroke-edge));
+    padding-inline-start: calc(var(--e-gap-snug) - var(--e-stroke-edge));
     gap: var(--e-gap-tight);
   }
 
@@ -410,7 +402,7 @@ defineExpose({
 
   /* A disabled field's tags are plain, not primary. */
   .e-input-wrap[data-disabled] .e-tag {
-    --_ink: var(--e-muted);
+    --_ink: var(--e-disabled-ink);
   }
 }
 </style>
