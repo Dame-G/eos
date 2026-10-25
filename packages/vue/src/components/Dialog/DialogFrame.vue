@@ -8,13 +8,14 @@ import {
   DialogRoot,
   DialogTitle,
 } from "reka-ui";
-import { computed, useAttrs } from "vue";
-import { ConfigProvider } from "reka-ui";
+import { computed, useAttrs, watch } from "vue";
 import EActions from "../Actions/EActions.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
-import { useScrollBody } from "../../composables/useScrollBody.js";
+import { RekaConfig } from "../../composables/useRekaConfig.js";
+import { measureScrollBody } from "../../composables/useScrollBody.js";
+import type { DialogFrameProps } from "./frame.js";
 import "../../styles/base.css";
 import "../Heading/scale.css";
 import "./dialog.css";
@@ -22,19 +23,14 @@ import "./dialog.css";
 defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
-  defineProps<{
-    title: string;
-    description?: string;
-    role?: "dialog" | "alertdialog";
-    headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
-    inline?: boolean;
-    dismissible?: boolean;
-    contentClass?: unknown;
-    /** A CSS selector for the element that takes focus when it opens. With none, an alert dialog focuses `[data-autofocus]` or else its least destructive action, and any other dialog its first control. */
-    initialFocus?: string;
-    /** Draws only the content, with the title hidden: the caller brings the whole layout, as the command palette does. */
-    bare?: boolean;
-  }>(),
+  defineProps<
+    DialogFrameProps & {
+      /** The panel's classes: its kind and size. */
+      contentClass?: unknown;
+      /** Draws only the content, with the title hidden: the caller brings the whole layout, as the command palette does. */
+      bare?: boolean;
+    }
+  >(),
   { headingLevel: 2, role: "dialog" },
 );
 
@@ -52,7 +48,13 @@ const open = defineModel<boolean>("open");
 const t = useMessages();
 const target = usePortalTarget();
 const dir = useDir();
-const scrollBody = useScrollBody();
+
+// The scroll lock reads the page's scrollbar gutter as a modal opens, in case the page's styles changed since.
+watch(
+  () => !!open.value && !props.inline,
+  (locking) => locking && measureScrollBody(),
+  { flush: "sync", immediate: true },
+);
 
 /** An inline preview is part of the page, so it leaves focus alone: it does not take it when it opens, and does not send it back to wherever it was when it closes. Sending it back could land on a tab or link and activate it. */
 function keepFocus(event: Event) {
@@ -108,7 +110,7 @@ function setOpen(value: boolean) {
 </script>
 
 <template>
-  <ConfigProvider :dir="dir" :scroll-body="scrollBody">
+  <RekaConfig>
     <DialogRoot :open="!!open" :modal="!inline" :dir="dir" @update:open="setOpen">
       <DialogPortal :to="target" :disabled="inline">
         <div class="e-root">
@@ -141,5 +143,5 @@ function setOpen(value: boolean) {
         </div>
       </DialogPortal>
     </DialogRoot>
-  </ConfigProvider>
+  </RekaConfig>
 </template>
