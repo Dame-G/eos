@@ -82,7 +82,9 @@ describe("EField", () => {
   test("an error there on load is not announced; one that appears or changes later is, once", async () => {
     const region = () => document.querySelector('[data-e-announcer="assertive"]')?.textContent ?? "";
     const error = ref<string | undefined>("Already wrong");
-    await render(defineComponent({ render: () => h(EField, { label: "Email", error: error.value }, { default: control }) }));
+    await render(
+      defineComponent({ render: () => h(EField, { label: "Email", error: error.value }, { default: control }) }),
+    );
     await new Promise((r) => setTimeout(r, 120));
     expect(region()).not.toContain("Already wrong");
     error.value = "Enter an email";

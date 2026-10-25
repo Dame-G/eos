@@ -1,5 +1,8 @@
 /** Text with no character outside ASCII has no accents to remove, so lower case is the whole fold. */
-const ascii = (text: string) => /^[\x00-\x7f]*$/.test(text);
+function ascii(text: string): boolean {
+  for (let i = 0; i < text.length; i++) if (text.charCodeAt(i) > 0x7f) return false;
+  return true;
+}
 
 /** Lower case with accents removed, so "cafe" finds "Café" and "ZURICH" finds "Zürich". */
 export function fold(text: string): string {

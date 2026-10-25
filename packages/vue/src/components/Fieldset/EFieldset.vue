@@ -9,27 +9,27 @@ import "../../styles/base.css";
 
 const props = withDefaults(
   defineProps<{
-  /** The question the controls answer. Names the group for screen readers. A group without one needs an `aria-label` or `aria-labelledby`, and warns in development when it has none. */
-  legend?: string;
-  /** How the group is drawn: `box` outlines it with the legend on the line, `plain` shows the legend as a label above the controls (as `ERadioGroup` does), `section` is a titled form section with a rule above and the hint under the title. */
-  variant?: "box" | "plain" | "section";
-  /** Help that is announced with the group. */
-  hint?: string;
-  /** What to fix. Replaces the hint and is announced with the group. */
-  error?: string;
-  /** Shows "Required" at the end of the legend. */
-  required?: boolean;
-  /** Shows "Optional" at the end of the legend. Only the rarer of required and optional needs a flag. */
-  optional?: boolean;
-  /** Disables every control inside. */
-  disabled?: boolean;
-  /** Classes added to the legend. */
-  legendClass?: string;
-  /** Hides the legend from the page and keeps it for screen readers. */
-  hideLegend?: boolean;
-  /** The id of the `fieldset`, which an `EForm` summary links to. The hint and error ids are built from it. @default generated */
-  id?: string;
-}>(),
+    /** The question the controls answer. Names the group for screen readers. A group without one needs an `aria-label` or `aria-labelledby`, and warns in development when it has none. */
+    legend?: string;
+    /** How the group is drawn: `box` outlines it with the legend on the line, `plain` shows the legend as a label above the controls (as `ERadioGroup` does), `section` is a titled form section with a rule above and the hint under the title. */
+    variant?: "box" | "plain" | "section";
+    /** Help that is announced with the group. */
+    hint?: string;
+    /** What to fix. Replaces the hint and is announced with the group. */
+    error?: string;
+    /** Shows "Required" at the end of the legend. */
+    required?: boolean;
+    /** Shows "Optional" at the end of the legend. Only the rarer of required and optional needs a flag. */
+    optional?: boolean;
+    /** Disables every control inside. */
+    disabled?: boolean;
+    /** Classes added to the legend. */
+    legendClass?: string;
+    /** Hides the legend from the page and keeps it for screen readers. */
+    hideLegend?: boolean;
+    /** The id of the `fieldset`, which an `EForm` summary links to. The hint and error ids are built from it. @default generated */
+    id?: string;
+  }>(),
   { variant: "box" },
 );
 

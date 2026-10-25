@@ -169,8 +169,7 @@ function check(): string | undefined {
   const b = endText.value.trim() ? loc.parseDate(endText.value) : null;
   if ((startText.value.trim() && !a) || (endText.value.trim() && !b))
     return t("datesError", { format: loc.dateFormatLabel() });
-  if ([a, b].some((d) => d && outOfBounds(d)))
-    return boundsMessage(t, loc.formatDate, minDate.value, maxDate.value);
+  if ([a, b].some((d) => d && outOfBounds(d))) return boundsMessage(t, loc.formatDate, minDate.value, maxDate.value);
   if ([a, b].some((d) => d && props.disabledDate?.(d))) return t("dateUnavailable");
   if (a && b && compareDays(b, a) < 0) return t("endBeforeStart");
   setRange({ start: a, end: b });

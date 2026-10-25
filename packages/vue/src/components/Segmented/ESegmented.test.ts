@@ -426,7 +426,9 @@ describe("ESegmented", () => {
   });
 
   test("showLabel shows the label above the control and names the group with it, flag included", async () => {
-    const { container } = await render(ESegmented, { props: { label: "View", options, showLabel: true, required: true } });
+    const { container } = await render(ESegmented, {
+      props: { label: "View", options, showLabel: true, required: true },
+    });
     const label = container.querySelector(".e-seg-label")!;
     expect(label.textContent).toContain("View");
     expect(label.textContent).toContain("Required");

@@ -130,7 +130,9 @@ describe("ECheckbox", () => {
   });
 
   test("hideLabel hides the label visually and keeps it for screen readers; an error still shows", async () => {
-    const { container } = await render(ECheckbox, { props: { label: "Select row 1", hideLabel: true, error: "Pick one" } });
+    const { container } = await render(ECheckbox, {
+      props: { label: "Select row 1", hideLabel: true, error: "Pick one" },
+    });
     expect(container.querySelector("label")!.className).toBe("e-choice e-choice--label-hidden");
     expect(container.querySelector(".e-sr")!.textContent).toContain("Select row 1");
     await expect.element(page.getByRole("checkbox", { name: "Select row 1" })).toBeVisible();

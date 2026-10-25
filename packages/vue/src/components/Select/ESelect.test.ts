@@ -609,7 +609,12 @@ describe("ESelect", () => {
 
   test("a bare `multiple` attribute in a template turns multiple on", async () => {
     // A string slot goes through the template compiler, which passes a bare attribute as "", as an SFC does.
-    const Host = defineComponent({ setup: (_, { slots }) => () => h("div", slots.default?.()) });
+    const Host = defineComponent({
+      setup:
+        (_, { slots }) =>
+        () =>
+          h("div", slots.default?.()),
+    });
     const { container } = await render(Host, {
       slots: {
         default: `<ESelect multiple label="Pay" name="pay" :options="['Visa', 'Bank', 'Cash']" :model-value="['Visa', 'Cash']" />`,

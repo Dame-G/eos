@@ -123,10 +123,10 @@ const groupAttrs = () => ({
   "aria-label": props.showLabel
     ? undefined
     : props.required
-    ? `${props.label}, ${t("required")}`
-    : props.optional
-      ? `${props.label}, ${t("optional")}`
-      : props.label,
+      ? `${props.label}, ${t("required")}`
+      : props.optional
+        ? `${props.label}, ${t("optional")}`
+        : props.label,
   "aria-required": props.required ? ("true" as const) : undefined,
   "aria-readonly": props.readonly ? ("true" as const) : undefined,
   "aria-invalid": props.error ? ("true" as const) : undefined,

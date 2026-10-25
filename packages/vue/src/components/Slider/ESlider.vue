@@ -107,7 +107,6 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
 <template>
   <EField
     v-bind="control.attrs.wrapper()"
-    @click="onFieldClick"
     :id="id"
     :label="label"
     :hide-label="hideLabel"
@@ -115,6 +114,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     :error="error"
     :required="required"
     :optional="optional"
+    @click="onFieldClick"
   >
     <template #default="field">
       <ConfigProvider :dir="dir">

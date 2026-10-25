@@ -255,9 +255,7 @@ describe("ECombobox", () => {
       },
     });
     await box("Practitioner").fill("pr");
-    await expect
-      .poll(() => document.querySelector(".e-opt-status")?.textContent?.trim())
-      .toBe("Searching");
+    await expect.poll(() => document.querySelector(".e-opt-status")?.textContent?.trim()).toBe("Searching");
     expect(heard).toEqual(["pr"]);
     expect(inputOf(container).getAttribute("aria-busy")).toBe("true");
     expect(container.querySelector(".e-input-wrap .e-input-spin")).not.toBeNull();
@@ -624,7 +622,9 @@ describe("ECombobox", () => {
     await box("City").fill("city");
     await expect.poll(() => optionEls().length).toBe(5);
     await box("City").fill("city 4");
-    await expect.poll(() => optionEls().map((o) => o.textContent?.trim())).toEqual(["City 4", "City 40", "City 41", "City 42", "City 43"]);
+    await expect
+      .poll(() => optionEls().map((o) => o.textContent?.trim()))
+      .toEqual(["City 4", "City 40", "City 41", "City 42", "City 43"]);
   });
 
   test("bare joins the EForm around it: an empty required one is listed by its accessible name", async () => {

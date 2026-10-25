@@ -63,9 +63,17 @@ describe("EUpload", () => {
 
   test("the hint names MIME types by their kind, keeps a wildcard as written, and shows maxSize and maxFiles", async () => {
     const { container } = await render(EUpload, {
-      props: { label: "Scans", accept: "image/png, image/*,.pdf", multiple: true, maxSize: 5 * 1024 * 1024, maxFiles: 3 },
+      props: {
+        label: "Scans",
+        accept: "image/png, image/*,.pdf",
+        multiple: true,
+        maxSize: 5 * 1024 * 1024,
+        maxFiles: 3,
+      },
     });
-    expect(container.querySelector(".e-drop-hint")!.textContent).toBe("PNG, image/*, PDF · Up to 5 MB · 3 files at most");
+    expect(container.querySelector(".e-drop-hint")!.textContent).toBe(
+      "PNG, image/*, PDF · Up to 5 MB · 3 files at most",
+    );
   });
 
   test("choosing files lists them with their size and updates v-model", async () => {

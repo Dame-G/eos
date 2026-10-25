@@ -1,2 +1,2 @@
 /* Moved to styles/controls/input.css. Kept so an import of the old path still resolves; import the new path. */
-@import "../../styles/controls/input.css";
+@import url("../../styles/controls/input.css");

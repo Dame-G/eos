@@ -131,9 +131,7 @@ describe("ECombobox freeform", () => {
     });
     await box("Street").fill("el");
     expect(heard).toEqual(["el"]);
-    await expect
-      .poll(() => document.querySelector(".e-opt-status")?.textContent?.trim())
-      .toBe("Searching");
+    await expect.poll(() => document.querySelector(".e-opt-status")?.textContent?.trim()).toBe("Searching");
   });
 
   test("name submits the text in one hidden input", async () => {

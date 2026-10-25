@@ -112,9 +112,9 @@ describe("EPasswordField", () => {
     const ids = input.getAttribute("aria-describedby")!.split(" ");
     expect(ids).toContain(container.querySelector(".e-field-hint")!.id);
     expect(ids).not.toContain(container.querySelector(".e-rules")!.id);
-    await expect.element(page.getByLabelText("Password")).toHaveAccessibleDescription(
-      `0 of ${rules.length} password rules met Use a passphrase`,
-    );
+    await expect
+      .element(page.getByLabelText("Password"))
+      .toHaveAccessibleDescription(`0 of ${rules.length} password rules met Use a passphrase`);
   });
 
   test("rules make the mode new unless it is given", async () => {
