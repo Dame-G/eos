@@ -138,8 +138,11 @@ describe("forced colors", () => {
     /** Turns forced colours on and waits for the colour transitions it starts to end. */
     const forced = async () => {
       await commands.forcedColors(true);
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-      await Promise.all(document.getAnimations().map((a) => a.finished));
+      await expect.poll(() => matchMedia("(forced-colors: active)").matches).toBe(true);
+      // A style and layout pass starts the colour transitions the change sets off, so getAnimations sees them all.
+      document.documentElement.getBoundingClientRect();
+      const transitions = document.getAnimations().filter((a) => a instanceof CSSTransition);
+      await Promise.all(transitions.map((a) => a.finished.catch(() => {})));
     };
 
     test("controls keep a system-colour edge; invalid is heavier, disabled is GrayText", async () => {
