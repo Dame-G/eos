@@ -7,7 +7,7 @@ import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
-import "../Select/panel.css";
+import "../../styles/controls/panel.css";
 import "../../styles/popover.css";
 
 defineOptions({ inheritAttrs: false });

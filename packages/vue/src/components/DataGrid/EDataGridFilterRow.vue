@@ -6,7 +6,7 @@ import { normalizeOptions, type EOption } from "../Select/options.js";
 import { useMessages } from "../../config.js";
 import type { DataGridColumn, DataGridFilterValue, DataGridRow } from "./types.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
+import "../../styles/controls/input.css";
 
 /** The row of filters under the headings, one per column that defines a `filter`. `stacked`, for cards, lists them above the rows with their labels shown. */
 const props = defineProps<{

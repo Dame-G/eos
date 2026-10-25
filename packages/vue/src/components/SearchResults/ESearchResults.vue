@@ -3,7 +3,7 @@ import { computed, ref, watch, type Component } from "vue";
 import EMatchHighlight from "../Combobox/matchHighlight.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import "../../styles/base.css";
-import "../Select/panel.css";
+import "../../styles/controls/panel.css";
 
 export interface SearchResultItem {
   /** The title of the result. */

@@ -6,7 +6,7 @@ import ECheckbox from "../Checkbox/ECheckbox.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages, usePortalTarget } from "../../config.js";
 import "../../styles/base.css";
-import "../Select/panel.css";
+import "../../styles/controls/panel.css";
 import "../../styles/popover.css";
 
 /** The Columns menu: a popover with a checkbox per column. */

@@ -10,7 +10,7 @@ import { EDGE_PADDING, FLOAT_OFFSET, useDir, useLogicalSide } from "../../compos
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import { RekaConfig } from "../../composables/useRekaConfig.js";
 import "../../styles/base.css";
-import "../Select/panel.css";
+import "../../styles/controls/panel.css";
 
 /** An action in the menu. */
 export interface EMenuAction {

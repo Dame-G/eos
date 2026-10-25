@@ -1,4 +1,4 @@
-/* The inside of a small floating panel (`.e-popover` from Select/panel.css): a title row with a Close button, then the body. EToggletip and EDataGrid's Columns menu use it. */
+/* The inside of a small floating panel (`.e-popover` from controls/panel.css): a title row with a Close button, then the body. EToggletip and EDataGrid's Columns menu use it. */
 @layer e.containers {
   .e-pop-head {
     display: flex;

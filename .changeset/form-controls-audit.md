@@ -13,7 +13,7 @@ Breaking renames (update your templates):
 - `ECheckbox`: `bare` is now `hideLabel`, which keeps the hint or error visible.
 - `ETextField`: the internal `submitValue` prop is gone.
 - Types: `RadioOption` and `CheckboxOption` are now one `ChoiceOption`. `ECombobox` is generic in its option values, as `ESelect` is, so a `v-model` typed `string` still works and literal options narrow it.
-- CSS: `.e-combo-btn` is gone; every button inside a field box is `.e-input-btn`. The shared stylesheets moved to `styles/controls/` (the old `TextField/input.css` and `Select/panel.css` paths still resolve). `.e-choice--bare` is now `.e-choice--label-hidden`.
+- CSS: `.e-combo-btn` is gone; every button inside a field box is `.e-input-btn`. The shared stylesheets moved to `styles/controls/`; the source files `TextField/input.css` and `Select/panel.css` are gone (the built `style.css` is unchanged). `.e-choice--bare` is now `.e-choice--label-hidden`.
 
 Behaviour:
 

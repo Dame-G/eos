@@ -12,7 +12,7 @@ import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { formatShortcut, useShortcuts } from "../../composables/useShortcuts.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
-import "../Select/panel.css";
+import "../../styles/controls/panel.css";
 import "../Dialog/dialog.css";
 
 export interface CommandItem {
