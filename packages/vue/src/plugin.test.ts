@@ -192,6 +192,27 @@ describe("createEos", () => {
     expect(document.documentElement.hasAttribute("dir")).toBe(false);
   });
 
+  test("themeTarget: null touches no element: no theme, lang or dir, while the config keeps them", () => {
+    const eos = createEos({ themeTarget: null, theme: { name: "nowhere" }, locale: "he-IL", dir: "rtl" });
+    mountApp(defineComponent({ render: () => h("div") }), eos);
+    const root = document.documentElement;
+    expect(root.hasAttribute("dir")).toBe(false);
+    expect(root.hasAttribute("data-e-theme")).toBe(false);
+    expect(root.getAttribute("lang")).not.toBe("he-IL");
+    expect(eos.config.dir).toBe("rtl");
+  });
+
+  test("unmounting puts back the lang and dir the target had", () => {
+    const root = document.documentElement;
+    root.setAttribute("lang", "en");
+    const { app } = mountApp(defineComponent({ render: () => h("div") }), createEos({ locale: "ar" }));
+    expect(root.getAttribute("dir")).toBe("rtl");
+    app.unmount();
+    apps.splice(apps.indexOf(app), 1);
+    expect(root.getAttribute("lang")).toBe("en");
+    expect(root.hasAttribute("dir")).toBe(false);
+  });
+
   test("portalTarget defaults to body and can point at a themed container", () => {
     expect(createEos().config.portalTarget).toBe("body");
     expect(createEos({ portalTarget: "#themed" }).config.portalTarget).toBe("#themed");

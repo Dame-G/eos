@@ -24,7 +24,11 @@ import { isProduction } from "./env.js";
 export interface EosOptions extends Partial<EosConfig> {
   /** A theme from `defineTheme()`, or the same options. Applied to `<html>` unless `themeTarget` says otherwise. Left out, nothing is applied: `style.css` already carries the default theme. */
   theme?: Theme | ThemeInput;
-  /** Element the theme (and `lang` and `dir`) is applied to. Default `document.documentElement`. Pair it with `portalTarget`: see "scoped theme" above. */
+  /**
+   * Element the theme (and `lang` and `dir`) is applied to. Default `document.documentElement`. Pair it with
+   * `portalTarget`: see "scoped theme" above. `null` applies nothing to the document: no theme stylesheet, `lang` or
+   * `dir` (the components still read `dir` and `locale` from the config).
+   */
   themeTarget?: HTMLElement | null;
   /** Warn in the console when the theme fails a contrast pair. Default true unless `NODE_ENV` is `production`. */
   warnOnContrast?: boolean;
@@ -115,7 +119,7 @@ export function themeCss(theme?: Theme | ThemeInput, selector?: string): string 
 
 /**
  * Installs the library: provides the config (language, currency, direction, words, icons) and applies the theme, if one is
- * given. Unmounting the app removes the theme again.
+ * given. Unmounting the app removes the theme again, and puts back the `lang` and `dir` the target had before.
  * In a browser it also sets `lang` on the theme target when you pass a `locale`, and `dir` from `dir` or from that locale
  * (`ar` gives `rtl`), so teleported menus and dialogs inherit the direction. On the server set both on `<html>` yourself.
  *
@@ -150,16 +154,29 @@ export function createEos(options: EosOptions = {}): Eos {
             theme.issues.map((i) => `  ${i.role}: ${i.pair.join(" on ")} is ${i.ratio}:1, needs ${i.min}:1`).join("\n"),
         );
       }
-      const target = options.themeTarget ?? document.documentElement;
+      // `null` is no target; only a left-out option means the page root.
+      const target = options.themeTarget === undefined ? document.documentElement : options.themeTarget;
+      if (!target) return;
       const unmountTheme = options.theme && options.applyTheme !== false ? mountTheme(theme, target) : undefined;
+      const before = { lang: target.getAttribute("lang"), dir: target.getAttribute("dir") };
+      const written = new Set<"lang" | "dir">();
+      const write = (name: "lang" | "dir", value: string) => {
+        target.setAttribute(name, value);
+        written.add(name);
+      };
       const stop = watchEffect(() => {
-        if (explicitLocale) target.setAttribute("lang", config.locale);
+        if (explicitLocale) write("lang", config.locale);
         const dir = config.dir ?? (explicitLocale ? localeDirection(config.locale) : null);
-        if (dir) target.setAttribute("dir", dir);
+        if (dir) write("dir", dir);
       });
       app.onUnmount(() => {
         stop();
         unmountTheme?.();
+        for (const name of written) {
+          const value = before[name];
+          if (value == null) target.removeAttribute(name);
+          else target.setAttribute(name, value);
+        }
       });
     },
   } as Eos;
