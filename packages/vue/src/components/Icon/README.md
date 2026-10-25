@@ -24,7 +24,7 @@ One icon, 20px by default, in the colour of the surrounding text, for putting a 
 
 <!-- props:end -->
 
-`class` and attributes land on the icon element. A name resolves through `createEos({ icons })`, then the set's resolver and aliases, then the built-in set. An unknown name draws nothing and logs once in development. Names with a `left` or `right` part (`chevron-left`, `arrow-right`) mirror in right-to-left text; a physical alignment such as `text-align-left` does not. `flip` turns a component icon around in right-to-left text too, and `:flip="false"` stops a named one. `size` is `sm` (14px, drawn in the bold weight), `md` (20px, the default), `lg` (28px) or `xl` (40px). See [Bring your own icons](../../icons/README.md).
+`class` and attributes land on the icon element. A name resolves through `createEos({ icons })`, then the set's resolver and aliases, then the built-in set. An unknown name draws nothing and logs once in development. A physical alignment such as `text-align-left` does not mirror in right-to-left text. See [Bring your own icons](../../icons/README.md) and the [icons guide](https://eos.dame.gg/guide/icons).
 
 ## Accessibility
 

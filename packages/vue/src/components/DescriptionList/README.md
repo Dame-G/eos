@@ -15,15 +15,14 @@ Label and text rows, ruled apart, for facts such as what a statement covers or w
 
 <!-- props:start -->
 
-| Prop    | Type                                       | Default      | Notes                                                                                                            |
-| ------- | ------------------------------------------ | ------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `items` | `(DescriptionItem \| null \| undefined)[]` | **Required** | The rows, as `{ label?, text, icon?, stamp?, stampTone?, editable? }`. `null` and `undefined` items are skipped. |
+| Prop    | Type                                       | Default                                    | Notes                                                                                                            |
+| ------- | ------------------------------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `items` | `(DescriptionItem \| null \| undefined)[]` | **Required**                               | The rows, as `{ label?, text, icon?, stamp?, stampTone?, editable? }`. `null` and `undefined` items are skipped. |
+| `as`    | `"dl" \| "ul"`                             | `"ul" when no item has a label, else "dl"` | `dl` for label and text pairs, `ul` for a plain list of facts with no labels (and no Edit buttons).              |
 
 <!-- props:end -->
 
 `class`, `style` and attributes land on the `dl` element, or on the `ul` element in a plain list.
-
-A list where no item has a `label` renders as a plain list of facts. It has no Edit button, so `editable` has no effect there.
 
 ## Slots
 

@@ -21,6 +21,16 @@ A short run of text set off by the accent colour: a name, a value or a word wort
 
 `class`, `style` and attributes land on the `code` or `mark` element. The text is the `secondary` colour on a faint tint of the same colour, so the theme's `accent` input sets both. The tint adds no padding, border or margin, so the text takes the room plain text would.
 
+## Static markup
+
+The rendered markup is public and stable, so text that needs no swatch can be written as plain HTML (in markdown, or a page that renders many inline code spans) and looks the same: the styles read only these classes.
+
+```html
+<code class="e-highlight e-highlight--code">brand</code> <mark class="e-highlight">due Oct 22</mark>
+```
+
+The stylesheet must be loaded, as for the component. The swatch needs the component.
+
 ## Slots
 
 | Slot      | Use               |

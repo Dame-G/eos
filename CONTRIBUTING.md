@@ -92,7 +92,7 @@ One name means one thing across the library. A component may have props of its o
 | `tone`                                              | Meaning in a colour: `success`, `info`, `warning`, `danger`. Never a look. `neutral` is no tone, the default; quieter text is `muted`.             | `EStamp`, `ENotice`, `EToast`                                |
 | `status`                                            | A `StampStatus` preset (`paid`, `due`, `overdue`...). It sets the tone and the word.                                                               | `EStamp`                                                     |
 | `stamp*`                                            | On a composite, the props that feed its inner stamp get the prefix: `stamp` and `stampTone`. A bare `tone` or `label` on a composite is ambiguous. | `EDescriptionList`                                           |
-| `size`                                              | Size: `sm`, `md` (the default) or `lg`, narrowed per component.                                                                                    | `EButton`, `EIcon`, `EAvatar`, `ETable`                      |
+| `size`                                              | How big the thing is drawn: `sm`, `md` (the default) or `lg`, narrowed per component. Never density (`dense`) or a maximum width (`width`).        | `EButton`, `EIcon`, `EAvatar`, `EStamp`                      |
 | `bare`                                              | Drops the component's own chrome (box, label, toolbar) so the parent supplies it.                                                                  | fields, `EFieldset`, `EEmptyState`, `EDataGrid`, `ECheckbox` |
 | `variant` on a surface                              | `paper`, `raised`, `outline` or `tinted`: the face of a surface.                                                                                   | `ESurface`                                                   |
 | `label`                                             | The name of the thing itself: the visible label of a field, or the accessible name of a control with no visible text.                              | fields, `EProgress`, `ESpinner`, `ETooltip`...               |
@@ -102,7 +102,7 @@ One name means one thing across the library. A component may have props of its o
 | `required`, `optional`, `disabled`, `error`, `hint` | Field state and help. `error` is one message.                                                                                                      | every field                                                  |
 | `as`, `gap`, `align`, `justify`, `side`             | The element, spacing from the space scale, cross-axis and main-axis alignment, and which edge.                                                     | layout components                                            |
 
-There are no look variants. A component has one good default. If two looks are both needed they are two components. Do not add `compact`, `plain`, `card`, `outlined` or similar switches. `ETable` has `dense` for row height and is the only one.
+There are no look variants. A component has one good default. If two looks are both needed they are two components. Do not add `compact`, `plain`, `card`, `outlined` or similar switches. `ETable` and `EDataGrid` have `dense` for row height and are the only ones.
 
 ### Accessibility
 

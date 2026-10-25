@@ -120,7 +120,7 @@ import { CreditCard } from "lucide-vue-next";
 
 ## Semantic names
 
-These are the 42 names the components ask for. `iconNames` exports the list.
+These are the 42 names the components ask for. `iconNames`, exported from `@eos-ui/vue` and from `@eos-ui/vue/icons`, is the same list in code, for checking a set or drawing a gallery.
 
 `eye`, `eye-slash`, `arrow-left`, `arrow-up`, `arrow-down`, `chevron-left`, `chevron-right`, `chevron-down`, `menu`, `sign-out`, `eraser`, `card`, `receipt`, `signature`, `form`, `download`, `upload`, `print`, `lock`, `pin`, `edit`, `mail`, `phone`, `wallet`, `bell`, `shield`, `trash`, `sort`, `minus`, `plus`, `filter`, `search`, `check`, `x`, `alert`, `info`, `user`, `file`, `clock`, `calendar`, `home`, `copy`.
 
