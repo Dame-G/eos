@@ -30,7 +30,6 @@
     background-clip: border-box;
     color: var(--_on);
     font: var(--e-type-button);
-    letter-spacing: var(--e-tracking-snug);
     white-space: nowrap;
     text-decoration: none;
     cursor: pointer;

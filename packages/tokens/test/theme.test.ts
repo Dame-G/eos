@@ -385,24 +385,43 @@ describe("derived inputs", () => {
     expect(defineTheme({ elevation: "lifted", background: "#f6efe0" }).tokens["float"]).not.toBe(plain);
   });
 
-  test("elevation presets set the shadows from the border and ink", () => {
+  test("elevation presets keep the material: a flush frame or a card slab, and a floating slab with one drop", () => {
+    const ring = "0 0 0 var(--e-stroke-card) var(--e-border)";
+    const floatSlab = "0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-slab-ink)";
+    // The default theme is the outline elevation, written out in tokens.json.
+    expect(changed({ elevation: "outline" })).toEqual([]);
+    expect(base["float"]).toBe(`${ring}, ${floatSlab}, 0 12px 32px -8px rgba(36, 36, 36, 0.18)`);
     const lifted = defineTheme({ elevation: "lifted" }).tokens;
-    expect(lifted["frame"]).toBe(
-      "0 0 0 var(--e-stroke-card) var(--e-border), 0 1px 2px 0px rgba(36, 36, 36, 0.1), 0 4px 10px -2px rgba(36, 36, 36, 0.12), 0 14px 28px -10px rgba(36, 36, 36, 0.16)",
-    );
-    expect(lifted["float"]!.split("rgba(").length - 1).toBe(4);
+    expect(lifted["frame"]).toBe(`${ring}, 0 var(--e-depth) 0 var(--e-stroke-card) var(--e-slab-ink)`);
+    expect(lifted["float"]).toBe(`${ring}, ${floatSlab}, 0 20px 48px -12px rgba(36, 36, 36, 0.24)`);
     expect(lifted["well"]).toBe(base["well"]);
     expect(changed({ elevation: "lifted" }).sort()).toEqual(["float", "frame"]);
     const bold = defineTheme({ elevation: "bold" }).tokens;
-    expect(bold["float"]).toBe(
-      "0 0 0 var(--e-stroke-card) var(--e-border), 4px 4px 0 0 rgba(36, 36, 36, 0.32), 0 14px 28px -10px rgba(36, 36, 36, 0.22)",
-    );
+    expect(bold["float"]).toBe(`${ring}, ${floatSlab}, 0 14px 28px -10px rgba(36, 36, 36, 0.22)`);
+    expect(bold["well"]).toBe("inset 0 3px 0 0 rgba(36, 36, 36, 0.09)");
     expect(changed({ elevation: "bold" }).sort()).toEqual(["float", "stroke-card", "well"]);
     expect(bold["stroke-card"]).toBe("2px");
     const darkOutline = defineTheme({ ...dark, elevation: "outline" }).tokens;
-    expect(darkOutline["frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
-    expect(darkOutline["float"]).toContain("0.43)");
+    expect(darkOutline["frame"]).toBe(ring);
+    expect(darkOutline["float"]).toContain("0.45)");
     expect(darkOutline["well"]).toBe(defineTheme(dark).tokens["well"]);
+  });
+
+  test("every shadow of a theme is drawn in one shade, the well too", () => {
+    for (const input of [{}, { background: "#f6efe0" }, dark, { elevation: "bold" as const }]) {
+      const t = defineTheme({ elevation: "outline", ...input }).tokens;
+      const shades = new Set(
+        [...(t["well"]! + " " + t["float"]!).matchAll(/rgba\((\d+, \d+, \d+),/g)].map((m) => m[1]),
+      );
+      expect(shades.size, JSON.stringify(input)).toBe(1);
+    }
+  });
+
+  test("depth sets the slab and derives the thin and bold slabs in whole pixels", () => {
+    expect(changed({ depth: 3 }).sort()).toEqual(["depth", "slab-bold", "slab-thin"]);
+    expect(defineTheme({ depth: 3 }).tokens["slab-thin"]).toBe("1px");
+    expect(defineTheme({ depth: 4 }).tokens["slab-thin"]).toBe("2px");
+    expect(defineTheme({ depth: 1 }).tokens["slab-bold"]).toBe("2px");
   });
 
   test("controlHeight sets the control and an even chip height", () => {
@@ -668,7 +687,7 @@ describe("brand, wash and tone tokens", () => {
     expect(t["shell-width"]).toBe("72rem");
     expect(t["shell-rail"]).toBe("var(--e-border)");
     expect(t["underline-offset"]).toBe("0.25em");
-    expect(t["radius-row"]).toBe("max(0px, calc(var(--e-radius-md) - var(--e-gap-tight)))");
+    expect(t["radius-row"]).toBe("max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))");
   });
 });
 

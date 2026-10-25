@@ -341,7 +341,6 @@ defineExpose({
 
   .e-drop-hint {
     font: var(--e-type-meta);
-    letter-spacing: var(--e-tracking-wide);
     color: var(--e-muted);
   }
 

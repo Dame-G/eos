@@ -139,7 +139,6 @@ const text = computed(() => props.label || (preset.value ? t(`status.${props.sta
   .e-stamp-detail {
     padding-block-start: 0.15em;
     font: var(--e-weight-medium) var(--e-text-xs) / var(--e-leading-tight) var(--e-font-mono);
-    letter-spacing: var(--e-tracking-wide);
     padding-inline-start: var(--e-gap-snug);
     border-inline-start: var(--e-stroke-hair) solid color-mix(in srgb, currentcolor 55%, transparent);
   }

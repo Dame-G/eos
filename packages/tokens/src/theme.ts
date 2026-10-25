@@ -21,7 +21,7 @@ export type TokenValues = Partial<Record<TokenName, string>>;
 
 export type MotionPreset = "default" | "snappy" | "gentle";
 export type ElevationPreset = "outline" | "lifted" | "bold";
-/** A named bundle of `elevation`, `strokes`, `radius` and `motion`. Anything you set yourself wins over the preset. `"paper"` is the default look, `"ink"` is heavy and sharp, `"quiet"` is soft and round. Fonts are never part of a preset. */
+/** A named bundle of `elevation`, `strokes`, `radius`, `depth` and `motion`. Anything you set yourself wins over the preset. `"paper"` is the default look, `"ink"` is heavy and sharp on a deep slab, `"quiet"` is round and gentle on a 1px slab. Fonts are never part of a preset. */
 export type ThemePreset = "paper" | "ink" | "quiet";
 /** `"auto"` follows the visitor: `standard` normally, `high` under `prefers-contrast: more`. */
 export type ContrastPreset = "standard" | "high" | "auto";
@@ -83,10 +83,12 @@ export interface ThemeInput {
   density?: DensityPreset;
   /** How state changes feel: sets `duration-tap`, `duration-fade`, `duration-move` and `easing-out`. Every theme already stops moving under `prefers-reduced-motion`. */
   motion?: MotionPreset;
-  /** How depth is drawn: sets `frame`, `well`, `float` and `paper` from the border, ink and hairline. `outline` is flat rings, `lifted` adds soft drops, `bold` uses heavy rings and a hard offset shadow. */
+  /** How depth is drawn: sets `frame`, `well`, `float` and `paper` from the border, the slab ink and the hairline. Every one keeps the material: a frame is a flush ring, a floating panel is a slab lifted off the page (a hard edge twice `depth` deep and one faint drop). `outline` is the default; `lifted` stands cards on a slab of `depth` too and gives floating panels a wider drop; `bold` draws the rings at 2px and presses wells deeper. */
   elevation?: ElevationPreset;
-  /** A named look that sets `elevation`, `strokes`, `radius` and `motion` together: `"paper"` (the default), `"ink"` (bold, sharp, snappy) or `"quiet"` (lifted, round, gentle). Your own `elevation`, `radius`, `motion` and `strokes` entries win over it. */
+  /** A named look that sets `elevation`, `strokes`, `radius`, `depth` and `motion` together: `"paper"` (the default), `"ink"` (bold, sharp, snappy, a 3px slab) or `"quiet"` (round, gentle, a 1px slab). Your own `elevation`, `radius`, `depth`, `motion` and `strokes` entries win over it. */
   preset?: ThemePreset;
+  /** How far the slab reaches, in px: sets `depth` (2 by default) and derives `slab-thin` (half, at least 1) and `slab-bold` (double). Every raised face, every tone edge and every floating panel follows it. */
+  depth?: number;
   /** Height in px of every tappable control, emitted in rem. Sets `control-height` and derives `chip-height` at half of it, rounded to an even number. */
   controlHeight?: number;
   /** Anything else, by token name. Wins over everything derived. */
@@ -140,9 +142,9 @@ export interface Theme {
   apply(el?: HTMLElement): () => void;
 }
 
-/** Cascade order of the library. Later layers win, and each layer only builds on the ones before it. `e.reset` has no rules in the packages and is public: a site puts its own resets there (a documentation theme's defaults, for one) so every library layer overrides them. */
+/** Cascade order of the library. Later layers win, and each layer only builds on the ones before it. `e.reset` has no rules in the packages and is public: a site puts its own resets there (a documentation theme's defaults, for one) so every library layer overrides them. `e.state` comes last: the shared hover, press and disabled recipes of `base.css`, which no component's resting face may hide. */
 export const LAYER_ORDER =
-  "e.reset, e.tokens, e.base, e.primitives, e.blocks, e.controls, e.composites, e.containers, e.page";
+  "e.reset, e.tokens, e.base, e.primitives, e.blocks, e.controls, e.composites, e.containers, e.page, e.state";
 
 const RADII = {
   sharp: { sm: "0px", md: "2px", lg: "4px" },
@@ -196,6 +198,9 @@ const PAIRS: { fg: TokenName; bg: TokenName; min: number; role: string }[] = [
   { fg: "ink", bg: "primary-soft", min: 7, role: "Text on a selected row" },
   { fg: "muted", bg: "primary-soft", min: 4.5, role: "Secondary text on a selected row" },
   { fg: "primary", bg: "primary-soft", min: 4.5, role: "Primary text on a selected row" },
+  { fg: "info", bg: "info-soft", min: 4.5, role: "Information notice text" },
+  { fg: "ink", bg: "info-soft", min: 7, role: "Text on an information notice" },
+  { fg: "slab-ink", bg: "surface", min: 3, role: "Neutral slab and sunk edge (non-text)" },
   { fg: "muted", bg: "selection", min: 4.5, role: "Selected secondary text" },
   { fg: "wash-ring", bg: "surface", min: 3, role: "Hover ring (non-text)" },
   { fg: "on-primary", bg: "primary-hover", min: 4.5, role: "Hovered primary button label" },
@@ -215,9 +220,6 @@ const DARK_WARNING = "#ffc857";
 const DARK_SUCCESS = "#9ad9b4";
 const COMPACT_SPACE = 0.75;
 const STAMP_INK = "#b23a14";
-/** The shade of the inset well on a dark surface, where a light one would not show. */
-const DARK_WELL_SHADE = "rgba(0, 0, 0, 0.35)";
-const DARK_WELL = `inset 0 2px 0 0 ${DARK_WELL_SHADE}`;
 /** The OKLCH lightness and the most chroma of the deep shade a light theme draws its shadows and scrim in: the default lavender's, so a brand or ground tints them no more than the default does. */
 const SHADE_L = 0.2613;
 const SHADE_MAX_C = 0.0408;
@@ -244,10 +246,11 @@ const MOTION: Record<MotionPreset, Record<string, string>> = {
   },
 };
 
-const PRESETS: Record<ThemePreset, Pick<ThemeInput, "elevation" | "strokes" | "radius" | "motion">> = {
+const PRESETS: Record<ThemePreset, Pick<ThemeInput, "elevation" | "strokes" | "radius" | "motion" | "depth">> = {
   paper: {},
-  ink: { elevation: "bold", strokes: { hair: 2, focus: 3 }, radius: "sharp", motion: "snappy" },
-  quiet: { elevation: "lifted", radius: "round", motion: "gentle" },
+  ink: { elevation: "bold", strokes: { hair: 2, focus: 3 }, radius: "sharp", motion: "snappy", depth: 3 },
+  /** A quiet slab, not a soft shadow: the same material at 1px. */
+  quiet: { radius: "round", motion: "gentle", depth: 1 },
 };
 
 /** Fills what the input leaves out from its preset. `strokes` merges entry by entry. */
@@ -300,26 +303,15 @@ function deriveStrokes(input: ThemeInput, out: Record<string, string>) {
   }
 }
 
-type ShadowLayer = [y: number, blur: number, spread: number, alpha: number];
-
-const SOFT: ShadowLayer[] = [
-  [1, 2, 0, 0.08],
-  [4, 8, -2, 0.1],
-  [12, 24, -6, 0.14],
-  [24, 48, -12, 0.18],
-];
-const LIFTED: ShadowLayer[] = [
-  [1, 2, 0, 0.1],
-  [6, 12, -3, 0.12],
-  [18, 36, -8, 0.18],
-  [32, 64, -16, 0.2],
-];
-/** Cards under `lifted`: a contact shadow, a near drop and a wide soft one, so a card visibly sits above the page. */
-const CARD: ShadowLayer[] = [
-  [1, 2, 0, 0.1],
-  [4, 10, -2, 0.12],
-  [14, 28, -10, 0.16],
-];
+/** The slab dimension: `depth` in whole pixels, `slab-thin` half of it (never under 1px, so a 1px slab keeps a thin one) and `slab-bold` double. */
+function deriveDepth(input: ThemeInput, out: Record<string, string>) {
+  const depth = positive(input.depth);
+  if (depth === undefined) return;
+  const d = Math.max(1, Math.round(depth));
+  out["depth"] = px(d);
+  out["slab-thin"] = px(Math.max(1, Math.floor(d / 2)));
+  out["slab-bold"] = px(d * 2);
+}
 
 function shadowRgb(out: Record<string, string>, dark: boolean) {
   const ground = toOklch(out["background"]!);
@@ -336,33 +328,29 @@ function brandScrim(brand: string) {
   return `rgb(${r} ${g} ${b} / 0.55)`;
 }
 
-function layers(set: ShadowLayer[], dark: boolean, base: string) {
-  return set
-    .map(
-      ([y, blur, spread, alpha]) =>
-        `0 ${y}px ${blur}px ${spread}px rgba(${base}, ${Math.round(Math.min(0.9, dark ? alpha * 2.4 : alpha) * 100) / 100})`,
-    )
-    .join(", ");
-}
-
 /** The outline of cards, popovers and paper. Written with `var()` so a `border` or `stroke-card` override, from a theme or from plain CSS, reaches every shadow; only the drop layers are literal. */
 const RING = "0 0 0 var(--e-stroke-card) var(--e-border)";
+
+/** The slab under a floating panel: a hard bottom edge twice `depth` deep in the slab ink, as wide as the ring, so the panel reads as a slab lifted off the page. Under `lifted` a card stands on one of `depth`. */
+const FLOAT_SLAB = "0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-slab-ink)";
+const CARD_SLAB = "0 var(--e-depth) 0 var(--e-stroke-card) var(--e-slab-ink)";
+
+/** The one soft layer each elevation keeps under a floating panel, and the well, in the theme's deep shade: [y, blur, spread, alpha light, alpha dark]. */
+const DROP: Record<ElevationPreset, readonly [number, number, number, number, number]> = {
+  outline: [12, 32, -8, 0.18, 0.45],
+  lifted: [20, 48, -12, 0.24, 0.55],
+  bold: [14, 28, -10, 0.22, 0.6],
+};
 
 function deriveElevation(style: ElevationPreset, out: Record<string, string>, dark: boolean) {
   out["stroke-card"] = style === "bold" ? "2px" : out["stroke-hair"]!;
   const base = shadowRgb(out, dark);
-  if (style === "lifted") {
-    out["frame"] = `${RING}, ${layers(CARD, dark, base)}`;
-    out["float"] = `${RING}, ${layers(LIFTED, dark, base)}`;
-  } else if (style === "bold") {
-    out["frame"] = RING;
-    out["well"] = `inset 0 3px 0 0 ${dark ? DARK_WELL_SHADE : "rgba(0, 0, 0, 0.08)"}`;
-    out["float"] =
-      `${RING}, 4px 4px 0 0 rgba(${base}, ${dark ? 0.75 : 0.32}), 0 14px 28px -10px rgba(${base}, ${dark ? 0.7 : 0.22})`;
-  } else {
-    out["frame"] = RING;
-    out["float"] = `${RING}, ${layers(SOFT, dark, base)}`;
-  }
+  const shade = (alpha: number) => `rgba(${base}, ${alpha})`;
+  const [y, blur, spread, light, darkAlpha] = DROP[style];
+  const bold = style === "bold";
+  out["frame"] = style === "lifted" ? `${RING}, ${CARD_SLAB}` : RING;
+  out["well"] = `inset 0 ${bold ? 3 : 2}px 0 0 ${shade(dark ? 0.36 : bold ? 0.09 : 0.07)}`;
+  out["float"] = `${RING}, ${FLOAT_SLAB}, 0 ${y}px ${blur}px ${spread}px ${shade(dark ? darkAlpha : light)}`;
 }
 
 const holds = (value: string, checks: readonly ContrastCheck[]) =>
@@ -536,11 +524,11 @@ const lookup = (out: Record<string, string>) => (name: string) => out[name];
 const hexOf = (out: Record<string, string>, name: string) =>
   resolveColor(out[name] ?? "", lookup(out), resolveColor(out["surface"] ?? "", lookup(out)));
 
-/** The fills that carry text and have a strength to give: a wash of `ink` (hover, press), judged over `surface`, and `surface` tinted with `primary` (a selected row). `surface-hover` and `surface-press` are aliases of the washes. */
+/** The fills that carry text and have a strength to give: the neutral washes (hover, press), judged over `surface`, and `surface` tinted with `brand` (where you are: a selected tab, the current nav item, a calendar range). */
 const FEEDBACK: [token: string, pct: number, mix: (pct: number, pigment: string) => string][] = [
   ["wash-hover", 50, (p, pigment) => `color-mix(in srgb, ${pigment} ${p}%, transparent)`],
   ["wash-press", 75, (p, pigment) => `color-mix(in srgb, ${pigment} ${p}%, transparent)`],
-  ["primary-soft", 12, (p) => `color-mix(in srgb, var(--e-primary) ${p}%, var(--e-surface))`],
+  ["primary-soft", 50, (p) => `color-mix(in srgb, var(--e-brand) ${p}%, var(--e-surface))`],
 ];
 
 /** The colour that, laid over `surface` at 50%, is exactly `surface-tint` (twice the tint's step from the surface). The hover and press washes are made of it, so a hovered row on a plain ground is the tinted ground, and on a ground that is already tinted (a striped row, the track of a segmented control) it goes one step deeper, so there is always something to see. */
@@ -608,14 +596,12 @@ function derive(input: ThemeInput): Record<string, string> {
     out["warning-strong"] = input.warning ?? DARK_WARNING;
     out["success"] = input.success ?? DARK_SUCCESS;
     out["scrim"] = "rgb(0 0 0 / 0.7)";
-    out["well"] = DARK_WELL;
     // Darkening a dark fill is invisible, so hover and press lighten it instead, and the slab goes deeper.
     for (const fill of ["primary", "secondary", "danger"]) {
       out[`${fill}-hover`] = `color-mix(in srgb, var(--e-${fill}), white 12%)`;
       out[`${fill}-press`] = `color-mix(in srgb, var(--e-${fill}), white 20%)`;
       out[`${fill}-slab`] = `color-mix(in srgb, var(--e-${fill}), black 45%)`;
     }
-    out["slab-ink"] = "color-mix(in srgb, var(--e-surface), black 45%)";
   }
   const dangerBase = input.danger ?? (dark ? DARK_DANGER : undefined);
   if (dangerBase) out["danger"] = reachContrast(dangerBase, out["on-danger"]!, 7);
@@ -682,6 +668,7 @@ function derive(input: ThemeInput): Record<string, string> {
   scaleTokens(out, TEXT_SIZED, input.textScale);
   scaleTokens(out, groups.spacing, (positive(input.spaceScale) ?? 1) * (compact ? COMPACT_SPACE : 1));
   deriveStrokes(input, out);
+  deriveDepth(input, out);
   Object.assign(out, MOTION[input.motion ?? "default"]);
   const tap = parseFloat(defaults["tap"]);
   const height = compact ? Math.max(tap, positive(input.controlHeight) ?? tap) : positive(input.controlHeight);
@@ -801,7 +788,7 @@ function variants(input: ThemeInput, base: Record<string, string>) {
 /** The disposer of the theme applied to each element, so a second `apply()` replaces the first. */
 const watchers = new WeakMap<HTMLElement, () => void>();
 
-const SCALES = ["textScale", "spaceScale", "controlHeight"] as const;
+const SCALES = ["textScale", "spaceScale", "controlHeight", "depth"] as const;
 const STROKES = ["hair", "focus"] as const;
 
 /** Everything the theme quietly changes or ignores, so a wrong input is not a mystery. */

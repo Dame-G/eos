@@ -133,8 +133,9 @@ describe("token layers", () => {
           `color-mix(in srgb, var(--e-${tone}), ${dark[suffix]})`,
         );
       }
-    expect(value("slab-ink")).toBe("color-mix(in srgb, var(--e-surface), black 30%)");
-    expect(night["slab-ink"]).toBe("color-mix(in srgb, var(--e-surface), black 45%)");
+    // The neutral slab is the control edge in every theme, so a sunk state always shows.
+    expect(value("slab-ink")).toBe("var(--e-border-strong)");
+    expect(night["slab-ink"]).toBe("var(--e-border-strong)");
   });
   test("the removed tokens are gone", () => {
     const names = Object.keys(defaults);
@@ -172,11 +173,16 @@ describe("presets, warnings and explain", () => {
     expect(ink.tokens["stroke-hair"]).toBe("2px");
     expect(ink.tokens["stroke-focus"]).toBe("3px");
     expect(ink.tokens["duration-tap"]).toBe("50ms");
-    expect(ink.tokens["float"]).toContain("4px 4px 0 0");
+    expect(ink.tokens["depth"]).toBe("3px");
+    expect(ink.tokens["slab-bold"]).toBe("6px");
+    expect(ink.tokens["float"]).toContain("0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-slab-ink)");
     const quiet = defineTheme({ preset: "quiet" });
     expect(quiet.tokens["radius-md"]).toBe("14px");
     expect(quiet.tokens["duration-move"]).toBe("380ms");
-    expect(quiet.tokens["float"]!.split("rgba(").length - 1).toBe(4);
+    // A quiet slab, not a soft shadow: the same material at 1px.
+    expect(quiet.tokens["depth"]).toBe("1px");
+    expect(quiet.tokens["slab-thin"]).toBe("1px");
+    expect(quiet.tokens["float"]).toBe(defineTheme().tokens["float"]);
     for (const preset of ["paper", "ink", "quiet"] as const) {
       expect(defineTheme({ preset }).issues, preset).toEqual([]);
       expect(defineTheme({ preset, surface: "#10151a" }).issues, preset).toEqual([]);
@@ -212,7 +218,8 @@ describe("presets, warnings and explain", () => {
     const t = defineTheme({ brand: "#8a2be2", tokens: { ink: "#111111" } });
     expect(t.explain("primary")).toMatch(/driven by: brand, surface[\s\S]*given here: brand/);
     expect(t.explain("ink")).toMatch(/set explicitly in tokens/);
-    expect(t.explain("depth")).toMatch(/fixed/);
+    expect(t.explain("depth")).toMatch(/driven by: depth/);
+    expect(t.explain("tap")).toMatch(/fixed/);
     expect(t.explain("wash-hover")).toMatch(/resolves to #/);
     expect(t.explain("nope")).toMatch(/not a token/);
   });
