@@ -203,7 +203,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     background: var(--e-border-strong);
   }
 
-  /* The thumb is a small button face with a slab under it. Like the switch's, its face is `ink`, so it stands out on the groove and on the page in every theme, and it stands on a primary slab that sinks when pressed. */
+  /* The thumb is a small button face with a slab under it. Its face is the page surface, so it stands out on the groove in every theme, and it stands on a primary slab that sinks when pressed. The slab makes the bottom border thicker, so the bottom corners take taller vertical radii to stay round rather than elliptical. */
   .e-slider-thumb {
     --_slab: var(--e-primary-slab);
     --_lift: var(--e-depth);
@@ -214,8 +214,9 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     height: var(--_thumb);
     border: var(--e-stroke-edge) solid var(--_slab);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
-    border-radius: var(--e-radius-sm);
-    background: var(--e-ink);
+    border-radius: var(--e-radius-sm) / var(--e-radius-sm) var(--e-radius-sm) calc(var(--e-radius-sm) + var(--_lift))
+      calc(var(--e-radius-sm) + var(--_lift));
+    background: var(--e-surface);
     background-clip: padding-box;
     cursor: grab;
     transition: var(--e-transition-state);
@@ -249,7 +250,6 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
   .e-slider--readonly .e-slider-thumb {
     --_lift: 0px;
 
-    background: var(--e-surface);
     cursor: default;
   }
 
