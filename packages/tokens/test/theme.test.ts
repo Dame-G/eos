@@ -713,7 +713,11 @@ describe("the success tone", () => {
     }
     const base = defineTheme().tokens;
     const t = defineTheme({ success: "#0f766e" }).tokens;
-    expect(Object.keys(t).filter((k) => t[k] !== base[k]).sort()).toEqual(["success", "success-soft"]);
+    expect(
+      Object.keys(t)
+        .filter((k) => t[k] !== base[k])
+        .sort(),
+    ).toEqual(["success", "success-soft"]);
   });
   test("every preset keeps every pair in light, dark and high contrast, with a brand and accent of any hue", () => {
     for (const preset of ["paper", "ink", "quiet"] as const)

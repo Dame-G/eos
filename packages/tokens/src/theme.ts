@@ -916,7 +916,8 @@ export function themeVariant(
   const holds = (media: string) =>
     media.split(" and ").every((m) => (m === MEDIA_DARK ? !!query.dark : m === MEDIA_MORE ? !!query.more : false));
   const match = theme.alternates.filter((a) => holds(a.media)).at(-1);
-  const base = schemes.get(theme) ?? (luminance(hexOf(theme.tokens, "surface") ?? WHITE) < DARK_BELOW ? "dark" : "light");
+  const base =
+    schemes.get(theme) ?? (luminance(hexOf(theme.tokens, "surface") ?? WHITE) < DARK_BELOW ? "dark" : "light");
   return match
     ? { tokens: { ...theme.tokens, ...match.tokens }, colorScheme: match.scheme }
     : { tokens: theme.tokens, colorScheme: base };
