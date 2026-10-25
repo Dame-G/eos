@@ -21,7 +21,7 @@ New:
 
 - `EMenu`: link rows take `to` with a `linkComponent`; checkbox and radio rows take `keepOpen`; choosing the radio option already chosen calls nothing.
 - `ETooltip`: `describes`. A label that is the trigger's accessible name already (an `EIconButton` with `tooltip`) is no longer read twice; the bubble is then hidden from screen readers.
-- `ENavList`: `size="sm"` for short rows with no rule between them, and `marker="text"` to mark the current page by colour and weight only. Development warns when two navigations are left on the default "Main".
+- `ENavList`: `size="sm"` for short rows with no rule between them. Development warns when two navigations are left on the default "Main".
 - `ETabs`: `stretch` makes the tabs fill their container's height with the panel scrolling its own content.
 - `EAppHeader`: sets `--e-header-height` on the page root (its height while `sticky`, else `0px`); a navigation row that scrolls is a tab stop; the menu button has `aria-controls` for the shell's drawer.
 - `ESpinner`: `silent` leaves the announcement to a parent.
