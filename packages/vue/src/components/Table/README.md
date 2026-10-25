@@ -14,32 +14,32 @@ A plain table for facts that are read, not worked: specifications, prices, compa
 </ETable>
 ```
 
-Use [`EDataGrid`](../DataGrid/README.md) when people need to sort, filter, select or page through rows. `ETable` takes your own markup, so it also suits a table built from markdown or a CMS.
+`ETable` takes your own markup, so it also suits a table built from markdown or a CMS.
 
 ## Props
 
 <!-- props:start -->
 
-| Prop           | Type           | Default        | Notes                                                                                                                       |
-| -------------- | -------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `caption`      | `string`       | **Required**   | Names the table for screen readers, and its scrolling region. It is also shown above the table unless `hideCaption` is set. |
-| `hideCaption`  | `boolean`      | `false`        | Keeps the caption for screen readers and removes it from the page, for a table that a nearby heading already names.         |
-| `striped`      | `boolean`      | `false`        | Tints every other row.                                                                                                      |
-| `size`         | `"sm" \| "md"` | `"md"`         | Smaller text and tighter cells, for reference tables with many rows.                                                        |
-| `maxHeight`    | `string`       | None           | Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header row.                  |
-| `cards`        | `boolean`      | `false`        | Turns each row into a card below 40rem of the table's own width. Give every `td` a `data-label` with its column heading.    |
-| `loading`      | `boolean`      | `false`        | Marks the data as loading: the rows are dimmed, `aria-busy` is set and placeholder lines show under the table.              |
-| `skeletonRows` | `number`       | `5`            | How many placeholder lines `loading` shows, 5 as in `EDataGrid`.                                                            |
-| `empty`        | `boolean`      | `false`        | Shows the empty state under the headings. Set it when the table has no rows.                                                |
-| `emptyTitle`   | `string`       | `"No results"` | The title of the empty state.                                                                                               |
-| `emptyText`    | `string`       | None           | The sentence under the empty title.                                                                                         |
-| `emptyIcon`    | `IconProp`     | `"search"`     | The icon above the empty title.                                                                                             |
+| Prop           | Type       | Default        | Notes                                                                                                                                                                          |
+| -------------- | ---------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `caption`      | `string`   | **Required**   | Names the table for screen readers, and its scrolling region. It is also shown above the table unless `hideCaption` is set.                                                    |
+| `hideCaption`  | `boolean`  | `false`        | Keeps the caption for screen readers and removes it from the page, for a table that a nearby heading already names.                                                            |
+| `striped`      | `boolean`  | `false`        | Tints every other row.                                                                                                                                                         |
+| `dense`        | `boolean`  | `false`        | Smaller text and tighter cells, for reference tables with many rows.                                                                                                           |
+| `maxHeight`    | `string`   | None           | Stops the table growing past this height (any CSS length) and scrolls inside it, with a sticky header row.                                                                     |
+| `cards`        | `boolean`  | `false`        | Turns each row into a card below 40rem of the table's own width. Give every `td` a `data-label` with its column heading; a row heading (`th scope="row"`) is the card's title. |
+| `loading`      | `boolean`  | `false`        | Marks the data as loading: the rows are dimmed, `aria-busy` is set and placeholder lines show under the table.                                                                 |
+| `skeletonRows` | `number`   | `5`            | How many placeholder lines `loading` shows, 5 as in `EDataGrid`.                                                                                                               |
+| `empty`        | `boolean`  | `false`        | Shows the empty state under the headings. Set it when the table has no rows.                                                                                                   |
+| `emptyTitle`   | `string`   | `"No results"` | The title of the empty state.                                                                                                                                                  |
+| `emptyText`    | `string`   | None           | The sentence under the empty title.                                                                                                                                            |
+| `emptyIcon`    | `IconProp` | `"search"`     | The icon above the empty title.                                                                                                                                                |
 
 <!-- props:end -->
 
 `class`, `style`, `id` and `data-*` land on the outer frame.
 
-`size="sm"` tightens the cells. `loading` dims the rows, sets `aria-busy` and shows placeholder lines under the table. `empty` shows an empty state under the headings (fill the `empty` slot for your own). `cards` turns each row into a card below 40rem of the table's width: give every `td` a `data-label` with its column heading, and the heading row is hidden.
+As cards (`cards`, below 40rem of the table's width) the heading row is hidden, each `td` shows its `data-label`, and a row heading (`th scope="row"`) is the card's title.
 
 ## Slots
 
@@ -50,7 +50,7 @@ Use [`EDataGrid`](../DataGrid/README.md) when people need to sort, filter, selec
 
 ## Accessibility
 
-- The `caption` is the table's accessible name. When the table is wider than its space, or `maxHeight` is set, the frame becomes a named, focusable `region` that scrolls with the arrow keys. Otherwise it is not a tab stop.
+- The `caption` is the table's accessible name. While the table overflows its frame (wider than its space, or taller than `maxHeight`), the frame is a named, focusable `region` that scrolls with the arrow keys. Otherwise it is not a tab stop.
 - Use `th` with `scope="col"` for column headings and `scope="row"` for row headings, so screen readers can announce them with each cell.
 - Striping and the hover row are decoration: no information depends on them.
 - In forced-colors mode the frame and the rule under the headings are drawn in the system text colour.
@@ -64,4 +64,4 @@ Use [`EDataGrid`](../DataGrid/README.md) when people need to sort, filter, selec
 
 ## Related
 
-[`EDataGrid`](../DataGrid/README.md) for sorting, filtering and selecting, [`EDescriptionList`](../DescriptionList/README.md) for label and value pairs.
+[`EDescriptionList`](../DescriptionList/README.md) for label and value pairs.

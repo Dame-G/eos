@@ -61,10 +61,10 @@ export interface DataGridQuery {
 
 /** Options for `virtual`. */
 export interface DataGridVirtual {
-  /** Height of every row in pixels. Default 48. */
+  /** The height of a row in pixels before the rows are measured, and the least height of each. Default 48. */
   rowHeight?: number;
-  /** Height of the scrolling area in pixels. Default 440. */
-  height?: number;
+  /** The height of the scrolling area: pixels as a number, or any CSS length. Default 440. */
+  height?: number | string;
   /** Rows rendered beyond the edges of the scrolling area. Default 8. */
   overscan?: number;
 }

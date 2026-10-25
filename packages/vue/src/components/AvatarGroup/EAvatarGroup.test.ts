@@ -38,7 +38,10 @@ describe("EAvatarGroup", () => {
 
   test("an unknown locale still names the group", async () => {
     const plugin = createEos({ locale: "not a locale!", warnOnContrast: false });
-    const { container } = await render(EAvatarGroup, { props: { items: people.slice(0, 2) }, global: { plugins: [plugin] } });
+    const { container } = await render(EAvatarGroup, {
+      props: { items: people.slice(0, 2) },
+      global: { plugins: [plugin] },
+    });
     expect(container.querySelector(".e-avatar-group")!.getAttribute("aria-label")).toContain("Grace Hopper");
   });
 

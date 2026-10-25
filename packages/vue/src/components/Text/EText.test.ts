@@ -85,7 +85,11 @@ describe("EText", () => {
     const { container } = await render(
       defineComponent({
         render: () =>
-          h("div", [h(EText, { tone: "muted" }, () => "A"), h(EText, { tone: "neutral" }, () => "B"), h(EText, () => "C")]),
+          h("div", [
+            h(EText, { tone: "muted" }, () => "A"),
+            h(EText, { tone: "neutral" }, () => "B"),
+            h(EText, () => "C"),
+          ]),
       }),
     );
     const [a, b, c] = [...container.querySelectorAll("p")].map((p) => getComputedStyle(p).color);

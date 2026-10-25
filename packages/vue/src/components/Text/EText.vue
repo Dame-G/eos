@@ -38,7 +38,8 @@ defineSlots<{
 
 if (props.tone === "neutral")
   warnOnce("EText-neutral", 'EText tone="neutral" is renamed tone="muted"; neutral will mean the default ink.');
-if (props.truncate && props.lines) warnOnce("EText-truncate-lines", "EText takes `truncate` or `lines`, not both; `lines` wins.");
+if (props.truncate && props.lines)
+  warnOnce("EText-truncate-lines", "EText takes `truncate` or `lines`, not both; `lines` wins.");
 
 /** Each tone's colour token. `neutral` is still read as `muted`. */
 const toneVar = (t: string) => `var(--e-${t === "neutral" ? "muted" : t})`;

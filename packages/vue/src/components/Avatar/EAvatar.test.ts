@@ -125,7 +125,9 @@ describe("EAvatar", () => {
 
   test("a button avatar has the pointer cursor, a focus ring and keeps its size", async () => {
     const { container } = await render(
-      defineComponent({ render: () => h("div", { class: "e-root" }, [h(EAvatar, { name: "A B", interactive: true })]) }),
+      defineComponent({
+        render: () => h("div", { class: "e-root" }, [h(EAvatar, { name: "A B", interactive: true })]),
+      }),
     );
     const el = container.querySelector<HTMLButtonElement>("button.e-avatar")!;
     expect(getComputedStyle(el).cursor).toBe("pointer");
@@ -139,7 +141,9 @@ describe("EAvatar", () => {
 
   test("hovering a button avatar fills it as well as darkening its edge", async () => {
     const { container } = await render(
-      defineComponent({ render: () => h("div", { class: "e-root" }, [h(EAvatar, { name: "A B", interactive: true })]) }),
+      defineComponent({
+        render: () => h("div", { class: "e-root" }, [h(EAvatar, { name: "A B", interactive: true })]),
+      }),
     );
     const el = container.querySelector<HTMLButtonElement>("button.e-avatar")!;
     const rest = getComputedStyle(el).backgroundColor;

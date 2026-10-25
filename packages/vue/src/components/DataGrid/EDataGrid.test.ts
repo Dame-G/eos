@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- the grid is generic over the row, which the tests leave open */
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
@@ -39,7 +39,7 @@ async function typeInto(el: HTMLInputElement, text: string) {
 }
 function boxed(width: number, props: Record<string, unknown>) {
   return defineComponent({
-    render: () => h("div", { style: { width: `${width}px` } }, [h(EDataGrid as any, props)]),
+    render: () => h("div", { style: { width: `${width}px` } }, [h(EDataGrid as any, { cards: true, ...props })]),
   });
 }
 
@@ -476,8 +476,38 @@ describe("EDataGrid", () => {
     expect(container.querySelectorAll("tr.e-spacer").length).toBe(2);
     const spacers = [...container.querySelectorAll<HTMLElement>("tr.e-spacer")];
     expect(spacers.every((s) => s.getAttribute("aria-hidden") === "true")).toBe(true);
-    const total = spacers.reduce((s, r) => s + parseFloat(r.style.height), 0) + count() * 40;
-    expect(Math.round(total)).toBe(2000 * 40);
+    const rowH = bodyRows(container)[1]!.getBoundingClientRect().height;
+    const rendered = bodyRows(container).reduce((s, r) => s + r.getBoundingClientRect().height, 0);
+    const total = spacers.reduce((s, r) => s + parseFloat(r.style.height), 0) + rendered;
+    expect(Math.abs(total - 2000 * rowH)).toBeLessThan(rowH);
+  });
+
+  test("virtual rows are measured, so a row taller than rowHeight (a larger text size) keeps the scroll exact", async () => {
+    const { container } = await grid({
+      props: {
+        caption: "Big",
+        virtual: { height: "20rem", rowHeight: 20 },
+        columns: [{ key: "n", label: "Name" }],
+        rows: bigRows(2000),
+      },
+    });
+    const scroll = container.querySelector<HTMLElement>(".e-grid-scroll")!;
+    expect(scroll.style.height).toBe("20rem");
+    await expect.poll(() => bodyRows(container).length).toBeGreaterThan(3);
+    const rowH = bodyRows(container)[1]!.getBoundingClientRect().height;
+    expect(rowH).toBeGreaterThan(21);
+    await expect
+      .poll(() => {
+        const spacers = [...container.querySelectorAll<HTMLElement>("tr.e-spacer")];
+        const rendered = bodyRows(container).reduce((s, r) => s + r.getBoundingClientRect().height, 0);
+        // The virtualizer rounds each height it measures, as the estimate does.
+        return Math.abs(
+          spacers.reduce((s, r) => s + parseFloat(r.style.height), 0) + rendered - 2000 * Math.round(rowH),
+        );
+      })
+      .toBeLessThan(rowH);
+    scroll.scrollTop = scroll.scrollHeight;
+    await expect.poll(() => names(container).at(-1), { timeout: 3000 }).toBe("Row 1999");
   });
 
   test("virtual rows stay responsive with 10,000 rows: sorting and searching all rows, bounded DOM", async () => {
@@ -729,6 +759,59 @@ describe("EDataGrid", () => {
       await expect.element(page.getByRole("dialog", { name: "Choose columns" })).toBeVisible();
       await expectNoViolations(document.querySelector("[role=dialog]")!);
     });
+  });
+
+  test("searchDebounce also holds back the filtering of a client-side grid", async () => {
+    const { container } = await grid({
+      props: { caption: "T", columns: COLS, rows: ROWS, searchable: true, searchDebounce: 120 },
+    });
+    await typeInto(input(container.querySelector(".e-grid-search input")), "alp");
+    expect(names(container)).toHaveLength(3);
+    await expect.poll(() => names(container)).toEqual(["Alpha"]);
+  });
+
+  test("manual without total warns once rows arrive, since it cannot page", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await grid({ props: { caption: "T", columns: COLS, rows: ROWS, manual: true, pageSize: 2 } });
+    expect(warn.mock.calls.some(([m]) => String(m).includes("total"))).toBe(true);
+    warn.mockRestore();
+  });
+
+  test("the cards Sort by menu lists only the shown columns", async () => {
+    const { container } = await render(boxed(320, { caption: "T", columns: COLS, rows: ROWS, columnToggle: true }));
+    await page.getByRole("button", { name: "Choose columns" }).click();
+    await page.getByRole("checkbox", { name: "Amount" }).click();
+    await userEvent.keyboard("{Escape}");
+    await page.getByRole("combobox", { name: "Sort by" }).click();
+    await expect.element(page.getByRole("option", { name: "Name, ascending" })).toBeVisible();
+    expect(page.getByRole("option", { name: "Amount, ascending" }).elements()).toHaveLength(0);
+    expect(container).toBeTruthy();
+  });
+
+  test("#empty replaces the empty state, and is told whether a filter hid the rows", async () => {
+    const { container } = await grid({
+      props: { caption: "T", columns: COLS, rows: ROWS, searchable: true },
+      slots: {
+        empty: ({ filtered }: { filtered: boolean }) => h("p", { class: "mine" }, filtered ? "Hidden" : "None"),
+      },
+    });
+    await typeInto(input(container.querySelector(".e-grid-search input")), "zzz");
+    expect(container.querySelector(".mine")!.textContent).toBe("Hidden");
+  });
+
+  test("striped and dense reach the table", async () => {
+    const plain = await grid({ props: { caption: "T", columns: COLS, rows: ROWS } });
+    const { container } = await grid({
+      props: { caption: "T", columns: COLS, rows: ROWS, striped: true, dense: true },
+    });
+    container.classList.add("e-root");
+    plain.container.classList.add("e-root");
+    const table = container.querySelector("table")!;
+    expect(table.classList.contains("e-table--striped")).toBe(true);
+    const pad = (c: Element) => getComputedStyle(c.querySelector("tbody td")!).paddingTop;
+    expect(pad(container)).not.toBe(pad(plain.container));
+    const cells = [...container.querySelectorAll<HTMLElement>("tbody tr > td")];
+    expect(getComputedStyle(cells[0]!).backgroundColor).not.toBe(getComputedStyle(cells[2]!).backgroundColor);
   });
 
   test("a client-side grid does not report a query on mount", async () => {
@@ -1073,6 +1156,22 @@ describe("EDataGrid", () => {
       expect(retries).toBe(1);
       const own = await grid({ props: { caption: "T", columns: COLS, rows: [], error: "Offline" } });
       expect(own.container.textContent).toContain("Offline");
+    });
+
+    test("a failed load is announced assertively, and the empty state is in the danger tone", async () => {
+      const failing = ref<boolean | string>(false);
+      const { container } = await render(
+        defineComponent({
+          render: () => h(EDataGrid as any, { caption: "T", columns: COLS, rows: [], error: failing.value }),
+        }),
+      );
+      const alert = container.querySelector("[role=alert]")!;
+      expect(alert.textContent).toBe("");
+      failing.value = "Offline";
+      await nextTick();
+      expect(alert.textContent).toBe("Offline");
+      expect(container.querySelector(".e-empty--danger")).not.toBeNull();
+      expect(container.querySelector("[role=status]")!.textContent).toBe("");
     });
 
     test("as cards on a narrow grid the heading row is inert, so no hidden control takes focus", async () => {

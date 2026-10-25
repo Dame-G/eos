@@ -30,7 +30,10 @@ describe("EMetric", () => {
 
   test("an unknown locale does not break the figure", async () => {
     const plugin = createEos({ locale: "not a locale!", warnOnContrast: false });
-    const { container } = await render(EMetric, { props: { label: "Visits", value: 12 }, global: { plugins: [plugin] } });
+    const { container } = await render(EMetric, {
+      props: { label: "Visits", value: 12 },
+      global: { plugins: [plugin] },
+    });
     expect(container.querySelector(".e-metric-value")!.textContent).toBe("12");
   });
 

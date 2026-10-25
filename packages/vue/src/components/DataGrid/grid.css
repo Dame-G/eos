@@ -1,0 +1,418 @@
+/* EDataGrid: the frame, the bar above the table, the foot, the filter row, the column edges and the grid as cards. The table look is Table/table.css. */
+@layer e.containers {
+  .e-grid {
+    --_check-w: calc(var(--e-check-size) + var(--e-space-4) + var(--e-space-3));
+    --_head-h: var(--e-control-height);
+
+    isolation: isolate;
+    border-radius: var(--e-radius-md);
+    min-width: 0;
+    container-type: inline-size;
+  }
+
+  /* The frame does not clip: its bar and foot paint no background, and the scroller takes the frame's corners itself, so the edge is painted once on each curve. */
+  .e-grid-frame {
+    position: relative;
+    border-radius: inherit;
+    background: var(--e-surface);
+  }
+
+  /* A wrapping cluster: the controls share one left edge, and below 26rem each takes a full row. */
+  .e-grid-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--e-gap-snug);
+    padding: var(--e-gap-base) var(--e-pad-card);
+    border-bottom: var(--e-stroke-hair) solid var(--e-border);
+  }
+
+  .e-grid-search {
+    flex: 1 1 10rem;
+    max-width: 24rem;
+  }
+
+  .e-grid-search .e-input {
+    padding-inline-start: var(--e-gap-snug);
+  }
+
+  .e-grid-picked,
+  .e-grid-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--e-gap-snug);
+  }
+
+  .e-grid-count {
+    font: var(--e-type-kicker);
+    letter-spacing: var(--e-tracking-label);
+  }
+
+  .e-grid-tools {
+    margin-inline-start: auto;
+  }
+
+  /* The scroller sits flush in the frame, which has no border of its own (its outline is drawn over it, in table.css). Where it meets a frame edge it takes that corner, so the frame's clip does not cut off its focus ring. */
+  .e-grid-scroll:first-child {
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+  }
+
+  .e-gridtable--fixed {
+    table-layout: fixed;
+  }
+
+  .e-gridtable {
+    border-radius: 0;
+    box-shadow: none;
+    min-width: var(--_min-w, 0);
+  }
+
+  .e-gridtable thead th {
+    position: sticky;
+    top: 0;
+    z-index: var(--e-z-raised);
+    height: var(--_head-h);
+    box-sizing: border-box;
+  }
+
+  .e-gridtable th[aria-sort="ascending"],
+  .e-gridtable th[aria-sort="descending"] {
+    color: var(--e-ink);
+  }
+
+  .e-sortbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--e-gap-tight);
+    min-height: var(--e-control-height);
+    padding: var(--e-gap-tight) 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+  }
+
+  .e-sortbtn:hover {
+    color: var(--e-ink);
+  }
+
+  .e-sortbtn:focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: var(--e-stroke-focus);
+    border-radius: var(--e-radius-sm);
+  }
+
+  .e-gridtable .e-cell-check {
+    width: var(--_check-w);
+    padding-inline-end: 0;
+    vertical-align: middle;
+  }
+
+  .e-gridtable tbody tr[data-selected] td {
+    background: var(--e-surface-tint);
+  }
+
+  .e-gridtable tbody tr[data-selected]:hover td {
+    background: var(--e-wash-hover);
+  }
+
+  .e-table td.e-grid-empty {
+    padding: 0;
+  }
+
+  .e-grid-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-gap-snug);
+    padding: var(--e-gap-base) var(--e-pad-card);
+    border-top: var(--e-stroke-hair) solid var(--e-border);
+  }
+
+  .e-grid-range {
+    font: var(--e-type-meta);
+    color: var(--e-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The pager sizes itself to its container, so it needs a width of its own here, not the nothing its content gives. */
+  .e-grid-foot .e-pager {
+    flex: 1 1 26rem;
+    justify-content: flex-end;
+  }
+
+  .e-filterrow td {
+    padding: var(--e-gap-tight) var(--e-pad-control-sm);
+    background: var(--e-surface);
+    box-shadow: inset 0 calc(-1 * var(--e-stroke-card)) 0 var(--e-border-strong);
+    border-top: 0;
+    position: sticky;
+    top: var(--_head-h);
+    z-index: var(--e-z-raised);
+  }
+
+  .e-filterrow .e-input {
+    height: var(--e-control-height);
+    font-size: var(--e-text-md);
+    padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
+  }
+
+  .e-filterrow .e-sel-trigger {
+    height: var(--e-control-height);
+    padding-inline-end: calc(var(--e-gap-snug) - var(--e-stroke-edge));
+  }
+
+  .e-grid-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
+    gap: var(--e-gap-snug);
+    align-items: end;
+    padding-block: var(--e-gap-base);
+  }
+
+  .e-grid-filters > .e-filter-range {
+    grid-column: 1 / -1;
+  }
+
+  .e-filter-range {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--e-gap-tight);
+  }
+
+  .e-gridtable thead th,
+  .e-gridtable thead td {
+    white-space: nowrap;
+  }
+
+  .e-resizer {
+    position: absolute;
+    top: 0;
+    inset-inline-end: calc(var(--e-space-6) / -2);
+    z-index: var(--e-z-raised);
+    width: var(--e-space-6);
+    height: 100%;
+    cursor: col-resize;
+    touch-action: none;
+
+    --_bar-w: var(--e-stroke-hair);
+  }
+
+  .e-resizer:hover,
+  .e-resizer:focus-visible {
+    --_bar-w: calc(var(--e-stroke-focus) + var(--e-stroke-hair));
+  }
+
+  .e-resizer::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline: calc(-1 * var(--e-space-2));
+  }
+
+  .e-resizer::after {
+    content: "";
+    position: absolute;
+    inset-block: var(--e-gap-base);
+    inset-inline-start: calc(50% - var(--_bar-w) / 2);
+    width: var(--_bar-w);
+    background: var(--e-border-strong);
+    transition:
+      width var(--e-duration-tap) var(--e-easing-out),
+      inset-inline-start var(--e-duration-tap) var(--e-easing-out);
+  }
+
+  .e-resizer:hover::after,
+  .e-resizer:focus-visible::after {
+    background: var(--e-primary);
+    border-radius: var(--e-radius-sm);
+  }
+
+  .e-resizer:focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: calc(-1 * var(--e-stroke-focus));
+    border-radius: var(--e-radius-sm);
+  }
+
+  .e-gridtable--fixed td,
+  .e-gridtable--fixed th {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .e-gridtable .e-sticky {
+    position: sticky;
+    z-index: var(--e-z-raised);
+    box-shadow: inset calc(-1 * var(--e-stroke-hair)) 0 0 var(--e-border);
+  }
+
+  .e-gridtable thead th.e-sticky {
+    z-index: var(--e-z-sticky);
+    background: var(--e-surface-tint);
+  }
+
+  .e-gridtable tbody td.e-sticky {
+    background: var(--e-surface);
+  }
+
+  /* A sticky cell stays opaque, so the hover wash is laid over the surface. */
+  .e-gridtable tbody tr:hover td.e-sticky {
+    background: linear-gradient(var(--e-wash-hover), var(--e-wash-hover)) var(--e-surface);
+  }
+
+  .e-gridtable tbody tr[data-selected] td.e-sticky {
+    background: var(--e-surface-tint);
+  }
+
+  .e-gridtable--virtual td {
+    height: var(--_row-h);
+    padding-block: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .e-spacer td {
+    padding: 0;
+    border: 0;
+  }
+
+  @media (forced-colors: active) {
+    .e-gridtable tbody tr[data-selected] td {
+      forced-color-adjust: none;
+      background: Highlight;
+      color: HighlightText;
+    }
+
+    .e-resizer::after {
+      background: CanvasText;
+    }
+
+    .e-resizer:hover::after,
+    .e-resizer:focus-visible::after {
+      background: Highlight;
+    }
+  }
+
+  .e-grid-sortsel {
+    display: none;
+    min-width: 11rem;
+  }
+
+  .e-grid-bar--sortonly {
+    display: none;
+  }
+
+  @container (max-width: 40rem) {
+    .e-grid-sortsel {
+      display: block;
+      flex: 1 1 11rem;
+    }
+
+    .e-grid-bar--sortonly {
+      display: flex;
+    }
+
+    /* The cards have no frame to close, so the bars sit flush with them and draw no rule. */
+    .e-grid--cards .e-grid-frame {
+      background: transparent;
+    }
+
+    .e-grid--cards .e-grid-frame::after {
+      content: none;
+    }
+
+    .e-grid--cards :is(.e-grid-bar, .e-grid-foot) {
+      padding-inline: 0;
+      border: 0;
+    }
+
+    .e-grid--cards .e-gridtable tbody tr:hover td {
+      background: transparent;
+    }
+
+    .e-grid--cards .e-gridtable tbody tr[data-selected] {
+      background: var(--e-surface-tint);
+    }
+
+    .e-grid--cards .e-gridtable tbody tr[data-selected] td {
+      background: transparent;
+    }
+
+    .e-grid--cards .e-gridtable td.e-cell-check {
+      display: flex;
+      width: auto;
+      padding: var(--e-gap-snug) 0;
+    }
+
+    .e-grid--cards .e-gridtable td.e-cell-check::before {
+      content: none;
+    }
+
+    .e-grid--cards .e-gridtable .e-sticky {
+      position: static;
+      box-shadow: none;
+    }
+
+    .e-grid--cards .e-gridtable .e-grid-empty {
+      display: block;
+    }
+
+    .e-grid--cards .e-gridtable .e-grid-empty::before {
+      content: none;
+    }
+
+    .e-grid--cards .e-filterrow {
+      display: none;
+    }
+
+    .e-grid--cards .e-gridtable--fixed td {
+      overflow: visible;
+      text-overflow: clip;
+    }
+
+    .e-grid--cards .e-grid-foot {
+      padding-block-end: 0;
+    }
+  }
+
+  @container (max-width: 26rem) {
+    .e-grid-search,
+    .e-grid-sortsel,
+    .e-grid-picked,
+    .e-grid-tools {
+      flex: 1 1 100%;
+      max-width: none;
+    }
+
+    .e-grid-picked > :not(.e-grid-count),
+    .e-grid-tools > * {
+      flex: 1 1 auto;
+    }
+
+    /* The pager stacks above the range text: its page status on top, Previous and Next side by side below it. */
+    .e-grid-foot .e-pager {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex-basis: 100%;
+      order: -1;
+    }
+
+    .e-grid-foot .e-pager-status {
+      grid-column: 1 / -1;
+      order: -1;
+      text-align: center;
+    }
+
+    .e-grid-range {
+      flex: 1 1 100%;
+      text-align: center;
+    }
+  }
+}
