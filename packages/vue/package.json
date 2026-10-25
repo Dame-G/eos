@@ -7,9 +7,7 @@
   "sideEffects": [
     "**/*.css",
     "./dist/index.js",
-    "./dist/icons/builtin.js",
-    "./src/index.ts",
-    "./src/icons/builtin.ts"
+    "./dist/icons/builtin.js"
   ],
   "files": [
     "dist",
