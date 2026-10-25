@@ -1,5 +1,4 @@
 import { computed, nextTick, ref, watch, type Ref } from "vue";
-import type ECalendar from "../Calendar/ECalendar.vue";
 import { parseIso } from "../Calendar/dates.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 
@@ -9,6 +8,12 @@ export type DateBound = Date | string;
 /** A bound as a day, or undefined when it is unset or not a real day. */
 export const toBound = (v: DateBound | undefined): Date | undefined =>
   v == null ? undefined : typeof v === "string" ? (parseIso(v) ?? undefined) : v;
+
+/** What a picker uses of the calendar it opens. Typed narrowly so the declaration files do not spell out the component. */
+interface CalendarHandle {
+  view: string;
+  focusDay: () => void;
+}
 
 interface PickerProps {
   disabled?: boolean | undefined;
@@ -33,7 +38,7 @@ export function useDatePopover(
     onInvalid: (text: string, message: string) => void;
   },
 ) {
-  const calendar = ref<InstanceType<typeof ECalendar> | null>(null);
+  const calendar = ref<CalendarHandle | null>(null);
   const shown = computed(() => open.value && !props.disabled && !props.readonly);
   const quiet = useQuietFocus(shown, (el) => !!el.closest(".e-calpanel, .e-combo"));
 
