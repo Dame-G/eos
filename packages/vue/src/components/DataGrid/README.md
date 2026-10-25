@@ -117,6 +117,7 @@ A `DataGridColumn` has:
 - Column edges are focusable separators with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`. Dragging or the arrow keys change the width within `minWidth` and `maxWidth`.
 - Virtual grids set `aria-rowcount` and `aria-rowindex`. Their rows are measured, so a larger text size keeps them in step with the scroll.
 - All strings are configurable messages.
+- In print the grid is the table it shows: the search, filters, selection column, column tools, resizers and pager are left out, only the sorted column keeps its arrow, the heading row repeats at the top of each page, and no row is split across pages.
 
 ## Keyboard
 

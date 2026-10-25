@@ -93,7 +93,7 @@ defineExpose(choice.exposed);
     margin-block-start: calc(var(--_thumb) / -2 + var(--_lift) / 2);
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--_edge);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth-thin));
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--_thumb-lift, var(--e-depth-thin)));
 
     /* Concentric with the track: the thumb's edge is `--_inset` inside the track's outer edge, border included. */
     border-radius: max(0px, calc(var(--_r) - var(--_inset)));
@@ -135,8 +135,15 @@ defineExpose(choice.exposed);
     background-color: var(--e-primary-press);
   }
 
+  /* The thumb is a small button face, so it sinks off its slab while pressed, on or off. Its box keeps its size. */
+  .e-switch:active .e-switch-input:not(:disabled) + .e-switch-track::after {
+    --_thumb-lift: 0px;
+  }
+
+  /* On, the thumb travels to the end and keeps a neutral slab: it is the same small button face either way. The slab grey
+     sits too close to the primary's own lightness to read against it, so on the primary it is drawn in ink. */
   .e-switch-input:checked + .e-switch-track::after {
-    --_edge: var(--e-primary-slab);
+    --_edge: var(--e-ink);
 
     transform: translateX(var(--_travel));
   }

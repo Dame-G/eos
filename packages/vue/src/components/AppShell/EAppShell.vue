@@ -100,7 +100,9 @@ function closeOnLink(event: MouseEvent) {
     display: grid;
     grid-template-rows: auto 1fr auto;
     min-height: 100%;
-    background: var(--e-surface-tint);
+
+    /* The ground beside the page column: a quiet near-neutral, the surface with a touch of ink, carrying only part of the brand tint, so the margins of a wide screen do not read as a coloured band. */
+    background: color-mix(in oklab, var(--e-surface-tint) 40%, color-mix(in oklab, var(--e-surface), var(--e-ink) 6%));
   }
 
   /* The column is the page; the screen beside it, when the column does not fill it, is the ground. */

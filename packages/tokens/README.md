@@ -81,7 +81,7 @@ defineTheme({ brand: "#8a2be2", scheme: "auto", contrast: "auto", dark: { surfac
 
 The grounds (`background`, `surface`, `foreground`) are never carried into the dark variant: give `dark` the ones it needs.
 
-Every theme's CSS also carries two fixed overrides. Under `prefers-reduced-motion: reduce`, `duration-tap`, `duration-fade` and `duration-move` are 0.01ms (`!important`, so they beat the inline tokens `apply()` sets). Looping loaders must switch themselves off, since a loop at 0.01ms would flicker. When printing, `ink`, the borders and the grounds are black and white whatever the theme, so a component needs no print colours of its own.
+Every theme's CSS also carries two fixed overrides. Under `prefers-reduced-motion: reduce`, `duration-tap`, `duration-fade` and `duration-move` are 0.01ms (`!important`, so they beat the inline tokens `apply()` sets). Looping loaders must switch themselves off, since a loop at 0.01ms would flicker. When printing, the page takes the theme's light palette whatever the screen shows (every token a dark or high-contrast variant changes is set back), with `ink`, the borders and the grounds black and white, so a component needs no print colours of its own. `apply()` does the same while the page prints, with its own theme's palette.
 
 ## Design tools
 

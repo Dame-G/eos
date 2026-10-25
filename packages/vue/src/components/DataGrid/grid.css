@@ -77,11 +77,6 @@
     box-sizing: border-box;
   }
 
-  .e-gridtable th[aria-sort="ascending"],
-  .e-gridtable th[aria-sort="descending"] {
-    color: var(--e-ink);
-  }
-
   .e-sortbtn {
     display: inline-flex;
     align-items: center;
@@ -97,14 +92,17 @@
     cursor: pointer;
   }
 
+  /* Headings are already ink, so a sort button answers the pointer with an underline; the sorted column shows its arrow. */
   .e-sortbtn:hover {
-    color: var(--e-ink);
+    text-decoration: underline;
+    text-underline-offset: var(--e-stroke-underline-offset);
   }
 
   .e-sortbtn:focus-visible {
     border-radius: var(--e-radius-sm);
   }
 
+  .e-col-check,
   .e-gridtable .e-cell-check {
     width: var(--_check-w);
     padding-inline-end: 0;
@@ -295,6 +293,53 @@
     .e-resizer:hover::after,
     .e-resizer:focus-visible::after {
       background: Highlight;
+    }
+  }
+
+  /* On paper the grid is the table it shows. The search, filters, selection, column tools and resizers only answer a
+     pointer, so they are left out (the pager hides itself); only the sorted column keeps its arrow. The head is laid in
+     the flow, so the browser repeats it at the top of every page, and a cell that clips on screen wraps. */
+  @media print {
+    .e-gridtable thead th,
+    .e-gridtable .e-sticky {
+      position: static;
+    }
+
+    .e-grid-bar,
+    .e-filterrow,
+    .e-resizer,
+    .e-gridtable .e-cell-check > *,
+    .e-gridtable th[aria-sort="none"] .e-sortbtn .e-icon {
+      display: none;
+    }
+
+    /* The selection column keeps its place, so every cell still meets its own column, but takes no width. */
+    .e-col-check,
+    .e-gridtable .e-cell-check {
+      width: 0;
+      padding: 0;
+    }
+
+    /* A button in a head the browser repeats on the next page is not painted there, so the label is laid out as the heading's own text. */
+    .e-sortbtn {
+      display: contents;
+    }
+
+    .e-sortbtn .e-icon {
+      margin-inline-start: var(--e-gap-tight);
+      vertical-align: middle;
+    }
+
+    .e-gridtable--fixed {
+      table-layout: auto;
+      min-width: 0;
+    }
+
+    .e-gridtable--fixed :is(td, th),
+    .e-gridtable--virtual td {
+      overflow: visible;
+      white-space: normal;
+      text-overflow: clip;
     }
   }
 

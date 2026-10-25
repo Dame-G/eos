@@ -63,7 +63,9 @@ const t = useMessages();
   .e-tag {
     --_ink: var(--e-ink);
     --_edge: var(--e-slab-ink);
-    --_bg: var(--e-surface-tint);
+
+    /* Half the surface tint: a soft ground, quieter than a well, so the edge and the text carry the tag. */
+    --_bg: color-mix(in srgb, var(--e-surface-tint) 50%, var(--e-surface));
     --_lift: var(--e-depth-thin);
     --_r: var(--e-radius-sm);
 
@@ -107,9 +109,10 @@ const t = useMessages();
     --_ink: var(--e-danger);
   }
 
+  /* Cut sideways only, so no font is clipped above or below the line. */
   .e-tag-text {
     min-inline-size: 0;
-    overflow: hidden;
+    overflow: clip visible;
     text-overflow: ellipsis;
     white-space: nowrap;
   }

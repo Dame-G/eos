@@ -45,6 +45,7 @@
     .e-check,
     .e-radio,
     .e-avatar--button,
+    .e-nav-item,
     .e-slider-thumb,
     .e-link,
     .e-crumb-current,
@@ -155,7 +156,7 @@
    *   A value you set   filled `--e-primary` with `--e-on-primary` text on a `--e-primary-slab` slab: a toggle, a check, a radio, a switch, a segment, a page, a day.
    *   Selection never changes the weight of a label, so a selected tab, segment or page keeps its width.
    *
-   * Hover and press. A bordered item (a tab, a segment, a checkbox, a radio, the switch, an expandable row, an outline button) recolours its own border, `--e-wash-ring` on hover and `--e-ink` on press, and takes the wash; it never adds a ring, so its edge never thickens. An unbordered item (a row, a tile, a day, a page, a quiet button) takes the wash plus the ring, `--e-shadow-ring-hover` then `--e-shadow-ring-press`: one shared rule in `e.state` below, so a component lists itself there instead of copying it. Filled controls keep their own `-hover` and `-press` fills. All of them use `--e-transition-state`.
+   * Hover and press. A bordered item (a tab, a segment, a checkbox, a radio, the switch, an expandable row, a nav item, an outline button) recolours its own border, `--e-wash-ring` on hover and `--e-ink` on press, and takes the wash; it never adds a ring, so its edge never thickens. An unbordered item (a row, a tile, a day, a page, a quiet button) takes the wash plus the ring, `--e-shadow-ring-hover` then `--e-shadow-ring-press`: one shared rule in `e.state` below, so a component lists itself there instead of copying it. Filled controls keep their own `-hover` and `-press` fills. All of them use `--e-transition-state`.
    *   Named exceptions, which draw no ring: a text link (`ELink`: the ink colour only, no wash), a breadcrumb (a wash under the link text) and a disclosure summary (`EDisclosure`: a wash only, no ring and no underline).
    *
    * Disabled, in two voices. A control keeps its box, drops its lift, dims to `--e-disabled-ink` on `--e-disabled-fill` and draws a dashed `--e-border-strong` edge over its own (the shared ::before in `e.state`, which a page's focus or outline reset cannot remove), so colour is never the only cue. A list row (a menu item, an option, a nav item) only dims its text. Both use `cursor: not-allowed` and stop answering the pointer.
@@ -192,6 +193,58 @@
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
+  }
+
+  /*
+   * Paper. Under print the theme swaps in its light palette (tokens.css), and the page prints with its colours exactly,
+   * so a fill that carries meaning (a checked box, a progress bar, a chosen day) is on the paper even where the browser
+   * leaves background graphics out. A heading stays with what follows it, a paragraph leaves no lone line at a page
+   * edge, and a block that only makes sense whole (a card, a field, a row, a figure) moves to the next page rather than
+   * being cut. A block taller than a page still breaks.
+   */
+  @media print {
+    .e-root {
+      print-color-adjust: exact;
+    }
+
+    .e-root :where(h1, h2, h3, h4, h5, h6),
+    :where(.e-heading, .e-kicker, .e-pagehead, .e-table-caption, .e-fieldset-title, legend) {
+      break-after: avoid;
+      break-inside: avoid;
+    }
+
+    .e-root :where(p, li, dd, blockquote) {
+      orphans: 3;
+      widows: 3;
+    }
+
+    .e-root :where(img, svg, canvas, video, figure, tr, pre),
+    :where(
+      .e-surface,
+      .e-notice,
+      .e-toast,
+      .e-metric,
+      .e-linkcard,
+      .e-empty,
+      .e-field,
+      .e-seg-field,
+      .e-sel,
+      .e-combo-root,
+      .e-cal,
+      .e-steps,
+      .e-pad,
+      .e-sign,
+      .e-stamp,
+      .e-tag,
+      .e-file,
+      .e-progress,
+      .e-slider,
+      .e-code,
+      .e-avatar-group,
+      .e-results li
+    ) {
+      break-inside: avoid;
+    }
   }
 
   .e-root * {
@@ -293,5 +346,12 @@
     border: var(--e-stroke-edge) dashed var(--_dash, var(--e-border-strong));
     border-radius: inherit;
     pointer-events: none;
+  }
+
+  /* A floating panel answers a pointer that paper does not have, and its fixed position would land it anywhere on the page, so an open menu, list, date panel or tooltip is not printed. */
+  @media print {
+    :where(.e-popover, .e-calpanel, .e-tip-bubble) {
+      display: none;
+    }
   }
 }

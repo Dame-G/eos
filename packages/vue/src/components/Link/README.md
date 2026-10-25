@@ -27,7 +27,7 @@ An icon before the text:
 
 <!-- props:end -->
 
-`class`, `style`, attributes and listeners (`@click`, `aria-*`, `download`) land on the `a` element. In print the address is written after the text.
+`class`, `style`, attributes and listeners (`@click`, `aria-*`, `download`) land on the `a` element. In print the address of a link to another site is written after the text.
 
 ## Slots
 
@@ -39,7 +39,7 @@ An icon before the text:
 
 - An `a` with `href`. An `external` link adds hidden text "(opens in a new tab)" to its name.
 - With an `icon` the underline covers the text only, not the icon.
-- In print the address follows the text, except for in-page anchors, `mailto:` and `tel:` links.
+- In print the address of a link to another site (`http:` or `https:`) follows the text. A path on the same site, an in-page anchor, a `mailto:` or `tel:` link prints as its text alone, since the address means nothing on paper without the page around it.
 
 ## Keyboard
 

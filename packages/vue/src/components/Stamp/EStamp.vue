@@ -144,10 +144,10 @@ function titleIfCut(e: PointerEvent) {
     box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-stamp-ink);
   }
 
-  /* The word and the detail share the kicker line height (`leading-tight`), so their baselines meet and the text sits on one line whichever way the row is centred. Capitals have no descenders, so a line box centres them high; a little space above the text moves the capitals to the middle of the stamp. */
+  /* The word and the detail share the kicker line height (`leading-tight`), so their baselines meet and the text sits on one line whichever way the row is centred. Capitals have no descenders, so a line box centres them high; a little space above the text moves the capitals to the middle of the stamp. Both cut sideways only, so a font with tall capitals or deep descenders is never clipped above or below the line. */
   .e-stamp > :is(.e-stamp-word, .e-stamp-detail) {
     min-inline-size: 0;
-    overflow: hidden;
+    overflow: clip visible;
     text-overflow: ellipsis;
   }
 

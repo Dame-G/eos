@@ -120,6 +120,13 @@ const overflows = useOverflow(scroller, [table]);
     z-index: var(--e-z-raised);
   }
 
+  /* On paper the head is in the flow, so the browser repeats it at the top of each page the table runs onto. */
+  @media print {
+    .e-table-wrap thead th {
+      position: static;
+    }
+  }
+
   .e-table-loading {
     display: grid;
     gap: var(--e-gap-base);

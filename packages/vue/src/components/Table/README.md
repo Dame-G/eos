@@ -54,6 +54,7 @@ As cards (`cards`, below 40rem of the table's width) the heading row is hidden, 
 - Use `th` with `scope="col"` for column headings and `scope="row"` for row headings, so screen readers can announce them with each cell.
 - Striping and the hover row are decoration: no information depends on them.
 - In forced-colors mode the frame and the rule under the headings are drawn in the system text colour.
+- In print the table lays out in full (no scrolling), the heading row repeats at the top of each page and no row is split across pages.
 
 ## Keyboard
 

@@ -1,4 +1,4 @@
-/* The table look shared by ETable and EDataGrid: tinted mono headings, hairline rows, a hover row, numeric columns, striped and dense rows, the dimmed busy rows, the frame and its scroller. `.e-cards` on a container turns the rows into cards below 40rem of its width (each cell needs a `data-label`). */
+/* The table look shared by ETable and EDataGrid: tinted mono headings in ink over a heavier rule, hairline rows, a hover row, numeric columns, striped and dense rows, the dimmed busy rows, the frame and its scroller. `.e-cards` on a container turns the rows into cards below 40rem of its width (each cell needs a `data-label`). */
 @layer e.containers {
   .e-table {
     width: 100%;
@@ -10,15 +10,15 @@
     padding: var(--e-pad-cell);
     border-bottom: 0;
 
-    /* The rule under a heading is a shadow, not a border: a sticky cell in a collapsed table drops its border when the table scrolls. */
-    box-shadow: inset 0 calc(-1 * var(--e-stroke-card)) 0 var(--e-border-strong);
+    /* The rule under a heading is a shadow, not a border: a sticky cell in a collapsed table drops its border when the table scrolls. Twice the card stroke, so the head row reads as the head of the table. */
+    box-shadow: inset 0 calc(-2 * var(--e-stroke-card)) 0 var(--e-border-strong);
     background: var(--e-surface-tint);
     text-align: start;
     white-space: nowrap;
     font: var(--e-type-kicker);
     letter-spacing: var(--e-tracking-label);
     text-transform: uppercase;
-    color: var(--e-muted);
+    color: var(--e-ink);
   }
 
   /* A heading at the start of a row names the row: it reads as a label, not as a column heading. */
@@ -200,7 +200,7 @@
 
   @media (forced-colors: active) {
     .e-table th {
-      border-bottom: var(--e-stroke-card) solid CanvasText;
+      border-bottom: calc(2 * var(--e-stroke-card)) solid CanvasText;
     }
 
     :is(.e-table-wrap, .e-grid-frame)::after {

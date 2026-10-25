@@ -34,7 +34,10 @@ const limits = {
   // file as a raised tile, rejected-file rows with their tone edge, the corner count, thumbnails and the single-file
   // preview card), the calendar range meeting flush (each end, today and the hover squaring toward the band, the band
   // rounding its outer corners), and the hover veil that fades a field's and an outline button's wash without a sweep.
-  "style.css": 23400,
+  // Then from 23400 (about 260 B over it at the time): print support (the shared paper rules for colour, breaks and
+  // floating panels; the grid, table, code block, upload, disclosure and header on paper), the single-file upload tile
+  // taking the zone's states, the avatar stack, the nav item's own hover edge and the switch thumb's slab and press.
+  "style.css": 23900,
   // Minified here before gzip since the JavaScript ships unminified; rebased then with the headroom they had.
   "index.js": 2100,
   // Raised from 144300 in the audit release, at 148029 B with the headroom it had (2.9%). Growth over 0.17 (about 8 kB,

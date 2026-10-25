@@ -496,7 +496,7 @@ function resetWidth(key: string) {
             }}
           </caption>
           <colgroup v-if="fixedLayout">
-            <col v-if="selectable" style="width: var(--_check-w)" />
+            <col v-if="selectable" class="e-col-check" />
             <col v-for="c in cols" :key="c.key" :style="widthOf(c) ? { width: `${widthOf(c)}px` } : undefined" />
           </colgroup>
           <thead :role="role('rowgroup')" :inert="headInert || undefined">

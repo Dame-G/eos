@@ -95,12 +95,7 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
       <p v-if="group.label" :id="`${uid}-${g}`" class="e-nav-heading">{{ group.label }}</p>
       <ul :aria-labelledby="group.label ? `${uid}-${g}` : undefined">
         <li v-for="(item, i) in group.items" :key="keyOf(item, i)">
-          <LinkNavNode
-            :item="item"
-            :link-component="linkComponent"
-            item-class="e-nav-item e-interact"
-            :is-current="current"
-          >
+          <LinkNavNode :item="item" :link-component="linkComponent" item-class="e-nav-item" :is-current="current">
             <template #item="{ item: node }">
               <EIcon v-if="nav(node).icon" :name="nav(node).icon!" />
               <span class="e-nav-label">{{ node.label }}</span>
@@ -173,6 +168,7 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
     padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
     border: var(--e-stroke-edge) solid transparent;
     border-radius: var(--e-radius-md);
+    background-clip: padding-box;
     color: var(--e-ink);
     font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-none) var(--e-font-sans);
     text-decoration: none;
@@ -185,6 +181,17 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
     background-color: var(--e-primary-soft);
     background-clip: padding-box;
     color: var(--e-primary);
+  }
+
+  /* A row has its own edge, so it answers the pointer as a bordered item does: the edge darkens and the wash fills inside it. No ring is added, so the hover never reaches past the edge. */
+  .e-nav-item:not([aria-current="page"], [aria-disabled="true"]):hover {
+    border-color: var(--e-wash-ring);
+    background-color: var(--e-wash-hover);
+  }
+
+  .e-nav-item:not([aria-current="page"], [aria-disabled="true"]):active {
+    border-color: var(--e-ink);
+    background-color: var(--e-wash-press);
   }
 
   /* An unavailable row only dims its text and stops answering the pointer. */

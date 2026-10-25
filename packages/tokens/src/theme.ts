@@ -751,6 +751,21 @@ const PRINT = [
   "--e-background: #ffffff",
 ];
 
+/**
+ * The inputs the print palette is derived from: the theme as a light one, with its contrast setting kept. A dark theme
+ * loses its own grounds, since paper is white.
+ */
+function printInput(input: ThemeInput, dark: boolean): ThemeInput {
+  const out: ThemeInput = {
+    ...input,
+    dark: undefined,
+    scheme: "light",
+    contrast: input.contrast === "auto" ? undefined : input.contrast,
+  };
+  if (dark) for (const k of GROUND_INPUTS) delete out[k];
+  return out;
+}
+
 /** What a reader who asks for less motion gets. `0.01ms` and not `0` so `transitionend` still fires. Loops are not here: a loop at 0.01ms would flicker, so each loader switches itself off. */
 const REDUCED = ["--e-duration-tap: 0.01ms", "--e-duration-fade: 0.01ms", "--e-duration-move: 0.01ms"];
 
@@ -927,6 +942,15 @@ export function defineTheme(raw: ThemeInput = {}): Theme {
   // Tells the browser which way the page leans, so its own controls (scrollbars, colour picker, autofill) match.
   const colorScheme = scheme(input);
   const { alternates, fulls } = variants(input, tokens);
+  // Paper gets the light palette whatever the screen shows, so a fill that carries meaning (a checked box, a progress
+  // bar) prints in the light theme's colours. Every token a variant changes is reset, so a dark page prints light too.
+  const onPaper = derive(printInput(input, colorScheme === "dark"));
+  const reset = new Set([...Object.keys(diff(tokens, onPaper)), ...alternates.flatMap((a) => Object.keys(a.tokens))]);
+  const print: Record<string, string> = Object.fromEntries([...reset].map((k) => [k, onPaper[k]!]));
+  for (const d of PRINT) {
+    const [k, v] = d.split(": ");
+    print[k!.slice("--e-".length)] = v!;
+  }
   const skipped: SkippedPair[] = [];
   const issues = checkContrast(tokens, skipped);
   alternates.forEach((a, i) => {
@@ -977,7 +1001,8 @@ export function defineTheme(raw: ThemeInput = {}): Theme {
       for (const a of alternates)
         rules += `@media ${a.media} {\n  ${selector} {\n    color-scheme: ${a.scheme};\n${decls(a.tokens, "    ")}\n  }\n}\n`;
       rules += `@media (prefers-reduced-motion: reduce) {\n  ${themed} {\n${REDUCED.map((d) => `    ${d} !important;`).join("\n")}\n  }\n}\n`;
-      rules += `@media print {\n  ${themed} {\n${PRINT.map((d) => `    ${d} !important;`).join("\n")}\n  }\n}\n`;
+      const paperDecls = Object.entries(print).map(([k, v]) => `    --e-${k}: ${v} !important;`);
+      rules += `@media print {\n  ${themed} {\n    color-scheme: light;\n${paperDecls.join("\n")}\n  }\n}\n`;
       const body = layer ? `@layer e.tokens {\n${rules}}\n` : rules;
       return (header ? `/* Generated from tokens.json. Theme: ${name}. */\n@layer ${LAYER_ORDER};\n` : "") + body;
     },
@@ -989,16 +1014,18 @@ export function defineTheme(raw: ThemeInput = {}): Theme {
       const canMatch = typeof matchMedia === "function";
       const set = new Set<string>();
       const paint = () => {
-        // The last variant that matches carries every token the earlier ones changed, so it alone is enough.
-        const match = canMatch ? alternates.filter((a) => matchMedia(a.media).matches).at(-1) : undefined;
-        for (const [k, v] of Object.entries({ ...tokens, ...match?.tokens })) {
-          el.style.setProperty(`--e-${k}`, v);
+        // Printing, the theme's own paper palette is set as important, so it beats the print rule of whichever theme's
+        // stylesheet is loaded. Otherwise the last variant that matches carries every token the earlier ones changed.
+        const printing = canMatch && matchMedia("print").matches;
+        const match = canMatch && !printing ? alternates.filter((a) => matchMedia(a.media).matches).at(-1) : undefined;
+        for (const [k, v] of Object.entries({ ...tokens, ...(printing ? print : match?.tokens) })) {
+          el.style.setProperty(`--e-${k}`, v, printing ? "important" : "");
           set.add(k);
         }
-        el.style.colorScheme = match?.scheme ?? colorScheme;
+        el.style.colorScheme = printing ? "light" : (match?.scheme ?? colorScheme);
       };
       paint();
-      const lists = canMatch ? alternates.map((a) => matchMedia(a.media)) : [];
+      const lists = canMatch ? [...alternates.map((a) => a.media), "print"].map((m) => matchMedia(m)) : [];
       for (const l of lists) l.addEventListener("change", paint);
       el.setAttribute("data-e-theme", name);
       const dispose = () => {

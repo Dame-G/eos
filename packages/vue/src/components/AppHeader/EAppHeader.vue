@@ -195,10 +195,16 @@ onBeforeUnmount(() => {
     }
   }
 
+  /* On paper the header prints once, at the top of the first page, as the masthead: the brand alone, with no nav, menu button or actions (search, settings, an account menu), which only answer a pointer. */
   @media print {
     .e-appheader-nav,
-    .e-appheader-toggle {
+    .e-appheader-toggle,
+    .e-appheader-actions {
       display: none;
+    }
+
+    .e-appheader--sticky {
+      position: static;
     }
   }
 

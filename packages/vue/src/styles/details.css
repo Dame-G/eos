@@ -36,4 +36,16 @@
       content-visibility var(--e-duration-move) allow-discrete,
       overflow-clip-margin 0s var(--e-duration-move) allow-discrete;
   }
+
+  /* Paper cannot be clicked open, so a closed disclosure or row prints open, with no mark that says it opens. A group of a nav list is left as it is: the nav is for a screen. */
+  @media print {
+    :is(.e-details, .e-xrow)::details-content {
+      block-size: auto;
+      content-visibility: visible;
+    }
+
+    :is(.e-details, .e-xrow) > summary .e-details-chevron {
+      display: none;
+    }
+  }
 }

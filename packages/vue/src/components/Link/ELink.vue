@@ -83,18 +83,12 @@ const target = computed(() => linkTarget(props, props.linkComponent));
     height: 1.25em;
   }
 
+  /* On paper a link to another site prints its address after the text, so the reader can still follow it. A path on this site, an in-page anchor, a mail or phone link say nothing without the page around them, so they print as text. */
   @media print {
-    .e-link::after {
+    .e-link:is([href^="http:"], [href^="https:"])::after {
       content: " (" attr(href) ")";
       font-size: 0.85em;
-    }
-
-    /* An in-page anchor, a mail or phone link and a link without an address say nothing on paper. */
-    .e-link[href^="#"]::after,
-    .e-link[href^="mailto:"]::after,
-    .e-link[href^="tel:"]::after,
-    .e-link:not([href])::after {
-      content: none;
+      overflow-wrap: anywhere;
     }
   }
 }

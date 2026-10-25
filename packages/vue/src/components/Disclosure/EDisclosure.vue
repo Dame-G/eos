@@ -29,7 +29,10 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 <template>
   <details class="e-disclosure e-details" v-bind="details">
     <summary v-bind="summary">
-      <slot name="title">{{ title }}</slot>
+      <!-- One box for the title, so rich content in it stays one run of text and is not spread across the line. -->
+      <span class="e-details-title"
+        ><slot name="title">{{ title }}</slot></span
+      >
       <EIcon class="e-details-chevron" name="chevron-down" />
     </summary>
     <div class="e-details-body"><slot /></div>

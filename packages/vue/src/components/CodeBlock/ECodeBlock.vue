@@ -208,9 +208,21 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     padding: var(--e-gap-tight);
   }
 
+  /* Paper does not scroll: a long line wraps, and the shades that say there is more are left out with the copy button. */
   @media print {
     .e-code-side {
       display: none;
+    }
+
+    .e-code-body {
+      overflow: visible;
+      background: none;
+    }
+
+    .e-code code {
+      width: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
     }
   }
 

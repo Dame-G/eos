@@ -15,6 +15,16 @@ describe("EDisclosure", () => {
     expect(details.querySelector(".e-details-body")!.textContent).toBe("Body");
   });
 
+  test("a title with rich content stays one run of text, not spread across the summary", async () => {
+    const { container } = await render(EDisclosure, {
+      slots: { title: () => ["Getting ", h("em", "there")], default: "Body" },
+    });
+    container.classList.add("e-root");
+    const title = container.querySelector(".e-details-title")!;
+    const word = title.querySelector("em")!.getBoundingClientRect();
+    expect(word.left - title.getBoundingClientRect().left).toBeLessThan(120);
+  });
+
   test("pressing the summary does not select text (a double click on it selects nothing)", async () => {
     const { container } = await render(EDisclosure, { props: { title: "History" }, slots: { default: "Body" } });
     container.classList.add("e-root");
@@ -39,9 +49,7 @@ describe("EDisclosure", () => {
     const summary = details.querySelector("summary")!;
     const gaps = () => {
       const range = document.createRange();
-      range.selectNodeContents(
-        [...summary.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim())!,
-      );
+      range.selectNodeContents(summary.querySelector(".e-details-title")!);
       const text = range.getBoundingClientRect();
       const box = summary.getBoundingClientRect();
       return { above: text.top - box.top, below: box.bottom - text.bottom };

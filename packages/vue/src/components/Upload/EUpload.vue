@@ -333,7 +333,7 @@ defineExpose({
           @dragleave="onDragLeave"
           @drop="onDrop"
         >
-          <!-- The file fills the zone, which stays its label: choosing or dropping again replaces it. -->
+          <!-- The file takes the zone's place and stays its label: choosing or dropping again replaces it. -->
           <div v-if="single" class="e-file e-file--single">
             <label :for="field.id" class="e-file-main">
               <img v-if="thumbOf(single)" class="e-file-preview" :src="thumbOf(single)" alt="" />
@@ -429,10 +429,6 @@ defineExpose({
     cursor: pointer;
   }
 
-  .e-drop--filled {
-    padding: var(--e-gap-snug);
-  }
-
   /* The hover fill is laid over the well, as on a field. */
   .e-drop:hover:not(.e-drop--readonly, .e-drop--disabled) {
     --_veil: var(--e-wash-hover);
@@ -493,6 +489,35 @@ defineExpose({
 
   .e-drop[data-invalid]:not(.e-drop--disabled, .e-drop--over, .e-drop--armed):hover {
     --_veil: var(--e-danger-soft);
+  }
+
+  /* Filled, the file is the whole control: the well gives way to the file's own tile, which takes the zone's states (the hover fill, a file dragged over the page or over it, the danger edge). */
+  .e-drop.e-drop--filled {
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .e-drop--filled > .e-file--single {
+    background-clip: padding-box;
+    box-shadow: inset 0 0 0 100vmax var(--_veil);
+    transition: var(--e-transition-state);
+  }
+
+  .e-drop--armed > .e-file--single {
+    border-style: dashed;
+    border-color: var(--e-primary);
+  }
+
+  .e-drop--over > .e-file--single {
+    border-style: solid;
+    border-color: var(--e-primary);
+    background-color: var(--e-primary-soft);
+  }
+
+  .e-drop[data-invalid]:not(.e-drop--disabled, .e-drop--over, .e-drop--armed) > .e-file--single {
+    border-color: var(--e-danger);
   }
 
   .e-drop-hint {
@@ -655,6 +680,15 @@ defineExpose({
     position: absolute;
     inset-block-start: var(--e-gap-snug);
     inset-inline-end: var(--e-gap-snug);
+  }
+
+  /* Nothing can be dropped on paper: an empty zone, the count and the files turned away are left out, and the chosen files print as they show. */
+  @media print {
+    .e-drop:has(.e-drop-zone),
+    .e-drop-count,
+    .e-rejects {
+      display: none;
+    }
   }
 
   @media (forced-colors: active) {

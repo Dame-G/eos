@@ -533,6 +533,19 @@ describe("scheme, contrast and density", () => {
     expect(css).toMatch(/@media print \{[^}]*--e-ink: #000000 !important;[^}]*--e-surface: #ffffff !important;/);
     expect(defineTheme({ motion: "snappy" }).css()).toMatch(/--e-duration-tap: 50ms;/);
   });
+  test("a dark page prints in the light palette: every token the dark variant changes is set back", () => {
+    const t = defineTheme({ scheme: "auto" });
+    const print = /@media print \{\n {2}[^{]+\{([^}]*)\}/.exec(t.css())![1]!;
+    for (const k of Object.keys(t.alternates[0]!.tokens)) expect(print, k).toContain(`--e-${k}: `);
+    expect(print).toContain(`--e-primary-soft: ${t.tokens["primary-soft"]} !important;`);
+    expect(print).toContain("color-scheme: light;");
+    // A theme that is dark itself prints on white, with an action colour that holds against it.
+    const dark = defineTheme({ scheme: "dark", surface: "#10151a" });
+    expect(dark.css()).toMatch(/@media print \{[^}]*--e-surface: #ffffff !important;/);
+    expect(dark.css()).not.toMatch(
+      new RegExp(`@media print \\{[^}]*--e-primary-soft: ${dark.tokens["primary-soft"]} !important`),
+    );
+  });
   test("loop durations are left alone under reduced motion", () => {
     expect(defineTheme().css()).not.toMatch(/--e-duration-loop: 0.01ms/);
   });

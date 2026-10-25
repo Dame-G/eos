@@ -59,7 +59,7 @@ const name = computed(
   <!-- One image with one name: the avatars and the tile are the picture, so they are not announced one by one. -->
   <span class="e-avatar-group" role="img" :aria-label="name">
     <EAvatar v-for="(person, i) in shown" :key="keys[i]" :name="person.name" :src="person.src" :size="size" />
-    <span v-if="rest > 0" class="e-avatar" :class="avatarSizeClass(size)">+{{ rest }}</span>
+    <span v-if="rest > 0" class="e-avatar e-avatar-more" :class="avatarSizeClass(size)">+{{ rest }}</span>
   </span>
 </template>
 
@@ -70,13 +70,15 @@ const name = computed(
     align-items: center;
   }
 
-  /* The overlap: each avatar covers the edge of the one before it, and a ring of the page colour keeps them apart. */
+  /* A stack of tiles, each covering a quarter of the one before it, clear of its initials. Each tile's own edge draws the line where it lies over the last, so the stack needs no gap. */
   .e-avatar-group > * + * {
-    margin-inline-start: calc(-1 * var(--e-gap-snug));
+    margin-inline-start: calc(var(--_size) / -4);
   }
 
-  .e-avatar-group > .e-avatar {
-    box-shadow: 0 0 0 var(--e-stroke-edge) var(--e-surface);
+  /* The count of the rest is a tile in the page colour with muted figures, so it reads as a number and not one more person. */
+  .e-avatar-group > .e-avatar-more {
+    background-color: var(--e-surface);
+    color: var(--e-muted);
   }
 }
 </style>

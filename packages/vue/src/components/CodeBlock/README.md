@@ -46,6 +46,7 @@ Blocks that sit back to back with no gap (a plain container, or an `EStack` with
 - The code sits in a `group` named by `label`, else by the language (`ts` is read "TypeScript"). While it scrolls sideways the group is a tab stop, so the keys scroll it, also with your own slot markup.
 - "Copied" is announced politely through the page's shared announcer (see `useAnnouncer`). If the clipboard is blocked nothing is copied and "Couldn't copy" is announced.
 - Nothing is highlighted for you, so your colours must meet contrast.
+- In print long lines wrap instead of scrolling, the copy button is left out, and a block that fits on a page is not split across two.
 
 ## Keyboard
 

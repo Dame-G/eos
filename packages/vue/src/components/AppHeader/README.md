@@ -43,7 +43,7 @@ The header sets `--e-header-height` on the page root: its height while `sticky`,
 
 - Renders the `banner` landmark: use one per page.
 - Give the navigation a `label` (on `ENavList`) so it differs from other navigations.
-- The navigation row and the menu button are hidden in print.
+- In print the header is the brand alone: the navigation row, the menu button and the actions are hidden, and a sticky header prints once, at the top of the first page.
 - The menu button is named "Menu" (message `menu`) and carries `aria-expanded`; inside an `EAppShell` it points at the open drawer with `aria-controls`.
 - A navigation row that scrolls sideways is a tab stop while it scrolls, so the keyboard can scroll it.
 

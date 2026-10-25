@@ -83,14 +83,15 @@ const label = computed(() =>
   .e-avatar {
     --_ring: var(--e-border-strong);
     --_r: var(--e-radius-md);
+    --_size: var(--e-avatar-size-md);
 
     position: relative;
     display: inline-grid;
     place-items: center;
     flex: none;
     box-sizing: border-box;
-    width: var(--e-avatar-size-md);
-    height: var(--e-avatar-size-md);
+    width: var(--_size);
+    height: var(--_size);
     border: var(--e-stroke-edge) solid var(--_ring);
     border-radius: var(--_r);
     background: var(--e-surface-tint);
@@ -124,16 +125,15 @@ const label = computed(() =>
   }
 
   .e-avatar--s {
-    width: var(--e-avatar-size-sm);
-    height: var(--e-avatar-size-sm);
-    font-size: var(--e-text-xs);
-
     --_r: var(--e-radius-sm);
+    --_size: var(--e-avatar-size-sm);
+
+    font-size: var(--e-text-xs);
   }
 
   .e-avatar--l {
-    width: var(--e-avatar-size-lg);
-    height: var(--e-avatar-size-lg);
+    --_size: var(--e-avatar-size-lg);
+
     font-size: var(--e-text-lg);
   }
 
