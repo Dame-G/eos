@@ -1,5 +1,6 @@
 @layer e.page {
   .e-shell-inner {
+    box-sizing: border-box;
     width: 100%;
     max-width: var(--e-shell-width);
     margin-inline: auto;

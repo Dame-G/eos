@@ -85,9 +85,37 @@ describe("EAppShell", () => {
     expect(document.activeElement).toBe(container.querySelector("#content"));
   });
 
-  test("main can take focus from a script but is not a tab stop", async () => {
+  test("main carries no tabindex of its own: the skip link lends it one while focus is there", async () => {
     const { container } = await render(EAppShell, { slots: noSide });
-    expect(container.querySelector("main")!.tabIndex).toBe(-1);
+    const main = container.querySelector("main")!;
+    expect(main.hasAttribute("tabindex")).toBe(false);
+    await userEvent.tab();
+    await userEvent.keyboard("{Enter}");
+    await expect.poll(() => document.activeElement).toBe(main);
+    expect(main.getAttribute("tabindex")).toBe("-1");
+    await userEvent.tab();
+    expect(main.hasAttribute("tabindex")).toBe(false);
+  });
+
+  test("on a phone the server-rendered sidebar is hidden by CSS before the page runs, and the menu button is already there", async () => {
+    await page.viewport(600, 768);
+    try {
+      await render(EAppShell, { slots });
+      // The markup the server sends: the sidebar in the page, and the class that says it will go into a drawer.
+      const ssr = document.createElement("div");
+      ssr.className = "e-shell e-shell--side e-shell--toggle";
+      ssr.innerHTML = '<div class="e-shell-body"><aside class="e-shell-side">Side</aside><main>Page</main></div>';
+      document.body.append(ssr);
+      expect(getComputedStyle(ssr.querySelector("aside")!).display).toBe("none");
+      ssr.remove();
+      const button = page.getByRole("button", { name: "Menu" });
+      const el = button.element() as HTMLElement;
+      await expect.element(button).toBeVisible();
+      await page.viewport(1024, 768);
+      await expect.poll(() => getComputedStyle(el).display).toBe("none");
+    } finally {
+      await page.viewport(1024, 768);
+    }
   });
 
   test("the sidebar is two columns from 48rem and leaves the page below that", async () => {
@@ -116,10 +144,12 @@ describe("EAppShell", () => {
       const toggle = page.getByRole("button", { name: "Menu" });
       await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
       const button = toggle.element();
+      expect(button.hasAttribute("aria-controls")).toBe(false);
       await toggle.click();
       expect(button.getAttribute("aria-expanded")).toBe("true");
       const dialog = page.getByRole("dialog", { name: "Menu" });
       await expect.element(dialog).toBeVisible();
+      await expect.poll(() => button.getAttribute("aria-controls")).toBe(dialog.element().id);
       await expect.element(dialog.getByRole("navigation", { name: "Account" })).toBeVisible();
       await userEvent.keyboard("{Escape}");
       await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
