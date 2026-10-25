@@ -54,4 +54,4 @@ A button for an action: one `primary` per screen, the other variants rank below 
 
 ## Related
 
-[`EIconButton`](../IconButton/README.md) when the button is only an icon, [`ELink`](../Link/README.md) for a link inside text, [`EActions`](../Actions/README.md) to group several.
+[`ECopyButton`](../CopyButton/README.md) to copy text, [`EMenu`](../Menu/README.md) for a list of actions.

@@ -52,4 +52,4 @@ A small paper tag that labels or categorises something, and can be removed. Use 
 
 ## Related
 
-[`EStamp`](../Stamp/README.md) for a status, [`EAvatarGroup`](../AvatarGroup/README.md) for people.
+[`EAvatarGroup`](../AvatarGroup/README.md) for people.

@@ -36,4 +36,4 @@ Not focusable.
 
 ## Related
 
-[`EIconButton`](../IconButton/README.md) when the icon is a button, [`EStamp`](../Stamp/README.md) for an icon with a status word.
+[`EStamp`](../Stamp/README.md) for an icon with a status word.

@@ -37,4 +37,4 @@ Not focusable.
 
 ## Related
 
-[`EStack`](../Stack/README.md) for the blocks inside, [`EGrid`](../Grid/README.md) for columns.
+[`EGrid`](../Grid/README.md) for columns.

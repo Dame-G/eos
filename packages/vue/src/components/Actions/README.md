@@ -42,4 +42,4 @@ Each button is its own tab stop, in source order.
 
 ## Related
 
-[`EButton`](../Button/README.md) for a single action, [`EInline`](../Inline/README.md) to lay out anything that is not a button.
+[`EButton`](../Button/README.md) for a single action.

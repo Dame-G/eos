@@ -43,4 +43,4 @@ Not focusable.
 
 ## Related
 
-[`EInline`](../Inline/README.md) for a row, [`EGrid`](../Grid/README.md) for columns that fill the width.
+[`EGrid`](../Grid/README.md) for columns that fill the width.

@@ -40,4 +40,4 @@ An icon-only button with a target as tall as the control height, for rows where 
 
 ## Related
 
-[`EButton`](../Button/README.md) when the action needs words, [`EMenu`](../Menu/README.md) for a list of actions.
+[`EMenu`](../Menu/README.md) for a list of actions.

@@ -41,4 +41,4 @@ A person, as a photo or as their initials on a rounded tile. Use [`EAvatarGroup`
 
 ## Related
 
-[`EAvatarGroup`](../AvatarGroup/README.md) for several people in one overlapping stack. [`EMenu`](../Menu/README.md) takes an avatar button as its trigger, and [`EIconButton`](../IconButton/README.md) is the button for an icon action.
+[`EMenu`](../Menu/README.md) takes an avatar button as its trigger, and [`EIconButton`](../IconButton/README.md) is the button for an icon action.

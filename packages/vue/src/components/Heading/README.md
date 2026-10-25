@@ -35,4 +35,4 @@ Not focusable.
 
 ## Related
 
-[`EKicker`](../Kicker/README.md) for the small label above, [`EPageHeader`](../PageHeader/README.md) for the top of a page.
+[`EText`](../Text/README.md) for the copy under it.

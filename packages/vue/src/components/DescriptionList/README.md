@@ -50,4 +50,4 @@ Label and text rows, ruled apart, for facts such as what a statement covers or w
 
 ## Related
 
-[`EStamp`](../Stamp/README.md) for the stamp, [`ETable`](../Table/README.md) when the data has columns.
+[`EStamp`](../Stamp/README.md) for the stamp.

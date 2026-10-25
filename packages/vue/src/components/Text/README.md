@@ -42,4 +42,4 @@ Not focusable.
 
 ## Related
 
-[`EHeading`](../Heading/README.md) for headings, [`EKicker`](../Kicker/README.md) for a small label above one.
+[`EHighlight`](../Highlight/README.md) to set off a word inside it.

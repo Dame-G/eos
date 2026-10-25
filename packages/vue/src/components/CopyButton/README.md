@@ -41,4 +41,4 @@ An icon button that copies text and shows a check mark. For a block of code use 
 
 ## Related
 
-[`ECodeBlock`](../CodeBlock/README.md) when the text is code, [`EIconButton`](../IconButton/README.md) for any other icon action.
+[`EIconButton`](../IconButton/README.md) for any other icon action.

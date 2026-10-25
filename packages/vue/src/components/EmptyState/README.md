@@ -45,4 +45,4 @@ The panel shown when a list, search or table has no content. Never leave a list 
 
 ## Related
 
-[`ENotice`](../Notice/README.md) for a message about a problem, [`ESkeleton`](../Skeleton/README.md) while content is loading.
+[`ENotice`](../Notice/README.md) for a message about a problem.

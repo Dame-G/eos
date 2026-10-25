@@ -30,4 +30,4 @@ Not focusable.
 
 ## Related
 
-[`EAvatar`](../Avatar/README.md) for one person, [`ETag`](../Tag/README.md) for a labelled chip.
+[`ETag`](../Tag/README.md) for a labelled chip.
