@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, markRaw } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EMenu from "./EMenu.vue";
@@ -295,6 +295,69 @@ describe("EMenu", () => {
     grid.click();
     await expect.poll(() => seen).toEqual([false]);
     expect(emitted<[unknown, boolean]>().change![0]![1]).toBe(false);
+  });
+
+  test("a link row with `to` renders through linkComponent; a disabled one has no target", async () => {
+    const FakeLink = markRaw(
+      defineComponent({
+        props: { to: { type: String, required: true } },
+        setup:
+          (p, { slots }) =>
+          () =>
+            h("a", { href: `/app${p.to}`, "data-router": "" }, slots.default?.()),
+      }),
+    );
+    const { container } = await mount({
+      linkComponent: FakeLink,
+      items: [
+        { label: "Billing", to: "/billing" },
+        { label: "Plain", href: "#plain" },
+        { label: "Closed", to: "/closed", disabled: true },
+      ],
+    });
+    await triggerOf(container).click();
+    await expect.poll(() => menu()).not.toBeNull();
+    const links = [...document.querySelectorAll<HTMLAnchorElement>("a[role=menuitem]")];
+    expect(links.map((a) => a.getAttribute("href"))).toEqual(["/app/billing", "#plain", null]);
+    expect(links[0]!.hasAttribute("data-router")).toBe(true);
+  });
+
+  test("keepOpen leaves the menu open after a toggle; picking the chosen option changes nothing", async () => {
+    const seen: unknown[] = [];
+    const { container, emitted } = await mount({
+      items: [
+        { type: "checkbox", label: "Grid", checked: false, keepOpen: true, onChange: (v: boolean) => seen.push(v) },
+        {
+          type: "radio-group",
+          value: "a",
+          options: [
+            { label: "A", value: "a" },
+            { label: "B", value: "b" },
+          ],
+          onChange: (v: string) => seen.push(v),
+        },
+      ],
+    });
+    await triggerOf(container).click();
+    await expect.poll(() => menu()).not.toBeNull();
+    document.querySelector<HTMLElement>("[role=menuitemcheckbox]")!.click();
+    await expect.poll(() => seen).toEqual([true]);
+    expect(menu()).not.toBeNull();
+    (page.getByRole("menuitemradio", { name: "A" }).element() as HTMLElement).click();
+    await expect.poll(() => menu()).toBeNull();
+    expect(seen).toEqual([true]);
+    expect(emitted().change).toHaveLength(1);
+  });
+
+  test("a long label wraps inside its row instead of spilling out", async () => {
+    const { container } = await mount({
+      items: [{ label: "A very long action label that keeps going well past the width of any reasonable menu panel" }],
+    });
+    await triggerOf(container).click();
+    await expect.poll(() => menu()).not.toBeNull();
+    const row = rows()[0]!;
+    expect(row.scrollHeight).toBeLessThanOrEqual(row.clientHeight + 1);
+    expect(row.scrollWidth).toBeLessThanOrEqual(row.clientWidth + 1);
   });
 
   test("a radio group marks the chosen option and reports a pick", async () => {

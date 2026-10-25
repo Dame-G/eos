@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Component } from "vue";
 import {
   DropdownMenuCheckboxItem,
   DropdownMenuItem,
@@ -15,10 +16,12 @@ import {
 import EDivider from "../Divider/EDivider.vue";
 import EIcon from "../Icon/EIcon.vue";
 import { usePortalTarget } from "../../config.js";
+import { EDGE_PADDING_TIGHT, SUBMENU_OFFSET } from "../../composables/useDir.js";
+import { hasLinkTarget, linkTarget } from "../../composables/useLink.js";
 import type { EMenuAction, EMenuCheckbox, EMenuItem, EMenuRadioGroup, EMenuRadioOption } from "./EMenu.vue";
 
 /** One level of a menu. A submenu renders another one inside itself. */
-defineProps<{ items: readonly EMenuItem[] }>();
+const props = defineProps<{ items: readonly EMenuItem[]; linkComponent: string | Component }>();
 
 const emit = defineEmits<{
   choose: [item: EMenuAction];
@@ -37,10 +40,20 @@ function toggle(item: EMenuCheckbox, checked: boolean) {
   emit("change", item, checked);
 }
 
+/** Choosing the option that is already chosen changes nothing, so it calls nothing. */
 function pick(group: EMenuRadioGroup, option: EMenuRadioOption) {
+  if (option.value === group.value) return;
   group.onChange?.(option.value);
   emit("change", option, option.value);
 }
+
+/** Reka closes the menu after a choice unless the `select` event is cancelled. */
+function stayOpen(event: Event, keep: boolean | undefined) {
+  if (keep) event.preventDefault();
+}
+
+/** A disabled link goes nowhere, so it is a plain `a` with no address: a router link would need its `to`. */
+const linkAttrs = (item: EMenuAction) => (item.disabled ? {} : linkTarget(item, props.linkComponent));
 
 const isDivider = (item: EMenuItem): item is { divider: true } => "divider" in item && item.divider === true;
 const isAction = (item: EMenuItem): item is EMenuAction => !("type" in item && item.type) && !isDivider(item);
@@ -59,6 +72,7 @@ const isAction = (item: EMenuItem): item is EMenuAction => !("type" in item && i
       class="e-menu-item"
       :model-value="!!item.checked"
       :disabled="item.disabled"
+      @select="stayOpen($event, item.keepOpen)"
       @update:model-value="(v) => toggle(item, !!v)"
     >
       <span class="e-menu-mark">
@@ -74,7 +88,10 @@ const isAction = (item: EMenuItem): item is EMenuAction => !("type" in item && i
         class="e-menu-item"
         :value="option.value"
         :disabled="option.disabled"
-        @select="pick(item, option)"
+        @select="
+          stayOpen($event, item.keepOpen);
+          pick(item, option);
+        "
       >
         <span class="e-menu-mark">
           <DropdownMenuItemIndicator><EIcon name="check" /></DropdownMenuItemIndicator>
@@ -89,23 +106,32 @@ const isAction = (item: EMenuItem): item is EMenuAction => !("type" in item && i
         <EIcon class="e-menu-chevron" name="chevron-right" />
       </DropdownMenuSubTrigger>
       <DropdownMenuPortal :to="portal">
-        <DropdownMenuSubContent class="e-popover e-menu e-root" :side-offset="4" :collision-padding="8">
-          <EMenuItems :items="item.items" @choose="emit('choose', $event)" @change="(i, v) => emit('change', i, v)" />
+        <DropdownMenuSubContent
+          class="e-popover e-menu e-root"
+          :side-offset="SUBMENU_OFFSET"
+          :collision-padding="EDGE_PADDING_TIGHT"
+        >
+          <EMenuItems
+            :items="item.items"
+            :link-component="linkComponent"
+            @choose="emit('choose', $event)"
+            @change="(i, v) => emit('change', i, v)"
+          />
         </DropdownMenuSubContent>
       </DropdownMenuPortal>
     </DropdownMenuSub>
     <DropdownMenuItem
-      v-else-if="isAction(item) && item.href"
+      v-else-if="isAction(item) && hasLinkTarget(item)"
       as-child
       class="e-menu-item"
       :class="{ 'e-menu-item--danger': item.danger }"
       :disabled="item.disabled"
       @select="choose(item)"
     >
-      <a :href="item.disabled ? undefined : item.href">
+      <component :is="item.disabled ? 'a' : linkComponent" v-bind="linkAttrs(item)">
         <EIcon v-if="item.icon" :name="item.icon" />
         {{ item.label }}
-      </a>
+      </component>
     </DropdownMenuItem>
     <DropdownMenuItem
       v-else-if="isAction(item)"
