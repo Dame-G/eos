@@ -9,15 +9,13 @@ import "../../styles/controls/choice.css";
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<
-  Omit<EFieldCommonProps, "hideLabel"> & {
+  EFieldCommonProps & {
     /** What the person agrees to or turns on. */
     label: string;
     /** A line of detail under the label. */
     description?: string;
     /** A mixed state, such as select-all with some rows chosen. */
     indeterminate?: boolean;
-    /** Hides the label from the page and keeps it for screen readers, for a table cell. It shows no hint or error text. */
-    bare?: boolean;
     /** The name submitted with a form. */
     name?: string;
     /** The value submitted with a form when checked. */
@@ -67,7 +65,8 @@ defineExpose(choice.exposed);
 
 <style>
 @layer e.controls {
-  .e-choice--bare {
+  /* A hidden label leaves the box alone, as in a table cell. */
+  .e-choice--label-hidden {
     min-height: 0;
     padding: 0;
     gap: 0;

@@ -482,7 +482,7 @@ onMounted(() => {
             <tr ref="headRow" :role="role('row')">
               <th v-if="selectable" scope="col" class="e-cell-check" :role="role('columnheader')">
                 <ECheckbox
-                  bare
+                  hide-label
                   :label="vopt ? t('selectAll') : t('selectAllPage')"
                   :model-value="allOn"
                   :indeterminate="someOn && !allOn"
@@ -578,7 +578,7 @@ onMounted(() => {
               >
                 <td v-if="selectable" class="e-cell-check" :role="role('cell')">
                   <ECheckbox
-                    bare
+                    hide-label
                     :label="t('selectRowNamed', { label: labelOf(row) })"
                     :model-value="isPicked(row)"
                     @update:model-value="pick([row], $event)"

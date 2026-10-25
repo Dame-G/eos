@@ -69,16 +69,17 @@ function update(patch: Partial<SignatureValue>) {
 <template>
   <EFieldset
     class="e-sign"
-    bare
+    variant="plain"
     :legend="label || t('signature')"
     :hint="error ? undefined : hint"
-    :required="required && method === 'draw'"
+    :required="required"
     :optional="optional"
     :disabled="disabled"
   >
     <ESegmented
       v-if="mode === 'both'"
       :label="t('signature')"
+      :disabled="disabled"
       :model-value="method"
       :readonly="readonly"
       :options="[
@@ -120,6 +121,7 @@ function update(patch: Partial<SignatureValue>) {
     <ECheckbox
       :model-value="model.agreed"
       :label="agreement || t('agreeSign')"
+      :required="required"
       :disabled="disabled"
       :readonly="readonly"
       @update:model-value="update({ agreed: $event })"
@@ -133,6 +135,11 @@ function update(patch: Partial<SignatureValue>) {
   .e-sign {
     display: grid;
     gap: var(--e-gap-base);
+  }
+
+  /* The legend says "Required" once for the whole signature; the name, the pad and the agreement are still required, without the word again. */
+  .e-sign > .e-fieldset-body .e-field-flag {
+    display: none;
   }
 
   .e-sign-line {

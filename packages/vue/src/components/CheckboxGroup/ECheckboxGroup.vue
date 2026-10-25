@@ -64,7 +64,7 @@ defineExpose({
     ref="root"
     class="e-checkgroup"
     legend-class="e-checkgroup-legend"
-    bare
+    variant="plain"
     :legend="label"
     :hide-legend="hideLabel"
     :hint="hint"

@@ -26,7 +26,7 @@ describe("ERadioGroup", () => {
     await expect.element(page.getByRole("radio", { name: "Text" })).toBeVisible();
     await expect.element(page.getByRole("radio", { name: "Email" })).toBeVisible();
     const fs = container.querySelector("fieldset")!;
-    expect(fs.className).toBe("e-fieldset e-radiogroup");
+    expect(fs.className).toBe("e-fieldset e-fieldset--plain e-radiogroup");
     expect(fs.querySelector("legend")!.className).toBe("e-fieldset-legend e-kicker e-radiogroup-legend");
     expect(fs.querySelectorAll("input.e-radio").length).toBe(2);
   });

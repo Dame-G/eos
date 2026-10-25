@@ -129,11 +129,12 @@ describe("ECheckbox", () => {
     expect(getComputedStyle(box, "::after").maskImage).toContain("rect");
   });
 
-  test("bare hides the label visually and keeps it for screen readers", async () => {
-    const { container } = await render(ECheckbox, { props: { label: "Select row 1", bare: true } });
-    expect(container.querySelector("label")!.className).toBe("e-choice e-choice--bare");
-    expect(container.querySelector(".e-sr")!.textContent).toBe("Select row 1");
+  test("hideLabel hides the label visually and keeps it for screen readers; an error still shows", async () => {
+    const { container } = await render(ECheckbox, { props: { label: "Select row 1", hideLabel: true, error: "Pick one" } });
+    expect(container.querySelector("label")!.className).toBe("e-choice e-choice--label-hidden");
+    expect(container.querySelector(".e-sr")!.textContent).toContain("Select row 1");
     await expect.element(page.getByRole("checkbox", { name: "Select row 1" })).toBeVisible();
+    await expect.element(page.getByRole("checkbox", { name: "Select row 1" })).toHaveAccessibleDescription("Pick one");
   });
 
   test("disabled, name, value and required reach the input", async () => {
@@ -172,7 +173,7 @@ describe("ECheckbox", () => {
             h(ECheckbox, { label: "Mixed", indeterminate: true }),
             h(ECheckbox, { label: "Invalid", error: "Required to continue" }),
             h(ECheckbox, { label: "Disabled", disabled: true }),
-            h(ECheckbox, { label: "Bare", bare: true }),
+            h(ECheckbox, { label: "Hidden", hideLabel: true }),
           ]),
       }),
     );

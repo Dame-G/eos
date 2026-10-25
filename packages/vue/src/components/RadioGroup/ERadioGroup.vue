@@ -98,7 +98,7 @@ defineExpose({
     class="e-radiogroup"
     :class="{ 'e-radiogroup--row': orientation === 'horizontal' }"
     legend-class="e-radiogroup-legend"
-    bare
+    variant="plain"
     :legend="label"
     :hide-legend="hideLabel"
     :hint="hint"

@@ -8,7 +8,7 @@ import "../../styles/controls/choice.css";
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<
-  Omit<EFieldCommonProps, "hideLabel"> & {
+  EFieldCommonProps & {
     /** The setting, named by what it does. */
     label: string;
     /** A line of detail under the label. */
