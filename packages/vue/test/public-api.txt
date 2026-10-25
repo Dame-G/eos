@@ -95,6 +95,7 @@ useConfig
 useCopy
 useDir
 useFieldAttrs
+useFormField
 useIconResolver
 useLocale
 useLogicalSide
