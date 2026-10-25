@@ -4,7 +4,7 @@ Running text in three sizes (body, `sm`, `lg`), capped at a readable line length
 
 ```vue
 <EText size="lg">You paid in full on 3 September.</EText>
-<EText size="sm" tone="neutral">Receipts are kept for seven years.</EText>
+<EText size="sm" tone="muted">Receipts are kept for seven years.</EText>
 <EText truncate :measure="false">A long file name in a narrow cell</EText>
 ```
 
@@ -26,7 +26,7 @@ Running text in three sizes (body, `sm`, `lg`), capped at a readable line length
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the rendered element. The line length is the `--e-measure` token; `measure="false"` lifts it for text in a flex or grid cell. `tone="neutral"` is the quieter colour of secondary copy. `truncate` needs a width to cut to, and `lines` cuts after that many lines.
+`class`, `style` and attributes land on the rendered element.
 
 ## Slots
 
@@ -36,7 +36,7 @@ Running text in three sizes (body, `sm`, `lg`), capped at a readable line length
 
 ## Accessibility
 
-- Neutral text meets contrast but should not carry anything a person must act on.
+- Muted text meets contrast but should not carry anything a person must act on.
 
 Not focusable.
 

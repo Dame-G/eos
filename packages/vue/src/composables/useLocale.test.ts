@@ -113,6 +113,22 @@ describe("useLocale", () => {
     expect((await locale()).api.formatMoney(5, { currency: "GBP", locale: "en-GB" })).toBe("£5.00");
   });
 
+  test("formatMoney uses the currency's own decimals", async () => {
+    const { api } = await locale({ currency: "JPY" });
+    expect(api.formatMoney(1000)).toBe("¥1,000");
+    expect(api.formatMoney(1.5, { currency: "KWD" })).toMatch(/1\.500/);
+  });
+
+  test("formatNumber and formatList follow the locale, and an unknown one does not throw", async () => {
+    const { api, eos } = await locale({ locale: "de-DE" });
+    expect(api.formatNumber(1234.5)).toBe("1.234,5");
+    expect(api.formatList(["Ada", "Grace", "Linus"])).toBe("Ada, Grace und Linus");
+    eos.config.locale = "not a locale!";
+    expect(() => api.formatNumber(1)).not.toThrow();
+    expect(api.formatList(["Ada", "Grace"])).toContain("Grace");
+    expect(api.formatMoney(5)).toBe("5");
+  });
+
   test("changing the config locale updates everything that was read", async () => {
     const { api, eos } = await locale();
     expect(api.months.value[9]).toBe("October");

@@ -29,6 +29,19 @@ describe("EAvatarGroup", () => {
     expect(container.textContent).not.toContain("+");
   });
 
+  test("one person over max shows them all, never a +1 tile", async () => {
+    const five = [...people, { name: "Hedy Lamarr" }];
+    const { container } = await render(EAvatarGroup, { props: { items: five, max: 4 } });
+    expect(container.querySelectorAll(".e-avatar")).toHaveLength(5);
+    expect(container.textContent).not.toContain("+");
+  });
+
+  test("an unknown locale still names the group", async () => {
+    const plugin = createEos({ locale: "not a locale!", warnOnContrast: false });
+    const { container } = await render(EAvatarGroup, { props: { items: people.slice(0, 2) }, global: { plugins: [plugin] } });
+    expect(container.querySelector(".e-avatar-group")!.getAttribute("aria-label")).toContain("Grace Hopper");
+  });
+
   test("label replaces the list of names", async () => {
     await render(EAvatarGroup, { props: { items: people, label: "Care team" } });
     await expect.element(page.getByRole("img", { name: "Care team" })).toBeVisible();

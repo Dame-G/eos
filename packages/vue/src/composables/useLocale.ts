@@ -109,6 +109,42 @@ export function localeDirection(locale: string): "ltr" | "rtl" {
   return build(locale).rtl ? "rtl" : "ltr";
 }
 
+/*
+ * Intl formatters are slow to build and a table asks for one per cell, so each is built once per locale and options.
+ * An unknown locale or currency makes Intl throw: the number formatter then falls back to the runtime's locale, and
+ * the others return null so the caller writes the value plainly.
+ */
+const formatters = new Map<string, Intl.NumberFormat | Intl.ListFormat | Intl.Collator | null>();
+function cached<T extends Intl.NumberFormat | Intl.ListFormat | Intl.Collator>(key: string, make: () => T): T | null {
+  if (formatters.has(key)) return formatters.get(key) as T | null;
+  let f: T | null;
+  try {
+    f = make();
+  } catch {
+    f = null;
+  }
+  formatters.set(key, f);
+  return f;
+}
+
+/** A number in a locale, or in the runtime's locale when the tag is not one Intl knows. @internal */
+export function numberFormat(locale: string): Intl.NumberFormat {
+  return cached(`n|${locale}`, () => new Intl.NumberFormat(locale)) ?? cached("n|", () => new Intl.NumberFormat())!;
+}
+
+/** Money in a locale and currency, with the currency's own number of decimals (none for yen). Null when either is unknown. @internal */
+export function moneyFormat(locale: string, currency: string): Intl.NumberFormat | null {
+  return cached(`m|${locale}|${currency}`, () => new Intl.NumberFormat(locale, { style: "currency", currency }));
+}
+
+/** Compares text in a locale's order, numbers inside it by value ("2" before "10"), ignoring case and accents. @internal */
+export function collator(locale: string | undefined): Intl.Collator {
+  return (
+    cached(`c|${locale ?? ""}`, () => new Intl.Collator(locale, { numeric: true, sensitivity: "base" })) ??
+    cached("c|", () => new Intl.Collator(undefined, { numeric: true, sensitivity: "base" }))!
+  );
+}
+
 const pad2 = (n: number) => (n < 10 ? "0" : "") + n;
 
 function asciiDigits(s: string): string {
@@ -118,8 +154,8 @@ function asciiDigits(s: string): string {
 }
 
 /**
- * Everything the date components need from the configured locale: month and weekday names (Sunday first),
- * the first day of the week, the date order and separator, and formatting and parsing of dates and money.
+ * Everything the components need from the configured locale: month and weekday names (Sunday first),
+ * the first day of the week, the date order and separator, parsing dates, and formatting dates, numbers, lists and money.
  * Reads `createEos({ locale })`, so changing the locale re-renders everything that uses it.
  */
 export function useLocale() {
@@ -163,17 +199,16 @@ export function useLocale() {
       info.value.long
         ? info.value.long.format(d)
         : `${info.value.weekdays[d.getDay()]}, ${info.value.months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`,
-    formatMoney: (n: number, options: { locale?: string; currency?: string } = {}): string => {
-      try {
-        return new Intl.NumberFormat(options.locale ?? config.locale, {
-          style: "currency",
-          currency: options.currency ?? config.currency,
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(Number(n));
-      } catch {
-        return String(n);
-      }
+    /** Money in the configured locale and currency (or the ones given), with the currency's own decimals: "$162.40", "¥1,000". */
+    formatMoney: (n: number, options: { locale?: string; currency?: string } = {}): string =>
+      moneyFormat(options.locale ?? config.locale, options.currency ?? config.currency)?.format(Number(n)) ?? String(n),
+    /** A number in the configured locale: "1,234.5", "1.234,5". */
+    formatNumber: (n: number): string => numberFormat(config.locale).format(n),
+    /** Items joined with the locale's words: "Ada, Grace and 3 more". */
+    formatList: (items: string[], type: "conjunction" | "disjunction" = "conjunction"): string => {
+      const make = (locale?: string) => () => new Intl.ListFormat(locale, { style: "long", type });
+      const f = cached(`l|${config.locale}|${type}`, make(config.locale)) ?? cached(`l||${type}`, make());
+      return f ? f.format(items) : items.join(", ");
     },
   };
 }

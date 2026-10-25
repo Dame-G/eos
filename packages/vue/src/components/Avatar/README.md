@@ -6,7 +6,7 @@ A person, as a photo or as their initials on a rounded tile. Use [`EAvatarGroup`
 <EAvatar name="Ada Lovelace" />
 <EAvatar name="Ada Lovelace" src="/people/ada.jpg" size="lg" presence="online" />
 <EMenu label="Account" :items="items">
-  <template #trigger><EAvatar name="Ada Lovelace" as="button" /></template>
+  <template #trigger><EAvatar name="Ada Lovelace" interactive /></template>
 </EMenu>
 ```
 
@@ -24,20 +24,20 @@ A person, as a photo or as their initials on a rounded tile. Use [`EAvatarGroup`
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `span` or `button` element. A name without spaces (Chinese, Japanese or Korean) gives its first character. `size` is `sm` (32px), `md` (44px) or `lg` (64px). The initials are capitalised in the configured `locale` (a Turkish `i` becomes `İ`).
+`class`, `style` and attributes land on the `span` or `button` element. A name without spaces (Chinese, Japanese or Korean) gives its first character. The initials are capitalised in the configured `locale` (a Turkish `i` becomes `İ`).
 
 ## Accessibility
 
 - The `span` root is `role="img"` with `aria-label` set to `name`. The photo has no alt text of its own.
 - With `presence` the name is read with it ("Ada Lovelace, Online"); the dot differs by shape (the offline one is hollow) as well as colour.
-- As a `button` the root has no role and is named by hidden text set to `name`. The initials are hidden from screen readers.
+- With `interactive` the root is a `button`, named by hidden text set to `name`. The initials are hidden from screen readers.
 
 ## Keyboard
 
 | Key          | Action                                                                         |
 | ------------ | ------------------------------------------------------------------------------ |
-| Tab          | Moves focus to an avatar with `as="button"`. A `span` avatar is not focusable. |
-| Enter, Space | Presses an avatar with `as="button"`.                                          |
+| Tab          | Moves focus to an avatar with `interactive`. A `span` avatar is not focusable. |
+| Enter, Space | Presses an avatar with `interactive`.                                          |
 
 ## Related
 

@@ -28,6 +28,12 @@ describe("EMetric", () => {
     expect(container.querySelector(".e-metric-value")!.textContent).toBe("12.345,5");
   });
 
+  test("an unknown locale does not break the figure", async () => {
+    const plugin = createEos({ locale: "not a locale!", warnOnContrast: false });
+    const { container } = await render(EMetric, { props: { label: "Visits", value: 12 }, global: { plugins: [plugin] } });
+    expect(container.querySelector(".e-metric-value")!.textContent).toBe("12");
+  });
+
   test("the delta is read with its direction, and the arrow is decoration", async () => {
     const { container } = await render(EMetric, { props: { label: "Visits", value: 10, delta: "+4.2%", trend: "up" } });
     const delta = container.querySelector(".e-metric-delta")!;
