@@ -37,7 +37,10 @@ describe("EToast", () => {
     expect(a.container.querySelector(".e-toast--danger")).not.toBeNull();
     await expect.poll(() => said("assertive")).toContain("Failed");
     for (const tone of ["neutral", "info", "success", "warning"] as const) {
-      const { container } = await render(EToast, { props: { title: `x ${tone}`, tone } }, { default: () => "detail" });
+      const { container } = await render(EToast, {
+        props: { title: `x ${tone}`, tone },
+        slots: { default: () => "detail" },
+      });
       expect(container.querySelector(".e-toast")!.hasAttribute("role")).toBe(false);
       expect(container.querySelector(`.e-toast--${tone}`)).not.toBeNull();
       await expect.poll(() => said("polite")).toContain(`x ${tone}`);

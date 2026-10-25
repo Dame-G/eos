@@ -55,8 +55,8 @@ describe("ENotice", () => {
   });
 
   test("role overrides the default, and false removes it", async () => {
-    const a = await render(ENotice, { props: { title: "x", role: "region" } });
-    expect(a.container.querySelector(".e-notice")!.getAttribute("role")).toBe("region");
+    const a = await render(ENotice, { props: { title: "x", tone: "info", role: "alert" } });
+    expect(a.container.querySelector(".e-notice")!.getAttribute("role")).toBe("alert");
     const b = await render(ENotice, { props: { title: "x", tone: "danger", role: false } });
     expect(b.container.querySelector(".e-notice")!.hasAttribute("role")).toBe(false);
   });
