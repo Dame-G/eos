@@ -166,8 +166,9 @@ describe("forced colors", () => {
       expect(style(container.querySelector(".e-seg")).borderTopStyle).toBe("solid");
     });
 
-    test("a switch that is on is Highlight with a HighlightText thumb", async () => {
+    test("a switch that is on is Highlight with a HighlightText thumb, hovered too", async () => {
       const { container } = await render(ESwitch, { props: { label: "Reminders", modelValue: true } });
+      await userEvent.hover(container.querySelector(".e-switch")!);
       await forced();
       const track = container.querySelector(".e-switch-track");
       expect(style(track).backgroundColor).toBe(system("Highlight"));

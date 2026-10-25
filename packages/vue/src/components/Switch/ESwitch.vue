@@ -154,6 +154,12 @@ defineExpose(choice.exposed);
       background: Highlight;
     }
 
+    /* The track opts out of forced colours, so its hover and press fills would show the theme's colours through. */
+    .e-switch:hover .e-switch-input:checked:not(:disabled) + .e-switch-track,
+    .e-switch:active .e-switch-input:checked:not(:disabled) + .e-switch-track {
+      background-color: Highlight;
+    }
+
     .e-switch-input:focus-visible + .e-switch-track {
       outline-color: Highlight;
     }
