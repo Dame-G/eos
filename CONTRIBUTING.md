@@ -44,15 +44,15 @@ The Vue package reads the built tokens (`packages/tokens/dist`). `pnpm build`, `
 
 While working on one component, run from `packages/vue` (these need `pnpm build` or `pnpm test` to have built the tokens once):
 
-| Command                                 | Use                                                                                                     |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `npx vitest run src/components/Stamp`   | that component's tests                                                                                  |
+| Command                                 | Use                                                                                                                                                                       |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npx vitest run src/components/Stamp`   | that component's tests                                                                                                                                                    |
 | `node scripts/check-css.mjs`            | the CSS rules: layer membership and order, no selector repeated across files, no inset ring over a fill, no component class in `base.css`, no `--e-*` that is not a token |
-| `npx vue-tsc --noEmit -p tsconfig.json` | types, including `.vue` files                                                                           |
-| `node scripts/gen-index.mjs`            | rewrites `src/index.ts` from what is on disk (never edit `src/index.ts`)                                |
-| `node scripts/gen-props.mjs`            | rewrites every README's props table from the component source                                           |
-| `node scripts/gen-props.mjs --check`    | fails if a props table is out of date (CI runs it as `check:props`)                                     |
-| `node scripts/check-docs.mjs`           | README links, bare URLs, table pipes, icon names (CI: `check:docs`)                                     |
+| `npx vue-tsc --noEmit -p tsconfig.json` | types, including `.vue` files                                                                                                                                             |
+| `node scripts/gen-index.mjs`            | rewrites `src/index.ts` from what is on disk (never edit `src/index.ts`)                                                                                                  |
+| `node scripts/gen-props.mjs`            | rewrites every README's props table from the component source                                                                                                             |
+| `node scripts/gen-props.mjs --check`    | fails if a props table is out of date (CI runs it as `check:props`)                                                                                                       |
+| `node scripts/check-docs.mjs`           | README links, bare URLs, table pipes, icon names (CI: `check:docs`)                                                                                                       |
 
 ## A component
 

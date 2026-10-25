@@ -115,7 +115,15 @@ for (const { file, root } of sheets) {
 // layer, so a rule there that names a component's class loses to every rule of the component's own layer: an override
 // written there (a forced-colours border, say) is silently dead. A component's class belongs in its own stylesheet. The
 // one exception is a :where() list of defaults (focus, user-select), which is meant to lose.
-const BASE_CLASSES = new Set(["e-root", "e-interact", "e-interact--inset", "e-kicker", "e-numeral", "e-numeral-l", "e-sr"]);
+const BASE_CLASSES = new Set([
+  "e-root",
+  "e-interact",
+  "e-interact--inset",
+  "e-kicker",
+  "e-numeral",
+  "e-numeral-l",
+  "e-sr",
+]);
 const withoutWhere = (selector) => {
   let out = "";
   for (let i = 0; i < selector.length; i++) {

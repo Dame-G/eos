@@ -226,6 +226,7 @@
     .e-input:disabled,
     .e-input-wrap[data-disabled] {
       border-color: GrayText;
+      outline-color: GrayText;
     }
 
     .e-input:disabled,
@@ -233,11 +234,6 @@
     .e-input::placeholder,
     .e-affix {
       color: GrayText;
-    }
-
-    .e-input:disabled,
-    .e-input-wrap[data-disabled] {
-      outline-color: GrayText;
     }
 
     .e-input:focus-visible,
