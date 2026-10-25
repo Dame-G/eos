@@ -16,13 +16,13 @@ const props = defineProps<
   EFieldCommonProps & {
     /** The visible label above the dropzone. */
     label: string;
-    /** Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt as "PDF, JPG" and also applied to dropped files. */
+    /** Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt ("PDF, PNG, image/*") and also applied to dropped files. */
     accept?: string;
     /** Allows choosing more than one file. New files are added to the list, and a file already in it (same name, size and date) is not added twice. Without it, a choice replaces the file, and the others of several are rejected with reason `count`. */
     multiple?: boolean;
-    /** The largest file allowed, in bytes. A larger one is left out and announced as "1 file is larger than 5 MB". */
+    /** The largest file allowed, in bytes. Shown under the prompt ("Up to 5 MB"); a larger one is left out and announced as "1 file is larger than 5 MB". */
     maxSize?: number;
-    /** The most files the list can hold with `multiple`. Further files are left out and announced. */
+    /** The most files the list can hold with `multiple`. Shown under the prompt; further files are left out and announced. */
     maxFiles?: number;
     /** The name submitted with a form. */
     name?: string;
@@ -47,7 +47,27 @@ const prompt = computed(() => {
 });
 const over = ref(false);
 const input = ref<HTMLInputElement | null>(null);
-const acceptHint = computed(() => props.accept?.replace(/\./g, "").replace(/,/g, ", ").toUpperCase());
+/** An accepted type as people read it: an extension or an exact MIME type as its upper-case name (`.pdf`, `image/png`: PDF, PNG); a wildcard as written. */
+function typeName(rule: string): string {
+  const r = rule.trim().toLowerCase();
+  if (r.startsWith(".")) return r.slice(1).toUpperCase();
+  const [, sub] = r.split("/");
+  return sub && sub !== "*" ? (sub.split("+")[0] ?? sub).toUpperCase() : r;
+}
+/** The limits under the prompt: the types, the largest size and the most files. */
+const limits = computed(() =>
+  [
+    props.accept
+      ?.split(",")
+      .filter((r) => r.trim())
+      .map(typeName)
+      .join(", "),
+    props.maxSize != null ? t("fileSizeLimit", { max: formatSize(props.maxSize) }) : "",
+    props.multiple && props.maxFiles != null ? t("fileCountLimit", { n: props.maxFiles }) : "",
+  ]
+    .filter(Boolean)
+    .join(" · "),
+);
 
 const { announce } = useAnnouncer();
 const { locale } = useLocale();
@@ -230,7 +250,7 @@ defineExpose({
             >{{ prompt[0] }}<span class="e-drop-pick">{{ t("chooseOne") }}</span
             >{{ prompt[1] }}</span
           >
-          <span v-if="acceptHint" class="e-drop-hint">{{ acceptHint }}</span>
+          <span v-if="limits" class="e-drop-hint">{{ limits }}</span>
         </label>
         <!-- A file input has no readonly of its own, and aria-readonly is not allowed on it: the state is described. -->
         <span v-if="readonly" :id="`${field.id}-ro`" class="e-sr">{{ t("readOnly") }}</span>

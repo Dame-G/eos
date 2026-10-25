@@ -17,9 +17,9 @@ const props = defineProps<
     Pick<EFieldBoxProps, "size"> & {
       /** The visible label above the field. */
       label: string;
-      /** The lowest value. The value clamps to it and the decrease button dims there (it stays focusable). */
+      /** The lowest value. The value clamps to it and the decrease button dims there. */
       min?: number;
-      /** The highest value. The value clamps to it and the increase button dims there (it stays focusable). */
+      /** The highest value. The value clamps to it and the increase button dims there. */
       max?: number;
       /** The amount one step of the buttons and arrow keys changes the value. Decimals shown follow the step (`0.25` shows two). @default 1 */
       step?: number;
@@ -44,8 +44,25 @@ const input = control.input;
 const hidden = ref<HTMLInputElement | null>(null);
 const locale = computed(() => props.locale || loc.locale.value);
 
+/** Press and hold on a button: the pause before it repeats, and the time between repeats. */
+const HOLD_DELAY_MS = 450;
+const HOLD_REPEAT_MS = 70;
+/** The most decimals a number is shown or kept with. */
+const MAX_DECIMALS = 10;
+
+/** How many decimals a number is written with, `1e-7` included. */
+function decimalsOf(n: number): number {
+  if (!Number.isFinite(n)) return 0;
+  const [mantissa = "", exponent] = String(n).toLowerCase().split("e");
+  const own = (mantissa.split(".")[1] || "").length;
+  return Math.min(MAX_DECIMALS, Math.max(0, own - Number(exponent ?? 0)));
+}
+
 const stepBy = computed(() => props.step || 1);
-const decimals = computed(() => (String(stepBy.value).split(".")[1] || "").length);
+const decimals = computed(() => decimalsOf(stepBy.value));
+/** Where the steps are counted from: `min`, or zero. */
+const origin = computed(() => props.min ?? 0);
+const round = (n: number, places: number) => Number(n.toFixed(Math.min(MAX_DECIMALS, places)));
 
 /** The decimal and group separators of the configured locale. */
 const separators = computed(() => {
@@ -62,8 +79,7 @@ const separators = computed(() => {
 /** Shows every decimal the number has, and at least as many as the step. Groups thousands in the configured locale. */
 function format(n: number | null | undefined): string {
   if (n == null) return "";
-  const own = (String(n).split(".")[1] || "").length;
-  const digits = Math.max(decimals.value, Math.min(own, 10));
+  const digits = Math.max(decimals.value, decimalsOf(n));
   try {
     return new Intl.NumberFormat(locale.value, {
       minimumFractionDigits: digits,
@@ -112,10 +128,23 @@ function set(n: number) {
 const atMin = computed(() => props.min != null && num.value != null && num.value <= props.min);
 const atMax = computed(() => props.max != null && num.value != null && num.value >= props.max);
 
+/**
+ * One step (or `mult` steps) up or down, onto the grid of `min` plus a whole number of steps: a value between two
+ * points moves to the next one in that direction. Empty, it starts at `min` going up, or one step under zero going down.
+ */
 function bump(dir: 1 | -1, mult = 1) {
   if (props.readonly || props.disabled) return;
-  const base = num.value == null ? (props.min != null ? props.min - stepBy.value * (dir > 0 ? 1 : 0) : 0) : num.value;
-  set(Math.round((base + dir * stepBy.value * mult) * 1e6) / 1e6);
+  const step = stepBy.value;
+  const places = Math.max(decimals.value, decimalsOf(origin.value));
+  if (num.value == null) {
+    set(props.min != null && dir > 0 ? props.min : round(origin.value + dir * step * mult, places));
+    return;
+  }
+  // Counted in steps from the origin, with a little slack so a value already on the grid is not taken as between.
+  const at = (num.value - origin.value) / step;
+  const near = Math.round(at);
+  const k = Math.abs(at - near) < 1e-9 ? near : dir > 0 ? Math.floor(at) : Math.ceil(at);
+  set(round(origin.value + (k + dir * mult) * step, places));
 }
 /** Emits as soon as the text reads as a number, even outside the range, so a form sees what was typed. Blur and Enter clamp it. */
 function onInput(e: Event) {
@@ -178,8 +207,8 @@ function startHold(dir: 1 | -1, e: PointerEvent) {
   stopHold();
   holdDelay = setTimeout(() => {
     held = true;
-    holdTick = setInterval(() => bump(dir), 70);
-  }, 450);
+    holdTick = setInterval(() => bump(dir), HOLD_REPEAT_MS);
+  }, HOLD_DELAY_MS);
 }
 function stopHold() {
   clearTimeout(holdDelay);
@@ -236,6 +265,7 @@ defineExpose(control.exposed);
         <button
           type="button"
           class="e-numbtn e-interact e-interact--inset"
+          tabindex="-1"
           :aria-label="t('decrease')"
           :disabled="disabled || readonly"
           :aria-disabled="atMin || undefined"
@@ -253,6 +283,7 @@ defineExpose(control.exposed);
         <button
           type="button"
           class="e-numbtn e-interact e-interact--inset"
+          tabindex="-1"
           :aria-label="t('increase')"
           :disabled="disabled || readonly"
           :aria-disabled="atMax || undefined"

@@ -26,10 +26,10 @@ const props = defineProps<
     EFieldBoxProps & {
       /** The visible label above the field. @default "Password" */
       label?: string;
-      /** `current` for signing in, `new` for choosing one. Sets `autocomplete` (`current-password` or `new-password`) so a password manager can fill or suggest. */
+      /** `current` for signing in, `new` for choosing one. Sets `autocomplete` (`current-password` or `new-password`) so a password manager can fill or suggest. @default "new" with `rules`, else "current" */
       mode?: "current" | "new";
-      /** The rules, as `{ label, test(value) }`. They form a checklist under the field that updates as the person types. Each rule is announced as "met" or "not met yet", and a rule that changes is announced. */
-      rules?: PasswordRule[];
+      /** The rules, as `{ label, test(value) }`. They form a checklist under the field that updates as the person types. The field is described by how many are met, and a rule that changes is announced. */
+      rules?: readonly PasswordRule[];
       /** An example, never the label. */
       placeholder?: string;
       /** The name submitted with a form. */
@@ -48,6 +48,9 @@ const shown = ref(false);
 
 /** Each rule with its result, computed once per change. */
 const results = computed(() => (props.rules ?? []).map((rule) => ({ rule, met: rule.test(model.value) })));
+const metCount = computed(() => results.value.filter((r) => r.met).length);
+/** Rules are for choosing a password, so a field with rules suggests one unless `mode` says otherwise. */
+const mode = computed(() => props.mode ?? (results.value.length ? "new" : "current"));
 
 watch(results, (next, prev) => {
   const changed = next.filter((r, i) => prev[i] && prev[i]!.rule === r.rule && prev[i]!.met !== r.met);
@@ -63,10 +66,10 @@ function inputBind(field: FieldSlot) {
     value: model.value,
     name: props.name,
     placeholder: props.placeholder,
-    autocomplete: props.mode === "new" ? "new-password" : "current-password",
+    autocomplete: mode.value === "new" ? "new-password" : "current-password",
     autocapitalize: "none",
     spellcheck: false,
-    ...control.bind(field, [results.value.length > 0 && `${field.id}-rules`]),
+    ...control.bind(field, [results.value.length > 0 && `${field.id}-rules-met`]),
   };
 }
 
@@ -98,8 +101,12 @@ defineExpose(control.exposed);
           <EIcon :name="shown ? 'eye-slash' : 'eye'" />
         </button>
       </EInputShell>
+      <!-- The field is described by the count; the list is there to read, and a rule that changes is announced. -->
+      <span v-if="results.length" :id="`${field.id}-rules-met`" class="e-sr">{{
+        t("passwordRulesMet", { n: metCount, total: results.length })
+      }}</span>
       <ul v-if="results.length" :id="`${field.id}-rules`" class="e-rules" :aria-label="t('passwordRules')">
-        <li v-for="r in results" :key="r.rule.label" class="e-rule" :data-met="r.met ? '' : undefined">
+        <li v-for="(r, i) in results" :key="`${i}-${r.rule.label}`" class="e-rule" :data-met="r.met ? '' : undefined">
           <EIcon v-if="r.met" name="check" size="sm" />
           <span v-else class="e-rule-dot" aria-hidden="true" />
           {{ r.rule.label }}

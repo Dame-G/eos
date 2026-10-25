@@ -34,14 +34,14 @@ A number input with decrease and increase buttons, for quantities. Use [`ECurren
 
 <!-- props:end -->
 
-`class` and `style` land on the wrapper `div`. Other attributes and listeners land on the `input` element. Exposes `input` and `focus()`. The model follows the typed text as soon as it reads as a number, even outside `min` and `max`, and empty gives `null`. On blur or Enter the text is tidied: it clamps to the range, the group separator is ignored and unreadable text reverts. The posted value (`name`) is updated at the same moment, so Enter submits the clamped number. A disabled field posts nothing. Numbers show every decimal they have (at least as many as `step`) with grouping for the locale. Holding a button repeats the step. A unit sits next to the value with one space between them. When the field is narrow (under 10rem, or 13rem with a `prefix` or `suffix`), the buttons are hidden and the value is left-aligned, but the arrow keys still step.
+`class` and `style` land on the wrapper `div`. Other attributes and listeners land on the `input` element. Exposes `input` and `focus()`. The model follows the typed text as soon as it reads as a number, even outside `min` and `max`, and empty gives `null`. On blur or Enter the text is tidied: it clamps to the range, the group separator is ignored and unreadable text reverts. The posted value (`name`) is updated at the same moment, so Enter submits the clamped number. A disabled field posts nothing. Numbers show every decimal they have (at least as many as `step`) with grouping for the locale. Holding a button repeats the step. A step lands on `min` plus a whole number of steps (zero when there is no `min`), so a value between two lands on the next one. A unit sits next to the value with one space between them. When the field is narrow (under 10rem, or 13rem with a `prefix` or `suffix`), the buttons are hidden and the value is left-aligned, but the arrow keys still step.
 
 ## Accessibility
 
 - `role="spinbutton"` with `aria-valuenow`, `aria-valuemin` and `aria-valuemax`. With a `prefix` or `suffix`, `aria-valuetext` reads the value with its unit.
-- At `min` or `max` the button is `aria-disabled`, not `disabled`, so focus stays on it.
+- At `min` or `max` the button is `aria-disabled`, not `disabled`, so a press that reaches the end keeps focus.
 - Typing follows the configured locale: a decimal comma in French or German, with spaces or the group separator ignored. A `.` also reads as the decimal point, except in locales that group with a dot (German, Spanish), where `1.5` means 15.
-- The buttons are named "Decrease" and "Increase" and are in the tab order.
+- The buttons are named "Decrease" and "Increase" and are not in the tab order: from the keyboard the arrow keys step, as in any spin button.
 
 ## Keyboard
 
@@ -51,7 +51,7 @@ A number input with decrease and increase buttons, for quantities. Use [`ECurren
 | Shift+Arrow, Page Up, Page Down | Steps by ten.                    |
 | Home, End                       | Goes to `min` or `max` when set. |
 | Enter                           | Commits the typed text.          |
-| Tab                             | Moves to the buttons and out.    |
+| Tab                             | Moves into the field and out.    |
 
 ## Related
 
