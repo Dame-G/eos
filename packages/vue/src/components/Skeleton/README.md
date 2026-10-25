@@ -12,14 +12,14 @@ A placeholder shown while content loads. Size it like what is coming. Use [`ESpi
 
 <!-- props:start -->
 
-| Prop     | Type               | Default      | Notes                                                                                                                              |
-| -------- | ------------------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `height` | `number \| string` | `96`         | A number is in px and a string is any CSS length. Ignored with `lines` or `text`.                                                  |
-| `width`  | `number \| string` | `full width` | Same units as `height`.                                                                                                            |
-| `circle` | `boolean`          | `false`      | A round block, for a photo. The width follows `height`.                                                                            |
-| `lines`  | `number`           | None         | Draws this many lines of text, the last one shorter, instead of a block.                                                           |
-| `text`   | `boolean`          | `false`      | One line of text. Same as `lines` of 1.                                                                                            |
-| `label`  | `string`           | None         | Names what is loading. The skeleton becomes a polite `status` region that reads this, instead of being hidden from screen readers. |
+| Prop     | Type               | Default      | Notes                                                                                                                                                           |
+| -------- | ------------------ | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `height` | `number \| string` | `96`         | A number is in px and a string is any CSS length. Ignored with `lines` or `text`.                                                                               |
+| `width`  | `number \| string` | `full width` | Same units as `height`.                                                                                                                                         |
+| `circle` | `boolean`          | `false`      | A round block, for a photo. The width follows `height`.                                                                                                         |
+| `lines`  | `number`           | None         | Draws this many lines of text, the last one shorter, instead of a block.                                                                                        |
+| `text`   | `boolean`          | `false`      | One line of text. Same as `lines` of 1.                                                                                                                         |
+| `label`  | `string`           | None         | Names what is loading. It is announced politely when the skeleton appears, and kept as text for screen readers, instead of the skeleton being hidden from them. |
 
 <!-- props:end -->
 
@@ -41,11 +41,11 @@ An element that carries these classes is `aria-hidden="true"` and sits in a regi
 ## Accessibility
 
 - Without a `label` it is hidden from assistive technology (`aria-hidden="true"`), so a page of placeholders adds no live-region noise. Mark the region that is loading with `aria-busy="true"` or announce the result with `useAnnouncer()`.
-- With a `label` it is a `status` region that reads the label once, for a skeleton that is the only sign that something is loading.
+- With a `label` the label is announced politely when the skeleton appears, and stays as text for screen readers, for a skeleton that is the only sign that something is loading.
 - The pulse stops under reduced motion.
 
 Not focusable.
 
 ## Related
 
-[`ESpinner`](../Spinner/README.md) for a single wait, [`EProgress`](../Progress/README.md) for a known fraction.
+[`EEmptyState`](../EmptyState/README.md) for when nothing came back.

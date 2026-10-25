@@ -23,25 +23,31 @@ const { announce } = useAnnouncer();
 const count = computed(() => Math.max(0, Math.floor(props.pageCount) || 0));
 const current = computed(() => Math.min(Math.max(1, Math.floor(page.value) || 1), Math.max(count.value, 1)));
 
+/*
+ * A page outside the range is moved into it, and the model hears of it. With no pages yet (the count still loading)
+ * the clamp is only for display: writing it back would turn a page restored from the address into page 1 before the
+ * count arrives.
+ */
 watch(
-  [current, page],
+  [current, page, count],
   () => {
-    if (page.value !== current.value) page.value = current.value;
+    if (count.value && page.value !== current.value) page.value = current.value;
   },
   { immediate: true },
 );
 
-watch(current, (n) => {
-  if (count.value) announce(t("pageOf", { n, total: count.value }));
-});
-
 const atStart = computed(() => current.value <= 1);
 const atEnd = computed(() => current.value >= count.value);
 
-/** A dimmed step stays focusable (`aria-disabled`), so pressing it on the last page does not drop focus to the page. */
+/**
+ * A dimmed step stays focusable (`aria-disabled`), so pressing it on the last page does not drop focus to the page.
+ * The new page is announced only here, after a person's choice: a page set from outside is the app's doing.
+ */
 function go(n: number) {
   if (n < 1 || n > count.value) return;
+  const moved = n !== current.value;
   page.value = n;
+  if (moved) announce(t("pageOf", { n, total: count.value }));
 }
 
 const items = computed<(number | "gap")[]>(() => {

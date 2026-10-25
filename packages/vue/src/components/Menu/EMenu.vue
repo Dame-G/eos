@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import {
-  ConfigProvider,
-  DropdownMenuContent,
-  DropdownMenuPortal,
-  DropdownMenuRoot,
-  DropdownMenuTrigger,
-} from "reka-ui";
+import type { Component } from "vue";
+import { DropdownMenuContent, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from "reka-ui";
 import EButton from "../Button/EButton.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EMenuItems from "./EMenuItems.vue";
 import type { IconProp } from "../../icons/types.js";
 import { usePortalTarget } from "../../config.js";
-import { useDir, useLogicalSide } from "../../composables/useDir.js";
+import { EDGE_PADDING, FLOAT_OFFSET, useDir, useLogicalSide } from "../../composables/useDir.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
+import { RekaConfig } from "../../composables/useRekaConfig.js";
 import "../../styles/base.css";
 import "../Select/panel.css";
 
@@ -26,6 +22,8 @@ export interface EMenuAction {
   onClick?: () => void;
   /** Makes the row a link to this address. Choosing it follows the link and still fires `select`. */
   href?: string;
+  /** Makes the row a link to this router location, rendered by the menu's `linkComponent` (`RouterLink`). */
+  to?: unknown;
   /** Marks a destructive action. It goes last, after a divider. */
   danger?: boolean;
   /** Makes the action unchoosable. It stays visible. */
@@ -49,6 +47,8 @@ export interface EMenuCheckbox {
   checked: boolean;
   onChange?: (checked: boolean) => void;
   disabled?: boolean;
+  /** Keeps the menu open after a toggle, for a row of several settings changed together. */
+  keepOpen?: boolean;
 }
 /** One choice of a radio group. */
 export interface EMenuRadioOption {
@@ -63,7 +63,10 @@ export interface EMenuRadioGroup {
   label?: string;
   value: string;
   options: readonly EMenuRadioOption[];
+  /** Called when another option is chosen. Choosing the one already chosen calls nothing. */
   onChange?: (value: string) => void;
+  /** Keeps the menu open after a choice. */
+  keepOpen?: boolean;
 }
 /** A row that opens a menu beside it. */
 export interface EMenuSubmenu {
@@ -81,8 +84,10 @@ const props = withDefaults(
   defineProps<{
     /** The button's text. With a `trigger` slot it is not shown, so name your own trigger. */
     label: string;
-    /** The rows, in order. A plain action is `{ label, icon?, onClick?, danger?, disabled? }`, a link adds `href`. `{ divider: true }` draws a rule, and `type` makes a `label`, `checkbox`, `radio-group` or `submenu`. The destructive action goes last. */
+    /** The rows, in order. A plain action is `{ label, icon?, onClick?, danger?, disabled? }`, a link adds `href` or `to`. `{ divider: true }` draws a rule, and `type` makes a `label`, `checkbox`, `radio-group` or `submenu`. The destructive action goes last. */
     items: readonly EMenuItem[];
+    /** What renders a link row: `RouterLink` or any component that takes `href` or `to` and a default slot. Rows then use `to`. */
+    linkComponent?: string | Component;
     /** The button's variant. */
     variant?: "primary" | "secondary" | "outline" | "danger" | "quiet";
     /** An icon before the label. */
@@ -91,10 +96,10 @@ const props = withDefaults(
     side?: "bottom" | "top" | "start" | "end";
     /** Which edge of the trigger the menu's edge lines up with: `start` with the trigger's start, `end` with its end (it suits a trigger at the end of a bar), `center` with its middle. */
     align?: "start" | "center" | "end";
-    /** The space in pixels to keep between the menu and the edge of the screen. */
+    /** The space in pixels to keep between the menu and the edge of the screen. @default 16 */
     collisionPadding?: number;
   }>(),
-  { variant: "outline", side: "bottom", align: "start", collisionPadding: 16 },
+  { variant: "outline", side: "bottom", align: "start", linkComponent: "a" },
 );
 
 const emit = defineEmits<{
@@ -154,7 +159,7 @@ function returnFocus(event: Event) {
 </script>
 
 <template>
-  <ConfigProvider :dir="dir">
+  <RekaConfig>
     <DropdownMenuRoot :open="open" :modal="false" :dir="dir" @update:open="setOpen">
       <DropdownMenuTrigger as-child v-bind="$attrs" @click="intent" @keydown="openKey">
         <slot name="trigger">
@@ -169,24 +174,32 @@ function returnFocus(event: Event) {
           class="e-popover e-menu e-root"
           :side="placement"
           :align="align"
-          :side-offset="8"
-          :collision-padding="collisionPadding"
+          :side-offset="FLOAT_OFFSET"
+          :collision-padding="collisionPadding ?? EDGE_PADDING"
           loop
           @open-auto-focus="focusFirst"
           @close-auto-focus="returnFocus"
         >
-          <EMenuItems :items="items" @choose="emit('select', $event)" @change="(i, v) => emit('change', i, v)" />
+          <EMenuItems
+            :items="items"
+            :link-component="linkComponent"
+            @choose="emit('select', $event)"
+            @change="(i, v) => emit('change', i, v)"
+          />
         </DropdownMenuContent>
       </DropdownMenuPortal>
     </DropdownMenuRoot>
-  </ConfigProvider>
+  </RekaConfig>
 </template>
 
 <style>
 @layer e.containers {
   .e-menu {
+    /* Wide enough that a menu of one-word actions does not look like a stray tag. */
+    --_min-w: 12rem;
+
     width: max-content;
-    min-width: 12rem;
+    min-width: var(--_min-w);
     max-width: min(var(--e-size-panel-sm), calc(100vw - 2 * var(--e-gap-loose)));
     padding: var(--e-gap-tight);
   }
@@ -196,8 +209,11 @@ function returnFocus(event: Event) {
     align-items: center;
     gap: var(--e-gap-snug);
     width: 100%;
-    height: var(--e-control-height);
-    padding-block: 0;
+    box-sizing: border-box;
+
+    /* A long label wraps onto another line and the row grows, instead of spilling out of it. */
+    min-height: var(--e-control-height);
+    padding-block: var(--e-gap-tight);
     padding-inline: var(--e-pad-control-sm);
     border: 0;
 
@@ -205,7 +221,7 @@ function returnFocus(event: Event) {
     border-radius: max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)));
     background: transparent;
     color: var(--e-ink);
-    font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-none) var(--e-font-sans);
+    font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-tight) var(--e-font-sans);
     text-align: start;
     text-decoration: none;
     cursor: pointer;
@@ -255,10 +271,6 @@ function returnFocus(event: Event) {
 
   .e-menu-chevron {
     margin-inline-start: auto;
-  }
-
-  .e-menu-chevron:dir(rtl) {
-    transform: scaleX(-1);
   }
 
   .e-menu-item[disabled],

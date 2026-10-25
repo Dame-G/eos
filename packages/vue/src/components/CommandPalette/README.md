@@ -39,7 +39,9 @@ const commands = [
 
 The `CommandItem` type (`id`, `label`, `description`, `group`, `icon`, `shortcut`, `keywords`, `disabled`) is exported. Matching needs every typed word to appear in a command's label, description, group or keywords. Label-start matches list first. Matching ignores case and accents. Pass `score` for your own (fuzzy matching, say).
 
-`shortcut` is read once. `item.shortcut` only displays keycaps (`formatShortcut`). Bind the keys yourself with `useShortcuts`.
+`shortcut` is read once. It does nothing while another modal dialog is open, and with two palettes on a page only one answers. `item.shortcut` only displays keycaps (`formatShortcut`). Bind the keys yourself with `useShortcuts`.
+
+The component exposes `show()` and `hide()`. `hide()` closes it without firing `close`, which is for a person closing it.
 
 ## Slots
 
@@ -57,7 +59,7 @@ The `CommandItem` type (`id`, `label`, `description`, `group`, `icon`, `shortcut
 ## Accessibility
 
 - A modal dialog named by `label`, with focus on a `combobox` input that controls a `listbox`. The active option is `aria-activedescendant`, and focus stays in the input.
-- The number of results, or "No results", is announced politely as the person types. Messages `resultsCount`, `noResults` and `commandPlaceholder` are configurable.
+- The number of results, or "No results", is announced politely once the typing pauses. Messages `resultsCount`, `noResults` and `commandPlaceholder` are configurable.
 
 ## Keyboard
 
@@ -71,4 +73,4 @@ The `CommandItem` type (`id`, `label`, `description`, `group`, `icon`, `shortcut
 
 ## Related
 
-[`ECombobox`](../Combobox/README.md) to choose a value in a form, [`ESearchResults`](../SearchResults/README.md) for results that navigate.
+[`EMenu`](../Menu/README.md) for the actions on one thing, [`useShortcuts`](../../composables/README.md) to bind the keys a command shows.

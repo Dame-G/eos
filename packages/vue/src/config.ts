@@ -11,7 +11,7 @@ export interface EosConfig {
   locale: string;
   /** ISO 4217 code, for amounts. */
   currency: string;
-  /** Text direction. `null` follows the document, and the locale when `createEos` was given one (`ar` is right to left). Read the result with `useDir()`. */
+  /** Text direction. `null` follows the page: the `dir` around each component once it is mounted, and the locale on the server (`ar` is right to left). `createEos` with a `locale` sets that locale's `dir` on the page. Read the result with `useDir()`. */
   dir: "ltr" | "rtl" | null;
   /** Overrides for any message, by key. See `defaultMessages`. A message is a string, or a plural object when it takes a count `n`. */
   messages: Record<string, MessageValue>;

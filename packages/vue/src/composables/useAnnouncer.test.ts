@@ -43,6 +43,22 @@ describe("useAnnouncer", () => {
     expect(document.querySelectorAll("[data-e-announcer=polite]")).toHaveLength(1);
   });
 
+  test("a burst says only its last message: a pending one is replaced, not queued", async () => {
+    const { announce } = useAnnouncer();
+    announce("warm up");
+    await expect.poll(() => polite()?.textContent).toBe("warm up");
+    const written: string[] = [];
+    const watcher = new MutationObserver(() => polite()!.textContent && written.push(polite()!.textContent!));
+    watcher.observe(polite()!, { childList: true, characterData: true, subtree: true });
+    announce("1 result");
+    announce("2 results");
+    announce("3 results");
+    await expect.poll(() => polite()?.textContent).toBe("3 results");
+    await new Promise((r) => setTimeout(r, 120));
+    watcher.disconnect();
+    expect(written).toEqual(["3 results"]);
+  });
+
   test("the same message twice in a row still changes the text", async () => {
     const { announce } = useAnnouncer();
     announce("Saved");

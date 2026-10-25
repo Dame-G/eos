@@ -1,4 +1,14 @@
 @layer e.containers {
+  /* The open and closed mark of every summary (EDisclosure, EExpandableRow, a group of ENavList): the library's chevron, turned up while open. */
+  .e-details-chevron {
+    flex: none;
+    transition: transform var(--e-duration-tap) var(--e-easing-out);
+  }
+
+  :is(.e-details, .e-xrow, .e-nav-group)[open] > summary .e-details-chevron {
+    transform: rotate(180deg);
+  }
+
   /* Opening and closing slide, where the browser can animate to the content's own height. Elsewhere it simply switches. */
   .e-details,
   .e-nav-group,

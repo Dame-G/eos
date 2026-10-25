@@ -10,7 +10,7 @@ import {
   type FunctionalComponent,
   type VNodeChild,
 } from "vue";
-import { useEventListener } from "@vueuse/core";
+
 import EToast from "../Toast/EToast.vue";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
@@ -58,28 +58,29 @@ let before: HTMLElement | null = null;
 const away = () => typeof document !== "undefined" && document.hidden;
 const settle = () => (hovering || focused || away() ? store.pause() : store.resume());
 
-useEventListener(region, "mouseenter", () => {
+function onEnter() {
   hovering = true;
   settle();
-});
-useEventListener(region, "mouseleave", () => {
+}
+function onLeave() {
   hovering = false;
   settle();
-});
-useEventListener(region, "focusin", (e: FocusEvent) => {
+}
+function onFocusIn(e: FocusEvent) {
   // Where focus came from, by F8 or Tab, so dismissing the last toast can hand it back.
   const from = e.relatedTarget as HTMLElement | null;
   if (from && !region.value?.contains(from)) before = from;
   focused = true;
   settle();
-});
-useEventListener(region, "focusout", (e: FocusEvent) => {
+}
+function onFocusOut(e: FocusEvent) {
   if (region.value?.contains(e.relatedTarget as Node | null)) return;
   focused = false;
   settle();
-});
+}
 // A toast nobody can see must not run out, or a message sent while the tab was in the background is lost unread.
-useEventListener(typeof document === "undefined" ? undefined : document, "visibilitychange", settle);
+onMounted(() => document.addEventListener("visibilitychange", settle));
+onBeforeUnmount(() => document.removeEventListener("visibilitychange", settle));
 
 // A toast shown while the tab is hidden, or while the pointer is on the region, must not start its timer: no event
 // fires for it, so the state is applied as the list changes (synchronously, before the new toast's timer arms).
@@ -123,12 +124,14 @@ watch(
  * region itself, hands focus back to where it was). A modal dialog traps focus, so under one the toasts are reached by
  * pointer and the announcement.
  */
-useEventListener(typeof document === "undefined" ? undefined : document, "keydown", (e: KeyboardEvent) => {
+function onF8(e: KeyboardEvent) {
   if (e.key !== "F8" || e.defaultPrevented || !region.value) return;
   e.preventDefault();
   if (!region.value.contains(document.activeElement)) before = document.activeElement as HTMLElement | null;
   region.value.focus();
-});
+}
+onMounted(() => document.addEventListener("keydown", onF8));
+onBeforeUnmount(() => document.removeEventListener("keydown", onF8));
 
 function restoreFocus() {
   before?.focus();
@@ -166,15 +169,22 @@ Render.props = ["content"];
 <template>
   <slot />
   <Teleport v-if="mounted" :to="target">
-    <!-- A region the keyboard can enter (F8) and leave (Escape). -->
+    <!-- A region the keyboard can enter (F8) and leave (Escape). `aria-live="off"` says nothing by itself (the toasts
+         are announced through the shared live regions); it keeps the region out of the `aria-hidden` a modal opened
+         after it puts on the rest of the page, which leaves live regions alone. -->
     <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
     <section
       v-if="store.items.length"
       ref="region"
       class="e-root e-toast-region"
       tabindex="-1"
+      aria-live="off"
       :aria-label="t('toastRegion')"
       @keydown="onKeydown"
+      @mouseenter="onEnter"
+      @mouseleave="onLeave"
+      @focusin="onFocusIn"
+      @focusout="onFocusOut"
     >
       <EToast
         v-for="item in store.items"
@@ -184,7 +194,7 @@ Render.props = ["content"];
         :title="item.title"
         :icon="item.icon"
         :closable="item.closable ?? true"
-        :live="false"
+        :role="false"
         @close="dismissFocused(item.id)"
       >
         <template v-if="item.message" #default>{{ item.message }}</template>
@@ -196,10 +206,13 @@ Render.props = ["content"];
 
 <style>
 @layer e.containers {
+  /* The region keeps clear of the notch or rounded corner on its own side: the right in a left-to-right page, the left in a right-to-left one. */
   .e-toast-region {
+    --_safe-end: env(safe-area-inset-right, 0px);
+
     justify-items: end;
     position: fixed;
-    inset-inline-end: max(var(--e-gap-loose), env(safe-area-inset-right, 0px));
+    inset-inline-end: max(var(--e-gap-loose), var(--_safe-end));
     bottom: max(var(--e-gap-loose), env(safe-area-inset-bottom, 0px));
     z-index: var(--e-z-toast);
 
@@ -207,6 +220,10 @@ Render.props = ["content"];
     pointer-events: auto;
     display: grid;
     gap: var(--e-gap-snug);
+  }
+
+  .e-toast-region:dir(rtl) {
+    --_safe-end: env(safe-area-inset-left, 0px);
   }
 
   .e-toast-region:focus:not(:focus-visible) {
@@ -224,7 +241,7 @@ Render.props = ["content"];
   }
 
   .e-toast-region > .e-toast--actions {
-    width: min(40rem, calc(100vw - 2 * var(--e-gap-loose)));
+    width: min(var(--_wide), calc(100vw - 2 * var(--e-gap-loose)));
   }
 
   @media print {

@@ -1,9 +1,11 @@
 import { inject, ref, type InjectionKey, type Ref } from "vue";
+import { TOOLTIP_SKIP_DELAY } from "../../composables/useRekaConfig.js";
 
 /**
  * What the tooltips of one app share, so moving from one control to the next shows the next tooltip at once instead of
- * waiting out the delay again. `createEos().install` provides one for the app. Without the plugin the tooltips share
- * the one in the browser page.
+ * waiting out the delay again. Inside an `EConfigProvider` the one Reka `TooltipProvider` it renders does that too; the
+ * group covers the tooltips with no provider above them. `createEos().install` provides one for the app. Without the
+ * plugin the tooltips share the one in the browser page.
  */
 export interface TooltipGroup {
   /** True from the moment a tooltip closes until the skip delay has passed. */
@@ -15,9 +17,6 @@ export interface TooltipGroup {
 }
 
 export const TOOLTIP_KEY: InjectionKey<TooltipGroup> = Symbol("eos.tooltips");
-
-/** Milliseconds after one tooltip closes during which the next opens without a delay. */
-const TOOLTIP_SKIP_DELAY = 300;
 
 export function createTooltipGroup(skipDelay = TOOLTIP_SKIP_DELAY): TooltipGroup {
   const skipping = ref(false);

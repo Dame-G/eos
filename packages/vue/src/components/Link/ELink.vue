@@ -2,6 +2,7 @@
 import { computed, type Component } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import { useMessages } from "../../config.js";
+import { linkTarget } from "../../composables/useLink.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 
@@ -9,7 +10,7 @@ const props = withDefaults(
   defineProps<{
     /** Where the link goes. Give `href` or, with a `linkComponent`, `to`. */
     href?: string;
-    /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). Use it instead of `href`. */
+    /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). Use it instead of `href`. Without a `linkComponent`, a string `to` is the `href`. */
     to?: unknown;
     /** What renders the link: `RouterLink` or any component that takes `href` or `to` and a default slot. It receives `to` or `href` and the class `e-link`. */
     linkComponent?: string | Component;
@@ -27,7 +28,7 @@ defineSlots<{
 }>();
 
 const t = useMessages();
-const target = computed(() => (props.to !== undefined ? { to: props.to } : { href: props.href }));
+const target = computed(() => linkTarget(props, props.linkComponent));
 </script>
 
 <template>

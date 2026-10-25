@@ -165,6 +165,43 @@ describe("ECommandPalette", () => {
     expect(emitted().close).toHaveLength(1);
   });
 
+  test("the shortcut does not open it over another modal, and two palettes do not both answer", async () => {
+    const mod = /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? { metaKey: true } : { ctrlKey: true };
+    const press = () =>
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", bubbles: true, cancelable: true, ...mod }));
+    const modal = document.createElement("div");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    document.body.append(modal);
+    const first = await render(ECommandPalette, { props: { items, label: "First", shortcut: "mod+k" } });
+    press();
+    expect(first.emitted()["update:open"]).toBeUndefined();
+    modal.remove();
+    const second = await render(ECommandPalette, { props: { items, label: "Second", shortcut: "mod+k" } });
+    press();
+    const opened = [first, second].filter((p) => p.emitted()["update:open"]?.length);
+    expect(opened).toHaveLength(1);
+  });
+
+  test("the result count is said once the typing pauses, not after every key", async () => {
+    await mount();
+    await expect.poll(() => document.activeElement).toBe(input());
+    const polite = () => document.querySelector("[data-e-announcer=polite]")?.textContent ?? "";
+    const written: string[] = [];
+    await userEvent.keyboard("x");
+    await new Promise((r) => setTimeout(r, 500));
+    const region = document.querySelector("[data-e-announcer=polite]")!;
+    const watcher = new MutationObserver(() => region.textContent && written.push(region.textContent));
+    watcher.observe(region, { childList: true, characterData: true, subtree: true });
+    await userEvent.keyboard("{Backspace}");
+    await userEvent.keyboard("i");
+    await userEvent.keyboard("n");
+    await expect.poll(polite, { timeout: 2000 }).toMatch(/[0-9]/);
+    await new Promise((r) => setTimeout(r, 200));
+    watcher.disconnect();
+    expect(written).toHaveLength(1);
+  });
+
   test("shows a command's own shortcut as keycaps", async () => {
     await mount();
     const caps = [...document.querySelectorAll("[role=option] kbd")].map((k) => k.textContent);

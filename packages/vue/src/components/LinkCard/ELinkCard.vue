@@ -2,6 +2,7 @@
 import { computed, type Component } from "vue";
 import ESurface from "../Surface/ESurface.vue";
 import { useMessages } from "../../config.js";
+import { linkTarget } from "../../composables/useLink.js";
 import type { ElementTag, Size } from "../../composables/useSize.js";
 import "../../styles/base.css";
 
@@ -11,7 +12,7 @@ const props = withDefaults(
     title: string;
     /** Where the card goes. Give `href` or, with a `linkComponent`, `to`. */
     href?: string;
-    /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). Use it instead of `href`. */
+    /** A router location, passed to `linkComponent` as `to` (for `RouterLink`). Use it instead of `href`. Without a `linkComponent`, a string `to` is the `href`. */
     to?: unknown;
     /** What renders the link: `RouterLink` or any component that takes `href` or `to` and a default slot. */
     linkComponent?: string | Component;
@@ -31,7 +32,7 @@ defineSlots<{
 }>();
 
 const t = useMessages();
-const target = computed(() => (props.to !== undefined ? { to: props.to } : { href: props.href }));
+const target = computed(() => linkTarget(props, props.linkComponent));
 </script>
 
 <template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import EActions from "../Actions/EActions.vue";
+import EIcon from "../Icon/EIcon.vue";
 import { useDetails } from "../../composables/useDetails.js";
 import "../../styles/base.css";
 import "../../styles/details.css";
@@ -41,7 +42,10 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
         <span class="e-xrow-title">{{ title }}</span>
         <span v-if="subtitle" class="e-xrow-sub">{{ subtitle }}</span>
       </span>
-      <span v-if="$slots.trailing" class="e-xrow-trail"><slot name="trailing" /></span>
+      <span class="e-xrow-end">
+        <span v-if="$slots.trailing" class="e-xrow-trail"><slot name="trailing" /></span>
+        <EIcon class="e-details-chevron" name="chevron-down" />
+      </span>
     </summary>
     <div class="e-xrow-body">
       <div v-if="$slots.default" class="e-xrow-content"><slot /></div>
@@ -60,6 +64,9 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 
     /* How far a child sits inside the row's rounded edge; each child works its own radius from it. */
     --_inset: var(--e-stroke-edge);
+
+    /* The least width of the value at the end, so amounts in a list of rows line up. */
+    --_trail-w: 5.5rem;
 
     container-type: inline-size;
     border: var(--e-stroke-edge) solid var(--_ring);
@@ -159,8 +166,15 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     overflow-wrap: anywhere;
   }
 
+  /* The end of the summary: the value, then the open and closed chevron. */
+  .e-xrow-end {
+    display: flex;
+    align-items: center;
+    gap: var(--e-gap-base);
+  }
+
   .e-xrow-trail {
-    min-width: 5.5rem;
+    min-width: var(--_trail-w);
     font: var(--e-weight-medium) var(--e-text-md) / var(--e-leading-snug) var(--e-font-mono);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;

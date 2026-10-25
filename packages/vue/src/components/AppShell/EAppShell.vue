@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, provide, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, provide, ref, useSlots, watch } from "vue";
 import EDrawer from "../Drawer/EDrawer.vue";
 import ESkipLink from "../SkipLink/ESkipLink.vue";
 import { shellKey } from "./shellContext.js";
 import { useMessages } from "../../config.js";
+import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
@@ -49,7 +50,12 @@ onBeforeUnmount(() => query?.removeEventListener("change", sync));
 const drawer = computed(() => props.navToggle && narrow.value);
 watch(drawer, (on) => on || (navOpen.value = false));
 
-provide(shellKey, { drawer, open: navOpen, toggle: () => (navOpen.value = !navOpen.value) });
+const slots = useSlots();
+const toggleable = computed(() => props.navToggle && !!slots.sidebar);
+const uid = useUid();
+const drawerId = `${uid.value}-nav`;
+
+provide(shellKey, { drawer, toggleable, drawerId, open: navOpen, toggle: () => (navOpen.value = !navOpen.value) });
 
 /** Following a link in the drawer takes the person to a page, so the drawer gets out of the way. */
 function closeOnLink(event: MouseEvent) {
@@ -58,20 +64,21 @@ function closeOnLink(event: MouseEvent) {
 </script>
 
 <template>
-  <div class="e-shell" :class="$slots.sidebar && 'e-shell--side'">
+  <div class="e-shell" :class="[$slots.sidebar && 'e-shell--side', toggleable && 'e-shell--toggle']">
     <ESkipLink :href="`#${mainId}`" />
     <slot name="header" />
     <div class="e-shell-body">
       <aside v-if="$slots.sidebar && !drawer" class="e-shell-side" :aria-label="sidebarLabel || t('sidebar')">
         <slot name="sidebar" />
       </aside>
-      <main :id="mainId" class="e-shell-main" tabindex="-1">
+      <main :id="mainId" class="e-shell-main">
         <slot />
       </main>
     </div>
     <slot name="footer" />
     <EDrawer
       v-if="$slots.sidebar && drawer"
+      :id="drawerId"
       v-model:open="navOpen"
       side="start"
       :title="sidebarLabel || t('menu')"
@@ -85,6 +92,9 @@ function closeOnLink(event: MouseEvent) {
 <style>
 @layer e.page {
   .e-shell {
+    /* The width of the sidebar column. */
+    --_side-w: 15rem;
+
     position: relative;
     overflow-x: clip;
     display: grid;
@@ -95,6 +105,7 @@ function closeOnLink(event: MouseEvent) {
 
   /* The column is the page; the screen beside it, when the column does not fill it, is the ground. */
   .e-shell-body {
+    box-sizing: border-box;
     background: var(--e-background);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -119,7 +130,14 @@ function closeOnLink(event: MouseEvent) {
   /* A viewport query on purpose: the shell is the page frame, so its two-column layout follows the window (48rem, the page-frame breakpoint), not a container. */
   @media (min-width: 48rem) {
     .e-shell--side .e-shell-body {
-      grid-template-columns: 15rem minmax(0, 1fr);
+      grid-template-columns: var(--_side-w) minmax(0, 1fr);
+    }
+  }
+
+  /* On a phone the sidebar goes into a drawer once the page runs. The server renders it in the page, so CSS hides it until then and the content does not jump up when it goes. */
+  @media (max-width: 47.99rem) {
+    .e-shell--toggle .e-shell-side {
+      display: none;
     }
   }
 

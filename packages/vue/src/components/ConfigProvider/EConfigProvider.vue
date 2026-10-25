@@ -5,6 +5,7 @@ import { CONFIG_KEY, useConfig, type EosConfig, type MessageValue } from "../../
 import type { IconsConfig } from "../../icons/types.js";
 import { localeDirection } from "../../composables/useLocale.js";
 import type { ElementTag } from "../../composables/useSize.js";
+import { RekaConfig } from "../../composables/useRekaConfig.js";
 import "../../styles/base.css";
 
 const props = withDefaults(
@@ -138,7 +139,7 @@ const style = computed(() => {
     :dir="direction"
     :style="style"
   >
-    <slot />
+    <RekaConfig root><slot /></RekaConfig>
   </component>
 </template>
 

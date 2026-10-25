@@ -1,9 +1,3 @@
-<script lang="ts">
-import type { Tone } from "../../composables/useSize.js";
-
-export type NoticeTone = Extract<Tone, "neutral" | "info" | "success" | "warning" | "danger">;
-</script>
-
 <script setup lang="ts">
 import { computed } from "vue";
 import EActions from "../Actions/EActions.vue";
@@ -11,13 +5,14 @@ import EIcon from "../Icon/EIcon.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages } from "../../config.js";
 import type { IconProp } from "../../icons/types.js";
+import { roleFor, TONE_ICON, type NoticeRole, type NoticeTone } from "./tone.js";
 import "../../styles/base.css";
 import "../Heading/scale.css";
 import "./notice.css";
 
 const props = withDefaults(
   defineProps<{
-    /** `neutral` is plain information with no colour, `info` informs, `success` confirms, `warning` needs attention and `danger` is an error announced at once. */
+    /** `neutral` is plain information with no colour, `info` informs, `success` confirms, `warning` needs attention and `danger` is an error. */
     tone?: NoticeTone;
     /** What happened, in one short line. */
     title: string;
@@ -25,8 +20,8 @@ const props = withDefaults(
     headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     /** The id of the title element, for a parent that labels itself by it. */
     titleId?: string;
-    /** The ARIA role. `danger` uses `alert`, the others `status`. `false` removes it, for a parent that announces the notice. */
-    role?: string | false;
+    /** The live role, which announces a change of the notice's words: `alert` at once, `status` politely. `false` removes it, for a parent that announces the notice. @default "alert" for danger, else "status" */
+    role?: NoticeRole;
     /** Replaces the icon of the tone. */
     icon?: IconProp;
     /** Shows the close button. Handle `@close` to remove the notice. */
@@ -48,16 +43,7 @@ defineSlots<{
 }>();
 
 const t = useMessages();
-const TONE_ICON: Record<NoticeTone, string> = {
-  neutral: "info",
-  info: "info",
-  success: "check",
-  warning: "alert",
-  danger: "alert",
-};
-const role = computed(() =>
-  props.role === false ? undefined : props.role || (props.tone === "danger" ? "alert" : "status"),
-);
+const role = computed(() => roleFor(props.role, props.tone));
 </script>
 
 <template>
@@ -84,41 +70,17 @@ const role = computed(() =>
 
 <style>
 @layer e.containers {
-  /* Full width, closed on every side, with the slab on the inline-start edge and the theme's corner radius. */
+  /* Full width, closed on every side, with the slab on the inline-start edge and the theme's corner radius. The tone's colours come from notice.css. */
   .e-notice {
-    --e-tone: var(--e-info);
-    --_bg: var(--e-info-soft);
-
     container-type: inline-size;
     padding-block: calc(var(--e-gap-base) - var(--e-stroke-edge));
     padding-inline: calc(var(--e-pad-card) - var(--e-stroke-edge));
-    border: var(--e-stroke-edge) solid var(--e-tone);
+    border: var(--e-stroke-edge) solid var(--_tone);
     border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-slab-bold));
     border-radius: var(--e-radius-md);
-    background-color: var(--_bg);
+    background-color: var(--_tone-bg);
     background-clip: padding-box;
     color: var(--e-ink);
-  }
-
-  /* The slab sits on the tone's side: the inline-start border is thicker by `slab-bold`, so it flips in a right-to-left page. */
-  .e-notice--neutral {
-    --e-tone: var(--e-muted);
-    --_bg: var(--e-surface-tint);
-  }
-
-  .e-notice--success {
-    --e-tone: var(--e-success);
-    --_bg: var(--e-success-soft);
-  }
-
-  .e-notice--warning {
-    --e-tone: var(--e-warning);
-    --_bg: var(--e-warning-soft);
-  }
-
-  .e-notice--danger {
-    --e-tone: var(--e-danger);
-    --_bg: var(--e-danger-soft);
   }
 
   /* The title's style comes from the type scale (`e-h e-h4`). */

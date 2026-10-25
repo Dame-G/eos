@@ -1,30 +1,20 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import DialogFrame from "../Dialog/DialogFrame.vue";
 import DialogBody from "../Dialog/DialogBody.vue";
+import type { DialogFrameProps } from "../Dialog/frame.js";
 
 defineOptions({ inheritAttrs: false });
 
-withDefaults(
-  defineProps<{
-    /** The panel's heading and accessible name, such as the statement being read. */
-    title: string;
-    /** A sentence under the title that says what the drawer is for. It is shown, and read out as the description. */
-    description?: string;
-    /** `alertdialog` for a confirmation that needs an answer, such as a delete. Every other drawer uses `dialog`. */
-    role?: "dialog" | "alertdialog";
-    /** The level of the title's heading element, 1 to 6. */
-    headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
-    /** The edge it slides in from. `end` is the right in a left-to-right page, `start` the left, and both flip in a right-to-left page. `bottom` gives a sheet that suits phones. */
-    side?: "end" | "start" | "bottom";
-    /** The width of a side drawer: `sm`, `md` or `lg`. A `bottom` sheet is always full width. */
-    size?: "sm" | "md" | "lg";
-    /** A CSS selector for the element that takes focus when it opens. Without it, an element marked `data-autofocus` does; an `alertdialog` falls back to its least destructive action and any other drawer to its first control. */
-    initialFocus?: string;
-    /** Closes the drawer when the backdrop is pressed as well. A form should leave it off, since a stray press would discard the work. A press on a toast does not count. */
-    dismissible?: boolean;
-    /** Shows the drawer in the page, without the backdrop or the focus trap, for a preview. Escape and presses outside leave it open. */
-    inline?: boolean;
-  }>(),
+const props = withDefaults(
+  defineProps<
+    DialogFrameProps & {
+      /** The edge it slides in from. `end` is the right in a left-to-right page, `start` the left, and both flip in a right-to-left page. `bottom` gives a sheet that suits phones. */
+      side?: "end" | "start" | "bottom";
+      /** The width of a side drawer: `sm` (28rem), `md` (32rem) or `lg` (36rem), never wider than the screen. A `bottom` sheet is always full width. */
+      size?: "sm" | "md" | "lg";
+    }
+  >(),
   { role: "dialog", headingLevel: 2, side: "end", size: "sm" },
 );
 
@@ -42,19 +32,20 @@ defineSlots<{
 
 /** Whether it is open. Without a binding it keeps its own state. */
 const open = defineModel<boolean>("open");
+
+/** Everything but the side and the size goes to the frame as it is. */
+const frame = computed<DialogFrameProps>(() => {
+  const shared: Record<string, unknown> = { ...props };
+  delete shared.side;
+  delete shared.size;
+  return shared as unknown as DialogFrameProps;
+});
 </script>
 
 <template>
   <DialogFrame
-    v-bind="$attrs"
+    v-bind="{ ...$attrs, ...frame }"
     v-model:open="open"
-    :title="title"
-    :heading-level="headingLevel"
-    :description="description"
-    :role="role"
-    :inline="inline"
-    :dismissible="dismissible"
-    :initial-focus="initialFocus"
     :content-class="[
       'e-drawer',
       `e-drawer--${size}`,
@@ -74,9 +65,13 @@ const open = defineModel<boolean>("open");
   .e-drawer {
     --_slide: 1;
 
+    /* The height of an inline preview: a side drawer, and a bottom sheet at most. */
+    --_preview-h: 26rem;
+    --_preview-sheet-h: 18rem;
+
     position: fixed;
     inset: 0;
-    width: min(var(--_w), 100dvw);
+    width: min(var(--_w), 100vw);
     height: 100dvh;
     max-height: none;
     margin-block: 0;
@@ -96,7 +91,7 @@ const open = defineModel<boolean>("open");
     inset: auto 0 0;
     width: 100%;
     height: auto;
-    max-height: min(32rem, 85dvh);
+    max-height: min(var(--e-size-panel-md), 85dvh);
     margin: 0;
     border-start-start-radius: var(--e-radius-md);
     border-start-end-radius: var(--e-radius-md);
@@ -168,7 +163,7 @@ const open = defineModel<boolean>("open");
     position: static;
     width: 100%;
     max-width: var(--_w);
-    height: 26rem;
+    height: var(--_preview-h);
     margin: 0;
     transform: none;
   }
@@ -176,7 +171,7 @@ const open = defineModel<boolean>("open");
   .e-drawer--inline.e-drawer--bottom {
     max-width: var(--_w);
     height: auto;
-    max-height: 18rem;
+    max-height: var(--_preview-sheet-h);
     border-radius: var(--e-radius-md);
   }
 }

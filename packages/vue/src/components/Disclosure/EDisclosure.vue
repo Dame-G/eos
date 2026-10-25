@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import EIcon from "../Icon/EIcon.vue";
 import { useDetails } from "../../composables/useDetails.js";
 import "../../styles/base.css";
 import "../../styles/details.css";
@@ -29,6 +30,7 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
   <details class="e-disclosure e-details" v-bind="details">
     <summary v-bind="summary">
       <slot name="title">{{ title }}</slot>
+      <EIcon class="e-details-chevron" name="chevron-down" />
     </summary>
     <div class="e-details-body"><slot /></div>
   </details>
@@ -54,29 +56,14 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     transition: var(--e-transition-state);
   }
 
-  .e-details > summary::after {
-    content: "";
-    flex: none;
-    width: var(--e-gap-snug);
-    height: var(--e-gap-snug);
-    margin-inline-end: var(--e-gap-tight);
-    border-inline-end: var(--e-stroke-card) solid currentcolor;
-    border-bottom: var(--e-stroke-card) solid currentcolor;
-    transform: translateY(-2px) rotate(45deg);
-    transition: transform var(--e-duration-tap) var(--e-easing-out);
-  }
-
-  .e-details[open] > summary::after {
-    transform: translateY(2px) rotate(-135deg);
-  }
-
   .e-details > summary::-webkit-details-marker {
     display: none;
   }
 
+  /* The ring is drawn inside the summary: a disclosure often sits flush in a clipped column or between its neighbours, which would cut a ring drawn outside. */
   .e-details > summary:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
-    outline-offset: var(--e-stroke-focus);
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   /* The summary line answers the pointer with the wash every row uses, and keeps its ink text: no colour change, no underline, no ring. */
@@ -93,8 +80,9 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
     cursor: not-allowed;
   }
 
+  /* The content is clipped while it slides, and a browser without `overflow-clip-margin` keeps the clip once open: the room at the top keeps the focus ring (or a ring drawn outside a box) of the first thing inside within it. */
   .e-details-body {
-    padding-block-end: var(--e-gap-snug);
+    padding-block: calc(2 * var(--e-stroke-focus)) var(--e-gap-snug);
     padding-inline: var(--e-gap-snug);
   }
 

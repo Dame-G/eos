@@ -13,6 +13,35 @@ const items = [
 ];
 const slots = { a: () => "Panel A", b: () => "Panel B", c: () => "Panel C" };
 
+describe("ETabs stretch", () => {
+  test("stretch fills the container's height and the panel scrolls its own content", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: "height: 300px; display: flex; flex-direction: column" }, [
+            h(
+              ETabs,
+              {
+                stretch: true,
+                items: [
+                  { id: "a", label: "A" },
+                  { id: "b", label: "B" },
+                ],
+              },
+              { "panel-a": () => h("div", { style: "height: 1000px" }, "Tall") },
+            ),
+          ]),
+      }),
+    );
+    const tabs = container.querySelector<HTMLElement>(".e-tabs")!;
+    const panel = container.querySelector<HTMLElement>(".e-tabpanel")!;
+    expect(Math.round(tabs.getBoundingClientRect().height)).toBe(300);
+    expect(getComputedStyle(panel).overflowY).toBe("auto");
+    expect(panel.scrollHeight).toBeGreaterThan(panel.clientHeight);
+    expect(panel.getBoundingClientRect().bottom).toBeLessThanOrEqual(tabs.getBoundingClientRect().bottom + 1);
+  });
+});
+
 describe("ETabs", () => {
   test("is a tablist of tabs with one selected tab and its panel", async () => {
     const { container } = await render(ETabs, { props: { items }, slots });

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import DialogFrame from "../Dialog/DialogFrame.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EKbd from "../Kbd/EKbd.vue";
@@ -137,8 +137,16 @@ const choosable = computed(() => flat.value.filter((i) => !i.disabled));
 const optionId = (item: CommandItem) => `${uid.value}-${item.id}`;
 const activeItem = computed(() => flat.value.find((i) => i.id === activeId.value) ?? null);
 
+/*
+ * The one place the active command moves by itself: when the list changes. A new query starts again from the first
+ * command; otherwise the active one stays while it is still there and choosable.
+ */
+let seenQuery = query.value;
+let reportTimer: ReturnType<typeof setTimeout> | undefined;
 watch(flat, () => {
-  if (!activeItem.value || activeItem.value.disabled) activeId.value = choosable.value[0]?.id ?? null;
+  const typed = query.value !== seenQuery;
+  seenQuery = query.value;
+  if (typed || !activeItem.value || activeItem.value.disabled) activeId.value = choosable.value[0]?.id ?? null;
 });
 
 watch(
@@ -146,23 +154,27 @@ watch(
   (isOpen) => {
     if (isOpen) {
       query.value = "";
+      seenQuery = "";
       activeId.value = choosable.value[0]?.id ?? null;
-    }
+    } else clearTimeout(reportTimer);
   },
   { immediate: true },
 );
 
 const emptyMessage = computed(() => props.emptyText || t("noResults"));
 
+/** The count is said once the typing pauses, not after every key. */
+const REPORT_DELAY = 400;
+onBeforeUnmount(() => clearTimeout(reportTimer));
 function report() {
-  if (!choosable.value.length) announce(props.loading ? t("searching") : emptyMessage.value);
-  else announce(t("resultsCount", { n: choosable.value.length }));
+  clearTimeout(reportTimer);
+  reportTimer = setTimeout(() => {
+    if (!choosable.value.length) announce(props.loading ? t("searching") : emptyMessage.value);
+    else announce(t("resultsCount", { n: choosable.value.length }));
+  }, REPORT_DELAY);
 }
 
-watch(query, () => {
-  activeId.value = choosable.value[0]?.id ?? null;
-  report();
-});
+watch(query, report);
 
 watch(
   () => props.loading,
@@ -207,12 +219,28 @@ function onKeydown(e: KeyboardEvent) {
   e.preventDefault();
 }
 
-if (props.shortcut) useShortcuts({ [props.shortcut]: () => setOpen(!open.value) });
+/** Whether a modal dialog other than this palette is open: the shortcut must not open a second layer over it. */
+function otherModalOpen(): boolean {
+  const mine = list.value?.closest("[role=dialog]");
+  return [...document.querySelectorAll('[aria-modal="true"], dialog:modal')].some((el) => el !== mine);
+}
+
+/*
+ * The shortcut closes this palette when it is open. Closed, it opens it unless another modal is open. Only a palette
+ * that acts claims the key (`preventDefault`), so with two palettes on a page only one of them answers.
+ */
+function onShortcut(event: KeyboardEvent) {
+  if (!open.value && otherModalOpen()) return;
+  event.preventDefault();
+  setOpen(!open.value);
+}
+
+if (props.shortcut) useShortcuts({ [props.shortcut]: onShortcut }, { preventDefault: false });
 
 defineExpose({
   /** Opens the palette. */
   show: () => (open.value = true),
-  /** Closes it. */
+  /** Closes it. Unlike a person closing it, this does not fire `close`. */
   hide: () => (open.value = false),
 });
 </script>
@@ -287,7 +315,7 @@ defineExpose({
         </div>
       </template>
       <p v-if="!flat.length" class="e-opt-status" aria-hidden="true">
-        <ESpinner v-if="loading" :label="t('searching')" />
+        <ESpinner v-if="loading" :label="t('searching')" silent />
         <template v-else>{{ emptyMessage }}</template>
       </p>
     </div>
@@ -297,14 +325,18 @@ defineExpose({
 <style>
 @layer e.containers {
   .e-cmd {
+    /* How far down the screen it opens, and the most height it takes: room for about seven commands. */
+    --_top: min(20dvh, 8rem);
+    --_max-h: 26rem;
+
     position: fixed;
-    inset-block-start: min(20dvh, 8rem);
+    inset-block-start: var(--_top);
     inset-inline: 0;
     z-index: var(--e-z-modal);
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);
     width: min(var(--e-size-panel-lg), calc(100vw - var(--e-space-8)));
-    max-height: min(26rem, calc(100dvh - 10rem));
+    max-height: min(var(--_max-h), calc(100dvh - var(--_top) - var(--e-space-8)));
     margin-inline: auto;
     overflow: hidden;
     border-radius: var(--e-radius-md);

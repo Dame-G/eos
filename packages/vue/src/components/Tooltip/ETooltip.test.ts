@@ -84,6 +84,50 @@ describe("ETooltip", () => {
     await expect.poll(() => bubble()).toBeNull();
   });
 
+  test("a touch's whole sequence (pointerdown, pointerup, click) keeps it showing until the hold ends", async () => {
+    const { container } = await mount();
+    const button = container.querySelector("button")!;
+    const touch = { bubbles: true, pointerType: "touch", isPrimary: true };
+    button.dispatchEvent(new PointerEvent("pointerdown", touch));
+    await expect.poll(() => bubble()).not.toBeNull();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      button.dispatchEvent(new PointerEvent("pointerup", touch));
+      button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(bubble()).not.toBeNull();
+      await vi.advanceTimersByTimeAsync(500);
+    } finally {
+      vi.useRealTimers();
+    }
+    await expect.poll(() => bubble()).toBeNull();
+    // A mouse press afterwards still closes it as before.
+    await userEvent.tab();
+    await expect.poll(() => bubble()).not.toBeNull();
+    await page.getByRole("button", { name: "Download" }).click();
+    await expect.poll(() => bubble()).toBeNull();
+  });
+
+  test("a label that is the control's own name is not read again as its description, and the bubble is hidden from AT", async () => {
+    const { container } = await mount("Download");
+    const button = container.querySelector("button")!;
+    await userEvent.tab();
+    await expect.poll(() => bubble()).not.toBeNull();
+    expect(button.hasAttribute("aria-describedby")).toBe(false);
+    expect(bubble()!.getAttribute("aria-hidden")).toBe("true");
+    await expectNoViolations(document.body);
+  });
+
+  test("describes forces the description on even when the label is the name", async () => {
+    await render(ETooltip, {
+      props: { label: "Download", describes: true },
+      slots: { default: () => h(EIconButton, { icon: "download", label: "Download" }) },
+    });
+    await userEvent.tab();
+    await expect.poll(() => tip()).not.toBeNull();
+    expect((document.activeElement as HTMLElement).getAttribute("aria-describedby")).toBe(tip()!.id);
+  });
+
   test("a press hides it, so it never covers what you are about to read", async () => {
     await mount();
     await userEvent.tab();

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, watch } from "vue";
-import { TooltipContent, TooltipPortal, TooltipProvider, TooltipRoot, TooltipTrigger } from "reka-ui";
+import { cloneVNode, computed, onBeforeUnmount, onMounted, ref, watch, type VNode } from "vue";
+import { TooltipContent, TooltipPortal, TooltipRoot, TooltipTrigger } from "reka-ui";
 import { usePortalTarget } from "../../config.js";
-import { useLogicalSide } from "../../composables/useDir.js";
+import { EDGE_PADDING_TIGHT, FLOAT_OFFSET, useLogicalSide } from "../../composables/useDir.js";
+import { TooltipScope } from "../../composables/useRekaConfig.js";
 import { useTooltipGroup } from "./group.js";
 import "../../styles/base.css";
 
@@ -16,8 +17,10 @@ const props = withDefaults(
     side?: "top" | "bottom" | "start" | "end";
     /** Milliseconds of hovering before it shows. Keyboard focus shows it at once, and so does moving from one tooltip to the next. */
     delay?: number;
+    /** Whether the label is read out as the control's description (`aria-describedby`). Left out, it is, unless the label is the control's accessible name already, which would be read twice; the bubble is then only for sight. */
+    describes?: boolean;
   }>(),
-  { side: "top", delay: 400 },
+  { side: "top", delay: 400, describes: undefined },
 );
 
 const emit = defineEmits<{
@@ -25,7 +28,7 @@ const emit = defineEmits<{
   close: [];
 }>();
 
-defineSlots<{
+const slots = defineSlots<{
   /** One focusable element: an icon button, a link. It becomes the trigger and is described by the bubble. */
   default(): unknown;
 }>();
@@ -47,40 +50,88 @@ function setOpen(value: boolean) {
   if (was && !value) emit("close");
 }
 
+/*
+ * The trigger's accessible name, as far as it can be read without a full computation: `aria-label`, the text of the
+ * `aria-labelledby` elements, or its own text. An `EIconButton` with a tooltip passes its label as both.
+ */
+const trigger = ref<{ $el?: Node } | null>(null);
+const triggerName = ref<string | null>(null);
+const squash = (s: string | null | undefined) => (s ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+function readName() {
+  // A trigger that renders a fragment points at its start marker; the element follows it.
+  let node: Node | null | undefined = trigger.value?.$el;
+  while (node && !(node instanceof Element)) node = node.nextSibling;
+  const el = node;
+  if (!el) return;
+  const ids = el.getAttribute("aria-labelledby");
+  const labelled = ids
+    ?.split(/\s+/)
+    .map((id) => document.getElementById(id)?.textContent ?? "")
+    .join(" ");
+  triggerName.value = squash(el.getAttribute("aria-label") ?? labelled ?? el.textContent);
+}
+onMounted(readName);
+watch(open, (now) => now && readName(), { flush: "pre" });
+
+const describing = computed(() => props.describes ?? triggerName.value !== squash(props.label));
+
+/*
+ * Reka sets `aria-describedby` on the trigger while the bubble is open. When the label is not a description, the
+ * trigger's own value is laid over it (the trigger's props win the merge), so a name is never read twice.
+ */
+function triggerNodes(): VNode[] {
+  const nodes = (slots.default() ?? []) as VNode[];
+  if (describing.value) return nodes;
+  return nodes.map((n) => cloneVNode(n, { "aria-describedby": n.props?.["aria-describedby"] }));
+}
+
+/*
+ * A held finger shows it, and it stays a moment after the finger lifts so it can be read. The click that follows a
+ * short touch would close it at once, so a touch turns off Reka's close-on-click until the bubble has gone.
+ */
+const touching = ref(false);
 let hold: ReturnType<typeof setTimeout> | undefined;
 onBeforeUnmount(() => clearTimeout(hold));
 function touchStart(e: PointerEvent) {
-  if (e.pointerType !== "touch") return;
+  if (e.pointerType !== "touch") {
+    touching.value = false;
+    return;
+  }
+  touching.value = true;
   clearTimeout(hold);
   requestAnimationFrame(() => setOpen(true));
 }
 function touchEnd(e: PointerEvent) {
   if (e.pointerType !== "touch") return;
   clearTimeout(hold);
-  hold = setTimeout(() => setOpen(false), 1500);
+  hold = setTimeout(() => {
+    touching.value = false;
+    setOpen(false);
+  }, 1500);
 }
 </script>
 
 <template>
-  <TooltipProvider :delay-duration="delay">
-    <TooltipRoot :open="open" :delay-duration="delayNow" @update:open="setOpen">
-      <TooltipTrigger as-child @pointerdown="touchStart" @pointerup="touchEnd" @pointercancel="touchEnd">
-        <slot />
+  <TooltipScope :delay-duration="delay">
+    <TooltipRoot :open="open" :delay-duration="delayNow" :disable-closing-trigger="touching" @update:open="setOpen">
+      <TooltipTrigger ref="trigger" as-child @pointerdown="touchStart" @pointerup="touchEnd" @pointercancel="touchEnd">
+        <component :is="node" v-for="(node, i) in triggerNodes()" :key="i" />
       </TooltipTrigger>
       <TooltipPortal :to="portal">
         <TooltipContent
           class="e-tip-bubble e-root"
           :side="placement"
           align="center"
-          :side-offset="8"
-          :collision-padding="8"
+          :side-offset="FLOAT_OFFSET"
+          :collision-padding="EDGE_PADDING_TIGHT"
+          :aria-hidden="describing ? undefined : 'true'"
           v-bind="$attrs"
         >
           {{ label }}
         </TooltipContent>
       </TooltipPortal>
     </TooltipRoot>
-  </TooltipProvider>
+  </TooltipScope>
 </template>
 
 <style>

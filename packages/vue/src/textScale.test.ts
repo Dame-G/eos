@@ -49,7 +49,7 @@ const CASES: Case[] = [
     name: "ETabs count",
     component: ETabs,
     props: { items: [{ id: "a", label: "Open", count: 3 }] },
-    selector: ".e-tab-count",
+    selector: ".e-count",
     lineHeight: 20,
   },
   {

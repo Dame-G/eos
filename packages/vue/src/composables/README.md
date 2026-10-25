@@ -25,7 +25,7 @@ announce("3 rows selected");
 announce("Payment failed", { assertive: true }); // interrupts: for errors
 ```
 
-Announce the result of an action the person cannot otherwise see. Do not repeat what is already in a live region on screen. The same message twice in a row is still spoken.
+Announce the result of an action the person cannot otherwise see. Do not repeat what is already in a live region on screen. The same message twice in a row is still spoken. A message is written a moment after the call, and another of the same politeness in that moment replaces it, so a burst (a count updated on each keystroke) says only its last.
 
 ## `useShortcuts(map, options?)`
 
@@ -87,7 +87,7 @@ A stable id for wiring a label, hint and error to a control. It matches between 
 
 ## `useDir()`, `useLogicalSide(side)`
 
-The direction to use: `createEos({ dir })` when set, otherwise the one the locale is written in (`ar`, `he`, `fa`, `ur` give `rtl`). Reka UI assumes left to right unless told, so every Reka root that takes `dir` (Select, Menu, Popover, Tabs, Calendar...) needs it, and so does anything teleported out of the tree. One place for all of a component's Reka parts is Reka's `ConfigProvider`:
+The direction to use: `createEos({ dir })` (or an `EConfigProvider`'s) when set, otherwise the direction of the page around the component once it is mounted, so it agrees with CSS `:dir()`. On the server it is the one the locale is written in (`ar`, `he`, `fa`, `ur` give `rtl`). Reka UI assumes left to right unless told, so every Reka root that takes `dir` (Select, Menu, Popover, Tabs, Calendar...) needs it, and so does anything teleported out of the tree. One place for all of a component's Reka parts is Reka's `ConfigProvider`:
 
 ```vue
 <script setup lang="ts">
