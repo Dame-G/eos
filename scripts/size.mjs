@@ -30,7 +30,11 @@ const jsFiles = (dir) =>
 //
 // THE LIMITS: change a number here, nowhere else.
 const limits = {
-  "style.css": 22300,
+  // Raised from 22300 (about 770 B in all): the upload redesign (the dropzone as a well with its dragging states, each
+  // file as a raised tile, rejected-file rows with their tone edge, the corner count, thumbnails and the single-file
+  // preview card), the calendar range meeting flush (each end, today and the hover squaring toward the band, the band
+  // rounding its outer corners), and the hover veil that fades a field's and an outline button's wash without a sweep.
+  "style.css": 23400,
   // Minified here before gzip since the JavaScript ships unminified; rebased then with the headroom they had.
   "index.js": 2100,
   // Raised from 144300 in the audit release, at 148029 B with the headroom it had (2.9%). Growth over 0.17 (about 8 kB,

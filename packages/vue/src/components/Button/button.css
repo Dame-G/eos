@@ -84,13 +84,18 @@
     --_slab: var(--e-slab-ink);
 
     background-clip: padding-box;
+
+    /* The wash is a full-size inset over the surface fill, always there and transparent at rest, so a hover fades its colour and never sweeps in from the edges. */
+    --_veil: transparent;
+
+    box-shadow: inset 0 0 0 100vmax var(--_veil);
   }
 
   .e-btn--outline:not(:disabled, [aria-disabled="true"], [aria-pressed="true"], .e-btn--loading):is(:hover, :active) {
     --_slab: var(--e-ink);
 
     /* The face stays opaque: the wash is laid over the surface fill. */
-    box-shadow: inset 0 0 0 100vmax var(--_wash);
+    --_veil: var(--_wash);
   }
 
   .e-btn--outline:active {

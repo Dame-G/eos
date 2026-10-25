@@ -113,10 +113,14 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     background-size: var(--_period) var(--_period);
   }
 
-  /* Only the sliding bar leaves the track, so only it needs the track's clip; a bar that stays inside is not clipped on the track's curve. The stripes move only while the length is unknown: a known fraction stands still. */
+  /* What is left to do is always busy: the stripes move until the bar is full, known length or not. */
+  .e-progress:not(.e-progress--complete) .e-progress-track {
+    animation: e-progress-stripes var(--e-duration-spin) var(--e-easing-linear) infinite;
+  }
+
+  /* Only the sliding bar leaves the track, so only it needs the track's clip; a bar that stays inside is not clipped on the track's curve. */
   .e-progress--indeterminate .e-progress-track {
     overflow: hidden;
-    animation: e-progress-stripes var(--e-duration-spin) var(--e-easing-linear) infinite;
   }
 
   .e-progress-fill {
@@ -159,7 +163,7 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .e-progress--indeterminate .e-progress-track {
+    .e-progress:not(.e-progress--complete) .e-progress-track {
       animation: none;
     }
 

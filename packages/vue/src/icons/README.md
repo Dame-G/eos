@@ -122,7 +122,7 @@ import { CreditCard } from "lucide-vue-next";
 
 These are the names the components ask for. `iconNames`, exported from `@eos-ui/vue` and from `@eos-ui/vue/icons`, is the same list in code, for checking a set or drawing a gallery.
 
-`eye`, `eye-slash`, `arrow-left`, `arrow-up`, `arrow-down`, `chevron-left`, `chevron-right`, `chevron-down`, `menu`, `sign-out`, `eraser`, `card`, `receipt`, `signature`, `form`, `download`, `upload`, `print`, `lock`, `pin`, `edit`, `mail`, `phone`, `wallet`, `bell`, `shield`, `trash`, `sort`, `minus`, `plus`, `filter`, `search`, `check`, `x`, `alert`, `info`, `user`, `file`, `clock`, `calendar`, `home`, `copy`.
+`eye`, `eye-slash`, `arrow-left`, `arrow-up`, `arrow-down`, `chevron-left`, `chevron-right`, `chevron-down`, `menu`, `sign-out`, `eraser`, `card`, `receipt`, `signature`, `form`, `download`, `upload`, `print`, `lock`, `pin`, `edit`, `mail`, `phone`, `wallet`, `bell`, `shield`, `trash`, `sort`, `minus`, `plus`, `filter`, `search`, `check`, `x`, `alert`, `info`, `user`, `file`, `file-image`, `file-pdf`, `clock`, `calendar`, `home`, `copy`.
 
 Sets with no close match use the nearest icon: Heroicons has no eraser, signature or pushpin (it uses `backspace`, `pencil` and `map-pin`), and Carbon has no payment card or signature (it uses `money` and `pen`). Change any of them with `aliases`.
 

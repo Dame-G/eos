@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EField from "../Field/EField.vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
@@ -10,28 +10,35 @@ import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
 
+type Reason = "type" | "size" | "count";
+
 defineOptions({ inheritAttrs: false });
 
-const props = defineProps<
-  EFieldCommonProps & {
-    /** The visible label above the dropzone. */
-    label: string;
-    /** Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt ("PDF, PNG, image/*") and also applied to dropped files. */
-    accept?: string;
-    /** Allows choosing more than one file. New files are added to the list, and a file already in it (same name, size and date) is not added twice. Without it, a choice replaces the file, and the others of several are rejected with reason `count`. */
-    multiple?: boolean;
-    /** The largest file allowed, in bytes. Shown under the prompt ("Up to 5 MB"); a larger one is left out and announced as "1 file is larger than 5 MB". */
-    maxSize?: number;
-    /** The most files the list can hold with `multiple`. Shown under the prompt; further files are left out and announced. */
-    maxFiles?: number;
-    /** The name submitted with a form. */
-    name?: string;
-  }
->();
+const props = withDefaults(
+  defineProps<
+    EFieldCommonProps & {
+      /** The visible label above the dropzone. */
+      label: string;
+      /** Accepted types, separated by commas: extensions such as `.pdf`, MIME types such as `image/png` and wildcards such as `image/*`. Passed to the input, shown under the prompt ("PDF, PNG, image/*") and also applied to dropped files. */
+      accept?: string;
+      /** Allows choosing more than one file. New files are added to the list, and a file already in it (same name, size and date) is not added twice. Without it, a choice replaces the file, and the others of several are rejected with reason `count`. */
+      multiple?: boolean;
+      /** The largest file allowed, in bytes. Shown under the prompt ("Up to 5 MB"); a larger one is left out and announced as "1 file is larger than 5 MB". */
+      maxSize?: number;
+      /** The most files the list can hold with `multiple`. Shown under the prompt; further files are left out and announced. */
+      maxFiles?: number;
+      /** The name submitted with a form. */
+      name?: string;
+      /** Shows an image file as itself in place of its icon: a small thumbnail in the list, large in a single upload. Set it to `false` where images should not show on screen. */
+      preview?: boolean;
+    }
+  >(),
+  { preview: true },
+);
 
 const emit = defineEmits<{
   /** Files left out, each with why: `type` (not in `accept`), `size` (over `maxSize`) or `count` (over `maxFiles`). A choice that is entirely rejected leaves the list as it was. */
-  reject: [rejected: { file: File; reason: "type" | "size" | "count" }[]];
+  reject: [rejected: { file: File; reason: Reason }[]];
 }>();
 
 /** The chosen files. */
@@ -102,7 +109,7 @@ const keyOf = (f: File) => `${f.name}|${f.size}|${f.lastModified}`;
 function take(list: FileList | null | undefined) {
   const given = Array.from(list ?? []);
   if (!given.length || props.readonly) return;
-  const rejected: { file: File; reason: "type" | "size" | "count" }[] = [];
+  const rejected: { file: File; reason: Reason }[] = [];
   const fresh: File[] = [];
   const known = new Set((props.multiple ? model.value : []).map(keyOf));
   for (const file of given) {
@@ -124,7 +131,7 @@ function take(list: FileList | null | undefined) {
     files = fresh.slice(0, 1);
   }
   const added = props.multiple ? files.length - model.value.length : files.length;
-  const count = (reason: "type" | "size" | "count") => rejected.filter((r) => r.reason === reason).length;
+  const count = (reason: Reason) => rejected.filter((r) => r.reason === reason).length;
   const said = [
     added ? t("filesAdded", { n: added }) : "",
     count("type") ? t("filesRejected", { n: count("type") }) : "",
@@ -136,9 +143,83 @@ function take(list: FileList | null | undefined) {
   }
   // The input holds whatever was just chosen. A choice that was turned away must not replace what the list shows.
   syncInput(added ? files : model.value);
+  // Each choice shows its own left-out files, so an old one does not linger beside a new choice.
+  turnedAway.value = rejected;
   if (rejected.length) emit("reject", rejected);
   if (said.length) announce(said.join(". "), { assertive: rejected.length > 0 });
 }
+
+/** The files the last choice left out, listed under the zone with why until dismissed. */
+const turnedAway = ref<{ file: File; reason: Reason }[]>([]);
+function why(reason: Reason): string {
+  if (reason === "type") return t("fileRejectedType");
+  if (reason === "size") return t("fileRejectedSize", { max: formatSize(props.maxSize ?? 0) });
+  return t("filesTooMany", { n: props.multiple ? (props.maxFiles ?? 0) : 1 });
+}
+function dismissAt(index: number) {
+  turnedAway.value = turnedAway.value.filter((_, i) => i !== index);
+  input.value?.focus();
+}
+
+/** Without `multiple` the chosen file takes the prompt's place inside the zone. */
+const single = computed(() => (props.multiple ? undefined : model.value[0]));
+/** How full the list is, in the zone's corner, with `multiple` and `maxFiles`. */
+const fullness = computed(() =>
+  props.multiple && props.maxFiles != null ? t("fileCount", { n: model.value.length, max: props.maxFiles }) : "",
+);
+
+/** The icon of a file's kind: an image, a PDF, or any other document. */
+function iconOf(f: File): string {
+  if (f.type.startsWith("image/")) return "file-image";
+  return f.type === "application/pdf" || /\.pdf$/i.test(f.name) ? "file-pdf" : "file";
+}
+
+/* With `preview`, an image file shows as itself. Each thumbnail is an object URL, made once and let go when its file leaves the list. */
+const thumbs = new Map<File, string>();
+function thumbOf(f: File): string | undefined {
+  if (!props.preview || !f.type.startsWith("image/") || typeof document === "undefined") return undefined;
+  let url = thumbs.get(f);
+  if (!url) thumbs.set(f, (url = URL.createObjectURL(f)));
+  return url;
+}
+function release(keep: File[]) {
+  for (const [f, url] of thumbs) {
+    if (keep.includes(f)) continue;
+    URL.revokeObjectURL(url);
+    thumbs.delete(f);
+  }
+}
+watch(model, release);
+
+/* A file dragged anywhere over the page marks the zone with a dashed edge, so it can be found before it is reached. */
+const armed = ref(false);
+let pageDepth = 0;
+const carriesFiles = (e: DragEvent) => !!e.dataTransfer?.types.includes("Files");
+function onPageEnter(e: DragEvent) {
+  if (!carriesFiles(e) || props.disabled || props.readonly) return;
+  pageDepth++;
+  armed.value = true;
+}
+function onPageLeave(e: DragEvent) {
+  if (!carriesFiles(e)) return;
+  pageDepth = Math.max(0, pageDepth - 1);
+  if (pageDepth === 0) armed.value = false;
+}
+function onPageEnd() {
+  pageDepth = 0;
+  armed.value = false;
+}
+const pageEvents = [
+  ["dragenter", onPageEnter],
+  ["dragleave", onPageLeave],
+  ["drop", onPageEnd],
+  ["dragend", onPageEnd],
+] as const;
+onMounted(() => pageEvents.forEach(([type, fn]) => document.addEventListener(type, fn)));
+onBeforeUnmount(() => {
+  pageEvents.forEach(([type, fn]) => document.removeEventListener(type, fn));
+  release([]);
+});
 
 function removeAt(index: number) {
   const gone = model.value[index];
@@ -218,7 +299,7 @@ defineExpose({
     :optional="optional"
   >
     <template #default="field">
-      <div class="e-upload">
+      <div class="e-upload" :class="{ 'e-upload--disabled': disabled }">
         <input
           :id="field.id"
           ref="input"
@@ -234,37 +315,79 @@ defineExpose({
           @click="onPick"
           @change="take(($event.target as HTMLInputElement).files)"
         />
+        <!-- A disabled upload that holds files shows only the files: there is nothing to drop on. -->
         <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
-        <label
-          :for="field.id"
+        <div
+          v-if="!(disabled && multiple && model.length)"
           class="e-drop"
-          :class="{ 'e-drop--over': over, 'e-drop--disabled': disabled, 'e-drop--readonly': readonly }"
+          :class="{
+            'e-drop--armed': armed,
+            'e-drop--over': over,
+            'e-drop--filled': single,
+            'e-drop--disabled': disabled,
+            'e-drop--readonly': readonly,
+          }"
           :data-invalid="field.ariaInvalid ? '' : undefined"
           @dragenter="onDragEnter"
           @dragover="onDragOver"
           @dragleave="onDragLeave"
           @drop="onDrop"
         >
-          <EIcon name="upload" />
-          <span class="e-drop-main"
-            >{{ prompt[0] }}<span class="e-drop-pick">{{ t("chooseOne") }}</span
-            >{{ prompt[1] }}</span
-          >
-          <span v-if="limits" class="e-drop-hint">{{ limits }}</span>
-        </label>
+          <!-- The file fills the zone, which stays its label: choosing or dropping again replaces it. -->
+          <div v-if="single" class="e-file e-file--single">
+            <label :for="field.id" class="e-file-main">
+              <img v-if="thumbOf(single)" class="e-file-preview" :src="thumbOf(single)" alt="" />
+              <EIcon v-else :name="iconOf(single)" />
+              <span class="e-file-row">
+                <span class="e-file-name">{{ single.name }}</span>
+                <span class="e-file-size">{{ formatSize(single.size) }}</span>
+              </span>
+            </label>
+            <EIconButton
+              v-if="!disabled && !readonly"
+              class="e-file-remove"
+              icon="x"
+              :label="t('removeItem', { label: single.name })"
+              @click="removeAt(0)"
+            />
+          </div>
+          <label v-else :for="field.id" class="e-drop-zone">
+            <EIcon name="upload" />
+            <span class="e-drop-main"
+              >{{ prompt[0] }}<span class="e-drop-pick">{{ t("chooseOne") }}</span
+              >{{ prompt[1] }}</span
+            >
+            <span v-if="limits" class="e-drop-hint">{{ limits }}</span>
+          </label>
+          <!-- The list says how many files it holds; the corner is for the eye. -->
+          <span v-if="fullness" class="e-drop-count" aria-hidden="true">{{ fullness }}</span>
+        </div>
         <!-- A file input has no readonly of its own, and aria-readonly is not allowed on it: the state is described. -->
         <span v-if="readonly" :id="`${field.id}-ro`" class="e-sr">{{ t("readOnly") }}</span>
-        <ul v-if="model.length" class="e-files">
-          <li v-for="(f, i) in model" :key="keyOf(f) + i">
-            <EIcon name="file" />
-            <span class="e-file-name">{{ f.name }}</span>
-            <span class="e-file-size">{{ formatSize(f.size) }}</span>
+        <ul v-if="multiple && model.length" class="e-files">
+          <li v-for="(f, i) in model" :key="keyOf(f) + i" class="e-file">
+            <span class="e-file-main">
+              <img v-if="thumbOf(f)" class="e-file-thumb" :src="thumbOf(f)" alt="" />
+              <EIcon v-else :name="iconOf(f)" />
+              <span class="e-file-name">{{ f.name }}</span>
+              <span class="e-file-size">{{ formatSize(f.size) }}</span>
+            </span>
             <EIconButton
+              v-if="!disabled && !readonly"
               icon="x"
               :label="t('removeItem', { label: f.name })"
-              :disabled="disabled || readonly"
               @click="removeAt(i)"
             />
+          </li>
+        </ul>
+        <ul v-if="turnedAway.length" class="e-rejects">
+          <li v-for="(r, i) in turnedAway" :key="keyOf(r.file) + i" class="e-file e-file--rejected">
+            <span class="e-file-main">
+              <EIcon name="alert" />
+              <span class="e-file-name">{{ r.file.name }}</span>
+              <span class="e-file-why">{{ why(r.reason) }}</span>
+            </span>
+            <EIconButton icon="x" :label="t('dismiss')" @click="dismissAt(i)" />
           </li>
         </ul>
       </div>
@@ -274,39 +397,60 @@ defineExpose({
 
 <style>
 @layer e.controls {
-  .e-drop {
-    display: grid;
-    justify-items: center;
-    gap: var(--e-gap-tight);
-    padding: var(--e-pad-panel) var(--e-pad-card);
-    outline: var(--e-stroke-edge) dashed var(--e-border-strong);
-    outline-offset: calc(-1 * var(--e-stroke-edge));
-    border-radius: var(--e-radius-md);
-    background: var(--e-surface);
-    text-align: center;
-    cursor: pointer;
-    transition:
-      background-color var(--e-duration-tap) var(--e-easing-out),
-      outline-color var(--e-duration-tap) var(--e-easing-out);
-  }
-
   .e-upload {
     display: grid;
     gap: var(--e-gap-snug);
   }
 
-  .e-drop:hover:not(.e-drop--readonly) {
-    background: var(--e-wash-hover);
-    outline-color: var(--e-ink);
+  /* Sunk: a well pressed into the page, where files are put. Its edge turns dashed while a file is dragged anywhere over the page, and it takes the brand tint and sinks a step deeper while one is over it: where the file will land. */
+  .e-drop {
+    --_veil: transparent;
+
+    position: relative;
+    display: grid;
+    border: var(--e-stroke-edge) solid var(--e-border-strong);
+    border-radius: var(--e-radius-md);
+    background-color: var(--e-surface-tint);
+    background-clip: padding-box;
+
+    /* The hover fill is a full-size inset over the well, always there and transparent at rest, so a hover fades its colour and never sweeps in from the edges; a file over the zone sinks the well a step deeper in the same two layers. */
+    box-shadow:
+      inset 0 0 0 100vmax var(--_veil),
+      var(--_well, var(--e-shadow-well));
+    transition: var(--e-transition-state);
   }
 
-  .e-drop--readonly {
-    cursor: default;
+  .e-drop-zone {
+    display: grid;
+    justify-items: center;
+    gap: var(--e-gap-tight);
+    padding: var(--e-pad-panel) var(--e-pad-card);
+    text-align: center;
+    cursor: pointer;
   }
 
-  .e-drop--over {
-    background: var(--e-success-soft);
-    outline-color: var(--e-success);
+  .e-drop--filled {
+    padding: var(--e-gap-snug);
+  }
+
+  /* The hover fill is laid over the well, as on a field. */
+  .e-drop:hover:not(.e-drop--readonly, .e-drop--disabled) {
+    --_veil: var(--e-wash-hover);
+  }
+
+  .e-drop--armed {
+    border-style: dashed;
+    border-color: var(--e-primary);
+  }
+
+  .e-drop.e-drop--over {
+    border-style: solid;
+    border-color: var(--e-primary);
+
+    --_veil: transparent;
+    --_well: inset 0 var(--e-depth) 0 0 var(--e-primary-slab);
+
+    background-color: var(--e-primary-soft);
   }
 
   .e-drop-main {
@@ -320,10 +464,21 @@ defineExpose({
     text-underline-offset: var(--e-stroke-underline-offset);
   }
 
-  .e-drop--disabled {
-    background: var(--e-disabled-fill);
-    outline-color: var(--e-border-strong);
+  .e-drop--readonly :is(.e-drop-zone, .e-file-main) {
+    cursor: default;
+  }
+
+  /* Disabled as every control is: no lift or well, the disabled fill and ink, and a dashed edge so colour is not the only cue. The zone and each file tile alike. */
+  .e-drop--disabled,
+  .e-upload--disabled .e-file {
+    border: var(--e-stroke-edge) dashed var(--e-border-strong);
+    border-radius: var(--e-radius-md);
+    background-color: var(--e-disabled-fill);
+    box-shadow: none;
     color: var(--e-disabled-ink);
+  }
+
+  .e-drop--disabled :is(.e-drop-zone, .e-file-main) {
     cursor: not-allowed;
   }
 
@@ -331,12 +486,13 @@ defineExpose({
     color: inherit;
   }
 
-  .e-drop[data-invalid]:not(.e-drop--disabled, .e-drop--over) {
-    outline-color: var(--e-danger);
+  /* Invalid as a field is: the danger edge, the danger tint for the hover fill, and the focus ring in danger. */
+  .e-drop[data-invalid]:not(.e-drop--disabled, .e-drop--over, .e-drop--armed) {
+    border-color: var(--e-danger);
   }
 
-  .e-drop[data-invalid]:not(.e-drop--disabled, .e-drop--over):hover {
-    background: var(--e-danger-soft);
+  .e-drop[data-invalid]:not(.e-drop--disabled, .e-drop--over, .e-drop--armed):hover {
+    --_veil: var(--e-danger-soft);
   }
 
   .e-drop-hint {
@@ -356,21 +512,131 @@ defineExpose({
     outline-offset: var(--e-stroke-focus-gap-field);
   }
 
-  .e-files {
+  .e-drop-input:focus-visible + .e-drop[data-invalid] {
+    outline-color: var(--e-danger);
+  }
+
+  .e-files,
+  .e-rejects {
     display: grid;
-    gap: 0;
+    gap: var(--e-gap-snug);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .e-files li {
+  /* Raised: a chosen file is a tile on its slab, set down on the page, with the neutral face and edge of an outline button. */
+  .e-file {
+    --_r: var(--e-radius-md);
+
     display: flex;
     align-items: center;
-    gap: var(--e-gap-snug);
-    padding: var(--e-gap-snug) 0;
-    border-top: var(--e-stroke-hair) solid var(--e-border);
+    gap: var(--e-gap-tight);
+    min-width: 0;
+
+    /* The same small gap round the Remove button on every side, so it never meets the tile's edge. */
+    padding: var(--e-gap-tight);
+    padding-inline-start: 0;
+    border: var(--e-stroke-edge) solid var(--e-slab-ink);
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth));
+    border-radius: var(--_r) / var(--_r) var(--_r) calc(var(--_r) + var(--e-depth)) calc(var(--_r) + var(--e-depth));
+    background: var(--e-surface);
     font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
+  }
+
+  .e-file-main {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    align-self: stretch;
+    gap: var(--e-gap-snug);
+    min-width: 0;
+    padding-inline-start: var(--e-pad-control);
+  }
+
+  /* A tile keeps its height without its Remove button (a disabled or read-only file), and its text keeps the usual inset from the end. */
+  .e-file:not(.e-file--single) > .e-file-main {
+    min-height: var(--e-control-height);
+  }
+
+  .e-file > .e-file-main:last-child {
+    padding-inline-end: calc(var(--e-pad-control) - var(--e-gap-tight));
+  }
+
+  label.e-file-main {
+    cursor: pointer;
+  }
+
+  /* A file left out: flat, since it was never set down, and edged in danger like a Notice: the tone all round, its start side thick. The icon takes the tone; the dismiss button stays neutral, as on a Notice. */
+  .e-file--rejected {
+    border-color: var(--e-danger);
+    border-bottom-width: var(--e-stroke-edge);
+    border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-depth-bold));
+    border-radius: var(--_r);
+    border-start-start-radius: calc(var(--_r) + var(--e-depth-bold)) var(--_r);
+    border-end-start-radius: calc(var(--_r) + var(--e-depth-bold)) var(--_r);
+  }
+
+  .e-file--rejected .e-file-main > .e-icon,
+  .e-file-why {
+    color: var(--e-danger);
+  }
+
+  .e-file-why {
+    font: var(--e-type-meta);
+  }
+
+  /* The image at its own proportions, up to twice as wide as tall, so a card or a page is not cropped to a square. */
+  .e-file-thumb {
+    width: auto;
+    max-width: calc(2 * var(--e-icon-size-xl));
+    height: var(--e-icon-size-xl);
+    border-radius: var(--e-radius-sm);
+    object-fit: cover;
+  }
+
+  /* The one file of a single upload, large: the image itself or the icon of its kind, then its name and size, the Remove button in the corner. */
+  .e-file--single {
+    position: relative;
+  }
+
+  .e-file--single .e-file-main {
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--e-pad-card);
+    text-align: center;
+  }
+
+  .e-file--single .e-file-main > .e-icon {
+    width: calc(2 * var(--e-icon-size-xl));
+    height: calc(2 * var(--e-icon-size-xl));
+  }
+
+  /* Every image at one generous height, at its own proportions, narrower only where the zone is. */
+  .e-file-preview {
+    width: auto;
+    max-width: 100%;
+    height: calc(6 * var(--e-icon-size-xl));
+    border-radius: var(--e-radius-sm);
+    object-fit: contain;
+  }
+
+  .e-file-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: var(--e-gap-snug);
+    max-width: 100%;
+  }
+
+  .e-file--single .e-file-name {
+    flex: 0 1 auto;
+  }
+
+  .e-file-remove {
+    position: absolute;
+    inset-block-start: var(--e-gap-tight);
+    inset-inline-end: var(--e-gap-tight);
   }
 
   .e-file-name {
@@ -379,16 +645,23 @@ defineExpose({
     overflow-wrap: anywhere;
   }
 
-  .e-file-size {
+  .e-file-size,
+  .e-drop-count {
     font: var(--e-weight-medium) var(--e-text-xs) / var(--e-leading-none) var(--e-font-mono);
     color: var(--e-muted);
   }
 
+  .e-drop-count {
+    position: absolute;
+    inset-block-start: var(--e-gap-snug);
+    inset-inline-end: var(--e-gap-snug);
+  }
+
   @media (forced-colors: active) {
     .e-drop:hover,
-    .e-drop--over {
-      outline-style: solid;
-      outline-color: Highlight;
+    .e-drop--armed,
+    .e-drop.e-drop--over {
+      border-color: Highlight;
     }
   }
 }

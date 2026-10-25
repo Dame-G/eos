@@ -137,13 +137,15 @@ describe("EProgress", () => {
     expect(container.querySelector(".e-progress--indeterminate")).toBeNull();
   });
 
-  test("the stripes move only while the length is unknown", async () => {
+  test("the stripes move until the bar is full", async () => {
     const busy = await render(EProgress, { props: { label: "Busy" } });
     expect(getComputedStyle(busy.container.querySelector(".e-progress-track")!).animationName).toBe(
       "e-progress-stripes",
     );
     const part = await render(EProgress, { props: { label: "A", value: 40 } });
-    expect(getComputedStyle(part.container.querySelector(".e-progress-track")!).animationName).toBe("none");
+    expect(getComputedStyle(part.container.querySelector(".e-progress-track")!).animationName).toBe(
+      "e-progress-stripes",
+    );
     const full = await render(EProgress, { props: { label: "B", value: 100 } });
     expect(full.container.querySelector(".e-progress--complete")).not.toBeNull();
     expect(getComputedStyle(full.container.querySelector(".e-progress-track")!).animationName).toBe("none");

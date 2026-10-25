@@ -81,6 +81,11 @@ export const defaultMessages = {
   fileSizeLimit: "Up to {max}",
   /** Under the dropzone prompt, with `multiple` and `maxFiles`. */
   fileCountLimit: { one: "{n} file at most", other: "{n} files at most" },
+  /** In the corner of the dropzone, with `multiple` and `maxFiles`: how full the list is. */
+  fileCount: "{n} of {max}",
+  /** Why a file was left out, on its row under the dropzone. A file over the count says `filesTooMany`. */
+  fileRejectedType: "Not an accepted type",
+  fileRejectedSize: "Larger than {max}",
   searching: "Searching",
   noMatches: "No matches",
   startDate: "Start date",

@@ -123,15 +123,26 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     --_end: right;
     --_toward-end: to left;
 
+    /* The shades run the full height, except a ring's width short of a side that meets another block: the body paints after the blocks around it (a flex item), and a stacked block's ring reaches that far into it, so a shade there would cut the seam. */
+    --_h: calc(100% - var(--_cut-top, 0px) - var(--_cut-bottom, 0px));
+
     background:
-      linear-gradient(var(--_toward-end), var(--e-surface) 40%, transparent) var(--_end) / var(--e-space-6) 100%
-        no-repeat local,
-      linear-gradient(var(--_toward-end), var(--e-wash-ring), transparent) var(--_end) / var(--e-space-2) 100% no-repeat
-        scroll;
+      linear-gradient(var(--_toward-end), var(--e-surface) 40%, transparent) var(--_end) 0 top var(--_cut-top, 0) /
+        var(--e-space-6) var(--_h) no-repeat local,
+      linear-gradient(var(--_toward-end), var(--e-wash-ring), transparent) var(--_end) 0 top var(--_cut-top, 0) /
+        var(--e-space-2) var(--_h) no-repeat scroll;
 
     /* Flush against the block's start edge, so the block's corners (its own, which differ where blocks are stacked): the body scrolls itself and the block does not clip, so the ring around the block is painted once on a curve nothing else clips; the body takes the corner so its focus ring follows it. The block has no border of its own, so inheriting fills it exactly. */
     border-start-start-radius: inherit;
     border-end-start-radius: inherit;
+  }
+
+  .e-code + .e-code > .e-code-body {
+    --_cut-top: var(--e-stroke-card);
+  }
+
+  .e-code:has(+ .e-code) > .e-code-body {
+    --_cut-bottom: var(--e-stroke-card);
   }
 
   .e-code-body:dir(rtl) {

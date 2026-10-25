@@ -347,7 +347,8 @@ describe("ECalendar", () => {
       props: { mode: "range", start: d(2026, 10, 10), end: null, month: d(2026, 10, 1), footer: false },
     });
     dayButton(container, /October 14,/).dispatchEvent(new MouseEvent("mouseenter"));
-    await expect.poll(() => container.querySelectorAll(".e-cal-in")).toHaveLength(3);
+    // The three days between, and the day hovered as the end, which is part of the band until it is chosen.
+    await expect.poll(() => container.querySelectorAll(".e-cal-in")).toHaveLength(4);
   });
 
   test("locale: de-DE starts on Monday and names the month in German", async () => {

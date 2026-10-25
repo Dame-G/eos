@@ -88,7 +88,9 @@ defineExpose(choice.exposed);
     inset-inline-start: calc(var(--_inset) - var(--e-stroke-edge));
     width: var(--_thumb);
     height: var(--_thumb);
-    margin-block-start: calc(var(--_thumb) / -2);
+
+    /* Centred in the track's box: the slab, when on, thickens the bottom border and would lift a centre taken inside it, so half the lift is given back and the thumb sits at one height on and off. */
+    margin-block-start: calc(var(--_thumb) / -2 + var(--_lift) / 2);
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--_edge);
     border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth-thin));

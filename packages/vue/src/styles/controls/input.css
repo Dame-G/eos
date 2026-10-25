@@ -2,6 +2,7 @@
   .e-input,
   .e-input-wrap {
     --_ring: var(--e-border-strong);
+    --_veil: transparent;
   }
 
   .e-input[data-size="sm"],
@@ -28,7 +29,11 @@
     border-radius: var(--e-radius-md);
     background-color: var(--e-surface);
     background-clip: padding-box;
-    box-shadow: var(--e-shadow-well);
+
+    /* The hover fill is a full-size inset laid over the well, so it runs unbroken to the top edge. It is always there, transparent at rest, so a hover fades its colour and never sweeps in from the edges. */
+    box-shadow:
+      inset 0 0 0 100vmax var(--_veil, transparent),
+      var(--e-shadow-well);
     color: var(--e-ink);
     font: var(--e-type-body);
     transition: var(--e-transition-state);
@@ -38,17 +43,16 @@
     color: var(--e-muted);
   }
 
-  /* The hover fill is laid over the well, so it runs unbroken to the top edge. */
   .e-input:hover,
   .e-input-wrap:hover {
-    box-shadow: inset 0 0 0 100vmax var(--_over, var(--e-wash-hover));
+    --_veil: var(--_over, var(--e-wash-hover));
   }
 
   .e-input:focus {
     --_ring: var(--e-focus-field);
+    --_veil: transparent;
 
     background-color: var(--e-surface);
-    box-shadow: var(--e-shadow-well);
   }
 
   /* A field's focus outline lies over its border and then reaches at least as far outside it again, so the field looks thicker on every stroke preset. */
@@ -102,7 +106,9 @@
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     background-clip: padding-box;
-    box-shadow: var(--e-shadow-well);
+    box-shadow:
+      inset 0 0 0 100vmax var(--_veil, transparent),
+      var(--e-shadow-well);
     transition: var(--e-transition-state);
   }
 

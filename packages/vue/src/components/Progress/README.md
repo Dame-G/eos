@@ -26,7 +26,7 @@ A progress bar. Give it a `value` for a known fraction. Leave `value` out while 
 ## Accessibility
 
 - `role="progressbar"` with `aria-label`, `aria-valuemin`, `aria-valuemax` and `aria-valuenow` (clamped to the range). `valueText` is also set as `aria-valuetext`.
-- Indeterminate: `aria-valuenow` and `aria-valuemax` are left off, and the stripes move. A known fraction stands still. With reduced motion the indeterminate fill is a still striped bar.
+- Indeterminate: `aria-valuenow` and `aria-valuemax` are left off, and the bar slides. The stripes on what is left to do move until the bar is full, known length or not. With reduced motion the stripes stand still and the indeterminate fill is a still striped bar.
 
 Not focusable.
 

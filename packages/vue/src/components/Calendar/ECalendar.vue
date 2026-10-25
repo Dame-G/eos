@@ -243,6 +243,58 @@ function inRange(d: Date): boolean {
     compareDays(d, rangeEnd.value) < 0
   );
 }
+/** Which end of a span of more than one day this is, so the end meets the band flush: `from` the first day, `to` the last (or the day hovered as the last). */
+function spanEnd(d: Date): "from" | "to" | null {
+  if (!range.value || !start.value || !rangeEnd.value || compareDays(rangeEnd.value, start.value) <= 0) return null;
+  if (sameDay(d, start.value)) return "from";
+  return sameDay(d, rangeEnd.value) ? "to" : null;
+}
+/** A day that is lit: in the span (its ends included) in range mode, the chosen day in single mode. */
+function lit(x: Date): boolean {
+  if (!range.value) return sameDay(x, value.value);
+  if (!start.value) return false;
+  if (!rangeEnd.value) return sameDay(x, start.value);
+  return compareDays(x, start.value) >= 0 && compareDays(x, rangeEnd.value) <= 0;
+}
+/**
+ * How a day meets its neighbours in the grid (the day before or after in its row, the same weekday a row above or
+ * below), as classes on its cell. Neighbours that join it are lit days and today; off the grid nothing joins.
+ * - The band (`e-cal-in`): the days inside the span, and the day hovered as its end while choosing. Each rounds the
+ *   band's outer corners where neither neighbour beside the corner joins it (`e-cal-round-*`).
+ * - A filled end of the span runs the band under the half that faces the rest of it (`e-cal-band-*`, with `e-cal-end`).
+ * - A chosen day, today and the hovered end square the corners of their button toward a joining neighbour
+ *   (`e-cal-flat-*`), so a face, today's ring and the hover meet the band and each other flush.
+ */
+function joins(d: Date, col: number, row: number): string[] {
+  const chosen = isSelected(d);
+  const now = sameDay(d, today.value);
+  const hovered = !chosen && spanEnd(d) === "to";
+  const band = inRange(d) || hovered;
+  const end = chosen && !!spanEnd(d);
+  const last = weeks.value.length - 1;
+  const sides = [
+    ["s", -1, col > 0],
+    ["e", 1, col < 6],
+    ["t", -7, row > 0],
+    ["b", 7, row < last],
+  ] as const;
+  const out: string[] = band ? ["e-cal-in"] : [];
+  const joined: Record<string, boolean> = {};
+  for (const [side, n, onGrid] of sides) {
+    const x = onGrid ? addDays(d, n) : null;
+    const isLit = !!x && lit(x);
+    joined[side] = isLit || (!!x && sameDay(x, today.value));
+    if (end && isLit) out.push(`e-cal-band-${side}`);
+    if ((chosen || now || hovered) && joined[side]) out.push(`e-cal-flat-${side}`);
+  }
+  if (band) {
+    if (!joined.t && !joined.s) out.push("e-cal-round-ts");
+    if (!joined.t && !joined.e) out.push("e-cal-round-te");
+    if (!joined.b && !joined.s) out.push("e-cal-round-bs");
+    if (!joined.b && !joined.e) out.push("e-cal-round-be");
+  }
+  return out.some((c) => c.startsWith("e-cal-band")) ? ["e-cal-end", ...out] : out;
+}
 function dayLabel(d: Date, marked: boolean): string {
   const date = loc.formatLong(d);
   const mark = props.markLabel || t("timesAvailable");
@@ -491,11 +543,11 @@ defineExpose({
       <tbody>
         <tr v-for="(row, w) in weeks" :key="w">
           <td
-            v-for="cell in row"
+            v-for="(cell, c) in row"
             :key="cell.key"
             role="gridcell"
             :aria-selected="isSelected(cell.d) || inRange(cell.d) ? 'true' : 'false'"
-            :class="inRange(cell.d) && 'e-cal-in'"
+            :class="joins(cell.d, c, w)"
           >
             <button
               :id="dayId(cell.d)"
@@ -653,24 +705,97 @@ defineExpose({
 
     width: 100%;
     height: var(--_body-h);
-    border-collapse: collapse;
+
+    /* Separate with no spacing looks the same as collapsed, and lets a band cell round its corners. */
+    border-collapse: separate;
+    border-spacing: 0;
     table-layout: fixed;
   }
 
+  /* The weekday row takes what the grid's fixed height leaves over, so the day rows are exactly a tap tall and touch. */
   .e-cal-grid th {
-    height: var(--e-space-8);
+    height: calc(var(--e-space-8) + var(--e-space-4));
     font: var(--e-weight-strong) var(--e-text-sm) / var(--e-leading-none) var(--e-font-sans);
     color: var(--e-muted);
     text-align: center;
   }
 
+  /* The days sit side by side and row on row with no gap, so a range reads as one band and its two ends can meet at a corner. */
   .e-cal-grid td {
-    padding: var(--e-stroke-hair) var(--e-space-1);
+    --_to-end: to right;
+
+    padding: 0;
     text-align: center;
+  }
+
+  .e-cal-grid td:dir(rtl) {
+    --_to-end: to left;
   }
 
   .e-cal-in {
     background: var(--e-primary-soft);
+  }
+
+  /* The ends of a span meet the band flush on every side where the span goes on (beside it in the row, or above or below it across a week): the band runs under the half of the end day that faces it, and that day's corners on that side are square. */
+  .e-cal-end {
+    background-image: var(--_js, none), var(--_je, none), var(--_jt, none), var(--_jb, none);
+  }
+
+  .e-cal-band-s {
+    --_js: linear-gradient(var(--_to-end), var(--e-primary-soft) 50%, transparent 50%);
+  }
+
+  .e-cal-band-e {
+    --_je: linear-gradient(var(--_to-end), transparent 50%, var(--e-primary-soft) 50%);
+  }
+
+  .e-cal-band-t {
+    --_jt: linear-gradient(var(--e-primary-soft) 50%, transparent 50%);
+  }
+
+  .e-cal-band-b {
+    --_jb: linear-gradient(transparent 50%, var(--e-primary-soft) 50%);
+  }
+
+  .e-cal-round-ts {
+    border-start-start-radius: var(--e-radius-md);
+  }
+
+  .e-cal-round-te {
+    border-start-end-radius: var(--e-radius-md);
+  }
+
+  .e-cal-round-bs {
+    border-end-start-radius: var(--e-radius-md);
+  }
+
+  .e-cal-round-be {
+    border-end-end-radius: var(--e-radius-md);
+  }
+
+  /* A day inside the band takes the band's corners, so its hover, its press and today's ring follow the band's shape. */
+  .e-cal-in > .e-day {
+    border-radius: inherit;
+  }
+
+  .e-cal-flat-s > .e-day {
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  .e-cal-flat-e > .e-day {
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+  }
+
+  .e-cal-flat-t > .e-day {
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+  }
+
+  .e-cal-flat-b > .e-day {
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
   }
 
   .e-day {
@@ -686,6 +811,11 @@ defineExpose({
     font-variant-numeric: tabular-nums;
     cursor: pointer;
     transition: var(--e-transition-state);
+  }
+
+  /* A named exception to the state transition: the band under the days follows the pointer at once, so the days answer at once too. A fade would trail behind the pointer across the packed grid and linger on a day the band has just left. */
+  .e-cal-grid .e-day {
+    transition: none;
   }
 
   .e-day--out {

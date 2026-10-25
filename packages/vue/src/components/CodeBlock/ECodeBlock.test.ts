@@ -79,6 +79,18 @@ describe("ECodeBlock", () => {
     expect(getComputedStyle(middle!).borderEndStartRadius).toBe("0px");
     expect(getComputedStyle(last!).borderStartStartRadius).toBe("0px");
     expect(getComputedStyle(last!).borderEndStartRadius).not.toBe("0px");
+    // The overflow shades stop a ring short only of a side that meets another block, where that block's ring reaches in.
+    const shade = (el: HTMLElement) => {
+      const cs = getComputedStyle(el.querySelector(".e-code-body")!);
+      return [
+        cs.backgroundPositionY.split(",")[0]!.trim(),
+        cs.backgroundSize.split(",")[0]!.trim().split(" ").slice(1).join(" "),
+      ];
+    };
+    const ring = String(parseFloat(getComputedStyle(first!).getPropertyValue("--e-stroke-card")) || 1);
+    expect(shade(first!)).toEqual(["0px", `calc(100% - ${ring}px)`]);
+    expect(shade(middle!)).toEqual([`${ring}px`, `calc(100% - ${2 * Number(ring)}px)`]);
+    expect(shade(last!)).toEqual([`${ring}px`, `calc(100% - ${ring}px)`]);
     expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(document.documentElement.clientWidth);
   });
 
@@ -154,7 +166,7 @@ describe("ECodeBlock", () => {
     });
     const [ltr, rtl] = Array.from(container.querySelectorAll(".e-code-body"), (el) => getComputedStyle(el));
     expect(ltr!.backgroundPositionX).toBe("100%, 100%");
-    expect(rtl!.backgroundPositionX).toBe("0%, 0%");
+    expect(rtl!.backgroundPositionX).toBe("0px, 0px");
     expect(rtl!.backgroundImage).toContain("to right");
   });
 

@@ -100,8 +100,14 @@ for (const { file, root } of sheets) {
   root.walkRules((rule) => {
     const decls = rule.nodes.filter((n) => n.type === "decl");
     const strongFill = decls.find((d) => /^background(-color)?$/.test(d.prop) && !subtle.test(d.value.trim()));
+    // The hover veil (`inset 0 0 0 100vmax var(--_veil)`, transparent at rest and a wash colour on hover) is a fill laid
+    // inside the border, not an edge, so it is left out.
     const ring = decls.find(
-      (d) => d.prop === "box-shadow" && /(^|,)\s*inset\s+0\s+0\s+0\s+(?!0\b)\S+\s+\S/.test(d.value),
+      (d) =>
+        d.prop === "box-shadow" &&
+        /(^|,)\s*inset\s+0\s+0\s+0\s+(?!0\b)\S+\s+\S/.test(
+          d.value.replace(/inset\s+0\s+0\s+0\s+100vmax\s+var\(--_veil[^)]*\)/g, ""),
+        ),
     );
     if (strongFill && ring)
       report(
