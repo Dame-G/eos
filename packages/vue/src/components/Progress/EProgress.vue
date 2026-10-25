@@ -59,7 +59,6 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
       :aria-valuemax="indeterminate ? undefined : limit"
       :aria-valuenow="indeterminate ? undefined : clamped"
       :aria-valuetext="valueText || undefined"
-      :aria-busy="indeterminate ? 'true' : undefined"
     >
       <div class="e-progress-fill" :style="indeterminate ? undefined : { width: percent + '%' }"></div>
     </div>
@@ -112,16 +111,12 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
       var(--e-wash-hover) var(--e-space-2) var(--e-space-4)
     );
     background-size: var(--_period) var(--_period);
-    animation: e-progress-stripes var(--e-duration-spin) var(--e-easing-linear) infinite;
   }
 
-  /* Only the sliding bar leaves the track, so only it needs the track's clip; a bar that stays inside is not clipped on the track's curve. */
+  /* Only the sliding bar leaves the track, so only it needs the track's clip; a bar that stays inside is not clipped on the track's curve. The stripes move only while the length is unknown: a known fraction stands still. */
   .e-progress--indeterminate .e-progress-track {
     overflow: hidden;
-  }
-
-  .e-progress--complete .e-progress-track {
-    animation: none;
+    animation: e-progress-stripes var(--e-duration-spin) var(--e-easing-linear) infinite;
   }
 
   .e-progress-fill {
@@ -164,7 +159,7 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .e-progress-track {
+    .e-progress--indeterminate .e-progress-track {
       animation: none;
     }
 

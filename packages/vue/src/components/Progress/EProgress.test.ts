@@ -82,7 +82,7 @@ describe("EProgress", () => {
     await expect.element(page.getByRole("progressbar", { name: "Checking your account" })).toBeVisible();
     expect(bar.hasAttribute("aria-valuenow")).toBe(false);
     expect(bar.hasAttribute("aria-valuemax")).toBe(false);
-    expect(bar.getAttribute("aria-busy")).toBe("true");
+    expect(bar.hasAttribute("aria-busy")).toBe(false);
     expect(container.querySelector(".e-progress-value")!.textContent).toBe("");
     const fill = container.querySelector(".e-progress-fill") as HTMLElement;
     expect(fill.style.width).toBe("");
@@ -137,11 +137,13 @@ describe("EProgress", () => {
     expect(container.querySelector(".e-progress--indeterminate")).toBeNull();
   });
 
-  test("the stripes stop moving once it is complete", async () => {
-    const part = await render(EProgress, { props: { label: "A", value: 40 } });
-    expect(getComputedStyle(part.container.querySelector(".e-progress-track")!).animationName).toBe(
+  test("the stripes move only while the length is unknown", async () => {
+    const busy = await render(EProgress, { props: { label: "Busy" } });
+    expect(getComputedStyle(busy.container.querySelector(".e-progress-track")!).animationName).toBe(
       "e-progress-stripes",
     );
+    const part = await render(EProgress, { props: { label: "A", value: 40 } });
+    expect(getComputedStyle(part.container.querySelector(".e-progress-track")!).animationName).toBe("none");
     const full = await render(EProgress, { props: { label: "B", value: 100 } });
     expect(full.container.querySelector(".e-progress--complete")).not.toBeNull();
     expect(getComputedStyle(full.container.querySelector(".e-progress-track")!).animationName).toBe("none");
