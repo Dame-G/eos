@@ -55,4 +55,4 @@ An inline message that stays until it is dealt with. Use [`EToast`](../Toast/REA
 
 ## Related
 
-[`EToast`](../Toast/README.md) for a message that goes by itself, [`EEmptyState`](../EmptyState/README.md) for nothing to show.
+[`EEmptyState`](../EmptyState/README.md) for nothing to show.

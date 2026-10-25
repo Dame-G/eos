@@ -48,4 +48,4 @@ Not focusable.
 
 ## Related
 
-[`ESpinner`](../Spinner/README.md) for a single wait, [`EProgress`](../Progress/README.md) for a known fraction.
+[`EEmptyState`](../EmptyState/README.md) for when nothing came back.

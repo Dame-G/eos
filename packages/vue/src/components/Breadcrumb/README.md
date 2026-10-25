@@ -1,6 +1,6 @@
 # EBreadcrumb
 
-The path to the current page, two or more levels deep. It is never the only way back, so use a back [`ELink`](../Link/README.md) (see [Recipes](https://eos.dame.gg/guide/recipes)) for that.
+The path to the current page, two or more levels deep. It is never the only way back, so use a back [`ELink`](../Link/README.md) (see [Recipes](https://eos.dame.gg/patterns/recipes)) for that.
 
 ```vue
 <EBreadcrumb
@@ -25,7 +25,7 @@ The path to the current page, two or more levels deep. It is never the only way 
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `nav` element. `maxItems` shortens a long path to the first level, a "…" button and the last levels; the button shows the whole path.
+`class`, `style` and attributes land on the `nav` element.
 
 ## Accessibility
 

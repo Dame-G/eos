@@ -53,4 +53,4 @@ A short label beside a control: the name of an icon-only one, or a few words mor
 
 ## Related
 
-[`EDefinition`](../Definition/README.md) for an explanation people read or click.
+[`EKbd`](../Kbd/README.md) for a keyboard shortcut beside a label.

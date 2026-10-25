@@ -50,4 +50,4 @@ A card that is one link: a title that says where it goes and a line or two under
 
 ## Related
 
-[`ESurface`](../Surface/README.md) for a card with several actions, [`ELink`](../Link/README.md) for a link in text, [`EGrid`](../Grid/README.md) to lay cards out.
+[`EGrid`](../Grid/README.md) to lay cards out.

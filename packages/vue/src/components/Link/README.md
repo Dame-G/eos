@@ -50,4 +50,4 @@ An icon before the text:
 
 ## Related
 
-[`EButton`](../Button/README.md) with `href` for a call to action, [`ENavList`](../NavList/README.md) for a list of destinations.
+[`ENavList`](../NavList/README.md) for a list of destinations.

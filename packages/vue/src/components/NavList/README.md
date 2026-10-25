@@ -30,7 +30,7 @@ All link navigation: the sidebar list for an app, or the navigation row of an [`
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `nav` element. It owns every list of links, vertical for a sidebar and `horizontal` for a header row. An item with `children` is a group that opens and closes with its own chevron (use it in a vertical list); a group that holds the current page starts open and opens by itself when the current page moves into it, and `open: true` opens one. A `disabled` item is dimmed, not a link and skipped by Tab. `isCurrent` marks the current page for the items whose `current` is not set, so a router's route can drive it without the list depending on a router. For switching panels on one page, use [`ETabs`](../Tabs/README.md).
+`class`, `style` and attributes land on the `nav` element. An item with `children` is a group that opens and closes with the library's chevron (use it in a vertical list); a group that holds the current page starts open, opens by itself when the current page moves into it, and is never closed on the person. A router's route can drive `isCurrent` without the list depending on a router. For switching panels on one page, use [`ETabs`](../Tabs/README.md).
 
 ## Accessibility
 

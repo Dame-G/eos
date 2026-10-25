@@ -26,4 +26,4 @@ Not focusable.
 
 ## Related
 
-[`EAppShell`](../AppShell/README.md) holds it in its `footer` slot, and [`EAppHeader`](../AppHeader/README.md) is the bar at the top.
+[`EAppHeader`](../AppHeader/README.md) is the bar at the top.

@@ -30,4 +30,4 @@ Not focusable.
 
 ## Related
 
-[`EProgress`](../Progress/README.md) for a known fraction, [`ESkeleton`](../Skeleton/README.md) for content that is loading.
+[`EButton`](../Button/README.md) and [`EIconButton`](../IconButton/README.md) show the same ring with `loading`.

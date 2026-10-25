@@ -32,4 +32,4 @@ Not focusable.
 
 ## Related
 
-[`ESpinner`](../Spinner/README.md) for a small inline wait, [`ESkeleton`](../Skeleton/README.md) for content that is loading.
+[`ESkeleton`](../Skeleton/README.md) for content that is loading.

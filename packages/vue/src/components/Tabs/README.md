@@ -31,7 +31,7 @@ Tabs for switching between views of the same record or list. It switches panels 
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the root `div` element. If the tabs are wider than the space, the row scrolls sideways with no scrollbar, so keep the labels short. When a page has more than one set of tabs, give each a `label` so screen reader users can tell the tab lists apart.
+`class`, `style` and attributes land on the root `div` element. If the tabs are wider than the space, the row scrolls sideways with no scrollbar, so keep the labels short.
 
 ## Slots
 
@@ -57,4 +57,4 @@ A slot named by the bare `id` (`#open`) still works for ids other than `panel` a
 
 ## Related
 
-[`ENavList`](../NavList/README.md) for links to other pages, [`ESegmented`](../Segmented/README.md) for a value that changes how a list is shown.
+[`ESegmented`](../Segmented/README.md) for a value that changes how a list is shown.

@@ -62,4 +62,4 @@ A side panel that slides in from an edge, for reading something beside the list,
 
 ## Related
 
-[`EDialog`](../Dialog/README.md) for a short decision, [`EDefinition`](../Definition/README.md) for a small floating note.
+[`EDefinition`](../Definition/README.md) for a small floating note.
