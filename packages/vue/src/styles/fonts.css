@@ -2,10 +2,11 @@
  * Demo fonts, opt-in: import `@eos-ui/vue/fonts.css` only to try the library with its intended typefaces.
  *
  * The @import below is render-blocking and sends every visitor's IP address to Google Fonts. Production apps should
- * self-host instead: download Bricolage Grotesque (400, 500, 600, variable optical size) and Geist Mono (500, 600) as
- * woff2, serve them from your own origin with `@font-face { font-display: swap; }`, and drop this file. That also lets
- * a strict CSP keep `style-src` and `font-src` to 'self'. Keep the two `* Fallback` faces below: they are what the
- * browser shows while the real font loads, scaled to the real font's metrics so the swap moves almost nothing.
+ * self-host instead: import `@eos-ui/vue/fonts-self-hosted.css`, which serves the same typefaces from woff2 files in
+ * the package (your bundler copies them to your origin), so a strict CSP can keep `style-src` and `font-src` to
+ * 'self'. To serve the fonts some other way, import `@eos-ui/vue/fonts-fallback.css` for the two `* Fallback` faces
+ * below: they are what the browser shows while the real font loads, scaled to the real font's metrics so the swap moves
+ * almost nothing. Both files are built from this one, so edit the fallback metrics here.
  *
  * Metrics are from @capsizecss/metrics: Bricolage Grotesque (ascent 930, descent 270, xWidthAvg 470 of 1000) against
  * Arial (xWidthAvg 913 of 2048), and Geist Mono (ascent 1005, descent 295, xWidthAvg 600 of 1000) against Courier New

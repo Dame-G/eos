@@ -7,6 +7,7 @@ import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import layers from "./scripts/postcss-layers.ts";
 import hover from "./scripts/postcss-hover.ts";
+import { writeFonts } from "./scripts/fonts.ts";
 import { ssrRender } from "./test/ssr/command.ts";
 import { LAYER_ORDER } from "@eos-ui/tokens";
 
@@ -84,6 +85,8 @@ export default defineConfig(({ command }) => ({
       closeBundle() {
         mkdirSync(src("./dist"), { recursive: true });
         copyFileSync(src("./src/styles/fonts.css"), src("./dist/fonts.css"));
+        // fonts-self-hosted.css with its woff2 files, and fonts-fallback.css.
+        writeFonts(src("."));
       },
     },
     {

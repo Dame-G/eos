@@ -166,6 +166,19 @@ export { EButton, createEos, lucide };
     );
 }
 
+// 8. The self-hosted fonts entry points at woff2 files that are in the package, and the fallback entry has both faces.
+const selfHosted = join(pkgRoot, "dist", "fonts-self-hosted.css");
+if (!existsSync(selfHosted)) problems.push("dist/fonts-self-hosted.css is missing");
+else {
+  const urls = [...readFileSync(selfHosted, "utf8").matchAll(/url\("\.\/([^"]+)"\)/g)].map((m) => m[1]);
+  if (urls.length < 2) problems.push("dist/fonts-self-hosted.css has no font files");
+  for (const u of urls)
+    if (!existsSync(join(pkgRoot, "dist", u))) problems.push(`dist/fonts-self-hosted.css: ${u} is missing`);
+}
+const fallbackCss = join(pkgRoot, "dist", "fonts-fallback.css");
+if (!existsSync(fallbackCss) || (readFileSync(fallbackCss, "utf8").match(/@font-face/g) ?? []).length !== 2)
+  problems.push("dist/fonts-fallback.css is missing or does not have the two fallback faces");
+
 if (problems.length) {
   console.error(problems.join("\n"));
   process.exit(1);
