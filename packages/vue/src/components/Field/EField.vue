@@ -5,6 +5,7 @@ import EFieldMessage from "./EFieldMessage.vue";
 import { useFormField } from "../../composables/useFormContext.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
+import "../../styles/controls/label.css";
 
 const props = defineProps<{
   /** The visible label above the control. */
@@ -81,13 +82,6 @@ useFormField({ id: () => id.value, label: () => props.label, error: () => props.
   .e-field-foot > :is(.e-field-hint, .e-field-error) {
     flex: 1 1 12rem;
     min-width: 0;
-  }
-
-  .e-field-label {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--e-gap-base);
   }
 }
 </style>

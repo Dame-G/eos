@@ -429,7 +429,7 @@ describe("ESegmented", () => {
     const { container } = await render(ESegmented, {
       props: { label: "View", options, showLabel: true, required: true },
     });
-    const label = container.querySelector(".e-seg-label")!;
+    const label = container.querySelector(".e-seg-field > .e-field-label")!;
     expect(label.textContent).toContain("View");
     expect(label.textContent).toContain("Required");
     const group = container.querySelector("[role=radiogroup]")!;

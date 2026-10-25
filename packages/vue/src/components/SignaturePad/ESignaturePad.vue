@@ -9,6 +9,7 @@ import { useUid } from "../../composables/useUid.js";
 import { useFormField } from "../../composables/useFormContext.js";
 import { missingMessage } from "../Form/missing.js";
 import "../../styles/base.css";
+import "../../styles/controls/label.css";
 
 const props = withDefaults(
   defineProps<{
@@ -307,13 +308,6 @@ defineExpose({
     gap: var(--e-gap-snug);
   }
 
-  .e-pad > .e-field-label {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--e-gap-base);
-  }
-
   .e-pad-surface {
     position: relative;
     overflow: hidden;
@@ -342,7 +336,7 @@ defineExpose({
     box-shadow: none;
   }
 
-  .e-pad-surface:is([data-readonly], [data-disabled]) .e-pad-canvas {
+  .e-pad-surface[data-readonly] .e-pad-canvas {
     cursor: default;
   }
 

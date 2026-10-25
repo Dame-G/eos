@@ -18,6 +18,7 @@ import { useOverflow } from "../../composables/useOverflow.js";
 import { useReducedMotion } from "../../composables/useReducedMotion.js";
 import { useFormField } from "../../composables/useFormContext.js";
 import "../../styles/base.css";
+import "../../styles/controls/label.css";
 
 defineOptions({ inheritAttrs: false });
 
@@ -136,7 +137,7 @@ const groupAttrs = () => ({
 
 <template>
   <div class="e-seg-field" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
-    <span v-if="showLabel" :id="labelId" class="e-seg-label e-kicker">
+    <span v-if="showLabel" :id="labelId" class="e-field-label e-kicker">
       {{ label }}
       <EFieldFlag :required="required" :optional="optional" />
     </span>
@@ -197,14 +198,6 @@ const groupAttrs = () => ({
     min-width: var(--_h);
     padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
     font-size: var(--e-text-sm);
-  }
-
-  /* A shown label sits above the track as a field's does, with the Required or Optional word at the end. */
-  .e-seg-label {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--e-gap-base);
   }
 
   .e-seg--scroll {
