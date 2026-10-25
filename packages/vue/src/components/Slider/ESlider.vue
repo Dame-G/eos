@@ -12,7 +12,9 @@ defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
   defineProps<
-    EFieldCommonProps & {
+    Omit<EFieldCommonProps, "required"> & {
+      /** Shows "Required" beside the label. A slider always has a value, so nothing is checked and no attribute is set. */
+      required?: boolean;
       /** What the slider sets. Names every thumb. */
       label: string;
       /** The lowest value. */
@@ -23,10 +25,10 @@ const props = withDefaults(
       step?: number;
       /** Two thumbs choose a span. `v-model` is then `[from, to]` in place of a number. */
       range?: boolean;
-      /** Draws tick marks: `true` for every step, or the values to mark. */
+      /** Draws tick marks: `true` for every step (at most about a hundred, so a fine step marks every few), or the values to mark. */
       marks?: boolean | number[];
       /** Turns a value into the words screen readers announce (`aria-valuetext`), such as "$40". Without it the number is read. */
-      format?: (value: number) => string;
+      valueText?: (value: number) => string;
       /** The name submitted with a form. A range posts two entries, `from` first. Posts nothing while disabled. */
       name?: string;
     }
@@ -64,12 +66,19 @@ function hold(e: Event) {
   if (props.readonly && !(e instanceof KeyboardEvent && e.key === "Tab")) e.stopImmediatePropagation();
 }
 
+/** The most tick marks drawn for `marks: true`. A finer step marks every few steps, so the marks spread over the whole track. */
+const MAX_TICKS = 100;
 const ticks = computed<number[]>(() => {
   if (!props.marks) return [];
   if (Array.isArray(props.marks)) return props.marks;
   // Counted, not summed: adding 0.1 again and again drifts past `max` and drops the last tick.
-  const count = Math.min(100, Math.floor((props.max - props.min) / props.step + 1e-9));
-  return Array.from({ length: count + 1 }, (_, i) => Math.round((props.min + i * props.step) * 1e9) / 1e9);
+  const steps = Math.floor((props.max - props.min) / props.step + 1e-9);
+  const stride = Math.max(1, Math.ceil(steps / MAX_TICKS));
+  const at = (k: number) => Math.round((props.min + k * props.step) * 1e9) / 1e9;
+  const out: number[] = [];
+  for (let k = 0; k <= steps; k += stride) out.push(at(k));
+  if (steps % stride) out.push(at(steps));
+  return out;
 });
 /**
  * Where the middle of a thumb sits for a value. A thumb stays inside the track, so its middle runs from half a thumb in
@@ -84,6 +93,13 @@ const filled = computed(() => ({
   insetInlineEnd: `calc(100% - ${at(values.value[values.value.length - 1]!)})`,
 }));
 
+/** The label points at the first thumb, which is no form control, so a click on it moves focus there by hand. */
+function onFieldClick(e: MouseEvent) {
+  if (!(e.target as Element).closest(".e-field-label")) return;
+  const thumb = (e.currentTarget as Element).querySelector<HTMLElement>(".e-slider-thumb");
+  if (thumb && !props.disabled) thumb.focus();
+}
+
 /** The thumbs of a range are told apart by name: "Price minimum", "Price maximum". */
 const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", { col: props.label }) : undefined);
 </script>
@@ -91,6 +107,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
 <template>
   <EField
     v-bind="control.attrs.wrapper()"
+    @click="onFieldClick"
     :id="id"
     :label="label"
     :hide-label="hideLabel"
@@ -135,10 +152,9 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
               id: i === 0 ? field.id : undefined,
               'aria-label': thumbLabel(i),
               'aria-labelledby': range ? undefined : `${field.id}-label`,
-              'aria-valuetext': format ? format(value) : undefined,
+              'aria-valuetext': valueText ? valueText(value) : undefined,
               'aria-invalid': field.ariaInvalid,
               'aria-readonly': readonly ? 'true' : undefined,
-              'aria-required': required ? 'true' : undefined,
             }"
           />
         </SliderRoot>
