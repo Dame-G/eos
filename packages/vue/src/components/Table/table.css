@@ -136,7 +136,7 @@
       padding: var(--e-gap-tight) var(--e-pad-card);
       border-radius: var(--e-radius-md);
       background: var(--e-surface);
-      box-shadow: var(--e-frame);
+      box-shadow: var(--e-shadow-frame);
     }
 
     .e-cards .e-table tbody tr:last-child {

@@ -130,14 +130,11 @@ onBeforeUnmount(() => {
     border-bottom: var(--e-stroke-hair) solid var(--e-border);
   }
 
-  /* Above everything the page raises in its own flow (z-raised, z-sticky, z-focus: a sticky table head, a selected tab, a focused control), which would otherwise paint over it as it scrolls under, and below every dialog, menu and toast. */
+  /* Above everything the page raises in its own flow (a sticky table head, a selected tab, a focused control), which would otherwise paint over it as it scrolls under, and below every dialog, menu and toast. */
   .e-appheader--sticky {
-    /* One above z-focus, in place of a header layer of its own. */
-    --_z: calc(var(--e-z-focus) + 1);
-
     position: sticky;
     top: 0;
-    z-index: var(--_z);
+    z-index: var(--e-z-header);
   }
 
   .e-appheader-bar {

@@ -53,8 +53,8 @@
   }
 
   .e-notice-icon .e-icon {
-    width: var(--e-icon-size-md);
-    height: var(--e-icon-size-md);
+    width: var(--e-icon-size-lg);
+    height: var(--e-icon-size-lg);
   }
 
   .e-notice-body {

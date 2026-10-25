@@ -10,23 +10,23 @@
     border: 0;
     background: var(--e-surface);
     color: var(--e-ink);
-    box-shadow: var(--e-float);
+    box-shadow: var(--e-shadow-float);
     font-family: var(--e-font-sans);
   }
 
   .e-dialog--sm,
   .e-drawer--sm {
-    --_w: var(--e-size-panel-sm);
+    --_w: var(--e-panel-width-sm);
   }
 
   .e-dialog--md,
   .e-drawer--md {
-    --_w: var(--e-size-panel-md);
+    --_w: var(--e-panel-width-md);
   }
 
   .e-dialog--lg,
   .e-drawer--lg {
-    --_w: var(--e-size-panel-lg);
+    --_w: var(--e-panel-width-lg);
   }
 
   .e-dialog-overlay {

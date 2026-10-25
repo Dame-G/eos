@@ -42,7 +42,7 @@ watch(words, (now) => props.silent || announce(now));
 <style>
 @layer e.primitives {
   .e-spinner {
-    --_size: var(--e-icon-size-md);
+    --_size: var(--e-icon-size-lg);
 
     display: inline-flex;
     align-items: center;
@@ -51,11 +51,11 @@ watch(words, (now) => props.silent || announce(now));
   }
 
   .e-spinner--sm {
-    --_size: var(--e-icon-size);
+    --_size: var(--e-icon-size-md);
   }
 
   .e-spinner--lg {
-    --_size: var(--e-icon-size-lg);
+    --_size: var(--e-icon-size-xl);
   }
 
   .e-spinner--block {

@@ -179,7 +179,7 @@ const groupAttrs = () => ({
     position: relative;
     border-radius: var(--e-radius-md);
     background: var(--e-surface-tint);
-    box-shadow: var(--e-well);
+    box-shadow: var(--e-shadow-well);
     max-width: 100%;
     width: fit-content;
   }

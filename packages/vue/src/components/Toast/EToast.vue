@@ -73,18 +73,18 @@ onMounted(() => {
 
 <style>
 @layer e.containers {
-  /* The slab on the tone's side: the inline-start border, `stroke-edge` plus `slab-bold` thick as on a Notice and a Stamp, in the colour of the tone's edge. It flips in a right-to-left page. The tone's colour comes from notice.css. */
+  /* The slab on the tone's side: the inline-start border, `stroke-edge` plus `depth-bold` thick as on a Notice and a Stamp, in the colour of the tone's edge. It flips in a right-to-left page. The tone's colour comes from notice.css. */
   .e-toast {
-    /* The notice's 36rem container step (`size-panel-lg`) plus the toast's padding and tone edge, so an action sits at the end of the row. */
-    --_wide: calc(var(--e-size-panel-lg) + 2 * var(--e-pad-card) + var(--e-stroke-edge) + var(--e-slab-bold));
+    /* The notice's 36rem container step (`panel-width-lg`) plus the toast's padding and tone edge, so an action sits at the end of the row. */
+    --_wide: calc(var(--e-panel-width-lg) + 2 * var(--e-pad-card) + var(--e-stroke-edge) + var(--e-depth-bold));
 
     position: relative;
     container-type: inline-size;
-    width: min(var(--e-size-panel-sm), 100%);
+    width: min(var(--e-panel-width-sm), 100%);
     padding: var(--e-gap-base) var(--e-pad-card);
-    border-inline-start: calc(var(--e-stroke-edge) + var(--e-slab-bold)) solid var(--_tone);
-    border-start-start-radius: calc(var(--e-radius-md) + var(--e-slab-bold)) var(--e-radius-md);
-    border-end-start-radius: calc(var(--e-radius-md) + var(--e-slab-bold)) var(--e-radius-md);
+    border-inline-start: calc(var(--e-stroke-edge) + var(--e-depth-bold)) solid var(--_tone);
+    border-start-start-radius: calc(var(--e-radius-md) + var(--e-depth-bold)) var(--e-radius-md);
+    border-end-start-radius: calc(var(--e-radius-md) + var(--e-depth-bold)) var(--e-radius-md);
   }
 
   .e-toast--actions {
@@ -106,7 +106,7 @@ onMounted(() => {
   @media (forced-colors: active) {
     .e-toast {
       border: var(--e-stroke-card) solid CanvasText;
-      border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-slab-bold));
+      border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-depth-bold));
     }
   }
 }

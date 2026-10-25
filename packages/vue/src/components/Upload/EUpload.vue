@@ -317,7 +317,7 @@ defineExpose({
     color: var(--e-primary);
     font-weight: var(--e-weight-medium);
     text-decoration: underline;
-    text-underline-offset: var(--e-underline-offset);
+    text-underline-offset: var(--e-stroke-underline-offset);
   }
 
   .e-drop--disabled {
@@ -353,7 +353,7 @@ defineExpose({
 
   .e-drop-input:focus-visible + .e-drop {
     outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
-    outline-offset: var(--e-focus-gap-field);
+    outline-offset: var(--e-stroke-focus-gap-field);
   }
 
   .e-files {

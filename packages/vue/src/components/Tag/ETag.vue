@@ -64,7 +64,7 @@ const t = useMessages();
     --_ink: var(--e-ink);
     --_edge: var(--e-slab-ink);
     --_bg: var(--e-surface-tint);
-    --_lift: var(--e-slab-thin);
+    --_lift: var(--e-depth-thin);
     --_r: var(--e-radius-sm);
 
     display: inline-flex;

@@ -3,11 +3,11 @@
 /*
  * The material. Every surface is exactly one of three, and says which:
  *
- *   Raised   it stands on a slab: a border on every side in the slab colour, the bottom one thicker by the lift. Anything you press (a button, a checked box, a chosen segment, day or page, a tag, a key) and anything that floats over the page (a popover, a menu, a toast, a dialog: `--e-float`, a slab twice `--e-depth` deep lifted off the page).
- *   Flush    it lies on the page: one flat `--e-stroke-card` ring in `--e-border` (3.4:1), `--e-frame`, never a drop shadow. A card, a summary, a table, a code block, the search results.
- *   Sunk     it is pressed into the page: `--e-well`, a shade along the top inner edge, on a tinted ground. A field, a track, a meter, a segmented control's groove; and `--e-slab-sink` for a quiet control toggled on.
+ *   Raised   it stands on a slab: a border on every side in the slab colour, the bottom one thicker by the lift. Anything you press (a button, a checked box, a chosen segment, day or page, a tag, a key) and anything that floats over the page (a popover, a menu, a toast, a dialog: `--e-shadow-float`, a slab twice `--e-depth` deep lifted off the page).
+ *   Flush    it lies on the page: one flat `--e-stroke-card` ring in `--e-border` (3.4:1), `--e-shadow-frame`, never a drop shadow. A card, a summary, a table, a code block, the search results.
+ *   Sunk     it is pressed into the page: `--e-shadow-well`, a shade along the top inner edge, on a tinted ground. A field, a track, a meter, a segmented control's groove; and `--e-shadow-sink` for a quiet control toggled on.
  *
- * A tone edge (Notice, Stamp, Toast) is a slab turned on its side: the inline-start border, `calc(var(--e-stroke-edge) + var(--e-slab-bold))`, in the tone colour. A raised or pressed state never changes the box's size: the lift moves between the bottom border and nothing.
+ * A tone edge (Notice, Stamp, Toast) is a slab turned on its side: the inline-start border, `calc(var(--e-stroke-edge) + var(--e-depth-bold))`, in the tone colour. A raised or pressed state never changes the box's size: the lift moves between the bottom border and nothing.
  */
 @layer e.base {
   /* Reduced motion has one mechanism: the theme sets `--e-duration-tap`, `-fade` and `-move` to 0.01ms under `prefers-reduced-motion`, so every transition and every arriving or leaving animation built on them stops with no rule of its own. Only an infinite loop (the ring of SpinnerRing, the indeterminate bar of EProgress, the pulse of skeleton.css) sets `animation: none` in a media block, since a loop at 0.01ms would flicker. */
@@ -146,8 +146,8 @@
    *     border-bottom-width: calc(var(--e-stroke-edge) + var(--_lift));
    *     border-radius: var(--_r) / var(--_r) var(--_r) calc(var(--_r) + var(--_lift)) calc(var(--_r) + var(--_lift));
    *   The bottom corners are as much taller than wide as the slab is thick, so the face inside them is a true circle like the top ones (a corner whose border is thicker on one side has an elliptical inside, which reads as a diagonal). A child that fills the face takes `--_r` less the edge on every corner.
-   *   The lift follows the face's height: `--e-slab-thin` up to `--e-chip-height` (a key, a tag, a checkbox or radio, the switch, a slider thumb), `--e-depth` up to `--e-control-height` (a button, a segment, a day, a page, a row), and 0 when pressed or disabled. Never a thicker border on one side alone, a gradient band or a ::before bar.
-   *   A tone edge (Notice, Stamp, Toast) is the one side edge: the inline-start border, calc(var(--e-stroke-edge) + var(--e-slab-bold)), in the tone colour. Its start corners take the same correction sideways: `border-start-start-radius: calc(r + slab-bold) r` and the same at the end-start corner.
+   *   The lift follows the face's height: `--e-depth-thin` up to `--e-chip-height` (a key, a tag, a checkbox or radio, the switch, a slider thumb), `--e-depth` up to `--e-control-height` (a button, a segment, a day, a page, a row), and 0 when pressed or disabled. Never a thicker border on one side alone, a gradient band or a ::before bar.
+   *   A tone edge (Notice, Stamp, Toast) is the one side edge: the inline-start border, calc(var(--e-stroke-edge) + var(--e-depth-bold)), in the tone colour. Its start corners take the same correction sideways: `border-start-start-radius: calc(r + depth-bold) r` and the same at the end-start corner.
    *
    * The ladder of selection: three steps, each its own colour, so hovering never looks like choosing and choosing never looks like being somewhere.
    *   Hover             the neutral wash, `--e-wash-hover` (`--e-wash-press` when pressed). Never a colour: hover does not preview what pressing will do.
@@ -155,7 +155,7 @@
    *   A value you set   filled `--e-primary` with `--e-on-primary` text on a `--e-primary-slab` slab: a toggle, a check, a radio, a switch, a segment, a page, a day.
    *   Selection never changes the weight of a label, so a selected tab, segment or page keeps its width.
    *
-   * Hover and press. A bordered item (a tab, a segment, a checkbox, a radio, the switch, an expandable row, an outline button) recolours its own border, `--e-wash-ring` on hover and `--e-ink` on press, and takes the wash; it never adds a ring, so its edge never thickens. An unbordered item (a row, a tile, a day, a page, a quiet button) takes the wash plus the ring, `--e-ring-hover` then `--e-ring-press`: one shared rule in `e.state` below, so a component lists itself there instead of copying it. Filled controls keep their own `-hover` and `-press` fills. All of them use `--e-transition-state`.
+   * Hover and press. A bordered item (a tab, a segment, a checkbox, a radio, the switch, an expandable row, an outline button) recolours its own border, `--e-wash-ring` on hover and `--e-ink` on press, and takes the wash; it never adds a ring, so its edge never thickens. An unbordered item (a row, a tile, a day, a page, a quiet button) takes the wash plus the ring, `--e-shadow-ring-hover` then `--e-shadow-ring-press`: one shared rule in `e.state` below, so a component lists itself there instead of copying it. Filled controls keep their own `-hover` and `-press` fills. All of them use `--e-transition-state`.
    *   Named exceptions, which draw no ring: a text link (`ELink`: the ink colour only, no wash), a breadcrumb (a wash under the link text) and a disclosure summary (`EDisclosure`: a wash only, no ring and no underline).
    *
    * Disabled, in two voices. A control keeps its box, drops its lift, dims to `--e-disabled-ink` on `--e-disabled-fill` and draws a dashed `--e-border-strong` edge over its own (the shared ::before in `e.state`, which a page's focus or outline reset cannot remove), so colour is never the only cue. A list row (a menu item, an option, a nav item) only dims its text. Both use `cursor: not-allowed` and stop answering the pointer.
@@ -264,12 +264,12 @@
       ):active,
     .e-interact[data-highlighted] {
       background-color: var(--_sw, var(--e-wash-hover));
-      box-shadow: var(--_sr, var(--e-ring-hover));
+      box-shadow: var(--_sr, var(--e-shadow-ring-hover));
     }
 
     :where(.e-interact, .e-btn--quiet):active {
       --_sw: var(--e-wash-press);
-      --_sr: var(--e-ring-press);
+      --_sr: var(--e-shadow-ring-press);
     }
   }
 

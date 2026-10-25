@@ -179,7 +179,7 @@ describe("EToastProvider", () => {
     expect(getComputedStyle(region).position).toBe("fixed");
   });
 
-  test("toasts keep their size-panel-sm width in the region, and 40rem with an action", async () => {
+  test("toasts keep their panel-width-sm width in the region, and 40rem with an action", async () => {
     await mountApp();
     api.show({ title: "Saved", tone: "danger" });
     api.show({ title: "Deleted", action: () => h(EButton, null, () => "Undo") });

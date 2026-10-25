@@ -218,7 +218,7 @@ describe("ground inputs", () => {
     expect(contrast(t["primary"]!, t["on-primary"]!)).toBeGreaterThanOrEqual(7);
     expect(contrast(t["secondary"]!, t["on-secondary"]!)).toBeGreaterThanOrEqual(7);
     expect(contrast(t["danger"]!, t["on-danger"]!)).toBeGreaterThanOrEqual(7);
-    expect(contrast(t["warning-strong"]!, t["warning-soft"]!)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(t["warning"]!, t["warning-soft"]!)).toBeGreaterThanOrEqual(4.5);
   });
 
   test("a dark surface without a foreground picks white", () => {
@@ -238,12 +238,13 @@ describe("ground inputs", () => {
 });
 
 const ICON_BOXES = [
-  "icon-size",
   "icon-size-sm",
-  "icon-size-lg",
   "icon-size-md",
+  "icon-size-lg",
+  "icon-size-xl",
   "check-size",
   "avatar-size-sm",
+  "avatar-size-md",
   "avatar-size-lg",
 ];
 
@@ -265,7 +266,7 @@ describe("derived inputs", () => {
       { controlHeight: 48 },
       { strokes: { hair: 1, focus: 2 } },
       { strokes: {} },
-      { danger: defaults["danger"], warning: defaults["warning-strong"], success: defaults["success"] },
+      { danger: defaults["danger"], warning: defaults["warning"], success: defaults["success"] },
     ]) {
       expect(defineTheme(input).tokens, JSON.stringify(input)).toEqual(base);
     }
@@ -294,12 +295,12 @@ describe("derived inputs", () => {
         const t = defineTheme({ ...ground, warning });
         const k = t.tokens;
         const label = JSON.stringify({ warning, ground });
-        expect(contrast(k["warning-strong"]!, k["surface"]!), label).toBeGreaterThanOrEqual(4.5);
-        expect(contrast(k["warning-strong"]!, k["warning-soft"]!), label).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(k["warning"]!, k["surface"]!), label).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(k["warning"]!, k["warning-soft"]!), label).toBeGreaterThanOrEqual(4.5);
         expect(t.issues, label).toEqual([]);
       }
     }
-    expect(changed({ warning: "#c2410c" }).sort()).toEqual(["warning-soft", "warning-strong"]);
+    expect(changed({ warning: "#c2410c" }).sort()).toEqual(["warning", "warning-soft"]);
   });
 
   test("textScale and spaceScale scale only their own tokens, in whole pixels", () => {
@@ -325,9 +326,9 @@ describe("derived inputs", () => {
     expect(t["stroke-edge"]).toBe("3px");
     expect(t["stroke-focus"]).toBe("4px");
     expect(t["focus-gap"]).toBeUndefined();
-    expect(t["focus-gap-field"]).toBe("calc(-1 * var(--e-stroke-edge))");
+    expect(t["stroke-focus-gap-field"]).toBe("calc(-1 * var(--e-stroke-edge))");
     expect(t["stroke-card"]).toBe("2px");
-    expect(t["frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
+    expect(t["shadow-frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
     expect(changed({ strokes: { focus: 3 } }).sort()).toEqual(["stroke-focus"]);
   });
 
@@ -340,7 +341,7 @@ describe("derived inputs", () => {
     expect(t["stroke-hair"]).toBe("2px");
     expect(t["stroke-edge"]).toBe("2px");
     expect(t["stroke-card"]).toBe("3px");
-    expect(t["frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
+    expect(t["shadow-frame"]).toBe("0 0 0 var(--e-stroke-card) var(--e-border)");
   });
 
   test("contrast high pins lines to the foreground and neutralises the tint", () => {
@@ -350,7 +351,7 @@ describe("derived inputs", () => {
     expect(t["scrim"]).toBe("rgb(0 0 0 / 0.75)");
     expect(contrast(t["muted"]!, t["surface"]!)).toBeGreaterThanOrEqual(14.9);
     expect(toOklch(t["surface-tint"]!).c).toBeLessThan(0.005);
-    expect(t["frame"]).toContain("var(--e-border)");
+    expect(t["shadow-frame"]).toContain("var(--e-border)");
     expect(defineTheme({ contrast: "standard" }).tokens).toEqual(base);
     expect(defineTheme({ contrast: "high" }).issues).toEqual([]);
     const dark = defineTheme({ surface: "#0f1418", background: "#0a0e11", foreground: "#ffffff", contrast: "high" });
@@ -379,10 +380,10 @@ describe("derived inputs", () => {
   });
 
   test("the shadow tint comes from the ground, not the brand", () => {
-    const plain = defineTheme({ elevation: "lifted" }).tokens["float"];
-    expect(defineTheme({ elevation: "lifted", brand: "#e91e63" }).tokens["float"]).toBe(plain);
+    const plain = defineTheme({ elevation: "lifted" }).tokens["shadow-float"];
+    expect(defineTheme({ elevation: "lifted", brand: "#e91e63" }).tokens["shadow-float"]).toBe(plain);
     expect(plain).toContain("rgba(36, 36, 36,");
-    expect(defineTheme({ elevation: "lifted", background: "#f6efe0" }).tokens["float"]).not.toBe(plain);
+    expect(defineTheme({ elevation: "lifted", background: "#f6efe0" }).tokens["shadow-float"]).not.toBe(plain);
   });
 
   test("elevation presets keep the material: a flush frame or a card slab, and a floating slab with one drop", () => {
@@ -390,38 +391,38 @@ describe("derived inputs", () => {
     const floatSlab = "0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-slab-ink)";
     // The default theme is the outline elevation, written out in tokens.json.
     expect(changed({ elevation: "outline" })).toEqual([]);
-    expect(base["float"]).toBe(`${ring}, ${floatSlab}, 0 12px 32px -8px rgba(36, 36, 36, 0.18)`);
+    expect(base["shadow-float"]).toBe(`${ring}, ${floatSlab}, 0 12px 32px -8px rgba(36, 36, 36, 0.18)`);
     const lifted = defineTheme({ elevation: "lifted" }).tokens;
-    expect(lifted["frame"]).toBe(`${ring}, 0 var(--e-depth) 0 var(--e-stroke-card) var(--e-slab-ink)`);
-    expect(lifted["float"]).toBe(`${ring}, ${floatSlab}, 0 20px 48px -12px rgba(36, 36, 36, 0.24)`);
-    expect(lifted["well"]).toBe(base["well"]);
-    expect(changed({ elevation: "lifted" }).sort()).toEqual(["float", "frame"]);
+    expect(lifted["shadow-frame"]).toBe(`${ring}, 0 var(--e-depth) 0 var(--e-stroke-card) var(--e-slab-ink)`);
+    expect(lifted["shadow-float"]).toBe(`${ring}, ${floatSlab}, 0 20px 48px -12px rgba(36, 36, 36, 0.24)`);
+    expect(lifted["shadow-well"]).toBe(base["shadow-well"]);
+    expect(changed({ elevation: "lifted" }).sort()).toEqual(["shadow-float", "shadow-frame"]);
     const bold = defineTheme({ elevation: "bold" }).tokens;
-    expect(bold["float"]).toBe(`${ring}, ${floatSlab}, 0 14px 28px -10px rgba(36, 36, 36, 0.22)`);
-    expect(bold["well"]).toBe("inset 0 3px 0 0 rgba(36, 36, 36, 0.09)");
-    expect(changed({ elevation: "bold" }).sort()).toEqual(["float", "stroke-card", "well"]);
+    expect(bold["shadow-float"]).toBe(`${ring}, ${floatSlab}, 0 14px 28px -10px rgba(36, 36, 36, 0.22)`);
+    expect(bold["shadow-well"]).toBe("inset 0 3px 0 0 rgba(36, 36, 36, 0.09)");
+    expect(changed({ elevation: "bold" }).sort()).toEqual(["shadow-float", "shadow-well", "stroke-card"]);
     expect(bold["stroke-card"]).toBe("2px");
     const darkOutline = defineTheme({ ...dark, elevation: "outline" }).tokens;
-    expect(darkOutline["frame"]).toBe(ring);
-    expect(darkOutline["float"]).toContain("0.45)");
-    expect(darkOutline["well"]).toBe(defineTheme(dark).tokens["well"]);
+    expect(darkOutline["shadow-frame"]).toBe(ring);
+    expect(darkOutline["shadow-float"]).toContain("0.45)");
+    expect(darkOutline["shadow-well"]).toBe(defineTheme(dark).tokens["shadow-well"]);
   });
 
   test("every shadow of a theme is drawn in one shade, the well too", () => {
     for (const input of [{}, { background: "#f6efe0" }, dark, { elevation: "bold" as const }]) {
       const t = defineTheme({ elevation: "outline", ...input }).tokens;
       const shades = new Set(
-        [...(t["well"]! + " " + t["float"]!).matchAll(/rgba\((\d+, \d+, \d+),/g)].map((m) => m[1]),
+        [...(t["shadow-well"]! + " " + t["shadow-float"]!).matchAll(/rgba\((\d+, \d+, \d+),/g)].map((m) => m[1]),
       );
       expect(shades.size, JSON.stringify(input)).toBe(1);
     }
   });
 
   test("depth sets the slab and derives the thin and bold slabs in whole pixels", () => {
-    expect(changed({ depth: 3 }).sort()).toEqual(["depth", "slab-bold", "slab-thin"]);
-    expect(defineTheme({ depth: 3 }).tokens["slab-thin"]).toBe("1px");
-    expect(defineTheme({ depth: 4 }).tokens["slab-thin"]).toBe("2px");
-    expect(defineTheme({ depth: 1 }).tokens["slab-bold"]).toBe("2px");
+    expect(changed({ depth: 3 }).sort()).toEqual(["depth", "depth-bold", "depth-thin"]);
+    expect(defineTheme({ depth: 3 }).tokens["depth-thin"]).toBe("1px");
+    expect(defineTheme({ depth: 4 }).tokens["depth-thin"]).toBe("2px");
+    expect(defineTheme({ depth: 1 }).tokens["depth-bold"]).toBe("2px");
   });
 
   test("controlHeight sets the control and an even chip height", () => {
@@ -439,12 +440,18 @@ describe("derived inputs", () => {
       motion: "snappy",
       elevation: "bold",
       controlHeight: 56,
-      tokens: { danger: "#111111", "text-md": "17px", "duration-tap": "10ms", float: "none", "chip-height": "30px" },
+      tokens: {
+        danger: "#111111",
+        "text-md": "17px",
+        "duration-tap": "10ms",
+        "shadow-float": "none",
+        "chip-height": "30px",
+      },
     }).tokens;
     expect(t["danger"]).toBe("#111111");
     expect(t["text-md"]).toBe("17px");
     expect(t["duration-tap"]).toBe("10ms");
-    expect(t["float"]).toBe("none");
+    expect(t["shadow-float"]).toBe("none");
     expect(t["chip-height"]).toBe("30px");
   });
 
@@ -534,10 +541,10 @@ describe("scheme, contrast and density", () => {
   });
   test("icon, check and avatar boxes follow textScale", () => {
     const t = defineTheme({ textScale: 1.5 }).tokens;
-    expect(t["icon-size"]).toBe("1.875rem");
+    expect(t["icon-size-md"]).toBe("1.875rem");
     expect(t["check-size"]).toBe("2.25rem");
     expect(t["avatar-size-lg"]).toBe("6rem");
-    expect(defineTheme({ spaceScale: 2 }).tokens["icon-size"]).toBe("1.25rem");
+    expect(defineTheme({ spaceScale: 2 }).tokens["icon-size-md"]).toBe("1.25rem");
   });
   test("the script font follows fonts.script", () => {
     expect(defineTheme({ fonts: { script: "Caveat, cursive" } }).tokens["font-script"]).toBe("Caveat, cursive");
@@ -559,8 +566,8 @@ describe("scheme, contrast and density", () => {
   });
   test("the paper shadow is the frame ring and the well", () => {
     for (const elevation of ["outline", "lifted", "bold"] as const)
-      expect(defineTheme({ elevation }).tokens["paper"], elevation).toBe(
-        "0 0 0 var(--e-stroke-card) var(--e-border), var(--e-well)",
+      expect(defineTheme({ elevation }).tokens["shadow-paper"], elevation).toBe(
+        "0 0 0 var(--e-stroke-card) var(--e-border), var(--e-shadow-well)",
       );
   });
   test("the frame, float and paper rings follow border and stroke-card, so an override in CSS reaches them", () => {
@@ -575,18 +582,17 @@ describe("scheme, contrast and density", () => {
       { tokens: { border: "#ff0000", "stroke-card": "3px" } },
     ]) {
       const t = defineTheme(input).tokens;
-      for (const name of ["frame", "float", "paper"]) {
+      for (const name of ["shadow-frame", "shadow-float", "shadow-paper"]) {
         expect(t[name]!.startsWith(ring), `${name} ${JSON.stringify(input)}`).toBe(true);
         expect(t[name], name).not.toMatch(/0 0 0 \d+px #/);
       }
     }
-    expect(defaults["frame"]).toBe(ring);
+    expect(defaults["shadow-frame"]).toBe(ring);
   });
-  test("a tone reads the same through its alias", () => {
+  test("the information tone reads the same through its alias", () => {
     const t = defineTheme({ brand: "#8a2be2", accent: "#2e7d32" }).tokens;
     expect(t["info"]).toBe("var(--e-primary)");
-    expect(t["warning"]).toBe("var(--e-warning-strong)");
-    expect(checkContrast(t).filter((i) => ["info", "success", "warning", "text-link"].includes(i.pair[0]))).toEqual([]);
+    expect(checkContrast(t).filter((i) => ["info", "success", "warning", "link"].includes(i.pair[0]))).toEqual([]);
   });
   test("z-index tokens rise in the order they are listed, with the skip link on top", () => {
     const values = groups.zIndex.map((z) => Number(defaults[z]));
@@ -598,9 +604,30 @@ describe("scheme, contrast and density", () => {
     expect(groups.spacing).not.toContain("space-7");
   });
   test("renamed and removed tokens are gone", () => {
-    for (const gone of ["edge", "focus-gap", "print-ink", "print-paper"])
+    for (const gone of [
+      "edge",
+      "focus-gap",
+      "print-ink",
+      "print-paper",
+      "icon-size",
+      "text-link",
+      "warning-strong",
+      "frame",
+      "well",
+      "float",
+      "paper",
+      "slab-sink",
+      "ring-hover",
+      "ring-press",
+      "slab-thin",
+      "slab-bold",
+      "focus-gap-field",
+      "underline-offset",
+      "size-panel-sm",
+      "size-list-max",
+    ])
       expect(Object.keys(defaults)).not.toContain(gone);
-    expect(Object.keys(defaults)).toContain("frame");
+    expect(Object.keys(defaults)).toContain("shadow-frame");
   });
 });
 
@@ -630,7 +657,7 @@ describe("dtcg", () => {
     expect(tree.color!["focus-ring"]!.$value).toBe("{color.ink}");
   });
   test("a CSS expression with no DTCG type keeps its string and has no type", () => {
-    expect(tree.shadow!["frame"]!.$type).toBeUndefined();
+    expect(tree.shadow!["shadow-frame"]!.$type).toBeUndefined();
     expect(tree.color!["wash-hover"]!.$type).toBeUndefined();
     expect(typeof tree.color!["wash-hover"]!.$value).toBe("string");
   });
@@ -673,7 +700,7 @@ describe("brand, wash and tone tokens", () => {
     expect(grey.issues).toEqual([]);
   });
   test("each tone is checked once, through the name components use", () => {
-    const issues = checkContrast({ ...t, "warning-strong": "#fdf3dc", success: "#e8f5e1" });
+    const issues = checkContrast({ ...t, warning: "#fdf3dc", success: "#e8f5e1" });
     for (const role of ["Warning notice text", "Success notice text"])
       expect(issues.filter((i) => i.role === role).length, role).toBe(1);
   });
@@ -686,7 +713,7 @@ describe("brand, wash and tone tokens", () => {
     expect(t["easing-linear"]).toBe("linear");
     expect(t["shell-width"]).toBe("72rem");
     expect(t["shell-rail"]).toBe("var(--e-border)");
-    expect(t["underline-offset"]).toBe("0.25em");
+    expect(t["stroke-underline-offset"]).toBe("0.25em");
     expect(t["radius-row"]).toBe("max(0px, calc(var(--e-radius-md) - var(--e-pad-inset)))");
   });
 });

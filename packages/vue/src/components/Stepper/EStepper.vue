@@ -87,7 +87,7 @@ function choose(index: number, step: Step) {
   }
 
   .e-step {
-    --_dot: var(--e-icon-size-md);
+    --_dot: var(--e-icon-size-lg);
     --_line: var(--e-border-strong);
     --_inset: var(--e-gap-tight);
 

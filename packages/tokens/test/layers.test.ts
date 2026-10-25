@@ -76,8 +76,11 @@ describe("token layers", () => {
       ...groups.fontSize,
       "control-height",
       "chip-height",
-      "icon-size",
+      "icon-size-md",
+      "container-width-md",
+      "term-width",
       "check-size",
+      "avatar-size-md",
       "avatar-size-lg",
     ])
       expect(value(name), name).toMatch(/rem$/);
@@ -105,10 +108,10 @@ describe("token layers", () => {
     }
   });
   test("the slab scale derives from depth, and the ring and panel tokens exist", () => {
-    expect(value("slab-thin")).toContain("var(--e-depth)");
-    expect(value("slab-bold")).toContain("var(--e-depth)");
-    expect(value("ring-hover")).toContain("var(--e-wash-ring)");
-    expect([value("size-panel-sm"), value("size-panel-md"), value("size-panel-lg")]).toEqual([
+    expect(value("depth-thin")).toContain("var(--e-depth)");
+    expect(value("depth-bold")).toContain("var(--e-depth)");
+    expect(value("shadow-ring-hover")).toContain("var(--e-wash-ring)");
+    expect([value("panel-width-sm"), value("panel-width-md"), value("panel-width-lg")]).toEqual([
       "28rem",
       "32rem",
       "36rem",
@@ -174,15 +177,15 @@ describe("presets, warnings and explain", () => {
     expect(ink.tokens["stroke-focus"]).toBe("3px");
     expect(ink.tokens["duration-tap"]).toBe("50ms");
     expect(ink.tokens["depth"]).toBe("3px");
-    expect(ink.tokens["slab-bold"]).toBe("6px");
-    expect(ink.tokens["float"]).toContain("0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-slab-ink)");
+    expect(ink.tokens["depth-bold"]).toBe("6px");
+    expect(ink.tokens["shadow-float"]).toContain("0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-slab-ink)");
     const quiet = defineTheme({ preset: "quiet" });
     expect(quiet.tokens["radius-md"]).toBe("14px");
     expect(quiet.tokens["duration-move"]).toBe("380ms");
     // A quiet slab, not a soft shadow: the same material at 1px.
     expect(quiet.tokens["depth"]).toBe("1px");
-    expect(quiet.tokens["slab-thin"]).toBe("1px");
-    expect(quiet.tokens["float"]).toBe(defineTheme().tokens["float"]);
+    expect(quiet.tokens["depth-thin"]).toBe("1px");
+    expect(quiet.tokens["shadow-float"]).toBe(defineTheme().tokens["shadow-float"]);
     for (const preset of ["paper", "ink", "quiet"] as const) {
       expect(defineTheme({ preset }).issues, preset).toEqual([]);
       expect(defineTheme({ preset, surface: "#10151a" }).issues, preset).toEqual([]);

@@ -78,7 +78,7 @@ if (props.clip && slots.actions && !isProduction()) {
     padding: var(--e-pad-card);
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
-    box-shadow: var(--e-frame);
+    box-shadow: var(--e-shadow-frame);
   }
 
   .e-surface--flush,
@@ -110,11 +110,11 @@ if (props.clip && slots.actions && !isProduction()) {
 
   .e-surface--paper {
     background: var(--e-surface-paper);
-    box-shadow: var(--e-paper);
+    box-shadow: var(--e-shadow-paper);
   }
 
   .e-surface--raised {
-    box-shadow: var(--e-float);
+    box-shadow: var(--e-shadow-float);
   }
 
   .e-surface--outline {

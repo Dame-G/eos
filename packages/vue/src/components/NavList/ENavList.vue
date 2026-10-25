@@ -236,7 +236,7 @@ const current = (item: LinkItem) => item.current ?? props.isCurrent?.(nav(item))
   .e-nav--horizontal li + li::before {
     content: "";
     width: var(--e-stroke-hair);
-    height: var(--e-icon-size-md);
+    height: var(--e-icon-size-lg);
     margin-inline: var(--e-gap-snug);
     background: var(--e-border);
   }

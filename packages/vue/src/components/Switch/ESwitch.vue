@@ -75,7 +75,7 @@ defineExpose(choice.exposed);
     border-radius: var(--_r) / var(--_r) var(--_r) calc(var(--_r) + var(--_lift)) calc(var(--_r) + var(--_lift));
     background: var(--e-surface-tint);
     background-clip: padding-box;
-    box-shadow: var(--e-well);
+    box-shadow: var(--e-shadow-well);
     transition: var(--e-transition-state);
   }
 
@@ -91,7 +91,7 @@ defineExpose(choice.exposed);
     margin-block-start: calc(var(--_thumb) / -2);
     box-sizing: border-box;
     border: var(--e-stroke-edge) solid var(--_edge);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-slab-thin));
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth-thin));
 
     /* Concentric with the track: the thumb's edge is `--_inset` inside the track's outer edge, border included. */
     border-radius: max(0px, calc(var(--_r) - var(--_inset)));
@@ -116,7 +116,7 @@ defineExpose(choice.exposed);
   /* On, the well goes and the face rises on its slab; it sinks while pressed. */
   .e-switch-input:checked + .e-switch-track {
     --_ring: var(--e-primary-slab);
-    --_lift: var(--e-slab-thin);
+    --_lift: var(--e-depth-thin);
 
     background-color: var(--e-primary);
     background-clip: border-box;

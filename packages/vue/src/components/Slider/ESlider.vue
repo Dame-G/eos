@@ -194,7 +194,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     border-radius: var(--e-radius-sm);
     background: var(--e-surface-tint);
     background-clip: padding-box;
-    box-shadow: var(--e-well);
+    box-shadow: var(--e-shadow-well);
   }
 
   .e-slider-range {
@@ -223,7 +223,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
   /* The thumb is a small button face with a slab under it. Its face is the page surface, so it stands out on the groove in every theme, and it stands on a primary slab that sinks when pressed. The slab makes the bottom border thicker, so the bottom corners take taller vertical radii to stay round rather than elliptical. */
   .e-slider-thumb {
     --_slab: var(--e-primary-slab);
-    --_lift: var(--e-slab-thin);
+    --_lift: var(--e-depth-thin);
 
     position: relative;
     display: block;

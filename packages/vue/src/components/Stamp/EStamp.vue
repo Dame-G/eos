@@ -99,12 +99,12 @@ function titleIfCut(e: PointerEvent) {
     gap: var(--e-gap-snug);
     min-height: calc(var(--e-chip-height) + var(--e-gap-tight));
     padding-block: 0;
-    padding-inline: calc(var(--e-pad-chip) - var(--e-stroke-edge) - var(--e-slab-bold));
+    padding-inline: calc(var(--e-pad-chip) - var(--e-stroke-edge) - var(--e-depth-bold));
     border: var(--e-stroke-edge) solid var(--_tone);
-    border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-slab-bold));
+    border-inline-start-width: calc(var(--e-stroke-edge) + var(--e-depth-bold));
     border-radius: var(--e-radius-sm);
-    border-start-start-radius: calc(var(--e-radius-sm) + var(--e-slab-bold)) var(--e-radius-sm);
-    border-end-start-radius: calc(var(--e-radius-sm) + var(--e-slab-bold)) var(--e-radius-sm);
+    border-start-start-radius: calc(var(--e-radius-sm) + var(--e-depth-bold)) var(--e-radius-sm);
+    border-end-start-radius: calc(var(--e-radius-sm) + var(--e-depth-bold)) var(--e-radius-sm);
     background-color: var(--_bg);
     background-clip: padding-box;
     color: var(--_ink);

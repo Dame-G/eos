@@ -86,7 +86,7 @@
   .e-check:indeterminate,
   .e-radio:checked {
     --_slab: var(--e-primary-slab);
-    --_lift: var(--e-slab-thin);
+    --_lift: var(--e-depth-thin);
 
     border-color: var(--_slab);
     background-color: var(--e-primary);

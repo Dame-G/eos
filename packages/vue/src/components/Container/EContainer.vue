@@ -28,9 +28,8 @@ defineSlots<{
 
 <style>
 @layer e.blocks {
-  /* The widths (40, 60 and 80rem) have no token yet; they are the page column steps. */
   .e-container {
-    --_max: 80rem;
+    --_max: var(--e-container-width-lg);
 
     box-sizing: border-box;
     inline-size: 100%;
@@ -41,11 +40,11 @@ defineSlots<{
   }
 
   .e-container--sm {
-    --_max: 40rem;
+    --_max: var(--e-container-width-sm);
   }
 
   .e-container--md {
-    --_max: 60rem;
+    --_max: var(--e-container-width-md);
   }
 
   .e-container--full {

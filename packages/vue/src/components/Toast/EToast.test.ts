@@ -56,12 +56,12 @@ describe("EToast", () => {
     expect(said()).not.toContain("Quiet one");
   });
 
-  test("is size-panel-sm wide, and with an action as wide as the notice's wide step needs", async () => {
+  test("is panel-width-sm wide, and with an action as wide as the notice's wide step needs", async () => {
     const plain = await inBox(900, { title: "Saved" }, {});
     expect(Math.round(plain.querySelector(".e-toast")!.getBoundingClientRect().width)).toBe(448);
     const withAction = await inBox(900, { title: "Saved" }, { action });
     expect(withAction.querySelector(".e-toast")!.classList.contains("e-toast--actions")).toBe(true);
-    // size-panel-lg (36rem, where an action moves to the end of the row) plus the padding and the tone edge.
+    // panel-width-lg (36rem, where an action moves to the end of the row) plus the padding and the tone edge.
     expect(Math.round(withAction.querySelector(".e-toast")!.getBoundingClientRect().width)).toBe(576 + 32 + 1 + 4);
   });
 
@@ -101,7 +101,7 @@ describe("EToast", () => {
     );
   });
 
-  test("the tone colours a slab-bold border on the inline-start edge", async () => {
+  test("the tone colours a depth-bold border on the inline-start edge", async () => {
     const { container } = await render(EToast, { props: { title: "x", tone: "danger" } });
     const style = getComputedStyle(container.querySelector(".e-toast")!);
     expect(style.borderInlineStartColor).not.toBe("rgba(0, 0, 0, 0)");

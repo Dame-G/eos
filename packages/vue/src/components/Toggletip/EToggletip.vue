@@ -94,7 +94,7 @@ watch(
     align-items: center;
     gap: var(--e-gap-tight);
     position: relative;
-    min-height: var(--e-icon-size-md);
+    min-height: var(--e-icon-size-lg);
     padding: 0;
     border: 0;
     background: transparent;
@@ -102,7 +102,7 @@ watch(
     font: var(--e-weight-medium) var(--e-text-sm) / var(--e-leading-snug) var(--e-font-sans);
     text-decoration: underline dotted;
     text-decoration-color: currentcolor;
-    text-underline-offset: var(--e-underline-offset);
+    text-underline-offset: var(--e-stroke-underline-offset);
     text-decoration-thickness: var(--e-stroke-edge);
     cursor: help;
   }

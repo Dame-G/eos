@@ -330,7 +330,7 @@ defineExpose({
   .e-cmd {
     /* How far down the screen it opens, and the most height it takes: the search row and a list of options. */
     --_top: min(20dvh, 8rem);
-    --_max-h: calc(var(--e-control-height) + var(--e-stroke-hair) + var(--e-size-list-max));
+    --_max-h: calc(var(--e-control-height) + var(--e-stroke-hair) + var(--e-list-max-height));
 
     position: fixed;
     inset-block-start: var(--_top);
@@ -338,14 +338,14 @@ defineExpose({
     z-index: var(--e-z-modal);
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);
-    width: min(var(--e-size-panel-lg), calc(100vw - var(--e-space-8)));
+    width: min(var(--e-panel-width-lg), calc(100vw - var(--e-space-8)));
     max-height: min(var(--_max-h), calc(100dvh - var(--_top) - var(--e-space-8)));
     margin-inline: auto;
     overflow: hidden;
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     color: var(--e-ink);
-    box-shadow: var(--e-float);
+    box-shadow: var(--e-shadow-float);
     font-family: var(--e-font-sans);
   }
 

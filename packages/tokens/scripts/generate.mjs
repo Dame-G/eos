@@ -17,6 +17,7 @@ const FAMILIES = [
   "leading",
   "size",
   "stroke",
+  "depth",
   "duration",
   "easing",
   "zIndex",

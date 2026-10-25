@@ -18,7 +18,7 @@
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     color: var(--e-ink);
-    box-shadow: var(--e-float);
+    box-shadow: var(--e-shadow-float);
     font-family: var(--e-font-sans);
   }
 

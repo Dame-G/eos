@@ -91,7 +91,7 @@ const frame = computed<DialogFrameProps>(() => {
     inset: auto 0 0;
     width: 100%;
     height: auto;
-    max-height: min(var(--e-size-panel-md), 85dvh);
+    max-height: min(var(--e-panel-width-md), 85dvh);
     margin: 0;
     border-start-start-radius: var(--e-radius-md);
     border-start-end-radius: var(--e-radius-md);

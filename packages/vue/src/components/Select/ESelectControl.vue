@@ -201,7 +201,7 @@ Section.props = ["group"];
   }
 
   .e-sel-trigger {
-    --_clear: calc(var(--e-pad-control-sm) + var(--e-icon-size) + var(--e-gap-tight));
+    --_clear: calc(var(--e-pad-control-sm) + var(--e-icon-size-md) + var(--e-gap-tight));
 
     display: flex;
     align-items: center;
@@ -233,7 +233,7 @@ Section.props = ["group"];
 
     background-color: var(--e-surface);
     outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
-    outline-offset: var(--e-focus-gap-field);
+    outline-offset: var(--e-stroke-focus-gap-field);
   }
 
   .e-sel-trigger[aria-expanded="true"][aria-invalid="true"] {

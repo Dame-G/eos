@@ -3,8 +3,8 @@
     position: fixed;
     inset: auto;
     margin: 0;
-    width: min(var(--e-size-panel-sm), calc(100vw - var(--e-space-8)));
-    max-height: min(60dvh, var(--e-size-panel-md));
+    width: min(var(--e-panel-width-sm), calc(100vw - var(--e-space-8)));
+    max-height: min(60dvh, var(--e-panel-width-md));
     overflow: auto;
     overscroll-behavior: contain;
     padding: 0;
@@ -12,7 +12,7 @@
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     color: var(--e-ink);
-    box-shadow: var(--e-float);
+    box-shadow: var(--e-shadow-float);
     font-family: var(--e-font-sans);
   }
 
@@ -23,7 +23,7 @@
   /* A list of options stops shorter than a panel: about seven rows. */
   .e-popover.e-listpanel {
     max-width: none;
-    max-height: min(60dvh, var(--e-size-list-max));
+    max-height: min(60dvh, var(--e-list-max-height));
     margin: 0;
     padding: var(--e-gap-tight);
     list-style: none;
@@ -100,7 +100,7 @@
     text-decoration: underline;
     text-decoration-color: var(--e-primary);
     text-decoration-thickness: var(--e-stroke-focus);
-    text-underline-offset: var(--e-underline-offset);
+    text-underline-offset: var(--e-stroke-underline-offset);
   }
 
   [data-reka-popper-content-wrapper] > .e-popover {
@@ -112,7 +112,7 @@
   [data-reka-popper-content-wrapper] > .e-popover.e-listpanel {
     width: max-content;
     min-width: var(--reka-popper-anchor-width);
-    max-width: min(var(--e-size-panel-sm), calc(100vw - var(--e-space-8)));
+    max-width: min(var(--e-panel-width-sm), calc(100vw - var(--e-space-8)));
   }
 
   .e-opt-set {

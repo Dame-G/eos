@@ -56,7 +56,7 @@ export interface ThemeInput {
   foreground?: string;
   /** The destructive action colour. Derives `danger` (deepened until `on-danger` text reaches 7:1, and 4.5:1 on the surface and on `danger-soft`), `on-danger` and `danger-soft`. */
   danger?: string;
-  /** The caution colour. Derives `warning-strong` (4.5:1 or more on the surface and on `warning-soft`) and `warning-soft`. */
+  /** The caution colour. Derives `warning` (4.5:1 or more on the surface and on `warning-soft`) and `warning-soft`. */
   warning?: string;
   /** The positive colour (paid, done, saved). Derives `success` (4.5:1 or more on the surface and on `success-soft`) and `success-soft`. */
   success?: string;
@@ -68,7 +68,7 @@ export interface ThemeInput {
   textScale?: number;
   /** Multiplier for the spacing scale, `space-1` to `space-16` (the semantic `gap-*`, `pad-*` and `gutter` tokens are references to it, so they follow). 1 is the default scale. Non-finite or non-positive values are ignored. */
   spaceScale?: number;
-  /** Line weights in px: `hair` and `focus` are all a theme needs. `hair` sets `stroke-hair` and derives `stroke-card` (the same, or 2px with a bold `elevation`) and `stroke-edge` (1.5 times it, rounded down to whole pixels). `focus` sets `stroke-focus`, which is both the width of the focus outline and its gap. `focus-gap-field` always follows `stroke-edge` in CSS (minus the border width), so a field's focus outline sits exactly over its border. */
+  /** Line weights in px: `hair` and `focus` are all a theme needs. `hair` sets `stroke-hair` and derives `stroke-card` (the same, or 2px with a bold `elevation`) and `stroke-edge` (1.5 times it, rounded down to whole pixels). `focus` sets `stroke-focus`, which is both the width of the focus outline and its gap. `stroke-focus-gap-field` always follows `stroke-edge` in CSS (minus the border width), so a field's focus outline sits exactly over its border. */
   strokes?: {
     hair?: number;
     focus?: number;
@@ -83,11 +83,11 @@ export interface ThemeInput {
   density?: DensityPreset;
   /** How state changes feel: sets `duration-tap`, `duration-fade`, `duration-move` and `easing-out`. Every theme already stops moving under `prefers-reduced-motion`. */
   motion?: MotionPreset;
-  /** How depth is drawn: sets `frame`, `well`, `float` and `paper` from the border, the slab ink and the hairline. Every one keeps the material: a frame is a flush ring, a floating panel is a slab lifted off the page (a hard edge twice `depth` deep and one faint drop). `outline` is the default; `lifted` stands cards on a slab of `depth` too and gives floating panels a wider drop; `bold` draws the rings at 2px and presses wells deeper. */
+  /** How depth is drawn: sets `shadow-frame`, `shadow-well`, `shadow-float` and `shadow-paper` from the border, the slab ink and the hairline. Every one keeps the material: a frame is a flush ring, a floating panel is a slab lifted off the page (a hard edge twice `depth` deep and one faint drop). `outline` is the default; `lifted` stands cards on a slab of `depth` too and gives floating panels a wider drop; `bold` draws the rings at 2px and presses wells deeper. */
   elevation?: ElevationPreset;
   /** A named look that sets `elevation`, `strokes`, `radius`, `depth` and `motion` together: `"paper"` (the default), `"ink"` (bold, sharp, snappy, a 3px slab) or `"quiet"` (round, gentle, a 1px slab). Your own `elevation`, `radius`, `depth`, `motion` and `strokes` entries win over it. */
   preset?: ThemePreset;
-  /** How far the slab reaches, in px: sets `depth` (2 by default) and derives `slab-thin` (half, at least 1) and `slab-bold` (double). Every raised face, every tone edge and every floating panel follows it. */
+  /** How far the slab reaches, in px: sets `depth` (2 by default) and derives `depth-thin` (half, at least 1) and `depth-bold` (double). Every raised face, every tone edge and every floating panel follows it. */
   depth?: number;
   /** Height in px of every tappable control, emitted in rem. Sets `control-height` and derives `chip-height` at half of it, rounded to an even number. */
   controlHeight?: number;
@@ -176,8 +176,8 @@ const PAIRS: { fg: TokenName; bg: TokenName; min: number; role: string }[] = [
   { fg: "muted", bg: "background", min: 4.5, role: "Secondary text on the page" },
   { fg: "primary", bg: "background", min: 4.5, role: "Links on the page" },
   { fg: "border", bg: "background", min: 3, role: "Outline on the page (non-text)" },
-  { fg: "text-link", bg: "surface", min: 4.5, role: "Inline links" },
-  { fg: "text-link", bg: "background", min: 4.5, role: "Inline links on the page" },
+  { fg: "link", bg: "surface", min: 4.5, role: "Inline links" },
+  { fg: "link", bg: "background", min: 4.5, role: "Inline links on the page" },
   { fg: "success", bg: "success-soft", min: 4.5, role: "Success notice text" },
   { fg: "warning", bg: "warning-soft", min: 4.5, role: "Warning notice text" },
   { fg: "success", bg: "surface", min: 4.5, role: "Success text" },
@@ -226,12 +226,13 @@ const SHADE_MAX_C = 0.0408;
 
 /** Boxes that belong to the text beside them, so they grow with `textScale` as the type does. */
 const TEXT_SIZED = [
-  "icon-size",
   "icon-size-sm",
-  "icon-size-lg",
   "icon-size-md",
+  "icon-size-lg",
+  "icon-size-xl",
   "check-size",
   "avatar-size-sm",
+  "avatar-size-md",
   "avatar-size-lg",
 ] as const;
 
@@ -280,7 +281,7 @@ type Tone = readonly [soft: TokenName, strong: TokenName, input: "danger" | "war
 /** The status tones a theme input recolours: the soft backdrop, the strong colour it is matched to, and the input. */
 const TONES: readonly Tone[] = [
   ["danger-soft", "danger", "danger"],
-  ["warning-soft", "warning-strong", "warning"],
+  ["warning-soft", "warning", "warning"],
   ["success-soft", "success", "success"],
 ];
 
@@ -303,14 +304,14 @@ function deriveStrokes(input: ThemeInput, out: Record<string, string>) {
   }
 }
 
-/** The slab dimension: `depth` in whole pixels, `slab-thin` half of it (never under 1px, so a 1px slab keeps a thin one) and `slab-bold` double. */
+/** The slab dimension: `depth` in whole pixels, `depth-thin` half of it (never under 1px, so a 1px slab keeps a thin one) and `depth-bold` double. */
 function deriveDepth(input: ThemeInput, out: Record<string, string>) {
   const depth = positive(input.depth);
   if (depth === undefined) return;
   const d = Math.max(1, Math.round(depth));
   out["depth"] = px(d);
-  out["slab-thin"] = px(Math.max(1, Math.floor(d / 2)));
-  out["slab-bold"] = px(d * 2);
+  out["depth-thin"] = px(Math.max(1, Math.floor(d / 2)));
+  out["depth-bold"] = px(d * 2);
 }
 
 function shadowRgb(out: Record<string, string>, dark: boolean) {
@@ -348,9 +349,9 @@ function deriveElevation(style: ElevationPreset, out: Record<string, string>, da
   const shade = (alpha: number) => `rgba(${base}, ${alpha})`;
   const [y, blur, spread, light, darkAlpha] = DROP[style];
   const bold = style === "bold";
-  out["frame"] = style === "lifted" ? `${RING}, ${CARD_SLAB}` : RING;
-  out["well"] = `inset 0 ${bold ? 3 : 2}px 0 0 ${shade(dark ? 0.36 : bold ? 0.09 : 0.07)}`;
-  out["float"] = `${RING}, ${FLOAT_SLAB}, 0 ${y}px ${blur}px ${spread}px ${shade(dark ? darkAlpha : light)}`;
+  out["shadow-frame"] = style === "lifted" ? `${RING}, ${CARD_SLAB}` : RING;
+  out["shadow-well"] = `inset 0 ${bold ? 3 : 2}px 0 0 ${shade(dark ? 0.36 : bold ? 0.09 : 0.07)}`;
+  out["shadow-float"] = `${RING}, ${FLOAT_SLAB}, 0 ${y}px ${blur}px ${spread}px ${shade(dark ? darkAlpha : light)}`;
 }
 
 const holds = (value: string, checks: readonly ContrastCheck[]) =>
@@ -593,7 +594,7 @@ function derive(input: ThemeInput): Record<string, string> {
   const dark = isDark(input);
   if (dark) {
     for (const t of ["on-primary", "on-secondary", "on-danger"]) out[t] = BLACK;
-    out["warning-strong"] = input.warning ?? DARK_WARNING;
+    out["warning"] = input.warning ?? DARK_WARNING;
     out["success"] = input.success ?? DARK_SUCCESS;
     out["scrim"] = "rgb(0 0 0 / 0.7)";
     // Darkening a dark fill is invisible, so hover and press lighten it instead, and the slab goes deeper.
@@ -621,7 +622,7 @@ function derive(input: ThemeInput): Record<string, string> {
       if (tone && hue !== base.h) out[token] = withLightness(defaults[token], base.l, base.c, hue);
     }
   }
-  if (input.warning && !dark) out["warning-strong"] = reachContrast(input.warning, out["surface"]!, 7);
+  if (input.warning && !dark) out["warning"] = reachContrast(input.warning, out["surface"]!, 7);
   if (input.success && !dark) out["success"] = reachContrast(input.success, out["surface"]!, 7);
   const surface = out["surface"]!;
   if (input.surface) {
@@ -637,8 +638,8 @@ function derive(input: ThemeInput): Record<string, string> {
     fitTone(out, "danger", "on-danger", "danger-soft", dangerBase ?? defaults["danger"], surface);
   }
   if (input.surface || input.warning) {
-    const base = input.warning ?? (dark ? DARK_WARNING : defaults["warning-strong"]);
-    fitTone(out, "warning-strong", undefined, "warning-soft", base, surface);
+    const base = input.warning ?? (dark ? DARK_WARNING : defaults["warning"]);
+    fitTone(out, "warning", undefined, "warning-soft", base, surface);
   }
   if (input.surface || input.success) {
     const base = input.success ?? (dark ? DARK_SUCCESS : defaults["success"]);

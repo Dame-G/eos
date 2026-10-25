@@ -89,8 +89,8 @@ const label = computed(() =>
     place-items: center;
     flex: none;
     box-sizing: border-box;
-    width: var(--e-tap);
-    height: var(--e-tap);
+    width: var(--e-avatar-size-md);
+    height: var(--e-avatar-size-md);
     border: var(--e-stroke-edge) solid var(--_ring);
     border-radius: var(--_r);
     background: var(--e-surface-tint);

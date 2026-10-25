@@ -33,9 +33,9 @@ defineSlots<{
     min-width: calc(var(--e-leading-normal) * 1em);
     padding: 0 var(--e-gap-tight);
     border: var(--e-stroke-edge) solid var(--e-slab-ink);
-    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-slab-thin));
+    border-bottom-width: calc(var(--e-stroke-edge) + var(--e-depth-thin));
     border-radius: var(--e-radius-sm) / var(--e-radius-sm) var(--e-radius-sm)
-      calc(var(--e-radius-sm) + var(--e-slab-thin)) calc(var(--e-radius-sm) + var(--e-slab-thin));
+      calc(var(--e-radius-sm) + var(--e-depth-thin)) calc(var(--e-radius-sm) + var(--e-depth-thin));
     background: var(--e-surface-tint);
     background-clip: padding-box;
     color: var(--e-muted);

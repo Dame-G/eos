@@ -90,7 +90,7 @@ const Wrap: FunctionalComponent = (_, { slots }) =>
   /* A toggle that is on (`aria-pressed`) sits in the surface, like a pressed slab. */
   .e-icon-btn[aria-pressed="true"] {
     background: var(--e-wash-hover);
-    box-shadow: var(--e-slab-sink);
+    box-shadow: var(--e-shadow-sink);
   }
 
   .e-icon-btn:disabled {

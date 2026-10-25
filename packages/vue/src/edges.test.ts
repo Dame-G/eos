@@ -65,7 +65,7 @@ describe("edges", () => {
     expectBorderEdge(container.querySelector(selector)!);
   });
 
-  test("a notice, a stamp and a toast draw one tone edge: stroke-edge plus slab-bold on the inline-start side", async () => {
+  test("a notice, a stamp and a toast draw one tone edge: stroke-edge plus depth-bold on the inline-start side", async () => {
     const widths: number[] = [];
     for (const [mount, selector] of [
       [() => render(ENotice, { props: { title: "Heads up", tone: "warning" } }), ".e-notice"],
@@ -77,7 +77,7 @@ describe("edges", () => {
     }
     const probe = document.createElement("div");
     probe.className = "e-root";
-    probe.style.width = "calc(var(--e-stroke-edge) + var(--e-slab-bold))";
+    probe.style.width = "calc(var(--e-stroke-edge) + var(--e-depth-bold))";
     document.body.append(probe);
     const expected = probe.getBoundingClientRect().width;
     probe.remove();
@@ -178,7 +178,7 @@ describe("the material", () => {
       probe.style.width = value;
       return probe.getBoundingClientRect().width;
     };
-    const thin = px("var(--e-slab-thin)");
+    const thin = px("var(--e-depth-thin)");
     const depth = px("var(--e-depth)");
     const lift = (el: Element) => {
       const cs = getComputedStyle(el);

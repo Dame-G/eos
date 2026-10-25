@@ -51,11 +51,11 @@ const target = computed(() => linkTarget(props, props.linkComponent));
 <style>
 @layer e.primitives {
   .e-link {
-    color: var(--e-text-link);
+    color: var(--e-link);
     font-weight: var(--e-weight-medium);
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
-    text-underline-offset: var(--e-underline-offset);
+    text-underline-offset: var(--e-stroke-underline-offset);
     text-decoration-color: currentcolor;
     border-radius: var(--e-radius-sm);
     transition: var(--e-transition-state);
@@ -75,7 +75,7 @@ const target = computed(() => linkTarget(props, props.linkComponent));
   .e-link--icon .e-link-text {
     text-decoration: underline;
     text-decoration-thickness: var(--e-stroke-edge);
-    text-underline-offset: var(--e-underline-offset);
+    text-underline-offset: var(--e-stroke-underline-offset);
   }
 
   .e-link--icon .e-icon {

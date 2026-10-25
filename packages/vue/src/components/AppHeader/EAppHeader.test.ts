@@ -177,6 +177,7 @@ describe("EAppHeader", () => {
     const token = (name: string) =>
       Number(getComputedStyle(document.documentElement).getPropertyValue(`--e-z-${name}`));
     const z = Number(getComputedStyle(header).zIndex);
+    expect(z).toBe(token("header"));
     expect(z).toBeGreaterThan(token("focus"));
     expect(z).toBeLessThan(token("modal"));
     const box = header.getBoundingClientRect();

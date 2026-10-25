@@ -130,13 +130,13 @@ defineExpose({ focus, focusFirst });
 <style>
 @layer e.controls {
   .e-results {
-    max-height: min(var(--e-size-list-max), 60dvh);
+    max-height: min(var(--e-list-max-height), 60dvh);
     min-height: var(--e-tap);
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: var(--e-gap-tight);
     border-radius: var(--e-radius-md);
-    box-shadow: var(--e-frame);
+    box-shadow: var(--e-shadow-frame);
     color: var(--e-ink);
   }
 

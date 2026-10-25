@@ -200,7 +200,7 @@ function returnFocus(event: Event) {
 
     width: max-content;
     min-width: var(--_min-w);
-    max-width: min(var(--e-size-panel-sm), calc(100vw - 2 * var(--e-gap-loose)));
+    max-width: min(var(--e-panel-width-sm), calc(100vw - 2 * var(--e-gap-loose)));
     padding: var(--e-gap-tight);
   }
 
@@ -246,8 +246,8 @@ function returnFocus(event: Event) {
   .e-menu-mark {
     display: inline-flex;
     flex: none;
-    width: var(--e-icon-size);
-    height: var(--e-icon-size);
+    width: var(--e-icon-size-md);
+    height: var(--e-icon-size-md);
   }
 
   .e-menu-chevron {

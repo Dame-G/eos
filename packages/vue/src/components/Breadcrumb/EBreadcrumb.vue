@@ -125,10 +125,10 @@ const linkAttrs = (item: BreadcrumbItem) => linkTarget(item, props.linkComponent
 
   .e-crumb {
     position: relative;
-    color: var(--e-text-link);
+    color: var(--e-link);
     text-decoration: underline;
-    text-decoration-color: var(--e-text-link);
-    text-underline-offset: var(--e-underline-offset);
+    text-decoration-color: var(--e-link);
+    text-underline-offset: var(--e-stroke-underline-offset);
     border-radius: var(--e-radius-sm);
     transition: var(--e-transition-state);
   }
@@ -146,7 +146,7 @@ const linkAttrs = (item: BreadcrumbItem) => linkTarget(item, props.linkComponent
   .e-crumb::after {
     content: "";
     position: absolute;
-    inset: calc((var(--e-tap) - var(--e-icon-size)) / -2) calc(-1 * var(--e-gap-tight));
+    inset: calc((var(--e-tap) - var(--e-icon-size-md)) / -2) calc(-1 * var(--e-gap-tight));
   }
 
   .e-crumb:hover {

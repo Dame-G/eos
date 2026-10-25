@@ -315,7 +315,7 @@ defineExpose({
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     background-clip: padding-box;
-    box-shadow: var(--e-well);
+    box-shadow: var(--e-shadow-well);
   }
 
   .e-pad-surface[data-invalid] {

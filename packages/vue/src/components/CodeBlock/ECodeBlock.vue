@@ -88,7 +88,7 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     --shiki-token-function: var(--e-primary);
     --shiki-token-string: var(--e-secondary);
     --shiki-token-string-expression: var(--e-secondary);
-    --shiki-token-constant: var(--e-warning-strong);
+    --shiki-token-constant: var(--e-warning);
     --shiki-token-parameter: var(--e-ink);
     --shiki-token-punctuation: var(--e-muted);
     --shiki-token-link: var(--e-primary);
@@ -98,7 +98,7 @@ const lines = computed(() => (props.lineNumbers && props.code !== undefined ? pr
     min-width: 0;
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
-    box-shadow: var(--e-frame);
+    box-shadow: var(--e-shadow-frame);
   }
 
   /* Code blocks stacked back to back share one seam: the rings overlap into a single line. */
