@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, h, ref, watch, type FunctionalComponent } from "vue";
 import {
-  ConfigProvider,
   SelectContent,
   SelectGroup,
   SelectLabel,
@@ -20,7 +19,7 @@ import { sizeAttr, type EFieldSize } from "../Field/fieldProps.js";
 import { FIELD_POPPER } from "../Field/popper.js";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
-import { useScrollBody } from "../../composables/useScrollBody.js";
+import { RekaConfig } from "../../composables/useRekaConfig.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import "../../styles/base.css";
 import "../../styles/controls/input.css";
@@ -56,7 +55,6 @@ const model = defineModel<string | string[]>({ default: "" });
 
 const t = useMessages();
 const dir = useDir();
-const scrollBody = useScrollBody();
 const trigger = ref<{ $el: HTMLElement } | null>(null);
 const portal = usePortalTarget();
 
@@ -134,7 +132,7 @@ Section.props = ["group"];
 <template>
   <!-- The size is set on the wrapper, so the trigger and the clear button over it share the height. -->
   <div class="e-sel" :class="{ 'e-sel--clear': canClear }" :data-size="sizeAttr(size)">
-    <ConfigProvider :dir="dir" :scroll-body="scrollBody">
+    <RekaConfig>
       <SelectRoot
         :model-value="model"
         :multiple="multiple"
@@ -190,7 +188,7 @@ Section.props = ["group"];
           </SelectContent>
         </SelectPortal>
       </SelectRoot>
-    </ConfigProvider>
+    </RekaConfig>
     <EInputClear v-if="canClear" class="e-sel-clear" @click="clear" />
     <EHiddenInputs :name="name" :values="multiple ? values : [values[0]]" :disabled="disabled" :form="form" />
   </div>

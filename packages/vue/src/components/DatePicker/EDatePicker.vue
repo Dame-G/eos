@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="F extends 'date' | 'iso' = 'date'">
 import { computed, ref, watch } from "vue";
-import { ConfigProvider, PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
+import { PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import ECalendar from "../Calendar/ECalendar.vue";
 import EField from "../Field/EField.vue";
 import EInputShell from "../Field/EInputShell.vue";
@@ -11,6 +11,7 @@ import { boundsMessage, compareDays, isoDate, parseIso, sameDay } from "../Calen
 import { toBound, useDatePopover, type DateBound } from "./useDatePopover.js";
 import { useConfig, useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
+import { RekaConfig } from "../../composables/useRekaConfig.js";
 import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
@@ -169,7 +170,7 @@ defineExpose(control.exposed);
     :optional="optional"
   >
     <template #default="field">
-      <ConfigProvider :dir="dir">
+      <RekaConfig>
         <PopoverRoot :open="picker.shown.value" @update:open="open = $event">
           <PopoverAnchor as-child>
             <EInputShell v-bind="control.shell(picker.shownError.value)" class="e-combo">
@@ -220,7 +221,7 @@ defineExpose(control.exposed);
             </PopoverContent>
           </PopoverPortal>
         </PopoverRoot>
-      </ConfigProvider>
+      </RekaConfig>
     </template>
   </EField>
 </template>
