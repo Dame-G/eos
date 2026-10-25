@@ -22,7 +22,7 @@
     "brand": "node brand/build.mjs brand",
     "smoke": "node scripts/smoke.mjs",
     "ssr": "node scripts/ssr.mjs",
-    "check:source": "pnpm --filter @eos-ui/vue check:source",
+    "check:source": "node packages/tokens/scripts/generate.mjs --check && pnpm --filter @eos-ui/vue check:source",
     "check:package": "pnpm check:size && pnpm ssr && pnpm --filter @eos-ui/vue check:dist",
     "check:size": "node scripts/size.mjs",
     "knip": "knip"

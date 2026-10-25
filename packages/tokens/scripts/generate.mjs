@@ -1,6 +1,7 @@
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { writeGenerated, reportStale } from "../../../scripts/generated.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const src = JSON.parse(readFileSync(join(root, "src/tokens.json"), "utf8"));
@@ -72,5 +73,7 @@ export type TokenName = keyof typeof defaults;
 export const colorNames: ReadonlySet<string> = new Set(${JSON.stringify([...colors])});
 `;
 mkdirSync(join(root, "src/generated"), { recursive: true });
-writeFileSync(join(root, "src/generated/defaults.ts"), out);
+// `--check` writes nothing and exits 1 when the committed file is stale.
+await writeGenerated(join(root, "src/generated/defaults.ts"), out);
+reportStale("pnpm tokens");
 console.log(`tokens: ${Object.keys(flat).length} values`);
