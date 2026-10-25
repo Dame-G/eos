@@ -10,19 +10,20 @@ packages/vue      @eos-ui/vue      components, plugin, composables
 ## Setup
 
 ```bash
-corepack enable           # or install pnpm 12
+npm install -g pnpm@12    # or corepack enable, on a Node that still ships corepack (24 and earlier)
 pnpm install
 pnpm build                # builds tokens, then the Vue package
 pnpm dev                  # watch-builds the library (see Developing against the docs site)
 pnpm test                 # real-browser tests (Chromium in CI; Edge locally if installed, else Chromium)
-pnpm check:source         # generated files, CSS rules, layers, props tables, README links
+pnpm check:source         # generated files (index, tokens defaults), CSS rules, props tables, README links
 pnpm lint                 # eslint and stylelint
 pnpm format:check         # prettier (run `pnpm format` to fix)
 pnpm knip                 # unused files, exports and dependencies
 pnpm typecheck
-pnpm check:package        # size budgets, server render, built stylesheet (needs a build)
+pnpm check:package        # size budgets, server render, built stylesheet, type exports (needs a build)
 pnpm ssr                  # just the server render (--verbose lists each check)
 pnpm smoke                # builds and packs both packages, lints the tarballs (publint, attw), installs them in a temporary app
+pnpm new:component <Name> # scaffolds a component (see Adding a component)
 ```
 
 Node 22 or later is required. CI runs the browser tests on Node 24 and builds the package and the consumer app on Node 22.
