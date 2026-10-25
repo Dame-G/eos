@@ -16,8 +16,6 @@ export interface LinkItem {
   open?: boolean;
 }
 
-/** An item that is a link, or plain text, or a group that holds more items. */
-const hasTarget = (item: LinkItem) => item.to !== undefined || item.href !== undefined;
 /** A key from the destination and the words, so reordering or inserting an item does not reuse another's element. */
 export const keyOf = (item: LinkItem, i: number) =>
   `${typeof item.to === "string" ? item.to : (item.href ?? "")}|${item.label}|${i}`;
@@ -26,6 +24,7 @@ export const keyOf = (item: LinkItem, i: number) =>
 <script setup lang="ts">
 import { computed, ref, watch, type Component } from "vue";
 import { useDetails } from "../../composables/useDetails.js";
+import { hasLinkTarget, linkTarget } from "../../composables/useLink.js";
 import "../../styles/base.css";
 import "../../styles/details.css";
 
@@ -54,7 +53,7 @@ const attrs = computed(() => {
   const item = props.item;
   if (item.disabled) return { role: "link", "aria-disabled": "true" };
   return {
-    ...(item.to !== undefined ? { to: item.to } : item.href !== undefined ? { href: item.href } : {}),
+    ...linkTarget(item, props.linkComponent),
     ...(props.isCurrent(item) && { "aria-current": "page" }),
   };
 });
@@ -74,7 +73,7 @@ const attrs = computed(() => {
     </ul>
   </details>
   <component
-    :is="item.disabled ? 'a' : hasTarget(item) ? linkComponent : 'span'"
+    :is="item.disabled ? 'a' : hasLinkTarget(item) ? linkComponent : 'span'"
     v-else
     :class="itemClass"
     v-bind="attrs"

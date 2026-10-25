@@ -3,6 +3,7 @@ import { computed, inject, type Component } from "vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { shellKey } from "../AppShell/shellContext.js";
 import { useMessages } from "../../config.js";
+import { linkTarget } from "../../composables/useLink.js";
 import "../../styles/base.css";
 import "./shell.css";
 
@@ -43,7 +44,10 @@ const navOpen = defineModel<boolean>("navOpen", { default: false });
 const t = useMessages();
 const shell = inject(shellKey, null);
 const brandTarget = computed(() =>
-  props.brandTo !== undefined ? { to: props.brandTo } : { href: props.brandHref ?? "/" },
+  linkTarget(
+    { href: props.brandHref ?? (props.brandTo === undefined ? "/" : undefined), to: props.brandTo },
+    props.linkComponent,
+  ),
 );
 
 function toggle() {
