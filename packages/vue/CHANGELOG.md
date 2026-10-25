@@ -1,5 +1,250 @@
 # @eos-ui/vue
 
+## 0.18.0
+
+### Minor Changes
+
+- cc9e938: Follow-ups to the audit: forced colours, private properties, file names and plugin cleanup.
+
+  Breaking (rename or remove, then update every use):
+
+  - `ESegmented` shows its `label` above the control by default, as a field does. `showLabel` is removed; pass `hideLabel` to keep the label for screen readers only (the old default).
+  - `useLocale()` no longer returns `dir`; use `useDir()`.
+  - `createEos({ themeTarget: null })` applies nothing to the document: no theme stylesheet, `lang` or `dir`. It used to fall back to `<html>`.
+  - The private `--e-ring` property of text inputs, selects and `EOtpField` is now `--_ring`. Only tokens and the documented hooks `--e-header-height` and `--e-xrow-lead` use the `--e-` prefix.
+
+  Fixed:
+
+  - Forced colours (Windows High Contrast): the rules moved from `base.css` into each component's own layer, where the components' rules no longer override them. An invalid field draws a heavier edge, a disabled button, icon button, checkbox, radio or switch a GrayText dashed edge, a checked switch a Highlight track edge and a HighlightText thumb, and a selected tab a Highlight edge; checks, switches, tabs and the buttons inside a field ring in Highlight when focused; a dialog, drawer or surface draws its outline. A count inside a selected tab is no longer painted in theme colours.
+  - Unmounting the app puts back the `lang` and `dir` that `createEos` wrote on the theme target.
+  - `ECommandPalette` shows Ctrl in its keycaps on the server and the first render, then the platform's keys once mounted, so a server-rendered palette hydrates without a mismatch. `formatShortcut` documents passing `apple` for server-rendered markup.
+  - The Nuxt recipe in the README builds the theme once with `defineTheme` and sets `lang` and `dir` for the server.
+
+- cc9e938: The default theme is blue again. `brand` is the logo blue, `#2c95b4`, and `brand-accent` the logo green, `#72c451`. Everything derived from them follows:
+
+  - `primary` is a deep teal, `#005f7c`, with white text at 7.2:1.
+  - `secondary` is a deep green, `#0d6600`, and `secondary-soft` is `#e5f9df`. `success` keeps its own green.
+  - `primary-soft`, the tint of where you are, is the brand at 16% on `surface`: the tint now sits no further than 1.2:1 from the surface, so a saturated brand gives a soft tint rather than a fill.
+  - `surface-tint`, `wash-hover`, `wash-press`, `selection` and `scrim` take the blue hue.
+  - The default dark surface for `scheme: "auto"` is a blue-tinted near-black, `#10151a`. On it, `primary` is `#3ca1c1`, with black text.
+
+  A theme that sets its own `brand`, `accent` and `surface` looks the same as before.
+
+  The logo in `brand/` is the primary tile with a white e, and the word in the primary.
+
+- cc9e938: Display and data components: renames, a faster `EDataGrid`, and fixes.
+
+  Breaking (rename or remove, then update every use):
+
+  - `EDefinition` is renamed `EToggletip` (folder `Toggletip`, class `e-definition-term` is now `e-toggletip-term`). The name `EDefinition` is gone: import `EToggletip`.
+  - `ETable` `size="sm"` is now the boolean `dense`. `EDataGrid` takes `dense` too.
+  - `EContainer` `size` is renamed `width` (`sm`, `md`, `lg`, `full`).
+  - `ESurface` `size` is removed. Set `padding` to a gap name, a space number or a CSS length (`size="lg"` was `padding="section"`; `size="sm"` was `padding="var(--e-gap-base) var(--e-pad-card)"`). Left out, the padding is `pad-card` as before. `flush` is padding 0 and wins over `padding`. The classes `e-surface--pad-sm|md|lg` are gone.
+  - `EAvatar` `as="button"` is now the boolean `interactive`.
+  - `EDataGrid` `cards` is opt-in, as on `ETable`: pass `cards` to keep rows turning into cards below 40rem.
+  - The message `codeCopied` is renamed `copied`.
+  - The table classes `e-table-wrap--striped` and `e-table-wrap--dense` are now `e-table--striped` and `e-table--dense` on the `table`, and `e-gridtable--busy` is `e-table--busy`. The `ETable` and `EDataGrid` frame is drawn in `--e-border` (the grid used `--e-border-strong`).
+  - `EText` and `EMetric` `tone="neutral"` is renamed `tone="muted"`, the quieter colour; `neutral` is no longer a value of either. Leave `tone` out for the default ink. Across the library `neutral` means no tone, the default look.
+
+  Added:
+
+  - `EDataGrid`: `striped`, `dense`, an `#empty` slot (with `{ filtered, clearFilters }`), `virtual.height` as any CSS length, and virtual rows that are measured, so a larger text size keeps them in step with the scroll.
+  - `EActions` `stack="narrow" | "always"` stacks its buttons full width, by its own width.
+  - `ECopyButton` declares `variant` and `size`.
+  - `ECodeBlock` `label`; `ts`, `vue`, `sh` and other common languages are read by name.
+  - `EDescriptionList` `as="dl" | "ul"` chooses the list.
+  - `useLocale()` returns `formatNumber` and `formatList`, cached per locale and safe with an unknown locale.
+  - `EHighlight`'s markup (`<code class="e-highlight e-highlight--code">`, `<mark class="e-highlight">`) is documented as a public static form.
+  - The popover title row and body rules (`e-pop-head`, `e-pop-title`, `e-pop-body`) move to `styles/popover.css`.
+
+  Fixed:
+
+  - `EDataGrid` searches an index built once per rows and columns, sorts with a cached collator, and only formats a cell when a filter needs it; `searchDebounce` holds back client-side filtering too. A failed load is announced assertively and its empty state uses the danger tone. `manual` without `total` warns in development. The cards Sort by menu lists only shown columns, and the Columns menu title is no longer a heading.
+  - `EMetric` and `EAvatarGroup` no longer throw on an invalid `locale`. `EAvatarGroup` never shows a "+1" tile.
+  - Money in `EDataGrid` currency cells and `formatMoney` uses the currency's own decimals (¥1,000, not ¥1,000.00).
+  - The quiet `EIconButton` shows its busy style while `loading`.
+  - `ETable` and `ECodeBlock` are a tab stop only while they scroll (`maxHeight` alone, or `wrap`, no longer makes one). As cards, an `ETable` row heading (`th scope="row"`) is the card's title.
+  - `ESearchResults` selects a button result on a modified click; only links are left to the browser.
+  - `EEmptyState` wraps its text in a `div`, so the slot may hold paragraphs.
+  - `EText` warns when `truncate` and `lines` are both set; `lines` wins.
+
+- cc9e938: Form controls: consistent names, one field button, quieter errors and a round of fixes.
+
+  Breaking renames (update your templates):
+
+  - `ESlider`: `format` is now `valueText`.
+  - `EPhoneField`: `format` is now `display`, and `valueFormat` is now `modelAs`.
+  - `EOtpField`: `inputmode` is now `charset`, with `"text"` now `"alphanumeric"`; `autoFocus` is now `autofocus`.
+  - `EFieldset`: `bare` is now `variant="plain"` and `section` is now `variant="section"` (`variant` defaults to `"box"`).
+  - `ECheckbox`: `bare` is now `hideLabel`, which keeps the hint or error visible.
+  - `ETextField`: the internal `submitValue` prop is gone.
+  - Types: `RadioOption` and `CheckboxOption` are now one `ChoiceOption`. `ECombobox` is generic in its option values, as `ESelect` is, so a `v-model` typed `string` still works and literal options narrow it.
+  - CSS: `.e-combo-btn` is gone; every button inside a field box is `.e-input-btn`. The shared stylesheets moved to `styles/controls/`; the source files `TextField/input.css` and `Select/panel.css` are gone (the built `style.css` is unchanged). `.e-choice--bare` is now `.e-choice--label-hidden`.
+
+  Behaviour:
+
+  - A field's error is no longer an assertive alert on first render. One that appears or changes later is announced once; inside an `EForm`, a failed submit is announced by the summary alone.
+  - `ESelect` with a bare `multiple` attribute works (it was read as off), and its clear button emits `clear`. `EPhoneField` declares `clear` too.
+  - `ESegmented` with no `v-model` shows its first option as active without checking its radio, so a form posts nothing and `required` can fail until the person chooses.
+  - `EDatePicker`, `ERangePicker` and `EColorField` emit `invalid` (text, message) when typed text cannot be used; the model keeps its value. The date pickers' `min` and `max` take a `YYYY-MM-DD` string. `ERangePicker` reads the span when focus leaves both boxes, shows no presets row for `presets: []`, and gains `footer` (Today and Clear, on by default as in `EDatePicker`).
+  - `ENumberField` and `ECurrencyField`: the stepper buttons leave the tab order (the arrow keys step); a step lands on `min` plus a whole number of steps; a step such as `1e-7` keeps its decimals.
+  - `ECombobox` shows the loading spinner in the box with `aria-busy` on the input, folds options once per change, takes `limit`, and a `bare` one joins the `EForm` around it.
+  - `ESlider` spreads `marks: true` over the whole track (about a hundred ticks at most), drops `aria-required`, and a click on its label focuses the first thumb.
+  - `ESignaturePad` shows read-only and disabled as fields do, and takes `label`, `hideLabel`, `optional`, `name` and a CSS length for `height`. `ESignatureField`'s `required` also requires the agreement, and says "Required" once.
+  - `EPasswordField` is described by a count of the rules met, and `mode` defaults to `new` when it has `rules`.
+  - `EUpload`'s hint shows `maxSize` and `maxFiles`, and names MIME types by kind ("PNG", "image/*").
+  - A disabled checkbox or radio uses `--e-disabled-fill`, like other controls.
+
+  New:
+
+  - `useFormField` is exported, for a custom control that joins an `EForm`.
+  - `ESegmented`: `id` and `size` (`sm` is compact). `ESearchBar`: `id` and `readonly`. `ESwitch`: `hideLabel`.
+  - Messages: `fileSizeLimit`, `fileCountLimit`, `passwordRulesMet`.
+
+- cc9e938: One material language: Raised, Flush and Sunk.
+
+  - **Floating surfaces are slabs.** `--e-shadow-float` (`--e-float` before the renames in this release) is the ring, a hard bottom edge twice `--e-depth` deep in the ring's own `--e-border` (edge and slab one piece, as on a button), and one faint drop, in place of four soft shadows. Popovers, menus, list panels, the date panel, dialogs and the command palette read as slabs lifted off the page; a toast, marked by its tone edge, floats on a plain ring and the drop. `elevation: "lifted"` stands cards on a slab of `depth` and widens the drop instead of adding soft card shadows; `"bold"` keeps 2px rings and deeper wells. Every shadow of a theme, the well included, is drawn in one shade.
+  - **The slab is a dimension.** `defineTheme({ depth })` sets `depth` in px and derives `depth-thin` (half, at least 1px) and `depth-bold` (double). The `ink` preset stands on a 3px slab; `quiet` is a quiet slab (1px) on the outline elevation instead of soft lifted shadows.
+  - **Round slab corners everywhere.** Every raised face (the current page, the chosen segment, a checked box, the switch, a tag, an expandable row, a pressable avatar) has bottom corners taller by its lift, so the face inside stays round; the tone edge of a notice, stamp and toast has start corners wider by `depth-bold`.
+  - **The slab follows the face's height.** `depth-thin` up to `chip-height` (a checkbox, a radio, the switch, a slider thumb, a tag, a key), `depth` up to `control-height`. A checked box and a slider thumb now stand on the thin slab.
+  - **The switch** rises on a thin primary slab when on, and its thumb is a surface face on a thin slab, like the slider's.
+  - **A ladder of selection.** Hover is the neutral wash everywhere (a checkbox, radio or switch no longer previews the primary tint). Where you are is the pastel brand tint: `--e-primary-soft` is now built from `brand` and is the face of the selected tab, the current nav item, the current step and a calendar range. A value you set stays filled primary on its slab. Selecting a tab, segment or page no longer changes the label's weight, so it keeps its width.
+  - **`ENavList`**: the current item is the place tint with a primary edge and no slab.
+  - **`info-soft`** follows `primary-soft`, so an information notice, stamp or toast reads apart from a neutral one.
+  - **The neutral slab**: `--e-slab-ink` is `border-strong` (4.5:1), so neutral slabs and sunk states (a toggled icon button) show in a dark theme, where the old value was about 1.1:1. Outline buttons, tags, keys, expandable rows and pressable avatars use it.
+  - **Disabled** buttons, icon buttons, checkboxes, radios, the switch, tabs, segments and the slider draw their dashed edge as a `::before` over their own edge (text inputs keep their outline), so a page's focus or outline reset can no longer remove it.
+  - **Motion**: every floating surface arrives with one shared pop-in (a short drop onto its slab over `duration-fade`); dialogs scale in over `duration-fade` too.
+  - **Type**: `type-helper` and `type-count` put help text and counts on a 20px line; `h1` and `h2` take `tracking-tight`; the toast title is the `h4` style.
+  - **Corners**: `--e-radius-row` is the 6px row corner (`radius-md` less `pad-inset`) and every nested row and small inset part uses it.
+  - **`ETextarea`** takes `size` (`sm`, `md`, `lg`): its padding centres one line as a text field of that size does.
+  - **`ECodeBlock`** shows overflow as a shade at the end edge (the left one in a right-to-left page), and draws no scrollbar on a touch screen.
+  - **`EStamp`** has the same tinted space on both sides of its text, and in a column too narrow for it cuts its words with an ellipsis (the whole text stays for screen readers and shows on pointing) instead of running past its edge.
+  - New tokens: `list-max-height`, `leading-helper`, `leading-chip`, `type-helper`, `type-count`. Removed tokens: `slab-edge` (unused), `tracking-snug` and `tracking-wide` (use `tracking-label`, or none). The layer order gains `e.state` after `e.page`, for the shared hover, press and disabled states.
+
+- cc9e938: Overlays, navigation and feedback: behaviour, accessibility and API fixes.
+
+  Breaking (renamed or removed):
+
+  - `EToast`: `live` is replaced by `role` (`"alert" | "status" | false`), the same prop `ENotice` has. `:live="false"` becomes `:role="false"`.
+  - `ENotice`: `role` is typed `"alert" | "status" | false` instead of any string.
+  - `ESpinner`, `ESkeleton` with a `label`, and a standalone `EToast` no longer carry `role="status"`/`role="alert"`: they announce their words through the shared live regions of `useAnnouncer` as they appear, which a live region that arrives with its words in it does not reliably do. `ENotice` keeps its role, which announces a change of its words after it is in the page.
+  - `EProgress`: no `aria-busy` on the indeterminate bar, and the stripes of a known fraction no longer move.
+  - `ETabs`: `items` is required. `ENavList`: `items` or `sections` is required.
+  - The count badge of `ETabs` and `ENavList` is one shared class, `.e-count` (`.e-nav-count` is gone; a tab's badge keeps `.e-tab-count` beside it).
+  - The chevron of `EDisclosure` and of an `ENavList` group is the library's chevron icon (`.e-details-chevron`) instead of a drawn `summary::after`.
+  - `EAppShell`: `main` no longer has a permanent `tabindex="-1"`; the skip link lends it one while focus is there.
+  - `useDir()`: with no `dir` set it follows the direction of the page around the component once mounted (the locale on the server), so Reka parts agree with CSS `:dir()` on a page with `<html dir="rtl">` and no locale.
+  - `useAnnouncer()`: a message announced while another of the same politeness waits to be written replaces it, so a burst says only its last.
+
+  New:
+
+  - `EMenu`: link rows take `to` with a `linkComponent`; checkbox and radio rows take `keepOpen`; choosing the radio option already chosen calls nothing.
+  - `ETooltip`: `describes`. A label that is the trigger's accessible name already (an `EIconButton` with `tooltip`) is no longer read twice; the bubble is then hidden from screen readers.
+  - `ENavList`: `size="sm"` for short rows with no rule between them. Development warns when two navigations are left on the default "Main".
+  - `ETabs`: `stretch` makes the tabs fill their container's height with the panel scrolling its own content.
+  - `EAppHeader`: sets `--e-header-height` on the page root (its height while `sticky`, else `0px`); a navigation row that scrolls is a tab stop; the menu button has `aria-controls` for the shell's drawer.
+  - `ESpinner`: `silent` leaves the announcement to a parent.
+  - `EExpandableRow`: a chevron shows whether the row is open.
+  - `EConfigProvider` gives the Reka parts inside it the direction, the scroll-lock padding and one shared `TooltipProvider`.
+
+  Fixed:
+
+  - `EPagination` no longer writes page 1 back to `v-model` while `pageCount` is 0, so a page restored from the address survives until the count arrives; it announces "Page N of M" only after a person's choice.
+  - A toast shown before a modal opens stays visible to screen readers (the region keeps out of the modal's `aria-hidden`); in a right-to-left page the toast region keeps clear of the left safe area.
+  - `ECommandPalette`: the result count is announced once typing pauses; the shortcut does nothing over another open modal, and with two palettes only one answers. `hide()` does not fire `close` (documented).
+  - `EDialog` marks a modal `aria-modal="true"`. `EDialog` and `EDrawer` share one props interface; the drawer README no longer claims `left`/`right`.
+  - `EAppShell` hides the server-rendered sidebar on a phone until the page runs, and the header's menu button is there from the first render, so nothing moves on hydration.
+  - `EAppHeader`: no double gap after the brand link. `EDisclosure`: the summary's focus ring and the first control's ring inside are no longer clipped.
+  - `ETooltip`: the click after a touch no longer closes the tooltip at once. `EMenu`: long labels wrap inside their row. Every link (`ELink`, `ELinkCard`, `EBreadcrumb`, `ENavList`, `EAppHeader`, `EMenu`) gets `to` for a link component and `href` for a plain `a`, never both.
+  - The scrollbar gutter is read once per page instead of once per dialog or select.
+
+- cc9e938: Printing. A page prints in its theme's light palette whatever the screen shows: every token a dark or high-contrast variant changes is set back under `@media print`, and `apply()` does the same with its own theme while the page prints. Colours print exactly, so a fill that carries meaning (a checked box, a switch that is on, a progress bar, a chosen day) is on the paper even where the browser leaves background graphics out. Headings stay with what follows them, paragraphs leave no lone line at a page edge, and cards, notices, fields, calendars, code blocks, images and table rows move to the next page rather than being cut. Open menus, list panels, date panels and tooltips are not printed.
+
+  - `EDataGrid` prints as the table it shows: no search, filters, selection column, column tools, resizers or pager; only the sorted column keeps its arrow; the heading row repeats at the top of each page (a sort button there is laid out as text, since a repeated button is not painted).
+  - `ETable` and `EDataGrid` headings are in the flow on paper, so they repeat on every page.
+  - `ECodeBlock` wraps long lines instead of cutting them off.
+  - `EDisclosure` and `EExpandableRow` print open, without the chevron.
+  - `EUpload` leaves out an empty zone, the count and the files turned away.
+  - `ELink` prints the address only of a link to another site (`http:`, `https:`); a path on the same site prints as its text.
+  - `EAppHeader` prints as the brand alone: no actions, and a sticky header prints once.
+
+- cc9e938: New opt-in font entries: `@eos-ui/vue/fonts-self-hosted.css` serves Bricolage Grotesque (with its optical-size axis) and Geist Mono from woff2 files in the package, so no request goes to Google, and `@eos-ui/vue/fonts-fallback.css` has only the metric-matched fallback faces, for an app that serves the fonts itself. The JavaScript in `dist` is no longer minified and ships without source maps: your bundler minifies it, and the modules read like the source. The README now says the package root has one side effect besides the CSS (it registers the built-in icons).
+- cc9e938: Theme application, the success tone and colour inputs.
+
+  - `createEos()` without a `theme` applies nothing: `style.css` already carries the default theme, so a `:root { --e-primary: ... }` override in your own CSS wins, and the `prefers-contrast: more` variant of `style.css` applies. With a `theme`, the theme is added to the document as a stylesheet in the `e.tokens` layer (scoped to `themeTarget`) instead of inline custom properties, so your own CSS wins over it and its `scheme: "auto"` and `contrast: "auto"` variants follow the visitor. Unmounting the app removes the theme and stops the `lang` and `dir` watcher. `themeCss()` with no theme returns the theme `style.css` carries.
+  - `success` and `success-soft` are their own colours, derived from a new `success` input of `defineTheme()`, instead of aliases of `secondary` and `secondary-soft`. `accent` now recolours only the secondary action. A theme that set `accent` to change success states: set `success` instead.
+  - Colour inputs of `defineTheme()` accept 4 and 8 digit hex, `rgb()`, `rgba()` and `color-mix(in srgb, ...)`, besides 3 and 6 digit hex, `black` and `white`. Alpha is dropped. A colour it cannot read is ignored and listed in `warnings` instead of throwing.
+  - `theme.apply()` returns a function that removes the inline tokens, `data-e-theme` and its media listeners, and works where `matchMedia` does not exist.
+  - `defineTheme()` warnings are no longer printed in production builds: the check reads `process.env.NODE_ENV`, which bundlers replace.
+  - New exports from `@eos-ui/tokens`: `darkVariant(input)` (the inputs of a theme's dark variant) and `themeVariant(theme, { dark, more })` (the tokens and `color-scheme` a visitor with those settings sees), with the `VariantQuery` type.
+  - `EConfigProvider` renders menus, dialogs, tooltips and toasts inside itself only when it sets a `theme` or `scheme` (`portal` was `true` by default). It follows `prefers-contrast: more` for a theme with `contrast: "auto"`, and `scheme` picks the dark variant of a built `Theme` made with `scheme: "auto"`.
+  - `tokens.json` no longer has the top-level `name` and `version`, `color.themes` or `type.fonts`, which nothing read.
+  - Usage notes corrected for `stroke-edge`, `weight-strong`, `primary-soft`, `radius-pill`, `radius-sm`, `radius-lg`, `secondary`, `secondary-soft` and `space-5`, `space-10`, `space-16`.
+
+- cc9e938: A toast has no slab: its tone edge already marks it, so it floats on a plain `border` ring and the theme's drop. The slab under every other floating panel is now the colour of its ring (`border`), no longer the darker `slab-ink`.
+
+  New token `shadow-drop`: the wide, faint drop under a floating panel, set by `elevation`. `shadow-float` is now its ring, its slab and `var(--e-shadow-drop)`, so a panel that draws its own edge (a toast) can keep the theme's lift.
+
+- cc9e938: Token names follow one scheme, `<family>-<role>[-<step>]`, and a few magic numbers become tokens.
+
+  Renamed (set the new name in your CSS and in `defineTheme({ tokens })`; the `defineTheme` inputs keep their names):
+
+  | Old                               | New                                   |
+  | --------------------------------- | ------------------------------------- |
+  | `--e-text-link`                   | `--e-link`                            |
+  | `--e-warning-strong`              | `--e-warning` (it was an alias of it) |
+  | `--e-icon-size`                   | `--e-icon-size-md`                    |
+  | `--e-icon-size-md` (1.75rem)      | `--e-icon-size-lg`                    |
+  | `--e-icon-size-lg` (2.5rem)       | `--e-icon-size-xl`                    |
+  | `--e-size-panel-sm`, `-md`, `-lg` | `--e-panel-width-sm`, `-md`, `-lg`    |
+  | `--e-size-list-max`               | `--e-list-max-height`                 |
+  | `--e-frame`                       | `--e-shadow-frame`                    |
+  | `--e-well`                        | `--e-shadow-well`                     |
+  | `--e-float`                       | `--e-shadow-float`                    |
+  | `--e-paper`                       | `--e-shadow-paper`                    |
+  | `--e-slab-sink`                   | `--e-shadow-sink`                     |
+  | `--e-ring-hover`                  | `--e-shadow-ring-hover`               |
+  | `--e-ring-press`                  | `--e-shadow-ring-press`               |
+  | `--e-focus-gap-field`             | `--e-stroke-focus-gap-field`          |
+  | `--e-underline-offset`            | `--e-stroke-underline-offset`         |
+  | `--e-slab-thin`                   | `--e-depth-thin`                      |
+  | `--e-slab-bold`                   | `--e-depth-bold`                      |
+
+  The icon sizes moved by one step, so each `EIcon` `size` reads the token of its own name (`sm`, `md`, `lg`, `xl`). Mind the order when you replace them: `--e-icon-size-md` and `--e-icon-size-lg` still exist, with new values. `--e-depth`, `--e-depth-thin` and `--e-depth-bold` are their own `depth` group in `groups` and the DTCG output (they were under `stroke`), and the shadows are all `shadow-*`, so `--e-paper` no longer reads like the `--e-surface-paper` colour.
+
+  New tokens: `z-header` (the sticky `EAppHeader`, which no longer computes its own layer), `avatar-size-md` (the default `EAvatar`, 2.75rem, in place of the 44px tap target, so it follows `textScale` like the other avatar sizes), `container-width-sm`, `-md` and `-lg` (the `EContainer` `width` steps, 40, 60 and 80rem) and `term-width` (the 8rem label column of `EDescriptionList`).
+
+- cc9e938: `EUpload` in the eos materials. The dropzone is a well pressed into the page; its edge turns dashed in the primary colour while a file is dragged anywhere over the page, and over the zone it takes the brand tint and sinks a step deeper (no longer the success green). Each chosen file is a raised tile with the icon of its kind (new icons `file-image` and `file-pdf`) and its size. Files left out are listed under the zone with why ("Not an accepted type", "Larger than 5 MB", "Only 3 files can be added") until dismissed or the next choice. Without `multiple` the chosen file takes the zone's place as one large raised tile (an image file as itself, any other as a large icon of its kind) with its name and size beneath and Remove in the corner, and the tile takes the zone's hover, dragging and invalid states; choosing or dropping again replaces it. With `multiple` and `maxFiles` the corner shows "2 of 3". Image files show as themselves, as thumbnails in the list; new prop `preview` (default `true`) turns that off. New messages `fileCount`, `fileRejectedType` and `fileRejectedSize`.
+
+### Patch Changes
+
+- cc9e938: `ECalendar`: the days sit with no gap between them, so a range reads as one band. Its ends, today and the day hovered as the end meet the band flush: their corners are square on every side that touches it, beside them or across a week, and the band rounds its own outer corners. A day inside the band takes the band's corners for its hover and press. Days answer the pointer at once, in step with the band.
+
+  `ESwitch`: the thumb sits at one height on and off.
+
+  Hover fills on text fields, `EUpload` and outline buttons fade in place instead of sweeping in from the edges.
+
+- cc9e938: Polish:
+
+  - `EAvatarGroup` is a stack with no gap: each avatar covers a quarter of the one before it, borders kept, and `+N` is an avatar of its own.
+  - `ECheckbox`, `ERadioGroup` items and `ESwitch`: "Required" and "Optional" sit at the end of the row, not against the label.
+  - `ENavList` items answer the pointer on their own edge and fill, so the hover wash no longer reaches past the border.
+  - `ESwitch`: the thumb keeps its neutral slab when on (drawn in ink, so it holds against the primary track), and sinks off it while pressed, on or off.
+  - `EStamp` and `ETag` no longer clip the top of tall letters in some fonts. `ETag` has a softer ground.
+  - `ETable` and `EDataGrid` headings are ink with a rule twice as heavy beneath them; a sort button answers the pointer with an underline.
+  - `EAppShell`: the ground beside the page column is a quiet near-neutral instead of the full brand tint.
+  - `EDisclosure`: a title with rich content (`Getting <em>there</em>`) stays one run of text instead of being spread across the summary.
+
+- cc9e938: `EProgress`: the stripes on what is left to do move until the bar is full, whether the length is known or not (they stood still at a known value). With reduced motion they stand still. `ECodeBlock`: stacked blocks keep an unbroken seam; the overflow shade no longer cuts it at the end edge.
+- Updated dependencies [cc9e938]
+- Updated dependencies [cc9e938]
+- Updated dependencies [cc9e938]
+- Updated dependencies [cc9e938]
+- Updated dependencies [cc9e938]
+- Updated dependencies [cc9e938]
+- Updated dependencies [cc9e938]
+  - @eos-ui/tokens@0.18.0
+
 ## 0.17.1
 
 ### Patch Changes
