@@ -23,7 +23,7 @@ const PROPS: Record<string, Record<string, unknown>> = {
   ECurrencyField: { label: "Amount" },
   EDataGrid: { caption: "Rows", columns: [{ key: "n", label: "Name" }], rows: [{ id: 1, n: "one" }] },
   EDatePicker: { label: "Due", modelValue: new Date(2026, 9, 22, 12) },
-  EDefinition: { label: "Annual percentage rate" },
+  EToggletip: { label: "Annual percentage rate" },
   EDescriptionList: { items: [{ label: "Name", text: "Ada", stamp: "New" }] },
   EDialog: { title: "Confirm", open: true },
   EDrawer: { title: "Details", open: true },
@@ -90,7 +90,7 @@ const SLOTS: Record<string, Record<string, () => unknown>> = {
   // A table holds rows; text straight inside <table> is moved out of it by the HTML parser.
   ETable: { default: () => h("tbody", [h("tr", [h("td", "one")])]) },
   // The term is already inside the button that opens the explanation.
-  EDefinition: { default: () => "The yearly cost of a loan.", trigger: () => "APR" },
+  EToggletip: { default: () => "The yearly cost of a loan.", trigger: () => "APR" },
 };
 
 /** The components that open after hydration and so draw nothing on the server, left open on purpose. */
@@ -104,7 +104,7 @@ export function componentsOf(lib: Record<string, unknown>): [string, Component][
 }
 
 /** The floating parts, also rendered open from the start: the server draws no portal, the browser opens it after. */
-const OPEN = ["ESelect", "ECombobox", "EMenu", "ETooltip", "EDefinition", "EDatePicker", "ERangePicker"];
+const OPEN = ["ESelect", "ECombobox", "EMenu", "ETooltip", "EToggletip", "EDatePicker", "ERangePicker"];
 
 export interface Case {
   id: string;

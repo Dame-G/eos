@@ -66,4 +66,4 @@ A modal dialog for a short decision. Use [`EDrawer`](../Drawer/README.md) to rea
 
 ## Related
 
-[`EDrawer`](../Drawer/README.md) for reading beside the page, [`EDefinition`](../Definition/README.md) for a short explanation.
+[`EDrawer`](../Drawer/README.md) for reading beside the page, [`EToggletip`](../Toggletip/README.md) for a short explanation.

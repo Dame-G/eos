@@ -1,6 +1,6 @@
 # ETooltip
 
-A short label that names an icon-only control. It never holds anything to read or click. Use [`EDefinition`](../Definition/README.md) for that.
+A short label that names an icon-only control. It never holds anything to read or click. Use [`EToggletip`](../Toggletip/README.md) for that.
 
 ```vue
 <ETooltip label="Download receipt">
@@ -49,4 +49,4 @@ A short label that names an icon-only control. It never holds anything to read o
 
 ## Related
 
-[`EDefinition`](../Definition/README.md) for an explanation people read or click.
+[`EToggletip`](../Toggletip/README.md) for an explanation people read or click.

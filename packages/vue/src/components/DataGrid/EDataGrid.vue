@@ -10,7 +10,6 @@ import "../Skeleton/ESkeleton.vue";
 import EDataGridFilterRow from "./EDataGridFilterRow.vue";
 import EDataGridResizer from "./EDataGridResizer.vue";
 import EDataGridToolbar from "./EDataGridToolbar.vue";
-import "../Definition/EDefinition.vue";
 import type { EOption } from "../Select/options.js";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
