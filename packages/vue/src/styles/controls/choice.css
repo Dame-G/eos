@@ -114,14 +114,16 @@
     background: var(--e-disabled-ink);
   }
 
-  /* A circle with an uneven border has an elliptical inner edge that steps against the fill, so the radio keeps an even ring and draws its slab as an inset crescent. */
+  /* A circle with an uneven border has an elliptical inner edge that steps against the fill, and a thin dark ring round a circle steps at every pixel. So the chosen radio has no ring: it is a coin, the primary face with its slab as one crescent under it (the edge and the lift together, as thick at the bottom as a box's), and the dot sits in the middle of the face above the crescent. */
   .e-radio:checked {
-    border-bottom-width: var(--e-stroke-edge);
-    box-shadow: inset 0 calc(-1 * var(--_lift)) 0 var(--_slab);
+    --_rim: calc(var(--e-stroke-edge) + var(--_lift));
+
+    border-width: 0;
+    box-shadow: inset 0 calc(-1 * var(--_rim)) 0 var(--_slab);
     background-image: radial-gradient(
-      circle,
-      var(--e-on-primary) 0 calc(var(--e-check-size) / 6),
-      transparent calc(var(--e-check-size) / 6 + 1px)
+      circle at 50% calc(50% - var(--_rim) / 2),
+      var(--e-on-primary) calc(var(--e-check-size) / 6 - 0.5px),
+      transparent calc(var(--e-check-size) / 6 + 0.5px)
     );
   }
 
@@ -159,7 +161,7 @@
 
   .e-radio[aria-invalid="true"]:checked:not(:active, :disabled) {
     box-shadow:
-      inset 0 calc(-1 * var(--_lift)) 0 var(--_slab),
+      inset 0 calc(-1 * var(--_rim)) 0 var(--_slab),
       0 0 0 var(--e-stroke-edge) var(--e-surface),
       0 0 0 calc(2 * var(--e-stroke-edge)) var(--e-danger);
   }
@@ -182,10 +184,11 @@
 
   /* The disabled fill may be clear, so the chosen radio's dot takes the disabled ink, as the check does. */
   .e-radio:checked:disabled {
+    border-width: var(--e-stroke-edge);
     background-image: radial-gradient(
       circle,
-      var(--e-disabled-ink) 0 calc(var(--e-check-size) / 6),
-      transparent calc(var(--e-check-size) / 6 + 1px)
+      var(--e-disabled-ink) calc(var(--e-check-size) / 6 - 0.5px),
+      transparent calc(var(--e-check-size) / 6 + 0.5px)
     );
   }
 
