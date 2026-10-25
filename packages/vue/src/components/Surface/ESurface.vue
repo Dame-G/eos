@@ -2,7 +2,7 @@
 import { computed, useSlots } from "vue";
 import EActions from "../Actions/EActions.vue";
 import { useGap, type GapToken } from "../Stack/gap.js";
-import type { ElementTag } from "../../composables/useSize.js";
+import type { ElementTag } from "../../types.js";
 import { isProduction } from "../../env.js";
 import { warnOnce } from "../../warn.js";
 import "../../styles/base.css";
@@ -126,8 +126,9 @@ if (props.clip && slots.actions && !isProduction()) {
   }
 
   @media (forced-colors: active) {
+    /* The frame is a shadow, which forced colours drop, so the surface draws its edge as an outline. */
     .e-surface {
-      outline-color: CanvasText;
+      outline: var(--e-stroke-edge) solid CanvasText;
     }
   }
 }

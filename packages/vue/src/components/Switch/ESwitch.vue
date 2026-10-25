@@ -144,14 +144,41 @@ defineExpose(choice.exposed);
   }
 
   @media (forced-colors: active) {
+    .e-switch-track {
+      border-color: ButtonText;
+    }
+
     .e-switch-input:checked + .e-switch-track {
       forced-color-adjust: none;
+      border-color: Highlight;
       background: Highlight;
+    }
+
+    /* The track opts out of forced colours, so its hover and press fills would show the theme's colours through. */
+    .e-switch:hover .e-switch-input:checked:not(:disabled) + .e-switch-track,
+    .e-switch:active .e-switch-input:checked:not(:disabled) + .e-switch-track {
+      background-color: Highlight;
+    }
+
+    .e-switch-input:focus-visible + .e-switch-track {
+      outline-color: Highlight;
     }
 
     .e-switch-track::after {
       forced-color-adjust: none;
       background: ButtonText;
+    }
+
+    .e-switch-input:checked + .e-switch-track::after {
+      background: HighlightText;
+    }
+
+    .e-switch-input:disabled + .e-switch-track {
+      outline-color: GrayText;
+    }
+
+    .e-switch-input:disabled + .e-switch-track::after {
+      background: GrayText;
     }
   }
 

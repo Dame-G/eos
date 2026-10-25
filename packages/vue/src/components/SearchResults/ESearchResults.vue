@@ -3,7 +3,7 @@ import { computed, ref, watch, type Component } from "vue";
 import EMatchHighlight from "../Combobox/matchHighlight.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import "../../styles/base.css";
-import "../Select/panel.css";
+import "../../styles/controls/panel.css";
 
 export interface SearchResultItem {
   /** The title of the result. */
@@ -178,6 +178,10 @@ defineExpose({ focus, focusFirst });
   }
 
   @media (forced-colors: active) {
+    .e-results {
+      outline: var(--e-stroke-edge) solid CanvasText;
+    }
+
     .e-results .e-opt:hover,
     .e-results .e-opt:focus-visible {
       forced-color-adjust: none;

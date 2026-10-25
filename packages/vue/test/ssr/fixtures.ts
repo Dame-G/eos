@@ -26,7 +26,6 @@ const PROPS: Record<string, Record<string, unknown>> = {
   ECurrencyField: { label: "Amount" },
   EDataGrid: { caption: "Rows", columns: [{ key: "n", label: "Name" }], rows: [{ id: 1, n: "one" }] },
   EDatePicker: { label: "Due", modelValue: new Date(2026, 9, 22, 12) },
-  EDefinition: { label: "Annual percentage rate" },
   EDescriptionList: { items: [{ label: "Name", text: "Ada", stamp: "New" }] },
   EDialog: { title: "Confirm", open: true },
   EDrawer: { title: "Details", open: true },
@@ -96,7 +95,6 @@ const SLOTS: Record<string, Record<string, () => unknown>> = {
   ETable: { default: () => h("tbody", [h("tr", [h("td", "one")])]) },
   // The term is already inside the button that opens the explanation.
   EToggletip: { default: () => "The yearly cost of a loan.", trigger: () => "APR" },
-  EDefinition: { default: () => "The yearly cost of a loan.", trigger: () => "APR" },
 };
 
 /** The components that open after hydration and so draw nothing on the server, left open on purpose. */

@@ -6,13 +6,15 @@
 //   layer-dependency   a component uses only components of its own layer or an earlier one
 //   duplicate-selector a selector is laid out in one stylesheet per layer, not repeated across files
 //   inset-ring-on-fill an edge is not drawn as an inset shadow over a strong fill
+//   base-component-class base.css names no component class, except in a :where() list of defaults
+//   public-property    every `--e-*` declared under src is a token (a key of `defaults`) or a documented hook
 //
 // Run: node scripts/check-css.mjs   (CI: `pnpm check:source`)
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import postcss from "postcss";
-import { LAYER_ORDER } from "@eos-ui/tokens";
-import { pkgRoot, sourceStyles } from "./css-lib.mjs";
+import { LAYER_ORDER, defaults } from "@eos-ui/tokens";
+import { pkgRoot, sourceScripts, sourceStyles } from "./css-lib.mjs";
 
 const order = LAYER_ORDER.split(",").map((s) => s.trim());
 const known = new Set(order);
@@ -107,6 +109,73 @@ for (const { file, root } of sheets) {
         `${at(file, ring)}: ${rule.selector.replace(/\s+/g, " ")} draws its edge as an inset shadow over a fill; use a border with background-clip: padding-box`,
       );
   });
+}
+
+// base-component-class: src/styles/base.css holds the root, the shared utilities and the recipes. It sits in the first
+// layer, so a rule there that names a component's class loses to every rule of the component's own layer: an override
+// written there (a forced-colours border, say) is silently dead. A component's class belongs in its own stylesheet. The
+// one exception is a :where() list of defaults (focus, user-select), which is meant to lose.
+const BASE_CLASSES = new Set([
+  "e-root",
+  "e-interact",
+  "e-interact--inset",
+  "e-kicker",
+  "e-numeral",
+  "e-numeral-l",
+  "e-sr",
+]);
+const withoutWhere = (selector) => {
+  let out = "";
+  for (let i = 0; i < selector.length; i++) {
+    if (selector.startsWith(":where(", i)) {
+      let depth = 0;
+      for (i += ":where".length; i < selector.length; i++) {
+        if (selector[i] === "(") depth++;
+        else if (selector[i] === ")" && --depth === 0) break;
+      }
+    } else out += selector[i];
+  }
+  return out;
+};
+for (const { file, root } of sheets) {
+  if (file !== "src/styles/base.css") continue;
+  root.walkRules((rule) => {
+    for (const [, name] of withoutWhere(rule.selector).matchAll(/\.(e-[\w-]+)/g)) {
+      if (!BASE_CLASSES.has(name))
+        report(
+          "base-component-class",
+          `${at(file, rule)}: .${name} is a component's class; style it in the component's own stylesheet and layer`,
+        );
+    }
+  });
+}
+
+// public-property: `--e-*` is the public contract, the tokens a theme or a consumer sets. A property a component
+// declares for its own rules is `--_name`. So every `--e-*` declared under src (in a stylesheet, a setProperty call or a
+// style binding) is a token or one of the documented hooks below.
+const PUBLIC_HOOKS = new Map([
+  ["header-height", "EAppHeader sets it on the page root (AppHeader/README.md)"],
+  ["xrow-lead", "a consumer sets it on EExpandableRow (ExpandableRow/README.md)"],
+]);
+const tokenNames = new Set(Object.keys(defaults));
+const checkProperty = (name, where) => {
+  const key = name.slice("--e-".length);
+  if (!tokenNames.has(key) && !PUBLIC_HOOKS.has(key))
+    report(
+      "public-property",
+      `${where}: ${name} is not a token or a documented hook; name a component's own property --_${key}`,
+    );
+};
+for (const { file, root } of sheets)
+  root.walkDecls(/^--e-/, (decl) => {
+    checkProperty(decl.prop, at(file, decl));
+  });
+for (const file of sourceScripts()) {
+  const text = readFileSync(join(pkgRoot, file), "utf8");
+  for (const m of text.matchAll(/(?:setProperty\(\s*|["'`])(--e-[\w-]+)["'`]?\s*[,:]/g)) {
+    const line = text.slice(0, m.index).split("\n").length;
+    checkProperty(m[1], `${file}:${line}`);
+  }
 }
 
 if (problems.length) {

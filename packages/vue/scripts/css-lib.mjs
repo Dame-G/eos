@@ -26,3 +26,10 @@ export function sourceStyles() {
   }
   return out;
 }
+
+/** Every source script, as a path relative to the package: the .ts and .vue files under src, tests excluded. */
+export function sourceScripts() {
+  return walk(join(pkgRoot, "src"))
+    .filter((file) => /\.(ts|vue)$/.test(file) && !/\.test(-d)?\.ts$/.test(file))
+    .map((file) => relative(pkgRoot, file).replace(/\\/g, "/"));
+}

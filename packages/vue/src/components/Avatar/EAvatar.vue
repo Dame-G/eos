@@ -7,7 +7,7 @@ export const avatarSizeClass = (size: "sm" | "md" | "lg") =>
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useConfig, useMessages } from "../../config.js";
-import type { Size } from "../../composables/useSize.js";
+import type { Size } from "../../types.js";
 import "../../styles/base.css";
 
 const props = withDefaults(

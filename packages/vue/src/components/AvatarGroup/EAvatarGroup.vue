@@ -12,7 +12,7 @@ import { computed } from "vue";
 import EAvatar, { avatarSizeClass } from "../Avatar/EAvatar.vue";
 import { useMessages } from "../../config.js";
 import { useLocale } from "../../composables/useLocale.js";
-import type { Size } from "../../composables/useSize.js";
+import type { Size } from "../../types.js";
 import "../../styles/base.css";
 
 const props = withDefaults(

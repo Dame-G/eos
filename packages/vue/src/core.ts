@@ -13,3 +13,4 @@ export { iconNames } from "./icons/types.js";
 export type { IconProp, IconSource, IconsConfig, IconContext } from "./icons/types.js";
 export { defineTheme } from "@eos-ui/tokens";
 export type { Theme, ThemeInput } from "@eos-ui/tokens";
+export type { Size, Tone, ElementTag } from "./types.js";

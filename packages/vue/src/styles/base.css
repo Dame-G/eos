@@ -40,7 +40,6 @@
     .e-cal-pick,
     .e-page,
     .e-step,
-    .e-combo-btn,
     .e-menu-item,
     .e-nav-item,
     .e-toggletip-term
@@ -182,94 +181,6 @@
 
     .e-root *::-webkit-scrollbar-corner {
       background: transparent;
-    }
-  }
-
-  @media (forced-colors: active) {
-    .e-input,
-    .e-input-wrap,
-    .e-check,
-    .e-radio,
-    .e-sel-trigger,
-    .e-combo,
-    .e-search,
-    .e-seg,
-    .e-avatar {
-      border: 1px solid ButtonText;
-    }
-
-    .e-input-wrap .e-input {
-      border: 0;
-    }
-
-    .e-input:disabled,
-    .e-input-wrap[data-disabled],
-    .e-search[data-disabled],
-    .e-check:disabled,
-    .e-radio:disabled {
-      border-color: GrayText;
-    }
-
-    .e-input-wrap[data-invalid] {
-      border-width: 2px;
-    }
-
-    .e-tablist {
-      border-bottom: 1px solid CanvasText;
-    }
-
-    .e-tab[aria-selected="true"] {
-      border-bottom-color: Highlight;
-    }
-
-    .e-tab-count {
-      border: 1px solid CanvasText;
-    }
-
-    .e-dialog,
-    .e-drawer,
-    .e-popover,
-    .e-listpanel,
-    .e-calpanel,
-    .e-surface,
-    .e-menu,
-    .e-code,
-    .e-results,
-    .e-tip-bubble {
-      outline: 1px solid CanvasText;
-    }
-
-    .e-divider {
-      border-color: CanvasText;
-    }
-
-    .e-divider-label::before,
-    .e-divider-label::after {
-      border-color: CanvasText;
-    }
-
-    .e-switch-track {
-      border: 1px solid ButtonText;
-    }
-
-    .e-switch-input:checked + .e-switch-track {
-      forced-color-adjust: none;
-      background: Highlight;
-      border-color: Highlight;
-    }
-
-    .e-switch-input:checked + .e-switch-track::after {
-      forced-color-adjust: none;
-      background: HighlightText;
-    }
-
-    .e-input-wrap:focus-within,
-    .e-check:focus-visible,
-    .e-radio:focus-visible,
-    .e-switch-input:focus-visible + .e-switch-track,
-    .e-tab:focus-visible,
-    .e-combo-btn:focus-visible {
-      outline-color: Highlight;
     }
   }
 }

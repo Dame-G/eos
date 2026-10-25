@@ -3,7 +3,7 @@ import { computed, type Component } from "vue";
 import ESurface from "../Surface/ESurface.vue";
 import { useMessages } from "../../config.js";
 import { linkTarget } from "../../composables/useLink.js";
-import type { ElementTag, Size } from "../../composables/useSize.js";
+import type { ElementTag, Size } from "../../types.js";
 import "../../styles/base.css";
 
 const props = withDefaults(

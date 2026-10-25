@@ -160,7 +160,9 @@ describe("EIconButton", () => {
       attrs: { onClick: () => clicks++, "data-x": "1" },
     });
     await userEvent.tab();
-    await expect.element(page.getByRole("tooltip")).toHaveTextContent("Download receipt");
+    // The bubble repeats the button's own name, so it is hidden from assistive technology; read the bubble itself.
+    await expect.poll(() => document.querySelector(".e-tip-bubble")?.textContent).toContain("Download receipt");
+    expect(document.querySelector(".e-tip-bubble")!.getAttribute("aria-hidden")).toBe("true");
     expect(document.activeElement!.getAttribute("data-x")).toBe("1");
     await userEvent.keyboard("{Enter}");
     expect(clicks).toBe(1);

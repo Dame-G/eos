@@ -5,6 +5,7 @@ value contrast
 type  ContrastIssue
 type  ContrastPreset
 type  CssOptions
+value darkVariant
 value defaults
 value defineTheme
 type  DensityPreset
@@ -27,6 +28,7 @@ type  SkippedPair
 type  Theme
 type  ThemeInput
 type  ThemePreset
+value themeVariant
 type  ThemeVariant
 value tint
 value toDtcg
@@ -35,4 +37,5 @@ type  TokenName
 type  TokenValues
 value toOklch
 value usage
+type  VariantQuery
 value withLightness

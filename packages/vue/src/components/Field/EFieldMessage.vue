@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject, onMounted, watch } from "vue";
 import EIcon from "../Icon/EIcon.vue";
-import { FORM_KEY } from "../../composables/useFormContext.js";
+import { FORM_KEY } from "../../composables/useFormField.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 
 const props = defineProps<{

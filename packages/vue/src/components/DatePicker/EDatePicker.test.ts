@@ -261,7 +261,11 @@ describe("EDatePicker", () => {
   });
 
   test("right to left follows the locale, with no dir option", async () => {
-    await bound({ label: "Date", open: true }, d(2026, 10, 22), plugin({ locale: "he-IL" }));
+    await bound(
+      { label: "Date", open: true },
+      d(2026, 10, 22),
+      plugin({ locale: "he-IL", themeTarget: document.documentElement }),
+    );
     await expect.poll(() => panel()).not.toBeNull();
     expect(panel()!.getAttribute("dir")).toBe("rtl");
   });

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { ConfigProvider, SliderRoot, SliderThumb, SliderTrack } from "reka-ui";
+import { SliderRoot, SliderThumb, SliderTrack } from "reka-ui";
 import EField from "../Field/EField.vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
+import { RekaConfig } from "../../composables/useRekaConfig.js";
 import { useFieldControl } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
 
@@ -117,7 +118,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
     @click="onFieldClick"
   >
     <template #default="field">
-      <ConfigProvider :dir="dir">
+      <RekaConfig>
         <SliderRoot
           :model-value="values"
           :min="min"
@@ -158,7 +159,7 @@ const thumbLabel = (i: number) => (props.range ? t(i === 0 ? "minOf" : "maxOf", 
             }"
           />
         </SliderRoot>
-      </ConfigProvider>
+      </RekaConfig>
       <input
         v-for="(value, i) in name ? values : []"
         :key="`h${i}`"

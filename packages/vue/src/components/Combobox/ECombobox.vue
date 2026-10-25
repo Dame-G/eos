@@ -1,7 +1,6 @@
 <script setup lang="ts" generic="T extends string = string, M extends boolean = false">
 import { computed, h, nextTick, onMounted, ref, watch, type FunctionalComponent } from "vue";
 import {
-  ConfigProvider,
   ComboboxAnchor,
   ComboboxContent,
   ComboboxInput,
@@ -23,10 +22,11 @@ import { fold } from "./fold.js";
 import type { EComboboxProps } from "./types.js";
 import { useMessages, usePortalTarget } from "../../config.js";
 import { useDir } from "../../composables/useDir.js";
+import { RekaConfig } from "../../composables/useRekaConfig.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useUid } from "../../composables/useUid.js";
 import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
-import { useFormField } from "../../composables/useFormContext.js";
+import { useFormField } from "../../composables/useFormField.js";
 import "../../styles/base.css";
 import "../../styles/controls/input.css";
 import "../../styles/controls/panel.css";
@@ -276,7 +276,7 @@ defineExpose({
 <template>
   <component :is="bare ? Bare : EField" v-bind="{ ...attrs.wrapper(), ...frame }">
     <template #default="field">
-      <ConfigProvider :dir="dir">
+      <RekaConfig>
         <ComboboxRoot
           class="e-combo-root"
           :dir="dir"
@@ -365,7 +365,7 @@ defineExpose({
             </ComboboxContent>
           </ComboboxPortal>
         </ComboboxRoot>
-      </ConfigProvider>
+      </RekaConfig>
     </template>
   </component>
 </template>

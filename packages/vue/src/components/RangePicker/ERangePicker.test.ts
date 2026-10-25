@@ -391,7 +391,11 @@ describe("ERangePicker", () => {
   });
 
   test("the popup follows the locale's direction with no dir option", async () => {
-    await bound({ label: "Dates", open: true }, { start: null, end: null }, plugin({ locale: "he-IL" }));
+    await bound(
+      { label: "Dates", open: true },
+      { start: null, end: null },
+      plugin({ locale: "he-IL", themeTarget: document.documentElement }),
+    );
     await expect.poll(() => panel()).not.toBeNull();
     expect(panel()!.getAttribute("dir")).toBe("rtl");
   });

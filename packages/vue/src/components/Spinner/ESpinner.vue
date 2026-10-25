@@ -2,7 +2,7 @@
 import { computed, onMounted, watch } from "vue";
 import { useMessages } from "../../config.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
-import type { Size } from "../../composables/useSize.js";
+import type { Size } from "../../types.js";
 import SpinnerRing from "./SpinnerRing.vue";
 import "../../styles/base.css";
 

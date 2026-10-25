@@ -147,5 +147,11 @@ function touchEnd(e: PointerEvent) {
     font: var(--e-type-small);
     text-align: center;
   }
+
+  @media (forced-colors: active) {
+    .e-tip-bubble {
+      outline: var(--e-stroke-edge) solid CanvasText;
+    }
+  }
 }
 </style>

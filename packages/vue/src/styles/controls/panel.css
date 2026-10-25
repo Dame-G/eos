@@ -146,6 +146,11 @@
   }
 
   @media (forced-colors: active) {
+    /* The float is a shadow, which forced colours drop, so the panel draws its edge as an outline. */
+    .e-popover {
+      outline: var(--e-stroke-edge) solid CanvasText;
+    }
+
     .e-opt[data-highlighted]:not(.e-opt--disabled) {
       forced-color-adjust: none;
       background: Highlight;

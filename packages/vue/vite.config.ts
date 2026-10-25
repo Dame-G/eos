@@ -9,6 +9,7 @@ import layers from "./scripts/postcss-layers.ts";
 import hover from "./scripts/postcss-hover.ts";
 import { writeFonts } from "./scripts/fonts.ts";
 import { ssrRender } from "./test/ssr/command.ts";
+import { forcedColors } from "./test/forcedColors.ts";
 import { LAYER_ORDER } from "@eos-ui/tokens";
 
 const src = (p: string) => fileURLToPath(new URL(p, import.meta.url));
@@ -155,7 +156,7 @@ export default defineConfig(({ command }) => ({
       })),
       viewport: { width: 640, height: 800 },
       // test/ssr.test.ts asks Node for the server render of a component, through the dev server's SSR module graph.
-      commands: { ssrRender },
+      commands: { ssrRender, forcedColors },
     },
   },
 }));

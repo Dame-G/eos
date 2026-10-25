@@ -63,9 +63,13 @@ describe("ELink", () => {
     const { container } = await render(ELink, { props: { href: "#x" }, slots: { default: "Go" } });
     const a = container.querySelector("a")!;
     expect(getComputedStyle(a).textDecorationLine).toBe("underline");
-    const before = getComputedStyle(a).color;
+    const ink = document.createElement("span");
+    ink.style.color = "var(--e-ink)";
+    container.append(ink);
+    expect(getComputedStyle(a).color).not.toBe(getComputedStyle(ink).color);
     await page.getByRole("link", { name: "Go" }).hover();
-    expect(getComputedStyle(a).color).not.toBe(before);
+    // The colour eases over --e-duration-tap: wait for it to arrive rather than read it mid-transition.
+    await expect.poll(() => getComputedStyle(a).color).toBe(getComputedStyle(ink).color);
   });
 
   test("is reached with Tab and activated with Enter", async () => {

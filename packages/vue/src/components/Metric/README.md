@@ -10,14 +10,14 @@ One figure with its label, an optional change and a line of help. Use it for the
 
 <!-- props:start -->
 
-| Prop    | Type                                            | Default      | Notes                                                                                                                                                                                                                 |
-| ------- | ----------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `label` | `string`                                        | **Required** | What is measured, as a short label above the figure.                                                                                                                                                                  |
-| `value` | `number \| string`                              | **Required** | The figure. A number is formatted for the locale; a string is shown as given, so format a currency or a unit yourself.                                                                                                |
-| `delta` | `string`                                        | None         | The change, written as you want it shown, such as "+4.2%" or "12 more than last month". Set `trend` with it.                                                                                                          |
-| `trend` | `"up" \| "down" \| "flat"`                      | None         | The direction of the change. It chooses the arrow and the colour, and is read out with the delta ("Up +4.2%").                                                                                                        |
-| `tone`  | `"muted" \| "neutral" \| "success" \| "danger"` | None         | The colour of the change, when it is not what the direction suggests: `danger` for a cost that went up. Left out, up is `success`, down is `danger` and flat is `muted`. `neutral` is the deprecated name of `muted`. |
-| `help`  | `string`                                        | None         | A line of explanation under the figure, such as the period it covers.                                                                                                                                                 |
+| Prop    | Type                               | Default      | Notes                                                                                                                                                                    |
+| ------- | ---------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `label` | `string`                           | **Required** | What is measured, as a short label above the figure.                                                                                                                     |
+| `value` | `number \| string`                 | **Required** | The figure. A number is formatted for the locale; a string is shown as given, so format a currency or a unit yourself.                                                   |
+| `delta` | `string`                           | None         | The change, written as you want it shown, such as "+4.2%" or "12 more than last month". Set `trend` with it.                                                             |
+| `trend` | `"up" \| "down" \| "flat"`         | None         | The direction of the change. It chooses the arrow and the colour, and is read out with the delta ("Up +4.2%").                                                           |
+| `tone`  | `"muted" \| "success" \| "danger"` | None         | The colour of the change, when it is not what the direction suggests: `danger` for a cost that went up. Left out, up is `success`, down is `danger` and flat is `muted`. |
+| `help`  | `string`                           | None         | A line of explanation under the figure, such as the period it covers.                                                                                                    |
 
 <!-- props:end -->
 

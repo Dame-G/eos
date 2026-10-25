@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { defineComponent, h } from "vue";
 import { render } from "vitest-browser-vue";
-import { focusInside } from "./useFocusInside.js";
+import { focusInside } from "./focusInside.js";
 
 function box(inner: () => unknown, disabled = false) {
   return render(
@@ -15,7 +15,7 @@ function box(inner: () => unknown, disabled = false) {
   );
 }
 
-describe("useFocusInside", () => {
+describe("focusInside", () => {
   test("a click on the padding of the box focuses the input", async () => {
     const { container } = await box(() => []);
     (container.querySelector(".box") as HTMLElement).click();

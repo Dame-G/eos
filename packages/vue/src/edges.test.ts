@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-vue";
+import { commands, userEvent } from "vitest/browser";
+import "./styles/controls/panel.css";
 import EButton from "./components/Button/EButton.vue";
+import ESegmented from "./components/Segmented/ESegmented.vue";
+import ETabs from "./components/Tabs/ETabs.vue";
+import ETooltip from "./components/Tooltip/ETooltip.vue";
+import EDialog from "./components/Dialog/EDialog.vue";
 import ETextField from "./components/TextField/ETextField.vue";
 import ESwitch from "./components/Switch/ESwitch.vue";
 import ECheckbox from "./components/Checkbox/ECheckbox.vue";
@@ -114,6 +120,100 @@ describe("forced colors", () => {
     expect(drawn(".e-input", /ButtonText/i)).toBe(true);
     expect(drawn(".e-switch-track", /ButtonText/i)).toBe(true);
     expect(drawn(".e-btn[disabled]", /GrayText/i)).toBe(true);
+  });
+
+  describe("emulated", () => {
+    afterEach(() => commands.forcedColors(false));
+
+    /** The computed value of a system colour while forced colours are on. */
+    const system = (name: string) => {
+      const probe = document.createElement("i");
+      probe.style.color = name;
+      document.body.append(probe);
+      const value = getComputedStyle(probe).color;
+      probe.remove();
+      return value;
+    };
+    const style = (el: Element | null, pseudo?: string) => getComputedStyle(el!, pseudo);
+    /** Turns forced colours on and waits for the colour transitions it starts to end. */
+    const forced = async () => {
+      await commands.forcedColors(true);
+      await expect.poll(() => matchMedia("(forced-colors: active)").matches).toBe(true);
+      // A style and layout pass starts the colour transitions the change sets off, so getAnimations sees them all.
+      document.documentElement.getBoundingClientRect();
+      const transitions = document.getAnimations().filter((a) => a instanceof CSSTransition);
+      await Promise.all(transitions.map((a) => a.finished.catch(() => {})));
+    };
+
+    test("controls keep a system-colour edge; invalid is heavier, disabled is GrayText", async () => {
+      const { container } = await render({
+        components: { ETextField, ECheckbox, ESegmented },
+        template: `<div>
+          <ETextField label="Email" class="ok" />
+          <ETextField label="Card" error="Check the number" class="bad" />
+          <ECheckbox label="Agree" disabled />
+          <ESegmented label="View" :options="[{ value: 'a', label: 'List' }]" />
+        </div>`,
+      });
+      await forced();
+      const edge = style(container.querySelector(".ok .e-input"));
+      expect(edge.borderTopColor).toBe(system("ButtonText"));
+      expect(parseFloat(style(container.querySelector(".bad .e-input")).borderTopWidth)).toBe(
+        2 * parseFloat(edge.borderTopWidth),
+      );
+      expect(style(container.querySelector(".e-check")).borderTopColor).toBe(system("GrayText"));
+      // The segmented track's edge is a shadow, so it draws a border instead.
+      expect(style(container.querySelector(".e-seg")).borderTopStyle).toBe("solid");
+    });
+
+    test("a switch that is on is Highlight with a HighlightText thumb, hovered too", async () => {
+      const { container } = await render(ESwitch, { props: { label: "Reminders", modelValue: true } });
+      await userEvent.hover(container.querySelector(".e-switch")!);
+      await forced();
+      const track = container.querySelector(".e-switch-track");
+      expect(style(track).backgroundColor).toBe(system("Highlight"));
+      expect(style(track).borderTopColor).toBe(system("Highlight"));
+      expect(style(track, "::after").backgroundColor).toBe(system("HighlightText"));
+    });
+
+    test("the selected tab is Highlight to its edge, and its count is forced again", async () => {
+      const { container } = await render(ETabs, {
+        props: {
+          items: [
+            { id: "a", label: "Open", count: 3 },
+            { id: "b", label: "Closed" },
+          ],
+        },
+      });
+      await forced();
+      expect(parseFloat(style(container.querySelector(".e-tablist")).borderBottomWidth)).toBeGreaterThan(0);
+      const tab = container.querySelector('.e-tab[aria-selected="true"]');
+      expect(style(tab).borderTopColor).toBe(system("Highlight"));
+      const count = style(container.querySelector(".e-count"));
+      expect(count.forcedColorAdjust).toBe("auto");
+      expect(count.borderTopColor).toBe(system("CanvasText"));
+    });
+
+    test("panels whose edge is a shadow draw an outline", async () => {
+      void [ETooltip, EDialog];
+      const { container } = await render({
+        template: `<div><div class="e-dialog">d</div><div class="e-popover">p</div><div class="e-tip-bubble">t</div></div>`,
+      });
+      await forced();
+      for (const el of container.querySelectorAll(".e-dialog, .e-popover, .e-tip-bubble")) {
+        expect(style(el).outlineStyle).toBe("solid");
+        expect(style(el).outlineColor).toBe(system("CanvasText"));
+      }
+    });
+
+    test("a focused checkbox rings in Highlight", async () => {
+      const { container } = await render(ECheckbox, { props: { label: "Agree" } });
+      await forced();
+      await userEvent.keyboard("{Tab}");
+      const box = container.querySelector(".e-check")!;
+      expect(document.activeElement).toBe(box);
+      expect(style(box).outlineColor).toBe(system("Highlight"));
+    });
   });
 });
 

@@ -35,8 +35,8 @@ interface Parsed {
   mod: boolean;
 }
 
-/** Whether this is an Apple device, where `mod` means Cmd. */
-const isApple = (): boolean =>
+/** Whether this is an Apple device, where `mod` means Cmd. False on the server, where there is no navigator. @internal */
+export const isApple = (): boolean =>
   typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
 
 function parse(combo: string): Parsed {
@@ -121,6 +121,8 @@ export function useShortcuts(map: ShortcutMap, options: ShortcutOptions = {}): (
 
 /**
  * The keycaps for a shortcut, for `EKbd`: `formatShortcut("mod+k")` is `["⌘", "K"]` on a Mac and `["Ctrl", "K"]` elsewhere.
+ * Left out, `apple` is read from the browser, and is false on the server. In a server-rendered page, pass `false` until
+ * the component is mounted and the browser's answer after, so the first render in the browser matches the server's.
  */
 export function formatShortcut(combo: string, apple: boolean = isApple()): string[] {
   const spec = parse(combo);

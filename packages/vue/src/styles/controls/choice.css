@@ -197,6 +197,22 @@
   }
 
   @media (forced-colors: active) {
+    .e-check,
+    .e-radio {
+      border-color: ButtonText;
+    }
+
+    .e-check:disabled,
+    .e-radio:disabled {
+      border-color: GrayText;
+      outline-color: GrayText;
+    }
+
+    .e-check:focus-visible,
+    .e-radio:focus-visible {
+      outline-color: Highlight;
+    }
+
     .e-check:checked,
     .e-check:indeterminate,
     .e-radio:checked {

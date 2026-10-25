@@ -3,7 +3,7 @@ import { computed } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import type { IconProp } from "../../icons/types.js";
 import { useMessages } from "../../config.js";
-import type { Size, Tone } from "../../composables/useSize.js";
+import type { Size, Tone } from "../../types.js";
 import "../../styles/base.css";
 
 /** The tones a stamp takes. */

@@ -100,8 +100,8 @@ describe("ESegmented", () => {
     await expect.element(page.getByRole("radio", { name: "Week" })).toBeChecked();
   });
 
-  test("required marks the group and its name", async () => {
-    await render(ESegmented, { props: { label: "View", options, required: true } });
+  test("required marks the group, and a hidden label puts the word in its name", async () => {
+    await render(ESegmented, { props: { label: "View", options, required: true, hideLabel: true } });
     const group = page.getByRole("radiogroup", { name: "View, Required" });
     await expect.element(group).toHaveAttribute("aria-required", "true");
   });
@@ -193,8 +193,8 @@ describe("ESegmented", () => {
     expect(bad.container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
   });
 
-  test("optional adds the word to the group's accessible name", async () => {
-    await render(ESegmented, { props: { label: "View", options, optional: true } });
+  test("optional adds the word to the accessible name of a group with a hidden label", async () => {
+    await render(ESegmented, { props: { label: "View", options, optional: true, hideLabel: true } });
     await expect.element(page.getByRole("radiogroup", { name: "View, Optional" })).toBeVisible();
   });
 
@@ -425,9 +425,9 @@ describe("ESegmented", () => {
     expect(getComputedStyle(container.querySelector(".e-seg-text")!).fontSize).toBe("14px");
   });
 
-  test("showLabel shows the label above the control and names the group with it, flag included", async () => {
+  test("the label shows above the control and names the group with it, flag included", async () => {
     const { container } = await render(ESegmented, {
-      props: { label: "View", options, showLabel: true, required: true },
+      props: { label: "View", options, required: true },
     });
     const label = container.querySelector(".e-seg-field > .e-field-label")!;
     expect(label.textContent).toContain("View");
@@ -436,6 +436,12 @@ describe("ESegmented", () => {
     expect(group.getAttribute("aria-labelledby")).toBe(label.id);
     expect(group.hasAttribute("aria-label")).toBe(false);
     await expect.element(page.getByRole("radiogroup", { name: "View Required" })).toBeVisible();
+  });
+
+  test("hideLabel keeps the label for screen readers only", async () => {
+    const { container } = await render(ESegmented, { props: { label: "View", options, hideLabel: true } });
+    expect(container.querySelector(".e-field-label")).toBeNull();
+    expect(container.querySelector("[role=radiogroup]")!.getAttribute("aria-label")).toBe("View");
   });
 
   test("exposes focus() and the chosen radio as input", async () => {

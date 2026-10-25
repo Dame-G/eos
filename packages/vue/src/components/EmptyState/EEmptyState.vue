@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import EIcon from "../Icon/EIcon.vue";
 import type { IconProp } from "../../icons/types.js";
-import type { Tone } from "../../composables/useSize.js";
+import type { Tone } from "../../types.js";
 import "../../styles/base.css";
 import "../Heading/scale.css";
 

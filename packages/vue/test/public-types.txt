@@ -2,7 +2,7 @@ AnnounceOptions
 AvatarGroupItem
 BreadcrumbItem
 CalendarRange
-CheckboxOption
+ChoiceOption
 CommandItem
 CopyOptions
 CopyState
@@ -31,6 +31,7 @@ EOptionInput
 Eos
 EosConfig
 EosOptions
+FormFieldEntry
 FormIssue
 GapName
 GapToken
@@ -48,10 +49,10 @@ MessageValue
 MetricTrend
 NavItem
 NavSection
+NoticeRole
 NoticeTone
 PasswordRule
 PluralMessage
-RadioOption
 RangePreset
 ResolvedIcon
 SearchResultItem

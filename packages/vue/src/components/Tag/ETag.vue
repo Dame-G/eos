@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { Tone } from "../../composables/useSize.js";
+import type { Tone } from "../../types.js";
 
 export type TagTone = Extract<Tone, "neutral" | "info" | "success" | "warning" | "danger">;
 </script>

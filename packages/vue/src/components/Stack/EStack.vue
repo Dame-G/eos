@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { useGap, type GapToken } from "./gap.js";
 import { useListRole } from "./list.js";
-import type { ElementTag } from "../../composables/useSize.js";
+import type { ElementTag } from "../../types.js";
 import "../../styles/base.css";
 
 const props = withDefaults(

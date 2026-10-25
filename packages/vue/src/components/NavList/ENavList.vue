@@ -33,7 +33,8 @@ export interface NavSection {
   items: NavItem[];
 }
 
-interface NavListOptions {
+/** The props of ENavList other than its items or sections. Exported so the built declarations can name it. @public */
+export interface NavListOptions {
   /** `vertical` stacks the links, for a sidebar or a menu. `horizontal` lays them in a row, for a header. */
   orientation?: "vertical" | "horizontal";
   /** The landmark's name. Each navigation on a page needs its own; with two left on the default, development warns. @default "Main" */
