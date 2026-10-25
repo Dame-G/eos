@@ -70,7 +70,7 @@ describe("ETextarea", () => {
   test("an error marks the textarea invalid and is announced; the hint sits 8px under it", async () => {
     const invalid = await render(ETextarea, { props: { label: "Note", error: "Too short" } });
     expect(invalid.container.querySelector("textarea")!.getAttribute("aria-invalid")).toBe("true");
-    expect(invalid.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(invalid.container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
     const hinted = await render(ETextarea, { props: { label: "Note", hint: "Hint" } });
     const box = hinted.container.querySelector("textarea")!.getBoundingClientRect();
     const hint = hinted.container.querySelector(".e-field-hint")!.getBoundingClientRect();

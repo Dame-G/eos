@@ -9,7 +9,6 @@ import EDatePicker from "../DatePicker/EDatePicker.vue";
 import ERangePicker from "../RangePicker/ERangePicker.vue";
 import { createEos } from "../../plugin.js";
 import { expectNoViolations } from "../../../test/axe.js";
-
 const OPTIONS = ["Visa", "Bank", "Cash"];
 
 const list = () => document.querySelector<HTMLElement>("[role=listbox]");
@@ -298,7 +297,7 @@ describe("ESelect", () => {
       error: "Choose a method",
     });
     await expect.poll(() => button.getAttribute("aria-invalid")).toBe("true");
-    expect(container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
     expect(container.querySelector(".e-field-hint")).toBeNull();
     expect(button.getAttribute("aria-describedby")).toBe(container.querySelector(".e-field-error")!.id);
   });
@@ -589,8 +588,9 @@ describe("ESelect", () => {
     ]);
   });
 
-  test("clearable shows a clear button that empties the value and keeps focus on the button", async () => {
+  test("clearable shows a clear button that empties the value, emits clear and keeps focus on the button", async () => {
     const got: string[] = [];
+    let cleared = 0;
     const { container } = await render(ESelect, {
       props: {
         label: "Pay",
@@ -598,11 +598,34 @@ describe("ESelect", () => {
         modelValue: "Bank",
         clearable: true,
         "onUpdate:modelValue": (v: unknown) => got.push(v as string),
+        onClear: () => cleared++,
       },
     });
     await page.getByRole("button", { name: "Clear" }).click();
     expect(got).toEqual([""]);
+    expect(cleared).toBe(1);
     expect(document.activeElement).toBe(buttonOf(container));
+  });
+
+  test("a bare `multiple` attribute in a template turns multiple on", async () => {
+    // A string slot goes through the template compiler, which passes a bare attribute as "", as an SFC does.
+    const Host = defineComponent({
+      setup:
+        (_, { slots }) =>
+        () =>
+          h("div", slots.default?.()),
+    });
+    const { container } = await render(Host, {
+      slots: {
+        default: `<ESelect multiple label="Pay" name="pay" :options="['Visa', 'Bank', 'Cash']" :model-value="['Visa', 'Cash']" />`,
+      },
+      global: { components: { ESelect } },
+    });
+    expect(buttonOf(container).textContent).toContain("2 selected");
+    expect(Array.from(container.querySelectorAll<HTMLInputElement>("input[type=hidden]")).map((i) => i.value)).toEqual([
+      "Visa",
+      "Cash",
+    ]);
   });
 
   test("loading shows a spinner and sets aria-busy", async () => {

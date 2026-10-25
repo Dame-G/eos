@@ -1,24 +1,26 @@
 <script lang="ts">
-export type { RadioOption } from "./options.js";
+export type { ChoiceOption } from "./options.js";
 </script>
 
 <script setup lang="ts" generic="T extends string = string">
-import { Comment, Fragment, ref, useSlots, type FunctionalComponent, type VNode } from "vue";
+import { Comment, computed, Fragment, h, ref, useSlots, type FunctionalComponent, type VNode } from "vue";
 import EFieldset from "../Fieldset/EFieldset.vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { useFormField } from "../../composables/useFormContext.js";
-import { normalizeChoices, type RadioOption } from "./options.js";
+import { normalizeChoices, type ChoiceOption } from "./options.js";
 import { keepIfReadonly } from "../Checkbox/useChoiceMessage.js";
+import { missingMessage } from "../Form/missing.js";
+import { useMessages } from "../../config.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
-import "../Checkbox/choice.css";
+import "../../styles/controls/choice.css";
 
 const props = defineProps<
   Omit<EFieldCommonProps, "id" | "required"> & {
     /** The question, as the group's legend. */
     label: string;
-    /** Five or fewer. A string is both value and label. `RadioOption`: `{ value, label, description?, disabled? }`. */
-    options: (T | RadioOption<T>)[];
+    /** Five or fewer. A string is both value and label. `ChoiceOption`: `{ value, label, description?, disabled? }`. */
+    options: readonly (T | ChoiceOption<T>)[];
     /** Sets `required` on the radios and adds a word beside the legend. */
     required?: boolean;
     /** Shared by the radios, submitted with a form. @default generated */
@@ -32,12 +34,13 @@ const props = defineProps<
 
 defineSlots<{
   /** A control shown under its option while that option is chosen, such as an amount field under "Another amount". An option with no content here shows no extra control. */
-  reveal(props: { option: RadioOption<T> }): unknown;
+  reveal(props: { option: ChoiceOption<T> }): unknown;
 }>();
 
 /** The chosen value. */
 const model = defineModel<T>();
 
+const t = useMessages();
 const name = useUid(() => props.name);
 const uid = useUid(() => props.id);
 const slots = useSlots();
@@ -48,15 +51,19 @@ function hasContent(nodes: VNode[]): boolean {
   );
 }
 
-function rows() {
-  return normalizeChoices<RadioOption<T>>(props.options).map((option, i) => {
-    const chosen = model.value === option.value;
-    const nodes = chosen ? slots.reveal?.({ option }) : undefined;
+const rows = computed(() =>
+  normalizeChoices<ChoiceOption<T>>(props.options).map((option, i) => {
     const id = `${uid.value}-${i + 1}`;
-    const descId = option.description ? `${id}-desc` : undefined;
-    return { option, chosen, id, descId, reveal: nodes && hasContent(nodes) ? nodes : null };
-  });
-}
+    return { option, chosen: model.value === option.value, id, descId: option.description ? `${id}-desc` : undefined };
+  }),
+);
+
+/** The chosen option's reveal content, in a box under it; nothing when the slot gives nothing for it. */
+const Reveal: FunctionalComponent<{ option: ChoiceOption<T> }> = (p) => {
+  const nodes = slots.reveal?.({ option: p.option }) as VNode[] | undefined;
+  return nodes && hasContent(nodes) ? h("div", { class: "e-choice-reveal" }, nodes) : null;
+};
+Reveal.props = ["option"];
 
 const guard = keepIfReadonly(() => props.readonly);
 const root = ref<{ $el: HTMLElement } | null>(null);
@@ -65,10 +72,10 @@ useFormField({
   id: () => uid.value,
   label: () => props.label,
   error: () => props.error,
-  check: () => {
-    const radio = root.value?.$el.querySelector<HTMLInputElement>(".e-radio");
-    return radio?.willValidate && !radio.validity.valid ? radio.validationMessage : undefined;
-  },
+  check: () =>
+    props.required && !props.disabled && !rows.value.some((r) => r.chosen)
+      ? missingMessage("radio", t("required"))
+      : undefined,
 });
 const firstRadio = () =>
   root.value?.$el.querySelector<HTMLInputElement>(".e-radio:checked") ??
@@ -82,9 +89,6 @@ defineExpose({
   },
   focus: () => firstRadio()?.focus(),
 });
-
-const Nodes: FunctionalComponent<{ nodes: VNode[] }> = (p) => p.nodes;
-Nodes.props = ["nodes"];
 </script>
 
 <template>
@@ -94,7 +98,7 @@ Nodes.props = ["nodes"];
     class="e-radiogroup"
     :class="{ 'e-radiogroup--row': orientation === 'horizontal' }"
     legend-class="e-radiogroup-legend"
-    bare
+    variant="plain"
     :legend="label"
     :hide-legend="hideLabel"
     :hint="hint"
@@ -105,8 +109,8 @@ Nodes.props = ["nodes"];
     role="radiogroup"
     :aria-readonly="readonly ? 'true' : undefined"
   >
-    <template v-for="row in rows()" :key="row.option.value">
-      <label class="e-choice" :class="{ 'e-choice--disabled': row.option.disabled, 'e-choice--open': row.reveal }">
+    <template v-for="row in rows" :key="row.option.value">
+      <label class="e-choice" :class="{ 'e-choice--disabled': row.option.disabled }">
         <input
           :id="row.id"
           type="radio"
@@ -129,14 +133,14 @@ Nodes.props = ["nodes"];
           }}</span>
         </span>
       </label>
-      <div v-if="row.reveal" class="e-choice-reveal"><Nodes :nodes="row.reveal" /></div>
+      <Reveal v-if="row.chosen && $slots.reveal" :option="row.option" />
     </template>
   </EFieldset>
 </template>
 
 <style>
 @layer e.controls {
-  .e-choice--open {
+  .e-choice:has(+ .e-choice-reveal) {
     min-height: 0;
     padding-block-end: var(--e-gap-tight);
   }

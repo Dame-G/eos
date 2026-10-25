@@ -13,6 +13,7 @@ A switch for a setting that takes effect the moment it is flipped. Use [`ECheckb
 | Prop          | Type      | Default      | Notes                                                                                                      |
 | ------------- | --------- | ------------ | ---------------------------------------------------------------------------------------------------------- |
 | `modelValue`  | `boolean` | `false`      | `v-model`: on or off.                                                                                      |
+| `hideLabel`   | `boolean` | `false`      | Hides the label from the page and keeps it for screen readers.                                             |
 | `hint`        | `string`  | None         | Help that stays under the control.                                                                         |
 | `error`       | `string`  | None         | What to fix. Replaces the hint, marks the control invalid and is announced.                                |
 | `required`    | `boolean` | `false`      | Sets the `required` attribute and shows "Required" beside the label.                                       |
@@ -44,4 +45,4 @@ A switch for a setting that takes effect the moment it is flipped. Use [`ECheckb
 
 ## Related
 
-[`ECheckbox`](../Checkbox/README.md) for a choice made when the form is submitted, rather than a setting that applies at once.
+[`ESegmented`](../Segmented/README.md) for a setting with more than two values.

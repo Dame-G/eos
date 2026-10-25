@@ -61,6 +61,21 @@ describe("EUpload", () => {
     expect(container.querySelector("input")!.accept).toBe(".pdf,.jpg");
   });
 
+  test("the hint names MIME types by their kind, keeps a wildcard as written, and shows maxSize and maxFiles", async () => {
+    const { container } = await render(EUpload, {
+      props: {
+        label: "Scans",
+        accept: "image/png, image/*,.pdf",
+        multiple: true,
+        maxSize: 5 * 1024 * 1024,
+        maxFiles: 3,
+      },
+    });
+    expect(container.querySelector(".e-drop-hint")!.textContent).toBe(
+      "PNG, image/*, PDF · Up to 5 MB · 3 files at most",
+    );
+  });
+
   test("choosing files lists them with their size and updates v-model", async () => {
     const model = ref<File[]>([]);
     const emitted: File[][] = [];
@@ -398,7 +413,7 @@ describe("EUpload", () => {
     );
     const bad = await render(EUpload, { props: { label: "Card", hint: "Hint", error: "File too large" } });
     expect(bad.container.querySelector(".e-field-hint")).toBeNull();
-    expect(bad.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(bad.container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
     expect(bad.container.querySelector("input")!.getAttribute("aria-invalid")).toBe("true");
   });
 

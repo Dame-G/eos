@@ -5,7 +5,7 @@ import EFieldCount from "../Field/EFieldCount.vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
+import "../../styles/controls/input.css";
 
 defineOptions({ inheritAttrs: false });
 

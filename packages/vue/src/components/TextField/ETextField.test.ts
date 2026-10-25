@@ -123,7 +123,7 @@ describe("ETextField", () => {
     const input = container.querySelector("input")!;
     expect(input.getAttribute("aria-invalid")).toBe("true");
     expect(container.querySelector(".e-field-hint")).toBeNull();
-    expect(container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
     await expect.element(page.getByRole("textbox", { name: "Email" })).toHaveAccessibleDescription("Enter an email");
   });
 

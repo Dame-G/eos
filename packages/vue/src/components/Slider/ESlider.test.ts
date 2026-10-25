@@ -97,8 +97,8 @@ describe("ESlider", () => {
     expect(model.value).toBe(0);
   });
 
-  test("format becomes aria-valuetext", async () => {
-    await render(ESlider, { props: { label: "Price", modelValue: 40, format: (v: number) => `$${v}` } });
+  test("valueText becomes aria-valuetext", async () => {
+    await render(ESlider, { props: { label: "Price", modelValue: 40, valueText: (v: number) => `$${v}` } });
     await expect.element(page.getByRole("slider", { name: "Price" })).toHaveAttribute("aria-valuetext", "$40");
   });
 
@@ -120,7 +120,7 @@ describe("ESlider", () => {
     await expect.element(page.getByRole("slider", { name: /Volume/ })).toHaveAccessibleDescription("0 to 100");
     const bad = await render(ESlider, { props: { label: "Loud", error: "Too loud" } });
     expect(bad.container.querySelector("[role=slider]")!.getAttribute("aria-invalid")).toBe("true");
-    expect(bad.container.querySelector(".e-field-error")!.getAttribute("role")).toBe("alert");
+    expect(bad.container.querySelector(".e-field-error")!.hasAttribute("role")).toBe(false);
   });
 
   test("name posts one hidden input per thumb, and a disabled slider posts nothing", async () => {
@@ -169,6 +169,26 @@ describe("ESlider", () => {
     expect(every.container.querySelectorAll(".e-slider-mark")).toHaveLength(5);
     const some = await render(ESlider, { props: { label: "B", marks: [0, 50, 100] } });
     expect(some.container.querySelectorAll(".e-slider-mark")).toHaveLength(3);
+  });
+
+  test("a fine step marks every few steps across the whole track, and the last value", async () => {
+    const { container } = await render(ESlider, { props: { label: "A", min: 0, max: 1000, marks: true } });
+    const marks = [...container.querySelectorAll<HTMLElement>(".e-slider-mark")];
+    expect(marks).toHaveLength(101);
+    const track = container.querySelector(".e-slider-track")!.getBoundingClientRect();
+    expect(marks.at(-1)!.getBoundingClientRect().left).toBeGreaterThan(track.left + track.width * 0.9);
+  });
+
+  test("required shows the word but sets no aria-required, which a slider does not take", async () => {
+    const { container } = await render(ESlider, { props: { label: "Volume", required: true } });
+    expect(container.querySelector(".e-field-flag")!.textContent).toBe("Required");
+    expect(container.querySelector(".e-slider-thumb")!.hasAttribute("aria-required")).toBe(false);
+  });
+
+  test("a click on the label focuses the first thumb", async () => {
+    const { container } = await render(ESlider, { props: { label: "Price", range: true } });
+    container.querySelector<HTMLElement>(".e-field-label")!.click();
+    expect(document.activeElement).toBe(container.querySelector(".e-slider-thumb"));
   });
 
   test("a decimal step still marks the last value: 0.1 added three times is past 0.3", async () => {

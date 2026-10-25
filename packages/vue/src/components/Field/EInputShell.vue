@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import SpinnerRing from "../Spinner/SpinnerRing.vue";
 import { focusInside } from "../../composables/useFocusInside.js";
-import type { EFieldSize } from "./fieldProps.js";
+import { sizeAttr, type EFieldSize } from "./fieldProps.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
+import "../../styles/controls/input.css";
 
+/** Internal: the box around an input and what sits beside it (units, buttons, a spinner). One root, so it can be a Reka anchor's child. Not exported. */
 defineProps<{
   invalid?: boolean;
   disabled?: boolean;
   readonly?: boolean;
   loading?: boolean;
-  size?: EFieldSize;
+  size?: EFieldSize | undefined;
 }>();
 
 defineSlots<{
@@ -26,7 +27,7 @@ defineSlots<{
     :data-invalid="invalid ? '' : undefined"
     :data-disabled="disabled ? '' : undefined"
     :data-readonly="readonly ? '' : undefined"
-    :data-size="size && size !== 'md' ? size : undefined"
+    :data-size="sizeAttr(size)"
     @click="focusInside"
   >
     <slot />

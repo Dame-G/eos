@@ -3,12 +3,12 @@ import EChoiceRow from "../Checkbox/EChoiceRow.vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { useChoice } from "../Checkbox/useChoiceMessage.js";
 import "../../styles/base.css";
-import "../Checkbox/choice.css";
+import "../../styles/controls/choice.css";
 
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<
-  Omit<EFieldCommonProps, "hideLabel"> & {
+  EFieldCommonProps & {
     /** The setting, named by what it does. */
     label: string;
     /** A line of detail under the label. */

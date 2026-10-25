@@ -25,6 +25,12 @@ export interface EOptionSection<T extends string = string> {
   options: EOption<T>[];
 }
 
+/**
+ * Whether a boolean prop typed by a type parameter (`multiple?: M`) is on. Vue casts only props it knows are boolean,
+ * so the bare attribute (`<ESelect multiple>`) arrives as "".
+ */
+export const isOn = (value: unknown): boolean => value === "" || !!value;
+
 /** Turns strings into options. */
 export function normalizeOptions<T extends string = string>(
   options: readonly EOptionInput<T>[] | undefined,

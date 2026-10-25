@@ -106,12 +106,20 @@ describe("EPasswordField", () => {
     expect(container.querySelectorAll(".e-rule[data-met]").length).toBe(2);
   });
 
-  test("the input is described by the hint and the rules", async () => {
+  test("the input is described by the hint and a count of the rules met, not the whole checklist", async () => {
     const { container } = await render(EPasswordField, { props: { rules, hint: "Use a passphrase" } });
     const input = container.querySelector("input")!;
     const ids = input.getAttribute("aria-describedby")!.split(" ");
     expect(ids).toContain(container.querySelector(".e-field-hint")!.id);
-    expect(ids).toContain(container.querySelector(".e-rules")!.id);
+    expect(ids).not.toContain(container.querySelector(".e-rules")!.id);
+    await expect
+      .element(page.getByLabelText("Password"))
+      .toHaveAccessibleDescription(`0 of ${rules.length} password rules met Use a passphrase`);
+  });
+
+  test("rules make the mode new unless it is given", async () => {
+    const { container } = await render(EPasswordField, { props: { rules } });
+    expect(container.querySelector("input")!.autocomplete).toBe("new-password");
   });
 
   test("v-model round trip", async () => {
@@ -169,7 +177,7 @@ describe("EPasswordField", () => {
     const { container } = await render(EPasswordField, { props: { hint: "Hint", error: "Too short" } });
     expect(container.querySelector("input")!.getAttribute("aria-invalid")).toBe("true");
     expect(container.querySelector(".e-field-hint")).toBeNull();
-    expect(container.querySelector("[role=alert]")!.textContent).toContain("Too short");
+    expect(container.querySelector(".e-field-error")!.textContent).toContain("Too short");
     expect(container.querySelector(".e-input-wrap")!.hasAttribute("data-invalid")).toBe(true);
   });
 

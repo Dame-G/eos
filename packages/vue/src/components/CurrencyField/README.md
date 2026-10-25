@@ -51,4 +51,4 @@ As `ENumberField` (including `size` and the posting of `name`): `class` and `sty
 
 ## Related
 
-[`ENumberField`](../NumberField/README.md) for any other number, [`ETextField`](../TextField/README.md) for text.
+[`ETextField`](../TextField/README.md) for text.

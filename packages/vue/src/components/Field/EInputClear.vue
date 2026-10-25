@@ -2,7 +2,7 @@
 import EIcon from "../Icon/EIcon.vue";
 import { useMessages } from "../../config.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
+import "../../styles/controls/input.css";
 
 const t = useMessages();
 </script>

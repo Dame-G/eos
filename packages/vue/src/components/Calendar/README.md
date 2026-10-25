@@ -59,4 +59,4 @@ Arrow keys step over disabled days.
 
 ## Related
 
-[`EDatePicker`](../DatePicker/README.md) and [`ERangePicker`](../RangePicker/README.md) put it in a field with a popup.
+[`ESelect`](../Select/README.md) to choose from a few fixed dates rather than a whole month.

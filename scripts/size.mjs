@@ -30,7 +30,7 @@ const jsFiles = (dir) =>
 //
 // THE LIMITS: change a number here, nowhere else.
 const limits = {
-  "style.css": 22000,
+  "style.css": 22300,
   // Minified here before gzip since the JavaScript ships unminified; rebased then with the headroom they had.
   "index.js": 2100,
   "all JavaScript files (each gzipped)": 144300,

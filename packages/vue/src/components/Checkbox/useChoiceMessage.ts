@@ -5,11 +5,9 @@ import { useUid } from "../../composables/useUid.js";
 import { useFormField } from "../../composables/useFormContext.js";
 
 /** What ECheckbox and ESwitch share. */
-export interface ChoiceProps extends Omit<EFieldCommonProps, "hideLabel"> {
+export interface ChoiceProps extends EFieldCommonProps {
   label: string;
   description?: string | undefined;
-  /** Only ECheckbox has it: the label is for screen readers, with no hint or error. */
-  bare?: boolean | undefined;
   name?: string | undefined;
   value?: string | undefined;
 }
@@ -21,13 +19,11 @@ export interface ChoiceProps extends Omit<EFieldCommonProps, "hideLabel"> {
 export function useChoice(props: ChoiceProps) {
   const id = useUid(() => props.id);
   const descId = computed(() => `${id.value}-desc`);
-  const description = computed(() => (props.bare ? undefined : props.description));
-  const { messageId, describedBy } = useChoiceMessage(id, () =>
-    props.bare ? {} : { hint: props.hint, error: props.error },
-  );
+  const description = computed(() => props.description);
+  const { messageId, describedBy } = useChoiceMessage(id, () => ({ hint: props.hint, error: props.error }));
   const attrs = useFieldAttrs();
   const input = ref<HTMLInputElement | null>(null);
-  useFormField({ id: () => id.value, label: () => props.label, error: () => (props.bare ? undefined : props.error) });
+  useFormField({ id: () => id.value, label: () => props.label, error: () => props.error });
   return {
     id,
     input,
@@ -40,7 +36,7 @@ export function useChoice(props: ChoiceProps) {
       description: description.value,
       descId: descId.value,
       messageId: messageId.value,
-      bare: props.bare,
+      hideLabel: props.hideLabel,
       disabled: props.disabled,
       required: props.required,
       optional: props.optional,

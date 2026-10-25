@@ -10,6 +10,8 @@ export type { LogicalSide } from "./composables/useDir.js";
 export { useFieldAttrs } from "./composables/useFieldAttrs.js";
 export type { DescribedBy } from "./composables/useFieldAttrs.js";
 export { focusInside } from "./composables/useFocusInside.js";
+export { useFormField } from "./composables/useFormContext.js";
+export type { FormFieldEntry } from "./composables/useFormContext.js";
 export { useLocale } from "./composables/useLocale.js";
 export { useOverflow } from "./composables/useOverflow.js";
 export type { UseOverflowOptions } from "./composables/useOverflow.js";

@@ -24,7 +24,7 @@ A form that checks its fields before it submits and, when some are invalid, list
 
 `class`, `style` and attributes land on the `form` element, which has `novalidate` so the browser's own bubbles stay off. The fields lay out in one column, `gap-loose` apart.
 
-The checks are the fields' `error` props and the browser's constraint validation (`required`, `pattern`, `min`, `max`, `type="email"`), so a field needs no extra code to take part. Every control that takes an `error` registers it, including `ECheckbox`, `ESwitch`, `ESegmented`, the groups, `EFieldset` and `ESignaturePad`. Controls the browser cannot check check themselves: an empty required `ESelect` (it posts through hidden inputs) and an empty required `ESignaturePad` stop the submit with the browser's own message. A group of radios is listed once, by its label, and its link focuses the chosen radio or the first. A custom control joins with `useFormField({ id, label, error, check })`. `@submit` fires once they pass, with the event; call `preventDefault()` (`@submit.prevent`) to send the data yourself. A submit button with `formnovalidate` skips the checks.
+The checks are the fields' `error` props and the browser's constraint validation (`required`, `pattern`, `min`, `max`, `type="email"`), so a field needs no extra code to take part. Every control that takes an `error` registers it, including `ECheckbox`, `ESwitch`, `ESegmented`, the groups, `EFieldset` and `ESignaturePad`. Controls the browser cannot check check themselves: an empty required `ESelect` (it posts through hidden inputs) and an empty required `ESignaturePad` stop the submit with the browser's own message. A group of radios is listed once, by its label, and its link focuses the chosen radio or the first. A custom control joins with [`useFormField`](../../composables/README.md), exported from the package. `@submit` fires once they pass, with the event; call `preventDefault()` (`@submit.prevent`) to send the data yourself. A submit button with `formnovalidate` skips the checks.
 
 ## Slots
 
@@ -51,6 +51,7 @@ When `submitting` goes from true to false and the fields now carry `error` text 
 - The summary is a danger [`ENotice`](../Notice/README.md) announced as an alert, titled "There is a problem". Each entry is a link that moves focus to its field.
 - Focus moves to the summary after a failed submit, or to the first invalid field with `focusTarget="field"`.
 - The list follows the fields while it is up, so a corrected field drops out.
+- A field's error that appears after the page loads is announced once. After a failed submit the summary is the one announcement, not each field's error as well.
 - `submitting` sets `aria-busy` on the form. Keep the submit button labelled and use its `loading` state to show progress.
 - Show the same `error` on the field: the summary names the problem, the field says it where it happens.
 

@@ -584,11 +584,14 @@ defineExpose({
 
 <style>
 @layer e.composites {
+  /* --_w fits seven day buttons and their gaps across. */
   .e-cal {
+    --_w: 20.5rem;
+
     display: flex;
     flex-direction: column;
     gap: var(--e-gap-snug);
-    width: 20.5rem;
+    width: var(--_w);
     max-width: 100%;
     font-family: var(--e-font-sans);
   }

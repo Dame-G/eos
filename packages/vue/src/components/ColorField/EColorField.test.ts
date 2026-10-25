@@ -41,13 +41,26 @@ describe("EColorField", () => {
     expect(custom.container.querySelector<HTMLInputElement>("input[type=text]")!.placeholder).toBe("#0a5c36");
   });
 
-  test("text that is not a colour is flagged when the person leaves the box", async () => {
-    await render(EColorField, { props: { label: "Brand colour", modelValue: "#2c95b4" } });
+  test("text that is not a colour is flagged when the person leaves the box, and emits invalid", async () => {
+    const heard: [string, string][] = [];
+    const models: string[] = [];
+    await render(EColorField, {
+      props: {
+        label: "Brand colour",
+        modelValue: "#2c95b4",
+        onInvalid: (text: string, message: string) => heard.push([text, message]),
+        "onUpdate:modelValue": (v: string) => models.push(v),
+      },
+    });
     const box = page.getByRole("textbox", { name: "Brand colour" });
     await box.fill("teal");
     await userEvent.tab();
     await expect.element(page.getByText("Enter a colour like #2c95b4")).toBeVisible();
     expect(box.element().getAttribute("aria-invalid")).toBe("true");
+    expect(heard).toHaveLength(1);
+    expect(heard[0]![0]).toBe("teal");
+    expect(heard[0]![1]).toMatch(/^Enter a colour like #2c95b4/);
+    expect(models).toEqual([]);
   });
 
   test("the picker changes the model and the text", async () => {

@@ -90,7 +90,7 @@ describe("ECheckbox", () => {
     input.focus();
     error.value = "You must agree";
     await nextTick();
-    await expect.element(page.getByRole("alert")).toBeVisible();
+    expect(container.querySelector(".e-field-error")!.textContent).toContain("You must agree");
     expect(container.firstElementChild).toBe(root);
     expect(container.querySelector("input")).toBe(input);
     expect(document.activeElement).toBe(input);
@@ -114,7 +114,7 @@ describe("ECheckbox", () => {
     const error = container.querySelector(".e-field-error")!;
     expect(input.getAttribute("aria-invalid")).toBe("true");
     expect(input.getAttribute("aria-describedby")).toBe(error.id);
-    expect(error.getAttribute("role")).toBe("alert");
+    expect(error.hasAttribute("role")).toBe(false);
     expect(container.firstElementChild!.className).toBe("e-choice-wrap");
     expect(error.getBoundingClientRect().top - input.getBoundingClientRect().bottom).toBe(8);
     await expect.element(page.getByRole("checkbox", { name: "Agree" })).toHaveAccessibleDescription("You must agree");
@@ -129,11 +129,14 @@ describe("ECheckbox", () => {
     expect(getComputedStyle(box, "::after").maskImage).toContain("rect");
   });
 
-  test("bare hides the label visually and keeps it for screen readers", async () => {
-    const { container } = await render(ECheckbox, { props: { label: "Select row 1", bare: true } });
-    expect(container.querySelector("label")!.className).toBe("e-choice e-choice--bare");
-    expect(container.querySelector(".e-sr")!.textContent).toBe("Select row 1");
+  test("hideLabel hides the label visually and keeps it for screen readers; an error still shows", async () => {
+    const { container } = await render(ECheckbox, {
+      props: { label: "Select row 1", hideLabel: true, error: "Pick one" },
+    });
+    expect(container.querySelector("label")!.className).toBe("e-choice e-choice--label-hidden");
+    expect(container.querySelector(".e-sr")!.textContent).toContain("Select row 1");
     await expect.element(page.getByRole("checkbox", { name: "Select row 1" })).toBeVisible();
+    await expect.element(page.getByRole("checkbox", { name: "Select row 1" })).toHaveAccessibleDescription("Pick one");
   });
 
   test("disabled, name, value and required reach the input", async () => {
@@ -172,7 +175,7 @@ describe("ECheckbox", () => {
             h(ECheckbox, { label: "Mixed", indeterminate: true }),
             h(ECheckbox, { label: "Invalid", error: "Required to continue" }),
             h(ECheckbox, { label: "Disabled", disabled: true }),
-            h(ECheckbox, { label: "Bare", bare: true }),
+            h(ECheckbox, { label: "Hidden", hideLabel: true }),
           ]),
       }),
     );

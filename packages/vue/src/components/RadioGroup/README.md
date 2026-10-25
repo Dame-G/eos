@@ -21,21 +21,21 @@ Exactly one of five or fewer options. Use [`ESelect`](../Select/README.md) for m
 
 <!-- props:start -->
 
-| Prop          | Type                         | Default      | Notes                                                                                                             |
-| ------------- | ---------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------- |
-| `modelValue`  | `T`                          | None         | `v-model`: the chosen value.                                                                                      |
-| `hideLabel`   | `boolean`                    | `false`      | Hides the label from the page and keeps it for screen readers.                                                    |
-| `hint`        | `string`                     | None         | Help that stays under the control.                                                                                |
-| `error`       | `string`                     | None         | What to fix. Replaces the hint, marks the control invalid and is announced.                                       |
-| `optional`    | `boolean`                    | `false`      | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.                          |
-| `disabled`    | `boolean`                    | `false`      | Disables the control. A disabled control posts nothing.                                                           |
-| `readonly`    | `boolean`                    | `false`      | Shows the value but blocks editing. The control stays focusable and selectable, and still posts its value.        |
-| `label`       | `string`                     | **Required** | The question, as the group's legend.                                                                              |
-| `options`     | `(T \| RadioOption<T>)[]`    | **Required** | Five or fewer. A string is both value and label. `RadioOption`: `{ value, label, description?, disabled? }`.      |
-| `required`    | `boolean`                    | `false`      | Sets `required` on the radios and adds a word beside the legend.                                                  |
-| `name`        | `string`                     | `generated`  | Shared by the radios, submitted with a form.                                                                      |
-| `id`          | `string`                     | `generated`  | The id of the group's `fieldset`, which an `EForm` summary links to. The radios are `{id}-1`, `{id}-2` and so on. |
-| `orientation` | `"vertical" \| "horizontal"` | `"vertical"` | Lays the options out in a row that wraps, or one under another.                                                   |
+| Prop          | Type                                | Default      | Notes                                                                                                             |
+| ------------- | ----------------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `modelValue`  | `T`                                 | None         | `v-model`: the chosen value.                                                                                      |
+| `hideLabel`   | `boolean`                           | `false`      | Hides the label from the page and keeps it for screen readers.                                                    |
+| `hint`        | `string`                            | None         | Help that stays under the control.                                                                                |
+| `error`       | `string`                            | None         | What to fix. Replaces the hint, marks the control invalid and is announced.                                       |
+| `optional`    | `boolean`                           | `false`      | Shows "Optional" beside the label. Only the rarer of required and optional needs a flag.                          |
+| `disabled`    | `boolean`                           | `false`      | Disables the control. A disabled control posts nothing.                                                           |
+| `readonly`    | `boolean`                           | `false`      | Shows the value but blocks editing. The control stays focusable and selectable, and still posts its value.        |
+| `label`       | `string`                            | **Required** | The question, as the group's legend.                                                                              |
+| `options`     | `readonly (T \| ChoiceOption<T>)[]` | **Required** | Five or fewer. A string is both value and label. `ChoiceOption`: `{ value, label, description?, disabled? }`.     |
+| `required`    | `boolean`                           | `false`      | Sets `required` on the radios and adds a word beside the legend.                                                  |
+| `name`        | `string`                            | `generated`  | Shared by the radios, submitted with a form.                                                                      |
+| `id`          | `string`                            | `generated`  | The id of the group's `fieldset`, which an `EForm` summary links to. The radios are `{id}-1`, `{id}-2` and so on. |
+| `orientation` | `"vertical" \| "horizontal"`        | `"vertical"` | Lays the options out in a row that wraps, or one under another.                                                   |
 
 `T` is a type parameter, inferred from the props you pass. It extends `string` (default `string`).
 
@@ -66,4 +66,4 @@ Exactly one of five or fewer options. Use [`ESelect`](../Select/README.md) for m
 
 ## Related
 
-[`ESegmented`](../Segmented/README.md) for two to five short options as a switch, [`ESelect`](../Select/README.md) for more, [`ECheckbox`](../Checkbox/README.md) for several at once.
+[`ESegmented`](../Segmented/README.md) for two to five short options as a switch, [`ECheckbox`](../Checkbox/README.md) for several at once.

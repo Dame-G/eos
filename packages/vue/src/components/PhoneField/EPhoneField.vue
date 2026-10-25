@@ -3,7 +3,10 @@ import { computed, nextTick, ref } from "vue";
 import ETextField from "../TextField/ETextField.vue";
 import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 import { useConfig, useMessages } from "../../config.js";
+import { useFieldAttrs } from "../../composables/useFieldAttrs.js";
 import "../../styles/base.css";
+
+defineOptions({ inheritAttrs: false });
 
 const props = defineProps<
   EFieldCommonProps &
@@ -11,26 +14,34 @@ const props = defineProps<
       /** The field's label. @default "Phone number" */
       label?: string;
       /** `us` formats as (555) 123-4567, drops a leading 1 (no US area code starts with 1) and keeps ten digits. `e164` keeps a `+` and up to 15 digits for an international number. `none` leaves the text alone. None of them validates. @default us for the en-US locale, else none */
-      format?: "us" | "e164" | "none";
+      display?: "us" | "e164" | "none";
       /** An example, never the label. */
       placeholder?: string;
-      /** What the model holds. `formatted` is the text as shown. `e164` is `+` and the digits, with the US `+1` added in the `us` format. `digits` is the digits alone. The input always shows the formatted number, and reads any of the three back. @default "formatted" */
-      valueFormat?: "formatted" | "e164" | "digits";
-      /** The name submitted with a form: the model, in the `valueFormat`. Posts nothing while disabled. */
+      /** What the model holds. `formatted` is the text as shown. `e164` is `+` and the digits, with the US `+1` added in the `us` display. `digits` is the digits alone. The input always shows the formatted number, and reads any of the three back. @default "formatted" */
+      modelAs?: "formatted" | "e164" | "digits";
+      /** The name submitted with a form: the model, as `modelAs` says. Posts nothing while disabled. */
       name?: string;
       /** Shows a button that empties the input while it has text. */
       clearable?: boolean;
     }
 >();
 
-/** The number, in the `valueFormat`. */
+const emit = defineEmits<{
+  /** The person pressed the clear button. The model is already empty. */
+  clear: [];
+}>();
+
+/** The number, as `modelAs` says. */
 const model = defineModel<string>({ default: "" });
 
 const t = useMessages();
 const config = useConfig();
+const attrs = useFieldAttrs();
 const field = ref<InstanceType<typeof ETextField> | null>(null);
+/** The model is posted as it is shown, or through a hidden input of its own when it holds another form. */
+const postsShown = computed(() => !props.modelAs || props.modelAs === "formatted");
 
-const style = computed(() => props.format || (/^en-US/i.test(config.locale) ? "us" : "none"));
+const style = computed(() => props.display || (/^en-US/i.test(config.locale) ? "us" : "none"));
 
 /** The leading 1 is always the country code in the US plan, so it is dropped as soon as it is typed. */
 function usDigits(raw: string): string {
@@ -55,9 +66,9 @@ const shown = computed(() => formatPhone(model.value));
 
 /** What the model gets for the number as shown. */
 function stored(text: string): string {
-  if (props.valueFormat !== "e164" && props.valueFormat !== "digits") return text;
+  if (props.modelAs !== "e164" && props.modelAs !== "digits") return text;
   const digits = text.replace(/\D/g, "");
-  if (props.valueFormat === "digits" || !digits) return digits;
+  if (props.modelAs === "digits" || !digits) return digits;
   return style.value === "us" ? `+1${digits}` : `+${digits}`;
 }
 
@@ -113,10 +124,19 @@ defineExpose({
     :size="size"
     :loading="loading"
     :clearable="clearable"
-    :name="name"
-    :submit-value="valueFormat && valueFormat !== 'formatted' ? model : undefined"
+    :name="postsShown ? name : undefined"
     :model-value="shown"
+    v-bind="$attrs"
     @update:model-value="onInput"
+    @clear="emit('clear')"
+  />
+  <input
+    v-if="name && !postsShown"
+    type="hidden"
+    :name="name"
+    :value="model"
+    :disabled="disabled || undefined"
+    :form="attrs.form()"
   />
 </template>
 

@@ -71,8 +71,8 @@ describe("EPhoneField", () => {
     expect(container.querySelector("input")!.value).toBe("(555) 123-4567");
   });
 
-  test("format e164 keeps a plus and up to 15 digits", async () => {
-    const { container } = await render(EPhoneField, { props: { label: "Mobile", format: "e164" } });
+  test("display e164 keeps a plus and up to 15 digits", async () => {
+    const { container } = await render(EPhoneField, { props: { label: "Mobile", display: "e164" } });
     await page.getByRole("textbox", { name: "Mobile" }).fill("+44 20 7946 0958");
     expect(container.querySelector("input")!.value).toBe("+442079460958");
   });
@@ -86,8 +86,8 @@ describe("EPhoneField", () => {
     expect(input.value).toBe("(555) 123-4567");
   });
 
-  test("format none leaves the text alone", async () => {
-    const { container } = await render(EPhoneField, { props: { label: "Mobile", format: "none" } });
+  test("display none leaves the text alone", async () => {
+    const { container } = await render(EPhoneField, { props: { label: "Mobile", display: "none" } });
     await page.getByRole("textbox", { name: "Mobile" }).fill("+44 20 7946 0958");
     expect(container.querySelector("input")!.value).toBe("+44 20 7946 0958");
   });
@@ -159,15 +159,15 @@ describe("EPhoneField", () => {
     await expectNoViolations(container);
   });
 
-  test("valueFormat e164 stores +1 and the digits, and shows the formatted number", async () => {
+  test("modelAs e164 stores +1 and the digits, and shows the formatted number", async () => {
     const model = ref("");
     const { container } = await render(
       defineComponent({
         render: () =>
           h(EPhoneField, {
             modelValue: model.value,
-            valueFormat: "e164",
-            format: "us",
+            modelAs: "e164",
+            display: "us",
             "onUpdate:modelValue": (v: string) => (model.value = v),
           }),
       }),
@@ -177,15 +177,15 @@ describe("EPhoneField", () => {
     expect(container.querySelector("input")!.value).toBe("(555) 123-4567");
   });
 
-  test("valueFormat digits stores the digits alone, and a stored value is read back into the format", async () => {
+  test("modelAs digits stores the digits alone, and a stored value is read back into the format", async () => {
     const model = ref("5551234567");
     const { container } = await render(
       defineComponent({
         render: () =>
           h(EPhoneField, {
             modelValue: model.value,
-            valueFormat: "digits",
-            format: "us",
+            modelAs: "digits",
+            display: "us",
             "onUpdate:modelValue": (v: string) => (model.value = v),
           }),
       }),
@@ -195,24 +195,44 @@ describe("EPhoneField", () => {
     expect(model.value).toBe("5559876543");
   });
 
-  test("clearable, size and loading pass through to the text field", async () => {
+  test("clearable, size and loading pass through to the text field; clear is emitted", async () => {
+    let cleared = 0;
     const { container } = await render(EPhoneField, {
-      props: { modelValue: "5551234567", clearable: true, size: "sm", loading: true },
+      props: { modelValue: "5551234567", clearable: true, size: "sm", loading: true, onClear: () => cleared++ },
     });
-    expect(container.querySelector(".e-input-btn")).not.toBeNull();
+    await page.getByRole("button", { name: "Clear" }).click();
+    expect(cleared).toBe(1);
     expect(container.querySelector(".e-input-spin")).not.toBeNull();
     expect(container.querySelector("input")!.getAttribute("data-size")).toBe("sm");
   });
 
-  test("a disabled phone field posts nothing, and a named one joins a form it is outside of", async () => {
-    await expectPostingContract(EPhoneField, { modelValue: "5551234567", format: "us" });
+  test("attributes fall through to the input and override its defaults; class stays on the wrapper", async () => {
+    const { container } = await render(EPhoneField, {
+      props: { label: "Mobile" },
+      attrs: { class: "mine", autocomplete: "off", "data-x": "1" },
+    });
+    expect(container.querySelector(".e-field")!.classList.contains("mine")).toBe(true);
+    const input = container.querySelector("input")!;
+    expect(input.getAttribute("autocomplete")).toBe("off");
+    expect(input.getAttribute("data-x")).toBe("1");
   });
 
-  test("with valueFormat the form posts the model while the input shows the formatted number", async () => {
+  test("clearable shows the button while there is text", async () => {
+    const { container } = await render(EPhoneField, {
+      props: { modelValue: "5551234567", clearable: true },
+    });
+    expect(container.querySelector(".e-input-btn")).not.toBeNull();
+  });
+
+  test("a disabled phone field posts nothing, and a named one joins a form it is outside of", async () => {
+    await expectPostingContract(EPhoneField, { modelValue: "5551234567", display: "us" });
+  });
+
+  test("with modelAs the form posts the model while the input shows the formatted number", async () => {
     const { container } = await render(
       defineComponent({
         render: () =>
-          h("form", [h(EPhoneField, { modelValue: "+15551234567", valueFormat: "e164", format: "us", name: "phone" })]),
+          h("form", [h(EPhoneField, { modelValue: "+15551234567", modelAs: "e164", display: "us", name: "phone" })]),
       }),
     );
     const input = container.querySelector<HTMLInputElement>("input:not([type=hidden])")!;

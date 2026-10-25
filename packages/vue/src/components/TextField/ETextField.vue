@@ -7,7 +7,7 @@ import EInputShell from "../Field/EInputShell.vue";
 import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
-import "./input.css";
+import "../../styles/controls/input.css";
 
 defineOptions({ inheritAttrs: false });
 
@@ -26,8 +26,6 @@ const props = defineProps<
       suffix?: string;
       /** The name submitted with a form. */
       name?: string;
-      /** Posts this under `name` instead of the text in the input, for an input that shows a formatted number and posts the plain one. The input itself is then not named. */
-      submitValue?: string;
       /** What the browser may fill in (`email`, `given-name`, `off`). Set it on every personal detail (WCAG 1.3.5). */
       autocomplete?: string;
       /** The most characters the input takes. */
@@ -61,7 +59,7 @@ function inputBind(field: FieldSlot) {
     value: model.value,
     autocomplete: props.autocomplete,
     maxlength: props.maxlength,
-    name: props.submitValue === undefined ? props.name : undefined,
+    name: props.name,
     ...control.bind(field, [
       props.prefix && `${field.id}-prefix`,
       props.suffix && `${field.id}-suffix`,
@@ -96,7 +94,6 @@ defineExpose(control.exposed);
         <span v-if="suffix" :id="`${field.id}-suffix`" class="e-affix e-affix--post">{{ suffix }}</span>
       </EInputShell>
       <input v-else ref="input" v-bind="inputBind(field)" @input="model = ($event.target as HTMLInputElement).value" />
-      <input v-if="name && submitValue !== undefined" type="hidden" v-bind="control.hidden(name, submitValue)" />
     </template>
     <template v-if="counter" #aside="{ id: fieldId }">
       <EFieldCount :id="`${fieldId}-count`" :count="model.length" :max="maxlength" />
