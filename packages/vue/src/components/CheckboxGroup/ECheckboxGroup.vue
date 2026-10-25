@@ -15,7 +15,7 @@ import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { normalizeChoices } from "../RadioGroup/options.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
-import "../Checkbox/choice.css";
+import "../../styles/controls/choice.css";
 
 const props = defineProps<
   Omit<EFieldCommonProps, "id" | "required" | "error"> & {

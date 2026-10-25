@@ -7,7 +7,7 @@ import EInputShell from "../Field/EInputShell.vue";
 import type { EFieldBoxProps, EFieldCommonProps } from "../Field/fieldProps.js";
 import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
-import "./input.css";
+import "../../styles/controls/input.css";
 
 defineOptions({ inheritAttrs: false });
 

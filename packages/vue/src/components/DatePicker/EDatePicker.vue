@@ -12,9 +12,9 @@ import { useFieldControl, type FieldSlot } from "../../composables/useFieldContr
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
-import "../Combobox/combo.css";
-import "./picker.css";
+import "../../styles/controls/input.css";
+import "../../styles/controls/combo.css";
+import "../../styles/controls/picker.css";
 
 defineOptions({ inheritAttrs: false });
 

@@ -4,7 +4,7 @@ import EChoiceRow from "./EChoiceRow.vue";
 import type { EFieldCommonProps } from "../Field/fieldProps.js";
 import { useChoice } from "./useChoiceMessage.js";
 import "../../styles/base.css";
-import "./choice.css";
+import "../../styles/controls/choice.css";
 
 defineOptions({ inheritAttrs: false });
 

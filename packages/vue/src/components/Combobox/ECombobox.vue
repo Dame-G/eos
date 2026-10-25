@@ -26,9 +26,9 @@ import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useUid } from "../../composables/useUid.js";
 import type { FieldSlot } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
-import "../Select/panel.css";
-import "./combo.css";
+import "../../styles/controls/input.css";
+import "../../styles/controls/panel.css";
+import "../../styles/controls/combo.css";
 
 defineOptions({ inheritAttrs: false });
 

@@ -6,7 +6,7 @@ import { useMessages } from "../../config.js";
 import { useFieldControl } from "../../composables/useFieldControl.js";
 import { useDir } from "../../composables/useDir.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
+import "../../styles/controls/input.css";
 
 defineOptions({ inheritAttrs: false });
 

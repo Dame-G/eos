@@ -21,9 +21,9 @@ import { useDir } from "../../composables/useDir.js";
 import { useScrollBody } from "../../composables/useScrollBody.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
-import "../Combobox/combo.css";
-import "./panel.css";
+import "../../styles/controls/input.css";
+import "../../styles/controls/combo.css";
+import "../../styles/controls/panel.css";
 
 const props = defineProps<{
   /** The normalised options. */

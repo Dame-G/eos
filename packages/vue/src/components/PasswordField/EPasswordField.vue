@@ -17,7 +17,7 @@ import { useMessages } from "../../config.js";
 import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useFieldControl, type FieldSlot } from "../../composables/useFieldControl.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
+import "../../styles/controls/input.css";
 
 defineOptions({ inheritAttrs: false });
 

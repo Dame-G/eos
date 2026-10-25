@@ -14,9 +14,9 @@ import { useFieldControl } from "../../composables/useFieldControl.js";
 import { useQuietFocus } from "../../composables/useQuietFocus.js";
 import { useLocale } from "../../composables/useLocale.js";
 import "../../styles/base.css";
-import "../TextField/input.css";
-import "../Combobox/combo.css";
-import "../DatePicker/picker.css";
+import "../../styles/controls/input.css";
+import "../../styles/controls/combo.css";
+import "../../styles/controls/picker.css";
 
 export interface RangePreset {
   /** The button text, such as "Last 7 days". */

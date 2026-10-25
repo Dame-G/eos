@@ -173,7 +173,7 @@
     outline: var(--e-stroke-edge) dashed var(--e-border-strong);
     outline-offset: calc(-1 * var(--e-stroke-edge));
     border-color: transparent;
-    background-color: var(--e-surface-tint);
+    background-color: var(--e-disabled-fill);
     box-shadow: none;
   }
 
@@ -183,8 +183,17 @@
 
     outline: 0;
     border-color: var(--e-border-strong);
-    background-color: var(--e-surface-tint);
+    background-color: var(--e-disabled-fill);
     box-shadow: none;
+  }
+
+  /* The disabled fill may be clear, so the chosen radio's dot takes the disabled ink, as the check does. */
+  .e-radio:checked:disabled {
+    background-image: radial-gradient(
+      circle,
+      var(--e-disabled-ink) 0 calc(var(--e-check-size) / 6),
+      transparent calc(var(--e-check-size) / 6 + 1px)
+    );
   }
 
   @media (forced-colors: active) {
