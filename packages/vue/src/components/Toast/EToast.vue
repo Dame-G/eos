@@ -87,6 +87,13 @@ onMounted(() => {
     border-end-start-radius: calc(var(--e-radius-md) + var(--e-depth-bold)) var(--e-radius-md);
   }
 
+  /* The one floating panel with no slab: its tone edge already marks it, and a second heavy edge along the bottom would compete with it. A plain ring, and the theme's own drop for the lift. */
+  .e-surface.e-toast {
+    box-shadow:
+      0 0 0 var(--e-stroke-card) var(--e-border),
+      var(--e-shadow-drop);
+  }
+
   .e-toast--actions {
     width: min(var(--_wide), 100%);
   }

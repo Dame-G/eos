@@ -381,10 +381,10 @@ describe("derived inputs", () => {
   });
 
   test("the shadow tint comes from the ground, not the brand", () => {
-    const plain = defineTheme({ elevation: "lifted" }).tokens["shadow-float"];
-    expect(defineTheme({ elevation: "lifted", brand: "#e91e63" }).tokens["shadow-float"]).toBe(plain);
+    const plain = defineTheme({ elevation: "lifted" }).tokens["shadow-drop"];
+    expect(defineTheme({ elevation: "lifted", brand: "#e91e63" }).tokens["shadow-drop"]).toBe(plain);
     expect(plain).toContain("rgba(36, 36, 36,");
-    expect(defineTheme({ elevation: "lifted", background: "#f6efe0" }).tokens["shadow-float"]).not.toBe(plain);
+    expect(defineTheme({ elevation: "lifted", background: "#f6efe0" }).tokens["shadow-drop"]).not.toBe(plain);
   });
 
   test("elevation presets keep the material: a flush frame or a card slab, and a floating slab with one drop", () => {
@@ -392,20 +392,22 @@ describe("derived inputs", () => {
     const floatSlab = "0 calc(2 * var(--e-depth)) 0 var(--e-stroke-card) var(--e-border)";
     // The default theme is the outline elevation, written out in tokens.json.
     expect(changed({ elevation: "outline" })).toEqual([]);
-    expect(base["shadow-float"]).toBe(`${ring}, ${floatSlab}, 0 12px 32px -8px rgba(36, 36, 36, 0.18)`);
+    expect(base["shadow-float"]).toBe(`${ring}, ${floatSlab}, var(--e-shadow-drop)`);
+    expect(base["shadow-drop"]).toBe("0 12px 32px -8px rgba(36, 36, 36, 0.18)");
     const lifted = defineTheme({ elevation: "lifted" }).tokens;
     expect(lifted["shadow-frame"]).toBe(`${ring}, 0 var(--e-depth) 0 var(--e-stroke-card) var(--e-border)`);
-    expect(lifted["shadow-float"]).toBe(`${ring}, ${floatSlab}, 0 20px 48px -12px rgba(36, 36, 36, 0.24)`);
+    expect(lifted["shadow-float"]).toBe(base["shadow-float"]);
+    expect(lifted["shadow-drop"]).toBe("0 20px 48px -12px rgba(36, 36, 36, 0.24)");
     expect(lifted["shadow-well"]).toBe(base["shadow-well"]);
-    expect(changed({ elevation: "lifted" }).sort()).toEqual(["shadow-float", "shadow-frame"]);
+    expect(changed({ elevation: "lifted" }).sort()).toEqual(["shadow-drop", "shadow-frame"]);
     const bold = defineTheme({ elevation: "bold" }).tokens;
-    expect(bold["shadow-float"]).toBe(`${ring}, ${floatSlab}, 0 14px 28px -10px rgba(36, 36, 36, 0.22)`);
+    expect(bold["shadow-drop"]).toBe("0 14px 28px -10px rgba(36, 36, 36, 0.22)");
     expect(bold["shadow-well"]).toBe("inset 0 3px 0 0 rgba(36, 36, 36, 0.09)");
-    expect(changed({ elevation: "bold" }).sort()).toEqual(["shadow-float", "shadow-well", "stroke-card"]);
+    expect(changed({ elevation: "bold" }).sort()).toEqual(["shadow-drop", "shadow-well", "stroke-card"]);
     expect(bold["stroke-card"]).toBe("2px");
     const darkOutline = defineTheme({ ...dark, elevation: "outline" }).tokens;
     expect(darkOutline["shadow-frame"]).toBe(ring);
-    expect(darkOutline["shadow-float"]).toContain("0.45)");
+    expect(darkOutline["shadow-drop"]).toContain("0.45)");
     expect(darkOutline["shadow-well"]).toBe(defineTheme(dark).tokens["shadow-well"]);
   });
 
@@ -413,7 +415,7 @@ describe("derived inputs", () => {
     for (const input of [{}, { background: "#f6efe0" }, dark, { elevation: "bold" as const }]) {
       const t = defineTheme({ elevation: "outline", ...input }).tokens;
       const shades = new Set(
-        [...(t["shadow-well"]! + " " + t["shadow-float"]!).matchAll(/rgba\((\d+, \d+, \d+),/g)].map((m) => m[1]),
+        [...(t["shadow-well"]! + " " + t["shadow-drop"]!).matchAll(/rgba\((\d+, \d+, \d+),/g)].map((m) => m[1]),
       );
       expect(shades.size, JSON.stringify(input)).toBe(1);
     }

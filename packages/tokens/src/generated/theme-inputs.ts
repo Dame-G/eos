@@ -107,7 +107,7 @@ export const themeInputs: readonly ThemeInputDoc[] = [
   },
   {
     name: "elevation",
-    doc: "How depth is drawn: sets `shadow-frame`, `shadow-well`, `shadow-float` and `shadow-paper` from the border, the slab ink and the hairline. Every one keeps the material: a frame is a flush ring, a floating panel is a slab lifted off the page (a hard edge twice `depth` deep and one faint drop). `outline` is the default; `lifted` stands cards on a slab of `depth` too and gives floating panels a wider drop; `bold` draws the rings at 2px and presses wells deeper.",
+    doc: "How depth is drawn: sets `shadow-frame`, `shadow-well`, `shadow-drop`, `shadow-float` and `shadow-paper` from the border, the slab ink and the hairline. Every one keeps the material: a frame is a flush ring, a floating panel is a slab lifted off the page (a hard edge twice `depth` deep and one faint drop). `outline` is the default; `lifted` stands cards on a slab of `depth` too and gives floating panels a wider drop; `bold` draws the rings at 2px and presses wells deeper.",
     type: '"outline" | "lifted" | "bold"',
   },
   {

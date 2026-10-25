@@ -83,7 +83,7 @@ export interface ThemeInput {
   density?: DensityPreset;
   /** How state changes feel: sets `duration-tap`, `duration-fade`, `duration-move` and `easing-out`. Every theme already stops moving under `prefers-reduced-motion`. */
   motion?: MotionPreset;
-  /** How depth is drawn: sets `shadow-frame`, `shadow-well`, `shadow-float` and `shadow-paper` from the border, the slab ink and the hairline. Every one keeps the material: a frame is a flush ring, a floating panel is a slab lifted off the page (a hard edge twice `depth` deep and one faint drop). `outline` is the default; `lifted` stands cards on a slab of `depth` too and gives floating panels a wider drop; `bold` draws the rings at 2px and presses wells deeper. */
+  /** How depth is drawn: sets `shadow-frame`, `shadow-well`, `shadow-drop`, `shadow-float` and `shadow-paper` from the border, the slab ink and the hairline. Every one keeps the material: a frame is a flush ring, a floating panel is a slab lifted off the page (a hard edge twice `depth` deep and one faint drop). `outline` is the default; `lifted` stands cards on a slab of `depth` too and gives floating panels a wider drop; `bold` draws the rings at 2px and presses wells deeper. */
   elevation?: ElevationPreset;
   /** A named look that sets `elevation`, `strokes`, `radius`, `depth` and `motion` together: `"paper"` (the default), `"ink"` (bold, sharp, snappy, a 3px slab) or `"quiet"` (round, gentle, a 1px slab). Your own `elevation`, `radius`, `depth`, `motion` and `strokes` entries win over it. */
   preset?: ThemePreset;
@@ -351,7 +351,8 @@ function deriveElevation(style: ElevationPreset, out: Record<string, string>, da
   const bold = style === "bold";
   out["shadow-frame"] = style === "lifted" ? `${RING}, ${CARD_SLAB}` : RING;
   out["shadow-well"] = `inset 0 ${bold ? 3 : 2}px 0 0 ${shade(dark ? 0.36 : bold ? 0.09 : 0.07)}`;
-  out["shadow-float"] = `${RING}, ${FLOAT_SLAB}, 0 ${y}px ${blur}px ${spread}px ${shade(dark ? darkAlpha : light)}`;
+  out["shadow-drop"] = `0 ${y}px ${blur}px ${spread}px ${shade(dark ? darkAlpha : light)}`;
+  out["shadow-float"] = `${RING}, ${FLOAT_SLAB}, var(--e-shadow-drop)`;
 }
 
 const holds = (value: string, checks: readonly ContrastCheck[]) =>

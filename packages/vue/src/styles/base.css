@@ -3,7 +3,7 @@
 /*
  * The material. Every surface is exactly one of three, and says which:
  *
- *   Raised   it stands on a slab: a border on every side in the slab colour, the bottom one thicker by the lift. Anything you press (a button, a checked box, a chosen segment, day or page, a tag, a key) and anything that floats over the page (a popover, a menu, a toast, a dialog: `--e-shadow-float`, a slab twice `--e-depth` deep lifted off the page).
+ *   Raised   it stands on a slab: a border on every side in the slab colour, the bottom one thicker by the lift. Anything you press (a button, a checked box, a chosen segment, day or page, a tag, a key) and anything that floats over the page (a popover, a menu, a dialog: `--e-shadow-float`, a slab twice `--e-depth` deep lifted off the page). A toast is the one floating panel with no slab: its tone edge marks it, so it takes a plain ring and `--e-shadow-drop`.
  *   Flush    it lies on the page: one flat `--e-stroke-card` ring in `--e-border` (3.4:1), `--e-shadow-frame`, never a drop shadow. A card, a summary, a table, a code block, the search results.
  *   Sunk     it is pressed into the page: `--e-shadow-well`, a shade along the top inner edge, on a tinted ground. A field, a track, a meter, a segmented control's groove; and `--e-shadow-sink` for a quiet control toggled on.
  *
