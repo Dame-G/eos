@@ -1,7 +1,7 @@
 @layer e.controls {
   .e-input,
   .e-input-wrap {
-    --e-ring: var(--e-border-strong);
+    --_ring: var(--e-border-strong);
   }
 
   .e-input[data-size="sm"],
@@ -24,7 +24,7 @@
 
     /* The edge is a border and the fill stops inside it: a fill under an inset-shadow edge leaks into the antialiased corner. */
     box-sizing: border-box;
-    border: var(--e-stroke-edge) solid var(--e-ring);
+    border: var(--e-stroke-edge) solid var(--_ring);
     border-radius: var(--e-radius-md);
     background-color: var(--e-surface);
     background-clip: padding-box;
@@ -45,7 +45,7 @@
   }
 
   .e-input:focus {
-    --e-ring: var(--e-focus-field);
+    --_ring: var(--e-focus-field);
 
     background-color: var(--e-surface);
     box-shadow: var(--e-well);
@@ -60,7 +60,7 @@
 
   .e-input[aria-invalid="true"],
   .e-input-wrap[data-invalid] {
-    --e-ring: var(--e-danger);
+    --_ring: var(--e-danger);
   }
 
   .e-input[aria-invalid="true"]:hover,
@@ -98,7 +98,7 @@
     min-width: 0;
     min-height: var(--_h, var(--e-control-height));
     box-sizing: border-box;
-    border: var(--e-stroke-edge) solid var(--e-ring);
+    border: var(--e-stroke-edge) solid var(--_ring);
     border-radius: var(--e-radius-md);
     background: var(--e-surface);
     background-clip: padding-box;
@@ -107,14 +107,14 @@
   }
 
   .e-input-wrap:focus-within {
-    --e-ring: var(--e-focus-field);
+    --_ring: var(--e-focus-field);
 
     outline: max(var(--e-stroke-focus), calc(2 * var(--e-stroke-edge))) solid var(--e-focus-field);
     outline-offset: var(--e-focus-gap-field);
   }
 
   .e-input-wrap[data-invalid]:focus-within {
-    --e-ring: var(--e-danger);
+    --_ring: var(--e-danger);
 
     outline-color: var(--e-danger);
   }
