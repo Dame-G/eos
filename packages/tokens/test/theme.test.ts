@@ -9,6 +9,7 @@ import {
   derivedFrom,
   groups,
   inputTokens,
+  themeInputs,
   themeVariant,
   toOklch,
   type ThemeInput,
@@ -639,6 +640,42 @@ describe("token metadata", () => {
     }
     for (const z of groups.zIndex) expect(constants).toContain(z);
     expect(derivedFrom["danger"]).toBe("danger,surface");
+  });
+  test("themeInputs lists every input of ThemeInput, each with its doc comment and type", () => {
+    // Type-checked both ways: a missing or an extra key here fails `pnpm typecheck`.
+    const keys: Record<keyof ThemeInput, true> = {
+      name: true,
+      brand: true,
+      accent: true,
+      background: true,
+      surface: true,
+      foreground: true,
+      danger: true,
+      warning: true,
+      success: true,
+      fonts: true,
+      radius: true,
+      textScale: true,
+      spaceScale: true,
+      strokes: true,
+      contrast: true,
+      scheme: true,
+      dark: true,
+      density: true,
+      motion: true,
+      elevation: true,
+      preset: true,
+      depth: true,
+      controlHeight: true,
+      tokens: true,
+      strict: true,
+    };
+    expect(themeInputs.map((i) => i.name).sort()).toEqual(Object.keys(keys).sort());
+    for (const input of themeInputs) {
+      expect(input.doc, input.name).not.toBe("");
+      expect(input.type, input.name).not.toBe("");
+    }
+    expect(themeInputs.find((i) => i.name === "contrast")!.type).toBe('"standard" | "high" | "auto"');
   });
 });
 

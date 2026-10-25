@@ -33,3 +33,5 @@ export {
   toHex,
 } from "./color.js";
 export { usage, derivedFrom, constants, inputTokens } from "./generated/defaults.js";
+export { themeInputs } from "./generated/theme-inputs.js";
+export type { ThemeInputDoc } from "./generated/theme-inputs.js";

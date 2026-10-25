@@ -52,7 +52,7 @@ All variables are prefixed `--e-` (`--e-primary`, `--e-space-4`). [Documentation
 | `depth`                                        | `depth` in px, and from it `depth-thin` (half, at least 1px) and `depth-bold` (double)                                                                                                                                                                                           |
 | `controlHeight`                                | `control-height`, `chip-height`                                                                                                                                                                                                                                                  |
 
-`derivedFrom`, `constants` and `inputTokens` say which input drives each token and which tokens are fixed.
+`derivedFrom`, `constants` and `inputTokens` say which input drives each token and which tokens are fixed. `themeInputs` lists every input with its doc comment and its type, generated from `ThemeInput`, for documentation and tooling.
 
 ## Token layers
 

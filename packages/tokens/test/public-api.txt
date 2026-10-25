@@ -27,6 +27,8 @@ value settleContrast
 type  SkippedPair
 type  Theme
 type  ThemeInput
+type  ThemeInputDoc
+value themeInputs
 type  ThemePreset
 value themeVariant
 type  ThemeVariant
