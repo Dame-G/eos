@@ -12,7 +12,7 @@ import { defineTheme } from "@eos-ui/tokens";
 const theme = defineTheme({ name: "clinic", brand: "#8a2be2", accent: "#2e7d32", radius: "round" });
 theme.issues; // contrast pairs that fail (empty when sound)
 theme.css(); // the theme as CSS custom properties, for the server
-theme.apply(document.documentElement); // or set them in the browser
+const remove = theme.apply(document.documentElement); // or set them in the browser; remove() takes them off
 ```
 
 ```css
@@ -33,12 +33,12 @@ All variables are prefixed `--e-` (`--e-primary`, `--e-space-4`). [Documentation
 
 ## Inputs
 
-`defineTheme()` takes the inputs below and emits every token. Any token can also be set by name in `tokens`, which wins over everything derived. `name` labels the theme (`data-e-theme`), and `strict` throws on a contrast failure instead of listing it in `issues`.
+`defineTheme()` takes the inputs below and emits every token. Any token can also be set by name in `tokens`, which wins over everything derived. A colour input takes a hex (3, 4, 6 or 8 digits), `rgb()`, `color-mix(in srgb, ...)`, `black` or `white`; alpha is dropped, and a colour it cannot read is ignored and listed in `warnings`. `name` labels the theme (`data-e-theme`), and `strict` throws on a contrast failure instead of listing it in `issues`.
 
 | Input                                          | Derives                                                                                                                                                                                                                                                             |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `brand`, `accent`                              | `brand`, `brand-accent`, `primary`, `secondary`, their tints, `surface-tint` and the `scrim`                                                                                                                                                                        |
-| `danger`, `warning`                            | `danger`, `on-danger`, `danger-soft`, `warning-strong`, `warning-soft`                                                                                                                                                                                              |
+| `brand`, `accent`                              | `brand`, `brand-accent`, `primary`, `secondary`, `secondary-soft`, `surface-tint` and the `scrim`. `accent` is the secondary action only, never the success tone                                                                                                    |
+| `danger`, `warning`, `success`                 | `danger`, `on-danger`, `danger-soft`, `warning-strong`, `warning-soft`, `success`, `success-soft`                                                                                                                                                                   |
 | `background`, `surface`, `foreground`          | the grounds, `ink`, `muted`, `border`, `border-strong`. A dark surface lifts the action colours                                                                                                                                                                     |
 | `preset` `"paper" \| "ink" \| "quiet"`         | `elevation`, `strokes`, `radius` and `motion` together. Your own entries win. `paper` is the default look, `ink` is bold, sharp and snappy, `quiet` is lifted, round and gentle                                                                                     |
 | `fonts`, `radius`                              | `font-sans`, `font-mono`, `font-script`, `radius-sm` to `radius-lg`. `radius` is a preset, one base number in px (`md`; `sm` half, `lg` double) or `{ sm, md, lg }`                                                                                                 |
@@ -60,7 +60,8 @@ All variables are prefixed `--e-` (`--e-primary`, `--e-space-4`). [Documentation
 - **Slab and interaction.** `depth`, `slab-thin` and `slab-bold` are the thicknesses of a raised edge. `ring-hover` and `ring-press` are the hairline ring of the hover and press states, drawn at `stroke-edge`, with `wash-hover`, `wash-press` (the one contrast-fitted hover pair) and `transition-state`. `underline-offset` is the gap under every underlined text.
 - **Sizes.** `size-panel-sm`, `-md` and `-lg` (28, 32, 36rem) are the widths of dialogs, drawers, popovers and toasts; `shell-width` and `shell-rail` are the `EAppShell` column and its side lines; `radius-round` is a circle.
 - **Motion.** `duration-fade` sits between `duration-tap` and `duration-move`; `easing-enter` and `easing-exit` are for arriving and leaving. All three durations collapse under `prefers-reduced-motion`.
-- **Colour.** `info`, `success`, `warning`, `text-link` and `focus-field` are aliases of other colours, kept so a theme can set them apart. `surface-raised` and `surface-sunken` are removed.
+- **Colour.** `info`, `warning`, `text-link` and `focus-field` are aliases of other colours, kept so a theme can set them apart. `success` is its own colour, so a brand `accent` never turns a success state another hue.
+- **Spacing scale.** `space-5`, `space-10` and `space-16` are steps of the scale that no component uses, kept for layouts of your own.
 
 ## Checks, warnings and explain
 
@@ -68,7 +69,7 @@ All variables are prefixed `--e-` (`--e-primary`, `--e-space-4`). [Documentation
 
 ## Following the visitor
 
-`scheme: "auto"` and `contrast: "auto"` are opt-in. The base tokens stay the light, standard theme. Each variant is derived like any other theme (so it is contrast-checked and listed in `issues`), and only the tokens that differ are emitted inside `@media (prefers-color-scheme: dark)`, `@media (prefers-contrast: more)` and both together. `color-scheme` is `light` at the root and `dark` inside the dark media query. `theme.alternates` lists them. `theme.apply()` evaluates the queries itself and repaints when they change.
+`scheme: "auto"` and `contrast: "auto"` are opt-in. The base tokens stay the light, standard theme. Each variant is derived like any other theme (so it is contrast-checked and listed in `issues`), and only the tokens that differ are emitted inside `@media (prefers-color-scheme: dark)`, `@media (prefers-contrast: more)` and both together. `color-scheme` is `light` at the root and `dark` inside the dark media query. `theme.alternates` lists them. `theme.apply()` evaluates the queries itself and repaints when they change, until the function it returns is called. `themeVariant(theme, { dark, more })` gives the tokens and `color-scheme` a visitor with those settings sees, for a renderer that sets the tokens itself, and `darkVariant(input)` gives the inputs the dark variant is derived from.
 
 ```ts
 defineTheme({ brand: "#8a2be2", scheme: "auto", contrast: "auto", dark: { surface: "#0e1117" } });
@@ -80,7 +81,7 @@ Every theme's CSS also carries two fixed overrides. Under `prefers-reduced-motio
 
 ## Design tools
 
-`theme.dtcg()` returns the theme as [W3C Design Tokens](https://www.designtokens.org) JSON, grouped by kind (`color`, `spacing`, `radius`, `shadow`, `fontSize`, `size`, `stroke`, `duration`, `easing`, `zIndex`, `weight`, `font`). The default theme is also published as `@eos-ui/tokens/tokens.dtcg.json`, ready to import into Tokens Studio for Figma or to feed Style Dictionary.
+`theme.dtcg()` returns the theme as [W3C Design Tokens](https://www.designtokens.org) JSON, grouped by kind (`color`, `spacing`, `layout`, `radius`, `shadow`, `fontSize`, `tracking`, `leading`, `size`, `stroke`, `duration`, `easing`, `zIndex`, `weight`, `type`, `font`). The default theme is also published as `@eos-ui/tokens/tokens.dtcg.json`, ready to import into Tokens Studio for Figma or to feed Style Dictionary.
 
 - A token that references another token becomes an alias: `"focus-ring": { "$value": "{color.ink}" }`.
 - Colours, dimensions, durations, cubic-bezier easings, z-indexes and font stacks carry a `$type`. A value no DTCG type can hold, such as a stacked shadow or a `color-mix()`, keeps its CSS string and has no `$type`.

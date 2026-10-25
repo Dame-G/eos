@@ -5,6 +5,7 @@ import {
   contrast,
   fromOklch,
   luminance,
+  parseColor,
   parseHex,
   reachAll,
   reachContrast,
@@ -34,12 +35,18 @@ export type ThemeVariant = Omit<ThemeInput, "name" | "scheme" | "dark" | "strict
 /** The surface of the dark variant when `scheme: "auto"` gives none. */
 const DARK_SURFACE = "#15121b";
 
+/**
+ * The inputs of `defineTheme()`. A colour input (`brand`, `accent`, `background`, `surface`, `foreground`, `danger`,
+ * `warning`, `success`) takes a hex (3, 4, 6 or 8 digits), `rgb()` or `rgba()`, `color-mix(in srgb, ...)` of those,
+ * `black` or `white`. Alpha is dropped: the colour is used opaque. A value it cannot read is ignored and reported in
+ * `warnings`.
+ */
 export interface ThemeInput {
   /** Identifies the theme. It becomes the value of `data-e-theme` when the theme is scoped to an element. */
   name?: string;
   /** The brand colour. The deep action colour (`primary`) is derived from it so white text on it reaches 7:1. */
   brand?: string;
-  /** A second brand colour for positive actions (`secondary`), derived the same way. */
+  /** A second brand colour for the secondary action (`secondary`), derived the same way. It does not change the success tone: that is `success`. */
   accent?: string;
   /** The page ground: the colour behind everything. Sets `background`. When `surface` is given and this is not, the page ground follows the surface. */
   background?: string;
@@ -51,6 +58,8 @@ export interface ThemeInput {
   danger?: string;
   /** The caution colour. Derives `warning-strong` (4.5:1 or more on the surface and on `warning-soft`) and `warning-soft`. */
   warning?: string;
+  /** The positive colour (paid, done, saved). Derives `success` (4.5:1 or more on the surface and on `success-soft`) and `success-soft`. */
+  success?: string;
   /** Font stacks for body, mono and signature text. Fonts are never bundled: load them yourself or import `@eos-ui/vue/fonts.css`. */
   fonts?: { sans?: string; mono?: string; script?: string };
   /** Corner style: a preset, one base radius in px (`radius-md`; `radius-sm` is half of it and `radius-lg` double), or explicit values. */
@@ -115,11 +124,11 @@ export interface Theme {
   name: string;
   /** Every token, by name without the leading `--`. */
   tokens: Record<string, string>;
-  /** Failures of the contrast pairs the system promises (text 4.5, non-text 3). Empty when the theme is sound. With `scheme: "auto"` or `contrast: "auto"` it also lists the failures of every variant, their role ending in the media query. */
+  /** Failures of the contrast pairs the system promises (body text 7, other text 4.5, non-text 3). Empty when the theme is sound. With `scheme: "auto"` or `contrast: "auto"` it also lists the failures of every variant, their role ending in the media query. */
   issues: ContrastIssue[];
   /** Tokens that change under a media query (`scheme: "auto"`, `contrast: "auto"`), in cascade order: the last one that matches wins. Empty for a fixed theme. */
   alternates: Alternate[];
-  /** Inputs that were ignored or adjusted (a `controlHeight` under the compact tap target, a scale that is not a positive number, an unknown token in `tokens`) and contrast pairs that could not be evaluated. Also printed with `console.warn` outside production. */
+  /** Inputs that were ignored or adjusted (a colour it cannot read, a `controlHeight` under the compact tap target, a scale that is not a positive number, an unknown token in `tokens`) and contrast pairs that could not be evaluated. Also printed with `console.warn` outside production. */
   warnings: string[];
   /** Says where a token's value comes from: its value, the inputs that drive it and whether you set it, and its usage note. */
   explain(token: string): string;
@@ -127,8 +136,8 @@ export interface Theme {
   css(options?: CssOptions): string;
   /** The tokens as W3C Design Tokens JSON, for Figma (Tokens Studio), Style Dictionary and other design tools. */
   dtcg(): DtcgTokens;
-  /** Sets the tokens on an element as inline custom properties and marks it `data-e-theme`. Browser only. */
-  apply(el?: HTMLElement): void;
+  /** Sets the tokens on an element as inline custom properties and marks it `data-e-theme`, and repaints when a media query of `alternates` changes. Returns a function that removes the properties, the mark and the media listeners. Browser only. */
+  apply(el?: HTMLElement): () => void;
 }
 
 /** Cascade order of the library. Later layers win, and each layer only builds on the ones before it. `e.reset` has no rules in the packages and is public: a site puts its own resets there (a documentation theme's defaults, for one) so every library layer overrides them. */
@@ -202,9 +211,16 @@ const BLACK = "#000000";
 const WHITE = "#ffffff";
 const DARK_DANGER = "#d33b30";
 const DARK_WARNING = "#ffc857";
+/** The success colour on a dark surface when `success` gives none: the default mint accent, which holds on dark grounds. */
+const DARK_SUCCESS = "#9ad9b4";
 const COMPACT_SPACE = 0.75;
 const STAMP_INK = "#b23a14";
-const DARK_WELL = "inset 0 2px 0 0 rgba(0, 0, 0, 0.35)";
+/** The shade of the inset well on a dark surface, where a light one would not show. */
+const DARK_WELL_SHADE = "rgba(0, 0, 0, 0.35)";
+const DARK_WELL = `inset 0 2px 0 0 ${DARK_WELL_SHADE}`;
+/** The OKLCH lightness and the most chroma of the deep shade a light theme draws its shadows and scrim in: the default lavender's, so a brand or ground tints them no more than the default does. */
+const SHADE_L = 0.2613;
+const SHADE_MAX_C = 0.0408;
 
 /** Boxes that belong to the text beside them, so they grow with `textScale` as the type does. */
 const TEXT_SIZED = [
@@ -257,7 +273,16 @@ function scaleTokens(out: Record<string, string>, names: readonly string[], fact
   }
 }
 
-function toneHue(soft: "danger-soft" | "warning-soft", strong: "danger" | "warning-strong", tone?: string): number {
+type Tone = readonly [soft: TokenName, strong: TokenName, input: "danger" | "warning" | "success"];
+/** The status tones a theme input recolours: the soft backdrop, the strong colour it is matched to, and the input. */
+const TONES: readonly Tone[] = [
+  ["danger-soft", "danger", "danger"],
+  ["warning-soft", "warning-strong", "warning"],
+  ["success-soft", "success", "success"],
+];
+
+/** The hue of a tone's soft backdrop: the default one, turned by as much as the input turns the strong colour. */
+function toneHue(soft: TokenName, strong: TokenName, tone?: string): number {
   const hue = toOklch(defaults[soft]).h;
   return tone ? hue + toOklch(tone).h - toOklch(defaults[strong]).h : hue;
 }
@@ -299,7 +324,7 @@ const CARD: ShadowLayer[] = [
 function shadowRgb(out: Record<string, string>, dark: boolean) {
   const ground = toOklch(out["background"]!);
   const [r, g, b] = parseHex(
-    fromOklch({ l: dark ? 0.07 : 0.2613, c: Math.min(ground.c, dark ? 0.03 : 0.0408), h: ground.h }),
+    fromOklch({ l: dark ? 0.07 : SHADE_L, c: Math.min(ground.c, dark ? 0.03 : SHADE_MAX_C), h: ground.h }),
   );
   return `${r}, ${g}, ${b}`;
 }
@@ -307,7 +332,7 @@ function shadowRgb(out: Record<string, string>, dark: boolean) {
 /** The scrim is the deep shade of the brand, as the default one is of the lavender, so it follows a theme instead of tinting every brand the default hue. */
 function brandScrim(brand: string) {
   const { c, h } = toOklch(brand);
-  const [r, g, b] = parseHex(fromOklch({ l: 0.2613, c: Math.min(c, 0.0408), h }));
+  const [r, g, b] = parseHex(fromOklch({ l: SHADE_L, c: Math.min(c, SHADE_MAX_C), h }));
   return `rgb(${r} ${g} ${b} / 0.55)`;
 }
 
@@ -331,7 +356,7 @@ function deriveElevation(style: ElevationPreset, out: Record<string, string>, da
     out["float"] = `${RING}, ${layers(LIFTED, dark, base)}`;
   } else if (style === "bold") {
     out["frame"] = RING;
-    out["well"] = `inset 0 3px 0 0 ${dark ? "rgba(0, 0, 0, 0.35)" : "rgba(0, 0, 0, 0.08)"}`;
+    out["well"] = `inset 0 3px 0 0 ${dark ? DARK_WELL_SHADE : "rgba(0, 0, 0, 0.08)"}`;
     out["float"] =
       `${RING}, 4px 4px 0 0 rgba(${base}, ${dark ? 0.75 : 0.32}), 0 14px 28px -10px rgba(${base}, ${dark ? 0.7 : 0.22})`;
   } else {
@@ -442,10 +467,9 @@ function deriveGround(input: ThemeInput, out: Record<string, string>, dark: bool
     const l = toOklch(input.surface).l;
     out["surface-tint"] = groundTint(input.brand ?? out["brand"]!, l, dark);
     for (const [token, hueSource] of [
-      ["secondary-soft", toOklch(input.accent ?? defaults["secondary-soft"]).h],
-      ["danger-soft", toneHue("danger-soft", "danger", input.danger)],
-      ["warning-soft", toneHue("warning-soft", "warning-strong", input.warning)],
-    ] as const) {
+      ["secondary-soft", toOklch(input.accent ?? defaults["secondary-soft"]).h] as const,
+      ...TONES.map(([soft, strong, key]) => [soft, toneHue(soft, strong, input[key])] as const),
+    ]) {
       const base = toOklch(defaults[token]);
       const chroma = dark ? 0.05 : token === "secondary-soft" && input.accent ? 0.04 : base.c;
       const offset = token === "secondary-soft" && input.accent ? -0.04 : base.l - 1;
@@ -582,6 +606,7 @@ function derive(input: ThemeInput): Record<string, string> {
   if (dark) {
     for (const t of ["on-primary", "on-secondary", "on-danger"]) out[t] = BLACK;
     out["warning-strong"] = input.warning ?? DARK_WARNING;
+    out["success"] = input.success ?? DARK_SUCCESS;
     out["scrim"] = "rgb(0 0 0 / 0.7)";
     out["well"] = DARK_WELL;
     // Darkening a dark fill is invisible, so hover and press lighten it instead, and the slab goes deeper.
@@ -603,16 +628,15 @@ function derive(input: ThemeInput): Record<string, string> {
   if (input.accent && !input.surface) out["secondary-soft"] = tint(input.accent, 0.96, 0.04);
   deriveGround(input, out, dark);
   if (!input.surface) {
-    for (const [token, tone, strong] of [
-      ["danger-soft", input.danger, "danger"],
-      ["warning-soft", input.warning, "warning-strong"],
-    ] as const) {
+    for (const [token, strong, key] of TONES) {
+      const tone = input[key];
       const hue = toneHue(token, strong, tone);
       const base = toOklch(defaults[token]);
       if (tone && hue !== base.h) out[token] = withLightness(defaults[token], base.l, base.c, hue);
     }
   }
   if (input.warning && !dark) out["warning-strong"] = reachContrast(input.warning, out["surface"]!, 7);
+  if (input.success && !dark) out["success"] = reachContrast(input.success, out["surface"]!, 7);
   const surface = out["surface"]!;
   if (input.surface) {
     if (!fitFill(out, "primary", "on-primary", out["brand"]!, [[surface, 4.5]])) {
@@ -629,6 +653,10 @@ function derive(input: ThemeInput): Record<string, string> {
   if (input.surface || input.warning) {
     const base = input.warning ?? (dark ? DARK_WARNING : defaults["warning-strong"]);
     fitTone(out, "warning-strong", undefined, "warning-soft", base, surface);
+  }
+  if (input.surface || input.success) {
+    const base = input.success ?? (dark ? DARK_SUCCESS : defaults["success"]);
+    fitTone(out, "success", undefined, "success-soft", base, surface);
   }
   // The outline has to show on the tinted ground as well as on the surface.
   fit(out, "border", out["border"]!, [
@@ -770,6 +798,7 @@ function variants(input: ThemeInput, base: Record<string, string>) {
   return { alternates, fulls };
 }
 
+/** The disposer of the theme applied to each element, so a second `apply()` replaces the first. */
 const watchers = new WeakMap<HTMLElement, () => void>();
 
 const SCALES = ["textScale", "spaceScale", "controlHeight"] as const;
@@ -803,15 +832,104 @@ function inputWarnings(raw: ThemeInput): string[] {
   return out;
 }
 
-const isProduction = () =>
-  (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.["NODE_ENV"] ===
-  "production";
+declare const process: { env: Record<string, string | undefined> };
 
-export function defineTheme(given: ThemeInput = {}): Theme {
+/**
+ * True in a production build of the consumer's app. Reads `process.env.NODE_ENV` in full, which bundlers replace with a
+ * literal and Node sets at run time. Where nothing replaced it and there is no `process` (a script tag in a browser), the
+ * lookup throws and the answer is "not production".
+ */
+function isProduction(): boolean {
+  try {
+    return process.env.NODE_ENV === "production";
+  } catch {
+    return false;
+  }
+}
+
+const COLOUR_INPUTS = [
+  "brand",
+  "accent",
+  "background",
+  "surface",
+  "foreground",
+  "danger",
+  "warning",
+  "success",
+] as const;
+
+/** The colour inputs as opaque hex. One it cannot read is dropped and reported; alpha is dropped and reported. */
+function readColours<T extends ThemeVariant>(raw: T, warnings: string[], prefix = ""): T {
+  const out: Record<string, unknown> = { ...raw };
+  for (const key of COLOUR_INPUTS) {
+    const value = raw[key];
+    if (value === undefined) continue;
+    const c = typeof value === "string" ? parseColor(value) : undefined;
+    if (!c || c.a === 0) {
+      delete out[key];
+      warnings.push(
+        `${prefix}${key}: ${JSON.stringify(value)} is not a colour defineTheme can read (a hex, rgb(), color-mix(in srgb, ...), black or white), so it is ignored.`,
+      );
+      continue;
+    }
+    if (c.a < 1) warnings.push(`${prefix}${key}: the alpha of ${value} is dropped; the colour is used opaque.`);
+    out[key] = toHex([c.r, c.g, c.b]);
+  }
+  return out as T;
+}
+
+/** The colour inputs of a theme and of its `dark` variant, read. */
+function readInput(given: ThemeInput, warnings: string[]): ThemeInput {
+  const out = readColours(given, warnings);
+  if (given.dark) out.dark = readColours(given.dark, warnings, "dark.");
+  return out;
+}
+
+/** The `color-scheme` of each theme `defineTheme` built. */
+const schemes = new WeakMap<Theme, "light" | "dark">();
+
+/**
+ * The inputs of a theme's dark variant, as `scheme: "auto"` derives it: the theme's own inputs without its grounds,
+ * with `dark` laid over them and a dark surface (`#15121b`) when `dark` gives none.
+ */
+export function darkVariant(input: ThemeInput): ThemeInput {
+  return darkInput(input);
+}
+
+/** The visitor's settings a theme's media-query alternates answer to. */
+export interface VariantQuery {
+  /** `prefers-color-scheme: dark`. */
+  dark?: boolean;
+  /** `prefers-contrast: more`. */
+  more?: boolean;
+}
+
+/**
+ * The tokens and `color-scheme` of a theme as the visitor sees it: the base theme with the last of its `alternates`
+ * whose queries all hold laid over it. A fixed theme (no `scheme: "auto"` or `contrast: "auto"`) is the same for every
+ * query. For a renderer that sets tokens itself, such as inline styles on a scoped element.
+ */
+export function themeVariant(
+  theme: Theme,
+  query: VariantQuery = {},
+): { tokens: Record<string, string>; colorScheme: "light" | "dark" } {
+  const holds = (media: string) =>
+    media.split(" and ").every((m) => (m === MEDIA_DARK ? !!query.dark : m === MEDIA_MORE ? !!query.more : false));
+  const match = theme.alternates.filter((a) => holds(a.media)).at(-1);
+  const base =
+    schemes.get(theme) ?? (luminance(hexOf(theme.tokens, "surface") ?? WHITE) < DARK_BELOW ? "dark" : "light");
+  return match
+    ? { tokens: { ...theme.tokens, ...match.tokens }, colorScheme: match.scheme }
+    : { tokens: theme.tokens, colorScheme: base };
+}
+
+export function defineTheme(raw: ThemeInput = {}): Theme {
+  const warnings: string[] = [];
+  const given = readInput(raw, warnings);
   const input = withPreset(given);
   const name = input.name ?? "custom";
   const tokens = derive(input);
-  const warnings = inputWarnings(given);
+  warnings.push(...inputWarnings(given));
   // Tells the browser which way the page leans, so its own controls (scrollbars, colour picker, autofill) match.
   const colorScheme = scheme(input);
   const { alternates, fulls } = variants(input, tokens);
@@ -832,7 +950,7 @@ export function defineTheme(given: ThemeInput = {}): Theme {
     Object.entries(map)
       .map(([k, v]) => `${indent}--e-${k}: ${v};`)
       .join("\n");
-  return {
+  const theme: Theme = {
     name,
     tokens,
     issues,
@@ -874,25 +992,35 @@ export function defineTheme(given: ThemeInput = {}): Theme {
     },
     apply(el = document.documentElement) {
       watchers.get(el)?.();
-      watchers.delete(el);
+      const canMatch = typeof matchMedia === "function";
+      const set = new Set<string>();
       const paint = () => {
-        for (const [k, v] of Object.entries(tokens)) el.style.setProperty(`--e-${k}`, v);
-        el.style.colorScheme = colorScheme;
         // The last variant that matches carries every token the earlier ones changed, so it alone is enough.
-        const match = alternates.filter((a) => matchMedia(a.media).matches).at(-1);
-        if (!match) return;
-        for (const [k, v] of Object.entries(match.tokens)) el.style.setProperty(`--e-${k}`, v);
-        el.style.colorScheme = match.scheme;
+        const match = canMatch ? alternates.filter((a) => matchMedia(a.media).matches).at(-1) : undefined;
+        for (const [k, v] of Object.entries({ ...tokens, ...match?.tokens })) {
+          el.style.setProperty(`--e-${k}`, v);
+          set.add(k);
+        }
+        el.style.colorScheme = match?.scheme ?? colorScheme;
       };
       paint();
-      if (alternates.length && typeof matchMedia === "function") {
-        const lists = alternates.map((a) => matchMedia(a.media));
-        for (const l of lists) l.addEventListener("change", paint);
-        watchers.set(el, () => lists.forEach((l) => l.removeEventListener("change", paint)));
-      }
+      const lists = canMatch ? alternates.map((a) => matchMedia(a.media)) : [];
+      for (const l of lists) l.addEventListener("change", paint);
       el.setAttribute("data-e-theme", name);
+      const dispose = () => {
+        if (watchers.get(el) !== dispose) return;
+        watchers.delete(el);
+        for (const l of lists) l.removeEventListener("change", paint);
+        for (const k of set) el.style.removeProperty(`--e-${k}`);
+        el.style.removeProperty("color-scheme");
+        el.removeAttribute("data-e-theme");
+      };
+      watchers.set(el, dispose);
+      return dispose;
     },
   };
+  schemes.set(theme, colorScheme);
+  return theme;
 }
 
 export { defaults, groups };

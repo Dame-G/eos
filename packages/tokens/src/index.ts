@@ -1,4 +1,4 @@
-export { defineTheme, checkContrast, LAYER_ORDER, defaults, groups } from "./theme.js";
+export { defineTheme, checkContrast, darkVariant, themeVariant, LAYER_ORDER, defaults, groups } from "./theme.js";
 export { toDtcg } from "./dtcg.js";
 export type { DtcgToken, DtcgTokens } from "./dtcg.js";
 export type {
@@ -13,6 +13,7 @@ export type {
   SchemePreset,
   ThemeVariant,
   Alternate,
+  VariantQuery,
   TokenValues,
   ContrastIssue,
   CssOptions,

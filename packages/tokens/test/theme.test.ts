@@ -1,13 +1,15 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import {
   checkContrast,
   constants,
   contrast,
   defaults,
+  darkVariant,
   defineTheme,
   derivedFrom,
   groups,
   inputTokens,
+  themeVariant,
   toOklch,
   type ThemeInput,
 } from "../src/index.js";
@@ -263,7 +265,7 @@ describe("derived inputs", () => {
       { controlHeight: 48 },
       { strokes: { hair: 1, focus: 2 } },
       { strokes: {} },
-      { danger: defaults["danger"], warning: defaults["warning-strong"] },
+      { danger: defaults["danger"], warning: defaults["warning-strong"], success: defaults["success"] },
     ]) {
       expect(defineTheme(input).tokens, JSON.stringify(input)).toEqual(base);
     }
@@ -564,7 +566,6 @@ describe("scheme, contrast and density", () => {
   test("a tone reads the same through its alias", () => {
     const t = defineTheme({ brand: "#8a2be2", accent: "#2e7d32" }).tokens;
     expect(t["info"]).toBe("var(--e-primary)");
-    expect(t["success"]).toBe("var(--e-secondary)");
     expect(t["warning"]).toBe("var(--e-warning-strong)");
     expect(checkContrast(t).filter((i) => ["info", "success", "warning", "text-link"].includes(i.pair[0]))).toEqual([]);
   });
@@ -653,7 +654,7 @@ describe("brand, wash and tone tokens", () => {
     expect(grey.issues).toEqual([]);
   });
   test("each tone is checked once, through the name components use", () => {
-    const issues = checkContrast({ ...t, "warning-strong": "#fdf3dc", secondary: "#e8f5e1" });
+    const issues = checkContrast({ ...t, "warning-strong": "#fdf3dc", success: "#e8f5e1" });
     for (const role of ["Warning notice text", "Success notice text"])
       expect(issues.filter((i) => i.role === role).length, role).toBe(1);
   });
@@ -687,5 +688,156 @@ describe("theming API shorthands", () => {
     expect(t.warnings).toEqual([]);
     expect([t.tokens["stroke-hair"], t.tokens["stroke-edge"], t.tokens["stroke-card"]]).toEqual(["2px", "3px", "2px"]);
     expect(defineTheme({ preset: "ink" }).warnings).toEqual([]);
+  });
+});
+
+describe("the success tone", () => {
+  const light = { surface: "#fffdf7", foreground: "#1f1a14" };
+  const dark = { surface: "#0f1418", foreground: "#ffffff" };
+  test("an accent recolours the secondary action, not the success tone", () => {
+    const t = defineTheme({ accent: "#e0218a" }).tokens;
+    expect(t["success"]).toBe(defaults["success"]);
+    expect(t["success-soft"]).toBe(defaults["success-soft"]);
+    expect(t["secondary"]).not.toBe(defaults["secondary"]);
+  });
+  test("success derives its text and tint, and meets its targets on light and dark surfaces", () => {
+    for (const success of ["#2e7d32", "#00c853", "#a5d6a7", "#0f766e"]) {
+      for (const ground of [{}, light, dark]) {
+        const t = defineTheme({ ...ground, success });
+        const k = t.tokens;
+        const label = JSON.stringify({ success, ground });
+        expect(contrast(k["success"]!, k["surface"]!), label).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(k["success"]!, k["success-soft"]!), label).toBeGreaterThanOrEqual(4.5);
+        expect(t.issues, label).toEqual([]);
+      }
+    }
+    const base = defineTheme().tokens;
+    const t = defineTheme({ success: "#0f766e" }).tokens;
+    expect(
+      Object.keys(t)
+        .filter((k) => t[k] !== base[k])
+        .sort(),
+    ).toEqual(["success", "success-soft"]);
+  });
+  test("every preset keeps every pair in light, dark and high contrast, with a brand and accent of any hue", () => {
+    for (const preset of ["paper", "ink", "quiet"] as const)
+      for (const contrastPreset of ["standard", "high", "auto"] as const)
+        for (const ground of [{}, light, dark, { surface: "#808080" }]) {
+          const input = { preset, contrast: contrastPreset, brand: "#8a2be2", accent: "#e0218a", ...ground };
+          expect(defineTheme(input).issues, JSON.stringify(input)).toEqual([]);
+          expect(defineTheme({ ...input, scheme: "auto" }).issues, JSON.stringify(input)).toEqual([]);
+        }
+  });
+});
+
+describe("colour inputs", () => {
+  const quiet = <T>(fn: () => T): T => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      return fn();
+    } finally {
+      warn.mockRestore();
+    }
+  };
+  test("takes 4 and 8 digit hex, rgb(), color-mix() and black or white", () => {
+    const hex = defineTheme({ brand: "#8a2be2" }).tokens;
+    for (const brand of ["#8a2be2ff", "rgb(138 43 226)", "rgb(138, 43, 226)", "rgba(138, 43, 226, 1)"])
+      expect(defineTheme({ brand }).tokens["primary"], brand).toBe(hex["primary"]);
+    expect(defineTheme({ brand: "#f0a" }).tokens["brand"]).toBe("#ff00aa");
+    expect(defineTheme({ brand: "#f0af" }).tokens["brand"]).toBe("#ff00aa");
+    expect(defineTheme({ surface: "black" }).tokens["surface"]).toBe("#000000");
+    expect(defineTheme({ brand: "color-mix(in srgb, #ff0000, #0000ff)" }).tokens["brand"]).toBe("#800080");
+  });
+  test("drops alpha and says so", () => {
+    const t = quiet(() => defineTheme({ brand: "#8a2be280" }));
+    expect(t.tokens["brand"]).toBe("#8a2be2");
+    expect(t.warnings.join("\n")).toMatch(/brand: the alpha of #8a2be280 is dropped/);
+  });
+  test("ignores a colour it cannot read and reports it, instead of throwing", () => {
+    const t = quiet(() =>
+      defineTheme({
+        brand: "rebeccapurple",
+        surface: "oklch(0.2 0 0)",
+        accent: "transparent",
+        scheme: "auto",
+        dark: { surface: "nope" },
+      }),
+    );
+    expect(t.tokens).toEqual(defineTheme().tokens);
+    const w = t.warnings.join("\n");
+    for (const key of ["brand", "surface", "accent", "dark.surface"]) expect(w).toContain(`${key}: "`);
+  });
+});
+
+describe("variants and apply", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const fakeElement = () => {
+    const props = new Map<string, string>();
+    const attrs = new Map<string, string>();
+    return {
+      props,
+      attrs,
+      style: {
+        colorScheme: "",
+        setProperty: (k: string, v: string) => props.set(k, v),
+        removeProperty: (k: string) => props.delete(k),
+      },
+      setAttribute: (k: string, v: string) => attrs.set(k, v),
+      removeAttribute: (k: string) => attrs.delete(k),
+    };
+  };
+  test("themeVariant lays the alternate that matches the query over the base", () => {
+    const theme = defineTheme({ scheme: "auto", contrast: "auto" });
+    expect(themeVariant(theme)).toEqual({ tokens: theme.tokens, colorScheme: "light" });
+    const night = themeVariant(theme, { dark: true });
+    expect(night.colorScheme).toBe("dark");
+    expect(night.tokens).toEqual(defineTheme(darkVariant({})).tokens);
+    expect(themeVariant(theme, { more: true }).tokens).toEqual(defineTheme({ contrast: "high" }).tokens);
+    expect(themeVariant(defineTheme({ surface: "#10151a" }), { dark: false }).colorScheme).toBe("dark");
+  });
+  test("apply works without matchMedia, and its disposer removes what it set", () => {
+    vi.stubGlobal("matchMedia", undefined);
+    const el = fakeElement();
+    const dispose = defineTheme({ name: "t", contrast: "auto" }).apply(el as never);
+    expect(el.props.get("--e-primary")).toBe(defaults["primary"]);
+    expect(el.attrs.get("data-e-theme")).toBe("t");
+    dispose();
+    expect(el.props.size).toBe(0);
+    expect(el.attrs.has("data-e-theme")).toBe(false);
+  });
+  test("apply follows the media queries until it is disposed of", () => {
+    const listeners = new Set<() => void>();
+    let dark = false;
+    vi.stubGlobal("matchMedia", (media: string) => ({
+      get matches() {
+        return media.includes("dark") && dark;
+      },
+      addEventListener: (_: string, fn: () => void) => listeners.add(fn),
+      removeEventListener: (_: string, fn: () => void) => listeners.delete(fn),
+    }));
+    const el = fakeElement();
+    const dispose = defineTheme({ scheme: "auto" }).apply(el as never);
+    expect(el.props.get("--e-surface")).toBe("#ffffff");
+    dark = true;
+    for (const fn of listeners) fn();
+    expect(el.props.get("--e-surface")).toBe(darkVariant({}).surface);
+    expect(el.style.colorScheme).toBe("dark");
+    dispose();
+    expect(listeners.size).toBe(0);
+    expect(el.props.size).toBe(0);
+  });
+});
+
+describe("development warnings", () => {
+  test("are not printed in production", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.stubEnv("NODE_ENV", "production");
+    try {
+      expect(defineTheme({ textScale: -1 }).warnings.length).toBe(1);
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllEnvs();
+      warn.mockRestore();
+    }
   });
 });

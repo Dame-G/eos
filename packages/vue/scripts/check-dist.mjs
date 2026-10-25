@@ -2,7 +2,8 @@
 // check survives a consumer's bundler, the entry points exist, and the built-in icons tree-shake. Needs a build.
 // Run: node scripts/check-dist.mjs
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import postcss from "postcss";
 import { build } from "vite";
 import { LAYER_ORDER } from "@eos-ui/tokens";
@@ -88,6 +89,38 @@ if (existsSync(envFile)) {
     const { isProduction } = await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`);
     if (isProduction() !== (mode === "production"))
       problems.push(`dist/env.js bundled with NODE_ENV=${mode} gives isProduction() === ${isProduction()}`);
+  }
+}
+// The tokens package prints defineTheme's warnings outside production by the same check: bundled for production it
+// must stay quiet, bundled for development it must warn, and nothing may still read `process`.
+const tokensTheme = join(dirname(fileURLToPath(import.meta.resolve("@eos-ui/tokens"))), "theme.js");
+if (!existsSync(tokensTheme)) problems.push(`${tokensTheme} is missing; build the tokens first`);
+else {
+  for (const mode of ["production", "development"]) {
+    const out = await build({
+      configFile: false,
+      logLevel: "silent",
+      define: { "process.env.NODE_ENV": JSON.stringify(mode) },
+      build: {
+        write: false,
+        minify: false,
+        lib: { entry: tokensTheme, formats: ["es"], fileName: "theme" },
+      },
+    });
+    const code = (Array.isArray(out) ? out[0] : out).output.map((c) => c.code ?? "").join("\n");
+    const live = code.replace(/\/\*[\s\S]*?\*\//g, "");
+    if (/\bprocess\b/.test(live)) problems.push(`@eos-ui/tokens dist/theme.js bundled for ${mode} still reads process`);
+    const { defineTheme } = await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`);
+    const warn = console.warn;
+    let warned = 0;
+    console.warn = () => warned++;
+    try {
+      defineTheme({ textScale: -1 });
+    } finally {
+      console.warn = warn;
+    }
+    if (warned > 0 !== (mode === "development"))
+      problems.push(`@eos-ui/tokens dist/theme.js bundled with NODE_ENV=${mode} ${warned ? "warns" : "does not warn"}`);
   }
 }
 for (const name of ["plugin.js", "config.js", "env.js"]) {

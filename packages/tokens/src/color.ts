@@ -144,7 +144,7 @@ export function withLightness(hex: string, l: number, chroma?: number, hue?: num
   return fromOklch({ l: Math.min(1, Math.max(0, l)), c: chroma ?? o.c, h: hue ?? o.h });
 }
 
-interface Rgba {
+export interface Rgba {
   r: number;
   g: number;
   b: number;
@@ -191,24 +191,31 @@ function splitTop(s: string): string[] {
   return parts;
 }
 
-function parseColor(value: string): Rgba | undefined {
+/** `#rgb`, `#rgba`, `#rrggbb` or `#rrggbbaa`. */
+function parseHexAlpha(v: string): Rgba | undefined {
+  const m = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/.exec(v);
+  if (!m) return undefined;
+  let h = m[1]!;
+  if (h.length <= 4) h = [...h].map((c) => c + c).join("");
+  const [r, g, b, a = 255] = [0, 2, 4, 6].filter((i) => i < h.length).map((i) => parseInt(h.slice(i, i + 2), 16));
+  return { r: r!, g: g!, b: b!, a: a / 255 };
+}
+
+/** One argument of `rgb()`: a number, or a percentage of `full` (255 for a channel, 1 for alpha). */
+function rgbArg(part: string, full: number): number {
+  return part.endsWith("%") ? (Number(part.slice(0, -1)) / 100) * full : Number(part);
+}
+
+/** Reads a hex (3, 4, 6 or 8 digits), `rgb()` or `rgba()`, a `color-mix(in srgb, ...)` of those, `black`, `white` or `transparent`. Undefined for anything else. */
+export function parseColor(value: string): Rgba | undefined {
   const v = value.trim().toLowerCase();
   if (v in NAMED) return NAMED[v];
-  if (v.startsWith("#")) {
-    try {
-      const [r, g, b] = parseHex(v);
-      return { r, g, b, a: 1 };
-    } catch {
-      return undefined;
-    }
-  }
+  if (v.startsWith("#")) return parseHexAlpha(v);
   const fn = /^rgba?\((.*)\)$/.exec(v);
   if (fn) {
-    const n = fn[1]!
-      .split(/[\s,/]+/)
-      .filter(Boolean)
-      .map(Number);
-    if (n.length < 3 || n.some(Number.isNaN)) return undefined;
+    const parts = fn[1]!.split(/[\s,/]+/).filter(Boolean);
+    const n = parts.map((p, i) => rgbArg(p, i === 3 ? 1 : 255));
+    if (n.length < 3 || n.length > 4 || n.some(Number.isNaN)) return undefined;
     return { r: n[0]!, g: n[1]!, b: n[2]!, a: n[3] ?? 1 };
   }
   const mix = /^color-mix\(\s*in\s+srgb\s*,(.*)\)$/.exec(v);
