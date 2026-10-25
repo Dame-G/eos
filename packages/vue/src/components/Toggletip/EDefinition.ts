@@ -1,5 +1,5 @@
 import { defineComponent, h } from "vue";
-import { warnOnce } from "../../env.js";
+import { warnOnce } from "../../warn.js";
 import EToggletip from "./EToggletip.vue";
 
 /**

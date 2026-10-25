@@ -3,7 +3,8 @@ import { computed, useSlots } from "vue";
 import EActions from "../Actions/EActions.vue";
 import { useGap, type GapToken } from "../Stack/gap.js";
 import type { ElementTag } from "../../composables/useSize.js";
-import { isProduction, warnOnce } from "../../env.js";
+import { isProduction } from "../../env.js";
+import { warnOnce } from "../../warn.js";
 import "../../styles/base.css";
 
 /** The looks of a surface. */

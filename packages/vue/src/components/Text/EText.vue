@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { ElementTag, Size, Tone } from "../../composables/useSize.js";
-import { warnOnce } from "../../env.js";
+import { warnOnce } from "../../warn.js";
 import "../../styles/base.css";
 
 /** The colour of the text. `neutral` is the deprecated name of `muted`. */
