@@ -1,6 +1,6 @@
 # EStamp
 
-A small non-interactive mark with a word that says where something stands, such as paid or overdue. Like a notice, it is a soft tint of its tone with an edge in that tone and a thick side on its inline-start edge. It also serves as a plain label: pass the word in the slot and a `tone`. Use [`ETag`](../Tag/README.md) for a label that categorises or can be removed, and a button for anything pressable.
+A small mark with a word that says where a record stands, such as paid or overdue: a status, set in its tone. Use [`ETag`](../Tag/README.md) to name a category, and [`ENotice`](../Notice/README.md) when the status needs a sentence.
 
 ```vue
 <EStamp status="overdue" detail="12 days" />
@@ -19,12 +19,12 @@ A small non-interactive mark with a word that says where something stands, such 
 | `label`  | `string`                                                                                                                       | `preset's word, else Status` | The word. It overrides the preset's, and the default slot overrides both.                                                                       |
 | `icon`   | `IconProp`                                                                                                                     | None                         | A glyph before the word.                                                                                                                        |
 | `detail` | `string`                                                                                                                       | None                         | A date or day count, set after the word.                                                                                                        |
-| `size`   | `"sm" \| "md"`                                                                                                                 | None                         | `sm` is shorter, for rows and tables.                                                                                                           |
+| `size`   | `"sm" \| "md"`                                                                                                                 | `"md"`                       | `sm` is shorter, for rows and tables.                                                                                                           |
 | `final`  | `boolean`                                                                                                                      | `false`                      | Rubber-stamp ink for the one mark on a page that says a thing is final, such as PAID or VOID. Outlined, in `stamp-ink`. Use it once per screen. |
 
 <!-- props:end -->
 
-Presets: `paid`, `confirmed`, `signed` and `complete` are success. `due`, `scheduled` and `pending` are info. `action` is warning. `overdue` and `cancelled` are danger. `class`, `style` and attributes land on the `span` element. The stamp places nothing itself: it stretches in a grid, so give the parent `align="start"` (or `justify-items: start`) to keep it to its width. `size="sm"` is the shorter stamp. Write the word in sentence case. The stamp sets it in capitals.
+Presets: `paid`, `confirmed`, `signed` and `complete` are success. `due`, `scheduled` and `pending` are info. `action` is warning. `overdue` and `cancelled` are danger. `class`, `style` and attributes land on the `span` element. The stamp places nothing itself: it stretches in a grid, so give the parent `align="start"` (or `justify-items: start`) to keep it to its width. Write the word in sentence case. The stamp sets it in capitals.
 
 ## Slots
 
@@ -41,4 +41,4 @@ Not focusable.
 
 ## Related
 
-[`ENotice`](../Notice/README.md) for a message that needs a sentence, [`EButton`](../Button/README.md) for anything pressable.
+[`EButton`](../Button/README.md) for anything pressable.

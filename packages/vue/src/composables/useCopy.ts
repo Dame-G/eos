@@ -56,8 +56,7 @@ export function useCopy(options: CopyOptions = {}): CopyState {
       const ok = await write(text);
       copied.value = ok;
       failed.value = !ok;
-      if (options.announce !== false)
-        announce(t(ok ? "codeCopied" : "copyFailed"), ok ? undefined : { assertive: true });
+      if (options.announce !== false) announce(t(ok ? "copied" : "copyFailed"), ok ? undefined : { assertive: true });
       clearTimeout(timer);
       timer = setTimeout(() => (copied.value = failed.value = false), toValue(options.timeout) ?? 2000);
       return ok;

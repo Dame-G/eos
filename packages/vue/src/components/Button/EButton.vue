@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { watch } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import SpinnerRing from "../Spinner/SpinnerRing.vue";
 import { useMessages } from "../../config.js";
-import { useAnnouncer } from "../../composables/useAnnouncer.js";
+import { useBusyButton } from "../../composables/useBusyButton.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 import "./button.css";
@@ -24,7 +23,7 @@ const props = withDefaults(
     disabled?: boolean;
     /** `submit` submits a form. Use it on the one button that submits. */
     type?: "button" | "submit" | "reset";
-    /** Renders a link that looks like the button, for a destination rather than an action (a call to action that goes to a page). A link does not activate on Space, like a native link. */
+    /** Renders a link that looks like the button, for a destination rather than an action (a call to action that goes to a page). */
     href?: string;
     /** Opens the link in a new tab and tells screen readers so. Needs `href`. */
     external?: boolean;
@@ -40,17 +39,10 @@ defineSlots<{
 }>();
 
 const t = useMessages();
-const { announce } = useAnnouncer();
-watch(
+const { block: blockClick } = useBusyButton(
   () => props.loading,
-  (on) => on && announce(t("loading")),
+  () => props.disabled || props.loading,
 );
-
-function blockWhenDisabled(event: Event) {
-  if (!props.disabled && !props.loading) return;
-  event.preventDefault();
-  event.stopImmediatePropagation();
-}
 </script>
 
 <template>
@@ -69,8 +61,8 @@ function blockWhenDisabled(event: Event) {
     :aria-disabled="disabled ? 'true' : undefined"
     :aria-busy="loading ? 'true' : undefined"
     :tabindex="disabled ? -1 : undefined"
-    @click.capture="blockWhenDisabled"
-    @auxclick.capture="blockWhenDisabled"
+    @click.capture="blockClick"
+    @auxclick.capture="blockClick"
   >
     <SpinnerRing v-if="loading" class="e-btn-spinner" />
     <EIcon v-else-if="icon" :name="icon" />
@@ -90,7 +82,7 @@ function blockWhenDisabled(event: Event) {
     ]"
     :disabled="disabled"
     :aria-busy="loading ? 'true' : undefined"
-    @click.capture="blockWhenDisabled"
+    @click.capture="blockClick"
   >
     <SpinnerRing v-if="loading" class="e-btn-spinner" />
     <EIcon v-else-if="icon" :name="icon" />

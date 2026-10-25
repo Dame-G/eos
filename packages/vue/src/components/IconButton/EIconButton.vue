@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { h, watch, type FunctionalComponent } from "vue";
+import { h, type FunctionalComponent } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import ETooltip from "../Tooltip/ETooltip.vue";
 import SpinnerRing from "../Spinner/SpinnerRing.vue";
-import { useMessages } from "../../config.js";
-import { useAnnouncer } from "../../composables/useAnnouncer.js";
+import { useBusyButton } from "../../composables/useBusyButton.js";
 import type { IconProp } from "../../icons/types.js";
 import "../../styles/base.css";
 import "../Button/button.css";
@@ -33,21 +32,10 @@ const props = withDefaults(
   { variant: "quiet", size: "md", type: "button" },
 );
 
-const t = useMessages();
-const { announce } = useAnnouncer();
-watch(
-  () => props.loading,
-  (on) => on && announce(t("loading")),
-);
+const { block: blockClick } = useBusyButton(() => props.loading);
 
 const Wrap: FunctionalComponent = (_, { slots }) =>
   props.tooltip ? h(ETooltip, { label: props.label }, slots) : slots.default?.();
-
-function blockWhenBusy(event: Event) {
-  if (!props.loading) return;
-  event.preventDefault();
-  event.stopImmediatePropagation();
-}
 </script>
 
 <template>
@@ -58,12 +46,12 @@ function blockWhenBusy(event: Event) {
       :class="[
         variant === 'quiet' ? 'e-icon-btn' : ['e-btn', `e-btn--${variant}`, 'e-btn--icon'],
         size !== 'md' && (variant === 'quiet' ? `e-icon-btn--${size}` : `e-btn--${size}`),
-        loading && variant !== 'quiet' && 'e-btn--loading',
+        loading && 'e-btn--loading',
       ]"
       :aria-label="label"
       :aria-busy="loading ? 'true' : undefined"
       :disabled="disabled"
-      @click.capture="blockWhenBusy"
+      @click.capture="blockClick"
     >
       <SpinnerRing v-if="loading" class="e-btn-spinner" />
       <EIcon v-else :name="icon" />
@@ -123,7 +111,10 @@ function blockWhenBusy(event: Event) {
     cursor: not-allowed;
   }
 
+  /* Busy, as on a quiet EButton: the soft tint and dashed edge of button.css, in the border colour. */
   .e-icon-btn.e-btn--loading {
+    --_fill: var(--e-border-strong);
+
     color: var(--e-muted);
     cursor: not-allowed;
   }

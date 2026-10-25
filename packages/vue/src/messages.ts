@@ -90,7 +90,7 @@ export const defaultMessages = {
   colorInvalid: "Enter a colour like {example}",
   copyCode: "Copy code",
   codeBlock: "Code",
-  codeCopied: "Copied",
+  copied: "Copied",
   copy: "Copy",
   copyFailed: "Couldn't copy",
   resultsCount: { one: "{n} result", other: "{n} results" },

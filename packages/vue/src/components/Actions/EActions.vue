@@ -8,6 +8,8 @@ withDefaults(
     as?: ElementTag;
     /** Makes the group a footer bar for actions that end a card or an overlay. Buttons stack full width when the bar is narrow. Leave it off for the next step on a page. */
     bar?: boolean;
+    /** Stacks the buttons full width: `narrow` below 32rem of the group's own width (as a `bar` does), `always` at every width. The group then fills its container's width. */
+    stack?: "narrow" | "always";
     /** Names the group for screen readers, for example "Record actions", and renders `role="group"` with `aria-label`. Use it for buttons that belong together, such as a filter row. */
     label?: string;
   }>(),
@@ -24,7 +26,7 @@ defineSlots<{
   <component
     :is="as"
     class="e-actions"
-    :class="bar && 'e-actions--bar'"
+    :class="[bar && 'e-actions--bar', stack && `e-actions--stack-${stack}`]"
     :role="label ? 'group' : undefined"
     :aria-label="label"
   >
@@ -45,13 +47,19 @@ defineSlots<{
     padding: var(--e-pad-control-sm) var(--e-pad-card);
     border-top: var(--e-stroke-hair) solid var(--e-border);
     background: var(--e-surface-tint);
+  }
 
-    /* The bar's own width decides when its buttons stack, not the viewport. */
+  /* The group's own width decides when its buttons stack, not the viewport. */
+  .e-actions:is(.e-actions--bar, .e-actions--stack-narrow) {
     container-type: inline-size;
   }
 
+  .e-actions--stack-always > .e-btn {
+    flex: 1 1 100%;
+  }
+
   @container (max-width: 32rem) {
-    .e-actions--bar > .e-btn {
+    .e-actions:is(.e-actions--bar, .e-actions--stack-narrow) > .e-btn {
       flex: 1 1 100%;
     }
   }

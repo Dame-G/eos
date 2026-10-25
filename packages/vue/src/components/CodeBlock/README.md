@@ -32,7 +32,7 @@ Blocks that sit back to back with no gap (a plain container, or an `EStack` with
 
 <!-- props:end -->
 
-`class`, `style` and attributes land on the `div` element. The messages `copyCode` and `codeCopied` ("Copied") are configurable.
+`class`, `style` and attributes land on the `div` element. The messages `copyCode` and `copied` ("Copied") are configurable.
 
 ## Slots
 
