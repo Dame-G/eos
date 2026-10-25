@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, markRaw, onBeforeUnmount, onMounted, provide, reactive, ref } from "vue";
-import { defineTheme, type Theme, type ThemeInput } from "@eos-ui/tokens";
+import { darkVariant, defineTheme, themeVariant, type Theme, type ThemeInput } from "@eos-ui/tokens";
 import { CONFIG_KEY, useConfig, type EosConfig, type MessageValue } from "../../config.js";
 import type { IconsConfig } from "../../icons/types.js";
 import { localeDirection } from "../../composables/useLocale.js";
@@ -11,7 +11,7 @@ const props = withDefaults(
   defineProps<{
     /** A theme from `defineTheme()`, or the same options, for this part of the page. Its tokens are set on this element, so everything inside (and every menu, dialog and tooltip opened from inside) takes them. Left out, the page theme shows through. */
     theme?: Theme | ThemeInput;
-    /** Shows the light or the dark variant of `theme` (of the default theme when there is none). The dark one is derived as `scheme: "auto"` derives it on a dark page, from the theme's `dark` options. Left out, a theme with `scheme: "auto"` follows the reader's setting. */
+    /** Shows the light or the dark variant of `theme` (of the default theme when there is none). For theme options the dark one is derived as `scheme: "auto"` derives it, from the `dark` options. A built `Theme` has a dark variant only if it was built with `scheme: "auto"`; otherwise it shows as built. Left out, a theme with `scheme: "auto"` follows the reader's setting. */
     scheme?: "light" | "dark";
     /** The language for this part (BCP 47). Sets `lang` on the element, and `dir` from the language unless `dir` is given. Left out, the parent's. */
     locale?: string;
@@ -25,10 +25,10 @@ const props = withDefaults(
     icons?: IconsConfig;
     /** The element to render. */
     as?: ElementTag;
-    /** Renders menus, dialogs, tooltips and toasts opened from inside into this element, so they keep its theme and direction. `false` leaves them where the parent puts them. */
+    /** Renders menus, dialogs, tooltips and toasts opened from inside into this element, so they keep its theme and direction. `false` leaves them where the parent puts them. Left out, they render here only when `theme` or `scheme` is set. */
     portal?: boolean;
   }>(),
-  { as: "div", portal: true },
+  { as: "div", portal: undefined },
 );
 
 defineSlots<{
@@ -71,7 +71,8 @@ const config = reactive({
     return icons.value;
   },
   get portalTarget() {
-    return props.portal && mounted.value && scope.value ? scope.value : parent.portalTarget;
+    const portal = props.portal ?? Boolean(props.theme || props.scheme);
+    return portal && mounted.value && scope.value ? scope.value : parent.portalTarget;
   },
 }) as EosConfig;
 provide(CONFIG_KEY, config);
@@ -80,46 +81,48 @@ const direction = computed(() =>
   props.dir || props.locale ? (config.dir ?? localeDirection(config.locale)) : undefined,
 );
 
-// A theme that follows the reader (`scheme: "auto"`) picks its variant in the browser, after hydration.
+// A theme with media-query variants (`scheme: "auto"`, `contrast: "auto"`) picks one in the browser, after hydration.
 const prefersDark = ref(false);
-let media: MediaQueryList | undefined;
-const onScheme = () => (prefersDark.value = !!media?.matches);
+const prefersMore = ref(false);
+const queries: [MediaQueryList, () => void][] = [];
 onMounted(() => {
   if (typeof matchMedia !== "function") return;
-  media = matchMedia("(prefers-color-scheme: dark)");
-  onScheme();
-  media.addEventListener("change", onScheme);
+  for (const [query, flag] of [
+    ["(prefers-color-scheme: dark)", prefersDark],
+    ["(prefers-contrast: more)", prefersMore],
+  ] as const) {
+    const list = matchMedia(query);
+    const update = () => (flag.value = list.matches);
+    update();
+    list.addEventListener("change", update);
+    queries.push([list, update]);
+  }
 });
-onBeforeUnmount(() => media?.removeEventListener("change", onScheme));
-
-const GROUNDS = ["background", "surface", "foreground"] as const;
-/** The dark variant of a theme's options, as `defineTheme` derives it for `scheme: "auto"`. */
-function darkOf(input: ThemeInput): ThemeInput {
-  const { dark, ...rest } = input;
-  const own: ThemeInput = { ...rest };
-  for (const key of GROUNDS) delete own[key];
-  return { surface: "#15121b", ...own, ...dark, scheme: "dark", tokens: { ...own.tokens, ...dark?.tokens } };
-}
+onBeforeUnmount(() => {
+  for (const [list, update] of queries.splice(0)) list.removeEventListener("change", update);
+});
 
 const isTheme = (t: Theme | ThemeInput): t is Theme => typeof (t as Theme).css === "function";
+/** The theme built once per `theme` and `scheme`: a fixed theme's dark variant is derived only when `scheme` asks for it. */
 const theme = computed<Theme | null>(() => {
   const given = props.theme;
   if (!given && !props.scheme) return null;
   if (given && isTheme(given)) return given;
   const input: ThemeInput = { ...given };
-  const dark = props.scheme ? props.scheme === "dark" : input.scheme === "auto" && prefersDark.value;
-  if (dark) return defineTheme(darkOf(input));
-  return defineTheme({ ...input, scheme: props.scheme ?? (input.scheme === "auto" ? "light" : input.scheme) });
+  if (props.scheme === "dark" && input.scheme !== "auto") return defineTheme(darkVariant(input));
+  return defineTheme(input);
 });
 
 /** The tokens as inline custom properties, so the server renders the themed part themed. */
 const style = computed(() => {
   const t = theme.value;
   if (!t) return undefined;
-  const out: Record<string, string> = {};
-  for (const [name, value] of Object.entries(t.tokens)) out[`--e-${name}`] = value;
-  const scheme = /color-scheme:\s*([^;]+);/.exec(t.css({ layer: false }))?.[1]?.trim();
-  if (scheme) out["color-scheme"] = scheme;
+  const { tokens, colorScheme } = themeVariant(t, {
+    dark: props.scheme ? props.scheme === "dark" : prefersDark.value,
+    more: prefersMore.value,
+  });
+  const out: Record<string, string> = { "color-scheme": colorScheme };
+  for (const [name, value] of Object.entries(tokens)) out[`--e-${name}`] = value;
   return out;
 });
 </script>
