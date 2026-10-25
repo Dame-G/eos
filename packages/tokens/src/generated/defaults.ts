@@ -9,7 +9,7 @@ export const defaults = {
   "primary-hover": "color-mix(in srgb, var(--e-primary), black 8%)",
   "primary-press": "color-mix(in srgb, var(--e-primary), black 16%)",
   "primary-slab": "color-mix(in srgb, var(--e-primary), black 30%)",
-  "primary-soft": "color-mix(in srgb, var(--e-brand) 26%, var(--e-surface))",
+  "primary-soft": "color-mix(in srgb, var(--e-brand) 16%, var(--e-surface))",
   secondary: "#0d6600",
   "on-secondary": "#ffffff",
   "secondary-hover": "color-mix(in srgb, var(--e-secondary), black 8%)",
@@ -340,7 +340,7 @@ export const usage: Record<string, string> = {
   "primary-press": "`primary` with the press shade mixed in: the pressed fill.",
   "primary-slab": "`primary` with the slab shade mixed in: the colour of the raised bottom edge under a primary fill.",
   "primary-soft":
-    "Where you are: the pastel brand tint on `surface`, the face of the selected tab, the current nav item, the current step, the days inside a calendar range and the information tone's backdrop. The middle step of the ladder: hover is the neutral `wash-hover`, where you are is this tint, and a value you set is filled `primary` on its slab. Built from `brand`, so it is the logo's own colour, softened: never further than 1.35:1 from `surface`, so a saturated brand stays a tint; `defineTheme` gives up strength until `ink` (7:1), `muted` and `primary` (4.5:1) hold on it.",
+    "Where you are: the pastel brand tint on `surface`, the face of the selected tab, the current nav item, the current step, the days inside a calendar range and the information tone's backdrop. The middle step of the ladder: hover is the neutral `wash-hover`, where you are is this tint, and a value you set is filled `primary` on its slab. Built from `brand`, so it is the logo's own colour, softened: never further than 1.2:1 from `surface`, so a saturated brand stays a tint; `defineTheme` gives up strength until `ink` (7:1), `muted` and `primary` (4.5:1) hold on it.",
   secondary:
     "Action green: the fill of the secondary Button (a positive action), with `on-secondary` (white) text at 7.2:1. Derived from the logo green (`brand-accent`). The success tone is `success`, so an `accent` of another hue leaves it green.",
   "on-secondary": "White text and icons on `secondary` fills (7.2:1).",

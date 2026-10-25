@@ -533,8 +533,8 @@ const FEEDBACK: [token: string, pct: number, mix: (pct: number, pigment: string)
   ["primary-soft", 50, (p) => `color-mix(in srgb, var(--e-brand) ${p}%, var(--e-surface))`],
 ];
 
-/** How far the where-you-are tint may sit from the surface, as a contrast ratio: a pastel brand at half strength. A saturated brand gives up strength until it is no stronger than that, so the tint reads as soft whatever the brand. */
-const PLACE_TINT_MAX = 1.35;
+/** How far the where-you-are tint may sit from the surface, as a contrast ratio: a whisper of the brand. A saturated brand gives up strength until it is no stronger than that, so the tint reads as soft whatever the brand. */
+const PLACE_TINT_MAX = 1.2;
 
 /** The colour that, laid over `surface` at 50%, is exactly `surface-tint` (twice the tint's step from the surface). The hover and press washes are made of it, so a hovered row on a plain ground is the tinted ground, and on a ground that is already tinted (a striped row, the track of a segmented control) it goes one step deeper, so there is always something to see. */
 function washPigment(out: Record<string, string>) {
