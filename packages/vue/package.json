@@ -99,7 +99,6 @@
   "dependencies": {
     "@eos-ui/tokens": "workspace:*",
     "@tanstack/vue-virtual": "^3.13.47",
-    "@vueuse/core": "^15.0.0",
     "reka-ui": "^2.11.0"
   },
   "devDependencies": {
