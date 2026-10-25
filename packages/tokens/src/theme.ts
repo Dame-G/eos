@@ -33,7 +33,7 @@ export type SchemePreset = "light" | "dark" | "auto";
 export type ThemeVariant = Omit<ThemeInput, "name" | "scheme" | "dark" | "strict" | "preset">;
 
 /** The surface of the dark variant when `scheme: "auto"` gives none. */
-const DARK_SURFACE = "#15121b";
+const DARK_SURFACE = "#10151a";
 
 /**
  * The inputs of `defineTheme()`. A colour input (`brand`, `accent`, `background`, `surface`, `foreground`, `danger`,
@@ -75,7 +75,7 @@ export interface ThemeInput {
   };
   /** `"high"` draws every line and secondary text at full strength: `border` and `border-strong` become the foreground colour, `muted` is softened only until it holds 15:1, `surface-tint` is a neutral grey (no brand tint) and `scrim` is darker. Pair it with heavier `strokes`. `"auto"` keeps the standard theme and adds the high one under `prefers-contrast: more`. Default `"standard"`. */
   contrast?: ContrastPreset;
-  /** Opt in to `prefers-color-scheme` with `"auto"`. The theme is the light one; `dark` (default: a dark surface of `#15121b`) is derived the same way and emitted inside `@media (prefers-color-scheme: dark)`. `color-scheme` becomes `light dark`. Without it the theme is fixed: dark when `surface` is dark, light otherwise. */
+  /** Opt in to `prefers-color-scheme` with `"auto"`. The theme is the light one; `dark` (default: a dark surface of `#10151a`) is derived the same way and emitted inside `@media (prefers-color-scheme: dark)`. `color-scheme` becomes `light dark`. Without it the theme is fixed: dark when `surface` is dark, light otherwise. */
   scheme?: SchemePreset;
   /** What changes on a dark page when `scheme` is `"auto"`: usually `surface`, and `foreground` or `brand` if the light ones do not carry over. */
   dark?: ThemeVariant;
@@ -216,11 +216,11 @@ const BLACK = "#000000";
 const WHITE = "#ffffff";
 const DARK_DANGER = "#d33b30";
 const DARK_WARNING = "#ffc857";
-/** The success colour on a dark surface when `success` gives none: the default mint accent, which holds on dark grounds. */
+/** The success colour on a dark surface when `success` gives none: a pale green, which holds on dark grounds. */
 const DARK_SUCCESS = "#9ad9b4";
 const COMPACT_SPACE = 0.75;
 const STAMP_INK = "#b23a14";
-/** The OKLCH lightness and the most chroma of the deep shade a light theme draws its shadows and scrim in: the default lavender's, so a brand or ground tints them no more than the default does. */
+/** The OKLCH lightness and the most chroma of the deep shade a light theme draws its shadows and scrim in: those of the default, the logo blue's, so a brand or ground tints them no more than the default does. */
 const SHADE_L = 0.2613;
 const SHADE_MAX_C = 0.0408;
 
@@ -322,7 +322,7 @@ function shadowRgb(out: Record<string, string>, dark: boolean) {
   return `${r}, ${g}, ${b}`;
 }
 
-/** The scrim is the deep shade of the brand, as the default one is of the lavender, so it follows a theme instead of tinting every brand the default hue. */
+/** The scrim is the deep shade of the brand, as the default teal one is of the logo blue, so it follows a theme instead of tinting every brand teal. */
 function brandScrim(brand: string) {
   const { c, h } = toOklch(brand);
   const [r, g, b] = parseHex(fromOklch({ l: SHADE_L, c: Math.min(c, SHADE_MAX_C), h }));
@@ -878,7 +878,7 @@ const schemes = new WeakMap<Theme, "light" | "dark">();
 
 /**
  * The inputs of a theme's dark variant, as `scheme: "auto"` derives it: the theme's own inputs without its grounds,
- * with `dark` laid over them and a dark surface (`#15121b`) when `dark` gives none.
+ * with `dark` laid over them and a dark surface (`#10151a`) when `dark` gives none.
  */
 export function darkVariant(input: ThemeInput): ThemeInput {
   return darkInput(input);

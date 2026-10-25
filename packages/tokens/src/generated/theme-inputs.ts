@@ -87,7 +87,7 @@ export const themeInputs: readonly ThemeInputDoc[] = [
   },
   {
     name: "scheme",
-    doc: 'Opt in to `prefers-color-scheme` with `"auto"`. The theme is the light one; `dark` (default: a dark surface of `#15121b`) is derived the same way and emitted inside `@media (prefers-color-scheme: dark)`. `color-scheme` becomes `light dark`. Without it the theme is fixed: dark when `surface` is dark, light otherwise.',
+    doc: 'Opt in to `prefers-color-scheme` with `"auto"`. The theme is the light one; `dark` (default: a dark surface of `#10151a`) is derived the same way and emitted inside `@media (prefers-color-scheme: dark)`. `color-scheme` becomes `light dark`. Without it the theme is fixed: dark when `surface` is dark, light otherwise.',
     type: '"light" | "dark" | "auto"',
   },
   {

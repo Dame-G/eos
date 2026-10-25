@@ -390,7 +390,7 @@ describe("scheme: auto", () => {
     expect(el.style.colorScheme).toBe("light");
     stub(["(prefers-color-scheme: dark)"]);
     theme.apply(el);
-    expect(el.style.getPropertyValue("--e-surface")).toBe("#15121b");
+    expect(el.style.getPropertyValue("--e-surface")).toBe("#10151a");
     expect(el.style.colorScheme).toBe("dark");
     stub([]);
     theme.apply(el);

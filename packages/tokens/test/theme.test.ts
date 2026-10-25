@@ -142,8 +142,8 @@ describe("mid-tone surfaces", () => {
   });
   test("a surface that already worked keeps its action colours", () => {
     const fixed = (surface: string) => defineTheme({ surface }).tokens;
-    expect(fixed("#e0e0e0")["primary"]).toBe("#624b90");
-    expect(fixed("#20202a")["primary"]).toBe("#bfa8f5");
+    expect(fixed("#e0e0e0")["primary"]).toBe("#005f7c");
+    expect(fixed("#20202a")["primary"]).toBe("#3ca1c1");
     expect(fixed("#20202a")["on-primary"]).toBe("#000000");
   });
 });
@@ -361,7 +361,7 @@ describe("derived inputs", () => {
   });
 
   test("the scrim is a deep shade of the brand, and black on a dark or high-contrast theme", () => {
-    expect(base["scrim"]).toBe("rgb(39 32 54 / 0.55)");
+    expect(base["scrim"]).toBe("rgb(8 41 50 / 0.55)");
     const rose = defineTheme({ brand: "#e91e63" }).tokens["scrim"]!;
     expect(rose).toMatch(/^rgb\(\d+ \d+ \d+ \/ 0\.55\)$/);
     const [r, , b] = rose.match(/\d+/g)!.map(Number);
@@ -467,6 +467,9 @@ describe("derived inputs", () => {
 describe("scheme, contrast and density", () => {
   test("the default theme derives to exactly the defaults", () => {
     expect(defineTheme().tokens).toEqual({ ...defaults });
+  });
+  test("the baked colours are what the default brand and accent derive", () => {
+    expect(defineTheme({ brand: defaults["brand"], accent: defaults["brand-accent"] }).tokens).toEqual({ ...defaults });
   });
   test("scheme auto emits the dark tokens inside prefers-color-scheme and keeps the light ones at the root", () => {
     const t = defineTheme({ scheme: "auto", brand: "#8a2be2" });
@@ -699,7 +702,7 @@ describe("dtcg", () => {
     expect(typeof tree.color!["wash-hover"]!.$value).toBe("string");
   });
   test("carries the usage note as the description, and every token appears once", () => {
-    expect(tree.color!["primary"]!.$description).toMatch(/Action violet/);
+    expect(tree.color!["primary"]!.$description).toMatch(/Action blue/);
     const count = Object.values(tree).reduce((n, g) => n + Object.keys(g).length, 0);
     expect(count).toBe(Object.keys(defineTheme({ name: "light" }).tokens).length);
   });
@@ -731,8 +734,8 @@ describe("brand, wash and tone tokens", () => {
     expect(b["brand-accent"]).toBe("#2e7d32");
   });
   test("the hover and press washes are the one contrast-fitted pair", () => {
-    expect(t["wash-hover"]).toBe("color-mix(in srgb, #bfb7d5 50%, transparent)");
-    expect(t["wash-press"]).toBe("color-mix(in srgb, #bfb7d5 74%, transparent)");
+    expect(t["wash-hover"]).toBe("color-mix(in srgb, #a1c3d1 50%, transparent)");
+    expect(t["wash-press"]).toBe("color-mix(in srgb, #a1c3d1 75%, transparent)");
     const grey = defineTheme({ surface: "#808080" });
     expect(grey.issues).toEqual([]);
   });
