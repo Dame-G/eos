@@ -51,9 +51,10 @@ describe("ETooltip", () => {
   });
 
   test("shows on hover after a short delay, and hides when the pointer leaves", async () => {
-    // A group of its own: a tooltip another test closed a moment ago would let this one skip its delay.
+    // A group of its own: a tooltip another test closed a moment ago would let this one skip its delay. A long delay, so
+    // a loaded machine cannot spend all of it between the hover and the first check.
     await render(ETooltip, {
-      props: { label: "Download receipt" },
+      props: { label: "Download receipt", delay: 1500 },
       slots: { default: () => h(EIconButton, { icon: "download", label: "Download" }) },
       global: { provide: { [TOOLTIP_KEY as symbol]: createTooltipGroup() } },
     });
