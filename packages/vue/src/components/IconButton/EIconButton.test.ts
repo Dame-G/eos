@@ -130,6 +130,14 @@ describe("EIconButton", () => {
     expect(clicks).toBe(0);
   });
 
+  test("the quiet (default) variant takes the busy style too", async () => {
+    const { container } = await render(EIconButton, { props: { icon: "download", label: "Download", loading: true } });
+    container.classList.add("e-root");
+    const button = container.querySelector("button")!;
+    expect(button.classList.contains("e-btn--loading")).toBe(true);
+    expect(getComputedStyle(button, "::before").borderTopStyle).toBe("dashed");
+  });
+
   test("type submits a form", async () => {
     let submitted = 0;
     const { container } = await render(

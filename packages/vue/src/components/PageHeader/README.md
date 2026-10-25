@@ -47,4 +47,4 @@ The top of a page: title, optional breadcrumb, description, status and main acti
 
 ## Related
 
-[`EHeading`](../Heading/README.md) for a title inside the page, [`EBreadcrumb`](../Breadcrumb/README.md) for the trail.
+[`EBreadcrumb`](../Breadcrumb/README.md) for the trail.

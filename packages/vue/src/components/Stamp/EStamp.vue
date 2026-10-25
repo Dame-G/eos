@@ -11,22 +11,25 @@ export type StampTone = Extract<Tone, "neutral" | "success" | "info" | "warning"
 export type StampStatus =
   "paid" | "due" | "overdue" | "action" | "scheduled" | "confirmed" | "cancelled" | "signed" | "pending" | "complete";
 
-const props = defineProps<{
-  /** A preset: sets the tone and the word (message `status.<name>`). */
-  status?: StampStatus;
-  /** Overrides the preset's tone. Without a `status` the stamp is `neutral`. `success`, `info`, `warning` and `danger` colour it. */
-  tone?: StampTone;
-  /** The word. It overrides the preset's, and the default slot overrides both. @default preset's word, else Status */
-  label?: string;
-  /** A glyph before the word. */
-  icon?: IconProp;
-  /** A date or day count, set after the word. */
-  detail?: string;
-  /** `sm` is shorter, for rows and tables. */
-  size?: Extract<Size, "sm" | "md">;
-  /** Rubber-stamp ink for the one mark on a page that says a thing is final, such as PAID or VOID. Outlined, in `stamp-ink`. Use it once per screen. */
-  final?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    /** A preset: sets the tone and the word (message `status.<name>`). */
+    status?: StampStatus;
+    /** Overrides the preset's tone. Without a `status` the stamp is `neutral`. `success`, `info`, `warning` and `danger` colour it. */
+    tone?: StampTone;
+    /** The word. It overrides the preset's, and the default slot overrides both. @default preset's word, else Status */
+    label?: string;
+    /** A glyph before the word. */
+    icon?: IconProp;
+    /** A date or day count, set after the word. */
+    detail?: string;
+    /** `sm` is shorter, for rows and tables. */
+    size?: Extract<Size, "sm" | "md">;
+    /** Rubber-stamp ink for the one mark on a page that says a thing is final, such as PAID or VOID. Outlined, in `stamp-ink`. Use it once per screen. */
+    final?: boolean;
+  }>(),
+  { size: "md" },
+);
 
 defineSlots<{
   /** The word, instead of `label` or the preset's. Write it in sentence case. The stamp sets it in capitals. */

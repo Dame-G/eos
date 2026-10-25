@@ -78,6 +78,7 @@ export const componentNames: ReadonlySet<string> = new Set([
   "ETextarea",
   "EToast",
   "EToastProvider",
+  "EToggletip",
   "ETooltip",
   "EUpload",
   "EVisuallyHidden",

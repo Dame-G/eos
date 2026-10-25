@@ -27,6 +27,8 @@ export interface DescriptionItem {
 const props = defineProps<{
   /** The rows, as `{ label?, text, icon?, stamp?, stampTone?, editable? }`. `null` and `undefined` items are skipped. */
   items: (DescriptionItem | null | undefined)[];
+  /** `dl` for label and text pairs, `ul` for a plain list of facts with no labels (and no Edit buttons). @default "ul" when no item has a label, else "dl" */
+  as?: "dl" | "ul";
 }>();
 
 const emit = defineEmits<{
@@ -41,15 +43,27 @@ defineSlots<{
 
 const t = useMessages();
 const shown = computed(() => props.items.filter((it): it is DescriptionItem => Boolean(it)));
-/** No labels anywhere: render a plain list of facts instead of term/description pairs. */
-const plain = computed(() => shown.value.length > 0 && shown.value.every((it) => !it.label));
+/** A plain list of facts instead of term/description pairs: as asked, else when no item has a label. */
+const plain = computed(() =>
+  props.as ? props.as === "ul" : shown.value.length > 0 && shown.value.every((it) => !it.label),
+);
+/** A key per row that survives the list changing: its label, made unique, else its place. */
+const keys = computed(() => {
+  const seen = new Map<string, number>();
+  return shown.value.map((it, i) => {
+    if (!it.label) return `#${i}`;
+    const n = seen.get(it.label) ?? 0;
+    seen.set(it.label, n + 1);
+    return n ? `${it.label}#${n}` : it.label;
+  });
+});
 
 const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["value"] });
 </script>
 
 <template>
   <ul v-if="plain" class="e-facts e-facts--plain">
-    <li v-for="(item, i) in shown" :key="i" class="e-fact">
+    <li v-for="(item, i) in shown" :key="keys[i]" class="e-fact">
       <EIcon v-if="item.icon" :name="item.icon" />
       <span class="e-fact-text"><Render :value="item.text" /></span>
       <EStamp v-if="item.stamp" :tone="item.stampTone" size="sm">{{ item.stamp }}</EStamp>
@@ -57,7 +71,7 @@ const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["v
     </li>
   </ul>
   <dl v-else class="e-facts">
-    <div v-for="(item, i) in shown" :key="i" class="e-fact">
+    <div v-for="(item, i) in shown" :key="keys[i]" class="e-fact">
       <EKicker as="dt"><EIcon v-if="item.icon" :name="item.icon" />{{ item.label }}</EKicker>
       <dd class="e-fact-text">
         <span class="e-fact-value"><Render :value="item.text" /></span>
@@ -88,6 +102,8 @@ const Render = Object.assign((p: { value: VNodeChild }) => p.value, { props: ["v
 
   .e-fact {
     display: grid;
+
+    /* The label column: about two kicker words wide. No token yet. */
     grid-template-columns: 8rem minmax(0, 1fr);
     gap: var(--e-gap-tight) var(--e-gap-loose);
     align-items: baseline;

@@ -44,4 +44,4 @@ Not focusable.
 
 ## Related
 
-[`EStack`](../Stack/README.md) for a column, [`EInline`](../Inline/README.md) for a row.
+[`ESurface`](../Surface/README.md) for the cards in it.

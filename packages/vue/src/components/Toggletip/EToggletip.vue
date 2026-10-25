@@ -8,6 +8,7 @@ import { useMessages, usePortalTarget } from "../../config.js";
 import { useUid } from "../../composables/useUid.js";
 import "../../styles/base.css";
 import "../Select/panel.css";
+import "../../styles/popover.css";
 
 defineOptions({ inheritAttrs: false });
 
@@ -57,7 +58,7 @@ watch(
 <template>
   <PopoverRoot v-model:open="open">
     <PopoverTrigger as-child>
-      <button type="button" class="e-definition-term" :class="inline && 'e-definition-term--inline'" v-bind="$attrs">
+      <button type="button" class="e-toggletip-term" :class="inline && 'e-toggletip-term--inline'" v-bind="$attrs">
         <EIcon v-if="!inline" name="info" size="sm" />
         <slot name="trigger" />
         <span class="e-sr">, {{ label }}</span>
@@ -88,7 +89,7 @@ watch(
 
 <style>
 @layer e.containers {
-  .e-definition-term {
+  .e-toggletip-term {
     display: inline-flex;
     align-items: center;
     gap: var(--e-gap-tight);
@@ -107,54 +108,26 @@ watch(
   }
 
   /* In running text: the sentence's font and baseline, no icon, and no taller box than the line. */
-  .e-definition-term--inline {
+  .e-toggletip-term--inline {
     align-items: baseline;
     min-height: 0;
     font: inherit;
     vertical-align: baseline;
   }
 
-  .e-definition-term::after {
+  .e-toggletip-term::after {
     content: "";
     position: absolute;
     inset: calc(-1 * var(--e-gap-snug)) calc(-1 * var(--e-gap-tight));
   }
 
-  .e-definition-term:hover,
-  .e-definition-term:active {
+  .e-toggletip-term:hover,
+  .e-toggletip-term:active {
     color: var(--e-ink);
   }
 
-  /* .e-pop-head, .e-pop-title and .e-pop-body are also the popover frame of EDataGrid's column chooser. */
-  .e-pop-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--e-gap-snug);
-    padding-block: var(--e-gap-tight) 0;
-    padding-inline: var(--e-pad-card) var(--e-gap-tight);
-  }
-
-  .e-pop-title {
-    margin: 0;
-    font: var(--e-type-kicker);
-    letter-spacing: var(--e-tracking-label);
-    text-transform: uppercase;
-    color: var(--e-muted);
-  }
-
-  .e-pop-body {
-    padding-block: var(--e-gap-base) var(--e-pad-card);
-    padding-inline: var(--e-pad-card);
-    font: var(--e-type-body);
-  }
-
-  .e-pop-head + .e-pop-body {
-    padding-top: var(--e-gap-tight);
-  }
-
   @media print {
-    .e-definition-term {
+    .e-toggletip-term {
       display: none;
     }
   }

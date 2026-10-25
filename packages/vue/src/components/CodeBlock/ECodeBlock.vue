@@ -2,13 +2,16 @@
 import { computed, ref } from "vue";
 import ECopyButton from "../CopyButton/ECopyButton.vue";
 import { useMessages } from "../../config.js";
+import { useOverflow } from "../../composables/useOverflow.js";
 import "../../styles/base.css";
 
 const props = defineProps<{
   /** The text to show, as plain text. Leave it out to use the slot and put your own highlighted markup there. */
   code?: string;
-  /** The language, named for screen readers (the name of the scrollable code group). @default "Code" */
+  /** The language, such as `ts` or `vue`. A common one is read by its name ("TypeScript") as the name of the code group. */
   lang?: string;
+  /** Names the code group for screen readers, instead of the language. @default the language's name, else "Code" */
+  label?: string;
   /** The copy button's name. Say what is copied when a page has several. @default "Copy code" */
   copyLabel?: string;
   /** Wraps long lines instead of scrolling sideways. */
@@ -22,16 +25,48 @@ defineSlots<{
   default?(): unknown;
 }>();
 
+/** Readable names for the languages people write most, so a screen reader does not spell out "t s". */
+const LANGS: Record<string, string> = {
+  bash: "Bash",
+  css: "CSS",
+  diff: "Diff",
+  html: "HTML",
+  js: "JavaScript",
+  javascript: "JavaScript",
+  json: "JSON",
+  jsx: "JSX",
+  md: "Markdown",
+  markdown: "Markdown",
+  py: "Python",
+  python: "Python",
+  scss: "SCSS",
+  sh: "Shell",
+  shell: "Shell",
+  sql: "SQL",
+  ts: "TypeScript",
+  tsx: "TSX",
+  typescript: "TypeScript",
+  vue: "Vue",
+  xml: "XML",
+  yaml: "YAML",
+  yml: "YAML",
+};
+
 const t = useMessages();
 const root = ref<HTMLElement | null>(null);
+const body = ref<HTMLElement | null>(null);
+const name = computed(
+  () => props.label || (props.lang && (LANGS[props.lang.toLowerCase()] ?? props.lang)) || t("codeBlock"),
+);
+// The body is a tab stop only while it scrolls (never with `wrap`), so the keys can scroll it.
+const overflows = useOverflow(body, [], { children: true });
 const text = () => props.code ?? root.value?.querySelector("pre")?.textContent ?? "";
 const lines = computed(() => (props.lineNumbers && props.code !== undefined ? props.code.split("\n") : undefined));
 </script>
 
 <template>
   <div ref="root" class="e-code" :class="{ 'e-code--wrap': wrap, 'e-code--numbered': lineNumbers }">
-    <!-- The body scrolls, so it takes focus: the keys scroll it, with the built-in pre or your own markup. -->
-    <div class="e-code-body" role="group" tabindex="0" :aria-label="lang || t('codeBlock')">
+    <div ref="body" class="e-code-body" role="group" :tabindex="overflows ? 0 : undefined" :aria-label="name">
       <slot>
         <pre><code v-if="lines"><span v-for="(line, i) in lines" :key="i" class="line">{{ line }}</span></code><code v-else>{{ code }}</code></pre>
       </slot>

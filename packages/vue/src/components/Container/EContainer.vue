@@ -7,11 +7,11 @@ withDefaults(
     /** The element to render, such as `main` or `section`. */
     as?: ElementTag;
     /** The widest it grows: `sm` 40rem, `md` 60rem, `lg` 80rem, or `full` for the whole width. It is centred when narrower than its parent. */
-    size?: "sm" | "md" | "lg" | "full";
+    width?: "sm" | "md" | "lg" | "full";
     /** Keeps the page gutter at its sides, so content never touches the screen edge. `false` for a container that sits inside another that already has one. */
     gutter?: boolean;
   }>(),
-  { as: "div", size: "lg", gutter: true },
+  { as: "div", width: "lg", gutter: true },
 );
 
 defineSlots<{
@@ -21,13 +21,14 @@ defineSlots<{
 </script>
 
 <template>
-  <component :is="as" class="e-container" :class="[`e-container--${size}`, !gutter && 'e-container--flush']">
+  <component :is="as" class="e-container" :class="[`e-container--${width}`, !gutter && 'e-container--flush']">
     <slot />
   </component>
 </template>
 
 <style>
 @layer e.blocks {
+  /* The widths (40, 60 and 80rem) have no token yet; they are the page column steps. */
   .e-container {
     --_max: 80rem;
 

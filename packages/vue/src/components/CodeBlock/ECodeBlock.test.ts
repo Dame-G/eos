@@ -6,7 +6,7 @@ import ECodeBlock from "./ECodeBlock.vue";
 import { expectNoViolations } from "../../../test/axe.js";
 
 describe("ECodeBlock", () => {
-  test("shows the code in a focusable group named by the language, with a copy button beside it", async () => {
+  test("shows the code in a group named by the language, with a copy button beside it", async () => {
     const { container } = await render(ECodeBlock, { props: { code: "npm install @eos-ui/vue", lang: "bash" } });
     const pre = container.querySelector("pre")!;
     expect(pre.textContent).toBe("npm install @eos-ui/vue");
@@ -14,8 +14,9 @@ describe("ECodeBlock", () => {
     expect(pre.tabIndex).toBe(-1);
     const region = container.querySelector(".e-code-body") as HTMLElement;
     expect(region.getAttribute("role")).toBe("group");
-    expect(region.tabIndex).toBe(0);
-    await expect.element(page.getByRole("group", { name: "bash" })).toBeVisible();
+    await new Promise((r) => requestAnimationFrame(r));
+    expect(region.hasAttribute("tabindex")).toBe(false);
+    await expect.element(page.getByRole("group", { name: "Bash" })).toBeVisible();
     await expect.element(page.getByRole("button", { name: "Copy code" })).toBeVisible();
   });
 
@@ -23,6 +24,18 @@ describe("ECodeBlock", () => {
     await render(ECodeBlock, { props: { code: "x".repeat(400) } });
     await userEvent.tab();
     await expect.element(page.getByRole("group", { name: "Code" })).toHaveFocus();
+  });
+
+  test("the group is a tab stop only while it scrolls, never with wrap; label names it", async () => {
+    const long = "x".repeat(400);
+    const scrolls = await render(ECodeBlock, { props: { code: long, lang: "ts" } });
+    const body = () => scrolls.container.querySelector<HTMLElement>(".e-code-body")!;
+    await expect.poll(() => body().getAttribute("tabindex")).toBe("0");
+    await expect.element(page.getByRole("group", { name: "TypeScript" })).toBeVisible();
+    const wrapped = await render(ECodeBlock, { props: { code: long, wrap: true, label: "Install command" } });
+    await new Promise((r) => requestAnimationFrame(r));
+    expect(wrapped.container.querySelector(".e-code-body")!.hasAttribute("tabindex")).toBe(false);
+    await expect.element(page.getByRole("group", { name: "Install command" })).toBeVisible();
   });
 
   test("custom slot content scrolls inside the same focusable group", async () => {

@@ -24,7 +24,7 @@
     text-wrap: balance;
   }
 
-  :where(.e-btn, .e-icon-btn, .e-input, .e-definition-term):focus-visible {
+  :where(.e-btn, .e-icon-btn, .e-input, .e-toggletip-term):focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: var(--e-stroke-focus);
   }
@@ -42,7 +42,7 @@
     .e-combo-btn,
     .e-menu-item,
     .e-nav-item,
-    .e-definition-term
+    .e-toggletip-term
   ) {
     user-select: none;
     -webkit-tap-highlight-color: transparent;

@@ -60,15 +60,13 @@ describe("ETable", () => {
     expect(caption.getBoundingClientRect().width).toBeLessThanOrEqual(1);
   });
 
-  test("striped and size sm add modifiers; striped tints every other row", async () => {
+  test("striped and dense add modifiers; striped tints every other row", async () => {
     const { container } = await render(ETable, {
-      props: { caption: "Plans", striped: true, size: "sm" },
+      props: { caption: "Plans", striped: true, dense: true },
       slots: { default: rows },
     });
     container.classList.add("e-root");
-    expect(container.querySelector(".e-table-wrap")!.className).toBe(
-      "e-table-wrap e-table-wrap--striped e-table-wrap--dense",
-    );
+    expect(container.querySelector("table")!.className).toBe("e-table e-table--striped e-table--dense");
     const cells = [...container.querySelectorAll<HTMLElement>("tbody tr > td")];
     expect(getComputedStyle(cells[0]!).backgroundColor).not.toBe(getComputedStyle(cells[1]!).backgroundColor);
   });
@@ -87,7 +85,7 @@ describe("ETable", () => {
     });
     container.classList.add("e-root");
     const region = container.querySelector<HTMLElement>(".e-table-scroll")!;
-    expect(region.getAttribute("role")).toBe("region");
+    await expect.poll(() => region.getAttribute("role")).toBe("region");
     expect(region.getAttribute("tabindex")).toBe("0");
     expect(region.getBoundingClientRect().height).toBeLessThanOrEqual(200);
     expect(region.scrollHeight).toBeGreaterThan(200);
@@ -102,15 +100,42 @@ describe("ETable", () => {
     expect(getComputedStyle(wrap, "::after").boxShadow).not.toBe("none");
   });
 
-  test("size sm tightens the cells", async () => {
+  test("maxHeight alone is no tab stop while nothing overflows", async () => {
+    const { container } = await render(ETable, {
+      props: { caption: "Plans", maxHeight: "40rem" },
+      slots: { default: rows },
+    });
+    const region = container.querySelector(".e-table-scroll")!;
+    await new Promise((r) => requestAnimationFrame(r));
+    expect(region.hasAttribute("tabindex")).toBe(false);
+    expect(region.hasAttribute("role")).toBe(false);
+  });
+
+  test("as cards, a row heading is the card's title, above the labelled cells", async () => {
+    const card = () => [
+      h("thead", [h("tr", [h("th", { scope: "col" }, "Plan"), h("th", { scope: "col" }, "Visits")])]),
+      h("tbody", [h("tr", [h("th", { scope: "row" }, "Basic"), h("td", { "data-label": "Visits" }, "4")])]),
+    ];
+    const { container } = await render(
+      defineComponent({
+        render: () => h("div", { style: { width: "320px" } }, [h(ETable, { caption: "P", cards: true }, card)]),
+      }),
+    );
+    const th = container.querySelector("tbody th") as HTMLElement;
+    const td = container.querySelector("tbody td") as HTMLElement;
+    expect(getComputedStyle(th).display).toBe("block");
+    expect(th.getBoundingClientRect().bottom).toBeLessThanOrEqual(td.getBoundingClientRect().top + 1);
+    expect(th.getBoundingClientRect().width).toBeGreaterThan(td.getBoundingClientRect().width * 0.9);
+  });
+
+  test("dense tightens the cells", async () => {
     const pad = async (props: Record<string, unknown>) => {
       const { container } = await render(ETable, { props: { caption: "P", ...props }, slots: { default: rows } });
       container.classList.add("e-root");
       return getComputedStyle(container.querySelector("td")!).paddingTop;
     };
     const normal = await pad({});
-    expect(await pad({ size: "sm" })).not.toBe(normal);
-    expect(await pad({ size: "md" })).toBe(normal);
+    expect(await pad({ dense: true })).not.toBe(normal);
   });
 
   test("loading marks the table busy, dims its rows and shows placeholder lines", async () => {

@@ -1,4 +1,4 @@
-/* The table look shared by ETable and EDataGrid: tinted mono headings, hairline rows, a hover row and numeric columns. `.e-cards` on a container turns the rows into cards below 40rem of its width (each cell needs a `data-label`). */
+/* The table look shared by ETable and EDataGrid: tinted mono headings, hairline rows, a hover row, numeric columns, striped and dense rows, the dimmed busy rows, the frame and its scroller. `.e-cards` on a container turns the rows into cards below 40rem of its width (each cell needs a `data-label`). */
 @layer e.containers {
   .e-table {
     width: 100%;
@@ -62,6 +62,48 @@
 
   .e-table .e-center {
     text-align: center;
+  }
+
+  .e-table--striped tbody tr:nth-child(even) :is(td, th) {
+    background: var(--e-surface-tint);
+  }
+
+  .e-table--striped tbody tr:hover :is(td, th) {
+    background: var(--e-wash-hover);
+  }
+
+  .e-table--dense {
+    font-size: var(--e-text-sm);
+  }
+
+  .e-table--dense :is(th, td, tbody th) {
+    padding: var(--e-gap-snug) var(--e-pad-control-sm);
+  }
+
+  .e-table--busy tbody {
+    opacity: 0.5;
+  }
+
+  /* The frame (ETable's wrap, EDataGrid's frame) is drawn once, above the scroller and its sticky headings, so nothing covers it. */
+  :is(.e-table-wrap, .e-grid-frame)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: var(--e-z-sticky);
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 var(--e-stroke-card) var(--e-border);
+    pointer-events: none;
+  }
+
+  :is(.e-table-scroll, .e-grid-scroll) {
+    overflow: auto;
+    max-height: var(--_max-h, none);
+  }
+
+  /* The scroller is a tab stop only while it scrolls; its ring sits inside it, where the frame cannot cover it. */
+  :is(.e-table-scroll, .e-grid-scroll):focus-visible {
+    outline: var(--e-stroke-focus) solid var(--e-focus-ring);
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   .e-cards {
@@ -133,6 +175,11 @@
       color: var(--e-muted);
     }
 
+    /* A row heading (`th scope="row"`) is the card's title, above the labelled cells. */
+    .e-cards .e-table tbody tr th {
+      display: block;
+    }
+
     .e-cards .e-table td:not([data-label]) {
       display: block;
     }
@@ -146,9 +193,25 @@
     }
   }
 
+  @media print {
+    :is(.e-table-scroll, .e-grid-scroll) {
+      overflow: visible;
+      max-height: none;
+    }
+
+    :is(.e-table-wrap, .e-grid-frame)::after {
+      display: none;
+    }
+  }
+
   @media (forced-colors: active) {
     .e-table th {
       border-bottom: var(--e-stroke-card) solid CanvasText;
+    }
+
+    :is(.e-table-wrap, .e-grid-frame)::after {
+      border: var(--e-stroke-card) solid CanvasText;
+      box-shadow: none;
     }
   }
 }

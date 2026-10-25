@@ -116,6 +116,21 @@ describe("ESearchResults", () => {
     expect(picked).toEqual(["Drawer", "Disclosure"]);
   });
 
+  test("a modified click on a button result still selects it; only a link leaves it to the browser", async () => {
+    const picked: string[] = [];
+    const { container } = await render(ESearchResults, {
+      props: {
+        items: [{ label: "Run the tour" }],
+        label: "Results",
+        onSelect: (item: { label: string }) => picked.push(item.label),
+      },
+    });
+    container
+      .querySelector("button")!
+      .dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, shiftKey: true }));
+    expect(picked).toEqual(["Run the tour"]);
+  });
+
   test("a result with nowhere to go is a button, never a link to #", async () => {
     const picked: string[] = [];
     const { container } = await render(ESearchResults, {

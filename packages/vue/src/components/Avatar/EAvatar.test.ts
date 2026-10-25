@@ -68,7 +68,7 @@ describe("EAvatar", () => {
     const dot = container.querySelector(".e-avatar-status")!;
     expect(dot.getAttribute("aria-hidden")).toBe("true");
     expect(dot.getBoundingClientRect().width).toBeGreaterThan(0);
-    const button = await render(EAvatar, { props: { name: "Ada Lovelace", presence: "busy", as: "button" } });
+    const button = await render(EAvatar, { props: { name: "Ada Lovelace", presence: "busy", interactive: true } });
     await expect.element(page.getByRole("button", { name: "Ada Lovelace, Busy" })).toBeVisible();
     for (const status of ["away", "offline"] as const) {
       const r = await render(EAvatar, { props: { name: "Ada", presence: status } });
@@ -107,8 +107,8 @@ describe("EAvatar", () => {
     expect(sizes).toEqual([44, 32, 64]);
   });
 
-  test("as button renders a button named by the person, not an image", async () => {
-    const { container } = await render(EAvatar, { props: { name: "Ada Lovelace", as: "button" } });
+  test("interactive renders a button named by the person, not an image", async () => {
+    const { container } = await render(EAvatar, { props: { name: "Ada Lovelace", interactive: true } });
     const el = container.querySelector(".e-avatar")!;
     expect(el.tagName).toBe("BUTTON");
     expect(el.getAttribute("type")).toBe("button");
@@ -119,13 +119,15 @@ describe("EAvatar", () => {
   });
 
   test("a button avatar with a photo is still named by the person", async () => {
-    await render(EAvatar, { props: { name: "Ada Lovelace", src: PIXEL, as: "button" } });
+    await render(EAvatar, { props: { name: "Ada Lovelace", src: PIXEL, interactive: true } });
     await expect.element(page.getByRole("button", { name: "Ada Lovelace" })).toBeVisible();
   });
 
   test("a button avatar has the pointer cursor, a focus ring and keeps its size", async () => {
     const { container } = await render(
-      defineComponent({ render: () => h("div", { class: "e-root" }, [h(EAvatar, { name: "A B", as: "button" })]) }),
+      defineComponent({
+        render: () => h("div", { class: "e-root" }, [h(EAvatar, { name: "A B", interactive: true })]),
+      }),
     );
     const el = container.querySelector<HTMLButtonElement>("button.e-avatar")!;
     expect(getComputedStyle(el).cursor).toBe("pointer");
@@ -139,7 +141,9 @@ describe("EAvatar", () => {
 
   test("hovering a button avatar fills it as well as darkening its edge", async () => {
     const { container } = await render(
-      defineComponent({ render: () => h("div", { class: "e-root" }, [h(EAvatar, { name: "A B", as: "button" })]) }),
+      defineComponent({
+        render: () => h("div", { class: "e-root" }, [h(EAvatar, { name: "A B", interactive: true })]),
+      }),
     );
     const el = container.querySelector<HTMLButtonElement>("button.e-avatar")!;
     const rest = getComputedStyle(el).backgroundColor;
@@ -160,7 +164,7 @@ describe("EAvatar", () => {
   test("a button avatar works as the trigger of an EMenu", async () => {
     const { container } = await render(EMenu, {
       props: { label: "Account", items: [{ label: "Sign out" }] },
-      slots: { trigger: () => h(EAvatar, { name: "Ada Lovelace", as: "button" }) },
+      slots: { trigger: () => h(EAvatar, { name: "Ada Lovelace", interactive: true }) },
     });
     const trigger = container.querySelector<HTMLButtonElement>("button.e-avatar")!;
     expect(trigger.getAttribute("aria-haspopup")).toBe("menu");
@@ -173,7 +177,7 @@ describe("EAvatar", () => {
 
   test("a button avatar is reached with Tab and pressed with Enter or Space", async () => {
     const onClick = vi.fn();
-    await render(EAvatar, { props: { name: "Ada Lovelace", as: "button" }, attrs: { onClick } });
+    await render(EAvatar, { props: { name: "Ada Lovelace", interactive: true }, attrs: { onClick } });
     await userEvent.tab();
     await expect.element(page.getByRole("button", { name: "Ada Lovelace" })).toHaveFocus();
     await userEvent.keyboard("{Enter}");
@@ -195,10 +199,10 @@ describe("EAvatar", () => {
             h(EAvatar, { name: "Ada Lovelace" }),
             h(EAvatar, { name: "Ada Lovelace", src: PIXEL, size: "sm" }),
             h(EAvatar, { name: "Ada Lovelace", size: "lg" }),
-            h(EAvatar, { name: "Ada Lovelace", as: "button" }),
-            h(EAvatar, { name: "Ada Lovelace", src: PIXEL, as: "button" }),
+            h(EAvatar, { name: "Ada Lovelace", interactive: true }),
+            h(EAvatar, { name: "Ada Lovelace", src: PIXEL, interactive: true }),
             h(EAvatar, { name: "Ada Lovelace", presence: "away" }),
-            h(EAvatar, { name: "Ada Lovelace", presence: "offline", as: "button" }),
+            h(EAvatar, { name: "Ada Lovelace", presence: "offline", interactive: true }),
           ]),
       }),
     );
@@ -212,7 +216,7 @@ describe("EAvatar", () => {
           h("div", [
             h(EAvatar, { name: "Ada", src: PIXEL }),
             h(EAvatar, { name: "Bo", src: PIXEL, size: "sm" }),
-            h(EAvatar, { name: "Cy", src: PIXEL, as: "button" }),
+            h(EAvatar, { name: "Cy", src: PIXEL, interactive: true }),
           ]),
       }),
     );

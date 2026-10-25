@@ -83,6 +83,7 @@ declare module "vue" {
     ETextarea: typeof Library.ETextarea;
     EToast: typeof Library.EToast;
     EToastProvider: typeof Library.EToastProvider;
+    EToggletip: typeof Library.EToggletip;
     ETooltip: typeof Library.ETooltip;
     EUpload: typeof Library.EUpload;
     EVisuallyHidden: typeof Library.EVisuallyHidden;

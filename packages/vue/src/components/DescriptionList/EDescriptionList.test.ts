@@ -100,4 +100,13 @@ describe("EDescriptionList", () => {
     );
     await expectNoViolations(container);
   });
+
+  test("as chooses the list: ul for facts even with labels, dl as the default for labelled rows", async () => {
+    const items = [{ label: "Due", text: "October 31" }];
+    const ul = await render(EDescriptionList, { props: { items, as: "ul" } });
+    expect(ul.container.querySelector("ul.e-facts")).not.toBeNull();
+    expect(ul.container.querySelector("dl")).toBeNull();
+    const dl = await render(EDescriptionList, { props: { items: [{ text: "Plain" }], as: "dl" } });
+    expect(dl.container.querySelector("dl.e-facts")).not.toBeNull();
+  });
 });

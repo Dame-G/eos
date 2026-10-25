@@ -11,7 +11,7 @@ const props = withDefaults(
     as?: ElementTag;
     /** `tight`, `snug`, `base`, `loose` or `section` (the gap tokens), or a space token number (1 to 6, 8, 10, 12 or 16) for `var(--e-space-N)`. A string is used as given, so any CSS length works. */
     gap?: GapToken | string;
-    /** Aligns the children across the column. Stretched by default. */
+    /** Aligns the children across the column. Stretched when left out. `baseline` only lines up children that `wrapBelow` lays side by side; in a column it is `start`. */
     align?: "start" | "center" | "end" | "stretch" | "baseline";
     /** Places the children down the column when the stack is taller than they are. Left out, they sit at the start. */
     justify?: "start" | "center" | "end" | "between";

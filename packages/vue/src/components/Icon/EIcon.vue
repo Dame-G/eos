@@ -22,7 +22,11 @@ const props = withDefaults(
 );
 
 const resolve = useIconResolver();
-/** The token of each size. `md` is the icon size every component uses, so it sets nothing and a component can still change it. */
+/**
+ * The token of each size. `md` is the icon size every component uses, so it sets nothing and a component can still change it.
+ * The token names are a step behind the size names (`lg` reads `--e-icon-size-md`); they are to be renamed
+ * `--e-icon-size-{sm,md,lg,xl}` so each size reads the token of its own name.
+ */
 const SIZE_TOKEN: Record<Size, string | undefined> = {
   sm: "--e-icon-size-sm",
   md: undefined,

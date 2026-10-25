@@ -1,3 +1,9 @@
+<script lang="ts">
+/** The size class of an avatar tile, shared with the "+N" tile of `EAvatarGroup`. @internal */
+export const avatarSizeClass = (size: "sm" | "md" | "lg") =>
+  size === "sm" ? "e-avatar--s" : size === "lg" ? "e-avatar--l" : undefined;
+</script>
+
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useConfig, useMessages } from "../../config.js";
@@ -14,10 +20,10 @@ const props = withDefaults(
     size?: Extract<Size, "sm" | "md" | "lg">;
     /** A presence dot at the corner. The name is read with it, as "Ada Lovelace, Online". */
     presence?: "online" | "away" | "busy" | "offline";
-    /** `button` renders a `button` with `type="button"`, named by `name`, for use as the `trigger` of an `EMenu`, for example. */
-    as?: "span" | "button";
+    /** Renders a `button` with `type="button"`, named by `name`, for use as the `trigger` of an `EMenu`, for example. */
+    interactive?: boolean;
   }>(),
-  { size: "md", as: "span" },
+  { size: "md" },
 );
 
 const t = useMessages();
@@ -57,18 +63,18 @@ const label = computed(() =>
 
 <template>
   <component
-    :is="as"
+    :is="interactive ? 'button' : 'span'"
     class="e-avatar"
-    :class="[size === 'sm' && 'e-avatar--s', size === 'lg' && 'e-avatar--l', as === 'button' && 'e-avatar--button']"
-    :type="as === 'button' ? 'button' : undefined"
-    :role="as === 'button' ? undefined : 'img'"
-    :aria-label="as === 'button' ? undefined : label"
+    :class="[avatarSizeClass(size), interactive && 'e-avatar--button']"
+    :type="interactive ? 'button' : undefined"
+    :role="interactive ? undefined : 'img'"
+    :aria-label="interactive ? undefined : label"
   >
     <img v-if="src && !failed" class="e-avatar-img" :src="src" alt="" @error="failed = true" />
-    <span v-else-if="as === 'button'" aria-hidden="true">{{ initials }}</span>
+    <span v-else-if="interactive" aria-hidden="true">{{ initials }}</span>
     <template v-else>{{ initials }}</template>
     <span v-if="presence" class="e-avatar-status" :class="`e-avatar-status--${presence}`" aria-hidden="true"></span>
-    <span v-if="as === 'button'" class="e-sr">{{ label }}</span>
+    <span v-if="interactive" class="e-sr">{{ label }}</span>
   </component>
 </template>
 

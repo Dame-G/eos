@@ -118,7 +118,7 @@ void [useToast, useLocale, theme, iconNames];
 </script>
 <template>
   <div class="e-root">
-    <ESurface size="md">
+    <ESurface>
       <ETextField v-model="email" label="Email" type="email" required />
       <ESelect v-model="pick" label="Choice" :options="['a', 'b']" />
       <ECheckbox label="Agree" />

@@ -4,7 +4,7 @@ A small paper tag that labels or categorises something, and can be removed. Use 
 
 ```vue
 <ETag label="Cardiology" />
-<ETag label="Overdue" tone="danger" icon="alert" />
+<ETag label="Lab results" tone="info" icon="file" />
 <ETag label="Ada Lovelace" removable @remove="people.splice(i, 1)" />
 ```
 
@@ -52,4 +52,4 @@ A small paper tag that labels or categorises something, and can be removed. Use 
 
 ## Related
 
-[`EStamp`](../Stamp/README.md) for a status, [`EAvatarGroup`](../AvatarGroup/README.md) for people.
+[`EAvatarGroup`](../AvatarGroup/README.md) for people.

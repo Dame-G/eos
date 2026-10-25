@@ -34,4 +34,4 @@ Not focusable.
 
 ## Related
 
-`formatShortcut` in the composables gives the keycaps for a shortcut; [`EHighlight`](../Highlight/README.md) marks code in a sentence.
+`formatShortcut` in the composables gives the keycaps for a shortcut.

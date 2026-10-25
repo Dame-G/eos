@@ -80,6 +80,7 @@ const PROPS: Record<string, Record<string, unknown>> = {
   ETextField: { label: "Email", error: "Enter an email" },
   ETextarea: { label: "Notes" },
   EToast: { tone: "info", title: "Saved" },
+  EToggletip: { label: "Annual percentage rate" },
   ETooltip: { label: "More" },
   EUpload: { label: "Files" },
   ELink: { href: "#x" },
@@ -94,6 +95,7 @@ const SLOTS: Record<string, Record<string, () => unknown>> = {
   // A table holds rows; text straight inside <table> is moved out of it by the HTML parser.
   ETable: { default: () => h("tbody", [h("tr", [h("td", "one")])]) },
   // The term is already inside the button that opens the explanation.
+  EToggletip: { default: () => "The yearly cost of a loan.", trigger: () => "APR" },
   EDefinition: { default: () => "The yearly cost of a loan.", trigger: () => "APR" },
 };
 
@@ -108,7 +110,7 @@ export function componentsOf(lib: Record<string, unknown>): [string, Component][
 }
 
 /** The floating parts, also rendered open from the start: the server draws no portal, the browser opens it after. */
-const OPEN = ["ESelect", "ECombobox", "EMenu", "ETooltip", "EDefinition", "EDatePicker", "ERangePicker"];
+const OPEN = ["ESelect", "ECombobox", "EMenu", "ETooltip", "EToggletip", "EDatePicker", "ERangePicker"];
 
 export interface Case {
   id: string;

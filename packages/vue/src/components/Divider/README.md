@@ -29,4 +29,4 @@ Not focusable.
 
 ## Related
 
-[`EStack`](../Stack/README.md) and [`EInline`](../Inline/README.md) space items without a rule.
+[`EInline`](../Inline/README.md) for a row with no rule.

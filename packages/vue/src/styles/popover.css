@@ -1,0 +1,29 @@
+/* The inside of a small floating panel (`.e-popover` from Select/panel.css): a title row with a Close button, then the body. EToggletip and EDataGrid's Columns menu use it. */
+@layer e.containers {
+  .e-pop-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-gap-snug);
+    padding-block: var(--e-gap-tight) 0;
+    padding-inline: var(--e-pad-card) var(--e-gap-tight);
+  }
+
+  .e-pop-title {
+    margin: 0;
+    font: var(--e-type-kicker);
+    letter-spacing: var(--e-tracking-label);
+    text-transform: uppercase;
+    color: var(--e-muted);
+  }
+
+  .e-pop-body {
+    padding-block: var(--e-gap-base) var(--e-pad-card);
+    padding-inline: var(--e-pad-card);
+    font: var(--e-type-body);
+  }
+
+  .e-pop-head + .e-pop-body {
+    padding-top: var(--e-gap-tight);
+  }
+}

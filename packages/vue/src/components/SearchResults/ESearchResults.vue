@@ -93,8 +93,10 @@ function onKeydown(e: KeyboardEvent) {
   else all[at - 1]?.focus();
 }
 
+// A modified click on a link opens it in a new tab or window, so it is the browser's, not a select. A button has no such meaning.
 function onClick(item: SearchResultItem, e: MouseEvent) {
-  if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+  const modified = e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey;
+  if (modified && linkAttrs(item)) return;
   emit("select", item, e);
 }
 

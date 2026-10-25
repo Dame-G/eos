@@ -65,4 +65,4 @@ A list of search results as links, with a title and a muted line under it, arrow
 
 ## Related
 
-[`ESearchBar`](../SearchBar/README.md) takes the query, [`ECombobox`](../Combobox/README.md) when the choice belongs to a form.
+[`ECombobox`](../Combobox/README.md) when the choice belongs to a form.

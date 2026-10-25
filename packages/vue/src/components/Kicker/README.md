@@ -35,4 +35,4 @@ Not focusable.
 
 ## Related
 
-[`EHeading`](../Heading/README.md) for the title that follows, [`EField`](../Field/README.md) for a field label.
+[`EField`](../Field/README.md) for a field label.
