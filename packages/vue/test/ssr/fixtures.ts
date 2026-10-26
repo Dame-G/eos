@@ -86,6 +86,17 @@ const PROPS: Record<string, Record<string, unknown>> = {
   ESkipLink: { href: "#main" },
   EAppHeader: { brand: "eos", brandHref: "/" },
   EConfigProvider: { locale: "ar", theme: { brand: "#8a2be2" } },
+  EList: { label: "Games", modelValue: "a" },
+  EListRow: { value: "a", title: "You – Dameless", subtitle: "5+3", live: true },
+  EPopover: { label: "Background work" },
+  ESheet: { title: "Profile", open: true, description: "Your games." },
+  EStatLink: { label: "You", value: 1840, href: "/you" },
+  ETree: {
+    label: "Games",
+    items: [{ id: "a", label: "Alpha", children: [{ id: "b", label: "Beta" }] }],
+    expanded: ["a"],
+  },
+  EVirtualList: { items: [{ id: "a" }, { id: "b" }], rowHeight: 40, itemKey: "id" },
   // new:component adds entries above this line
 };
 
@@ -108,7 +119,7 @@ export function componentsOf(lib: Record<string, unknown>): [string, Component][
 }
 
 /** The floating parts, also rendered open from the start: the server draws no portal, the browser opens it after. */
-const OPEN = ["ESelect", "ECombobox", "EMenu", "ETooltip", "EToggletip", "EDatePicker", "ERangePicker"];
+const OPEN = ["ESelect", "ECombobox", "EMenu", "ETooltip", "EToggletip", "EPopover", "EDatePicker", "ERangePicker"];
 
 export interface Case {
   id: string;

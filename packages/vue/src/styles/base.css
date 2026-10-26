@@ -46,6 +46,7 @@
     .e-radio,
     .e-avatar--button,
     .e-nav-item,
+    .e-statlink,
     .e-slider-thumb,
     .e-link,
     .e-crumb-current,
@@ -86,6 +87,7 @@
     .e-step,
     .e-menu-item,
     .e-nav-item,
+    .e-statlink,
     .e-toggletip-term
   ) {
     user-select: none;

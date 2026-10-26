@@ -37,7 +37,10 @@ const limits = {
   // Then from 23400 (about 260 B over it at the time): print support (the shared paper rules for colour, breaks and
   // floating panels; the grid, table, code block, upload, disclosure and header on paper), the single-file upload tile
   // taking the zone's states, the avatar stack, the nav item's own hover edge and the switch thumb's slab and press.
-  "style.css": 23900,
+  // Then from 23900 (about 560 B over it): the app patterns, seven components (ESheet, EPopover, EList, EListRow,
+  // ETree, EVirtualList, EStatLink); the rows share one stylesheet (listrow.css) and the sheet reuses the dialog's
+  // head, body and foot rules.
+  "style.css": 25200,
   // Minified here before gzip since the JavaScript ships unminified; rebased then with the headroom they had.
   "index.js": 2100,
   // Raised from 144300 in the audit release, at 148029 B with the headroom it had (2.9%). Growth over 0.17 (about 8 kB,
@@ -49,7 +52,9 @@ const limits = {
   // not reading a label twice, EAppHeader's height hook and scrolling nav, and the announcer and new props across the
   // release. Already cut: warn.ts folded into env.ts with every one-off console.warn on warnOnce, and Field/popper.ts
   // folded into the floating-part constants of useDir.ts.
-  "all JavaScript files (each gzipped)": 152300,
+  // Then from 152300 (about 6.7 kB over it) for the same seven components, ETree on Reka's tree and EVirtualList on
+  // @tanstack/vue-virtual, both already dependencies.
+  "all JavaScript files (each gzipped)": 163700,
 };
 
 // The per-component paths (`@eos-ui/vue/components/EButton`) are one-line re-exports, dist/components/<Name>/index.js.

@@ -40,6 +40,8 @@ EKbd
 EKicker
 ELink
 ELinkCard
+EList
+EListRow
 EMenu
 EMetric
 ENavList
@@ -50,6 +52,7 @@ EPageHeader
 EPagination
 EPasswordField
 EPhoneField
+EPopover
 EProgress
 ERadioGroup
 ERangePicker
@@ -57,6 +60,7 @@ ESearchBar
 ESearchResults
 ESegmented
 ESelect
+ESheet
 ESignatureField
 ESignaturePad
 ESkeleton
@@ -65,6 +69,7 @@ ESlider
 ESpinner
 EStack
 EStamp
+EStatLink
 EStepper
 ESurface
 ESwitch
@@ -78,7 +83,9 @@ EToast
 EToastProvider
 EToggletip
 ETooltip
+ETree
 EUpload
+EVirtualList
 EVisuallyHidden
 TOAST_KEY
 createEos

@@ -46,6 +46,8 @@ declare module "vue" {
     EKicker: typeof Library.EKicker;
     ELink: typeof Library.ELink;
     ELinkCard: typeof Library.ELinkCard;
+    EList: typeof Library.EList;
+    EListRow: typeof Library.EListRow;
     EMenu: typeof Library.EMenu;
     EMetric: typeof Library.EMetric;
     ENavList: typeof Library.ENavList;
@@ -56,6 +58,7 @@ declare module "vue" {
     EPagination: typeof Library.EPagination;
     EPasswordField: typeof Library.EPasswordField;
     EPhoneField: typeof Library.EPhoneField;
+    EPopover: typeof Library.EPopover;
     EProgress: typeof Library.EProgress;
     ERadioGroup: typeof Library.ERadioGroup;
     ERangePicker: typeof Library.ERangePicker;
@@ -63,6 +66,7 @@ declare module "vue" {
     ESearchResults: typeof Library.ESearchResults;
     ESegmented: typeof Library.ESegmented;
     ESelect: typeof Library.ESelect;
+    ESheet: typeof Library.ESheet;
     ESignatureField: typeof Library.ESignatureField;
     ESignaturePad: typeof Library.ESignaturePad;
     ESkeleton: typeof Library.ESkeleton;
@@ -71,6 +75,7 @@ declare module "vue" {
     ESpinner: typeof Library.ESpinner;
     EStack: typeof Library.EStack;
     EStamp: typeof Library.EStamp;
+    EStatLink: typeof Library.EStatLink;
     EStepper: typeof Library.EStepper;
     ESurface: typeof Library.ESurface;
     ESwitch: typeof Library.ESwitch;
@@ -84,7 +89,9 @@ declare module "vue" {
     EToastProvider: typeof Library.EToastProvider;
     EToggletip: typeof Library.EToggletip;
     ETooltip: typeof Library.ETooltip;
+    ETree: typeof Library.ETree;
     EUpload: typeof Library.EUpload;
+    EVirtualList: typeof Library.EVirtualList;
     EVisuallyHidden: typeof Library.EVisuallyHidden;
   }
 }

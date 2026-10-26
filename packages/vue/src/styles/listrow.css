@@ -1,0 +1,136 @@
+/* The row of a list (EListRow) and of a tree (ETree): one or two lines between a leading and a trailing part. */
+@layer e.blocks {
+  /*
+   * A dense row of one or two lines. It has its own edge, transparent at rest, so the current row and the hover recolour
+   * it without the row changing size (the nav item's recipe). It rounds as a row in a list panel does.
+   */
+  .e-listrow {
+    display: flex;
+    align-items: center;
+    gap: var(--e-gap-snug);
+    box-sizing: border-box;
+    width: 100%;
+    min-height: var(--e-control-height);
+    margin: 0;
+    padding-block: calc(var(--e-gap-snug) - var(--e-stroke-edge));
+    padding-inline: calc(var(--e-pad-control-sm) - var(--e-stroke-edge));
+    border: var(--e-stroke-edge) solid transparent;
+    border-radius: var(--e-radius-row);
+    background-color: transparent;
+    background-clip: padding-box;
+    color: var(--e-ink);
+    font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--e-transition-state);
+  }
+
+  .e-listrow-lead,
+  .e-listrow-trail {
+    display: flex;
+    flex: none;
+    align-items: center;
+  }
+
+  .e-listrow-trail {
+    margin-inline-start: auto;
+    color: var(--e-muted);
+    font: var(--e-type-numeral);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .e-listrow-main {
+    display: grid;
+    flex: 1;
+    gap: var(--e-pad-inset);
+    min-width: 0;
+  }
+
+  /* Each line keeps to one line and ends in an ellipsis, so every row of a list is the same height. */
+  .e-listrow-title,
+  .e-listrow-sub {
+    display: flex;
+    align-items: center;
+    gap: var(--e-gap-tight);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .e-listrow-title {
+    font-weight: var(--e-weight-medium);
+  }
+
+  .e-listrow-sub {
+    color: var(--e-muted);
+    font: var(--e-type-small);
+  }
+
+  .e-listrow-live {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+  }
+
+  /* The live dot: the success colour, breathing slowly. */
+  .e-listrow-pulse {
+    display: block;
+    inline-size: 0.5em;
+    aspect-ratio: 1;
+    border-radius: var(--e-radius-round);
+    background: var(--e-success);
+    animation: e-listrow-pulse var(--e-duration-loop) ease-in-out infinite;
+  }
+
+  @keyframes e-listrow-pulse {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  /* Where you are, or what you chose: the pastel brand tint with a primary edge, and the title in primary. */
+  .e-listrow:is([aria-current="true"], [aria-selected="true"]) {
+    border-color: var(--e-primary);
+    background-color: var(--e-primary-soft);
+  }
+
+  .e-listrow:is([aria-current="true"], [aria-selected="true"]) .e-listrow-title {
+    color: var(--e-primary);
+  }
+
+  .e-listrow:not([aria-current="true"], [aria-selected="true"], [aria-disabled="true"]):hover {
+    border-color: var(--e-wash-ring);
+    background-color: var(--e-wash-hover);
+  }
+
+  .e-listrow:not([aria-current="true"], [aria-selected="true"], [aria-disabled="true"]):active {
+    border-color: var(--e-ink);
+    background-color: var(--e-wash-press);
+  }
+
+  /* An unavailable row only dims its text and stops answering the pointer. */
+  .e-listrow[aria-disabled="true"],
+  .e-listrow[aria-disabled="true"] :is(.e-listrow-sub, .e-listrow-trail) {
+    color: var(--e-disabled-ink);
+    cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .e-listrow-pulse {
+      animation: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .e-listrow:is([aria-current="true"], [aria-selected="true"]) {
+      border-color: Highlight;
+    }
+
+    .e-listrow-pulse {
+      forced-color-adjust: none;
+      background: CanvasText;
+    }
+  }
+}

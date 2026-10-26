@@ -23,6 +23,10 @@ import EText from "../src/components/Text/EText.vue";
 import EMetric from "../src/components/Metric/EMetric.vue";
 import EHighlight from "../src/components/Highlight/EHighlight.vue";
 import EKbd from "../src/components/Kbd/EKbd.vue";
+import EList from "../src/components/List/EList.vue";
+import EListRow from "../src/components/ListRow/EListRow.vue";
+import EStatLink from "../src/components/StatLink/EStatLink.vue";
+import ETree from "../src/components/Tree/ETree.vue";
 import { expectNoViolations } from "./axe.js";
 import { settled } from "./frames.js";
 
@@ -102,6 +106,41 @@ const cases: Case[] = [
     component: EMenu,
     props: { label: "More", items: [{ label: "Edit" }, { label: "Duplicate" }], open: true },
     overlay: () => !!document.querySelector("[role=menu]"),
+  },
+  {
+    name: "List with a current row",
+    component: EList,
+    props: { label: "Games", modelValue: "b" },
+    slots: {
+      default: () => [
+        h(EListRow, { value: "a", title: "You – Dameless", subtitle: "5+3 · 2 min ago", live: true }),
+        h(
+          EListRow,
+          { value: "b", title: "Dameless – Stockfish", subtitle: "3+2 · 1 h ago" },
+          { trailing: () => "1–0" },
+        ),
+        h(EListRow, { value: "c", title: "Unavailable", subtitle: "Deleted", disabled: true }),
+      ],
+    },
+  },
+  {
+    name: "Tree with a selected row",
+    component: ETree,
+    props: {
+      label: "Games",
+      modelValue: "b1",
+      expanded: ["b"],
+      items: [
+        { id: "a", label: "You – Dameless", description: "5+3" },
+        { id: "b", label: "deeper-lmr vs v14", description: "412 pairs", children: [{ id: "b1", label: "Game 1" }] },
+      ],
+    },
+  },
+  { name: "StatLink", component: EStatLink, props: { label: "You", value: 1840, href: "#you" } },
+  {
+    name: "StatLink current",
+    component: EStatLink,
+    props: { label: "Dameless", value: "v14", href: "#d", current: true },
   },
   {
     name: "Dialog open",
