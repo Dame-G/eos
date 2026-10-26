@@ -244,6 +244,28 @@ describe("EAppShell", () => {
     }
   });
 
+  test("content wider than a phone never widens the page: the header, the page and the footer stay the window's width", async () => {
+    await page.viewport(375, 700);
+    try {
+      const wide = () => h("div", { style: { whiteSpace: "nowrap" } }, "A line far too long to fit a phone ".repeat(8));
+      const { container } = await render(EAppShell, {
+        slots: {
+          header: () => h(EAppHeader, null, { logo: () => h("a", { href: "/" }, "OpenPractice"), default: wide }),
+          footer: () => h(EAppFooter, null, wide),
+          default: () => [h(EPageHeader, { title: "Your account" }), wide()],
+        },
+      });
+      const width = (sel: string) => Math.round(container.querySelector(sel)!.getBoundingClientRect().width);
+      expect(width(".e-shell")).toBe(375);
+      expect(width(".e-appheader")).toBe(375);
+      expect(width(".e-shell-body")).toBe(375);
+      expect(width(".e-appfooter")).toBe(375);
+      expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(375);
+    } finally {
+      await page.viewport(1024, 768);
+    }
+  });
+
   test("class, style and attributes fall through to the root", async () => {
     const { container } = await render(EAppShell, { slots, attrs: { class: "mine", "data-x": "1" } });
     const root = container.firstElementChild!;
