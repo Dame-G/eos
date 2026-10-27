@@ -43,6 +43,8 @@ IconProp
 IconsConfig
 IconSource
 InlineGap
+ListKey
+ListWindow
 LogicalSide
 MessageKey
 MessageValue
@@ -80,4 +82,5 @@ ToastStore
 ToastTone
 Tone
 Translate
+TreeNode
 UseOverflowOptions

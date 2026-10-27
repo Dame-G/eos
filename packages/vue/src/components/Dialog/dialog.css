@@ -83,7 +83,8 @@
 
   /* The panel is a column: the head and the foot stay, the body scrolls, and the panel's own gap separates the parts. */
   .e-dialog-body,
-  .e-drawer-body {
+  .e-drawer-body,
+  .e-sheet-body {
     flex: 1 1 auto;
     min-height: 0;
     overflow: auto;
@@ -94,13 +95,15 @@
 
   /* With no foot bar the body ends at the panel's edge, so it takes the panel's corners: the panel clips to them and would cut off the focus ring. The panel has no border. */
   .e-dialog-body:last-child,
-  .e-drawer-body:last-child {
+  .e-drawer-body:last-child,
+  .e-sheet-body:last-child {
     border-end-start-radius: inherit;
     border-end-end-radius: inherit;
   }
 
   .e-dialog-body:focus-visible,
-  .e-drawer-body:focus-visible {
+  .e-drawer-body:focus-visible,
+  .e-sheet-body:focus-visible {
     outline: var(--e-stroke-focus) solid var(--e-focus-ring);
     outline-offset: calc(-1 * var(--e-stroke-focus));
   }

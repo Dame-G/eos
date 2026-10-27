@@ -179,6 +179,8 @@ export const defaultMessages = {
   phone: "Phone number",
   toastRegion: "Notifications",
   sidebar: "Sidebar",
+  /** Read before a row that is happening now (`EListRow` `live`). */
+  live: "Live",
 } as const;
 
 export type MessageKey = keyof typeof defaultMessages;

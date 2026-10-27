@@ -98,6 +98,9 @@ function closeOnLink(event: MouseEvent) {
     position: relative;
     overflow-x: clip;
     display: grid;
+
+    /* One column that content never widens. An implicit column is `auto`, so a long line in the header, the page or the footer would grow it past the window and push the page off a phone's screen. */
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto 1fr auto;
     min-height: 100%;
 
