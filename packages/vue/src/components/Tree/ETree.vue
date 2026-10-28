@@ -22,12 +22,23 @@ import { RekaConfig } from "../../composables/useRekaConfig.js";
 import "../../styles/base.css";
 import "../../styles/listrow.css";
 
-const props = defineProps<{
-  /** The nodes at the top level, each with its `children`. */
-  items: TreeNode[];
-  /** The tree's accessible name, such as "Games". */
-  label: string;
-}>();
+defineOptions({ inheritAttrs: false });
+
+const props = withDefaults(
+  defineProps<{
+    /** The nodes at the top level, each with its `children`. */
+    items: TreeNode[];
+    /** The tree's accessible name, such as "Games". */
+    label: string;
+    /** What a press on a row does to a node with children. `row`: selects it and opens or closes it. `chevron`: pressing the row only selects it, and the chevron alone opens and closes it (Right and Left still do from the keyboard). */
+    toggleOn?: "row" | "chevron";
+    /** Shortens the rows to the tap target, for a tree of many small nodes. */
+    dense?: boolean;
+    /** How far each level steps in: `md` by the chevron's width and gap, so a child's text starts under its parent's, `sm` by a smaller step. */
+    indent?: "sm" | "md";
+  }>(),
+  { toggleOn: "row", indent: "md" },
+);
 
 const emit = defineEmits<{
   /** A node was chosen with a press, Enter or Space. Its `id`. */
@@ -39,7 +50,7 @@ defineSlots<{
   item?(props: { item: TreeNode; level: number; expanded: boolean; selected: boolean }): unknown;
   /** Before the lines, such as an icon or a stamp. */
   leading?(props: { item: TreeNode; level: number }): unknown;
-  /** At the end of a row, such as a count. Keep it to text: a tree item cannot hold a control. */
+  /** At the end of a row, such as a count or a few buttons. A press on a control in it does not select or open the row, and its keys stay its own. */
   trailing?(props: { item: TreeNode; level: number }): unknown;
 }>();
 
@@ -64,6 +75,32 @@ const selectedNode = computed(() => (selected.value != null ? byId.value.get(sel
 const getKey = (n: TreeNode) => n.id;
 const getChildren = (n: TreeNode) => (n.children?.length ? n.children : undefined);
 
+type RowEvent = CustomEvent<{ originalEvent?: Event }>;
+
+/** The element the press or key came from, and whether it came from the chevron or from a control of the row's own. */
+function origin(event: RowEvent) {
+  const original = event.detail?.originalEvent;
+  const target = original?.target instanceof Element ? original.target : null;
+  const row = target?.closest("[role='treeitem']") ?? null;
+  const control = target?.closest("button, a[href], input, select, textarea, [role='button'], [data-tree-control]");
+  return {
+    click: original?.type === "click",
+    chevron: !!target?.closest(".e-tree-chevron"),
+    control: !!control && !!row && control !== row && row.contains(control),
+  };
+}
+
+/** A press on a control inside a row is the control's. In `chevron` mode the chevron toggles and the rest of the row selects. */
+function onRowSelect(event: RowEvent) {
+  const o = origin(event);
+  if (o.click && (o.control || (props.toggleOn === "chevron" && o.chevron))) event.preventDefault();
+}
+
+function onRowToggle(event: RowEvent) {
+  const o = origin(event);
+  if (o.click && (o.control || (props.toggleOn === "chevron" && !o.chevron))) event.preventDefault();
+}
+
 function onSelect(node: TreeNode | undefined) {
   if (!node) return;
   selected.value = node.id;
@@ -75,7 +112,13 @@ function onSelect(node: TreeNode | undefined) {
   <RekaConfig>
     <TreeRoot
       v-slot="{ flattenItems }"
+      v-bind="$attrs"
       class="e-tree"
+      :class="[
+        dense && 'e-tree--dense',
+        indent === 'sm' && 'e-tree--indent-sm',
+        toggleOn === 'chevron' && 'e-tree--chevron',
+      ]"
       :aria-label="label"
       :items="items"
       :get-key="getKey"
@@ -94,9 +137,12 @@ function onSelect(node: TreeNode | undefined) {
         :disabled="node.value.disabled"
         class="e-listrow e-tree-row e-interact--inset"
         :style="{ '--_level': node.level }"
+        @select="onRowSelect"
+        @toggle="onRowToggle"
       >
-        <EIcon v-if="node.hasChildren" class="e-tree-chevron" name="chevron-right" />
-        <span v-else class="e-tree-chevron" aria-hidden="true"></span>
+        <span class="e-tree-chevron" aria-hidden="true"
+          ><EIcon v-if="node.hasChildren" name="chevron-right" class="e-tree-chevron-icon"
+        /></span>
         <span v-if="$slots.leading" class="e-listrow-lead"
           ><slot name="leading" :item="node.value" :level="node.level"
         /></span>
@@ -130,12 +176,36 @@ function onSelect(node: TreeNode | undefined) {
     --_level: 1;
 
     padding-inline-start: calc(
-      var(--e-pad-control-sm) - var(--e-stroke-edge) + (var(--_level) - 1) * (var(--e-icon-size-md) + var(--e-gap-snug))
+      var(--e-pad-control-sm) - var(--e-stroke-edge) + (var(--_level) - 1) *
+        var(--_step, calc(var(--e-icon-size-md) + var(--e-gap-snug)))
     );
   }
 
+  .e-tree--indent-sm {
+    --_step: var(--e-gap-base);
+  }
+
+  .e-tree--dense .e-tree-row {
+    min-height: var(--e-tap);
+    padding-block: 0;
+  }
+
+  /* When only the chevron opens a row, it is a target of its own: its box reaches the tap size without moving anything. */
+  .e-tree--chevron .e-tree-chevron {
+    position: relative;
+  }
+
+  .e-tree--chevron .e-tree-chevron::after {
+    content: "";
+    position: absolute;
+    inset-block: calc((var(--e-icon-size-md) - var(--e-tap)) / 2);
+    inset-inline: calc((var(--e-icon-size-md) - var(--e-tap)) / 2);
+  }
+
   .e-tree-chevron {
+    display: grid;
     flex: none;
+    place-items: center;
     inline-size: var(--e-icon-size-md);
     block-size: var(--e-icon-size-md);
     color: var(--e-muted);

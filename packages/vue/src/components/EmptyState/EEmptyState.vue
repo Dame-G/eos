@@ -19,8 +19,10 @@ withDefaults(
     tone?: Extract<Tone, "neutral" | "danger">;
     /** `sm` is more compact with a smaller icon, for use inside a panel or a table. */
     size?: "sm" | "md";
+    /** Where the parts sit when the container is taller than they are: `center` in the middle, `start` at the top, one under another. */
+    align?: "center" | "start";
   }>(),
-  { headingLevel: 3, tone: "neutral", size: "md" },
+  { headingLevel: 3, tone: "neutral", size: "md", align: "center" },
 );
 
 defineSlots<{
@@ -34,7 +36,12 @@ defineSlots<{
 <template>
   <div
     class="e-empty"
-    :class="[bare && 'e-empty--bare', tone === 'danger' && 'e-empty--danger', size === 'sm' && 'e-empty--sm']"
+    :class="[
+      bare && 'e-empty--bare',
+      tone === 'danger' && 'e-empty--danger',
+      size === 'sm' && 'e-empty--sm',
+      align === 'start' && 'e-empty--start',
+    ]"
   >
     <span v-if="icon" class="e-empty-icon"><EIcon :name="icon" :size="size === 'sm' ? 'lg' : 'xl'" /></span>
     <component :is="`h${headingLevel}`" class="e-empty-title e-h e-h3">{{ title }}</component>
@@ -47,6 +54,7 @@ defineSlots<{
 @layer e.containers {
   .e-empty {
     display: grid;
+    align-content: center;
     justify-items: center;
     gap: var(--e-gap-base);
     padding-block: calc(var(--e-pad-panel) + var(--e-gap-snug));
@@ -59,6 +67,10 @@ defineSlots<{
 
   .e-empty--bare {
     outline: 0;
+  }
+
+  .e-empty--start {
+    align-content: start;
   }
 
   .e-empty--sm {

@@ -30,16 +30,19 @@ Thousands of rows go in an [`EVirtualList`](../VirtualList/README.md) inside the
 | `label`       | `string`                   | **Required** | The list's accessible name, such as "Games".                                                                                                               |
 | `mode`        | `"current" \| "select"`    | `"current"`  | `current`: each row is a button (or a link) that opens something, and the open one is marked current. `select`: a listbox, and the chosen row is selected. |
 | `followFocus` | `boolean`                  | `false`      | Makes the row that focus moves to the current or selected one, so the arrow keys step through what is shown, as in a list of moves.                        |
+| `flush`       | `boolean`                  | `false`      | For a list that runs edge to edge in a pane: the rows are square, with no rounded corners to show against the pane's edge.                                 |
 
 <!-- props:end -->
 
 `class`, `style` and attributes land on the list's root `div`. The rows are `div`s with roles rather than `ul` and `li`, so they can sit inside an `EVirtualList`.
 
+`flush` squares the rows' corners, for a list that runs edge to edge in a pane. Rows are `EListRow`s. For a row of several choices, such as a move number with a white and a black move, use [`ECellRow`](../CellRow/README.md): each cell is chosen on its own, the arrow keys step through cells, and the list is still one tab stop.
+
 ## Slots
 
-| Slot      | Use                                                    |
-| --------- | ------------------------------------------------------ |
-| `default` | The `EListRow`s, directly or inside an `EVirtualList`. |
+| Slot      | Use                                                                    |
+| --------- | ---------------------------------------------------------------------- |
+| `default` | The `EListRow`s and `ECellRow`s, directly or inside an `EVirtualList`. |
 
 ## Events
 
@@ -57,12 +60,13 @@ Thousands of rows go in an [`EVirtualList`](../VirtualList/README.md) inside the
 
 ## Keyboard
 
-| Key                  | Action                                                            |
-| -------------------- | ----------------------------------------------------------------- |
-| Tab                  | Moves into the list, to its one tab stop, and out again.          |
-| Arrow Down, Arrow Up | Moves to the next or previous available row; stops at either end. |
-| Home, End            | Moves to the first or last available row, rendered or not.        |
-| Enter, Space         | Makes the focused row the current or selected one.                |
+| Key                     | Action                                                                                                         |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Tab                     | Moves into the list, to its one tab stop, and out again.                                                       |
+| Arrow Down, Arrow Up    | Moves to the next or previous available row; stops at either end. In a row of cells, stays in the same column. |
+| Arrow Left, Arrow Right | In a row of cells, moves to the previous or next available cell.                                               |
+| Home, End               | Moves to the first or last available row, rendered or not.                                                     |
+| Enter, Space            | Makes the focused row the current or selected one.                                                             |
 
 ## Related
 

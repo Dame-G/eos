@@ -10,17 +10,21 @@ An icon button that copies text and shows a check mark. For a block of code use 
 
 <!-- props:start -->
 
-| Prop      | Type                                                           | Default      | Notes                                                                             |
-| --------- | -------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- |
-| `text`    | `string \| (() => string)`                                     | **Required** | What to copy: the text, or a function that returns it when the button is pressed. |
-| `label`   | `string`                                                       | `"Copy"`     | The accessible name. Say what is copied when a page has several.                  |
-| `timeout` | `number`                                                       | `2000`       | Milliseconds the check mark (or the alert, after a failure) shows.                |
-| `variant` | `"quiet" \| "primary" \| "secondary" \| "outline" \| "danger"` | `"quiet"`    | The `EIconButton` variant.                                                        |
-| `size`    | `"sm" \| "md" \| "lg"`                                         | `"md"`       | `sm` is a compact square, `lg` a larger one. Every size keeps a 44px target.      |
+| Prop          | Type                                                           | Default      | Notes                                                                                                                                  |
+| ------------- | -------------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `text`        | `string \| (() => string)`                                     | **Required** | What to copy: the text, or a function that returns it when the button is pressed.                                                      |
+| `label`       | `string`                                                       | `"Copy"`     | The accessible name. Say what is copied when a page has several.                                                                       |
+| `timeout`     | `number`                                                       | `2000`       | Milliseconds the check mark (or the alert, after a failure) shows.                                                                     |
+| `variant`     | `"quiet" \| "primary" \| "secondary" \| "outline" \| "danger"` | `"quiet"`    | The `EIconButton` variant.                                                                                                             |
+| `size`        | `"xs" \| "sm" \| "md" \| "lg"`                                 | `"md"`       | `xs` is a dense square, `sm` a compact one, `lg` a larger one. Every size keeps a 44px target.                                         |
+| `showLabel`   | `boolean`                                                      | `false`      | Shows `label` as the button's text beside the icon, instead of an icon alone: "Copy FEN". After a copy the text becomes `copiedLabel`. |
+| `copiedLabel` | `string`                                                       | `"Copied"`   | The text and announcement after a successful copy, with `showLabel`: "FEN copied".                                                     |
 
 <!-- props:end -->
 
 `class`, `style`, attributes and listeners (`@click`, `aria-*`) land on the `button` element.
+
+`showLabel` draws `label` as the button's text beside the icon ("Copy FEN") and, after a copy, `copiedLabel` ("FEN copied") with a check. With `copiedLabel` set, that text is what screen readers hear.
 
 ## Events
 

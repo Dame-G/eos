@@ -89,3 +89,15 @@ describe("EMetric", () => {
     await expectNoViolations(container);
   });
 });
+
+describe("EMetric unit", () => {
+  test("shows the unit after the figure, set apart, and it is read with it", async () => {
+    const { container } = await render(EMetric, { props: { label: "Search time", value: 412, unit: "ms" } });
+    const value = container.querySelector<HTMLElement>(".e-metric-value")!;
+    expect(value.textContent!.replace(/\s+/g, " ").trim()).toBe("412ms");
+    const unit = value.querySelector<HTMLElement>(".e-metric-unit")!;
+    expect(getComputedStyle(unit).color).not.toBe(getComputedStyle(value).color);
+    expect(unit.getBoundingClientRect().left).toBeGreaterThan(value.getBoundingClientRect().left + 10);
+    await expectNoViolations(container);
+  });
+});

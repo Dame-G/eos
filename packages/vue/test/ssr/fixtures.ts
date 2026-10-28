@@ -97,6 +97,14 @@ const PROPS: Record<string, Record<string, unknown>> = {
     expanded: ["a"],
   },
   EVirtualList: { items: [{ id: "a" }, { id: "b" }], rowHeight: 40, itemKey: "id" },
+  EConfirmDialog: { title: "Delete this game?", open: true },
+  ECellRow: {
+    cells: [
+      { value: "a", label: "e4" },
+      { value: "b", label: "e5" },
+    ],
+    label: "1.",
+  },
   // new:component adds entries above this line
 };
 
@@ -109,7 +117,7 @@ const SLOTS: Record<string, Record<string, () => unknown>> = {
 };
 
 /** The components that open after hydration and so draw nothing on the server, left open on purpose. */
-export const OPEN_AFTER_HYDRATION = new Set(["EDialog", "EDrawer", "ECommandPalette"]);
+export const OPEN_AFTER_HYDRATION = new Set(["EDialog", "EConfirmDialog", "EDrawer", "ECommandPalette"]);
 
 /** The exported components of a library module, by name. */
 export function componentsOf(lib: Record<string, unknown>): [string, Component][] {

@@ -174,6 +174,8 @@ export const defaultMessages = {
   charCountOnly: { one: "{n} character", other: "{n} characters" },
   skipToMain: "Skip to main content",
   back: "Back",
+  cancel: "Cancel",
+  confirm: "Confirm",
   edit: "Edit",
   editItem: "Edit {label}",
   phone: "Phone number",

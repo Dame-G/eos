@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h, ref } from "vue";
+import { defineComponent, h, ref, type Component } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import ECheckboxGroup from "./ECheckboxGroup.vue";
@@ -132,5 +132,37 @@ describe("ECheckboxGroup", () => {
       props: { label: "Reach me by", options, hint: "Pick any", modelValue: ["Email"] },
     });
     await expectNoViolations(container);
+  });
+});
+
+describe("ECheckboxGroup columns", () => {
+  const options = ["One", "Two", "Three", "Four"];
+  test("lays the options out in equal columns, row by row", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: "width: 600px" }, [h(ECheckboxGroup as Component, { label: "Pick", options, columns: 2 })]),
+      }),
+    );
+    const boxes = [...container.querySelectorAll<HTMLElement>(".e-checkgroup-items > *")].map((e) =>
+      e.getBoundingClientRect(),
+    );
+    expect(boxes[0]!.top).toBeCloseTo(boxes[1]!.top, 0);
+    expect(boxes[2]!.top).toBeGreaterThan(boxes[0]!.top);
+    expect(boxes[2]!.left).toBeCloseTo(boxes[0]!.left, 0);
+    expect(boxes[1]!.left).toBeGreaterThan(boxes[0]!.left + 200);
+  });
+
+  test("drops to one column in a narrow container", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: "width: 300px" }, [h(ECheckboxGroup as Component, { label: "Pick", options, columns: 2 })]),
+      }),
+    );
+    const boxes = [...container.querySelectorAll<HTMLElement>(".e-checkgroup-items > *")].map((e) =>
+      e.getBoundingClientRect(),
+    );
+    expect(boxes[1]!.top).toBeGreaterThan(boxes[0]!.top);
   });
 });

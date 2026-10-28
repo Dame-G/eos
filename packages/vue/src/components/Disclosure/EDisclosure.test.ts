@@ -221,3 +221,17 @@ describe("EDisclosure", () => {
     expect(margin()).toBe("0px");
   });
 });
+
+describe("EDisclosure titleStyle", () => {
+  test("text sets the summary in the row's type, not in capitals", async () => {
+    const kicker = await render(EDisclosure, { props: { title: "More options" } });
+    const a = getComputedStyle(kicker.container.querySelector("summary")!);
+    expect(a.textTransform).toBe("uppercase");
+    kicker.unmount();
+    const text = await render(EDisclosure, { props: { title: "More options", titleStyle: "text" } });
+    const b = getComputedStyle(text.container.querySelector("summary")!);
+    expect(b.textTransform).toBe("none");
+    expect(b.fontFamily).not.toBe(a.fontFamily);
+    await expectNoViolations(text.container);
+  });
+});

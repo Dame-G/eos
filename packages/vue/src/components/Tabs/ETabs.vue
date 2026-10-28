@@ -30,6 +30,8 @@ const props = defineProps<{
   side?: "start" | "end";
   /** Makes the tabs fill the height of their container, with the panel taking what is left and scrolling its own content: for tabs in a fixed-height panel or a side column. @default false */
   stretch?: boolean;
+  /** Sets the row on its rule, for tabs that sit against a rule above them or against the edge of a pane: square corners, no inset around the row, a rule the full width of the row, and a selected tab that covers it. Horizontal tabs only. @default false */
+  flush?: boolean;
   /** Names the row of tabs for screen readers. Needed when a page has more than one set of tabs. */
   label?: string;
 }>();
@@ -82,6 +84,7 @@ watch(current, () => reveal(true));
       'e-tabs--vertical': orientation === 'vertical',
       'e-tabs--end': orientation === 'vertical' && side === 'end',
       'e-tabs--stretch': stretch,
+      'e-tabs--flush': flush && orientation !== 'vertical',
     }"
     :orientation="orientation ?? 'horizontal'"
     :model-value="current"
@@ -162,6 +165,25 @@ watch(current, () => reveal(true));
 
   .e-tab + .e-tab {
     margin-inline-start: calc(-1 * var(--e-stroke-edge));
+  }
+
+  /* Flush: the row lies on a rule that runs its full width (drawn inside the row, under the tabs, so the selected tab's edge covers it). Tabs are square, only the selected one keeps an edge, and the row has no inset: its focus outline is drawn inside the tab. */
+  .e-tabs--flush > .e-tablist {
+    padding: 0;
+    margin: 0;
+    box-shadow: inset 0 calc(-1 * var(--e-stroke-edge)) 0 0 var(--e-border-strong);
+  }
+
+  .e-tabs--flush > .e-tablist > .e-tab {
+    border-radius: 0;
+  }
+
+  .e-tabs--flush > .e-tablist > .e-tab:not([aria-selected="true"]) {
+    border-color: transparent;
+  }
+
+  .e-tabs--flush > .e-tablist > .e-tab:focus-visible {
+    outline-offset: calc(-1 * var(--e-stroke-focus));
   }
 
   /* An inactive tab answers the pointer with ink text, a wash and a darker edge of the same width: no ring is added, so the edge never gets thicker. */

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { h } from "vue";
+import { defineComponent, h } from "vue";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EEmptyState from "./EEmptyState.vue";
@@ -108,5 +108,31 @@ describe("EEmptyState", () => {
       container.classList.add("e-root");
       await expectNoViolations(container);
     }
+  });
+});
+
+describe("EEmptyState align", () => {
+  test("in a taller container the parts sit together in the middle, or at the top with align start", async () => {
+    const stage = (align: "center" | "start") =>
+      render(
+        defineComponent({
+          render: () =>
+            h("div", { style: "display: grid; height: 400px" }, [
+              h(EEmptyState, { title: "Nothing here", bare: true, align }, () => "Play a game first."),
+            ]),
+        }),
+      );
+    const centre = await stage("center");
+    const title = centre.container.querySelector<HTMLElement>(".e-empty-title")!.getBoundingClientRect();
+    const box = centre.container.querySelector<HTMLElement>(".e-empty")!.getBoundingClientRect();
+    expect(box.height).toBeGreaterThan(300);
+    expect(title.top - box.top).toBeGreaterThan(100);
+    const text = centre.container.querySelector<HTMLElement>(".e-empty-text")!.getBoundingClientRect();
+    expect(text.top - title.bottom).toBeLessThan(40);
+    centre.unmount();
+    const top = await stage("start");
+    const t2 = top.container.querySelector<HTMLElement>(".e-empty-title")!.getBoundingClientRect();
+    const b2 = top.container.querySelector<HTMLElement>(".e-empty")!.getBoundingClientRect();
+    expect(t2.top - b2.top).toBeLessThan(60);
   });
 });

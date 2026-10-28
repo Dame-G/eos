@@ -14,6 +14,7 @@ declare module "vue" {
     EBreadcrumb: typeof Library.EBreadcrumb;
     EButton: typeof Library.EButton;
     ECalendar: typeof Library.ECalendar;
+    ECellRow: typeof Library.ECellRow;
     ECheckbox: typeof Library.ECheckbox;
     ECheckboxGroup: typeof Library.ECheckboxGroup;
     ECodeBlock: typeof Library.ECodeBlock;
@@ -21,6 +22,7 @@ declare module "vue" {
     ECombobox: typeof Library.ECombobox;
     ECommandPalette: typeof Library.ECommandPalette;
     EConfigProvider: typeof Library.EConfigProvider;
+    EConfirmDialog: typeof Library.EConfirmDialog;
     EContainer: typeof Library.EContainer;
     ECopyButton: typeof Library.ECopyButton;
     ECurrencyField: typeof Library.ECurrencyField;

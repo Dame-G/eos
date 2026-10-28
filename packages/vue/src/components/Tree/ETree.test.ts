@@ -173,3 +173,99 @@ describe("ETree", () => {
     await expectNoViolations(container);
   });
 });
+
+describe("ETree additions", () => {
+  const tree = (props: Record<string, unknown>, slots: Record<string, unknown> = {}) => {
+    const selected = ref<string | null>(null);
+    const expanded = ref<string[]>([]);
+    const Host = defineComponent({
+      render: () =>
+        h(
+          ETree,
+          {
+            items,
+            label: "Games",
+            modelValue: selected.value,
+            "onUpdate:modelValue": (v?: string | null) => (selected.value = v ?? null),
+            expanded: expanded.value,
+            "onUpdate:expanded": (v: string[]) => (expanded.value = v),
+            ...props,
+          },
+          slots,
+        ),
+    });
+    return { Host, selected, expanded };
+  };
+  const rowsOf = (c: Element) => c.querySelectorAll<HTMLElement>(".e-tree-row");
+
+  test("toggleOn chevron: the row selects, the chevron opens and closes", async () => {
+    const { Host, selected, expanded } = tree({ toggleOn: "chevron" });
+    const { container } = await render(Host);
+    const row = rowsOf(container)[1]!;
+    await userEvent.click(row.querySelector(".e-listrow-title")!);
+    expect(selected.value).toBe("lmr");
+    expect(expanded.value).toEqual([]);
+    await userEvent.click(row.querySelector(".e-tree-chevron")!);
+    expect(expanded.value).toEqual(["lmr"]);
+    expect(selected.value).toBe("lmr");
+    await userEvent.click(rowsOf(container)[0]!.querySelector(".e-tree-chevron")!);
+    expect(selected.value).toBe("lmr");
+    await userEvent.click(row.querySelector(".e-tree-chevron")!);
+    expect(expanded.value).toEqual([]);
+  });
+
+  test("toggleOn row (the default) does both", async () => {
+    const { Host, selected, expanded } = tree({});
+    const { container } = await render(Host);
+    await userEvent.click(rowsOf(container)[1]!.querySelector(".e-listrow-title")!);
+    expect(selected.value).toBe("lmr");
+    expect(expanded.value).toEqual(["lmr"]);
+  });
+
+  test("the keyboard still selects with Enter and opens with Right in chevron mode", async () => {
+    const { Host, selected, expanded } = tree({ toggleOn: "chevron" });
+    await render(Host);
+    await userEvent.tab();
+    await userEvent.keyboard("{ArrowDown}{Enter}");
+    expect(selected.value).toBe("lmr");
+    await userEvent.keyboard("{ArrowRight}");
+    expect(expanded.value).toEqual(["lmr"]);
+  });
+
+  test("a control in a row is the control's: it neither selects nor opens, and its keys stay its own", async () => {
+    let pressed = 0;
+    const { Host, selected, expanded } = tree(
+      {},
+      {
+        trailing: ({ item }: { item: TreeNode }) =>
+          h("button", { type: "button", "aria-label": `Remove ${item.label}`, onClick: () => pressed++ }, "x"),
+      },
+    );
+    await render(Host);
+    await page.getByRole("button", { name: "Remove deeper-lmr vs v14" }).click();
+    expect(pressed).toBe(1);
+    expect(selected.value).toBeNull();
+    expect(expanded.value).toEqual([]);
+    (page.getByRole("button", { name: "Remove deeper-lmr vs v14" }).element() as HTMLElement).focus();
+    await userEvent.keyboard("{Enter}");
+    expect(pressed).toBe(2);
+    expect(selected.value).toBeNull();
+    await expectNoViolations(document.body);
+  });
+
+  test("dense shortens the rows, indent sm steps in less, and class reaches the root", async () => {
+    const step = (c: Element) =>
+      parseFloat(getComputedStyle(rowsOf(c)[2]!).paddingInlineStart) -
+      parseFloat(getComputedStyle(rowsOf(c)[0]!).paddingInlineStart);
+    const a = await render(tree({ expanded: ["lmr"] }).Host);
+    const stepA = step(a.container);
+    const heightA = rowsOf(a.container)[0]!.getBoundingClientRect().height;
+    a.unmount();
+    const b = await render(tree({ expanded: ["lmr"], dense: true, indent: "sm", class: "mine" }).Host);
+    expect(b.container.querySelector(".e-tree")!.classList.contains("mine")).toBe(true);
+    expect(step(b.container)).toBeLessThan(stepA);
+    const heightB = rowsOf(b.container)[0]!.getBoundingClientRect().height;
+    expect(heightB).toBeLessThan(heightA);
+    expect(heightB).toBeGreaterThanOrEqual(44);
+  });
+});

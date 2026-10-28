@@ -21,10 +21,13 @@ The panel shown when a list, search or table has no content. Never leave a list 
 | `bare`         | `boolean`                    | `false`      | Removes the outline, for use inside a table or panel.                                                                                                      |
 | `tone`         | `"neutral" \| "danger"`      | `"neutral"`  | `danger` colours the icon in the error colour, for a failed load or a search that broke rather than one that found nothing. `neutral` is the default look. |
 | `size`         | `"sm" \| "md"`               | `"md"`       | `sm` is more compact with a smaller icon, for use inside a panel or a table.                                                                               |
+| `align`        | `"center" \| "start"`        | `"center"`   | Where the parts sit when the container is taller than they are: `center` in the middle, `start` at the top, one under another.                             |
 
 <!-- props:end -->
 
 `class`, `style` and attributes land on the `div` element.
+
+In a container taller than its parts, the parts sit together in the middle; `align="start"` puts them at the top, for an empty list that should read from the top edge. Use `bare` and `size="sm"` for a panel.
 
 ## Slots
 

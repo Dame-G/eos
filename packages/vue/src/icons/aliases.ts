@@ -48,6 +48,7 @@ export const lucideAliases = {
   calendar: "calendar",
   home: "house",
   copy: "copy",
+  refresh: "rotate-cw",
 } satisfies AliasTable;
 
 /** Tabler (`@tabler/icons-vue`, components named `Icon<Pascal>`). */
@@ -96,6 +97,7 @@ export const tablerAliases = {
   calendar: "calendar",
   home: "home",
   copy: "copy",
+  refresh: "rotate-clockwise",
 } satisfies AliasTable;
 
 /** Heroicons (`@heroicons/vue/24/outline` and friends, components named `<Pascal>Icon`). */
@@ -144,6 +146,7 @@ export const heroiconsAliases = {
   calendar: "calendar",
   home: "home",
   copy: "document-duplicate",
+  refresh: "arrow-path",
 } satisfies AliasTable;
 
 /** Phosphor (`@phosphor-icons/vue`, components named `Ph<Pascal>`). Also the Iconify `ph` set. */
@@ -192,6 +195,7 @@ export const phosphorAliases = {
   calendar: "calendar-blank",
   home: "house",
   copy: "copy",
+  refresh: "arrow-clockwise",
 } satisfies AliasTable;
 
 /** Material Design Icons (Iconify `mdi`). */
@@ -240,6 +244,7 @@ export const mdiAliases = {
   calendar: "calendar",
   home: "home",
   copy: "content-copy",
+  refresh: "refresh",
 } satisfies AliasTable;
 
 /** Material Symbols (Iconify `material-symbols`). */
@@ -288,6 +293,7 @@ export const materialSymbolsAliases = {
   calendar: "calendar-month",
   home: "home",
   copy: "content-copy",
+  refresh: "refresh",
 } satisfies AliasTable;
 
 /** Carbon (Iconify `carbon`). */
@@ -336,6 +342,7 @@ export const carbonAliases = {
   calendar: "calendar",
   home: "home",
   copy: "copy",
+  refresh: "renew",
 } satisfies AliasTable;
 
 /** Fluent UI System Icons (Iconify `fluent`), regular weight at 24px. */
@@ -384,6 +391,7 @@ export const fluentAliases = {
   calendar: "calendar-24-regular",
   home: "home-24-regular",
   copy: "copy-24-regular",
+  refresh: "arrow-clockwise-24-regular",
 } satisfies AliasTable;
 
 /** Alias tables for the Iconify prefixes eos knows. Other prefixes work too and use the name as given. */

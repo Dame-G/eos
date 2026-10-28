@@ -452,12 +452,82 @@ describe("ESegmented", () => {
     const { container } = await render(
       defineComponent({
         render: () =>
-          h(ESegmented, { label: "View", options, modelValue: "Week", ref: (r: unknown) => (api = r as typeof api) }),
+          h(ESegmented, {
+            label: "View",
+            options,
+            modelValue: "Week",
+            ref: (r: unknown) => (api = r as typeof api),
+          }),
       }),
     );
     const radios = container.querySelectorAll("input");
     expect(api!.input).toBe(radios[1]);
     api!.focus();
     expect(document.activeElement).toBe(radios[1]);
+  });
+});
+
+describe("ESegmented stretch, multiple and collapse", () => {
+  test("stretch fills the container and the options share it", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () => h("div", { style: "width: 600px" }, [h(ESegmented, { label: "View", options, stretch: true })]),
+      }),
+    );
+    expect(Math.round(container.querySelector(".e-seg")!.getBoundingClientRect().width)).toBe(600);
+    const widths = [...container.querySelectorAll(".e-seg-opt")].map((o) =>
+      Math.round(o.getBoundingClientRect().width),
+    );
+    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+  });
+
+  test("multiple is a group of toggles whose model is an array", async () => {
+    const model = ref<string[]>(["Day"]);
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h(ESegmented, {
+            label: "Show",
+            options,
+            multiple: true,
+            values: model.value,
+            "onUpdate:values": (v?: string[]) => (model.value = v ?? []),
+          }),
+      }),
+    );
+    await expect.element(page.getByRole("group", { name: "Show" })).toBeVisible();
+    expect(container.querySelectorAll("input[type=checkbox]").length).toBe(3);
+    expect(container.querySelectorAll(".e-seg-input[data-on]").length).toBe(1);
+    await page.getByRole("checkbox", { name: "Month" }).click();
+    expect(model.value).toEqual(["Day", "Month"]);
+    await page.getByRole("checkbox", { name: "Day" }).click();
+    expect(model.value).toEqual(["Month"]);
+    await expectNoViolations(container);
+  });
+
+  test("collapse swaps the track for a select when the options do not fit, and back", async () => {
+    const width = ref(160);
+    const many = ["January", "February", "March", "April", "May", "June"];
+    const model = ref("March");
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: `width: ${width.value}px` }, [
+            h(ESegmented, {
+              label: "Month",
+              options: many,
+              collapse: true,
+              modelValue: model.value,
+              "onUpdate:modelValue": (v?: string) => (model.value = v!),
+            }),
+          ]),
+      }),
+    );
+    await expect.poll(() => container.querySelector("[role=combobox]") !== null).toBe(true);
+    expect(getComputedStyle(container.querySelector(".e-seg")!).visibility).toBe("hidden");
+    width.value = 1000;
+    await expect.poll(() => container.querySelector("[role=combobox]") === null).toBe(true);
+    expect(getComputedStyle(container.querySelector(".e-seg")!).visibility).toBe("visible");
+    await expectNoViolations(container);
   });
 });

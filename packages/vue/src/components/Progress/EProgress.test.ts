@@ -176,3 +176,30 @@ describe("EProgress", () => {
     expect(getComputedStyle(wait.container.querySelector(".e-progress-track")!).overflowX).toBe("hidden");
   });
 });
+
+describe("EProgress hideLabel and hideValue", () => {
+  test("hideLabel keeps the name on the bar and shows only the value", async () => {
+    const { container } = await render(EProgress, { props: { label: "Review", value: 40, hideLabel: true } });
+    expect(container.querySelector(".e-progress-label")).toBeNull();
+    expect(container.querySelector(".e-progress-value")!.textContent).toBe("40%");
+    expect(container.querySelector("[role=progressbar]")!.getAttribute("aria-label")).toBe("Review");
+    await expectNoViolations(container);
+  });
+
+  test("hideValue shows only the label, and valueText still reaches screen readers", async () => {
+    const { container } = await render(EProgress, {
+      props: { label: "Review", value: 40, hideValue: true, valueText: "12 of 30 games" },
+    });
+    expect(container.querySelector(".e-progress-value")).toBeNull();
+    expect(container.querySelector(".e-progress-label")!.textContent).toBe("Review");
+    expect(container.querySelector("[role=progressbar]")!.getAttribute("aria-valuetext")).toBe("12 of 30 games");
+  });
+
+  test("hiding both leaves only the bar", async () => {
+    const { container } = await render(EProgress, {
+      props: { label: "Review", value: 40, hideLabel: true, hideValue: true },
+    });
+    expect(container.querySelector(".e-progress-head")).toBeNull();
+    expect(container.querySelector("[role=progressbar]")).not.toBeNull();
+  });
+});

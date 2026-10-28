@@ -255,3 +255,32 @@ describe("EButton", () => {
     expect(getComputedStyle(a).backgroundColor).toBe(rest);
   });
 });
+
+describe("EButton xs", () => {
+  test("is a dense button whose hit area is still 44px", async () => {
+    const { container } = await render(EButton, { props: { size: "xs" }, slots: { default: "Retry" } });
+    const button = container.querySelector("button")!;
+    expect(button.className).toContain("e-btn--xs");
+    expect(button.getBoundingClientRect().height).toBeLessThan(40);
+    const hit = getComputedStyle(button, "::after");
+    expect(parseFloat(hit.height)).toBeGreaterThanOrEqual(44);
+    await expectNoViolations(container);
+  });
+});
+
+describe("EButton quiet disabled", () => {
+  test("a disabled quiet button dims without a dashed box; an outline one keeps it", async () => {
+    const quiet = await render(EButton, { props: { variant: "quiet", disabled: true }, slots: { default: "Skip" } });
+    const q = quiet.container.querySelector("button")!;
+    expect(getComputedStyle(q, "::before").borderTopStyle).not.toBe("dashed");
+    expect(getComputedStyle(q).textDecorationLine).toBe("none");
+    expect(getComputedStyle(q).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    quiet.unmount();
+    const outline = await render(EButton, {
+      props: { variant: "outline", disabled: true },
+      slots: { default: "Skip" },
+    });
+    expect(getComputedStyle(outline.container.querySelector("button")!, "::before").borderTopStyle).toBe("dashed");
+    await expectNoViolations(outline.container);
+  });
+});

@@ -82,6 +82,9 @@ function focusInitial(event: Event) {
 
 const attrs = useAttrs();
 
+/** A row footer keeps its buttons side by side at every width. */
+const footerStack = computed(() => (props.footer === "row" ? "never" : undefined));
+
 /** Reka points aria-describedby at a description element that may not exist. With no description it is dropped, so the attribute never dangles. A description the consumer wired themselves is kept. */
 const describedby = computed(() =>
   props.description || attrs["aria-describedby"] ? {} : { "aria-describedby": undefined },
@@ -138,7 +141,9 @@ function setOpen(value: boolean) {
               </header>
               <DialogDescription v-if="description" class="e-dialog-description">{{ description }}</DialogDescription>
               <slot />
-              <EActions v-if="$slots.actions" as="footer" bar class="e-dialog-foot"><slot name="actions" /></EActions>
+              <EActions v-if="$slots.actions" as="footer" bar :stack="footerStack" class="e-dialog-foot">
+                <slot name="actions" />
+              </EActions>
             </template>
           </DialogContent>
         </div>

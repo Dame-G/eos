@@ -43,6 +43,22 @@
     font-size: var(--e-text-sm);
   }
 
+  /* A dense button for a compact list or toolbar. Its face is shorter than the tap target; the hit area is not. */
+  .e-btn--xs {
+    --_h: calc(var(--e-chip-height) + var(--e-gap-snug));
+    --_pad: var(--e-pad-chip);
+
+    font-size: var(--e-text-sm);
+  }
+
+  .e-btn--xs::after {
+    content: "";
+    position: absolute;
+    inset-block-start: calc(50% - var(--e-tap) / 2);
+    inset-inline: 0;
+    block-size: var(--e-tap);
+  }
+
   .e-btn--lg {
     --_h: calc(var(--e-control-height) + var(--e-gap-snug));
 
@@ -175,6 +191,13 @@
     color: var(--e-disabled-ink);
     border-color: transparent;
     box-shadow: none;
+  }
+
+  /* A quiet button has no box to dash, so disabled only dims it and drops its underline (the dashed edge would draw a box that was not there, which is busy in a toolbar). */
+  .e-btn--quiet[disabled],
+  .e-btn--quiet[aria-disabled="true"] {
+    background: transparent;
+    text-decoration-line: none;
   }
 
   @media print {

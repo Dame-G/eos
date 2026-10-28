@@ -364,3 +364,44 @@ describe("ETabs", () => {
     expect(pad("left")).toBeGreaterThanOrEqual(reach);
   });
 });
+
+describe("ETabs flush", () => {
+  const items = [
+    { id: "a", label: "Moves" },
+    { id: "b", label: "Review" },
+    { id: "c", label: "Notes" },
+  ];
+
+  test("square tabs on a full-width rule, no inset, and the selected tab covers the rule", async () => {
+    const { container } = await render(
+      defineComponent({
+        render: () =>
+          h("div", { style: "width: 600px" }, [h(ETabs, { items, flush: true, modelValue: "b", label: "Panels" })]),
+      }),
+    );
+    const list = container.querySelector<HTMLElement>(".e-tablist")!;
+    expect(list.getBoundingClientRect().width).toBe(600);
+    expect(getComputedStyle(list).paddingTop).toBe("0px");
+    expect(getComputedStyle(list).boxShadow).not.toBe("none");
+    for (const tab of container.querySelectorAll<HTMLElement>(".e-tab")) {
+      const s = getComputedStyle(tab);
+      expect([s.borderStartStartRadius, s.borderEndEndRadius, s.borderEndStartRadius, s.borderStartEndRadius]).toEqual([
+        "0px",
+        "0px",
+        "0px",
+        "0px",
+      ]);
+    }
+    const [first, selected] = [...container.querySelectorAll<HTMLElement>(".e-tab")];
+    expect(getComputedStyle(first!).borderTopColor).toBe("rgba(0, 0, 0, 0)");
+    expect(getComputedStyle(selected!).borderBottomWidth).not.toBe("0px");
+    expect(selected!.getBoundingClientRect().bottom).toBeCloseTo(list.getBoundingClientRect().bottom, 0);
+    await expectNoViolations(container);
+  });
+
+  test("without flush the strip keeps its rounded ends and inset", async () => {
+    const { container } = await render(ETabs, { props: { items, label: "Panels" } });
+    expect(getComputedStyle(container.querySelector(".e-tab")!).borderStartStartRadius).not.toBe("0px");
+    expect(getComputedStyle(container.querySelector(".e-tablist")!).paddingTop).not.toBe("0px");
+  });
+});

@@ -8,6 +8,7 @@ EAvatarGroup
 EBreadcrumb
 EButton
 ECalendar
+ECellRow
 ECheckbox
 ECheckboxGroup
 ECodeBlock
@@ -15,6 +16,7 @@ EColorField
 ECombobox
 ECommandPalette
 EConfigProvider
+EConfirmDialog
 EContainer
 ECopyButton
 ECurrencyField

@@ -24,6 +24,8 @@ const props = defineProps<
     id?: string;
     /** Lays the options out in a row that wraps, or one under another. @default "vertical" */
     orientation?: "vertical" | "horizontal";
+    /** Lays the options out in this many equal columns, filled row by row, and drops to one column in a container under 26rem. It replaces `orientation`. */
+    columns?: number;
   }
 >();
 
@@ -64,7 +66,14 @@ defineExpose({
     :optional="optional"
     :disabled="disabled"
   >
-    <div class="e-checkgroup-items" :class="{ 'e-checkgroup-items--row': orientation === 'horizontal' }">
+    <div
+      class="e-checkgroup-items"
+      :class="{
+        'e-checkgroup-items--row': orientation === 'horizontal' && !columns,
+        'e-checkgroup-items--grid': !!columns,
+      }"
+      :style="columns ? { '--_cols': Math.max(1, Math.floor(columns)) } : undefined"
+    >
       <ECheckbox
         v-for="(item, i) in items"
         :id="`${id}-${i + 1}`"
@@ -88,6 +97,23 @@ defineExpose({
   .e-checkgroup-items {
     display: flex;
     flex-direction: column;
+  }
+
+  .e-checkgroup-items--grid {
+    display: grid;
+    grid-template-columns: repeat(var(--_cols), minmax(0, 1fr));
+    column-gap: var(--e-gap-loose);
+  }
+
+  /* The group is the container, so a narrow one drops to a single column. */
+  .e-checkgroup:has(> .e-checkgroup-items--grid, .e-checkgroup-items--grid) {
+    container-type: inline-size;
+  }
+
+  @container (max-width: 26rem) {
+    .e-checkgroup-items--grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   .e-checkgroup-items--row {

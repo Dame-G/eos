@@ -22,6 +22,8 @@ const props = defineProps<{
   trend?: MetricTrend;
   /** The colour of the change, when it is not what the direction suggests: `danger` for a cost that went up. Left out, up is `success`, down is `danger` and flat is `muted`. */
   tone?: "muted" | Extract<Tone, "success" | "danger">;
+  /** The unit, set smaller after the figure, such as "ms" or "%". It is read with the figure. */
+  unit?: string;
   /** A line of explanation under the figure, such as the period it covers. */
   help?: string;
 }>();
@@ -48,7 +50,9 @@ const ICON = { up: "arrow-up", down: "arrow-down", flat: "minus" } as const;
 <template>
   <dl class="e-metric">
     <EKicker as="dt">{{ label }}</EKicker>
-    <dd class="e-metric-value e-numeral-l">{{ shown }}</dd>
+    <dd class="e-metric-value e-numeral-l">
+      {{ shown }}<span v-if="unit" class="e-metric-unit">{{ unit }}</span>
+    </dd>
     <dd v-if="delta" class="e-metric-delta" :class="`e-metric-delta--${tone}`">
       <EIcon v-if="trend" :name="ICON[trend]" size="sm" />
       <span class="e-sr">{{ deltaText }}</span>
@@ -76,6 +80,13 @@ const ICON = { up: "arrow-up", down: "arrow-down", flat: "minus" } as const;
 
   .e-metric-value {
     overflow-wrap: anywhere;
+  }
+
+  .e-metric-unit {
+    margin-inline-start: var(--e-gap-tight);
+    color: var(--e-muted);
+    font: var(--e-type-numeral);
+    letter-spacing: normal;
   }
 
   .e-metric-delta {

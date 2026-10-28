@@ -201,3 +201,21 @@ describe("EList", () => {
     await expectNoViolations(second.container);
   });
 });
+
+describe("EList flush", () => {
+  test("flush makes the rows square, and the default keeps them rounded", async () => {
+    for (const [flush, square] of [
+      [true, true],
+      [false, false],
+    ] as const) {
+      const { container, unmount } = await render(
+        defineComponent({
+          render: () => h(EList, { label: "Games", flush }, () => h(EListRow, { value: 1, title: "One" })),
+        }),
+      );
+      const r = getComputedStyle(container.querySelector(".e-listrow")!).borderStartStartRadius;
+      expect(r === "0px", String(flush)).toBe(square);
+      unmount();
+    }
+  });
+});
