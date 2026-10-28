@@ -161,7 +161,7 @@
    * Hover and press. A bordered item (a tab, a segment, a checkbox, a radio, the switch, an expandable row, a nav item, an outline button) recolours its own border, `--e-wash-ring` on hover and `--e-ink` on press, and takes the wash; it never adds a ring, so its edge never thickens. An unbordered item (a row, a tile, a day, a page, a quiet button) takes the wash plus the ring, `--e-shadow-ring-hover` then `--e-shadow-ring-press`: one shared rule in `e.state` below, so a component lists itself there instead of copying it. Filled controls keep their own `-hover` and `-press` fills. All of them use `--e-transition-state`.
    *   Named exceptions, which draw no ring: a text link (`ELink`: the ink colour only, no wash), a breadcrumb (a wash under the link text) and a disclosure summary (`EDisclosure`: a wash only, no ring and no underline).
    *
-   * Disabled, in two voices. A control keeps its box, drops its lift, dims to `--e-disabled-ink` on `--e-disabled-fill` and draws a dashed `--e-border-strong` edge over its own (the shared ::before in `e.state`, which a page's focus or outline reset cannot remove), so colour is never the only cue. A list row (a menu item, an option, a nav item) only dims its text. Both use `cursor: not-allowed` and stop answering the pointer.
+   * Disabled, in two voices. A quiet button (a quiet `EButton` or `EIconButton`) has no box, so it only dims to `--e-disabled-ink` and drops its underline: a dashed box would be busy in a toolbar. Every other control keeps its box, drops its lift, dims to `--e-disabled-ink` on `--e-disabled-fill` and draws a dashed `--e-border-strong` edge over its own (the shared ::before in `e.state`, which a page's focus or outline reset cannot remove), so colour is never the only cue. A list row (a menu item, an option, a nav item) only dims its text. Both use `cursor: not-allowed` and stop answering the pointer.
    *
    * Arriving. Every floating surface (a popover, a menu, a list panel, a tooltip, a date panel, a toast) arrives the same way: `e-pop-in`, a short drop onto its slab over `--e-duration-fade` on `--e-easing-enter`. Dialogs scale in over the same duration; only a drawer travels (`--e-duration-move`).
    */
@@ -330,10 +330,9 @@
 
   /* The dashed edge of a disabled or busy control, drawn over its own edge. The host is positioned and its own border is transparent; a busy button sets --_dash to its own colour. */
   :where(
-    .e-btn[disabled],
-    .e-btn[aria-disabled="true"],
+    .e-btn[disabled]:not(.e-btn--quiet),
+    .e-btn[aria-disabled="true"]:not(.e-btn--quiet),
     .e-btn--loading,
-    .e-icon-btn:disabled,
     .e-tab:disabled,
     .e-check:disabled:not(:checked, :indeterminate),
     .e-radio:disabled:not(:checked),

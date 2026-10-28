@@ -418,21 +418,42 @@ describe("EDialog", () => {
   });
 });
 
-describe("EDialog footer row", () => {
-  test("keeps the foot's buttons side by side in a narrow dialog; the default stacks them", async () => {
-    const a = host({ attrs: { size: "sm" } });
-    const first = await render(a.Host);
-    a.open.value = true;
+describe("EDialog footer", () => {
+  const foot = () => [...document.querySelectorAll(".e-dialog-foot .e-btn")].map((e) => e.getBoundingClientRect());
+  const inline = ([a, b]: DOMRect[]) => Math.abs(a!.top - b!.top) < 2;
+
+  test("sm and md dialogs keep their buttons side by side; only a phone-width one stacks them", async () => {
+    for (const size of ["sm", "md"]) {
+      const h1 = host({ attrs: { size } });
+      const r = await render(h1.Host);
+      h1.open.value = true;
+      await expect.element(page.getByRole("dialog")).toBeVisible();
+      expect(inline(foot()), size).toBe(true);
+      r.unmount();
+    }
+    const narrow = host({ attrs: { style: "--_w: 20rem" } });
+    const r = await render(narrow.Host);
+    narrow.open.value = true;
     await expect.element(page.getByRole("dialog")).toBeVisible();
-    const [x, y] = [...document.querySelectorAll(".e-dialog-foot .e-btn")].map((e) => e.getBoundingClientRect());
-    expect(y!.top).toBeGreaterThan(x!.top + 10);
-    first.unmount();
-    const b = host({ attrs: { size: "sm", footer: "row" } });
+    expect(inline(foot())).toBe(false);
+    r.unmount();
+  });
+
+  test("footer row keeps them side by side even in a phone-width dialog", async () => {
+    const b = host({ attrs: { style: "--_w: 20rem", footer: "row" } });
     await render(b.Host);
     b.open.value = true;
     await expect.element(page.getByRole("dialog")).toBeVisible();
-    const [p, q] = [...document.querySelectorAll(".e-dialog-foot .e-btn")].map((e) => e.getBoundingClientRect());
-    expect(Math.abs(p!.top - q!.top)).toBeLessThan(2);
+    expect(inline(foot())).toBe(true);
     await expectNoViolations(document.body);
+  });
+
+  test("the body keeps room under its last control", async () => {
+    const b = host();
+    await render(b.Host);
+    b.open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    const body = document.querySelector<HTMLElement>(".e-dialog-body")!;
+    expect(parseFloat(getComputedStyle(body).paddingBlockEnd)).toBeGreaterThan(0);
   });
 });

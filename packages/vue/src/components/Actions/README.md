@@ -13,18 +13,18 @@ A group of buttons in the order of the content, main action first, left-aligned,
 
 <!-- props:start -->
 
-| Prop    | Type                              | Default | Notes                                                                                                                                                                                                                                     |
-| ------- | --------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `as`    | `string`                          | `"div"` | Sets the element to render. `footer` suits a bar at the end of a card.                                                                                                                                                                    |
-| `bar`   | `boolean`                         | `false` | Makes the group a footer bar for actions that end a card or an overlay. Buttons stack full width when the bar is narrow. Leave it off for the next step on a page.                                                                        |
-| `stack` | `"narrow" \| "always" \| "never"` | None    | Stacks the buttons full width: `narrow` below 32rem of the group's own width (as a `bar` does), `always` at every width, `never` keeps them side by side (a `bar` then ends at the end edge). The group then fills its container's width. |
-| `label` | `string`                          | None    | Names the group for screen readers, for example "Record actions", and renders `role="group"` with `aria-label`. Use it for buttons that belong together, such as a filter row.                                                            |
+| Prop    | Type                              | Default | Notes                                                                                                                                                                                                                                                                      |
+| ------- | --------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `as`    | `string`                          | `"div"` | Sets the element to render. `footer` suits a bar at the end of a card.                                                                                                                                                                                                     |
+| `bar`   | `boolean`                         | `false` | Makes the group a footer bar for actions that end a card or an overlay. Buttons stack full width when the bar is narrow. Leave it off for the next step on a page.                                                                                                         |
+| `stack` | `"narrow" \| "always" \| "never"` | None    | Stacks the buttons full width: `narrow` below 24rem of the group's own width (as a `bar` does: a phone, not a dialog or a card), `always` at every width, `never` keeps them side by side (a `bar` then ends at the end edge). The group then fills its container's width. |
+| `label` | `string`                          | None    | Names the group for screen readers, for example "Record actions", and renders `role="group"` with `aria-label`. Use it for buttons that belong together, such as a filter row.                                                                                             |
 
 <!-- props:end -->
 
 `class`, `style` and attributes land on the rendered element.
 
-A `bar` stacks its buttons full width below 32rem of its own width. `stack="never"` keeps them side by side at every width and ends a bar at the end edge, for a short pair such as Cancel and Save in a small dialog.
+A `bar` stacks its buttons full width below 24rem of its own width, so a dialog of any size keeps them side by side and only a phone stacks them. `stack="never"` keeps them side by side at every width and ends a bar at the end edge, for a short pair such as Cancel and Save in a small dialog.
 
 ## Slots
 

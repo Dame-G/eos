@@ -30,7 +30,7 @@ A button for an action: one `primary` per screen, the other variants rank below 
 
 `class`, `style`, attributes and listeners land on the `button` element, or on the `a` element with `href`. No outer margin: space buttons with `EActions`, `EInline` or `EStack`. Hidden in print.
 
-`size="xs"` is a dense button, 32px tall, for a compact list or a row of actions. Its face is shorter than a tap target but its hit area is still 44px, so the gap to the next control must be at least `gap-snug`.
+A disabled `quiet` button has no box to dash, so it only dims and loses its underline, which keeps a toolbar of them calm; the other variants keep the dashed edge. `size="xs"` is a dense button, 32px tall, for a compact list or a row of actions. Its face is shorter than a tap target but its hit area is still 44px, so the gap to the next control must be at least `gap-snug`.
 
 ## Slots
 

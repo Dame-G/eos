@@ -30,7 +30,7 @@ An inline message that stays until it is dealt with. Use [`EToast`](../Toast/REA
 
 `class`, `style` and attributes land on the `div` element.
 
-`retry` adds a "Try again" button after anything in `actions` and emits `retry`; set `retrying` while the retry runs and the button shows it is busy and ignores presses. Use it on a `danger` notice for a failed load.
+`retry` adds a "Try again" button with a refresh icon after anything in `actions` and emits `retry`; set `retrying` while the retry runs and the button shows it is busy and ignores presses. Use it on a `danger` notice for a failed load.
 
 ```vue
 <ENotice tone="danger" title="The games could not be loaded" retry :retrying="loading" @retry="load" />

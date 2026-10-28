@@ -11,6 +11,8 @@ const props = withDefaults(
     mode?: "current" | "select";
     /** Makes the row that focus moves to the current or selected one, so the arrow keys step through what is shown, as in a list of moves. */
     followFocus?: boolean;
+    /** For a list that runs edge to edge in a pane: the rows are square, with no rounded corners to show against the pane's edge. */
+    flush?: boolean;
   }>(),
   { mode: "current" },
 );
@@ -185,6 +187,7 @@ function onFocus(event: FocusEvent) {
   <div
     ref="root"
     class="e-list"
+    :class="flush && 'e-list--flush'"
     :role="mode === 'select' ? 'listbox' : 'list'"
     :aria-label="label"
     :tabindex="stop === undefined && present.size ? 0 : undefined"
@@ -202,6 +205,10 @@ function onFocus(event: FocusEvent) {
     display: grid;
     gap: var(--e-pad-inset);
     min-width: 0;
+  }
+
+  .e-list--flush .e-listrow {
+    border-radius: 0;
   }
 
   .e-list:focus-visible {

@@ -90,6 +90,9 @@
     overflow: auto;
     overscroll-behavior: contain;
     padding-inline: var(--e-pad-panel);
+
+    /* Room under the last control, so it does not rest on the foot's rule and scrolling content is not cut off at the edge. */
+    padding-block-end: var(--e-gap-base);
     font: var(--e-weight-regular) var(--e-text-md) / var(--e-leading-normal) var(--e-font-sans);
   }
 

@@ -24,8 +24,8 @@ const tables = {
 };
 
 describe("icon alias tables", () => {
-  test("there are 44 eos icon names", () => {
-    expect(iconNames).toHaveLength(44);
+  test("there are 45 eos icon names", () => {
+    expect(iconNames).toHaveLength(45);
   });
 
   for (const [set, table] of Object.entries(tables)) {

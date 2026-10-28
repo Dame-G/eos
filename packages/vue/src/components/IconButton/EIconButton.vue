@@ -137,9 +137,7 @@ const Wrap: FunctionalComponent = (_, { slots }) =>
 
   .e-icon-btn:disabled,
   .e-icon-btn[aria-disabled="true"] {
-    --_dash-inset: 0;
-
-    background: var(--e-disabled-fill);
+    background: transparent;
     color: var(--e-disabled-ink);
     cursor: not-allowed;
   }

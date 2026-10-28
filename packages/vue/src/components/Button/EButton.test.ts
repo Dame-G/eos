@@ -267,3 +267,20 @@ describe("EButton xs", () => {
     await expectNoViolations(container);
   });
 });
+
+describe("EButton quiet disabled", () => {
+  test("a disabled quiet button dims without a dashed box; an outline one keeps it", async () => {
+    const quiet = await render(EButton, { props: { variant: "quiet", disabled: true }, slots: { default: "Skip" } });
+    const q = quiet.container.querySelector("button")!;
+    expect(getComputedStyle(q, "::before").borderTopStyle).not.toBe("dashed");
+    expect(getComputedStyle(q).textDecorationLine).toBe("none");
+    expect(getComputedStyle(q).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    quiet.unmount();
+    const outline = await render(EButton, {
+      props: { variant: "outline", disabled: true },
+      slots: { default: "Skip" },
+    });
+    expect(getComputedStyle(outline.container.querySelector("button")!, "::before").borderTopStyle).toBe("dashed");
+    await expectNoViolations(outline.container);
+  });
+});

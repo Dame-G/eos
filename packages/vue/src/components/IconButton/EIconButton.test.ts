@@ -64,9 +64,16 @@ describe("EIconButton", () => {
     expect(document.activeElement).not.toBe(container.querySelector("button"));
   });
 
-  test("a disabled button is drawn with a dashed edge, like a disabled EButton", async () => {
-    const { container } = await render(EIconButton, { props: { icon: "trash", label: "Delete", disabled: true } });
-    expect(getComputedStyle(container.querySelector("button")!, "::before").borderTopStyle).toBe("dashed");
+  test("a disabled quiet button only dims, with no dashed box; a filled one keeps the dashed edge", async () => {
+    const quiet = await render(EIconButton, { props: { icon: "trash", label: "Delete", disabled: true } });
+    const button = quiet.container.querySelector("button")!;
+    expect(getComputedStyle(button, "::before").borderTopStyle).not.toBe("dashed");
+    expect(getComputedStyle(button).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(getComputedStyle(button).cursor).toBe("not-allowed");
+    const filled = await render(EIconButton, {
+      props: { icon: "trash", label: "Delete", disabled: true, variant: "outline" },
+    });
+    expect(getComputedStyle(filled.container.querySelector("button")!, "::before").borderTopStyle).toBe("dashed");
   });
 
   test("other attributes fall through to the button, such as popovertarget", async () => {

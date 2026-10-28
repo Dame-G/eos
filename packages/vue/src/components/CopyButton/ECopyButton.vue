@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import EButton from "../Button/EButton.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages } from "../../config.js";
+import { useAnnouncer } from "../../composables/useAnnouncer.js";
 import { useCopy } from "../../composables/useCopy.js";
 import "../../styles/base.css";
 
@@ -14,8 +17,12 @@ const props = withDefaults(
     timeout?: number;
     /** The `EIconButton` variant. */
     variant?: "quiet" | "primary" | "secondary" | "outline" | "danger";
-    /** `sm` is a compact square, `lg` a larger one. Every size keeps a 44px target. */
-    size?: "sm" | "md" | "lg";
+    /** `xs` is a dense square, `sm` a compact one, `lg` a larger one. Every size keeps a 44px target. */
+    size?: "xs" | "sm" | "md" | "lg";
+    /** Shows `label` as the button's text beside the icon, instead of an icon alone: "Copy FEN". After a copy the text becomes `copiedLabel`. */
+    showLabel?: boolean;
+    /** The text and announcement after a successful copy, with `showLabel`: "FEN copied". @default "Copied" */
+    copiedLabel?: string;
   }>(),
   { timeout: 2000, variant: "quiet", size: "md" },
 );
@@ -26,15 +33,35 @@ const emit = defineEmits<{
 }>();
 
 const t = useMessages();
-const { copied, failed, copy } = useCopy({ timeout: () => props.timeout });
+const { announce } = useAnnouncer();
+// A button with its own copied words announces those, so the shared "Copied" is not said over them.
+const own = () => !!props.showLabel && !!props.copiedLabel;
+const { copied, failed, copy } = useCopy({ timeout: () => props.timeout, announce: !own() });
+const name = computed(() => props.label || t("copy"));
+const shown = computed(() =>
+  copied.value ? (props.copiedLabel ?? t("copied")) : failed.value ? t("copyFailed") : name.value,
+);
 
 async function onClick() {
-  emit("copy", await copy(typeof props.text === "function" ? props.text() : props.text));
+  const ok = await copy(typeof props.text === "function" ? props.text() : props.text);
+  if (own() && ok) announce(props.copiedLabel!);
+  emit("copy", ok);
 }
 </script>
 
 <template>
+  <EButton
+    v-if="showLabel"
+    :variant="variant"
+    :size="size === 'md' ? undefined : size"
+    :icon="copied ? 'check' : failed ? 'alert' : 'copy'"
+    :class="failed && 'e-copy--failed'"
+    @click="onClick"
+  >
+    {{ shown }}
+  </EButton>
   <EIconButton
+    v-else
     :icon="copied ? 'check' : failed ? 'alert' : 'copy'"
     :label="label || t('copy')"
     :variant="variant"
@@ -46,7 +73,8 @@ async function onClick() {
 
 <style>
 @layer e.primitives {
-  .e-icon-btn.e-copy--failed {
+  .e-icon-btn.e-copy--failed,
+  .e-btn.e-copy--failed {
     color: var(--e-danger);
   }
 }

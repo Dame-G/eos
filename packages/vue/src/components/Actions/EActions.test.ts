@@ -154,3 +154,28 @@ describe("EActions stack never", () => {
     expect(bar.right - d!.right).toBeLessThan(40);
   });
 });
+
+describe("EActions default stacking point", () => {
+  test("a bar stacks only at a phone's width, not at a dialog's", async () => {
+    const at = async (width: number) => {
+      const { container, unmount } = await render(
+        defineComponent({
+          render: () =>
+            h("div", { style: `width: ${width}px` }, [
+              h(EActions, { bar: true }, () => [
+                h(EButton, () => "Save"),
+                h(EButton, { variant: "outline" }, () => "Cancel"),
+              ]),
+            ]),
+        }),
+      );
+      const [a, b] = [...container.querySelectorAll(".e-btn")].map((e) => e.getBoundingClientRect());
+      const stacked = b!.top > a!.top + 10;
+      unmount();
+      return stacked;
+    };
+    expect(await at(512)).toBe(false);
+    expect(await at(448)).toBe(false);
+    expect(await at(340)).toBe(true);
+  });
+});

@@ -58,6 +58,7 @@ A panel docked over one side of a container (or the window) that leaves the cont
 - Opening moves focus to the title, so a screen reader starts at the sheet's name. Closing returns focus to the control that opened it, unless the person has already moved on to the page.
 - Escape closes it from anywhere on the page. A menu, popover or dialog open over it takes Escape first.
 - With `modalBelow`, a window narrower than that width shows the sheet over the whole window with `aria-modal="true"`, and focus stays inside until it closes.
+- The body keeps room under its last control, so scrolled content does not end against the foot's rule.
 - The body takes a tab stop only while its content scrolls, so it can be scrolled with the arrow keys.
 - A title too long for the head ends in an ellipsis and keeps its whole text as the heading's `title`. The Close button's name is `closeLabel`.
 - The slide takes its length from `--e-duration-move`, so it stops moving under `prefers-reduced-motion`.

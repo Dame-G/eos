@@ -71,7 +71,7 @@ const role = computed(() => roleFor(props.role, props.tone));
       </div>
       <EActions v-if="$slots.actions || retry" class="e-notice-actions">
         <slot name="actions" />
-        <EButton v-if="retry" variant="outline" size="sm" :loading="retrying" @click="emit('retry')">
+        <EButton v-if="retry" variant="outline" size="sm" icon="refresh" :loading="retrying" @click="emit('retry')">
           {{ retryLabel ?? t("retry") }}
         </EButton>
       </EActions>

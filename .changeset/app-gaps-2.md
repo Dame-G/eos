@@ -17,5 +17,9 @@ Gaps found polishing an app built on eos. Everything is additive; no existing sp
 - `EConfirmDialog` (new): a yes or no question as an alert dialog, with a danger tone, focus on Cancel first, `loading` and `closeOnConfirm`.
 - `EEmptyState`: `align="start"`, and its parts no longer spread over a tall container (they sit together in the middle).
 - `EDisclosure`: `titleStyle="text"`. `ECheckboxGroup`: `columns`. `ENotice`: `retry`, `retryLabel`, `retrying` and a `retry` event. `EMetric`: `unit`.
+- Second round: `ECopyButton` `showLabel` and `copiedLabel` (a visible "Copy FEN" that becomes "FEN copied" with a check, announced); `ETabs` `flush` (square tabs on a full-width rule that the selected tab covers); `EList` `flush` (square rows); the `EDialog`, `EDrawer` and `ESheet` bodies keep bottom padding under the last control.
+- `EActions` now stacks a `bar` and `stack="narrow"` below 24rem of its own width instead of 32rem, so a dialog of any size keeps its buttons side by side and only a phone stacks them (`footer="row"` and `stack="never"` still opt out).
+- A disabled quiet `EButton` or `EIconButton` no longer draws the dashed box: it dims to `disabled-ink` and loses its underline. Other variants keep the dashed edge.
+- Icon: `refresh` (a name in every built-in alias table), shown on `ENotice`'s retry button.
 - Messages: `cancel` and `confirm`.
 - Tokens: `danger-ink`, danger red as text with 4.5:1 on the surface and on `surface-tint`. `info` no longer follows an orange or red brand onto the hue of `warning` or `danger`: in that case a theme gives it a blue of its own (and a blue `info-soft`), so the information and warning stamps differ in a dark theme.

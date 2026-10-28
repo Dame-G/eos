@@ -8,7 +8,7 @@ withDefaults(
     as?: ElementTag;
     /** Makes the group a footer bar for actions that end a card or an overlay. Buttons stack full width when the bar is narrow. Leave it off for the next step on a page. */
     bar?: boolean;
-    /** Stacks the buttons full width: `narrow` below 32rem of the group's own width (as a `bar` does), `always` at every width, `never` keeps them side by side (a `bar` then ends at the end edge). The group then fills its container's width. */
+    /** Stacks the buttons full width: `narrow` below 24rem of the group's own width (as a `bar` does: a phone, not a dialog or a card), `always` at every width, `never` keeps them side by side (a `bar` then ends at the end edge). The group then fills its container's width. */
     stack?: "narrow" | "always" | "never";
     /** Names the group for screen readers, for example "Record actions", and renders `role="group"` with `aria-label`. Use it for buttons that belong together, such as a filter row. */
     label?: string;
@@ -62,7 +62,7 @@ defineSlots<{
     flex: 1 1 100%;
   }
 
-  @container (max-width: 32rem) {
+  @container (max-width: 24rem) {
     .e-actions:is(.e-actions--bar:not([class*="e-actions--stack-"]), .e-actions--stack-narrow) > .e-btn {
       flex: 1 1 100%;
     }

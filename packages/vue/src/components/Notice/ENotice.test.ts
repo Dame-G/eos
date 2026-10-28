@@ -233,3 +233,10 @@ describe("ENotice retry", () => {
     expect(names).toEqual(["Details", "Reconnect"]);
   });
 });
+
+describe("ENotice retry icon", () => {
+  test("the retry button carries a refresh icon", async () => {
+    const { container } = await render(ENotice, { props: { title: "Offline", retry: true } });
+    expect(container.querySelector(".e-notice-actions .e-btn svg.e-icon")).not.toBeNull();
+  });
+});

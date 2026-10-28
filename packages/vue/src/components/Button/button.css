@@ -193,6 +193,13 @@
     box-shadow: none;
   }
 
+  /* A quiet button has no box to dash, so disabled only dims it and drops its underline (the dashed edge would draw a box that was not there, which is busy in a toolbar). */
+  .e-btn--quiet[disabled],
+  .e-btn--quiet[aria-disabled="true"] {
+    background: transparent;
+    text-decoration-line: none;
+  }
+
   @media print {
     .e-btn {
       display: none;

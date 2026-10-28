@@ -305,14 +305,14 @@ describe("forced colors", () => {
       const { container } = await render({
         template: `<div>
           <EButton disabled>Pay</EButton>
-          <EIconButton icon="close" label="Close" disabled />
+          <EIconButton icon="close" label="Close" variant="outline" disabled />
           <ESwitch label="Reminders" disabled />
           <ECheckbox label="Agree" disabled />
         </div>`,
         components: { EButton, EIconButton, ESwitch, ECheckbox },
       });
       await forced();
-      for (const selector of [".e-btn", ".e-icon-btn", ".e-switch-track", ".e-check"]) {
+      for (const selector of [".e-btn", ".e-btn--icon", ".e-switch-track", ".e-check"]) {
         const edge = style(container.querySelector(selector), "::before");
         expect(edge.borderTopStyle, selector).toBe("dashed");
         expect(edge.borderTopColor, selector).toBe(system("GrayText"));

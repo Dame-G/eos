@@ -29,7 +29,7 @@ An icon-only button with a target as tall as the control height, for rows where 
 
 `class`, `style`, attributes and listeners (`@click`, `aria-*`, `popovertarget`) land on the `button` element. It is `type="button"` and hidden in print.
 
-Give it `href`, or `to` with a `linkComponent` such as `RouterLink`, and it is a link instead: an `a` (or your component) named by `label`, in the same shapes and sizes. `current` marks the page you are on. `size="xs"` is a dense square of 32px whose hit area stays 44px.
+Give it `href`, or `to` with a `linkComponent` such as `RouterLink`, and it is a link instead: an `a` (or your component) named by `label`, in the same shapes and sizes. `current` marks the page you are on. A disabled quiet icon button only dims, with no dashed box; the filled variants keep the dashed edge. `size="xs"` is a dense square of 32px whose hit area stays 44px.
 
 ```vue
 <EIconButton icon="user" label="Profile" :to="{ name: 'profile' }" :link-component="RouterLink" current />

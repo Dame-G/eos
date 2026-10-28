@@ -84,3 +84,37 @@ describe("ECopyButton", () => {
     vi.unstubAllGlobals();
   });
 });
+
+describe("ECopyButton showLabel", () => {
+  test("shows its label as text, then the copied words with a check, announced", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("navigator", { ...navigator, clipboard: { writeText } });
+    const { container } = await render(ECopyButton, {
+      props: {
+        text: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        label: "Copy FEN",
+        showLabel: true,
+        copiedLabel: "FEN copied",
+        variant: "outline",
+      },
+    });
+    const button = container.querySelector("button")!;
+    expect(button.textContent!.trim()).toBe("Copy FEN");
+    expect(button.className).toContain("e-btn--outline");
+    await expectNoViolations(container);
+    await page.getByRole("button", { name: "Copy FEN" }).click();
+    expect(writeText).toHaveBeenCalledOnce();
+    await expect.poll(() => button.textContent!.trim()).toBe("FEN copied");
+    await expect.poll(() => document.querySelector("[data-e-announcer=polite]")?.textContent).toBe("FEN copied");
+    await expectNoViolations(container);
+    vi.unstubAllGlobals();
+  });
+
+  test("without copiedLabel it says Copied", async () => {
+    vi.stubGlobal("navigator", { ...navigator, clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
+    const { container } = await render(ECopyButton, { props: { text: "x", label: "Copy FEN", showLabel: true } });
+    await page.getByRole("button", { name: "Copy FEN" }).click();
+    await expect.poll(() => container.querySelector("button")!.textContent!.trim()).toBe("Copied");
+    vi.unstubAllGlobals();
+  });
+});
