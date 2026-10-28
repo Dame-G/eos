@@ -128,3 +128,29 @@ describe("EActions", () => {
     expect(getComputedStyle(container.querySelector(".e-actions")!).columnGap).toBe("8px");
   });
 });
+
+describe("EActions stack never", () => {
+  test("a bar keeps its buttons side by side in a narrow container and ends them at the end edge", async () => {
+    const stage = (stack?: "never") =>
+      render(
+        defineComponent({
+          render: () =>
+            h("div", { style: "width: 280px" }, [
+              h(EActions, { bar: true, stack }, () => [
+                h(EButton, () => "Save"),
+                h(EButton, { variant: "outline" }, () => "Cancel"),
+              ]),
+            ]),
+        }),
+      );
+    const stacked = await stage();
+    const [a, b] = [...stacked.container.querySelectorAll(".e-btn")].map((e) => e.getBoundingClientRect());
+    expect(b!.top).toBeGreaterThan(a!.top + 10);
+    stacked.unmount();
+    const row = await stage("never");
+    const [c, d] = [...row.container.querySelectorAll(".e-btn")].map((e) => e.getBoundingClientRect());
+    expect(Math.abs(c!.top - d!.top)).toBeLessThan(2);
+    const bar = row.container.querySelector(".e-actions")!.getBoundingClientRect();
+    expect(bar.right - d!.right).toBeLessThan(40);
+  });
+});

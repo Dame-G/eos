@@ -26,6 +26,14 @@ const props = withDefaults(
     viewport?: boolean;
     /** A width such as `48rem`: below it the sheet covers the whole window and is modal, so focus stays inside until it closes. Without it the sheet is never modal. */
     modalBelow?: string;
+    /** Keeps the head, description and content to a readable line length (`--e-measure`) and centres them when the sheet is wider, such as when it covers the whole window. */
+    measure?: boolean;
+    /** Shows a Back button before the title, for a sheet that was reached from another view. Handle `@back`; it does not close the sheet. */
+    back?: boolean;
+    /** The accessible name of the Close button. @default "Close" */
+    closeLabel?: string;
+    /** How it arrives: `slide` from its edge, `fade` in place, or `none`. Without it the sheet slides when docked and fades when it covers the window (`modalBelow`). */
+    transition?: "slide" | "fade" | "none";
   }>(),
   { headingLevel: 2, side: "end", size: "sm" },
 );
@@ -33,12 +41,14 @@ const props = withDefaults(
 const emit = defineEmits<{
   /** Fires when the person closes it with the Close button or Escape. `open` is already false. */
   close: [];
+  /** Fires when the person presses the Back button (`back`). */
+  back: [];
 }>();
 
 defineSlots<{
   /** The content. It scrolls inside the sheet. */
   default?(): unknown;
-  /** Before the title, such as a Back button. */
+  /** Before the title, after the Back button, such as an icon or a breadcrumb. */
   leading?(): unknown;
   /** Buttons for the foot bar, with the main action first. */
   actions?(): unknown;
@@ -143,22 +153,26 @@ onBeforeUnmount(() => {
       side === 'start' && 'e-sheet--start',
       viewport && 'e-sheet--viewport',
       modal && 'e-sheet--modal',
+      measure && 'e-sheet--measure',
+      transition && `e-sheet--${transition}`,
     ]"
     @mount-auto-focus.prevent
     @unmount-auto-focus.prevent
   >
     <header class="e-dialog-head">
+      <EIconButton v-if="back" icon="arrow-left" :label="t('back')" @click="emit('back')" />
       <slot name="leading" />
       <component
         :is="`h${headingLevel}`"
         :id="`${uid}-title`"
         ref="heading"
         class="e-sheet-title e-h e-h3"
+        :title="title"
         tabindex="-1"
       >
         {{ title }}
       </component>
-      <EIconButton icon="x" :label="t('close')" @click="close" />
+      <EIconButton icon="x" :label="closeLabel ?? t('close')" @click="close" />
     </header>
     <p v-if="description" :id="`${uid}-desc`" class="e-dialog-description">{{ description }}</p>
     <DialogBody class="e-sheet-body"><slot /></DialogBody>
@@ -220,11 +234,29 @@ onBeforeUnmount(() => {
     animation-name: e-sheet-in-full;
   }
 
-  /* The title takes the room between what leads the head and the Close button. Focus lands on it when the sheet opens, where it shows a ring only for the keyboard. */
+  /* The title takes the room between what leads the head and the Close button, and ends in an ellipsis when it does not fit (the whole text is its `title`). Focus lands on it when the sheet opens, where it shows a ring only for the keyboard. */
   .e-sheet-title {
     flex: 1;
     min-width: 0;
+    overflow: hidden;
     border-radius: var(--e-radius-sm);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* A readable width: the parts sit between gutters that grow as the sheet gets wider than the measure. */
+  .e-sheet--measure {
+    --_gutter: max(var(--e-pad-panel), calc((100% - var(--e-measure)) / 2));
+  }
+
+  .e-sheet--measure .e-sheet-body,
+  .e-sheet--measure .e-dialog-description,
+  .e-sheet--measure .e-dialog-foot {
+    padding-inline: var(--_gutter);
+  }
+
+  .e-sheet--measure .e-dialog-head {
+    padding-inline: var(--_gutter) calc(var(--_gutter) - var(--e-gap-snug));
   }
 
   .e-sheet-title:focus {
@@ -252,6 +284,23 @@ onBeforeUnmount(() => {
     from {
       opacity: 0;
     }
+  }
+
+  /* An arrival chosen with `transition`. */
+  .e-sheet.e-sheet--none {
+    animation: none;
+  }
+
+  .e-sheet.e-sheet--fade {
+    animation-name: e-sheet-in-full;
+  }
+
+  .e-sheet.e-sheet--slide {
+    animation-name: e-sheet-in;
+  }
+
+  .e-sheet.e-sheet--slide.e-sheet--start {
+    animation-name: e-sheet-in-start;
   }
 
   @media (forced-colors: active) {

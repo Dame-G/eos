@@ -4,14 +4,19 @@ import { useDetails } from "../../composables/useDetails.js";
 import "../../styles/base.css";
 import "../../styles/details.css";
 
-const props = defineProps<{
-  /** The summary line that opens and closes it. The `title` slot takes rich content. */
-  title?: string;
-  /** Disclosures that share a `group` open one at a time (the native `name` of `details`). */
-  group?: string;
-  /** Keeps it as it is: the summary shows it is unavailable and no longer toggles it. */
-  disabled?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    /** The summary line that opens and closes it. The `title` slot takes rich content. */
+    title?: string;
+    /** Disclosures that share a `group` open one at a time (the native `name` of `details`). */
+    group?: string;
+    /** Keeps it as it is: the summary shows it is unavailable and no longer toggles it. */
+    disabled?: boolean;
+    /** How the summary is set: `kicker` in small capitals, as the label of a section, or `text` in the size and weight of a row. */
+    titleStyle?: "kicker" | "text";
+  }>(),
+  { titleStyle: "kicker" },
+);
 
 defineSlots<{
   /** The summary line, in place of the `title` prop. */
@@ -27,7 +32,7 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 </script>
 
 <template>
-  <details class="e-disclosure e-details" v-bind="details">
+  <details class="e-disclosure e-details" :class="titleStyle === 'text' && 'e-details--text'" v-bind="details">
     <summary v-bind="summary">
       <!-- One box for the title, so rich content in it stays one run of text and is not spread across the line. -->
       <span class="e-details-title"
@@ -61,6 +66,12 @@ const { details, summary } = useDetails(open, { group: () => props.group, disabl
 
   .e-details > summary::-webkit-details-marker {
     display: none;
+  }
+
+  .e-details.e-details--text > summary {
+    font: var(--e-weight-medium) var(--e-text-md) / var(--e-leading-snug) var(--e-font-sans);
+    letter-spacing: normal;
+    text-transform: none;
   }
 
   /* The summary line answers the pointer with the wash every row uses, and keeps its ink text: no colour change, no underline, no ring. */

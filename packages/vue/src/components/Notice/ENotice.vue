@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import EActions from "../Actions/EActions.vue";
+import EButton from "../Button/EButton.vue";
 import EIcon from "../Icon/EIcon.vue";
 import EIconButton from "../IconButton/EIconButton.vue";
 import { useMessages } from "../../config.js";
@@ -26,6 +27,12 @@ const props = withDefaults(
     icon?: IconProp;
     /** Shows the close button. Handle `@close` to remove the notice. */
     closable?: boolean;
+    /** Shows a retry button in the actions, for a failure that can be tried again. Handle `@retry`. It comes after anything in the `actions` slot. */
+    retry?: boolean;
+    /** The retry button's label. @default "Try again" */
+    retryLabel?: string;
+    /** Marks the retry button busy while the retry runs: it shows a spinner and ignores presses. */
+    retrying?: boolean;
   }>(),
   { tone: "info", role: undefined },
 );
@@ -33,6 +40,8 @@ const props = withDefaults(
 const emit = defineEmits<{
   /** The close button was pressed. */
   close: [];
+  /** The retry button was pressed (`retry`). */
+  retry: [];
 }>();
 
 defineSlots<{
@@ -49,7 +58,7 @@ const role = computed(() => roleFor(props.role, props.tone));
 <template>
   <div
     class="e-notice"
-    :class="[tone !== 'info' && `e-notice--${tone}`, $slots.actions && 'e-notice--actions']"
+    :class="[tone !== 'info' && `e-notice--${tone}`, ($slots.actions || retry) && 'e-notice--actions']"
     :role="role"
   >
     <div class="e-notice-grid">
@@ -60,7 +69,12 @@ const role = computed(() => roleFor(props.role, props.tone));
         </component>
         <div v-if="$slots.default" class="e-notice-text"><slot /></div>
       </div>
-      <EActions v-if="$slots.actions" class="e-notice-actions"><slot name="actions" /></EActions>
+      <EActions v-if="$slots.actions || retry" class="e-notice-actions">
+        <slot name="actions" />
+        <EButton v-if="retry" variant="outline" size="sm" :loading="retrying" @click="emit('retry')">
+          {{ retryLabel ?? t("retry") }}
+        </EButton>
+      </EActions>
       <span v-if="closable" class="e-notice-dismiss">
         <EIconButton icon="x" :label="t('dismiss')" @click="emit('close')" />
       </span>

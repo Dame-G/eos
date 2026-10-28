@@ -14,4 +14,6 @@ export interface DialogFrameProps {
   dismissible?: boolean;
   /** Shows it in the page, without the backdrop or the focus trap, for a preview. Escape and presses outside leave it open. */
   inline?: boolean;
+  /** How the foot's buttons sit: `stack` puts them one under another, full width, when the panel is under 32rem wide (the default, for a phone), `row` keeps them side by side at the end edge at every width, for a short pair such as Cancel and Save. */
+  footer?: "stack" | "row";
 }

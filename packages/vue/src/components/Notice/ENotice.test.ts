@@ -205,3 +205,31 @@ describe("ENotice", () => {
     await expectNoViolations(container);
   });
 });
+
+describe("ENotice retry", () => {
+  test("retry shows a Try again button that emits retry, and retrying makes it busy", async () => {
+    let retries = 0;
+    const { container, rerender } = await render(ENotice, {
+      props: { tone: "danger", title: "The games could not be loaded", retry: true, onRetry: () => retries++ },
+    });
+    await page.getByRole("button", { name: "Try again" }).click();
+    expect(retries).toBe(1);
+    await expectNoViolations(container);
+    await rerender({ retrying: true });
+    expect(container.querySelector(".e-notice-actions .e-btn")!.getAttribute("aria-busy")).toBe("true");
+    await page.getByRole("button", { name: "Try again" }).click({ force: true });
+    expect(retries).toBe(1);
+  });
+
+  test("retryLabel rewords it, and it follows the actions slot", async () => {
+    await render(ENotice, {
+      props: { title: "Offline", retry: true, retryLabel: "Reconnect" },
+      slots: { actions: () => h("button", { type: "button" }, "Details") },
+    });
+    const names = page
+      .getByRole("button")
+      .elements()
+      .map((b) => b.textContent!.trim());
+    expect(names).toEqual(["Details", "Reconnect"]);
+  });
+});

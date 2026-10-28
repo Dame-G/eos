@@ -22,10 +22,19 @@ An inline message that stays until it is dealt with. Use [`EToast`](../Toast/REA
 | `role`         | `"alert" \| "status" \| false`                              | `"alert" for danger, else "status"` | The live role, which announces a change of the notice's words: `alert` at once, `status` politely. `false` removes it, for a parent that announces the notice. |
 | `icon`         | `IconProp`                                                  | None                                | Replaces the icon of the tone.                                                                                                                                 |
 | `closable`     | `boolean`                                                   | `false`                             | Shows the close button. Handle `@close` to remove the notice.                                                                                                  |
+| `retry`        | `boolean`                                                   | `false`                             | Shows a retry button in the actions, for a failure that can be tried again. Handle `@retry`. It comes after anything in the `actions` slot.                    |
+| `retryLabel`   | `string`                                                    | `"Try again"`                       | The retry button's label.                                                                                                                                      |
+| `retrying`     | `boolean`                                                   | `false`                             | Marks the retry button busy while the retry runs: it shows a spinner and ignores presses.                                                                      |
 
 <!-- props:end -->
 
 `class`, `style` and attributes land on the `div` element.
+
+`retry` adds a "Try again" button after anything in `actions` and emits `retry`; set `retrying` while the retry runs and the button shows it is busy and ignores presses. Use it on a `danger` notice for a failed load.
+
+```vue
+<ENotice tone="danger" title="The games could not be loaded" retry :retrying="loading" @retry="load" />
+```
 
 ## Slots
 

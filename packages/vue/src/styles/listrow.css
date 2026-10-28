@@ -40,6 +40,18 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* What the trailing slot holds, stacked and end-aligned: the first line as usual, the next smaller. */
+  .e-listrow-trail--stack {
+    display: grid;
+    justify-items: end;
+    gap: 0;
+    text-align: end;
+  }
+
+  .e-listrow-trail--stack > :nth-child(n + 2) {
+    font: var(--e-type-small);
+  }
+
   .e-listrow-main {
     display: grid;
     flex: 1;
@@ -68,10 +80,31 @@
     font: var(--e-type-small);
   }
 
+  /* The live mark's place: a fixed gutter before the title, empty on a row that is not live. */
   .e-listrow-live {
+    --_live: var(--e-success);
+
     display: inline-flex;
     flex: none;
     align-items: center;
+    inline-size: 0.5em;
+  }
+
+  .e-listrow-live--danger {
+    --_live: var(--e-danger);
+  }
+
+  .e-listrow-live--warning {
+    --_live: var(--e-warning);
+  }
+
+  .e-listrow-live--info {
+    --_live: var(--e-info);
+  }
+
+  /* The subtitle starts under the title's text, not under its dot. */
+  .e-listrow-main--gutter > .e-listrow-sub {
+    padding-inline-start: calc(0.5 * var(--e-text-md) + var(--e-gap-tight));
   }
 
   /* The live dot: the success colour, breathing slowly. */
@@ -80,7 +113,7 @@
     inline-size: 0.5em;
     aspect-ratio: 1;
     border-radius: var(--e-radius-round);
-    background: var(--e-success);
+    background: var(--_live, var(--e-success));
     animation: e-listrow-pulse var(--e-duration-loop) ease-in-out infinite;
   }
 

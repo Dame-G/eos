@@ -14,6 +14,10 @@ const props = withDefaults(
     max?: number;
     /** Text shown at the end of the row. @default percent */
     valueText?: string;
+    /** Keeps the label for screen readers (it still names the bar) and shows only the value above it. */
+    hideLabel?: boolean;
+    /** Hides the value (the percentage or `valueText`) and shows only the label. `valueText` still goes to screen readers. */
+    hideValue?: boolean;
   }>(),
   { max: 100 },
 );
@@ -35,7 +39,11 @@ const percentFormat = computed(() => {
   }
 });
 const percentText = computed(() => percentFormat.value.format(Math.round(percent.value) / 100));
-const showHead = computed(() => !!props.label || !indeterminate.value || !!props.valueText);
+const valueShown = computed(() =>
+  props.hideValue ? "" : props.valueText || (indeterminate.value ? "" : percentText.value),
+);
+const labelShown = computed(() => !props.hideLabel && (!!props.label || !indeterminate.value || !!props.valueText));
+const showHead = computed(() => labelShown.value || (!props.hideValue && !!valueShown.value));
 </script>
 
 <template>
@@ -48,8 +56,8 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     ]"
   >
     <div v-if="showHead" class="e-progress-head">
-      <span class="e-progress-label">{{ name }}</span>
-      <span class="e-progress-value">{{ valueText || (indeterminate ? "" : percentText) }}</span>
+      <span v-if="labelShown" class="e-progress-label">{{ name }}</span>
+      <span v-if="!hideValue" class="e-progress-value">{{ valueShown }}</span>
     </div>
     <div
       class="e-progress-track"
@@ -86,6 +94,11 @@ const showHead = computed(() => !!props.label || !indeterminate.value || !!props
     align-items: baseline;
     justify-content: space-between;
     gap: var(--e-gap-base);
+  }
+
+  /* With only the value left it sits at the end edge. */
+  .e-progress-value:only-child {
+    margin-inline-start: auto;
   }
 
   .e-progress-label {

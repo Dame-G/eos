@@ -17,11 +17,14 @@ One figure with its label, an optional change and a line of help. Use it for the
 | `delta` | `string`                           | None         | The change, written as you want it shown, such as "+4.2%" or "12 more than last month". Set `trend` with it.                                                             |
 | `trend` | `"up" \| "down" \| "flat"`         | None         | The direction of the change. It chooses the arrow and the colour, and is read out with the delta ("Up +4.2%").                                                           |
 | `tone`  | `"muted" \| "success" \| "danger"` | None         | The colour of the change, when it is not what the direction suggests: `danger` for a cost that went up. Left out, up is `success`, down is `danger` and flat is `muted`. |
+| `unit`  | `string`                           | None         | The unit, set smaller after the figure, such as "ms" or "%". It is read with the figure.                                                                                 |
 | `help`  | `string`                           | None         | A line of explanation under the figure, such as the period it covers.                                                                                                    |
 
 <!-- props:end -->
 
 `class`, `style` and attributes land on the `dl` element.
+
+A label over a large tabular figure: this is the library's stat component. `unit` sets a unit smaller and muted after the figure ("ms", "%", "nps").
 
 ## Slots
 

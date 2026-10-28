@@ -18,7 +18,7 @@ A button for an action: one `primary` per screen, the other variants rank below 
 | `variant`  | `"primary" \| "secondary" \| "outline" \| "danger" \| "quiet"` | `"primary"` | `primary` is the one main action on a screen. `secondary` confirms. `outline` is for the other actions beside it. `danger` cancels or removes. `quiet` is an underlined text action. |
 | `icon`     | `IconProp`                                                     | None        | Shows an icon before the label, as a name such as `download` or as a component.                                                                                                      |
 | `iconEnd`  | `IconProp`                                                     | None        | Shows an icon after the label, such as `chevron-right` on a button that goes forward or opens a list.                                                                                |
-| `size`     | `"sm" \| "md" \| "lg"`                                         | `"md"`      | `sm` is a compact button for a dense toolbar or a row. `lg` is for a hero call to action. Every size keeps a 44px target.                                                            |
+| `size`     | `"xs" \| "sm" \| "md" \| "lg"`                                 | `"md"`      | `xs` is a dense button for a compact list or row (32px tall; its hit area is still 44px). `sm` is a compact button for a dense toolbar. `lg` is for a hero call to action.           |
 | `block`    | `boolean`                                                      | `false`     | Makes the button fill the width of its container.                                                                                                                                    |
 | `disabled` | `boolean`                                                      | `false`     | Stops the button taking focus and ignores clicks. With `href` the link gets `aria-disabled="true"` and `tabindex="-1"` and does not navigate.                                        |
 | `type`     | `"button" \| "submit" \| "reset"`                              | `"button"`  | `submit` submits a form. Use it on the one button that submits.                                                                                                                      |
@@ -29,6 +29,8 @@ A button for an action: one `primary` per screen, the other variants rank below 
 <!-- props:end -->
 
 `class`, `style`, attributes and listeners land on the `button` element, or on the `a` element with `href`. No outer margin: space buttons with `EActions`, `EInline` or `EStack`. Hidden in print.
+
+`size="xs"` is a dense button, 32px tall, for a compact list or a row of actions. Its face is shorter than a tap target but its hit area is still 44px, so the gap to the next control must be at least `gap-snug`.
 
 ## Slots
 

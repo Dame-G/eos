@@ -2,6 +2,7 @@ AnnounceOptions
 AvatarGroupItem
 BreadcrumbItem
 CalendarRange
+CellRowCell
 ChoiceOption
 CommandItem
 CopyOptions

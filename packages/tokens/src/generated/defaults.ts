@@ -24,6 +24,7 @@ export const defaults = {
   "danger-press": "color-mix(in srgb, var(--e-danger), black 16%)",
   "danger-slab": "color-mix(in srgb, var(--e-danger), black 30%)",
   "danger-soft": "#fbe9e7",
+  "danger-ink": "var(--e-danger)",
   warning: "#714a00",
   "warning-soft": "#fdf3dc",
   background: "#ffffff",
@@ -202,6 +203,7 @@ export const groups = {
     "danger-press",
     "danger-slab",
     "danger-soft",
+    "danger-ink",
     "warning",
     "warning-soft",
     "background",
@@ -333,9 +335,9 @@ export const usage: Record<string, string> = {
   primary:
     "Action blue: the fill of the primary Button and of every selected or checked state (selected day, page, segment, time slot, checkbox, switch), with `on-primary` (white) text at 7.2:1. Also small blue text and links on `surface` and `surface-tint` (7.2:1 and 5.3:1), the information tone, and the filled part of progress and loading bars. A deep teal derived from the logo blue (`brand`) so that white text passes WCAG AAA.",
   "on-primary": "White text and icons on `primary` fills (7.2:1).",
-  info: "The information tone: text, outline and icon of a neutral notice. Same colour as `primary`.",
+  info: "The information tone: text, outline and icon of an information notice, stamp or tag. Same colour as `primary`, unless the brand's hue lies within 45 degrees of `warning` or `danger` (an orange or red brand): then `defineTheme` gives it a blue of its own, so an information stamp never looks like a warning or an error.",
   "info-soft":
-    "Tinted backdrop of an information chip, notice or toast: the pastel brand tint, so an information notice reads apart from a neutral one (`surface-tint`). `info` holds 4.5:1 on it.",
+    "Tinted backdrop of an information chip, notice or toast: the pastel brand tint, so an information notice reads apart from a neutral one (`surface-tint`), or a blue tint when `info` has its own blue. `info` holds 4.5:1 on it.",
   "primary-hover": "`primary` with the hover shade mixed in: the hovered fill of a primary action or selected state.",
   "primary-press": "`primary` with the press shade mixed in: the pressed fill.",
   "primary-slab": "`primary` with the slab shade mixed in: the colour of the raised bottom edge under a primary fill.",
@@ -359,6 +361,8 @@ export const usage: Record<string, string> = {
   "danger-press": "`danger` with the press shade mixed in.",
   "danger-slab": "`danger` with the slab shade mixed in: the raised bottom edge under a danger fill.",
   "danger-soft": "Tinted backdrop of a danger chip, stamp, notice or toast.",
+  "danger-ink":
+    "Danger red as text and icons on `surface` and `surface-tint` (4.5:1 on both): a failed row, an error line, a destructive link. The same colour as `danger` unless `danger` falls short on the tinted ground, then `defineTheme` deepens it. Use it for red type; `danger` stays the fill and the outline.",
   warning:
     "The warning tone: small amber text, outline and icon on `surface` (7.8:1) and `warning-soft` (7.1:1): AAA. Derived from the `warning` input of `defineTheme`.",
   "warning-soft": "Tinted backdrop of a warning chip, stamp, notice or toast.",
@@ -591,6 +595,7 @@ export const derivedFrom: Record<string, string> = {
   "danger-press": "danger,surface",
   "danger-slab": "danger,surface",
   "danger-soft": "danger,surface",
+  "danger-ink": "danger,surface",
   warning: "warning,surface",
   "warning-soft": "warning,surface",
   background: "background,surface",
@@ -779,6 +784,7 @@ export const colorNames: ReadonlySet<string> = new Set([
   "danger-press",
   "danger-slab",
   "danger-soft",
+  "danger-ink",
   "warning",
   "warning-soft",
   "background",

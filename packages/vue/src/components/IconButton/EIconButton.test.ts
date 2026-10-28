@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, markRaw } from "vue";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-vue";
 import EIconButton from "./EIconButton.vue";
@@ -166,5 +166,64 @@ describe("EIconButton", () => {
     expect(document.activeElement!.getAttribute("data-x")).toBe("1");
     await userEvent.keyboard("{Enter}");
     expect(clicks).toBe(1);
+  });
+});
+
+describe("EIconButton as a link", () => {
+  test("href makes it a link named by its label, and current marks the page", async () => {
+    const { container } = await render(EIconButton, {
+      props: { icon: "user", label: "Profile", href: "/profile", current: true },
+    });
+    const link = container.querySelector("a")!;
+    expect(container.querySelector("button")).toBeNull();
+    expect(link.getAttribute("href")).toBe("/profile");
+    expect(link.getAttribute("aria-current")).toBe("page");
+    expect(link.hasAttribute("type")).toBe(false);
+    await expect.element(page.getByRole("link", { name: "Profile" })).toBeVisible();
+    expect(link.getBoundingClientRect().width).toBe(48);
+    await expectNoViolations(container);
+  });
+
+  test("a linkComponent receives to, and not href", async () => {
+    const Router = defineComponent({
+      props: { to: { type: String, default: undefined }, href: { type: String, default: undefined } },
+      setup:
+        (props, { slots, attrs }) =>
+        () =>
+          h(
+            "a",
+            { ...attrs, href: props.to, "data-has-href": props.href === undefined ? "no" : "yes" },
+            slots.default?.(),
+          ),
+    });
+    const { container } = await render(EIconButton, {
+      props: { icon: "user", label: "Profile", to: "/profile", linkComponent: markRaw(Router) },
+    });
+    const link = container.querySelector("a")!;
+    expect(link.getAttribute("href")).toBe("/profile");
+    expect(link.getAttribute("data-has-href")).toBe("no");
+  });
+
+  test("a disabled link does not navigate and leaves the tab order", async () => {
+    let clicks = 0;
+    const { container } = await render(EIconButton, {
+      props: { icon: "user", label: "Profile", href: "#x", disabled: true },
+      attrs: { onClick: () => clicks++ },
+    });
+    const link = container.querySelector("a")!;
+    expect(link.getAttribute("aria-disabled")).toBe("true");
+    expect(link.tabIndex).toBe(-1);
+    link.click();
+    expect(clicks).toBe(0);
+  });
+
+  test("the dense size is shorter than a tap target but keeps a 44px hit area", async () => {
+    const { container } = await render(EIconButton, {
+      props: { icon: "user", label: "Profile", href: "/p", variant: "primary", size: "xs" },
+    });
+    const link = container.querySelector("a")!;
+    expect(link.classList.contains("e-btn--xs")).toBe(true);
+    expect(link.getBoundingClientRect().height).toBeLessThan(44);
+    expect(parseFloat(getComputedStyle(link, "::after").height)).toBeGreaterThanOrEqual(44);
   });
 });

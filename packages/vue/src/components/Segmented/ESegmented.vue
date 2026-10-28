@@ -6,6 +6,7 @@ export type { SegmentedOption } from "../RadioGroup/options.js";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import EIcon from "../Icon/EIcon.vue";
 import EFieldFlag from "../Field/EFieldFlag.vue";
+import ESelect from "../Select/ESelect.vue";
 import EFieldMessage from "../Field/EFieldMessage.vue";
 import { sizeAttr, type EFieldSize } from "../Field/fieldProps.js";
 import { useMessages } from "../../config.js";
@@ -47,10 +48,19 @@ const props = defineProps<{
   readonly?: boolean;
   /** The name the radios share, submitted with a form. @default generated */
   name?: string;
+  /** Fills the width of its container, the options sharing it equally. */
+  stretch?: boolean;
+  /** Lets several options be on at once, as toggles. The values that are on are `v-model:values` (an array) and `v-model` is not used. The group is a `group` of checkboxes, and nothing is on until the person chooses. */
+  multiple?: boolean;
+  /** When the options do not fit the container, shows a select with the same options instead of a scrolling track. The control then takes the container's full width, to tell how much room there is. */
+  collapse?: boolean;
 }>();
 
 /** The active value. Left unset, the first option that can be chosen is shown as active, but no radio is checked: `v-model` is not told and a form posts nothing until the person chooses. @default first option */
 const model = defineModel<T>();
+
+/** With `multiple`: the values that are on, in the order they were chosen. */
+const values = defineModel<T[]>("values");
 
 const t = useMessages();
 const uid = useUid(() => props.id);
@@ -62,7 +72,14 @@ const guard = keepIfReadonly(() => props.readonly);
 const options = computed(() => normalizeChoices<SegmentedOption<T>>(props.options));
 /** What is shown as chosen while the model has no value: the first option that can be chosen. */
 const fallback = computed(() => options.value.find((o) => !o.disabled && !props.disabled) ?? options.value[0]);
-const current = computed(() => model.value ?? fallback.value?.value);
+/** The values that are on, with `multiple`. */
+const picked = computed<T[]>(() => (props.multiple ? (values.value ?? []) : []));
+const current = computed(() => (props.multiple ? undefined : (model.value ?? fallback.value?.value)));
+const isOn = (value: T) => (props.multiple ? picked.value.includes(value) : current.value === value);
+function choose(value: T) {
+  if (!props.multiple) model.value = value;
+  else values.value = picked.value.includes(value) ? picked.value.filter((v) => v !== value) : [...picked.value, value];
+}
 const attrs = useFieldAttrs();
 const calm = useReducedMotion();
 const optionId = (i: number) => `${uid.value}-${i}`;
@@ -72,7 +89,7 @@ useFormField({
     optionId(
       Math.max(
         0,
-        options.value.findIndex((o) => o.value === current.value),
+        options.value.findIndex((o) => isOn(o.value)),
       ),
     ),
   label: () => props.label,
@@ -82,6 +99,9 @@ useFormField({
 const track = ref<HTMLElement | null>(null);
 /** Whether the options are wider than the track. Only then does the track clip: a clip along the rounded corners would draw them twice. */
 const scrolls = useOverflow(track);
+/** Whether the select stands in for the track: only once the options are known not to fit. The track stays in the page, unseen, so the same measure tells when they fit again. */
+const collapsed = computed(() => !!props.collapse && scrolls.value);
+const asSelect = computed(() => options.value.map(({ value, label, disabled }) => ({ value, label, disabled })));
 
 /** In a space too narrow for every option the track scrolls, and the chosen option is brought into view. */
 async function reveal(smooth: boolean) {
@@ -102,7 +122,7 @@ async function reveal(smooth: boolean) {
 }
 
 onMounted(() => reveal(false));
-watch(current, () => reveal(true));
+watch([current, picked], () => reveal(true));
 const pick = () =>
   track.value?.querySelector<HTMLInputElement>(".e-seg-input[data-on]") ??
   track.value?.querySelector<HTMLInputElement>(".e-seg-input") ??
@@ -118,7 +138,6 @@ defineExpose({
 
 const groupAttrs = () => ({
   id: uid.value,
-  role: "radiogroup",
   // A shown label names the group, Required or Optional word and all.
   "aria-labelledby": props.hideLabel ? undefined : labelId.value,
   "aria-label": !props.hideLabel
@@ -128,6 +147,7 @@ const groupAttrs = () => ({
       : props.optional
         ? `${props.label}, ${t("optional")}`
         : props.label,
+  role: props.multiple ? "group" : "radiogroup",
   "aria-required": props.required ? ("true" as const) : undefined,
   "aria-readonly": props.readonly ? ("true" as const) : undefined,
   "aria-invalid": props.error ? ("true" as const) : undefined,
@@ -136,31 +156,53 @@ const groupAttrs = () => ({
 </script>
 
 <template>
-  <div class="e-seg-field" :class="attrs.wrapper().class" :style="attrs.wrapper().style">
+  <div
+    class="e-seg-field"
+    :class="[attrs.wrapper().class, stretch && 'e-seg-field--stretch', collapse && 'e-seg-field--collapse']"
+    :style="attrs.wrapper().style"
+  >
     <span v-if="!hideLabel" :id="labelId" class="e-field-label e-kicker">
       {{ label }}
       <EFieldFlag :required="required" :optional="optional" />
     </span>
+    <ESelect
+      v-if="collapsed"
+      :model-value="(multiple ? picked : model) as never"
+      bare
+      class="e-seg-select"
+      :aria-label="label"
+      :options="asSelect"
+      :multiple="multiple"
+      :disabled="disabled"
+      :readonly="readonly"
+      :size="size"
+      @update:model-value="multiple ? (values = $event as T[]) : (model = $event as T)"
+    />
     <div
       ref="track"
       class="e-seg"
-      :class="{ 'e-seg--disabled': disabled, 'e-seg--scroll': scrolls }"
+      :class="{
+        'e-seg--disabled': disabled,
+        'e-seg--scroll': scrolls,
+        'e-seg--stretch': stretch,
+        'e-seg--hidden': collapsed,
+      }"
       :data-size="sizeAttr(size)"
       v-bind="groupAttrs()"
     >
       <label v-for="(o, i) in options" :key="o.value" class="e-seg-opt">
         <input
           :id="optionId(i)"
-          type="radio"
+          :type="multiple ? 'checkbox' : 'radio'"
           class="e-seg-input"
           :name="name"
           :value="o.value"
-          :checked="model === o.value"
-          :data-on="current === o.value ? '' : undefined"
+          :checked="multiple ? isOn(o.value) : model === o.value"
+          :data-on="isOn(o.value) ? '' : undefined"
           :disabled="o.disabled || disabled"
-          :required="required"
+          :required="required && !multiple"
           @click="guard"
-          @change="model = o.value"
+          @change="choose(o.value)"
         />
         <span class="e-seg-text"><EIcon v-if="o.icon" :name="o.icon" />{{ o.label }}</span>
       </label>
@@ -337,6 +379,40 @@ const groupAttrs = () => ({
 
   .e-seg[aria-invalid="true"] .e-seg-opt:hover .e-seg-input:enabled:not([data-on]) + .e-seg-text {
     background: var(--e-danger-soft);
+  }
+
+  /* Fills the container: the track and the options share the width. */
+  .e-seg-field--stretch {
+    display: grid;
+    width: 100%;
+  }
+
+  .e-seg--stretch {
+    width: 100%;
+  }
+
+  .e-seg--stretch .e-seg-opt {
+    flex: 1 1 0;
+  }
+
+  .e-seg--stretch .e-seg-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* A collapsing control measures its room, so it takes the whole container. The track, when the select stands in for it, stays in the page unseen so its width can still be measured. */
+  .e-seg-field--collapse {
+    position: relative;
+    display: grid;
+    width: 100%;
+  }
+
+  .e-seg--hidden {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   /* One wrapper, with a message or without. It sits inline as the track does, and a message under the track wraps at the width it is given. */

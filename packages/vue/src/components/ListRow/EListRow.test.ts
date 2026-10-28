@@ -141,3 +141,100 @@ describe("EListRow", () => {
     await expectNoViolations(container);
   });
 });
+
+describe("EListRow additions", () => {
+  test("expanded puts aria-expanded on the button, not the wrapper", async () => {
+    const { container } = await inList(() => [
+      h(EListRow, { value: 1, title: "Open one", expanded: true }),
+      h(EListRow, { value: 2, title: "Closed one", expanded: false }),
+      h(EListRow, { value: 3, title: "Plain" }),
+    ]);
+    const rows = [...container.querySelectorAll<HTMLElement>(".e-listrow")];
+    expect(rows.map((r) => r.getAttribute("aria-expanded"))).toEqual(["true", "false", null]);
+    expect(container.querySelector(".e-listrow-item[aria-expanded]")).toBeNull();
+  });
+
+  test("live false reserves the gutter, so live and finished titles line up", async () => {
+    const { container } = await inList(() => [
+      h(EListRow, { value: 1, title: "Live game", subtitle: "now", live: true }),
+      h(EListRow, { value: 2, title: "Finished game", subtitle: "yesterday", live: false }),
+      h(EListRow, { value: 3, title: "No gutter", subtitle: "x" }),
+    ]);
+    const text = (i: number) => {
+      const row = container.querySelectorAll(".e-listrow")[i]!;
+      const range = document.createRange();
+      const node = [...row.querySelector(".e-listrow-title")!.childNodes]
+        .filter((n) => n.nodeType === 3 && n.textContent!.trim())
+        .pop()!;
+      range.selectNodeContents(node);
+      return [range.getBoundingClientRect().left, row.querySelector(".e-listrow-sub")!.getBoundingClientRect().left];
+    };
+    expect(text(0)[0]).toBeCloseTo(text(1)[0]!, 0);
+    expect(text(0)[1]).toBeCloseTo(text(1)[1]!, 0);
+    expect(text(2)[0]).toBeLessThan(text(1)[0]!);
+    expect(container.querySelectorAll(".e-listrow-pulse").length).toBe(1);
+    expect(container.querySelectorAll(".e-sr").length).toBe(1);
+  });
+
+  test("liveTone recolours the dot", async () => {
+    const { container } = await inList(() => [
+      h(EListRow, { value: 1, title: "Live", live: true, liveTone: "danger" }),
+      h(EListRow, { value: 2, title: "Live", live: true }),
+    ]);
+    const [a, b] = [...container.querySelectorAll<HTMLElement>(".e-listrow-pulse")];
+    expect(getComputedStyle(a!).backgroundColor).not.toBe(getComputedStyle(b!).backgroundColor);
+    const danger = document.createElement("i");
+    danger.style.color = "var(--e-danger)";
+    container.append(danger);
+    expect(getComputedStyle(a!).backgroundColor).toBe(getComputedStyle(danger).color);
+  });
+
+  test("trailingStack puts two lines in the trailing slot", async () => {
+    const { container } = await inList(() =>
+      h(
+        EListRow,
+        { value: 1, title: "Game", trailingStack: true },
+        { trailing: () => [h("span", "1–0"), h("span", "2 min")] },
+      ),
+    );
+    const [one, two] = [...container.querySelectorAll(".e-listrow-trail > span")];
+    expect(two!.getBoundingClientRect().top).toBeGreaterThan(one!.getBoundingClientRect().bottom - 2);
+  });
+
+  test("actions sit beside the row's button, not inside it, and the row makes room", async () => {
+    let deleted = 0;
+    let pressed = 0;
+    const { container } = await inList(
+      () =>
+        h(
+          EListRow,
+          { value: 1, title: "A game with a rather long name that must stop short of the actions" },
+          {
+            actions: () => h("button", { type: "button", "aria-label": "Delete game", onClick: () => deleted++ }, "x"),
+          },
+        ),
+      { onSelect: () => pressed++ },
+    );
+    const row = container.querySelector<HTMLElement>(".e-listrow")!;
+    const action = container.querySelector<HTMLElement>(".e-listrow-actions button")!;
+    expect(row.contains(action)).toBe(false);
+    await new Promise((r) => requestAnimationFrame(r));
+    expect(row.getBoundingClientRect().right).toBeGreaterThan(action.getBoundingClientRect().right - 1);
+    const title = container.querySelector<HTMLElement>(".e-listrow-title")!;
+    expect(title.getBoundingClientRect().right).toBeLessThanOrEqual(action.getBoundingClientRect().left);
+    await page.getByRole("button", { name: "Delete game" }).click();
+    expect(deleted).toBe(1);
+    expect(pressed).toBe(0);
+    await expectNoViolations(container);
+  });
+
+  test("the arrow keys on an action do not move the list's focus", async () => {
+    const { container } = await inList(() => [
+      h(EListRow, { value: 1, title: "One" }, { actions: () => h("button", { type: "button", id: "act" }, "x") }),
+      h(EListRow, { value: 2, title: "Two" }),
+    ]);
+    (container.querySelector("#act") as HTMLElement).focus();
+    await userEvent.keyboard("{ArrowDown}");
+    expect(document.activeElement?.id).toBe("act");
+  });
+});

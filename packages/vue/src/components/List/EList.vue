@@ -61,7 +61,7 @@ provide(listKey, {
   attachWindow: (w) => (win.value = w),
 });
 
-/** The rows of this list in the page, in order; not those of a list nested inside one. */
+/** The rows (and the cells of a multi-cell row) of this list in the page, in order; not those of a list nested inside one. */
 function rows(): HTMLElement[] {
   const el = root.value;
   if (!el) return [];
@@ -70,55 +70,107 @@ function rows(): HTMLElement[] {
 
 const indexOf = (row: Element) => Number(row.closest("[data-index]")?.getAttribute("data-index") ?? -1);
 const enabled = (row: Element | null | undefined) => !!row && row.getAttribute("aria-disabled") !== "true";
+/** What a line holds: a plain row is its own line, a multi-cell row (`.e-cellrow`) holds its cells. */
+const lineOf = (row: Element) => row.closest(".e-cellrow") ?? row;
+const cellsOf = (line: Element): HTMLElement[] =>
+  line.classList.contains("e-cellrow") ? [...line.querySelectorAll<HTMLElement>(".e-listrow")] : [line as HTMLElement];
 
-/** Renders row `index` of a virtual list, scrolling it into the page first, and waits a few frames for it to appear. */
-async function rowAt(index: number): Promise<HTMLElement | null> {
+/** The target to focus in a line, reaching for column `col` and settling on the nearest one that is available. */
+function pickIn(cells: HTMLElement[], col: number): HTMLElement | undefined {
+  const order = cells
+    .map((cell, i) => ({ cell, gap: Math.abs(i - Math.min(col, cells.length - 1)) }))
+    .sort((a, b) => a.gap - b.gap);
+  return order.find((o) => enabled(o.cell))?.cell;
+}
+
+/** The lines in the page, in order, each as its list of targets. */
+function lines(): HTMLElement[][] {
+  const out: HTMLElement[][] = [];
+  const seen = new Map<Element, HTMLElement[]>();
+  for (const row of rows()) {
+    const line = lineOf(row);
+    let group = seen.get(line);
+    if (!group) {
+      group = [];
+      seen.set(line, group);
+      out.push(group);
+    }
+    group.push(row);
+  }
+  return out;
+}
+
+/** Renders row `index` of a virtual list, scrolling it into the page first, and waits a few frames for it to appear. Answers its targets: one for a row, a few for a multi-cell row. */
+async function rowAt(index: number): Promise<HTMLElement[] | null> {
   const w = win.value;
   const el = root.value;
   if (!w || !el) return null;
   w.scrollToIndex(index);
   for (let i = 0; i < 10; i++) {
     await nextTick();
-    const row = el.querySelector<HTMLElement>(`[data-index="${index}"] .e-listrow`);
-    if (row) return row;
+    const found = [...el.querySelectorAll<HTMLElement>(`[data-index="${index}"] .e-listrow`)];
+    if (found.length) return found;
     await new Promise((r) => requestAnimationFrame(r));
   }
   return null;
 }
 
-/** In a virtual list: from row `index`, steps by `step` past unavailable rows and focuses the first available one. */
-async function focusFrom(index: number, step: 1 | -1) {
+/** In a virtual list: from row `index`, steps by `step` past unavailable rows and focuses the first available one, in column `col`. */
+async function focusFrom(index: number, step: 1 | -1, col: number) {
   const count = win.value?.count() ?? 0;
   for (let i = index; i >= 0 && i < count; i += step) {
-    const row = await rowAt(i);
-    if (!row) return;
-    if (enabled(row)) return row.focus();
+    const cells = await rowAt(i);
+    if (!cells) return;
+    const pick = pickIn(cells, col);
+    if (pick) return pick.focus();
   }
 }
 
-/** Up and Down move to the previous and next available row, Home and End to the first and last. Unavailable rows are passed over, and focus stays put at either end. */
+/**
+ * Up and Down move to the previous and next available row, Home and End to the first and last. Unavailable rows are
+ * passed over, and focus stays put at either end. In a row of cells, Left and Right move between the cells and Up and
+ * Down keep to the same column.
+ */
 function onKeydown(event: KeyboardEvent) {
   if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
-  if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+  const horizontal = event.key === "ArrowLeft" || event.key === "ArrowRight";
+  if (!horizontal && !["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
   const all = rows();
   if (!all.length) return;
-  const here = (event.target as Element).closest(".e-listrow");
-  const at = here ? all.indexOf(here as HTMLElement) : -1;
-  if (here && at < 0) return; // a row of a nested list: it has its own keys
+  const target = event.target as Element;
+  const here = target.closest(".e-listrow") as HTMLElement | null;
+  // A control beside a row (its actions) keeps its own keys.
+  if (!here && target !== root.value) return;
+  if (here && !all.includes(here)) return; // a row of a nested list: it has its own keys
+  if (horizontal) {
+    if (!here) return;
+    const line = lineOf(here);
+    if (!line.classList.contains("e-cellrow")) return;
+    event.preventDefault();
+    const cells = cellsOf(line);
+    const rtl = getComputedStyle(line).direction === "rtl";
+    const forward = (event.key === "ArrowRight") !== rtl;
+    const next = forward ? cells.slice(cells.indexOf(here) + 1) : cells.slice(0, cells.indexOf(here)).reverse();
+    next.find(enabled)?.focus();
+    return;
+  }
   event.preventDefault();
   const down = event.key === "ArrowDown" || event.key === "Home";
+  const col = here ? cellsOf(lineOf(here)).indexOf(here) : 0;
   if (win.value) {
     const from = here ? indexOf(here) : -1;
     const start = event.key === "Home" ? 0 : event.key === "End" ? win.value.count() - 1 : from + (down ? 1 : -1);
-    void focusFrom(start, down ? 1 : -1);
+    void focusFrom(start, down ? 1 : -1, col);
     return;
   }
-  const order = down ? all : [...all].reverse();
-  const after = event.key === "Home" || event.key === "End" ? -1 : order.indexOf(all[at]!);
-  order
-    .slice(after + 1)
-    .find(enabled)
-    ?.focus();
+  const all_ = lines();
+  const at = here ? all_.findIndex((g) => g.includes(here)) : -1;
+  const order = down ? all_ : [...all_].reverse();
+  const after = event.key === "Home" || event.key === "End" ? -1 : order.findIndex((g) => g === all_[at]);
+  for (const group of order.slice(after + 1)) {
+    const pick = pickIn(group, col);
+    if (pick) return pick.focus();
+  }
 }
 
 /** Tab reached the list itself, because no row is its tab stop yet: focus goes on to the first row. */

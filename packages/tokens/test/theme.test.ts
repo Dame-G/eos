@@ -287,7 +287,38 @@ describe("derived inputs", () => {
       }
     }
     expect(defineTheme({ ...dark, danger: "#d33b30" }).tokens["on-danger"]).toBe("#000000");
-    expect(changed({ danger: "#1d4ed8" }).sort()).toEqual(["danger", "danger-soft"]);
+    // A blue danger sits near the teal info, so info moves off it too.
+    expect(changed({ danger: "#1d4ed8" }).sort()).toEqual(["danger", "danger-soft", "info", "info-soft"]);
+  });
+
+  test("info follows the brand, but not onto the hue of warning or danger", () => {
+    const hueGap = (x: string, y: string) => {
+      const d = Math.abs(toOklch(x).h - toOklch(y).h) % 360;
+      return d > 180 ? 360 - d : d;
+    };
+    for (const ground of [{}, dark]) {
+      const orange = defineTheme({ ...ground, brand: "#e8590c" });
+      const k = orange.tokens;
+      expect(k["info"]!.startsWith("var("), JSON.stringify(ground)).toBe(false);
+      expect(hueGap(k["info"]!, k["warning"]!)).toBeGreaterThan(45);
+      expect(hueGap(k["info"]!, k["danger"]!)).toBeGreaterThan(45);
+      expect(contrast(k["info"]!, k["surface"]!)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(k["info"]!, k["info-soft"]!)).toBeGreaterThanOrEqual(4.5);
+      expect(orange.issues).toEqual([]);
+    }
+    // A blue or teal brand keeps info the same as primary.
+    expect(defineTheme({ ...dark, brand: "#0aa" }).tokens["info"]).toBe(base["info"]);
+    expect(base["info"]).toBe("var(--e-primary)");
+  });
+
+  test("danger-ink is danger unless danger fails on the tinted ground", () => {
+    expect(base["danger-ink"]).toBe("var(--e-danger)");
+    for (const ground of [{}, light, dark]) {
+      const k = defineTheme(ground).tokens;
+      const ink = k["danger-ink"]!.startsWith("var(") ? k["danger"]! : k["danger-ink"]!;
+      expect(contrast(ink, k["surface"]!)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(ink, k["surface-tint"]!)).toBeGreaterThanOrEqual(4.5);
+    }
   });
 
   test("warning derives its text and tint, and meets its targets on light and dark surfaces", () => {

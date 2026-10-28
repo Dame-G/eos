@@ -15,8 +15,8 @@ const props = withDefaults(
     icon?: IconProp;
     /** Shows an icon after the label, such as `chevron-right` on a button that goes forward or opens a list. */
     iconEnd?: IconProp;
-    /** `sm` is a compact button for a dense toolbar or a row. `lg` is for a hero call to action. Every size keeps a 44px target. @default "md" */
-    size?: "sm" | "md" | "lg";
+    /** `xs` is a dense button for a compact list or row (32px tall; its hit area is still 44px). `sm` is a compact button for a dense toolbar. `lg` is for a hero call to action. @default "md" */
+    size?: "xs" | "sm" | "md" | "lg";
     /** Makes the button fill the width of its container. */
     block?: boolean;
     /** Stops the button taking focus and ignores clicks. With `href` the link gets `aria-disabled="true"` and `tabindex="-1"` and does not navigate. */

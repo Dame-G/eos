@@ -255,3 +255,15 @@ describe("EButton", () => {
     expect(getComputedStyle(a).backgroundColor).toBe(rest);
   });
 });
+
+describe("EButton xs", () => {
+  test("is a dense button whose hit area is still 44px", async () => {
+    const { container } = await render(EButton, { props: { size: "xs" }, slots: { default: "Retry" } });
+    const button = container.querySelector("button")!;
+    expect(button.className).toContain("e-btn--xs");
+    expect(button.getBoundingClientRect().height).toBeLessThan(40);
+    const hit = getComputedStyle(button, "::after");
+    expect(parseFloat(hit.height)).toBeGreaterThanOrEqual(44);
+    await expectNoViolations(container);
+  });
+});

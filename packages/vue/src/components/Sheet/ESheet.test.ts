@@ -242,3 +242,73 @@ describe("ESheet", () => {
     await expectNoViolations(second.container);
   });
 });
+
+describe("ESheet options", () => {
+  test("measure caps the content width and centres it in a wide sheet", async () => {
+    const { Host, open } = host({ measure: true, viewport: false, size: "lg" });
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    const el = sheet()!;
+    el.style.width = "1200px";
+    const body = el.querySelector<HTMLElement>(".e-sheet-body")!;
+    const pad = parseFloat(getComputedStyle(body).paddingInlineStart);
+    expect(pad).toBeGreaterThan(100);
+    const head = el.querySelector<HTMLElement>(".e-dialog-head")!;
+    expect(parseFloat(getComputedStyle(head).paddingInlineStart)).toBeCloseTo(pad, 0);
+  });
+
+  test("a long title ends in an ellipsis and keeps its text as the title attribute", async () => {
+    const title = "A very long name for a profile ".repeat(8);
+    const { Host, open } = host({ title });
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    const h = sheet()!.querySelector<HTMLElement>(".e-sheet-title")!;
+    expect(getComputedStyle(h).textOverflow).toBe("ellipsis");
+    expect(h.getAttribute("title")).toBe(title);
+    expect(h.scrollWidth).toBeGreaterThan(h.clientWidth);
+  });
+
+  test("back shows a Back button that emits back and does not close", async () => {
+    let backs = 0;
+    const { Host, open, closed } = host({ back: true, onBack: () => backs++ });
+    await render(Host);
+    open.value = true;
+    await page.getByRole("button", { name: "Back" }).click();
+    expect(backs).toBe(1);
+    expect(closed.value).toBe(0);
+    expect(open.value).toBe(true);
+  });
+
+  test("closeLabel names the Close button", async () => {
+    const { Host, open } = host({ closeLabel: "Dismiss profile" });
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("button", { name: "Dismiss profile" })).toBeVisible();
+    expect(page.getByRole("button", { name: "Close", exact: true }).elements().length).toBe(0);
+  });
+
+  test("transition chooses the arrival, and none plays nothing", async () => {
+    for (const [transition, name] of [
+      ["none", "none"],
+      ["fade", "e-sheet-in-full"],
+      ["slide", "e-sheet-in"],
+    ] as const) {
+      const { Host, open } = host({ transition });
+      const { unmount } = await render(Host);
+      open.value = true;
+      await expect.element(page.getByRole("dialog")).toBeVisible();
+      expect(getComputedStyle(sheet()!).animationName).toBe(name);
+      unmount();
+    }
+  });
+
+  test("has no axe violations with every option on", async () => {
+    const { Host, open } = host({ measure: true, back: true, closeLabel: "Hide", transition: "none" });
+    await render(Host);
+    open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    await expectNoViolations(document.body);
+  });
+});

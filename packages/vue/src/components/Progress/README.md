@@ -12,16 +12,20 @@ A progress bar. Give it a `value` for a known fraction. Leave `value` out while 
 
 <!-- props:start -->
 
-| Prop        | Type     | Default                                        | Notes                                                                                                                                                             |
-| ----------- | -------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `label`     | `string` | `"Progress" with a `value`, "Loading" without` | What is progressing. Also the bar's accessible name.                                                                                                              |
-| `value`     | `number` | None                                           | How far along, from 0 to `max`. Values outside that range are clamped. Without it the bar is indeterminate and slides back and forth while the length is unknown. |
-| `max`       | `number` | `100`                                          | The value that means finished.                                                                                                                                    |
-| `valueText` | `string` | `percent`                                      | Text shown at the end of the row.                                                                                                                                 |
+| Prop        | Type      | Default                                        | Notes                                                                                                                                                             |
+| ----------- | --------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `label`     | `string`  | `"Progress" with a `value`, "Loading" without` | What is progressing. Also the bar's accessible name.                                                                                                              |
+| `value`     | `number`  | None                                           | How far along, from 0 to `max`. Values outside that range are clamped. Without it the bar is indeterminate and slides back and forth while the length is unknown. |
+| `max`       | `number`  | `100`                                          | The value that means finished.                                                                                                                                    |
+| `valueText` | `string`  | `percent`                                      | Text shown at the end of the row.                                                                                                                                 |
+| `hideLabel` | `boolean` | `false`                                        | Keeps the label for screen readers (it still names the bar) and shows only the value above it.                                                                    |
+| `hideValue` | `boolean` | `false`                                        | Hides the value (the percentage or `valueText`) and shows only the label. `valueText` still goes to screen readers.                                               |
 
 <!-- props:end -->
 
 `class`, `style` and attributes land on the `div` element. Without a `label` the bar is named "Progress" with a `value` and "Loading" without one. The percentage is written in the configured locale ("40 %" in German), and the indeterminate bar slides from the start edge to the end, so it runs right to left in a right-to-left page.
+
+`hideLabel` keeps the label as the bar's name and shows only the value; `hideValue` shows only the label. With both the bar stands alone and its name and `valueText` still reach screen readers.
 
 ## Accessibility
 

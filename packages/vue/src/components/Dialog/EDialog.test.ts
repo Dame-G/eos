@@ -417,3 +417,22 @@ describe("EDialog", () => {
     }
   });
 });
+
+describe("EDialog footer row", () => {
+  test("keeps the foot's buttons side by side in a narrow dialog; the default stacks them", async () => {
+    const a = host({ attrs: { size: "sm" } });
+    const first = await render(a.Host);
+    a.open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    const [x, y] = [...document.querySelectorAll(".e-dialog-foot .e-btn")].map((e) => e.getBoundingClientRect());
+    expect(y!.top).toBeGreaterThan(x!.top + 10);
+    first.unmount();
+    const b = host({ attrs: { size: "sm", footer: "row" } });
+    await render(b.Host);
+    b.open.value = true;
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    const [p, q] = [...document.querySelectorAll(".e-dialog-foot .e-btn")].map((e) => e.getBoundingClientRect());
+    expect(Math.abs(p!.top - q!.top)).toBeLessThan(2);
+    await expectNoViolations(document.body);
+  });
+});

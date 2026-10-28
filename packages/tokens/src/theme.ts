@@ -163,6 +163,8 @@ const PAIRS: { fg: TokenName; bg: TokenName; min: number; role: string }[] = [
   { fg: "on-danger", bg: "danger", min: 4.5, role: "Danger button label" },
   { fg: "danger", bg: "surface", min: 4.5, role: "Error text" },
   { fg: "danger", bg: "danger-soft", min: 4.5, role: "Danger notice text" },
+  { fg: "danger-ink", bg: "surface", min: 4.5, role: "Danger text" },
+  { fg: "danger-ink", bg: "surface-tint", min: 4.5, role: "Danger text on the tinted ground" },
   { fg: "border", bg: "surface", min: 3, role: "Card outline (non-text)" },
   { fg: "border", bg: "surface-tint", min: 3, role: "Outline on the tinted ground (non-text)" },
   { fg: "border-strong", bg: "surface", min: 3, role: "Control edge (non-text)" },
@@ -216,6 +218,11 @@ const BLACK = "#000000";
 const WHITE = "#ffffff";
 const DARK_DANGER = "#d33b30";
 const DARK_WARNING = "#ffc857";
+/** The information blue a theme takes when its brand would make `info` look like `warning` or `danger`. */
+const LIGHT_INFO = "#1d5ea6";
+const DARK_INFO = "#86b9f5";
+/** How close (degrees of OKLCH hue) the primary colour may lie to `warning` or `danger` before `info` stops following it. */
+const INFO_CLASH = 45;
 /** The success colour on a dark surface when `success` gives none: a pale green, which holds on dark grounds. */
 const DARK_SUCCESS = "#9ad9b4";
 const COMPACT_SPACE = 0.75;
@@ -595,6 +602,49 @@ function isDark(input: ThemeInput): boolean {
   return input.surface !== undefined && luminance(input.surface) < DARK_BELOW;
 }
 
+/** The distance between two hues in degrees, 0 to 180. */
+const hueGap = (a: number, b: number) => {
+  const d = Math.abs(a - b) % 360;
+  return d > 180 ? 360 - d : d;
+};
+
+/**
+ * `info` is the primary colour, which is fine until the brand is orange or red: then an information stamp and a warning
+ * or danger one differ only by a few degrees of hue. In that case `info` takes a blue of its own, with a soft tint, and
+ * is fitted to the surface like the other tones.
+ */
+function deriveInfo(out: Record<string, string>, dark: boolean) {
+  const primary = hexOf(out, "primary");
+  const surface = hexOf(out, "surface");
+  if (!primary || !surface) return;
+  const brand = toOklch(primary);
+  if (brand.c < 0.05) return;
+  const clash = ["warning", "danger"].some((name) => {
+    const other = hexOf(out, name);
+    return !!other && hueGap(brand.h, toOklch(other).h) < INFO_CLASH;
+  });
+  if (!clash) return;
+  const base = dark ? DARK_INFO : LIGHT_INFO;
+  const lightness = toOklch(surface).l + (dark ? 0.07 : toOklch(defaults["warning-soft"]).l - 1);
+  out["info"] = base;
+  out["info-soft"] = withLightness(surface, lightness, dark ? 0.05 : 0.03, toOklch(base).h);
+  fitTone(out, "info", undefined, "info-soft", base, surface);
+}
+
+/** Danger red as text: `danger`, moved only when it falls short of 4.5:1 on the tinted ground as well as on the surface. */
+function deriveDangerInk(out: Record<string, string>) {
+  const surface = hexOf(out, "surface");
+  const tint = hexOf(out, "surface-tint");
+  const danger = hexOf(out, "danger");
+  if (!surface || !tint || !danger) return;
+  const checks: ContrastCheck[] = [
+    [surface, 4.5],
+    [tint, 4.5],
+  ];
+  const ink = pushed(danger, checks);
+  if (ink !== danger) out["danger-ink"] = holds(ink, checks) ? ink : reachAll(danger, checks).color;
+}
+
 function derive(input: ThemeInput): Record<string, string> {
   const out: Record<string, string> = { ...defaults };
   const dark = isDark(input);
@@ -696,6 +746,8 @@ function derive(input: ThemeInput): Record<string, string> {
   deriveFeedback(out);
   deriveMarks(out, dark);
   fitFeedback(out);
+  deriveInfo(out, dark);
+  deriveDangerInk(out);
   Object.assign(out, input.tokens);
   return out;
 }
